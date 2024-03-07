@@ -1,0 +1,875 @@
+﻿{
+  "openapi": "3.0.1",
+  "info": {},
+  "paths": {
+        "/api/atlas/v2/search/test": {
+            "get": {
+                "description": "This resource returns information about the MongoDB application along with API key meta data.",
+                "operationId": "getSystemStatus",
+                "parameters": [
+                    {
+                        "$ref": "latest-mms-v2-spec-without-search.json#/components/parameters/envelope"
+                    },
+                    {
+                        "$ref": "latest-mms-v2-spec-without-search.json#/components/parameters/pretty"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/vnd.atlas.2023-01-01+json": {
+                                "schema": {
+                                    "$ref": "latest-mms-v2-spec-without-search.json#/components/schemas/SystemStatus"
+                                },
+                                "x-xgen-version": "2023-01-01"
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "$ref": "latest-mms-v2-spec-without-search.json#/components/responses/unauthorized"
+                    },
+                    "404": {
+                        "$ref": "latest-mms-v2-spec-without-search.json#/components/responses/notFound"
+                    },
+                    "500": {
+                        "$ref": "latest-mms-v2-spec-without-search.json#/components/responses/internalServerError"
+                    }
+                },
+                "summary": "Return the status of this MongoDB application",
+                "tags": [
+                    "Search Test"
+                ]
+            }
+        }
+    },
+  "components": {
+    "schemas": {
+      "ApiAtlasFTSAnalyzersViewManual": {
+        "type": "object",
+        "title": "analyzers",
+        "description": "Settings that describe one Atlas Search custom analyzer.",
+        "required": [
+          "name",
+          "tokenizer"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Human-readable name that identifies the custom analyzer. Names must be unique within an index, and must not start with any of the following strings:\n- `lucene.`\n- `builtin.`\n- `mongodb.`"
+          },
+          "charFilters": {
+            "type": "array",
+            "description": "Filters that examine text one character at a time and perform filtering operations.",
+            "items": {
+              "type": "object",
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/charFilterhtmlStrip"
+                },
+                {
+                  "$ref": "#/components/schemas/charFiltericuNormalize"
+                },
+                {
+                  "$ref": "#/components/schemas/charFiltermapping"
+                },
+                {
+                  "$ref": "#/components/schemas/charFilterpersian"
+                }
+              ]
+            }
+          },
+          "tokenizer": {
+            "type": "object",
+            "description": "Tokenizer that you want to use to create tokens. Tokens determine how Atlas Search splits up text into discrete chunks for indexing.",
+            "discriminator": {
+              "mapping": {
+                "edgeGram": "#/components/schemas/tokenizeredgeGram",
+                "keyword": "#/components/schemas/tokenizerkeyword",
+                "nGram": "#/components/schemas/tokenizernGram",
+                "regexCaptureGroup": "#/components/schemas/tokenizerregexCaptureGroup",
+                "regexSplit": "#/components/schemas/tokenizerregexSplit",
+                "standard": "#/components/schemas/tokenizerstandard",
+                "uaxUrlEmail": "#/components/schemas/tokenizeruaxUrlEmail",
+                "whitespace": "#/components/schemas/tokenizerwhitespace"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/tokenizeredgeGram"
+              },
+              {
+                "$ref": "#/components/schemas/tokenizerkeyword"
+              },
+              {
+                "$ref": "#/components/schemas/tokenizernGram"
+              },
+              {
+                "$ref": "#/components/schemas/tokenizerregexCaptureGroup"
+              },
+              {
+                "$ref": "#/components/schemas/tokenizerregexSplit"
+              },
+              {
+                "$ref": "#/components/schemas/tokenizerstandard"
+              },
+              {
+                "$ref": "#/components/schemas/tokenizeruaxUrlEmail"
+              },
+              {
+                "$ref": "#/components/schemas/tokenizerwhitespace"
+              }
+            ]
+          },
+          "tokenFilters": {
+            "type": "array",
+            "description": "Filter that performs operations such as:\n\n- Stemming, which reduces related words, such as \"talking\", \"talked\", and \"talks\" to their root word \"talk\".\n\n- Redaction, the removal of sensitive information from public documents.",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/tokenFilterasciiFolding"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFilterdaitchMokotoffSoundex"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFilteredgeGram"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFiltericuFolding"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFiltericuNormalizer"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFilterlength"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFilterlowercase"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFilternGram"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFilterregex"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFilterreverse"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFiltershingle"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFiltersnowballStemming"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFilterstopword"
+                },
+                {
+                  "$ref": "#/components/schemas/tokenFiltertrim"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "charFilterhtmlStrip": {
+        "title": "htmlStrip",
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "description": "Filter that strips out HTML constructs.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this character filter type.",
+            "enum": [
+              "htmlStrip"
+            ]
+          },
+          "ignoredTags": {
+            "type": "array",
+            "description": "The HTML tags that you want to exclude from filtering.",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "charFiltericuNormalize": {
+        "title": "icuNormalize",
+        "type": "object",
+        "description": "Filter that processes normalized text with the ICU Normalizer. It is based on Lucene's ICUNormalizer2CharFilter.",
+        "ExternalDocs": {
+          "description": "ICUNormalizer2CharFilter",
+          "url": "https://lucene.apache.org/core/8_3_0/analyzers-icu/org/apache/lucene/analysis/icu/ICUNormalizer2CharFilter.html"
+        },
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this character filter type.",
+            "enum": [
+              "icuNormalize"
+            ]
+          }
+        }
+      },
+      "charFiltermapping": {
+        "title": "mapping",
+        "type": "object",
+        "description": "Filter that applies normalization mappings that you specify to characters.",
+        "required": [
+          "type",
+          "mappings"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this character filter type.",
+            "enum": [
+              "mapping"
+            ]
+          },
+          "mappings": {
+            "type": "object",
+            "description": "Comma-separated list of mappings. A mapping indicates that one character or group of characters should be substituted for another, using the following format:\n\n`<original> : <replacement>`",
+            "properties": {
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "charFilterpersian": {
+        "title": "persian",
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "description": "Filter that replaces instances of a zero-width non-joiner with an ordinary space. It is based on Lucene's PersianCharFilter.",
+        "externalDocs": {
+          "description": "PersianCharFilter",
+          "url": "https://lucene.apache.org/core/8_0_0/analyzers-common/org/apache/lucene/analysis/fa/PersianCharFilter.html"
+        },
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this character filter type.",
+            "enum": [
+              "persian"
+            ]
+          }
+        }
+      },
+      "tokenizernGram": {
+        "title": "nGram",
+        "type": "object",
+        "description": "Tokenizer that splits input into text chunks, or \"n-grams\", of into given sizes. You can't use the nGram tokenizer in synonym or autocomplete mapping definitions.",
+        "required": [
+          "type",
+          "minGram",
+          "maxGram"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this tokenizer type.",
+            "enum": [
+              "edgeGram"
+            ]
+          },
+          "minGram": {
+            "type": "integer",
+            "description": "Characters to include in the shortest token that Atlas Search creates."
+          },
+          "maxGram": {
+            "type": "integer",
+            "description": "Characters to include in the longest token that Atlas Search creates."
+          }
+        }
+      },
+      "tokenizeredgeGram": {
+        "title": "edgeGram",
+        "type": "object",
+        "description": "Tokenizer that splits input from the left side, or \"edge\", of a text input into n-grams of given sizes. You can't use the edgeGram tokenizer in synonym or autocomplete mapping definitions.",
+        "required": [
+          "type",
+          "minGram",
+          "maxGram"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this tokenizer type.",
+            "enum": [
+              "edgeGram"
+            ]
+          },
+          "minGram": {
+            "type": "integer",
+            "description": "Characters to include in the shortest token that Atlas Search creates."
+          },
+          "maxGram": {
+            "type": "integer",
+            "description": "Characters to include in the longest token that Atlas Search creates."
+          }
+        }
+      },
+      "tokenizerkeyword": {
+        "title": "keyword",
+        "type": "object",
+        "description": "Tokenizer that combines the entire input as a single token.",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this tokenizer type.",
+            "enum": [
+              "keyword"
+            ]
+          }
+        }
+      },
+      "tokenizerregexCaptureGroup": {
+        "title": "regexCaptureGroup",
+        "type": "object",
+        "description": "Tokenizer that uses a regular expression pattern to extract tokens.",
+        "required": [
+          "type",
+          "pattern",
+          "group"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this tokenizer type.",
+            "enum": [
+              "regexCaptureGroup"
+            ]
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Regular expression to match against."
+          },
+          "group": {
+            "type": "integer",
+            "description": "Index of the character group within the matching expression to extract into tokens. Use `0` to extract all character groups."
+          }
+        }
+      },
+      "tokenizerregexSplit": {
+        "title": "regexSplit",
+        "type": "object",
+        "description": "Tokenizer that splits tokens using a regular-expression based delimiter.",
+        "required": [
+          "type",
+          "pattern"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this tokenizer type.",
+            "enum": [
+              "regexSplit"
+            ]
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Regular expression to match against."
+          }
+        }
+      },
+      "tokenizerstandard": {
+        "title": "standard",
+        "type": "object",
+        "description": "Tokenizer that splits tokens based on word break rules from the Unicode Text Segmentation algorithm.",
+        "externalDocs": {
+          "description": "Unicode Text Segmentation Algorithm",
+          "url": "https://www.unicode.org/L2/L2019/19034-uax29-34-draft.pdf"
+        },
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this tokenizer type.",
+            "enum": [
+              "standard"
+            ]
+          },
+          "maxTokenLength": {
+            "type": "integer",
+            "description": "Maximum number of characters in a single token. Tokens greater than this length are split at this length into multiple tokens.",
+            "default": 255
+          }
+        }
+      },
+      "tokenizeruaxUrlEmail": {
+        "title": "uaxUrlEmail",
+        "type": "object",
+        "description": "Tokenizer that creates tokens from URLs and email addresses. Although this tokenizer uses word break rules from the Unicode Text Segmentation algorithm, we recommend using it only when the indexed field value includes URLs and email addresses. For fields that don't include URLs or email addresses, use the **standard** tokenizer to create tokens based on word break rules.",
+        "externalDocs": {
+          "description": "Unicode Text Segmentation Algorithm",
+          "url": "https://www.unicode.org/L2/L2019/19034-uax29-34-draft.pdf"
+        },
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this tokenizer type.",
+            "enum": [
+              "uaxUrlEmail"
+            ]
+          },
+          "maxTokenLength": {
+            "type": "integer",
+            "description": "Maximum number of characters in a single token. Tokens greater than this length are split at this length into multiple tokens.",
+            "default": 255
+          }
+        }
+      },
+      "tokenizerwhitespace": {
+        "title": "whitespace",
+        "type": "object",
+        "description": "Tokenizer that creates tokens based on occurrences of whitespace between words.",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this tokenizer type.",
+            "enum": [
+              "whitespace"
+            ]
+          },
+          "maxTokenLength": {
+            "type": "integer",
+            "description": "Maximum number of characters in a single token. Tokens greater than this length are split at this length into multiple tokens.",
+            "default": 255
+          }
+        }
+      },
+      "tokenFilterasciiFolding": {
+        "title": "asciiFolding",
+        "type": "object",
+        "description": "Filter that converts alphabetic, numeric, and symbolic unicode characters that are not in the Basic Latin Unicode block to their ASCII equivalents, if available.",
+        "externalDocs": {
+          "description": "Basic Latin Unicode block",
+          "url": "https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block)"
+        },
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "asciiFolding"
+            ]
+          },
+          "originalTokens": {
+            "type": "string",
+            "description": "Value that indicates whether to include or omit the original tokens in the output of the token filter.\n\nChoose `include` if you want to support queries on both the original tokens as well as the converted forms.\n\n Choose `omit` if you want to query only on the converted forms of the original tokens.",
+            "enum": [
+              "omit",
+              "include"
+            ],
+            "default": "omit"
+          }
+        }
+      },
+      "tokenFilterdaitchMokotoffSoundex": {
+        "title": "daitchMokotoffSoundex",
+        "type": "object",
+        "description": "Filter that creates tokens for words that sound the same based on the Daitch-Mokotoff Soundex phonetic algorithm. This filter can generate multiple encodings for each input, where each encoded token is a 6 digit number.\n\n**NOTE**: Don't use the **daitchMokotoffSoundex** token filter in:\n\n-Synonym or autocomplete mapping definitions\n- Operators where **fuzzy** is enabled. Atlas Search supports the **fuzzy** option only for the **autocomplete**, **term**, and **text** operators.",
+        "externalDocs": {
+          "description": "Daitch-Mokotoff Soundex phonetic algorithm",
+          "url": "https://en.wikipedia.org/wiki/Daitch%E2%80%93Mokotoff_Soundex"
+        },
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "daitchMokotoffSoundex"
+            ]
+          },
+          "originalTokens": {
+            "type": "string",
+            "description": "Value that indicates whether to include or omit the original tokens in the output of the token filter.\n\nChoose `include` if you want to support queries on both the original tokens as well as the converted forms.\n\n Choose `omit` if you want to query only on the converted forms of the original tokens.",
+            "enum": [
+              "omit",
+              "include"
+            ],
+            "default": "include"
+          }
+        }
+      },
+      "tokenFilteredgeGram": {
+        "title": "edgeGram",
+        "type": "object",
+        "description": "Filter that tokenizes input from the left side, or \"edge\", of a text input into n-grams of configured sizes. You can't use this token filter in synonym or autocomplete mapping definitions.",
+        "required": [
+          "type",
+          "minGram",
+          "maxGram"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "edgeGram"
+            ]
+          },
+          "minGram": {
+            "type": "integer",
+            "description": "Value that specifies the minimum length of generated n-grams. This value must be less than or equal to **maxGram**."
+          },
+          "maxGram": {
+            "type": "integer",
+            "description": "Value that specifies the maximum length of generated n-grams. This value must be greater than or equal to **minGram**."
+          },
+          "termNotInBounds": {
+            "type": "string",
+            "description": "Value that indicates whether to index tokens shorter than **minGram** or longer than **maxGram**.",
+            "enum": [
+              "omit",
+              "include"
+            ],
+            "default": "omit"
+          }
+        }
+      },
+      "tokenFiltericuFolding": {
+        "title": "icuFolding",
+        "type": "object",
+        "description": "Filter that applies character folding from Unicode Technical Report #30.",
+        "externalDocs": {
+          "description": "Unicode Technical Report #30",
+          "url": "http://www.unicode.org/reports/tr30/tr30-4.html"
+        },
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "icuFolding"
+            ]
+          }
+        }
+      },
+      "tokenFiltericuNormalizer": {
+        "title": "icuNormalizer",
+        "type": "object",
+        "description": "Filter that normalizes tokens using a standard Unicode Normalization Mode.",
+        "externalDocs": {
+          "description": "Unicode Normalization Mode",
+          "url": "https://unicode.org/reports/tr15/"
+        },
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "icuNormalizer"
+            ]
+          },
+          "normalizationForm": {
+            "type": "string",
+            "description": "Normalization form to apply.",
+            "enum": [
+              "nfd",
+              "nfc",
+              "nfkd",
+              "nfkc"
+            ],
+            "default": "nfc"
+          }
+        }
+      },
+      "tokenFilterlength": {
+        "title": "length",
+        "type": "object",
+        "description": "Filter that removes tokens that are too short or too long.",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "length"
+            ]
+          },
+          "min": {
+            "type": "integer",
+            "description": "Number that specifies the minimum length of a token. This value must be less than or equal to **max**.",
+            "default": 0
+          },
+          "max": {
+            "type": "integer",
+            "description": "Number that specifies the maximum length of a token. Value must be greater than or equal to **min**.",
+            "default": 255
+          }
+        }
+      },
+      "tokenFilterlowercase": {
+        "title": "lowercase",
+        "type": "object",
+        "description": "Filter that normalizes token text to lowercase.",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "lowercase"
+            ]
+          }
+        }
+      },
+      "tokenFilternGram": {
+        "title": "nGram",
+        "type": "object",
+        "description": "Filter that tokenizes input into n-grams of configured sizes. You can't use this token filter in synonym or autocomplete mapping definitions.",
+        "required": [
+          "type",
+          "minGram",
+          "maxGram"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "nGram"
+            ]
+          },
+          "minGram": {
+            "type": "integer",
+            "description": "Value that specifies the minimum length of generated n-grams. This value must be less than or equal to **maxGram**."
+          },
+          "maxGram": {
+            "type": "integer",
+            "description": "Value that specifies the maximum length of generated n-grams. This value must be greater than or equal to **minGram**."
+          },
+          "termNotInBounds": {
+            "type": "string",
+            "description": "Value that indicates whether to index tokens shorter than **minGram** or longer than **maxGram**.",
+            "enum": [
+              "omit",
+              "include"
+            ],
+            "default": "omit"
+          }
+        }
+      },
+      "tokenFilterregex": {
+        "title": "regex",
+        "type": "object",
+        "description": "Filter that applies a regular expression to each token, replacing matches with a specified string.",
+        "required": [
+          "type",
+          "pattern",
+          "replacement",
+          "matches"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "regex"
+            ]
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Regular expression pattern to apply to each token."
+          },
+          "replacement": {
+            "type": "string",
+            "description": "Replacement string to substitute wherever a matching pattern occurs."
+          },
+          "matches": {
+            "type": "string",
+            "description": "Value that indicates whether to replace only the first matching pattern or all matching patterns.",
+            "enum": [
+              "all",
+              "first"
+            ]
+          }
+        }
+      },
+      "tokenFilterreverse": {
+        "title": "reverse",
+        "type": "object",
+        "description": "Filter that reverses each string token.",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "reverse"
+            ]
+          }
+        }
+      },
+      "tokenFiltershingle": {
+        "title": "shingle",
+        "type": "object",
+        "description": "Filter that constructs shingles (token n-grams) from a series of tokens. You can't use this token filter in synonym or autocomplete mapping definitions.",
+        "required": [
+          "type",
+          "minShingleSize",
+          "maxShingleSize"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "shingle"
+            ]
+          },
+          "minShingleSize": {
+            "type": "integer",
+            "description": "Value that specifies the minimum number of tokens per shingle. This value must be less than or equal to **maxShingleSize**."
+          },
+          "maxShingleSize": {
+            "type": "integer",
+            "description": "Value that specifies the maximum number of tokens per shingle. This value must be greater than or equal to **minShingleSize**."
+          }
+        }
+      },
+      "tokenFiltersnowballStemming": {
+        "title": "snowballStemming",
+        "type": "object",
+        "description": "Filter that stems tokens using a Snowball-generated stemmer.",
+        "externalDocs": {
+          "description": "Snowball-generated stemmer",
+          "url": "https://snowballstem.org/"
+        },
+        "required": [
+          "type",
+          "stemmerName"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "snowballStemming"
+            ]
+          },
+          "stemmerName": {
+            "type": "string",
+            "description": "Snowball-generated stemmer to use.",
+            "enum": [
+              "arabic",
+              "armenian",
+              "basque",
+              "catalan",
+              "danish",
+              "dutch",
+              "english",
+              "finnish",
+              "french",
+              "german",
+              "german2",
+              "hungarian",
+              "irish",
+              "italian",
+              "kp",
+              "lithuanian",
+              "lovins",
+              "norwegian",
+              "porter",
+              "portuguese",
+              "romanian",
+              "russian",
+              "spanish",
+              "swedish",
+              "turkish"
+            ]
+          }
+        }
+      },
+      "tokenFilterstopword": {
+        "title": "stopword",
+        "type": "object",
+        "description": "Filter that removes tokens that correspond to the specified stop words. This token filter doesn't analyze the stop words that you specify.",
+        "required": [
+          "type",
+          "tokens"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "stopword"
+            ]
+          },
+          "tokens": {
+            "type": "array",
+            "description": "The stop words that correspond to the tokens to remove. Value must be one or more stop words.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ignoreCase": {
+            "type": "boolean",
+            "description": "Flag that indicates whether to ignore the case of stop words when filtering the tokens to remove.",
+            "default": true
+          }
+        }
+      },
+      "tokenFiltertrim": {
+        "title": "trim",
+        "type": "object",
+        "description": "Filter that trims leading and trailing whitespace from tokens.",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that identifies this token filter type.",
+            "enum": [
+              "trim"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
