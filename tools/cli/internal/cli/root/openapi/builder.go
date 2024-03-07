@@ -37,7 +37,7 @@ Go version: %s
 // Builder conditionally adds children commands as needed.
 // This is important in particular for Atlas as it dynamically sets flags for cluster creation and
 // this can be slow to timeout on environments with limited internet access (Ops Manager).
-func Builder(argsWithoutProg []string) *cobra.Command {
+func Builder() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Version: version.Version,
 		Use:     ToolName,
