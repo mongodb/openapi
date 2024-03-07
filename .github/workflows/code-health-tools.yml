@@ -1,0 +1,68 @@
+name: 'Code Health Tools'
+
+# Set of validations run on each pull request and merged commits to master.
+on:
+  push:
+    branches:
+      - main
+    paths: 
+      - 'tools/**'
+    paths-ignore: # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-excluding-paths
+      - '*.md'
+  pull_request: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout CLI
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      with:
+        path: tools/cli
+    - name: Install Go
+      uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+      with:
+        go-version-file: 'tools/cli/go.mod'
+    - name: Build CLI
+      run: |
+        pushd tools/cli 
+        make build
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          sparse-checkout: |
+            .github
+            tools
+      - name: Install Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+        with:
+          go-version-file: 'tools/cli/go.mod'
+          cache: false # see https://github.com/golangci/golangci-lint-action/issues/807
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@3cfe3a4abbb849e10058ce4af15d205b6da42804
+        with:
+          version: v1.56.2
+          working-directory: tools/cli
+      - name: Download actionlint
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          sparse-checkout: |
+            .github
+      - name: Download actionlint
+        id: get_actionlint
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+        shell: bash
+      - name: Check workflow files
+        run: |
+          echo "::add-matcher::.github/actionlint-matcher.json"
+          ${{ steps.get_actionlint.outputs.executable }} -color
+        shell: bash
+      
+

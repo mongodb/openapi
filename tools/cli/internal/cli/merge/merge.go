@@ -20,21 +20,11 @@ import (
 )
 
 type Opts struct {
-	Base       *load.SpecInfo
-	outputPath string
+	Base *load.SpecInfo
 }
 
 func (o *Opts) Run(args []string) error {
 	// To add in follow up PR: CLOUDP-225849
-	return nil
-}
-
-func (o *Opts) removeExternalReferences(paths []string, federated *load.SpecInfo) ([]byte, error) {
-	// To add in follow up PR: CLOUDP-225849
-	return nil, nil
-
-}
-func (o *Opts) saveFile(data []byte) error {
 	return nil
 }
 
