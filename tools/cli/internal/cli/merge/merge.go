@@ -65,6 +65,5 @@ func Builder() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.outputPath, "output", "o", "federated.json", "File name of the merged spec")
 	return cmd
 }
