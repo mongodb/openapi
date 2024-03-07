@@ -15,9 +15,6 @@
 package merge
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/tufin/oasdiff/load"
 )
@@ -38,10 +35,6 @@ func (o *Opts) removeExternalReferences(paths []string, federated *load.SpecInfo
 
 }
 func (o *Opts) saveFile(data []byte) error {
-	if err := os.WriteFile(o.outputPath, data, 0644); err != nil {
-		return err
-	}
-	_, _ = fmt.Printf("\nFederated Spec was saved in '%s'\n", o.outputPath)
 	return nil
 }
 
