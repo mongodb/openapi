@@ -25,8 +25,8 @@ setup: deps ## Set up dev env
 
 .PHONY: fmt
 fmt: ### Format all go files with goimports and gofmt
-	find . -exec gofmt -w "{}" \;
-	find . -exec goimports -l -w "{}" \;
+	find . -name "*.go" -exec gofmt -w "{}" \;
+	find . -name "*.go" -exec goimports -l -w "{}" \;
 
 .PHONY: build
 build:
