@@ -52,7 +52,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 func (o *Opts) saveFile(data []byte) error {
-	if err := os.WriteFile(o.outputPath, data, 0644); err != nil {
+	if err := os.WriteFile(o.outputPath, data, 0o600); err != nil {
 		return err
 	}
 
