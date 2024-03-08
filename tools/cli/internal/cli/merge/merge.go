@@ -66,7 +66,7 @@ func Builder() *cobra.Command {
 	opts := &Opts{}
 
 	cmd := &cobra.Command{
-		Use:   "merge -b [base-spec] -e [spec-1] -e [spec-2]",
+		Use:   "merge -b base-spec [-e spec]...",
 		Short: "Merge Open API specifications into a base spec.",
 		Args:  cobra.NoArgs,
 		PreRunE: func(_ *cobra.Command, args []string) error {
