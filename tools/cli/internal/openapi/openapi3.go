@@ -19,9 +19,6 @@ func NewOpenAPI3() *OpenAPI3 {
 
 func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
 	loader := openapi3.NewLoader()
-	loader.IsExternalRefsAllowed = true
-	openapi3.CircularReferenceCounter = 10
-
 	spec, err := load.LoadSpecInfo(loader, load.NewSource(path))
 	if err != nil {
 		return nil, err
