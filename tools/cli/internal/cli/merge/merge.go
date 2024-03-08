@@ -16,41 +16,58 @@ package merge
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"mongodb/openapi/tools/cli/internal/cli/flag"
 	"mongodb/openapi/tools/cli/internal/cli/usage"
+	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/tufin/oasdiff/load"
+)
+
+const (
+	DefaultOutputFileName = "FOAS.json"
 )
 
 type Opts struct {
-	Base          *load.SpecInfo
-	BasePath      string
-	ExternalPaths []string
+	basePath      string
+	outputPath    string
+	externalPaths []string
 }
 
 func (o *Opts) Run(_ []string) error {
 	// To add in follow up PR: CLOUDP-225849
-	return nil
+	return o.saveFile([]byte("test"))
 }
 
 func (o *Opts) PreRunE(_ []string) error {
-	if o.BasePath == "" {
-		return errors.New("")
+	if o.basePath == "" {
+		return errors.New(fmt.Sprintf("No base OAS detected. Please, use the flag %s to include the base OAS.", flag.Base))
 	}
 
-	if o.ExternalPaths == nil {
-		return errors.New("")
+	if o.externalPaths == nil {
+		return errors.New(fmt.Sprintf("No external OAS detected. Please, use the flag %s to include at least one OAS.", flag.External))
 	}
 
 	return nil
 }
 
+func (o *Opts) saveFile(data []byte) error {
+	if err := os.WriteFile(o.outputPath, data, 0644); err != nil {
+		return err
+	}
+
+	log.Printf("\nMerged spec was saved in '%s'.\n\n", o.outputPath)
+	return nil
+}
+
+// Builder builds the merge command with the following signature:
+// merge -b base-oas -e external-oas-1 -e external-oas-2
 func Builder() *cobra.Command {
 	opts := &Opts{}
 
 	cmd := &cobra.Command{
-		Use:   "merge -b [base-spec] -e [spec-1] -e [spec-2] -e [spec-3]",
+		Use:   "merge -b [base-spec] -e [spec-1] -e [spec-2]",
 		Short: "Merge Open API specifications into a base spec.",
 		Args:  cobra.NoArgs,
 		PreRunE: func(_ *cobra.Command, args []string) error {
@@ -61,7 +78,8 @@ func Builder() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.BasePath, flag.Base, flag.BaseShort, "", usage.Base)
-	cmd.Flags().StringArrayVarP(&opts.ExternalPaths, flag.External, flag.ExternalShort, nil, usage.External)
+	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.Base)
+	cmd.Flags().StringArrayVarP(&opts.externalPaths, flag.External, flag.ExternalShort, nil, usage.External)
+	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, DefaultOutputFileName, usage.Output)
 	return cmd
 }

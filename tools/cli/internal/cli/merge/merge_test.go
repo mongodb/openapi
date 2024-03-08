@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,10 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package usage
+package merge
 
-const (
-	Base     = "Base OAS. The command will merge other OASes into it."
-	External = "OASes that will be merged into the base OAS."
-	Output   = "File name where the command will store the output."
+import (
+	"mongodb/openapi/tools/cli/internal/cli/flag"
+	"mongodb/openapi/tools/cli/internal/cli/validator"
+	"testing"
 )
+
+func TestCreateBuilder(t *testing.T) {
+	validator.ValidateSubCommandsAndFlags(
+		t,
+		Builder(),
+		0,
+		[]string{flag.Base, flag.External, flag.Output},
+	)
+}
