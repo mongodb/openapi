@@ -1,9 +1,8 @@
 package openapi
 
 import (
-	"fmt"
+	"log"
 	"mongodb/openapi/tools/cli/internal/openapi/errors"
-	"os"
 
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
@@ -17,11 +16,17 @@ type OasDiff struct {
 	parser   Parser
 }
 
-func NewOasDiff(base *load.SpecInfo) *OasDiff {
-	return &OasDiff{
-		base:   base,
-		parser: NewOpenAPI3(),
+func NewOasDiff(base string) (*OasDiff, error) {
+	parser := NewOpenAPI3()
+	baseSpec, err := parser.CreateOpenAPISpecFromPath(base)
+	if err != nil {
+		return nil, err
 	}
+
+	return &OasDiff{
+		base:   baseSpec,
+		parser: parser,
+	}, nil
 }
 
 func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*load.SpecInfo, error) {
@@ -37,7 +42,7 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*load.SpecInfo, error) {
 
 		specDiff, err := diff.Get(o.config, o.base.Spec, spec.Spec)
 		if err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "error in calculating the diff of the specs: %s", err)
+			log.Fatalf("error in calculating the diff of the specs: %s", err)
 			return nil, err
 		}
 
