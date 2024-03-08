@@ -15,12 +15,18 @@
 package merge
 
 import (
+	"errors"
+	"mongodb/openapi/tools/cli/internal/cli/flag"
+	"mongodb/openapi/tools/cli/internal/cli/usage"
+
 	"github.com/spf13/cobra"
 	"github.com/tufin/oasdiff/load"
 )
 
 type Opts struct {
-	Base *load.SpecInfo
+	Base          *load.SpecInfo
+	BasePath      string
+	ExternalPaths []string
 }
 
 func (o *Opts) Run(_ []string) error {
@@ -29,7 +35,14 @@ func (o *Opts) Run(_ []string) error {
 }
 
 func (o *Opts) PreRunE(_ []string) error {
-	// To Add in follow up PR: CLOUDP-225849
+	if o.BasePath == "" {
+		return errors.New("")
+	}
+
+	if o.ExternalPaths == nil {
+		return errors.New("")
+	}
+
 	return nil
 }
 
@@ -37,9 +50,9 @@ func Builder() *cobra.Command {
 	opts := &Opts{}
 
 	cmd := &cobra.Command{
-		Use:   "merge [base-spec] [spec-1] [spec-2] [spec-3] ... [spec-n]",
+		Use:   "merge -b [base-spec] -e [spec-1] -e [spec-2] -e [spec-3]",
 		Short: "Merge Open API specifications into a base spec.",
-		Args:  cobra.MinimumNArgs(2),
+		Args:  cobra.NoArgs,
 		PreRunE: func(_ *cobra.Command, args []string) error {
 			return opts.PreRunE(args)
 		},
@@ -48,5 +61,7 @@ func Builder() *cobra.Command {
 		},
 	}
 
+	cmd.Flags().StringVarP(&opts.BasePath, flag.Base, flag.BaseShort, "", usage.Base)
+	cmd.Flags().StringArrayVarP(&opts.ExternalPaths, flag.External, flag.ExternalShort, nil, usage.External)
 	return cmd
 }
