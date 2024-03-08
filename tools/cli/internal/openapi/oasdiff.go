@@ -26,6 +26,9 @@ func NewOasDiff(base string) (*OasDiff, error) {
 	return &OasDiff{
 		base:   baseSpec,
 		parser: parser,
+		config: &diff.Config{
+			IncludePathParams: true,
+		},
 	}, nil
 }
 
@@ -34,10 +37,6 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*load.SpecInfo, error) {
 		spec, err := o.parser.CreateOpenAPISpecFromPath(p)
 		if err != nil {
 			return nil, err
-		}
-
-		o.config = &diff.Config{
-			IncludePathParams: true,
 		}
 
 		specDiff, err := diff.Get(o.config, o.base.Spec, spec.Spec)
