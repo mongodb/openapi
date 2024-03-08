@@ -23,12 +23,12 @@ type Opts struct {
 	Base *load.SpecInfo
 }
 
-func (o *Opts) Run(args []string) error {
+func (o *Opts) Run(_ []string) error {
 	// To add in follow up PR: CLOUDP-225849
 	return nil
 }
 
-func (o *Opts) PreRunE(args []string) error {
+func (o *Opts) PreRunE(_ []string) error {
 	// To Add in follow up PR: CLOUDP-225849
 	return nil
 }
@@ -40,10 +40,10 @@ func Builder() *cobra.Command {
 		Use:   "merge [base-spec] [spec-1] [spec-2] [spec-3] ... [spec-n]",
 		Short: "Merge Open API specifications into a base spec.",
 		Args:  cobra.MinimumNArgs(2),
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, args []string) error {
 			return opts.PreRunE(args)
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			return opts.Run(args)
 		},
 	}
