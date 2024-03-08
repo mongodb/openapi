@@ -41,11 +41,11 @@ func (o *Opts) Run(_ []string) error {
 
 func (o *Opts) PreRunE(_ []string) error {
 	if o.basePath == "" {
-		return fmt.Errorf("No base OAS detected. Please, use the flag %s to include the base OAS.", flag.Base)
+		return fmt.Errorf("no base OAS detected. Please, use the flag %s to include the base OAS", flag.Base)
 	}
 
 	if o.externalPaths == nil {
-		return fmt.Errorf(fmt.Sprintf("No external OAS detected. Please, use the flag %s to include at least one OAS.", flag.External)
+		return fmt.Errorf("no external OAS detected. Please, use the flag %s to include at least one OAS", flag.External)
 	}
 
 	return nil
