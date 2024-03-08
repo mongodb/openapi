@@ -1,5 +1,6 @@
 # A Self-Documenting Makefile: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 
+GOLANGCI_VERSION=v1.56.2
 SOURCE_FILES?=./cmd
 BINARY_NAME=openapicli
 VERSION=v0.0.1
@@ -20,8 +21,13 @@ deps:  ## Download go module dependencies
 	go mod download
 	go mod tidy
 
+.PHONY: devtools
+devtools:  ## Install dev tools
+	@echo "==> Installing dev tools..."
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin $(GOLANGCI_VERSION)
+
 .PHONY: setup
-setup: deps ## Set up dev env
+setup: deps devtools ## Set up dev env
 
 .PHONY: fmt
 fmt: ### Format all go files with goimports and gofmt
@@ -39,6 +45,13 @@ build-debug:
 	@echo "==> Building openapicli binary for debugging"
 	go build -gcflags="$(DEBUG_FLAGS)" -ldflags "$(LINKER_FLAGS)" -o $(DESTINATION) $(SOURCE_FILES)
 
+.PHONY: lint
+lint: ## Run linter
+	golangci-lint run
+
+.PHONY: fix-lint
+fix-lint: ## Fix linting errors
+	golangci-lint run --fix
 
 .PHONY: list
 list: ## List all make targets
