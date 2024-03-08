@@ -23,7 +23,6 @@ We're here to help! This is simply a reminder of what we are going to look for b
 - [ ] I have signed the [MongoDB CLA](https://www.mongodb.com/legal/contributor-agreement)
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] I have updated [test/README.md](https://github.com/mongodb/mongodb-atlas-cli/blob/master/test/README.md) (if an e2e test has been added)
-- [ ] I have run `make fmt` and formatted my code
 
 ## Further comments
 
