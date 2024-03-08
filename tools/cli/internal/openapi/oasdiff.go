@@ -17,7 +17,7 @@ type OasDiff struct {
 	parser   Parser
 }
 
-func (o *OasDiff) Merge(paths []string) (*load.SpecInfo, error) {
+func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*load.SpecInfo, error) {
 	for _, p := range paths {
 		spec, err := o.parser.CreateOpenAPISpecFromPath(p)
 		if err != nil {

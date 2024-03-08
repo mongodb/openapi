@@ -5,7 +5,7 @@ import (
 )
 
 type Merger interface {
-	Merge([]string) (*load.SpecInfo, error)
+	MergeOpenAPISpecs([]string) (*load.SpecInfo, error)
 }
 
 type Parser interface {
