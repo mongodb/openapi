@@ -15,7 +15,6 @@
 package merge
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"mongodb/openapi/tools/cli/internal/cli/flag"
@@ -42,11 +41,11 @@ func (o *Opts) Run(_ []string) error {
 
 func (o *Opts) PreRunE(_ []string) error {
 	if o.basePath == "" {
-		return errors.New(fmt.Sprintf("No base OAS detected. Please, use the flag %s to include the base OAS.", flag.Base))
+		return fmt.Errorf("No base OAS detected. Please, use the flag %s to include the base OAS.", flag.Base)
 	}
 
 	if o.externalPaths == nil {
-		return errors.New(fmt.Sprintf("No external OAS detected. Please, use the flag %s to include at least one OAS.", flag.External))
+		return fmt.Errorf(fmt.Sprintf("No external OAS detected. Please, use the flag %s to include at least one OAS.", flag.External)
 	}
 
 	return nil
