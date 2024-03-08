@@ -3,12 +3,13 @@ module mongodb/openapi/tools/cli
 go 1.22.1
 
 require (
+	github.com/getkin/kin-openapi v0.120.0
 	github.com/spf13/cobra v1.8.0
 	github.com/tufin/oasdiff v1.9.5
 )
 
 require (
-	github.com/getkin/kin-openapi v0.120.0 // indirect
+	cloud.google.com/go v0.110.10 // indirect
 	github.com/go-openapi/jsonpointer v0.20.0 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
