@@ -14,7 +14,7 @@
 
 package openapi
 
-//go:generate mockgen -destination=../mocks/mock_openapi.go -package=mocks github.com/mongodb/openapi/tools/cli/internal/openapi Parser,Merger
+//go:generate mockgen -destination=../openapi/mock_openapi.go -package=openapi github.com/mongodb/openapi/tools/cli/internal/openapi Parser,Merger
 import (
 	"log"
 

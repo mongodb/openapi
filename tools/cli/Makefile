@@ -61,7 +61,6 @@ list: ## List all make targets
 .PHONY: gen-mocks
 gen-mocks: ## Generate mocks
 	@echo "==> Generating mocks"
-	rm -rf ./internal/mocks
 	go generate ./internal...
 
 .PHONY: help

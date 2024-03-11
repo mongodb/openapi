@@ -12,26 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build unit
-
 package merge
 
 import (
-	"os"
 	"testing"
+
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/validator"
-	"github.com/mongodb/openapi/tools/cli/internal/mocks"
 	"github.com/tufin/oasdiff/load"
 	"go.uber.org/mock/gomock"
 )
 
 func TestSuccessfulMerge_Run(t *testing.T) {
-	setupTest(t)
 	ctrl := gomock.NewController(t)
-	mockMergerStore := mocks.NewMockMerger(ctrl)
+	mockMergerStore := openapi.NewMockMerger(ctrl)
 
 	externalPaths := []string{"external.json"}
 	opts := &Opts{
@@ -65,11 +62,4 @@ func TestCreateBuilder(t *testing.T) {
 		0,
 		[]string{flag.Base, flag.External, flag.Output},
 	)
-}
-
-func setupTest(t *testing.T) {
-	t.Helper()
-	writeToFileFunc = func(_ string, _ []byte, _ os.FileMode) error {
-		return nil
-	}
 }
