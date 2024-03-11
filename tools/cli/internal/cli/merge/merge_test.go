@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build unit
+
 package merge
 
 import (
@@ -19,12 +21,11 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/validator"
 	"github.com/mongodb/openapi/tools/cli/internal/mocks"
 	"github.com/tufin/oasdiff/load"
 	"go.uber.org/mock/gomock"
-
-	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
-	"github.com/mongodb/openapi/tools/cli/internal/cli/validator"
 )
 
 func TestSuccessfulMerge_Run(t *testing.T) {
@@ -68,10 +69,7 @@ func TestCreateBuilder(t *testing.T) {
 
 func setupTest(t *testing.T) {
 	t.Helper()
-	writeToFileFunc = func(filename string, data []byte, perm os.FileMode) error {
+	writeToFileFunc = func(_ string, _ []byte, _ os.FileMode) error {
 		return nil
 	}
-	defer func() {
-		writeToFileFunc = os.WriteFile
-	}()
 }

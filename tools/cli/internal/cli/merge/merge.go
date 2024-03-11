@@ -89,7 +89,7 @@ func Builder() *cobra.Command {
 		PreRunE: func(_ *cobra.Command, args []string) error {
 			return opts.PreRunE(args)
 		},
-		RunE: func(_ *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			return opts.Run()
 		},
 	}
