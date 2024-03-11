@@ -15,13 +15,13 @@
 package merge
 
 import (
-	"github.com/spf13/afero"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/validator"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/load"
 	"go.uber.org/mock/gomock"
 )
