@@ -16,7 +16,7 @@ package main
 
 import (
 	"context"
-	"mongodb/openapi/tools/cli/internal/cli/root/openapi"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/root/openapi"
 	"os"
 )
 
