@@ -24,6 +24,7 @@ deps:  ## Download go module dependencies
 .PHONY: devtools
 devtools:  ## Install dev tools
 	@echo "==> Installing dev tools..."
+	go install go.uber.org/mock/mockgen@latest
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin $(GOLANGCI_VERSION)
 
 .PHONY: setup
@@ -57,6 +58,10 @@ fix-lint: ## Fix linting errors
 list: ## List all make targets
 	@${MAKE} -pRrn : -f $(MAKEFILE_LIST) 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | sort
 
+.PHONY: gen-mocks
+gen-mocks: ## Generate mocks
+	@echo "==> Generating mocks"
+	go generate ./internal...
 
 .PHONY: help
 .DEFAULT_GOAL := help
