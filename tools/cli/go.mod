@@ -7,6 +7,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
 	github.com/tufin/oasdiff v1.10.11
+	go.uber.org/mock v0.4.0
 )
 
 require (

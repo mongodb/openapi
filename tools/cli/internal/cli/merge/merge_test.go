@@ -15,11 +15,47 @@
 package merge
 
 import (
+	"os"
 	"testing"
+
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/mocks"
+	"github.com/tufin/oasdiff/load"
+	"go.uber.org/mock/gomock"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/validator"
 )
+
+func TestSuccessfulMerge_Run(t *testing.T) {
+	setupTest(t)
+	ctrl := gomock.NewController(t)
+	mockMergerStore := mocks.NewMockMerger(ctrl)
+
+	externalPaths := []string{"external.json"}
+	opts := &Opts{
+		Merger:        mockMergerStore,
+		basePath:      "base.json",
+		outputPath:    "foas.json",
+		externalPaths: externalPaths,
+	}
+
+	response := &load.SpecInfo{
+		Spec:    &openapi3.T{},
+		Url:     "test",
+		Version: "3.0.1",
+	}
+
+	mockMergerStore.
+		EXPECT().
+		MergeOpenAPISpecs(opts.externalPaths).
+		Return(response, nil).
+		Times(1)
+
+	if err := opts.Run(); err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+}
 
 func TestCreateBuilder(t *testing.T) {
 	validator.ValidateSubCommandsAndFlags(
@@ -28,4 +64,14 @@ func TestCreateBuilder(t *testing.T) {
 		0,
 		[]string{flag.Base, flag.External, flag.Output},
 	)
+}
+
+func setupTest(t *testing.T) {
+	t.Helper()
+	writeToFileFunc = func(filename string, data []byte, perm os.FileMode) error {
+		return nil
+	}
+	defer func() {
+		writeToFileFunc = os.WriteFile
+	}()
 }

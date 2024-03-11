@@ -29,6 +29,10 @@ const (
 	DefaultOutputFileName = "FOAS.json"
 )
 
+// writeToFileFunc is a variable that holds the function used to write files.
+// It can be overridden in tests.
+var writeToFileFunc = os.WriteFile
+
 type Opts struct {
 	Merger        openapi.Merger
 	basePath      string
@@ -36,7 +40,7 @@ type Opts struct {
 	externalPaths []string
 }
 
-func (o *Opts) Run(_ []string) error {
+func (o *Opts) Run() error {
 	federated, err := o.Merger.MergeOpenAPISpecs(o.externalPaths)
 	if err != nil {
 		return err
@@ -65,7 +69,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 func (o *Opts) saveFile(data []byte) error {
-	if err := os.WriteFile(o.outputPath, data, 0o600); err != nil {
+	if err := writeToFileFunc(o.outputPath, data, 0o600); err != nil {
 		return err
 	}
 
@@ -86,7 +90,7 @@ func Builder() *cobra.Command {
 			return opts.PreRunE(args)
 		},
 		RunE: func(_ *cobra.Command, args []string) error {
-			return opts.Run(args)
+			return opts.Run()
 		},
 	}
 
