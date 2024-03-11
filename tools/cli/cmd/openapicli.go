@@ -16,8 +16,9 @@ package main
 
 import (
 	"context"
-	"mongodb/openapi/tools/cli/internal/cli/root/openapi"
 	"os"
+
+	"github.com/mongodb/openapi/tools/cli/internal/cli/root/openapi"
 )
 
 // Execute adds all child commands to the root command and sets flags appropriately.

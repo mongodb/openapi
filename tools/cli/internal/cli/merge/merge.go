@@ -17,11 +17,11 @@ package merge
 import (
 	"fmt"
 	"log"
-	"mongodb/openapi/tools/cli/internal/cli/flag"
-	"mongodb/openapi/tools/cli/internal/cli/usage"
-	"mongodb/openapi/tools/cli/internal/openapi"
 	"os"
 
+	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/cobra"
 )
 
