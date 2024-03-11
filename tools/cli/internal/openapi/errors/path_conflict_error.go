@@ -7,5 +7,5 @@ type PathConflictError struct {
 }
 
 func (e PathConflictError) Error() string {
-	return fmt.Sprintf("there was a conflict with the Path: %s", e.Entry)
+	return fmt.Sprintf("there was a conflict with the path: %q", e.Entry)
 }
