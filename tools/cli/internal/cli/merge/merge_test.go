@@ -15,13 +15,13 @@
 package merge
 
 import (
+	"github.com/spf13/afero"
 	"testing"
-
-	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/validator"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/tufin/oasdiff/load"
 	"go.uber.org/mock/gomock"
 )
@@ -29,13 +29,14 @@ import (
 func TestSuccessfulMerge_Run(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockMergerStore := openapi.NewMockMerger(ctrl)
-
+	fs := afero.NewMemMapFs()
 	externalPaths := []string{"external.json"}
 	opts := &Opts{
 		Merger:        mockMergerStore,
 		basePath:      "base.json",
 		outputPath:    "foas.json",
 		externalPaths: externalPaths,
+		fs:            fs,
 	}
 
 	response := &load.SpecInfo{

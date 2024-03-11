@@ -16,13 +16,12 @@ package merge
 
 import (
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 const (
@@ -34,6 +33,7 @@ type Opts struct {
 	basePath      string
 	outputPath    string
 	externalPaths []string
+	fs            afero.Fs
 }
 
 func (o *Opts) Run() error {
@@ -65,7 +65,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 func (o *Opts) saveFile(data []byte) error {
-	if err := os.WriteFile(o.outputPath, data, 0o600); err != nil {
+	if err := afero.WriteFile(o.fs, o.outputPath, data, 0o600); err != nil {
 		return err
 	}
 
@@ -76,7 +76,9 @@ func (o *Opts) saveFile(data []byte) error {
 // Builder builds the merge command with the following signature:
 // merge -b base-oas -e external-oas-1 -e external-oas-2
 func Builder() *cobra.Command {
-	opts := &Opts{}
+	opts := &Opts{
+		fs: afero.NewOsFs(),
+	}
 
 	cmd := &cobra.Command{
 		Use:   "merge -b base-spec [-e spec]...",
