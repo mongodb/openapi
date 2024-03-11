@@ -20,7 +20,6 @@ import (
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/merge"
 	"github.com/mongodb/openapi/tools/cli/internal/version"
-
 	"github.com/spf13/cobra"
 )
 
