@@ -1,8 +1,8 @@
 package openapi
 
 import (
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"log"
-	"mongodb/openapi/tools/cli/internal/openapi/errors"
 
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
@@ -63,9 +63,9 @@ func (o OasDiff) mergeSpecIntoBase() error {
 func (o OasDiff) mergePaths() error {
 	pathsToMerge := o.external.Spec.Paths
 	basePaths := o.base.Spec.Paths
-	for k, v := range pathsToMerge {
-		if _, ok := basePaths[k]; !ok {
-			basePaths[k] = v
+	for k, v := range pathsToMerge.Map() {
+		if ok := basePaths.Value(k); ok == nil {
+			basePaths.Set(k, v)
 		} else {
 			return errors.PathConflictError{
 				Entry: k,

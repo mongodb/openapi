@@ -21,8 +21,7 @@ func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error
 	openapi3.CircularReferenceCounter = o.CircularReferenceCounter
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = o.IsExternalRefsAllowed
-
-	spec, err := load.LoadSpecInfo(loader, load.NewSource(path))
+	spec, err := load.NewSpecInfo(loader, load.NewSource(path))
 	if err != nil {
 		return nil, err
 	}
