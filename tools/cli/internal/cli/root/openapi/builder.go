@@ -16,9 +16,10 @@ package openapi
 
 import (
 	"fmt"
+	"runtime"
+
 	"github.com/mongodb/openapi/tools/cli/internal/cli/merge"
 	"github.com/mongodb/openapi/tools/cli/internal/version"
-	"runtime"
 
 	"github.com/spf13/cobra"
 )

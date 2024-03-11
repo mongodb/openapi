@@ -15,9 +15,10 @@
 package merge
 
 import (
+	"testing"
+
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/validator"
-	"testing"
 )
 
 func TestCreateBuilder(t *testing.T) {

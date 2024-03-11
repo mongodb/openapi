@@ -1,8 +1,9 @@
 package openapi
 
 import (
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"log"
+
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
