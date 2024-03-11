@@ -16,9 +16,10 @@ package merge
 
 import (
 	"fmt"
+	"log"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
-	"log"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -29,14 +30,24 @@ const (
 )
 
 type Opts struct {
+	Merger        openapi.Merger
 	basePath      string
 	outputPath    string
 	externalPaths []string
 }
 
 func (o *Opts) Run(_ []string) error {
-	// To add in follow up PR: CLOUDP-225849
-	return o.saveFile([]byte("test"))
+	federated, err := o.Merger.MergeOpenAPISpecs(o.externalPaths)
+	if err != nil {
+		return err
+	}
+
+	federatedBytes, err := federated.Spec.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	return o.saveFile(federatedBytes)
 }
 
 func (o *Opts) PreRunE(_ []string) error {
@@ -48,7 +59,9 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("no external OAS detected. Please, use the flag %s to include at least one OAS", flag.External)
 	}
 
-	return nil
+	m, err := openapi.NewOasDiff(o.basePath)
+	o.Merger = m
+	return err
 }
 
 func (o *Opts) saveFile(data []byte) error {
