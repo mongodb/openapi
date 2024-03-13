@@ -15,11 +15,11 @@
 package openapi
 
 import (
-	"fmt"
+	"log"
+
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
-	"os"
 )
 
 type OasDiff struct {
@@ -39,11 +39,7 @@ func (o OasDiff) mergeSpecIntoBase() error {
 		return err
 	}
 
-	if err := o.mergeComponents(); err != nil {
-		return err
-	}
-
-	return nil
+	return o.mergeComponents()
 }
 
 func (o OasDiff) mergePaths() error {
@@ -96,11 +92,7 @@ func (o OasDiff) mergeComponents() error {
 		return err
 	}
 
-	if err := o.mergeSchemas(); err != nil {
-		return err
-	}
-
-	return nil
+	return o.mergeSchemas()
 }
 
 func (o OasDiff) mergeParameters() error {
@@ -112,7 +104,7 @@ func (o OasDiff) mergeParameters() error {
 		} else {
 			if o.areParamsIdentical(k) {
 				// if the responses are the same, we skip
-				_, _ = fmt.Fprintf(os.Stderr, "We silently resolved the conflict with the response '%s' because the definition was identical.", k)
+				log.Printf("\nWe silently resolved the conflict with the response '%s' because the definition was identical.\n", k)
 				continue
 			}
 
@@ -134,9 +126,9 @@ func (o OasDiff) mergeResponses() error {
 		if _, ok := baseResponses[k]; !ok {
 			baseResponses[k] = v
 		} else {
-			if o.areParamsIdentical(k) {
+			if o.areResponsesIdentical(k) {
 				// if the params are the same, we skip
-				_, _ = fmt.Fprintf(os.Stderr, "We silently resolved the conflict with the params '%s' because the definition was identical.", k)
+				log.Printf("\nWe silently resolved the conflict with the params '%s' because the definition was identical.\n", k)
 				continue
 			}
 
@@ -161,7 +153,7 @@ func (o OasDiff) mergeSchemas() error {
 		} else {
 			if o.areSchemaIdentical(k) {
 				// if the schemas are the same, we skip
-				_, _ = fmt.Fprintf(os.Stderr, "We silently resolved the conflict with the schemas '%s' because the definition was identical.", k)
+				log.Printf("\nWe silently resolved the conflict with the schemas '%s' because the definition was identical.\n", k)
 				continue
 			}
 
