@@ -31,6 +31,15 @@ type OasDiff struct {
 }
 
 func (o OasDiff) mergeSpecIntoBase() error {
+	if o.external == nil || o.external.Spec == nil {
+		return nil
+	}
+
+	if o.base == nil || o.base.Spec == nil {
+		*o.base = *o.external
+		return nil
+	}
+
 	if err := o.mergePaths(); err != nil {
 		return err
 	}
@@ -101,6 +110,15 @@ func (o OasDiff) mergeTags() error {
 }
 
 func (o OasDiff) mergeComponents() error {
+	if o.external.Spec.Components == nil {
+		return nil
+	}
+
+	if o.base.Spec.Components == nil {
+		o.base.Spec.Components = o.external.Spec.Components
+		return nil
+	}
+
 	if err := o.mergeParameters(); err != nil {
 		return err
 	}
@@ -114,7 +132,15 @@ func (o OasDiff) mergeComponents() error {
 
 func (o OasDiff) mergeParameters() error {
 	externalSpecParams := o.external.Spec.Components.Parameters
+	if len(externalSpecParams) == 0 {
+		return nil
+	}
+
 	baseParams := o.base.Spec.Components.Parameters
+	if len(baseParams) == 0 {
+		o.base.Spec.Components.Parameters = externalSpecParams
+		return nil
+	}
 	for k, v := range externalSpecParams {
 		if _, ok := baseParams[k]; !ok {
 			baseParams[k] = v
@@ -138,7 +164,16 @@ func (o OasDiff) mergeParameters() error {
 
 func (o OasDiff) mergeResponses() error {
 	extResponses := o.external.Spec.Components.Responses
+	if len(extResponses) == 0 {
+		return nil
+	}
+
 	baseResponses := o.base.Spec.Components.Responses
+	if len(baseResponses) == 0 {
+		o.base.Spec.Components.Responses = extResponses
+		return nil
+	}
+
 	for k, v := range extResponses {
 		if _, ok := baseResponses[k]; !ok {
 			baseResponses[k] = v

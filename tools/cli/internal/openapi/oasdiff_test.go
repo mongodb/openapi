@@ -17,7 +17,10 @@ package openapi
 import (
 	"testing"
 
+	"github.com/tufin/oasdiff/diff"
+
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/pointer"
 	"github.com/tufin/oasdiff/load"
 )
 
@@ -311,16 +314,76 @@ func Test_MergeResponses(t *testing.T) {
 	testCases := []struct {
 		inputBase     *load.SpecInfo
 		inputExternal *load.SpecInfo
+		diff          *diff.Diff
 		name          string
 		error         bool
 	}{
 		{
-			name: "SuccessfulMergeWithMergeResponses",
+			name: "SuccessfulMergeWithEmptyResponses",
+			diff: &diff.Diff{},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: nil,
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: nil,
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeWithEmpyBaseResponses",
+			diff: &diff.Diff{},
 			inputBase: &load.SpecInfo{
 				Url: "base",
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: openapi3.ResponseBodies{},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"external": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external"),
+								},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeWithEmpyExternalResponses",
+			diff: &diff.Diff{},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"base": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("base"),
+								},
+							},
+						},
 					},
 				},
 				Version: "3.0.1",
@@ -337,12 +400,30 @@ func Test_MergeResponses(t *testing.T) {
 			error: false,
 		},
 		{
-			name: "SuccessfulMergeWithMergeResponses",
+			name: "SuccessfulMergeIdenticalResponses",
+			diff: &diff.Diff{
+				ComponentsDiff: diff.ComponentsDiff{
+					ResponsesDiff: &diff.ResponsesDiff{
+						Modified: map[string]*diff.ResponseDiff{},
+					},
+				},
+			},
 			inputBase: &load.SpecInfo{
 				Url: "base",
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
-						Responses: openapi3.ResponseBodies{},
+						Responses: map[string]*openapi3.ResponseRef{
+							"external1": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external1"),
+								},
+							},
+							"external2": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external2"),
+								},
+							},
+						},
 					},
 				},
 				Version: "3.0.1",
@@ -351,7 +432,18 @@ func Test_MergeResponses(t *testing.T) {
 				Url: "external",
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
-						Responses: openapi3.ResponseBodies{},
+						Responses: map[string]*openapi3.ResponseRef{
+							"external1": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external1"),
+								},
+							},
+							"external2": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external2"),
+								},
+							},
+						},
 					},
 				},
 				Version: "3.0.1",
@@ -359,19 +451,17 @@ func Test_MergeResponses(t *testing.T) {
 			error: false,
 		},
 		{
-			name: "FailedMerge",
+			name: "SuccessfulMerge",
 			inputBase: &load.SpecInfo{
 				Url: "base",
 				Spec: &openapi3.T{
-					Tags: []*openapi3.Tag{
-						{
-							Name:        "TagBase1",
-							Description: "TagBase1",
-						},
-
-						{
-							Name:        "TagBase2",
-							Description: "TagBase2",
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"base": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("base"),
+								},
+							},
 						},
 					},
 				},
@@ -380,15 +470,72 @@ func Test_MergeResponses(t *testing.T) {
 			inputExternal: &load.SpecInfo{
 				Url: "external",
 				Spec: &openapi3.T{
-					Tags: []*openapi3.Tag{
-						{
-							Name:        "TagBase1",
-							Description: "TagBase1",
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"external1": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external1"),
+								},
+							},
+							"external2": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external2"),
+								},
+							},
 						},
-
-						{
-							Name:        "TagBase2",
-							Description: "TagBase2",
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeWithNoIdenticalResponses",
+			diff: &diff.Diff{
+				ComponentsDiff: diff.ComponentsDiff{
+					ResponsesDiff: &diff.ResponsesDiff{
+						Modified: map[string]*diff.ResponseDiff{
+							"external1": {Base: nil},
+							"external2": {Base: nil},
+						},
+					},
+				},
+			},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"external1": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external1"),
+								},
+							},
+							"external2": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external2"),
+								},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"external1": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external1"),
+								},
+							},
+							"external2": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external2"),
+								},
+							},
 						},
 					},
 				},
@@ -403,8 +550,9 @@ func Test_MergeResponses(t *testing.T) {
 			o := OasDiff{
 				base:     tc.inputBase,
 				external: tc.inputExternal,
+				specDiff: tc.diff,
 			}
-			err := o.mergeTags()
+			err := o.mergeResponses()
 			if err != nil && !tc.error {
 				t.Errorf("No error expected but got the error %v", err)
 			}
