@@ -11,6 +11,8 @@ LINKER_GH_SHA_FLAG=-s -w -X github.com/mongodb/openapi/tools/cli/internal/versio
 LINKER_FLAGS=${LINKER_GH_SHA_FLAG} -X github.com/mongodb/openapi/tools/cli/internal/version.Version=${VERSION}
 
 DEBUG_FLAGS=all=-N -l
+TEST_CMD?=go test
+COVERAGE=coverage.out
 
 export TERM := linux-m
 export GO111MODULE := on
@@ -57,6 +59,12 @@ fix-lint: ## Fix linting errors
 .PHONY: list
 list: ## List all make targets
 	@${MAKE} -pRrn : -f $(MAKEFILE_LIST) 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | sort
+
+.PHONY: unit-test
+unit-test: ## Run unit-tests
+	@echo "==> Running unit tests..."
+	$(TEST_CMD) -race -cover -count=1 -coverprofile $(COVERAGE) ./...
+
 
 .PHONY: gen-mocks
 gen-mocks: ## Generate mocks
