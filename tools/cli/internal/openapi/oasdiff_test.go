@@ -17,10 +17,9 @@ package openapi
 import (
 	"testing"
 
-	"github.com/tufin/oasdiff/diff"
-
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/pointer"
+	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
 )
 
