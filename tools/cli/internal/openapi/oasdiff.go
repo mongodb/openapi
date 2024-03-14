@@ -30,25 +30,28 @@ type OasDiff struct {
 	parser   Parser
 }
 
-func (o OasDiff) mergeSpecIntoBase() error {
+func (o OasDiff) mergeSpecIntoBase() (*load.SpecInfo, error) {
 	if o.external == nil || o.external.Spec == nil {
-		return nil
+		return o.base, nil
 	}
 
 	if o.base == nil || o.base.Spec == nil {
-		*o.base = *o.external
-		return nil
+		return o.external, nil
 	}
 
 	if err := o.mergePaths(); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := o.mergeTags(); err != nil {
-		return err
+		return nil, err
 	}
 
-	return o.mergeComponents()
+	if err := o.mergeComponents(); err != nil {
+		return nil, err
+	}
+
+	return o.base, nil
 }
 
 func (o OasDiff) mergePaths() error {
