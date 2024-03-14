@@ -9,6 +9,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/tufin/oasdiff v1.10.11
 	go.uber.org/mock v0.4.0
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
 )
 
 require (
