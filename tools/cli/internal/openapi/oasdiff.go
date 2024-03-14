@@ -89,7 +89,7 @@ func (o OasDiff) mergeTags() error {
 		return nil
 	}
 
-	tagsSet := make(map[string]bool)
+	tagsSet := make(map[string]bool, len(baseTags))
 	for _, v := range baseTags {
 		tagsSet[v.Name] = true
 	}
@@ -147,7 +147,7 @@ func (o OasDiff) mergeParameters() error {
 		} else {
 			if o.areParamsIdentical(k) {
 				// if the responses are the same, we skip
-				log.Printf("\nWe silently resolved the conflict with the response '%s' because the definition was identical.\n", k)
+				log.Printf("\nWe silently resolved the conflict with the response %q because the definition was identical.\n", k)
 				continue
 			}
 
@@ -180,7 +180,7 @@ func (o OasDiff) mergeResponses() error {
 		} else {
 			if o.areResponsesIdentical(k) {
 				// if the params are the same, we skip
-				log.Printf("\nWe silently resolved the conflict with the params '%s' because the definition was identical.\n", k)
+				log.Printf("\nWe silently resolved the conflict with the params %q because the definition was identical.\n", k)
 				continue
 			}
 
@@ -205,7 +205,7 @@ func (o OasDiff) mergeSchemas() error {
 		} else {
 			if o.areSchemaIdentical(k) {
 				// if the schemas are the same, we skip
-				log.Printf("\nWe silently resolved the conflict with the schemas '%s' because the definition was identical.\n", k)
+				log.Printf("\nWe silently resolved the conflict with the schemas %q because the definition was identical.\n", k)
 				continue
 			}
 
@@ -221,25 +221,16 @@ func (o OasDiff) mergeSchemas() error {
 }
 
 func (o OasDiff) areParamsIdentical(paramName string) bool {
-	if _, ok := o.specDiff.ParametersDiff.Modified[paramName]; !ok {
-		return true
-	}
-
-	return false
+	_, ok := o.specDiff.ParametersDiff.Modified[paramName]
+	return !ok
 }
 
 func (o OasDiff) areResponsesIdentical(name string) bool {
-	if _, ok := o.specDiff.ResponsesDiff.Modified[name]; !ok {
-		return true
-	}
-
-	return false
+	_, ok := o.specDiff.ResponsesDiff.Modified[name]
+	return !ok
 }
 
 func (o OasDiff) areSchemaIdentical(name string) bool {
-	if _, ok := o.specDiff.SchemasDiff.Modified[name]; !ok {
-		return true
-	}
-
-	return false
+	_, ok := o.specDiff.SchemasDiff.Modified[name]
+	return !ok
 }
