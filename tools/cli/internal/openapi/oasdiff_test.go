@@ -47,6 +47,60 @@ func Test_MergePaths(t *testing.T) {
 			error: false,
 		},
 		{
+			name: "SuccessfulMergeWithEmptyPaths",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Paths: nil,
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Paths: nil,
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeWithEmptyBasePaths",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Paths: nil,
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Paths: newExternalSpecPaths(t),
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeWithEmptyExternalPaths",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Paths: newBaseSpecPaths(t),
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Paths: nil,
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
 			name: "FailedMerge",
 			inputBase: &load.SpecInfo{
 				Url: "base",
@@ -119,6 +173,185 @@ func Test_MergeTags(t *testing.T) {
 							Name:        "Tag2",
 							Description: "Tag2",
 						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeEmptyTags",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Tags: nil,
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Tags: nil,
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeEmptyBaseTags",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Tags: []*openapi3.Tag{
+						{
+							Name:        "TagBase1",
+							Description: "TagBase1",
+						},
+
+						{
+							Name:        "TagBase2",
+							Description: "TagBase2",
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Tags: []*openapi3.Tag{
+						{
+							Name:        "Tag1",
+							Description: "Tag1",
+						},
+
+						{
+							Name:        "Tag2",
+							Description: "Tag2",
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeEmptyExternalTags",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Tags: nil,
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Tags: nil,
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "FailedMerge",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Tags: []*openapi3.Tag{
+						{
+							Name:        "TagBase1",
+							Description: "TagBase1",
+						},
+
+						{
+							Name:        "TagBase2",
+							Description: "TagBase2",
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Tags: []*openapi3.Tag{
+						{
+							Name:        "TagBase1",
+							Description: "TagBase1",
+						},
+
+						{
+							Name:        "TagBase2",
+							Description: "TagBase2",
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			o := OasDiff{
+				base:     tc.inputBase,
+				external: tc.inputExternal,
+			}
+			err := o.mergeTags()
+			if err != nil && !tc.error {
+				t.Errorf("No error expected but got the error %v", err)
+			}
+		})
+	}
+}
+
+func Test_MergeResponses(t *testing.T) {
+	testCases := []struct {
+		inputBase     *load.SpecInfo
+		inputExternal *load.SpecInfo
+		name          string
+		error         bool
+	}{
+		{
+			name: "SuccessfulMergeWithMergeResponses",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: openapi3.ResponseBodies{},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: openapi3.ResponseBodies{},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeWithMergeResponses",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: openapi3.ResponseBodies{},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: openapi3.ResponseBodies{},
 					},
 				},
 				Version: "3.0.1",

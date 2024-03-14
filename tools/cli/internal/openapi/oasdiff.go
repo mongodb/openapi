@@ -44,7 +44,16 @@ func (o OasDiff) mergeSpecIntoBase() error {
 
 func (o OasDiff) mergePaths() error {
 	pathsToMerge := o.external.Spec.Paths
+	if pathsToMerge == nil || pathsToMerge.Len() == 0 {
+		return nil
+	}
+
 	basePaths := o.base.Spec.Paths
+	if basePaths == nil || basePaths.Len() == 0 {
+		o.base.Spec.Paths = pathsToMerge
+		return nil
+	}
+
 	for k, v := range pathsToMerge.Map() {
 		if ok := basePaths.Value(k); ok == nil {
 			basePaths.Set(k, v)
@@ -61,9 +70,17 @@ func (o OasDiff) mergePaths() error {
 
 func (o OasDiff) mergeTags() error {
 	tagsToMerge := o.external.Spec.Tags
-	baseTags := o.base.Spec.Tags
-	tagsSet := make(map[string]bool)
+	if len(tagsToMerge) == 0 {
+		return nil
+	}
 
+	baseTags := o.base.Spec.Tags
+	if len(baseTags) == 0 {
+		o.base.Spec.Tags = tagsToMerge
+		return nil
+	}
+
+	tagsSet := make(map[string]bool)
 	for _, v := range baseTags {
 		tagsSet[v.Name] = true
 	}
