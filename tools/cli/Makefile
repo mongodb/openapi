@@ -65,7 +65,6 @@ unit-test: ## Run unit-tests
 	@echo "==> Running unit tests..."
 	$(TEST_CMD) -race -cover -count=1 -coverprofile $(COVERAGE) ./...
 
-
 .PHONY: gen-mocks
 gen-mocks: ## Generate mocks
 	@echo "==> Generating mocks"
