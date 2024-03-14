@@ -16,10 +16,43 @@ package errors
 
 import "fmt"
 
+type ParamConflictError struct {
+	Entry string
+}
+
+func (e ParamConflictError) Error() string {
+	return fmt.Sprintf("there was a conflict with the Param component: %q", e.Entry)
+}
+
 type PathConflictError struct {
 	Entry string
 }
 
 func (e PathConflictError) Error() string {
 	return fmt.Sprintf("there was a conflict with the path: %q", e.Entry)
+}
+
+type ResponseConflictError struct {
+	Entry string
+}
+
+func (e ResponseConflictError) Error() string {
+	return fmt.Sprintf("there was a conflict on a the Response component: %q", e.Entry)
+}
+
+type SchemaConflictError struct {
+	Entry string
+}
+
+func (e SchemaConflictError) Error() string {
+	return fmt.Sprintf("there was a conflict on a Schema component: %q", e.Entry)
+}
+
+type TagConflictError struct {
+	Entry       string
+	Description string
+}
+
+func (e TagConflictError) Error() string {
+	return fmt.Sprintf("there was a conflict with the Tag %q with the description: %q", e.Entry, e.Description)
 }
