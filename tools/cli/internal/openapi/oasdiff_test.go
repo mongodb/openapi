@@ -17,18 +17,20 @@ package openapi
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/pointer"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
 )
 
-func Test_MergePaths(t *testing.T) {
+func TestOasDiff_mergePaths(t *testing.T) {
 	testCases := []struct {
 		inputBase     *load.SpecInfo
 		inputExternal *load.SpecInfo
+		wantErr       require.ErrorAssertionFunc
 		name          string
-		error         bool
 	}{
 		{
 			name: "SuccessfulMerge",
@@ -46,7 +48,7 @@ func Test_MergePaths(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeWithEmptyPaths",
@@ -64,7 +66,7 @@ func Test_MergePaths(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeWithEmptyBasePaths",
@@ -82,7 +84,7 @@ func Test_MergePaths(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeWithEmptyExternalPaths",
@@ -100,7 +102,7 @@ func Test_MergePaths(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "FailedMerge",
@@ -118,30 +120,29 @@ func Test_MergePaths(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: true,
+			wantErr: require.Error,
 		},
 	}
 
 	for _, tc := range testCases {
+		tc := tc // https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721#what-happened
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			o := OasDiff{
 				base:     tc.inputBase,
 				external: tc.inputExternal,
 			}
-			err := o.mergePaths()
-			if err != nil && !tc.error {
-				t.Errorf("No error expected but got the error %v", err)
-			}
+			tc.wantErr(t, o.mergePaths())
 		})
 	}
 }
 
-func Test_MergeTags(t *testing.T) {
+func TestOasDiff_mergeTags(t *testing.T) {
 	testCases := []struct {
 		inputBase     *load.SpecInfo
 		inputExternal *load.SpecInfo
+		wantErr       require.ErrorAssertionFunc
 		name          string
-		error         bool
 	}{
 		{
 			name: "SuccessfulMerge",
@@ -179,7 +180,7 @@ func Test_MergeTags(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeEmptyTags",
@@ -197,7 +198,7 @@ func Test_MergeTags(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeEmptyBaseTags",
@@ -235,7 +236,7 @@ func Test_MergeTags(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeEmptyExternalTags",
@@ -253,7 +254,7 @@ func Test_MergeTags(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "FailedMerge",
@@ -291,31 +292,30 @@ func Test_MergeTags(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: true,
+			wantErr: require.Error,
 		},
 	}
 
 	for _, tc := range testCases {
+		tc := tc // https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721#what-happened
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			o := OasDiff{
 				base:     tc.inputBase,
 				external: tc.inputExternal,
 			}
-			err := o.mergeTags()
-			if err != nil && !tc.error {
-				t.Errorf("No error expected but got the error %v", err)
-			}
+			tc.wantErr(t, o.mergeTags())
 		})
 	}
 }
 
-func Test_MergeResponses(t *testing.T) {
+func TestOasDiff_mergeResponses(t *testing.T) {
 	testCases := []struct {
 		inputBase     *load.SpecInfo
 		inputExternal *load.SpecInfo
+		wantErr       require.ErrorAssertionFunc
 		diff          *diff.Diff
 		name          string
-		error         bool
 	}{
 		{
 			name: "SuccessfulMergeWithEmptyResponses",
@@ -338,7 +338,7 @@ func Test_MergeResponses(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeWithEmpyBaseResponses",
@@ -367,7 +367,7 @@ func Test_MergeResponses(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeWithEmpyExternalResponses",
@@ -396,7 +396,7 @@ func Test_MergeResponses(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeIdenticalResponses",
@@ -447,7 +447,7 @@ func Test_MergeResponses(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMerge",
@@ -486,7 +486,7 @@ func Test_MergeResponses(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: false,
+			wantErr: require.NoError,
 		},
 		{
 			name: "SuccessfulMergeWithNoIdenticalResponses",
@@ -540,21 +540,243 @@ func Test_MergeResponses(t *testing.T) {
 				},
 				Version: "3.0.1",
 			},
-			error: true,
+			wantErr: require.Error,
 		},
 	}
 
 	for _, tc := range testCases {
+		tc := tc // https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721#what-happened
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			o := OasDiff{
 				base:     tc.inputBase,
 				external: tc.inputExternal,
 				specDiff: tc.diff,
 			}
-			err := o.mergeResponses()
-			if err != nil && !tc.error {
-				t.Errorf("No error expected but got the error %v", err)
+			tc.wantErr(t, o.mergeResponses())
+		})
+	}
+}
+
+func TestOasDiff_mergeSchemas(t *testing.T) {
+	testCases := []struct {
+		inputBase     *load.SpecInfo
+		inputExternal *load.SpecInfo
+		wantErr       require.ErrorAssertionFunc
+		diff          *diff.Diff
+		name          string
+	}{
+		{
+			name: "SuccessfulMergeWithEmptySchemas",
+			diff: &diff.Diff{},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: nil,
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: nil,
+					},
+				},
+				Version: "3.0.1",
+			},
+			wantErr: require.NoError,
+		},
+		{
+			name: "SuccessfulMergeWithEmpyBaseSchema",
+			diff: &diff.Diff{},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"ext1": {
+								Value: &openapi3.Schema{Description: "ext1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			wantErr: require.NoError,
+		},
+		{
+			name: "SuccessfulMergeWithEmpyExternalSchema",
+			diff: &diff.Diff{},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{},
+					},
+				},
+				Version: "3.0.1",
+			},
+			wantErr: require.NoError,
+		},
+		{
+			name: "SuccessfulMergeIdenticalSchemas",
+			diff: &diff.Diff{
+				ComponentsDiff: diff.ComponentsDiff{
+					SchemasDiff: &diff.SchemasDiff{
+						Modified: map[string]*diff.SchemaDiff{},
+					},
+				},
+			},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			wantErr: require.NoError,
+		},
+		{
+			name: "SuccessfulMerge",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"base": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("base"),
+								},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"external1": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external1"),
+								},
+							},
+							"external2": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external2"),
+								},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			wantErr: require.NoError,
+		},
+		{
+			name: "SuccessfulMergeWithNoIdenticalResponses",
+			diff: &diff.Diff{
+				ComponentsDiff: diff.ComponentsDiff{
+					SchemasDiff: &diff.SchemasDiff{
+						Modified: map[string]*diff.SchemaDiff{
+							"base1": {Base: nil},
+							"base2": {Base: nil},
+						},
+					},
+				},
+			},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+							"base2": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+							"base2": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			wantErr: require.Error,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc // https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721#what-happened
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			o := OasDiff{
+				base:     tc.inputBase,
+				external: tc.inputExternal,
+				specDiff: tc.diff,
 			}
+			tc.wantErr(t, o.mergeSchemas())
 		})
 	}
 }

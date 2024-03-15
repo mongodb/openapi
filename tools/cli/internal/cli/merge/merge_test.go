@@ -15,6 +15,7 @@
 package merge
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -22,6 +23,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/cli/validator"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/load"
 	"go.uber.org/mock/gomock"
 )
@@ -56,6 +58,31 @@ func TestSuccessfulMerge_Run(t *testing.T) {
 	}
 }
 
+func TestNoBaseSpecMerge_PreRun(t *testing.T) {
+	externalPaths := []string{"external.json"}
+	opts := &Opts{
+		outputPath:    "foas.json",
+		externalPaths: externalPaths,
+	}
+
+	err := opts.PreRunE(nil)
+	require.Error(t, err)
+	require.EqualError(t, err, fmt.Sprintf("no base OAS detected. "+
+		"Please, use the flag %s to include the base OAS", flag.Base))
+}
+
+func TestNoExternalSpecMerge_PreRun(t *testing.T) {
+	opts := &Opts{
+		outputPath: "foas.json",
+		basePath:   "base.json",
+	}
+
+	err := opts.PreRunE(nil)
+	require.Error(t, err)
+	require.EqualError(t, err, fmt.Sprintf("no external OAS detected. "+
+		"Please, use the flag %s to include at least one OAS", flag.External))
+}
+
 func TestCreateBuilder(t *testing.T) {
 	validator.ValidateSubCommandsAndFlags(
 		t,
@@ -63,4 +90,41 @@ func TestCreateBuilder(t *testing.T) {
 		0,
 		[]string{flag.Base, flag.External, flag.Output},
 	)
+}
+
+func TestOpts_PreRunE(t *testing.T) {
+	testCases := []struct {
+		wantErr       require.ErrorAssertionFunc
+		basePath      string
+		name          string
+		externalPaths []string
+	}{
+		{
+			wantErr:       require.Error,
+			basePath:      "test",
+			name:          "NoExternalPaths",
+			externalPaths: nil,
+		},
+		{
+			wantErr:       require.Error,
+			name:          "NoBasePath",
+			externalPaths: []string{"test"},
+		},
+		{
+			wantErr:       require.NoError,
+			basePath:      "../../../test/data/base.json",
+			name:          "Successful",
+			externalPaths: []string{"test"},
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			o := &Opts{
+				basePath:      tt.basePath,
+				externalPaths: tt.externalPaths,
+			}
+			tt.wantErr(t, o.PreRunE(nil))
+		})
+	}
 }

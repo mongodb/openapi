@@ -200,7 +200,15 @@ func (o OasDiff) mergeResponses() error {
 
 func (o OasDiff) mergeSchemas() error {
 	extSchemas := o.external.Spec.Components.Schemas
+	if len(extSchemas) == 0 {
+		return nil
+	}
+
 	baseSchemas := o.base.Spec.Components.Schemas
+	if len(baseSchemas) == 0 {
+		o.base.Spec.Components.Schemas = extSchemas
+		return nil
+	}
 
 	for k, schemaToMerge := range extSchemas {
 		if _, ok := baseSchemas[k]; !ok {
