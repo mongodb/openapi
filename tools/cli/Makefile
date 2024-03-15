@@ -63,7 +63,7 @@ list: ## List all make targets
 .PHONY: unit-test
 unit-test: ## Run unit-tests
 	@echo "==> Running unit tests..."
-	$(TEST_CMD) -race  ./...
+	$(TEST_CMD) -race -cover ./...
 
 .PHONY: gen-mocks
 gen-mocks: ## Generate mocks

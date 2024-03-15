@@ -559,6 +559,230 @@ func Test_MergeResponses(t *testing.T) {
 	}
 }
 
+func Test_MergeSchemas(t *testing.T) {
+	testCases := []struct {
+		inputBase     *load.SpecInfo
+		inputExternal *load.SpecInfo
+		diff          *diff.Diff
+		name          string
+		error         bool
+	}{
+		{
+			name: "SuccessfulMergeWithEmptySchemas",
+			diff: &diff.Diff{},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: nil,
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: nil,
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeWithEmpyBaseSchema",
+			diff: &diff.Diff{},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"ext1": {
+								Value: &openapi3.Schema{Description: "ext1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeWithEmpyExternalSchema",
+			diff: &diff.Diff{},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeIdenticalSchemas",
+			diff: &diff.Diff{
+				ComponentsDiff: diff.ComponentsDiff{
+					SchemasDiff: &diff.SchemasDiff{
+						Modified: map[string]*diff.SchemaDiff{},
+					},
+				},
+			},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMerge",
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"base": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("base"),
+								},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Responses: map[string]*openapi3.ResponseRef{
+							"external1": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external1"),
+								},
+							},
+							"external2": {
+								Value: &openapi3.Response{
+									Description: pointer.Get("external2"),
+								},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: false,
+		},
+		{
+			name: "SuccessfulMergeWithNoIdenticalResponses",
+			diff: &diff.Diff{
+				ComponentsDiff: diff.ComponentsDiff{
+					SchemasDiff: &diff.SchemasDiff{
+						Modified: map[string]*diff.SchemaDiff{
+							"base1": {Base: nil},
+							"base2": {Base: nil},
+						},
+					},
+				},
+			},
+			inputBase: &load.SpecInfo{
+				Url: "base",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+							"base2": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			inputExternal: &load.SpecInfo{
+				Url: "external",
+				Spec: &openapi3.T{
+					Components: &openapi3.Components{
+						Schemas: openapi3.Schemas{
+							"base1": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+							"base2": {
+								Value: &openapi3.Schema{Description: "base1"},
+							},
+						},
+					},
+				},
+				Version: "3.0.1",
+			},
+			error: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			o := OasDiff{
+				base:     tc.inputBase,
+				external: tc.inputExternal,
+				specDiff: tc.diff,
+			}
+			err := o.mergeSchemas()
+			if err != nil && !tc.error {
+				t.Errorf("No error expected but got the error %v", err)
+			}
+		})
+	}
+}
+
 func newBaseSpecPaths(t *testing.T) *openapi3.Paths {
 	t.Helper()
 	inputPath := &openapi3.Paths{}
