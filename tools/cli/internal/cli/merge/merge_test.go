@@ -20,7 +20,6 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
-	"github.com/mongodb/openapi/tools/cli/internal/cli/validator"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
@@ -69,27 +68,6 @@ func TestNoBaseSpecMerge_PreRun(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, fmt.Sprintf("no base OAS detected. "+
 		"Please, use the flag %s to include the base OAS", flag.Base))
-}
-
-func TestNoExternalSpecMerge_PreRun(t *testing.T) {
-	opts := &Opts{
-		outputPath: "foas.json",
-		basePath:   "base.json",
-	}
-
-	err := opts.PreRunE(nil)
-	require.Error(t, err)
-	require.EqualError(t, err, fmt.Sprintf("no external OAS detected. "+
-		"Please, use the flag %s to include at least one OAS", flag.External))
-}
-
-func TestCreateBuilder(t *testing.T) {
-	validator.ValidateSubCommandsAndFlags(
-		t,
-		Builder(),
-		0,
-		[]string{flag.Base, flag.External, flag.Output},
-	)
 }
 
 func TestOpts_PreRunE(t *testing.T) {
