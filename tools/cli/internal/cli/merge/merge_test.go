@@ -94,24 +94,24 @@ func TestCreateBuilder(t *testing.T) {
 
 func TestOpts_PreRunE(t *testing.T) {
 	testCases := []struct {
-		error         require.ErrorAssertionFunc
+		wantErr       require.ErrorAssertionFunc
 		basePath      string
 		name          string
 		externalPaths []string
 	}{
 		{
-			error:         require.Error,
+			wantErr:       require.Error,
 			basePath:      "test",
 			name:          "NoExternalPaths",
 			externalPaths: nil,
 		},
 		{
-			error:         require.Error,
+			wantErr:       require.Error,
 			name:          "NoBasePath",
 			externalPaths: []string{"test"},
 		},
 		{
-			error:         require.NoError,
+			wantErr:       require.NoError,
 			basePath:      "../../../test/data/base.json",
 			name:          "Successful",
 			externalPaths: []string{"test"},
@@ -124,7 +124,7 @@ func TestOpts_PreRunE(t *testing.T) {
 				basePath:      tt.basePath,
 				externalPaths: tt.externalPaths,
 			}
-			tt.error(t, o.PreRunE(nil))
+			tt.wantErr(t, o.PreRunE(nil))
 		})
 	}
 }
