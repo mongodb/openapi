@@ -22,14 +22,12 @@ jobs:
       with:
         go-version-file: 'tools/cli/go.mod'
     - name: Build CLI
-      run: |
-        pushd tools/cli
-        make build
+      working-directory: tools/cli
+      run: make build
   unit-tests:
     needs: build
     env:
       COVERAGE: coverage.out
-      TEST_CMD: gotestsum --junitfile unit-tests.xml --format standard-verbose --
       UNIT_TAGS: unit
       INTEGRATION_TAGS: integration
     strategy:
@@ -44,8 +42,6 @@ jobs:
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
         with:
           go-version-file: 'tools/cli/go.mod'
-      - name: Install gotest
-        run: go install gotest.tools/gotestsum@ec99a250836f069a524bb9d9b5de0a7a96334ea7
       - name: Run unit tests
         working-directory: tools/cli
         run: make unit-test
