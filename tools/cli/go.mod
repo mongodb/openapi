@@ -3,7 +3,7 @@ module github.com/mongodb/openapi/tools/cli
 go 1.22.1
 
 require (
-	github.com/getkin/kin-openapi v0.123.0
+	github.com/getkin/kin-openapi v0.124.0
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
