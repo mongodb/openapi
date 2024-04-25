@@ -20,14 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       creates_new_tag: ${{ steps.evaluate_inputs.outputs.creates_new_tag }}
-      is_official_release: ${{ steps.evaluate_inputs.outputs.is_official_release }}
       runs_tests: ${{ steps.evaluate_inputs.outputs.runs_tests }}
     steps:
       - id: evaluate_inputs
         run: |
           {
             echo "creates_new_tag=$(if [ '${{ inputs.use_existing_tag }}' = 'true' ]; then echo 'false'; else echo 'true'; fi)"
-            echo "is_official_release=$(if echo '${{ inputs.version_number }}' | grep -q 'pre'; then echo 'false'; else echo 'true'; fi)"
             echo "runs_tests=$(if [ '${{ inputs.skip_tests }}' = 'true' ]; then echo 'false'; else echo 'true'; fi)"
           } >> "$GITHUB_OUTPUT"
 
@@ -61,7 +59,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           labels: failed-release
-          title: Releasing openapicli v${{ inputs.version_number }} failed at the tag creation step
+          title: "Releasing openapicli v${{ inputs.version_number }} failed at the tag creation step :scream_cat:"
           body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   run-tests:
@@ -88,11 +86,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
         with:
-          go-version-file: 'go.mod'
+          go-version-file: 'tools/cli/go.mod'
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@7ec5c2b0c6cdda6e8bbb49444bc797dd33d74dd8
         with:
           version: latest
+          workdir: tools/cli
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -103,5 +102,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           labels: failed-release
-          title: Releasing openapicli v${{ inputs.version_number }} failed at the goreleaser step
+          title: "Releasing openapicli v${{ inputs.version_number }} failed at the goreleaser step :scream_cat:"
           body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
