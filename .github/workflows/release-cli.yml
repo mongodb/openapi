@@ -16,26 +16,12 @@ on:
         default: 'false'
 
 jobs:
-  release-config:
-    runs-on: ubuntu-latest
-    outputs:
-      creates_new_tag: ${{ steps.evaluate_inputs.outputs.creates_new_tag }}
-      runs_tests: ${{ steps.evaluate_inputs.outputs.runs_tests }}
-    steps:
-      - id: evaluate_inputs
-        run: |
-          {
-            echo "creates_new_tag=$(if [ '${{ inputs.use_existing_tag }}' = 'true' ]; then echo 'false'; else echo 'true'; fi)"
-            echo "runs_tests=$(if [ '${{ inputs.skip_tests }}' = 'true' ]; then echo 'false'; else echo 'true'; fi)"
-          } >> "$GITHUB_OUTPUT"
-
   create-tag:
     runs-on: ubuntu-latest
     needs: [ release-config ]
     if: >-
       !cancelled()
-      && !contains(needs.*.result, 'failure') 
-      && needs.release-config.outputs.creates_new_tag == 'true'
+      && inputs.use_existing_tag == 'false'
     steps:
       - name: Validation of version format
         run: |
@@ -63,11 +49,11 @@ jobs:
           body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   run-tests:
-    needs: [ release-config, create-tag ]
+    needs: [ create-tag ]
     if: >-
       !cancelled()
       && !contains(needs.*.result, 'failure')
-      && needs.release-config.outputs.runs_tests == 'true'
+      && inputs.skip_tests == 'false'
     secrets: inherit
     uses: ./.github/workflows/code-health-tools.yml
 
