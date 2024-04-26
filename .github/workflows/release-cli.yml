@@ -1,0 +1,91 @@
+name: 'New Release'
+run-name: 'Release ${{ inputs.version_number }} (skip tests: ${{ inputs.skip_tests }}, use existing tag: ${{ inputs.use_existing_tag}})'
+
+# Used for creating a new release. This workflow will run qa acceptance tests, create a new tag, and generate the release with GoReleaser.
+on:
+  workflow_dispatch:
+    inputs:
+      version_number:
+        description: 'Version number (e.g., v1.0.0, v1.0.0-pre, v1.0.0-pre1)'
+        required: true
+      skip_tests:
+        description: 'Set value to `true` to skip tests, default is `false`'
+        default: 'false'
+      use_existing_tag:
+        description: 'Set value to `true` to use an existing tag for the release process, default is `false`'
+        default: 'false'
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    if: >-
+      !cancelled()
+      && inputs.use_existing_tag == 'false'
+    steps:
+      - name: Validation of version format
+        run: |
+          echo "${{ inputs.version_number }}" | grep -P '^v\d+\.\d+\.\d+(-pre[A-Za-z0-9-]*)?$'
+      - name: Checkout
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633
+      - name: Get the latest commit SHA
+        id: get-sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Create release tag
+        uses: rickstaa/action-create-tag@a1c7777fcb2fee4f19b0f283ba888afa11678b72
+        with:
+          tag: ${{ inputs.version_number }}
+          commit_sha: ${{ steps.get-sha.outputs.sha }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg_passphrase: ${{ secrets.PASSPHRASE }}
+      - name: Create Issue
+        if: ${{ failure() }}
+        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          labels: failed-release
+          title: "Releasing openapicli v${{ inputs.version_number }} failed at the tag creation step :scream_cat:"
+          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  run-tests:
+    needs: [ create-tag ]
+    if: >-
+      !cancelled()
+      && !contains(needs.*.result, 'failure')
+      && inputs.skip_tests == 'false'
+    secrets: inherit
+    uses: ./.github/workflows/code-health-tools.yml
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [ run-tests ]
+    # Release is skipped if there are failures in previous steps
+    if: >-
+      !cancelled()
+      && !contains(needs.*.result, 'failure')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633
+        with:
+          ref: ${{ inputs.version_number }}
+      - name: Set up Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+        with:
+          go-version-file: 'tools/cli/go.mod'
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@7ec5c2b0c6cdda6e8bbb49444bc797dd33d74dd8
+        with:
+          version: latest
+          workdir: tools/cli
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Issue
+        if: ${{ failure() }}
+        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          labels: failed-release
+          title: "Releasing openapicli v${{ inputs.version_number }} failed at the goreleaser step :scream_cat:"
+          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
