@@ -24,8 +24,8 @@ import (
 )
 
 const (
-	ToolName    = "openapicli"
-	verTemplate = `openapicli version: %s
+	ToolName    = "foascli"
+	verTemplate = `foascli version: %s
 git version: %s
 Go version: %s
    os: %s
@@ -43,7 +43,7 @@ func Builder() *cobra.Command {
 		Use:     ToolName,
 		Short:   "CLI tool to validate and merge your Open API Specifications",
 		Example: `  # Display the help menu for the merge command:
-  openapicli merge --help
+  foascli merge --help
 `,
 		SilenceUsage: true,
 	}

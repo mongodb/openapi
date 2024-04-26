@@ -2,7 +2,7 @@
 
 GOLANGCI_VERSION=v1.56.2
 SOURCE_FILES?=./cmd
-BINARY_NAME=openapicli
+BINARY_NAME=foascli
 VERSION=v0.0.1
 GIT_SHA?=$(shell git rev-parse HEAD)
 DESTINATION=./bin/$(BINARY_NAME)
@@ -39,13 +39,13 @@ fmt: ### Format all go files with goimports and gofmt
 
 .PHONY: build
 build:
-	@echo "==> Building openapicli binary"
+	@echo "==> Building foascli binary"
 	go build -ldflags "$(LINKER_FLAGS)" -o $(DESTINATION) $(SOURCE_FILES)
 
 
 .PHONY: build-debug
 build-debug:
-	@echo "==> Building openapicli binary for debugging"
+	@echo "==> Building foascli binary for debugging"
 	go build -gcflags="$(DEBUG_FLAGS)" -ldflags "$(LINKER_FLAGS)" -o $(DESTINATION) $(SOURCE_FILES)
 
 .PHONY: lint
