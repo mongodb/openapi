@@ -1,13 +1,13 @@
 module github.com/mongodb/openapi/tools/cli
 
-go 1.22.1
+go 1.22.3
 
 require (
-	github.com/getkin/kin-openapi v0.123.0
+	github.com/getkin/kin-openapi v0.124.0
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
-	github.com/tufin/oasdiff v1.10.14
+	github.com/tufin/oasdiff v1.10.15
 	go.uber.org/mock v0.4.0
 )
 
@@ -17,7 +17,7 @@ require (
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/invopop/yaml v0.2.0 // indirect
+	github.com/invopop/yaml v0.3.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
