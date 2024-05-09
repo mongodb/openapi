@@ -78,10 +78,10 @@ func (m *MockMerger) EXPECT() *MockMergerMockRecorder {
 }
 
 // MergeOpenAPISpecs mocks base method.
-func (m *MockMerger) MergeOpenAPISpecs(arg0 []string) (*load.SpecInfo, error) {
+func (m *MockMerger) MergeOpenAPISpecs(arg0 []string) (*Spec, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "MergeOpenAPISpecs", arg0)
-	ret0, _ := ret[0].(*load.SpecInfo)
+	ret0, _ := ret[0].(*Spec)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
