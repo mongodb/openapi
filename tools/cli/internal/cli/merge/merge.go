@@ -72,7 +72,7 @@ func prettyPrint(data []byte) error {
 	if err := json.Indent(&prettyJSON, data, "", "    "); err != nil {
 		return err
 	}
-	fmt.Println(string(prettyJSON.Bytes()))
+	fmt.Println(prettyJSON.String())
 	return nil
 }
 
