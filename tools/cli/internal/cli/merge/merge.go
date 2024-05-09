@@ -15,6 +15,8 @@
 package merge
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -23,10 +25,6 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-)
-
-const (
-	DefaultOutputFileName = "FOAS.json"
 )
 
 type Opts struct {
@@ -48,6 +46,10 @@ func (o *Opts) Run() error {
 		return err
 	}
 
+	if o.outputPath == "" {
+		return prettyPrint(federatedBytes)
+	}
+
 	return o.saveFile(federatedBytes)
 }
 
@@ -63,6 +65,15 @@ func (o *Opts) PreRunE(_ []string) error {
 	m, err := openapi.NewOasDiff(o.basePath)
 	o.Merger = m
 	return err
+}
+
+func prettyPrint(data []byte) error {
+	var prettyJSON bytes.Buffer
+	if err := json.Indent(&prettyJSON, data, "", "    "); err != nil {
+		return err
+	}
+	fmt.Println(string(prettyJSON.Bytes()))
+	return nil
 }
 
 func (o *Opts) saveFile(data []byte) error {
@@ -95,6 +106,6 @@ func Builder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.Base)
 	cmd.Flags().StringArrayVarP(&opts.externalPaths, flag.External, flag.ExternalShort, nil, usage.External)
-	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, DefaultOutputFileName, usage.Output)
+	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	return cmd
 }
