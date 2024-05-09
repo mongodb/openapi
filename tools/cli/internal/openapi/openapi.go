@@ -36,7 +36,7 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*load.SpecInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		specDiff, err := diff.Get(o.config, o.base.Spec, spec.Spec)
 		if err != nil {
 			log.Fatalf("error in calculating the diff of the specs: %s", err)
