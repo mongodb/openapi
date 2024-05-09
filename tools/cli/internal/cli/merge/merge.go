@@ -47,7 +47,7 @@ func (o *Opts) Run() error {
 	}
 
 	if o.outputPath == "" {
-		return prettyPrintJson(federatedBytes)
+		return prettyPrintJSON(federatedBytes)
 	}
 
 	return o.saveFile(federatedBytes)
@@ -67,7 +67,7 @@ func (o *Opts) PreRunE(_ []string) error {
 	return err
 }
 
-func prettyPrintJson(jsonBytes []byte) error {
+func prettyPrintJSON(jsonBytes []byte) error {
 	var prettyJSON bytes.Buffer
 	if err := json.Indent(&prettyJSON, jsonBytes, "", "    "); err != nil {
 		return err
