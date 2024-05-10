@@ -16,9 +16,9 @@ package openapi
 
 //go:generate mockgen -destination=../openapi/mock_openapi.go -package=openapi github.com/mongodb/openapi/tools/cli/internal/openapi Parser,Merger
 import (
-	"github.com/getkin/kin-openapi/openapi3"
 	"log"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
 )
@@ -33,12 +33,12 @@ type Merger interface {
 
 type Spec struct {
 	OpenAPI      string                        `json:"openapi" yaml:"openapi"`
-	Info         *openapi3.Info                `json:"info" yaml:"info"`
+	Security     openapi3.SecurityRequirements `json:"security,omitempty" yaml:"security,omitempty"`
 	Servers      openapi3.Servers              `json:"servers,omitempty" yaml:"servers,omitempty"`
 	Tags         openapi3.Tags                 `json:"tags,omitempty" yaml:"tags,omitempty"`
+	Info         *openapi3.Info                `json:"info" yaml:"info"`
 	Paths        *openapi3.Paths               `json:"paths" yaml:"paths"`
 	Components   *openapi3.Components          `json:"components,omitempty" yaml:"components,omitempty"`
-	Security     openapi3.SecurityRequirements `json:"security,omitempty" yaml:"security,omitempty"`
 	ExternalDocs *openapi3.ExternalDocs        `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
 }
 

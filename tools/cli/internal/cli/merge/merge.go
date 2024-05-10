@@ -40,7 +40,7 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	federatedBytes, err := json.MarshalIndent(*federated, "", "    ")
+	federatedBytes, err := json.MarshalIndent(*federated, "", "  ")
 	if err != nil {
 		return err
 	}
