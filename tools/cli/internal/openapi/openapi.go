@@ -16,7 +16,6 @@ package openapi
 
 //go:generate mockgen -destination=../openapi/mock_openapi.go -package=openapi github.com/mongodb/openapi/tools/cli/internal/openapi Parser,Merger
 import (
-	"github.com/getkin/kin-openapi/openapi3"
 	"log"
 
 	"github.com/tufin/oasdiff/diff"
@@ -28,21 +27,10 @@ type Parser interface {
 }
 
 type Merger interface {
-	MergeOpenAPISpecs([]string) (*Spec, error)
+	MergeOpenAPISpecs([]string) (*load.SpecInfo, error)
 }
 
-type Spec struct {
-	OpenAPI      string                        `json:"openapi" yaml:"openapi"`
-	Info         *openapi3.Info                `json:"info" yaml:"info"`
-	Servers      openapi3.Servers              `json:"servers,omitempty" yaml:"servers,omitempty"`
-	Tags         openapi3.Tags                 `json:"tags,omitempty" yaml:"tags,omitempty"`
-	Paths        *openapi3.Paths               `json:"paths" yaml:"paths"`
-	Components   *openapi3.Components          `json:"components,omitempty" yaml:"components,omitempty"`
-	Security     openapi3.SecurityRequirements `json:"security,omitempty" yaml:"security,omitempty"`
-	ExternalDocs *openapi3.ExternalDocs        `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
-}
-
-func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
+func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*load.SpecInfo, error) {
 	for _, p := range paths {
 		spec, err := o.parser.CreateOpenAPISpecFromPath(p)
 		if err != nil {
@@ -63,7 +51,7 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
 		}
 	}
 
-	return newSpec(o.base), nil
+	return o.base, nil
 }
 
 func NewOasDiff(base string) (*OasDiff, error) {
@@ -80,17 +68,4 @@ func NewOasDiff(base string) (*OasDiff, error) {
 			IncludePathParams: true,
 		},
 	}, nil
-}
-
-func newSpec(specInfo *load.SpecInfo) *Spec {
-	return &Spec{
-		OpenAPI:      specInfo.Spec.OpenAPI,
-		Components:   specInfo.Spec.Components,
-		Info:         specInfo.Spec.Info,
-		Paths:        specInfo.Spec.Paths,
-		Security:     specInfo.Spec.Security,
-		Servers:      specInfo.Spec.Servers,
-		Tags:         specInfo.Spec.Tags,
-		ExternalDocs: specInfo.Spec.ExternalDocs,
-	}
 }

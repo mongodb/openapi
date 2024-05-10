@@ -15,6 +15,7 @@
 package merge
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -40,14 +41,13 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	federatedBytes, err := json.MarshalIndent(*federated, "", "    ")
+	federatedBytes, err := federated.Spec.MarshalJSON()
 	if err != nil {
 		return err
 	}
 
 	if o.outputPath == "" {
-		fmt.Println(string(federatedBytes))
-		return nil
+		return prettyPrintJSON(federatedBytes)
 	}
 
 	return o.saveFile(federatedBytes)
@@ -65,6 +65,15 @@ func (o *Opts) PreRunE(_ []string) error {
 	m, err := openapi.NewOasDiff(o.basePath)
 	o.Merger = m
 	return err
+}
+
+func prettyPrintJSON(jsonBytes []byte) error {
+	var prettyJSON bytes.Buffer
+	if err := json.Indent(&prettyJSON, jsonBytes, "", "    "); err != nil {
+		return err
+	}
+	fmt.Println(prettyJSON.String())
+	return nil
 }
 
 func (o *Opts) saveFile(data []byte) error {
