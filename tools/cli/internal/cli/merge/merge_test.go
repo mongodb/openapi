@@ -23,6 +23,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"github.com/tufin/oasdiff/load"
 	"go.uber.org/mock/gomock"
 )
 
@@ -39,11 +40,10 @@ func TestSuccessfulMerge_Run(t *testing.T) {
 		fs:            fs,
 	}
 
-	response := &openapi.Spec{
-		OpenAPI: "v3.0.1",
-		Info:    &openapi3.Info{},
-		Servers: nil,
-		Tags:    openapi3.Tags{},
+	response := &load.SpecInfo{
+		Spec:    &openapi3.T{},
+		Url:     "test",
+		Version: "3.0.1",
 	}
 
 	mockMergerStore.

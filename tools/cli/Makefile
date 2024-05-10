@@ -1,6 +1,6 @@
 # A Self-Documenting Makefile: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 
-GOLANGCI_VERSION=v1.56.2
+GOLANGCI_VERSION=v1.58.1
 SOURCE_FILES?=./cmd
 BINARY_NAME=foascli
 VERSION=v0.0.1
