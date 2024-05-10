@@ -18,6 +18,7 @@ package openapi
 import (
 	"log"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
 )
@@ -27,10 +28,21 @@ type Parser interface {
 }
 
 type Merger interface {
-	MergeOpenAPISpecs([]string) (*load.SpecInfo, error)
+	MergeOpenAPISpecs([]string) (*Spec, error)
 }
 
-func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*load.SpecInfo, error) {
+type Spec struct {
+	OpenAPI      string                        `json:"openapi" yaml:"openapi"`
+	Security     openapi3.SecurityRequirements `json:"security,omitempty" yaml:"security,omitempty"`
+	Servers      openapi3.Servers              `json:"servers,omitempty" yaml:"servers,omitempty"`
+	Tags         openapi3.Tags                 `json:"tags,omitempty" yaml:"tags,omitempty"`
+	Info         *openapi3.Info                `json:"info" yaml:"info"`
+	Paths        *openapi3.Paths               `json:"paths" yaml:"paths"`
+	Components   *openapi3.Components          `json:"components,omitempty" yaml:"components,omitempty"`
+	ExternalDocs *openapi3.ExternalDocs        `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
+}
+
+func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
 	for _, p := range paths {
 		spec, err := o.parser.CreateOpenAPISpecFromPath(p)
 		if err != nil {
@@ -51,7 +63,7 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*load.SpecInfo, error) {
 		}
 	}
 
-	return o.base, nil
+	return newSpec(o.base), nil
 }
 
 func NewOasDiff(base string) (*OasDiff, error) {
@@ -68,4 +80,17 @@ func NewOasDiff(base string) (*OasDiff, error) {
 			IncludePathParams: true,
 		},
 	}, nil
+}
+
+func newSpec(specInfo *load.SpecInfo) *Spec {
+	return &Spec{
+		OpenAPI:      specInfo.Spec.OpenAPI,
+		Components:   specInfo.Spec.Components,
+		Info:         specInfo.Spec.Info,
+		Paths:        specInfo.Spec.Paths,
+		Security:     specInfo.Spec.Security,
+		Servers:      specInfo.Spec.Servers,
+		Tags:         specInfo.Spec.Tags,
+		ExternalDocs: specInfo.Spec.ExternalDocs,
+	}
 }
