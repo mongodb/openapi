@@ -1,10 +1,11 @@
 package cli
 
 import (
-	"github.com/stretchr/testify/require"
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestMerge(t *testing.T) {
