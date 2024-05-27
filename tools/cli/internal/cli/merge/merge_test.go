@@ -90,7 +90,7 @@ func TestOpts_PreRunE(t *testing.T) {
 		},
 		{
 			wantErr:       require.NoError,
-			basePath:      "../../../test/data/base.json",
+			basePath:      "../../../test/data/valid_base_spec.json",
 			name:          "Successful",
 			externalPaths: []string{"test"},
 		},
