@@ -79,3 +79,15 @@ jobs:
           echo "::add-matcher::.github/actionlint-matcher.json"
           ${{ steps.get_actionlint.outputs.executable }} -color
         shell: bash
+  e2e-tests:
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b
+      - name: Install Go
+        uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7
+        with:
+          go-version-file: 'tools/cli/go.mod'
+      - name: Run e2e tests
+        working-directory: tools/cli
+        run: make e2e-test

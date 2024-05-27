@@ -7,6 +7,14 @@ VERSION=v0.0.1
 GIT_SHA?=$(shell git rev-parse HEAD)
 DESTINATION=./bin/$(BINARY_NAME)
 
+# e2e tests
+CLI_E2E_BINARY?=../../../bin/${BINARY_NAME}
+E2E_TIMEOUT?=60m
+E2E_PARALLEL?=1
+E2E_EXTRA_ARGS?=
+
+
+
 LINKER_GH_SHA_FLAG=-s -w -X github.com/mongodb/openapi/tools/cli/internal/version.GitCommit=${GIT_SHA}
 LINKER_FLAGS=${LINKER_GH_SHA_FLAG} -X github.com/mongodb/openapi/tools/cli/internal/version.Version=${VERSION}
 
@@ -16,6 +24,7 @@ COVERAGE=coverage.out
 
 export TERM := linux-m
 export GO111MODULE := on
+export CLI_E2E_BINARY
 
 .PHONY: deps
 deps:  ## Download go module dependencies
@@ -59,6 +68,13 @@ fix-lint: ## Fix linting errors
 .PHONY: list
 list: ## List all make targets
 	@${MAKE} -pRrn : -f $(MAKEFILE_LIST) 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | sort
+
+.PHONY: e2e-test
+e2e-test: build ## Run E2E tests
+	@echo "==> Running E2E tests..."
+	# the target assumes the MCLI_* environment variables are exported
+	go test -v -p 1 -parallel $(E2E_PARALLEL) -timeout $(E2E_TIMEOUT)  ./test/e2e... $(E2E_EXTRA_ARGS)
+
 
 .PHONY: unit-test
 unit-test: ## Run unit-tests
