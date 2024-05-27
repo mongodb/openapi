@@ -78,7 +78,7 @@ e2e-test: build ## Run E2E tests
 .PHONY: unit-test
 unit-test: ## Run unit-tests
 	@echo "==> Running unit tests..."
-	$(TEST_CMD) -race -cover ./...
+	$(TEST_CMD) -race -cover ./internal...
 
 .PHONY: gen-mocks
 gen-mocks: ## Generate mocks
