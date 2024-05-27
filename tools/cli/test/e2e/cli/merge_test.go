@@ -34,7 +34,7 @@ func TestMerge(t *testing.T) {
 		require.NoError(t, cmd.Run(), e.String())
 
 		assert.Contains(t, o.String(), "\"openapi\"")
-		assert.Contains(t, e.String(), "We silently resolved the conflict with the schemas \"ApiError\" because the definition was identical") //nolint:lll // Limit is over 120 characters
+		assert.Contains(t, e.String(), "We silently resolved the conflict with the schemas \"ApiError\" because the definition was identical") //nolint:lll // Line is over 120 characters
 		assert.Contains(t, o.String(), "\"ApiError\":")
 	})
 
@@ -60,7 +60,7 @@ func TestMerge(t *testing.T) {
 		resp, err := cmd.CombinedOutput()
 		stringResponse := string(resp)
 		require.Error(t, err, stringResponse)
-		assert.Contains(t, stringResponse, "Error: there was a conflict with the path: \"/api/atlas/v2/groups/{groupId}/events\"") //nolint:lll // Limit is over 120 characters
+		assert.Contains(t, stringResponse, "Error: there was a conflict with the path: \"/api/atlas/v2/groups/{groupId}/events\"") //nolint:lll // Line is over 120 characters
 	})
 
 	t.Run("Expecting Error: Merge duplicated tag", func(t *testing.T) {
@@ -85,7 +85,7 @@ func TestMerge(t *testing.T) {
 		resp, err := cmd.CombinedOutput()
 		stringResponse := string(resp)
 		require.Error(t, err, stringResponse)
-		assert.Contains(t, stringResponse, "Error: there was a conflict with the Tag \"Events\" with the description: \"Returns information about the MongoDB Atlas Specification.\"") //nolint:lll // Limit is over 120 characters
+		assert.Contains(t, stringResponse, "Error: there was a conflict with the Tag \"Events\" with the description: \"Returns information about the MongoDB Atlas Specification.\"") //nolint:lll // Line is over 120 characters
 	})
 
 	t.Run("Expecting Error: not identical component", func(t *testing.T) {
