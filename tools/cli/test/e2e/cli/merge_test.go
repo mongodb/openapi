@@ -17,7 +17,7 @@ func TestMerge(t *testing.T) {
 	t.Run("Merge valid specs", func(t *testing.T) {
 		base, err := NewBaseSpec()
 		require.NoError(t, err)
-		external, err := NewValidAPIRegistrySpec()
+		external, err := NewAPIRegistrySpec()
 		require.NoError(t, err)
 
 		cmd := exec.Command(cliPath,
@@ -43,7 +43,7 @@ func TestMerge(t *testing.T) {
 		require.NoError(t, err)
 		apiRegistrySpec, err := NewDuplicatedPathAPIRegistrySpec()
 		require.NoError(t, err)
-		authnSpec, err := NewValidAuthNSpec()
+		authnSpec, err := NewAuthNSpec()
 		require.NoError(t, err)
 
 		cmd := exec.Command(cliPath,
@@ -66,7 +66,7 @@ func TestMerge(t *testing.T) {
 	t.Run("Expecting Error: Merge duplicated tag", func(t *testing.T) {
 		base, err := NewBaseSpec()
 		require.NoError(t, err)
-		apiRegistrySpec, err := NewValidAPIRegistrySpec()
+		apiRegistrySpec, err := NewAPIRegistrySpec()
 		require.NoError(t, err)
 		authnSpec, err := NewDuplicatedTagAuthNSpec()
 		require.NoError(t, err)
@@ -93,7 +93,7 @@ func TestMerge(t *testing.T) {
 		require.NoError(t, err)
 		apiRegistrySpec, err := NewNotIdenticalComponentPIRegistrySpec()
 		require.NoError(t, err)
-		authnSpec, err := NewValidAuthNSpec()
+		authnSpec, err := NewAuthNSpec()
 		require.NoError(t, err)
 
 		cmd := exec.Command(cliPath,
