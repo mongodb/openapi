@@ -127,8 +127,7 @@ func updateExternalRefResponses(responses *openapi3.Responses) {
 
 	for _, v := range responses.Map() {
 		if strings.Contains(v.Ref, ".json#") {
-			pos := strings.Index(v.Ref, "#")
-			v.Ref = v.Ref[pos:]
+			v.Ref = removeExternalRef(v.Ref)
 			continue
 		}
 
@@ -140,6 +139,15 @@ func updateExternalRefResponses(responses *openapi3.Responses) {
 	}
 }
 
+func removeExternalRef(ref string) string {
+	pos := strings.Index(ref, "#")
+	if pos == -1 {
+		return ref
+	}
+
+	return ref[:pos]
+}
+
 // updateExternalRefContent updates the external references of OASes to remove the reference to openapi-mms.json
 // in the Schema.Content.
 func updateExternalRefContent(content *openapi3.Content) {
@@ -149,8 +157,7 @@ func updateExternalRefContent(content *openapi3.Content) {
 		}
 
 		if strings.Contains(value.Schema.Ref, ".json#") {
-			pos := strings.Index(value.Schema.Ref, "#")
-			value.Schema.Ref = value.Schema.Ref[pos:]
+			value.Schema.Ref = removeExternalRef(value.Schema.Ref)
 		}
 	}
 }
@@ -165,8 +172,7 @@ func updateExternalRefParams(params *openapi3.Parameters) {
 
 	for _, v := range *params {
 		if strings.Contains(v.Ref, ".json#") {
-			pos := strings.Index(v.Ref, "#")
-			v.Ref = v.Ref[pos:]
+			v.Ref = removeExternalRef(v.Ref)
 			continue
 		}
 
@@ -188,8 +194,7 @@ func updateExternalRefReqBody(reqBody *openapi3.RequestBodyRef) {
 
 	if reqBody.Ref != "" {
 		if strings.Contains(reqBody.Ref, ".json#") {
-			pos := strings.Index(reqBody.Ref, "#")
-			reqBody.Ref = reqBody.Ref[pos:]
+			reqBody.Ref = removeExternalRef(reqBody.Ref)
 		}
 		return
 	}
