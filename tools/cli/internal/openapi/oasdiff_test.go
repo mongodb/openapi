@@ -844,7 +844,7 @@ func TestUpdateExternalRefResponses(t *testing.T) {
 			expected: map[string]*openapi3.ResponseRef{},
 		},
 		{
-			name: "Responses with Ref to .json#",
+			name: "Responses with external ref",
 			input: map[string]*openapi3.ResponseRef{
 				"200": {
 					Ref: "openapi-mms.json#someRef",
@@ -870,7 +870,7 @@ func TestUpdateExternalRefResponses(t *testing.T) {
 			},
 		},
 		{
-			name: "Responses with nested Content Ref to .json#",
+			name: "Responses with nested Content with external ref",
 			input: map[string]*openapi3.ResponseRef{
 				"200": {
 					Value: &openapi3.Response{
@@ -899,7 +899,7 @@ func TestUpdateExternalRefResponses(t *testing.T) {
 			},
 		},
 		{
-			name: "Responses with no matching Ref",
+			name: "Responses with no external ref to another OAS than openapi-mms.json",
 			input: map[string]*openapi3.ResponseRef{
 				"200": {
 					Ref: "other.json#someRef",
@@ -933,4 +933,98 @@ func newResponseFromMap(t *testing.T, input map[string]*openapi3.ResponseRef) *o
 	}
 
 	return output
+}
+
+func TestUpdateExternalRefParams(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *openapi3.Parameters
+		expected *openapi3.Parameters
+	}{
+		{
+			name:     "Nil Param",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name:     "Empty Param",
+			input:    &openapi3.Parameters{},
+			expected: &openapi3.Parameters{},
+		},
+		{
+			name: "Param with external ref#",
+			input: &openapi3.Parameters{
+				{
+					Ref: "openapi-mms.json#someRef",
+				},
+			},
+			expected: &openapi3.Parameters{
+				{
+					Ref: "#someRef",
+				},
+			},
+		},
+		{
+			name: "Param with internal Ref",
+			input: &openapi3.Parameters{
+				{
+					Ref: "#someRef",
+				},
+			},
+			expected: &openapi3.Parameters{
+				{
+					Ref: "#someRef",
+				},
+			},
+		},
+		{
+			name: "Param with nested Content with external Ref",
+			input: &openapi3.Parameters{
+				{
+					Value: &openapi3.Parameter{
+						Content: openapi3.Content{
+							"application/json": &openapi3.MediaType{
+								Schema: &openapi3.SchemaRef{
+									Ref: "openapi-mms.json#nestedRef",
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: &openapi3.Parameters{
+				{
+					Value: &openapi3.Parameter{
+						Content: openapi3.Content{
+							"application/json": &openapi3.MediaType{
+								Schema: &openapi3.SchemaRef{
+									Ref: "#nestedRef",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Responses with no external ref to another OAS than openapi-mms.json",
+			input: &openapi3.Parameters{
+				{
+					Ref: "other.json#someRef",
+				},
+			},
+			expected: &openapi3.Parameters{
+				{
+					Ref: "#someRef",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			updateExternalRefParams(tt.input)
+			assert.True(t, reflect.DeepEqual(tt.expected, tt.input))
+		})
+	}
 }
