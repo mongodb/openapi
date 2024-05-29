@@ -16,7 +16,9 @@ package openapi
 
 import (
 	"log"
+	"strings"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
@@ -68,7 +70,7 @@ func (o OasDiff) mergePaths() error {
 
 	for k, v := range pathsToMerge.Map() {
 		if ok := basePaths.Value(k); ok == nil {
-			basePaths.Set(k, v)
+			basePaths.Set(k, removeExternalRefs(v))
 		} else {
 			return errors.PathConflictError{
 				Entry: k,
@@ -78,6 +80,130 @@ func (o OasDiff) mergePaths() error {
 
 	o.base.Spec.Paths = basePaths
 	return nil
+}
+
+// removeExternalRefs updates the external references of OASes to remove the reference to openapi-mms.json.
+// Example of an external ref is "$ref": "openapi-mms.json#/components/responses/internalServerError"
+// Example of an external ref after removeExternalRefs: "$ref": "#/components/responses/internalServerError"
+func removeExternalRefs(path *openapi3.PathItem) *openapi3.PathItem {
+	if path.Get != nil {
+		updateExternalRefResponses(path.Get.Responses)
+		updateExternalRefParams(&path.Get.Parameters)
+	}
+
+	if path.Put != nil {
+		updateExternalRefResponses(path.Put.Responses)
+		updateExternalRefParams(&path.Put.Parameters)
+		updateExternalRefReqBody(path.Put.RequestBody)
+	}
+
+	if path.Post != nil {
+		updateExternalRefResponses(path.Post.Responses)
+		updateExternalRefParams(&path.Post.Parameters)
+		updateExternalRefReqBody(path.Post.RequestBody)
+	}
+
+	if path.Patch != nil {
+		updateExternalRefResponses(path.Patch.Responses)
+		updateExternalRefParams(&path.Patch.Parameters)
+		updateExternalRefReqBody(path.Patch.RequestBody)
+	}
+
+	if path.Delete != nil {
+		updateExternalRefResponses(path.Delete.Responses)
+		updateExternalRefParams(&path.Delete.Parameters)
+	}
+
+	return path
+}
+
+// updateExternalRefResponses updates the external references of OASes to remove the reference to openapi-mms.json
+// in the Responses.
+// A Response can have an external ref in Response.Ref or in its content (Response.Content.Schema.Ref)
+func updateExternalRefResponses(responses *openapi3.Responses) {
+	if responses == nil {
+		return
+	}
+
+	for _, v := range responses.Map() {
+		if strings.Contains(v.Ref, ".json#") {
+			v.Ref = removeExternalRef(v.Ref)
+			continue
+		}
+
+		if v.Value == nil || v.Value.Content == nil {
+			continue
+		}
+
+		updateExternalRefContent(&v.Value.Content)
+	}
+}
+
+func removeExternalRef(ref string) string {
+	pos := strings.Index(ref, "#")
+	if pos == -1 {
+		return ref
+	}
+
+	return ref[pos:]
+}
+
+// updateExternalRefContent updates the external references of OASes to remove the reference to openapi-mms.json
+// in the Schema.Content.
+func updateExternalRefContent(content *openapi3.Content) {
+	for _, value := range *content {
+		if value.Schema == nil {
+			continue
+		}
+
+		if strings.Contains(value.Schema.Ref, ".json#") {
+			value.Schema.Ref = removeExternalRef(value.Schema.Ref)
+		}
+	}
+}
+
+// updateExternalRefParams updates the external references of OASes to remove the reference to openapi-mms.json
+// in the Parameters.
+// A Parameter can have an external ref in Parameter.Ref or in its content (Parameter.Content.Schema.Ref)
+func updateExternalRefParams(params *openapi3.Parameters) {
+	if params == nil {
+		return
+	}
+
+	for _, v := range *params {
+		if strings.Contains(v.Ref, ".json#") {
+			v.Ref = removeExternalRef(v.Ref)
+			continue
+		}
+
+		if v.Value == nil || v.Value.Content == nil {
+			continue
+		}
+
+		updateExternalRefContent(&v.Value.Content)
+	}
+}
+
+// updateExternalRefReqBody updates the external references of OASes to remove the reference to openapi-mms.json
+// in the RequestBody.
+// A RequestBody can have an external ref in RequestBody.Ref or in its content (RequestBody.Content.Schema.Ref)
+func updateExternalRefReqBody(reqBody *openapi3.RequestBodyRef) {
+	if reqBody == nil {
+		return
+	}
+
+	if reqBody.Ref != "" {
+		if strings.Contains(reqBody.Ref, ".json#") {
+			reqBody.Ref = removeExternalRef(reqBody.Ref)
+		}
+		return
+	}
+
+	if reqBody.Value == nil || reqBody.Value.Content == nil {
+		return
+	}
+
+	updateExternalRefContent(&reqBody.Value.Content)
 }
 
 func (o OasDiff) mergeTags() error {
