@@ -20,7 +20,6 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/pointer"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
@@ -898,7 +897,7 @@ func TestUpdateExternalRefResponses(t *testing.T) {
 			},
 		},
 		{
-			name: "Responses with no external ref to another OAS than openapi-mms.json",
+			name: "Responses with external ref to another OAS than openapi-mms.json",
 			input: map[string]*openapi3.ResponseRef{
 				"200": {
 					Ref: "other.json#someRef",
@@ -918,7 +917,9 @@ func TestUpdateExternalRefResponses(t *testing.T) {
 			expected := newResponseFromMap(t, tt.expected)
 
 			updateExternalRefResponses(input)
-			assert.True(t, reflect.DeepEqual(expected, input))
+			if !reflect.DeepEqual(expected, input) {
+				t.Errorf("expected %v, got %v", expected, input)
+			}
 		})
 	}
 }
@@ -1006,7 +1007,7 @@ func TestUpdateExternalRefParams(t *testing.T) {
 			},
 		},
 		{
-			name: "Responses with no external ref to another OAS than openapi-mms.json",
+			name: "Responses with external ref to another OAS than openapi-mms.json",
 			input: &openapi3.Parameters{
 				{
 					Ref: "other.json#someRef",
@@ -1023,7 +1024,88 @@ func TestUpdateExternalRefParams(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			updateExternalRefParams(tt.input)
-			assert.True(t, reflect.DeepEqual(tt.expected, tt.input))
+			if !reflect.DeepEqual(tt.expected, tt.input) {
+				t.Errorf("expected %v, got %v", tt.expected, tt.input)
+			}
+		})
+	}
+}
+
+func TestUpdateExternalRefReqBody(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *openapi3.RequestBodyRef
+		expected *openapi3.RequestBodyRef
+	}{
+		{
+			name:     "Nil request body",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Request body with external ref",
+			input: &openapi3.RequestBodyRef{
+				Ref: "openapi-mms.json#someRef",
+			},
+			expected: &openapi3.RequestBodyRef{
+				Ref: "#someRef",
+			},
+		},
+		{
+			name: "Request body with nested Content with external ref",
+			input: &openapi3.RequestBodyRef{
+				Value: &openapi3.RequestBody{
+					Content: openapi3.Content{
+						"application/json": &openapi3.MediaType{
+							Schema: &openapi3.SchemaRef{
+								Ref: "openapi-mms.json#nestedRef",
+							},
+						},
+					},
+				},
+			},
+			expected: &openapi3.RequestBodyRef{
+				Value: &openapi3.RequestBody{
+					Content: openapi3.Content{
+						"application/json": &openapi3.MediaType{
+							Schema: &openapi3.SchemaRef{
+								Ref: "#nestedRef",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Request Body with external ref to another OAS than openapi-mms.json",
+			input: &openapi3.RequestBodyRef{
+				Ref: "other.json#someRef",
+			},
+			expected: &openapi3.RequestBodyRef{
+				Ref: "#someRef",
+			},
+		},
+		{
+			name: "Request body with nil content",
+			input: &openapi3.RequestBodyRef{
+				Value: &openapi3.RequestBody{
+					Content: nil,
+				},
+			},
+			expected: &openapi3.RequestBodyRef{
+				Value: &openapi3.RequestBody{
+					Content: nil,
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			updateExternalRefReqBody(tt.input)
+			if !reflect.DeepEqual(tt.expected, tt.input) {
+				t.Errorf("expected %v, got %v", tt.expected, tt.input)
+			}
 		})
 	}
 }
