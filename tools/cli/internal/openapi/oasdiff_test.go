@@ -15,6 +15,8 @@
 package openapi
 
 import (
+	"github.com/stretchr/testify/assert"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -823,4 +825,112 @@ func newExternalSpecPaths(t *testing.T) *openapi3.Paths {
 		},
 	})
 	return inputPath
+}
+
+func TestUpdateExternalRefResponses(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    map[string]*openapi3.ResponseRef
+		expected map[string]*openapi3.ResponseRef
+	}{
+		{
+			name:     "Nil responses",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name:     "Empty responses",
+			input:    map[string]*openapi3.ResponseRef{},
+			expected: map[string]*openapi3.ResponseRef{},
+		},
+		{
+			name: "Responses with Ref to .json#",
+			input: map[string]*openapi3.ResponseRef{
+				"200": {
+					Ref: "openapi-mms.json#someRef",
+				},
+			},
+			expected: map[string]*openapi3.ResponseRef{
+				"200": {
+					Ref: "#someRef",
+				},
+			},
+		},
+		{
+			name: "Responses with internal Ref",
+			input: map[string]*openapi3.ResponseRef{
+				"200": {
+					Ref: "#someRef",
+				},
+			},
+			expected: map[string]*openapi3.ResponseRef{
+				"200": {
+					Ref: "#someRef",
+				},
+			},
+		},
+		{
+			name: "Responses with nested Content Ref to .json#",
+			input: map[string]*openapi3.ResponseRef{
+				"200": {
+					Value: &openapi3.Response{
+						Content: openapi3.Content{
+							"application/json": &openapi3.MediaType{
+								Schema: &openapi3.SchemaRef{
+									Ref: "openapi-mms.json#nestedRef",
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: map[string]*openapi3.ResponseRef{
+				"200": {
+					Value: &openapi3.Response{
+						Content: openapi3.Content{
+							"application/json": &openapi3.MediaType{
+								Schema: &openapi3.SchemaRef{
+									Ref: "#nestedRef",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Responses with no matching Ref",
+			input: map[string]*openapi3.ResponseRef{
+				"200": {
+					Ref: "other.json#someRef",
+				},
+			},
+			expected: map[string]*openapi3.ResponseRef{
+				"200": {
+					Ref: "#someRef",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := newResponseFromMap(t, tt.input)
+			expected := newResponseFromMap(t, tt.expected)
+
+			updateExternalRefResponses(input)
+			assert.True(t, reflect.DeepEqual(expected, input))
+		})
+	}
+}
+
+func newResponseFromMap(t *testing.T, input map[string]*openapi3.ResponseRef) *openapi3.Responses {
+	t.Helper()
+	output := &openapi3.Responses{}
+
+	for k, v := range input {
+		output.Set(k, v)
+	}
+
+	return output
 }

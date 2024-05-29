@@ -145,7 +145,7 @@ func removeExternalRef(ref string) string {
 		return ref
 	}
 
-	return ref[:pos]
+	return ref[pos:]
 }
 
 // updateExternalRefContent updates the external references of OASes to remove the reference to openapi-mms.json
