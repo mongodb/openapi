@@ -9,6 +9,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/tufin/oasdiff v1.10.17
 	go.uber.org/mock v0.4.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -32,5 +33,4 @@ require (
 	github.com/wI2L/jsondiff v0.6.0 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
