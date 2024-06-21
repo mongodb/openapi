@@ -18,4 +18,5 @@ const (
 	Base     = "Base OAS. The command will merge other OASes into it."
 	External = "OASes that will be merged into the base OAS."
 	Output   = "File name where the command will store the output."
+	Format   = "Output format. Supported values are 'json' and 'yaml'."
 )
