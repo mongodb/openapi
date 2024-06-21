@@ -57,6 +57,68 @@ func TestSuccessfulMerge_Run(t *testing.T) {
 	}
 }
 
+func TestSuccessfulMergeYaml_Run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockMergerStore := openapi.NewMockMerger(ctrl)
+	fs := afero.NewMemMapFs()
+	externalPaths := []string{"external.json"}
+	opts := &Opts{
+		Merger:        mockMergerStore,
+		basePath:      "base.json",
+		outputPath:    "foas.yaml",
+		externalPaths: externalPaths,
+		fs:            fs,
+	}
+
+	response := &openapi.Spec{
+		OpenAPI: "v3.0.1",
+		Info:    &openapi3.Info{},
+		Servers: nil,
+		Tags:    openapi3.Tags{},
+	}
+
+	mockMergerStore.
+		EXPECT().
+		MergeOpenAPISpecs(opts.externalPaths).
+		Return(response, nil).
+		Times(1)
+
+	if err := opts.Run(); err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+}
+
+func TestFailedFormat_Run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockMergerStore := openapi.NewMockMerger(ctrl)
+	fs := afero.NewMemMapFs()
+	externalPaths := []string{"external.json"}
+	opts := &Opts{
+		Merger:        mockMergerStore,
+		basePath:      "base.json",
+		outputPath:    "foas.html",
+		externalPaths: externalPaths,
+		fs:            fs,
+	}
+
+	response := &openapi.Spec{
+		OpenAPI: "v3.0.1",
+		Info:    &openapi3.Info{},
+		Servers: nil,
+		Tags:    openapi3.Tags{},
+	}
+
+	mockMergerStore.
+		EXPECT().
+		MergeOpenAPISpecs(opts.externalPaths).
+		Return(response, nil).
+		Times(1)
+
+	if err := opts.Run(); err == nil {
+		t.Fatalf("Run() expected an error but got none.")
+	}
+}
+
 func TestNoBaseSpecMerge_PreRun(t *testing.T) {
 	externalPaths := []string{"external.json"}
 	opts := &Opts{

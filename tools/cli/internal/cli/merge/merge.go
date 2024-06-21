@@ -18,12 +18,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 type Opts struct {
@@ -68,6 +70,22 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 func (o *Opts) saveFile(data []byte) error {
+	if strings.Contains(o.outputPath, ".yaml") {
+		var jsonData interface{}
+		if err := json.Unmarshal(data, &jsonData); err != nil {
+			return err
+		}
+
+		yamlData, err := yaml.Marshal(jsonData)
+		if err != nil {
+			return err
+		}
+
+		data = yamlData
+	} else if !strings.Contains(o.outputPath, ".json") {
+		return fmt.Errorf("output file must be either a JSON or YAML file")
+	}
+
 	if err := afero.WriteFile(o.fs, o.outputPath, data, 0o600); err != nil {
 		return err
 	}
