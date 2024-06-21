@@ -168,3 +168,30 @@ func TestOpts_PreRunE(t *testing.T) {
 		})
 	}
 }
+
+func TestInvalidFormat_PreRun(t *testing.T) {
+	externalPaths := []string{"external.json"}
+	opts := &Opts{
+		outputPath:    "foas.json",
+		externalPaths: externalPaths,
+		basePath:      "base.json",
+		format:        "html",
+	}
+
+	err := opts.PreRunE(nil)
+	require.Error(t, err)
+	require.EqualError(t, err, "output format must be either 'json' or 'yaml', got html")
+}
+
+func TestInvalidPath_PreRun(t *testing.T) {
+	externalPaths := []string{"external.json"}
+	opts := &Opts{
+		outputPath:    "foas.html",
+		externalPaths: externalPaths,
+		basePath:      "base.json",
+	}
+
+	err := opts.PreRunE(nil)
+	require.Error(t, err)
+	require.EqualError(t, err, "output file must be either a JSON or YAML file, got foas.html")
+}

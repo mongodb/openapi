@@ -66,11 +66,11 @@ func (o *Opts) PreRunE(_ []string) error {
 	}
 
 	if o.outputPath != "" && !strings.Contains(o.outputPath, ".json") && !strings.Contains(o.outputPath, ".yaml") {
-		return fmt.Errorf("output file must be either a JSON or YAML file")
+		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
 	}
 
 	if o.format != "json" && o.format != "yaml" {
-		return fmt.Errorf("output format must be either 'json' or 'yaml'")
+		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
 	}
 
 	m, err := openapi.NewOasDiff(o.basePath)
