@@ -18,12 +18,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 type Opts struct {
@@ -31,6 +33,7 @@ type Opts struct {
 	fs            afero.Fs
 	basePath      string
 	outputPath    string
+	format        string
 	externalPaths []string
 }
 
@@ -62,12 +65,34 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("no external OAS detected. Please, use the flag %s to include at least one OAS", flag.External)
 	}
 
+	if o.outputPath != "" && !strings.Contains(o.outputPath, ".json") && !strings.Contains(o.outputPath, ".yaml") {
+		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
+	}
+
+	if o.format != "json" && o.format != "yaml" {
+		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
+	}
+
 	m, err := openapi.NewOasDiff(o.basePath)
 	o.Merger = m
 	return err
 }
 
 func (o *Opts) saveFile(data []byte) error {
+	if strings.Contains(o.outputPath, ".yaml") || o.format == "yaml" {
+		var jsonData interface{}
+		if err := json.Unmarshal(data, &jsonData); err != nil {
+			return err
+		}
+
+		yamlData, err := yaml.Marshal(jsonData)
+		if err != nil {
+			return err
+		}
+
+		data = yamlData
+	}
+
 	if err := afero.WriteFile(o.fs, o.outputPath, data, 0o600); err != nil {
 		return err
 	}
@@ -98,5 +123,7 @@ func Builder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.Base)
 	cmd.Flags().StringArrayVarP(&opts.externalPaths, flag.External, flag.ExternalShort, nil, usage.External)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
+	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
+
 	return cmd
 }

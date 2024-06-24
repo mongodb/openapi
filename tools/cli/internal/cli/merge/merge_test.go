@@ -57,6 +57,37 @@ func TestSuccessfulMerge_Run(t *testing.T) {
 	}
 }
 
+func TestSuccessfulMergeYaml_Run(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockMergerStore := openapi.NewMockMerger(ctrl)
+	fs := afero.NewMemMapFs()
+	externalPaths := []string{"external.json"}
+	opts := &Opts{
+		Merger:        mockMergerStore,
+		basePath:      "base.json",
+		outputPath:    "foas.yaml",
+		externalPaths: externalPaths,
+		fs:            fs,
+	}
+
+	response := &openapi.Spec{
+		OpenAPI: "v3.0.1",
+		Info:    &openapi3.Info{},
+		Servers: nil,
+		Tags:    openapi3.Tags{},
+	}
+
+	mockMergerStore.
+		EXPECT().
+		MergeOpenAPISpecs(opts.externalPaths).
+		Return(response, nil).
+		Times(1)
+
+	if err := opts.Run(); err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+}
+
 func TestNoBaseSpecMerge_PreRun(t *testing.T) {
 	externalPaths := []string{"external.json"}
 	opts := &Opts{
@@ -101,8 +132,36 @@ func TestOpts_PreRunE(t *testing.T) {
 			o := &Opts{
 				basePath:      tt.basePath,
 				externalPaths: tt.externalPaths,
+				format:        "json",
 			}
 			tt.wantErr(t, o.PreRunE(nil))
 		})
 	}
+}
+
+func TestInvalidFormat_PreRun(t *testing.T) {
+	externalPaths := []string{"external.json"}
+	opts := &Opts{
+		outputPath:    "foas.json",
+		externalPaths: externalPaths,
+		basePath:      "base.json",
+		format:        "html",
+	}
+
+	err := opts.PreRunE(nil)
+	require.Error(t, err)
+	require.EqualError(t, err, "output format must be either 'json' or 'yaml', got html")
+}
+
+func TestInvalidPath_PreRun(t *testing.T) {
+	externalPaths := []string{"external.json"}
+	opts := &Opts{
+		outputPath:    "foas.html",
+		externalPaths: externalPaths,
+		basePath:      "base.json",
+	}
+
+	err := opts.PreRunE(nil)
+	require.Error(t, err)
+	require.EqualError(t, err, "output file must be either a JSON or YAML file, got foas.html")
 }

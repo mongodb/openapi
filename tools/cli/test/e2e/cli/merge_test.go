@@ -38,6 +38,32 @@ func TestMerge(t *testing.T) {
 		assert.Contains(t, o.String(), "\"ApiError\":")
 	})
 
+	t.Run("Merge valid specs to yaml", func(t *testing.T) {
+		base, err := NewBaseSpec()
+		require.NoError(t, err)
+		external, err := NewAPIRegistrySpec()
+		require.NoError(t, err)
+
+		cmd := exec.Command(cliPath,
+			"merge",
+			"-b",
+			base,
+			"-e",
+			external,
+			"-f",
+			"yaml",
+		)
+
+		var o, e bytes.Buffer
+		cmd.Stdout = &o
+		cmd.Stderr = &e
+		require.NoError(t, cmd.Run(), e.String())
+
+		assert.Contains(t, o.String(), "\"openapi\"")
+		assert.Contains(t, e.String(), "We silently resolved the conflict with the schemas \"ApiError\" because the definition was identical") //nolint:lll // Line is over 120 characters
+		assert.Contains(t, o.String(), "\"ApiError\":")
+	})
+
 	t.Run("Expecting Error: Merge duplicated path with base spec", func(t *testing.T) {
 		base, err := NewBaseSpec()
 		require.NoError(t, err)

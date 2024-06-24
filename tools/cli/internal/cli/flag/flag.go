@@ -21,4 +21,6 @@ const (
 	ExternalShort = "e"
 	Output        = "output"
 	OutputShort   = "o"
+	Format        = "format"
+	FormatShort   = "f"
 )
