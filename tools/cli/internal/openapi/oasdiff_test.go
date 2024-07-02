@@ -20,6 +20,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/pointer"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
@@ -143,6 +144,7 @@ func TestOasDiff_mergeTags(t *testing.T) {
 		inputExternal *load.SpecInfo
 		wantErr       require.ErrorAssertionFunc
 		name          string
+		expectedTags  []*openapi3.Tag
 	}{
 		{
 			name: "SuccessfulMerge",
@@ -150,6 +152,10 @@ func TestOasDiff_mergeTags(t *testing.T) {
 				Url: "base",
 				Spec: &openapi3.T{
 					Tags: []*openapi3.Tag{
+						{
+							Name:        "TagBase3",
+							Description: "TagBase3",
+						},
 						{
 							Name:        "TagBase1",
 							Description: "TagBase1",
@@ -181,6 +187,30 @@ func TestOasDiff_mergeTags(t *testing.T) {
 				Version: "3.0.1",
 			},
 			wantErr: require.NoError,
+			expectedTags: []*openapi3.Tag{
+				{
+					Name:        "Tag1",
+					Description: "Tag1",
+				},
+
+				{
+					Name:        "Tag2",
+					Description: "Tag2",
+				},
+				{
+					Name:        "TagBase1",
+					Description: "TagBase1",
+				},
+
+				{
+					Name:        "TagBase2",
+					Description: "TagBase2",
+				},
+				{
+					Name:        "TagBase3",
+					Description: "TagBase3",
+				},
+			},
 		},
 		{
 			name: "SuccessfulMergeEmptyTags",
@@ -305,6 +335,14 @@ func TestOasDiff_mergeTags(t *testing.T) {
 				external: tc.inputExternal,
 			}
 			tc.wantErr(t, o.mergeTags())
+			if tc.expectedTags != nil {
+				a := assert.New(t)
+				a.Equal(len(o.base.Spec.Tags), len(tc.expectedTags))
+				// check tag names are the same
+				for i := range o.base.Spec.Tags {
+					a.Equal(o.base.Spec.Tags[i].Name, tc.expectedTags[i].Name)
+				}
+			}
 		})
 	}
 }
