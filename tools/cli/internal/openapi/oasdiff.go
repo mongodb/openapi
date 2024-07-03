@@ -16,6 +16,7 @@ package openapi
 
 import (
 	"log"
+	"sort"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -233,7 +234,7 @@ func (o OasDiff) mergeTags() error {
 			}
 		}
 	}
-
+	sort.Sort(ByName(baseTags))
 	o.base.Spec.Tags = baseTags
 	return nil
 }
@@ -371,3 +372,9 @@ func (o OasDiff) areSchemaIdentical(name string) bool {
 	_, ok := o.specDiff.SchemasDiff.Modified[name]
 	return !ok
 }
+
+type ByName []*openapi3.Tag
+
+func (a ByName) Len() int           { return len(a) }
+func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
