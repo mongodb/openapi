@@ -336,11 +336,10 @@ func TestOasDiff_mergeTags(t *testing.T) {
 			}
 			tc.wantErr(t, o.mergeTags())
 			if tc.expectedTags != nil {
-				a := assert.New(t)
-				a.Equal(len(o.base.Spec.Tags), len(tc.expectedTags))
+				assert.Equal(t, len(o.base.Spec.Tags), len(tc.expectedTags))
 				// check tag names are the same
 				for i := range o.base.Spec.Tags {
-					a.Equal(o.base.Spec.Tags[i].Name, tc.expectedTags[i].Name)
+					assert.Equal(t, o.base.Spec.Tags[i].Name, tc.expectedTags[i].Name)
 				}
 			}
 		})
