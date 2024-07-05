@@ -23,15 +23,27 @@ import (
 	"github.com/tufin/oasdiff/load"
 )
 
+// This struct is a 1-to-1 copy of the Spec struct in the openapi3 package.
+// We need this to override the order of the fields in the struct.
+type Spec struct {
+	OpenAPI      string                        `json:"openapi" yaml:"openapi"`
+	Security     openapi3.SecurityRequirements `json:"security,omitempty" yaml:"security,omitempty"`
+	Servers      openapi3.Servers              `json:"servers,omitempty" yaml:"servers,omitempty"`
+	Tags         openapi3.Tags                 `json:"tags,omitempty" yaml:"tags,omitempty"`
+	Info         *openapi3.Info                `json:"info" yaml:"info"`
+	Paths        *openapi3.Paths               `json:"paths" yaml:"paths"`
+	Components   *openapi3.Components          `json:"components,omitempty" yaml:"components,omitempty"`
+	ExternalDocs *openapi3.ExternalDocs        `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
+}
 type Parser interface {
 	CreateOpenAPISpecFromPath(string) (*load.SpecInfo, error)
 }
 
 type Merger interface {
-	MergeOpenAPISpecs([]string) (*openapi3.T, error)
+	MergeOpenAPISpecs([]string) (*Spec, error)
 }
 
-func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*openapi3.T, error) {
+func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
 	for _, p := range paths {
 		spec, err := o.parser.CreateOpenAPISpecFromPath(p)
 		if err != nil {
@@ -52,7 +64,7 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*openapi3.T, error) {
 		}
 	}
 
-	return newSpec(o.base), nil
+	return newSpec(o.base.Spec), nil
 }
 
 func NewOasDiff(base string) (*OasDiff, error) {
@@ -71,15 +83,15 @@ func NewOasDiff(base string) (*OasDiff, error) {
 	}, nil
 }
 
-func newSpec(specInfo *load.SpecInfo) *openapi3.T {
-	return &openapi3.T{
-		OpenAPI:      specInfo.Spec.OpenAPI,
-		Components:   specInfo.Spec.Components,
-		Info:         specInfo.Spec.Info,
-		Paths:        specInfo.Spec.Paths,
-		Security:     specInfo.Spec.Security,
-		Servers:      specInfo.Spec.Servers,
-		Tags:         specInfo.Spec.Tags,
-		ExternalDocs: specInfo.Spec.ExternalDocs,
+func newSpec(spec *openapi3.T) *Spec {
+	return &Spec{
+		OpenAPI:      spec.OpenAPI,
+		Components:   spec.Components,
+		Info:         spec.Info,
+		Paths:        spec.Paths,
+		Security:     spec.Security,
+		Servers:      spec.Servers,
+		Tags:         spec.Tags,
+		ExternalDocs: spec.ExternalDocs,
 	}
 }

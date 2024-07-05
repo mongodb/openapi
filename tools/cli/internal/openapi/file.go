@@ -18,13 +18,14 @@ import (
 	"log"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	openapi3 "github.com/getkin/kin-openapi/openapi3"
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 )
 
 func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
-	data, err := json.MarshalIndent(*oas, "", "  ")
+	spec := newSpec(oas)
+	data, err := json.MarshalIndent(*spec, "", "  ")
 	if err != nil {
 		return err
 	}
