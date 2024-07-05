@@ -21,7 +21,6 @@ import (
 )
 
 func TestVersions(t *testing.T) {
-
 	versions := ExtractVersions(newVersionedResponses(t))
 	assert.Equal(t, []string{"2023-01-01", "2023-02-01"}, versions)
 }
