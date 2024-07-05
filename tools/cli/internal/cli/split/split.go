@@ -41,7 +41,8 @@ func (o *Opts) Run() error {
 		return nil
 	}
 
-	specInfo, err := openapi.NewOpenAPI3().CreateOpenAPISpecFromPath(o.basePath)
+	loader := openapi.NewOpenAPI3()
+	specInfo, err := loader.CreateOpenAPISpecFromPath(o.basePath)
 	if err != nil {
 		return err
 	}
@@ -59,6 +60,8 @@ func (o *Opts) Run() error {
 		if err := o.writeVersionedOas(filteredOAS, version); err != nil {
 			log.Fatalf("Failed to write OpenAPI document: %v", err)
 		}
+		err := filteredOAS.Validate(loader.Loader.Context)
+		log.Printf("[WARN] OpenAPI document is invalid: %v", err)
 	}
 
 	return nil
