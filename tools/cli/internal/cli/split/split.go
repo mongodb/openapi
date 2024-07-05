@@ -15,7 +15,6 @@
 package split
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -27,7 +26,6 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 type Opts struct {
@@ -68,18 +66,13 @@ func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err 
 }
 
 func (o *Opts) writeVersionedOas(oas *openapi3.T, version string) error {
-	federatedBytes, err := json.MarshalIndent(*oas, "", "  ")
-	if err != nil {
-		return err
-	}
-
 	if o.outputPath == "" {
 		path := strings.Replace(o.basePath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
-		return o.saveFile(federatedBytes, path)
+		return openapi.Save(path, oas, o.format, o.fs)
 	}
 
 	path := strings.Replace(o.outputPath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
-	return o.saveFile(federatedBytes, path)
+	return openapi.Save(path, oas, o.format, o.fs)
 }
 
 func (o *Opts) PreRunE(_ []string) error {
@@ -95,29 +88,6 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
 	}
 
-	return nil
-}
-
-func (o *Opts) saveFile(data []byte, path string) error {
-	if strings.Contains(path, ".yaml") || o.format == "yaml" {
-		var jsonData interface{}
-		if err := json.Unmarshal(data, &jsonData); err != nil {
-			return err
-		}
-
-		yamlData, err := yaml.Marshal(jsonData)
-		if err != nil {
-			return err
-		}
-
-		data = yamlData
-	}
-
-	if err := afero.WriteFile(o.fs, path, data, 0o600); err != nil {
-		return err
-	}
-
-	log.Printf("\nVersioned spec was saved in '%s'.\n\n", path)
 	return nil
 }
 

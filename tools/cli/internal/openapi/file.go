@@ -14,10 +14,14 @@
 package openapi
 
 import (
+	"encoding/json"
 	"log"
+	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/spf13/afero"
 	load "github.com/tufin/oasdiff/load"
+	"gopkg.in/yaml.v3"
 )
 
 func Load(path string) *openapi3.T {
@@ -30,4 +34,32 @@ func Load(path string) *openapi3.T {
 	}
 
 	return s1.Spec
+}
+
+func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
+	data, err := json.MarshalIndent(*oas, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	if strings.Contains(path, ".yaml") || format == "yaml" {
+		var jsonData interface{}
+		if err := json.Unmarshal(data, &jsonData); err != nil {
+			return err
+		}
+
+		yamlData, err := yaml.Marshal(jsonData)
+		if err != nil {
+			return err
+		}
+
+		data = yamlData
+	}
+
+	if err := afero.WriteFile(fs, path, data, 0o600); err != nil {
+		return err
+	}
+
+	log.Printf("\nVersioned spec was saved in '%s'.\n\n", path)
+	return nil
 }
