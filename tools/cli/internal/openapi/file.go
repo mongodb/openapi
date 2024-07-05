@@ -49,7 +49,6 @@ func SaveSpec(path string, oas *Spec, format string, fs afero.Fs) error {
 
 	log.Printf("\nVersioned spec was saved in '%s'.\n\n", path)
 	return nil
-
 }
 
 func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
