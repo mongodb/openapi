@@ -11,20 +11,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package filter
 
-package flag
-
-const (
-	Base          = "base"
-	BaseShort     = "b"
-	External      = "external"
-	ExternalShort = "e"
-	Output        = "output"
-	OutputShort   = "o"
-	Format        = "format"
-	FormatShort   = "f"
-	Versions      = "versions"
-	VersionsShort = "v"
-	Spec          = "spec"
-	SpecShort     = "s"
+import (
+	"github.com/getkin/kin-openapi/openapi3"
 )
+
+type Filter interface {
+	Apply(doc *openapi3.T) error
+}
+
+var filters = map[string]Filter{
+	"path": &PathFilter{},
+}
+
+func ApplyFilters(doc *openapi3.T) error {
+	for _, filter := range filters {
+		if err := filter.Apply(doc); err != nil {
+			return err
+		}
+	}
+	return nil
+}

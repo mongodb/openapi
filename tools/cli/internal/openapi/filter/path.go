@@ -11,20 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package filter
 
-package flag
+import (
+	"log"
 
-const (
-	Base          = "base"
-	BaseShort     = "b"
-	External      = "external"
-	ExternalShort = "e"
-	Output        = "output"
-	OutputShort   = "o"
-	Format        = "format"
-	FormatShort   = "f"
-	Versions      = "versions"
-	VersionsShort = "v"
-	Spec          = "spec"
-	SpecShort     = "s"
+	"github.com/getkin/kin-openapi/openapi3"
 )
+
+type PathFilter struct {
+}
+
+func (f *PathFilter) Apply(doc *openapi3.T) error {
+	log.Printf("Applying path for OAS with Title %s", doc.Info.Title)
+	return nil
+}
