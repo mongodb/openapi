@@ -12,7 +12,6 @@ package openapi
 import (
 	reflect "reflect"
 
-	openapi3 "github.com/getkin/kin-openapi/openapi3"
 	load "github.com/tufin/oasdiff/load"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -79,10 +78,10 @@ func (m *MockMerger) EXPECT() *MockMergerMockRecorder {
 }
 
 // MergeOpenAPISpecs mocks base method.
-func (m *MockMerger) MergeOpenAPISpecs(arg0 []string) (*openapi3.T, error) {
+func (m *MockMerger) MergeOpenAPISpecs(arg0 []string) (*Spec, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "MergeOpenAPISpecs", arg0)
-	ret0, _ := ret[0].(*openapi3.T)
+	ret0, _ := ret[0].(*Spec)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

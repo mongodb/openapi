@@ -23,9 +23,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
-	spec := newSpec(oas)
-	data, err := json.MarshalIndent(*spec, "", "  ")
+func SaveSpec(path string, oas *Spec, format string, fs afero.Fs) error {
+	data, err := json.MarshalIndent(*oas, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -50,4 +49,9 @@ func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
 
 	log.Printf("\nVersioned spec was saved in '%s'.\n\n", path)
 	return nil
+
+}
+
+func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
+	return SaveSpec(path, newSpec(oas), format, fs)
 }

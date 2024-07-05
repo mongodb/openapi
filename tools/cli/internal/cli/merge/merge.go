@@ -51,7 +51,7 @@ func (o *Opts) Run() error {
 		return nil
 	}
 
-	return openapi.Save(o.outputPath, federated, o.format, o.fs)
+	return openapi.SaveSpec(o.outputPath, federated, o.format, o.fs)
 }
 
 func (o *Opts) PreRunE(_ []string) error {
