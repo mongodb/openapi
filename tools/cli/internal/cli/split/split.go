@@ -75,7 +75,7 @@ func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err 
 func (o *Opts) writeVersionedOas(oas *openapi3.T, version string) error {
 	if o.outputPath == "" {
 		path := strings.Replace(o.basePath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
-		return openapi.Save(path, &openapi.Spec{}, o.format, o.fs)
+		return openapi.Save(path, oas, o.format, o.fs)
 	}
 
 	path := strings.Replace(o.outputPath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
