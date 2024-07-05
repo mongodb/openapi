@@ -35,10 +35,13 @@ type Opts struct {
 }
 
 func (o *Opts) Run() error {
-	oas := openapi.Load(o.basePath)
+	loader := openapi.NewOpenAPI3()
+	specInfo, err := loader.CreateOpenAPISpecFromPath(o.basePath)
+	if err != nil {
+		return err
+	}
 
-	versions := openapi.ExtractVersions(oas)
-
+	versions := openapi.ExtractVersions(specInfo.Spec)
 	if versions == nil {
 		return fmt.Errorf("no versions found in the OpenAPI specification")
 	}
