@@ -20,6 +20,7 @@ import (
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/merge"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/split"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/versions"
 	"github.com/mongodb/openapi/tools/cli/internal/version"
 	"github.com/spf13/cobra"
 )
@@ -53,6 +54,7 @@ func Builder() *cobra.Command {
 	rootCmd.AddCommand(
 		merge.Builder(),
 		split.Builder(),
+		versions.Builder(),
 	)
 	return rootCmd
 }

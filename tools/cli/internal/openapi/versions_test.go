@@ -17,15 +17,16 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+
 	"github.com/stretchr/testify/assert"
 )
 
 func TestVersions(t *testing.T) {
-	versions := ExtractVersions(newVersionedResponses(t))
+	versions := ExtractVersions(NewVersionedResponses(t))
 	assert.Equal(t, []string{"2023-01-01", "2023-02-01"}, versions)
 }
 
-func newVersionedResponses(t *testing.T) *openapi3.T {
+func NewVersionedResponses(t *testing.T) *openapi3.T {
 	t.Helper()
 	inputPath := &openapi3.Paths{}
 
