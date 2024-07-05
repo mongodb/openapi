@@ -15,64 +15,71 @@
 package versions
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 type Opts struct {
-	fs             afero.Fs
-	basePath       string
-	outputPath     string
-	format         string
-	splitByVersion bool
+	fs         afero.Fs
+	basePath   string
+	outputPath string
+	format     string
 }
 
 func (o *Opts) Run() error {
-	if !o.splitByVersion {
+	oas := openapi.Load(o.basePath)
+
+	versions := openapi.ExtractVersions(oas)
+
+	if versions == nil {
+		return fmt.Errorf("no versions found in the OpenAPI specification")
+	}
+
+	bytes, err := o.getVersionBytes(versions)
+	if err != nil {
+		return err
+	}
+
+	if o.outputPath != "" {
+		if err := afero.WriteFile(o.fs, o.outputPath, bytes, 0o600); err != nil {
+			return err
+		}
 		return nil
 	}
 
-	// oas := nil
-	// TODO: Our specs are invalid. Oasdiff does not run this check.
-	//  Would be good to have this check in the future.
-	// if err := doc.Validate(loader.Context); err != nil {como
-	// 	log.Fatalf("OpenAPI document is invalid: %v", err)
-	// }
-
-	// versions := openapi.ExtractVersions(oas)
-	// for _, version := range versions {
-	// 	// TODO: filter oas by version
-	// 	filteredOAS, _ := o.filter(oas, version)
-	// 	if err := o.writeVersionedOas(filteredOAS, version); err != nil {
-	// 		log.Fatalf("Failed to write OpenAPI document: %v", err)
-	// 	}
-	// }
-
+	fmt.Println(string(bytes))
 	return nil
 }
 
-func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err error) {
-	log.Printf("Filtering OpenAPI document by version %s", version)
-	return oas, filter.ApplyFilters(oas)
-}
-
-func (o *Opts) writeVersionedOas(oas *openapi3.T, version string) error {
-	if o.outputPath == "" {
-		path := strings.Replace(o.basePath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
-		return openapi.Save(path, oas, o.format, o.fs)
+func (o *Opts) getVersionBytes(versions []string) ([]byte, error) {
+	data, err := json.MarshalIndent(versions, "", "  ")
+	if err != nil {
+		return nil, err
 	}
 
-	path := strings.Replace(o.outputPath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
-	return openapi.Save(path, oas, o.format, o.fs)
+	if format := strings.ToLower(o.format); format == "json" {
+		return data, nil
+	}
+
+	var jsonData interface{}
+	if err := json.Unmarshal(data, &jsonData); err != nil {
+		return nil, err
+	}
+
+	yamlData, err := yaml.Marshal(jsonData)
+	if err != nil {
+		return nil, err
+	}
+
+	return yamlData, nil
 }
 
 func (o *Opts) PreRunE(_ []string) error {
@@ -113,6 +120,5 @@ func Builder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
-	cmd.Flags().BoolVarP(&opts.splitByVersion, flag.Versions, flag.VersionsShort, false, usage.Versions)
 	return cmd
 }
