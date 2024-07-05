@@ -21,7 +21,9 @@ type Filter interface {
 	Apply(doc *openapi3.T) error
 }
 
-var filters = map[string]Filter{}
+var filters = map[string]Filter{
+	"path": &PathFilter{},
+}
 
 func ApplyFilters(doc *openapi3.T) error {
 	for _, filter := range filters {
