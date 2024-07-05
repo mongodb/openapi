@@ -174,13 +174,13 @@ func TestOasDiff_mergeTags(t *testing.T) {
 				Spec: &openapi3.T{
 					Tags: []*openapi3.Tag{
 						{
-							Name:        "Tag1",
-							Description: "Tag1",
+							Name:        "AWS Clusters DNS",
+							Description: "AWS Clusters DNS",
 						},
 
 						{
-							Name:        "Tag2",
-							Description: "Tag2",
+							Name:        "Access Tracking",
+							Description: "Access Tracking",
 						},
 					},
 				},
@@ -189,13 +189,13 @@ func TestOasDiff_mergeTags(t *testing.T) {
 			wantErr: require.NoError,
 			expectedTags: []*openapi3.Tag{
 				{
-					Name:        "Tag1",
-					Description: "Tag1",
+					Name:        "Access Tracking",
+					Description: "Access Tracking",
 				},
 
 				{
-					Name:        "Tag2",
-					Description: "Tag2",
+					Name:        "AWS Clusters DNS",
+					Description: "AWS Clusters DNS",
 				},
 				{
 					Name:        "TagBase1",

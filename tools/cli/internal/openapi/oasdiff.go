@@ -16,7 +16,7 @@ package openapi
 
 import (
 	"log"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -234,7 +234,9 @@ func (o OasDiff) mergeTags() error {
 			}
 		}
 	}
-	sort.Sort(ByName(baseTags))
+	slices.SortFunc(ByName(baseTags), func(a, b *openapi3.Tag) int {
+		return strings.Compare(strings.ToLower(a.Name), strings.ToLower(b.Name))
+	})
 	o.base.Spec.Tags = baseTags
 	return nil
 }
