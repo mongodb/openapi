@@ -20,21 +20,8 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/spf13/afero"
-	load "github.com/tufin/oasdiff/load"
 	"gopkg.in/yaml.v3"
 )
-
-func Load(path string) *openapi3.T {
-	openapi3.CircularReferenceCounter = 15
-
-	loader := openapi3.NewLoader()
-	s1, err := load.NewSpecInfo(loader, load.NewSource(path))
-	if err != nil {
-		log.Fatalf("Failed to load OpenAPI document: %v", err)
-	}
-
-	return s1.Spec
-}
 
 func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
 	data, err := json.MarshalIndent(*oas, "", "  ")
