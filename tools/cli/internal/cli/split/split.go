@@ -41,8 +41,7 @@ func (o *Opts) Run() error {
 		return nil
 	}
 
-	parser := openapi.NewOpenAPI3()
-	specInfo, err := parser.CreateOpenAPISpecFromPath(o.basePath)
+	specInfo, err := openapi.NewOpenAPI3().CreateOpenAPISpecFromPath(o.basePath)
 	if err != nil {
 		return err
 	}
@@ -51,6 +50,7 @@ func (o *Opts) Run() error {
 	// if err := oas.Validate(loader.Context); err != nil {como
 	// 	log.Fatalf("OpenAPI document is invalid: %v", err)
 	// }
+
 	oas := specInfo.Spec
 	versions := openapi.ExtractVersions(oas)
 	for _, version := range versions {
