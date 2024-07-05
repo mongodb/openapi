@@ -91,7 +91,7 @@ func (o *Opts) PreRunE(_ []string) error {
 	return nil
 }
 
-// Builder builds the merge command with the following signature:
+// Builder builds the split command with the following signature:
 // split -b base-oas -o output-oas.json -v
 func Builder() *cobra.Command {
 	opts := &Opts{
@@ -110,7 +110,7 @@ func Builder() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.Base)
+	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 	cmd.Flags().BoolVarP(&opts.splitByVersion, flag.Versions, flag.VersionsShort, false, usage.Versions)

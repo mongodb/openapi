@@ -25,4 +25,6 @@ const (
 	FormatShort   = "f"
 	Versions      = "versions"
 	VersionsShort = "v"
+	Spec          = "spec"
+	SpecShort     = "s"
 )

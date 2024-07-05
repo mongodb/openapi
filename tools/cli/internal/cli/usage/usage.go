@@ -20,4 +20,5 @@ const (
 	Output   = "File name where the command will store the output."
 	Format   = "Output format. Supported values are 'json' and 'yaml'."
 	Versions = "Boolean flag that defines wether to split the OAS into multiple versions."
+	Spec     = "Path to the OAS file."
 )

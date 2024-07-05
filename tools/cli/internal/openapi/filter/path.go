@@ -14,15 +14,15 @@
 package filter
 
 import (
-	"time"
+	"log"
 
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
 type PathFilter struct {
-	Version time.Time
 }
 
 func (f *PathFilter) Apply(doc *openapi3.T) error {
+	log.Printf("Applying path for OAS with Title %s", doc.Info.Title)
 	return nil
 }
