@@ -11,13 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package openapi
 
-package usage
+import (
+	"log"
 
-const (
-	Base     = "Base OAS. The command will merge other OASes into it."
-	External = "OASes that will be merged into the base OAS."
-	Output   = "File name where the command will store the output."
-	Format   = "Output format. Supported values are 'json' and 'yaml'."
-	Versions = "Boolean flag that defines wether to split the OAS into multiple versions."
+	"github.com/getkin/kin-openapi/openapi3"
+	load "github.com/tufin/oasdiff/load"
 )
+
+func Load(path string) *openapi3.T {
+	openapi3.CircularReferenceCounter = 15
+
+	loader := openapi3.NewLoader()
+	s1, err := load.NewSpecInfo(loader, load.NewSource(path))
+	if err != nil {
+		log.Fatalf("Failed to load OpenAPI document: %v", err)
+	}
+
+	return s1.Spec
+}

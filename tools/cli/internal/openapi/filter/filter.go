@@ -11,13 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package filter
 
-package usage
-
-const (
-	Base     = "Base OAS. The command will merge other OASes into it."
-	External = "OASes that will be merged into the base OAS."
-	Output   = "File name where the command will store the output."
-	Format   = "Output format. Supported values are 'json' and 'yaml'."
-	Versions = "Boolean flag that defines wether to split the OAS into multiple versions."
+import (
+	"github.com/getkin/kin-openapi/openapi3"
 )
+
+type Filter interface {
+	Apply(doc *openapi3.T) error
+}
+
+var filters = map[string]Filter{}
+
+func ApplyFilters(doc *openapi3.T) error {
+	for _, filter := range filters {
+		if err := filter.Apply(doc); err != nil {
+			return err
+		}
+	}
+	return nil
+}

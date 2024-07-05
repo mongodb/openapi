@@ -24,14 +24,13 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"github.com/tufin/oasdiff/load"
 	"gopkg.in/yaml.v3"
 )
 
 type Opts struct {
-	Merger         openapi.Merger
 	fs             afero.Fs
 	basePath       string
 	outputPath     string
@@ -43,29 +42,29 @@ func (o *Opts) Run() error {
 	if !o.splitByVersion {
 		return nil
 	}
-	openapi3.CircularReferenceCounter = 15
 
-	loader := openapi3.NewLoader()
-	s1, err := load.NewSpecInfo(loader, load.NewSource(o.basePath))
-	if err != nil {
-		log.Fatalf("Failed to load OpenAPI document: %v", err)
-	}
-
-	oas := s1.Spec
-	// Our specs are invalid
-	// if err := doc.Validate(loader.Context); err != nil {
+	oas := openapi.Load(o.basePath)
+	// TODO: Our specs are invalid. Oasdiff does not run this check.
+	//  Would be good to have this check in the future.
+	// if err := doc.Validate(loader.Context); err != nil {como
 	// 	log.Fatalf("OpenAPI document is invalid: %v", err)
 	// }
 
 	versions := openapi.ExtractVersions(oas)
 	for _, version := range versions {
 		// TODO: filter oas by version
+		oas, _ := o.filter(oas, version)
 		if err := o.writeVersionedOas(oas, version); err != nil {
 			log.Fatalf("Failed to write OpenAPI document: %v", err)
 		}
 	}
 
 	return nil
+}
+
+func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err error) {
+	log.Printf("Filtering OpenAPI document by version %s", version)
+	return oas, filter.ApplyFilters(oas)
 }
 
 func (o *Opts) writeVersionedOas(oas *openapi3.T, version string) error {
@@ -123,7 +122,7 @@ func (o *Opts) saveFile(data []byte, path string) error {
 }
 
 // Builder builds the merge command with the following signature:
-// merge -b base-oas -e external-oas-1 -e external-oas-2
+// split -b base-oas -o output-oas.json -v
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
@@ -144,6 +143,6 @@ func Builder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.Base)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
-	cmd.Flags().BoolVar(&opts.splitByVersion, "versions", false, "Split by verision")
+	cmd.Flags().BoolVarP(&opts.splitByVersion, flag.Versions, flag.VersionsShort, false, usage.Versions)
 	return cmd
 }
