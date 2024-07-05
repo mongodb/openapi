@@ -51,8 +51,8 @@ func (o *Opts) Run() error {
 	versions := openapi.ExtractVersions(oas)
 	for _, version := range versions {
 		// TODO: filter oas by version
-		oas, _ := o.filter(oas, version)
-		if err := o.writeVersionedOas(oas, version); err != nil {
+		filteredOAS, _ := o.filter(oas, version)
+		if err := o.writeVersionedOas(filteredOAS, version); err != nil {
 			log.Fatalf("Failed to write OpenAPI document: %v", err)
 		}
 	}
