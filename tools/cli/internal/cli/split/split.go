@@ -41,13 +41,18 @@ func (o *Opts) Run() error {
 		return nil
 	}
 
-	oas := openapi.Load(o.basePath)
+	loader := openapi.NewOpenAPI3()
+	specInfo, err := loader.CreateOpenAPISpecFromPath(o.basePath)
+	if err != nil {
+		return err
+	}
 	// TODO: Our specs are invalid. Oasdiff does not run this check.
 	//  Would be good to have this check in the future.
-	// if err := doc.Validate(loader.Context); err != nil {como
+	// if err := oas.Validate(loader.Context); err != nil {como
 	// 	log.Fatalf("OpenAPI document is invalid: %v", err)
 	// }
 
+	oas := specInfo.Spec
 	versions := openapi.ExtractVersions(oas)
 	for _, version := range versions {
 		// TODO: filter oas by version
@@ -55,6 +60,8 @@ func (o *Opts) Run() error {
 		if err := o.writeVersionedOas(filteredOAS, version); err != nil {
 			log.Fatalf("Failed to write OpenAPI document: %v", err)
 		}
+		err := filteredOAS.Validate(loader.Loader.Context)
+		log.Printf("[WARN] OpenAPI document is invalid: %v", err)
 	}
 
 	return nil

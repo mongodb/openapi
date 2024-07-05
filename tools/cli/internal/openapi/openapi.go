@@ -23,14 +23,8 @@ import (
 	"github.com/tufin/oasdiff/load"
 )
 
-type Parser interface {
-	CreateOpenAPISpecFromPath(string) (*load.SpecInfo, error)
-}
-
-type Merger interface {
-	MergeOpenAPISpecs([]string) (*Spec, error)
-}
-
+// This struct is a 1-to-1 copy of the Spec struct in the openapi3 package.
+// We need this to override the order of the fields in the struct.
 type Spec struct {
 	OpenAPI      string                        `json:"openapi" yaml:"openapi"`
 	Security     openapi3.SecurityRequirements `json:"security,omitempty" yaml:"security,omitempty"`
@@ -40,6 +34,13 @@ type Spec struct {
 	Paths        *openapi3.Paths               `json:"paths" yaml:"paths"`
 	Components   *openapi3.Components          `json:"components,omitempty" yaml:"components,omitempty"`
 	ExternalDocs *openapi3.ExternalDocs        `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
+}
+type Parser interface {
+	CreateOpenAPISpecFromPath(string) (*load.SpecInfo, error)
+}
+
+type Merger interface {
+	MergeOpenAPISpecs([]string) (*Spec, error)
 }
 
 func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
@@ -63,7 +64,7 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
 		}
 	}
 
-	return newSpec(o.base), nil
+	return newSpec(o.base.Spec), nil
 }
 
 func NewOasDiff(base string) (*OasDiff, error) {
@@ -82,15 +83,15 @@ func NewOasDiff(base string) (*OasDiff, error) {
 	}, nil
 }
 
-func newSpec(specInfo *load.SpecInfo) *Spec {
+func newSpec(spec *openapi3.T) *Spec {
 	return &Spec{
-		OpenAPI:      specInfo.Spec.OpenAPI,
-		Components:   specInfo.Spec.Components,
-		Info:         specInfo.Spec.Info,
-		Paths:        specInfo.Spec.Paths,
-		Security:     specInfo.Spec.Security,
-		Servers:      specInfo.Spec.Servers,
-		Tags:         specInfo.Spec.Tags,
-		ExternalDocs: specInfo.Spec.ExternalDocs,
+		OpenAPI:      spec.OpenAPI,
+		Components:   spec.Components,
+		Info:         spec.Info,
+		Paths:        spec.Paths,
+		Security:     spec.Security,
+		Servers:      spec.Servers,
+		Tags:         spec.Tags,
+		ExternalDocs: spec.ExternalDocs,
 	}
 }

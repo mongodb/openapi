@@ -18,25 +18,12 @@ import (
 	"log"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	openapi3 "github.com/getkin/kin-openapi/openapi3"
 	"github.com/spf13/afero"
-	load "github.com/tufin/oasdiff/load"
 	"gopkg.in/yaml.v3"
 )
 
-func Load(path string) *openapi3.T {
-	openapi3.CircularReferenceCounter = 15
-
-	loader := openapi3.NewLoader()
-	s1, err := load.NewSpecInfo(loader, load.NewSource(path))
-	if err != nil {
-		log.Fatalf("Failed to load OpenAPI document: %v", err)
-	}
-
-	return s1.Spec
-}
-
-func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
+func SaveSpec(path string, oas *Spec, format string, fs afero.Fs) error {
 	data, err := json.MarshalIndent(*oas, "", "  ")
 	if err != nil {
 		return err
@@ -62,4 +49,8 @@ func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
 
 	log.Printf("\nVersioned spec was saved in '%s'.\n\n", path)
 	return nil
+}
+
+func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
+	return SaveSpec(path, newSpec(oas), format, fs)
 }
