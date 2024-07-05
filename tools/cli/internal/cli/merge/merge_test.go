@@ -39,7 +39,7 @@ func TestSuccessfulMerge_Run(t *testing.T) {
 		fs:            fs,
 	}
 
-	response := &openapi.Spec{
+	response := &openapi3.T{
 		OpenAPI: "v3.0.1",
 		Info:    &openapi3.Info{},
 		Servers: nil,
@@ -70,7 +70,7 @@ func TestSuccessfulMergeYaml_Run(t *testing.T) {
 		fs:            fs,
 	}
 
-	response := &openapi.Spec{
+	response := &openapi3.T{
 		OpenAPI: "v3.0.1",
 		Info:    &openapi3.Info{},
 		Servers: nil,

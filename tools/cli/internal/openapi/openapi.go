@@ -28,21 +28,10 @@ type Parser interface {
 }
 
 type Merger interface {
-	MergeOpenAPISpecs([]string) (*Spec, error)
+	MergeOpenAPISpecs([]string) (*openapi3.T, error)
 }
 
-type Spec struct {
-	OpenAPI      string                        `json:"openapi" yaml:"openapi"`
-	Security     openapi3.SecurityRequirements `json:"security,omitempty" yaml:"security,omitempty"`
-	Servers      openapi3.Servers              `json:"servers,omitempty" yaml:"servers,omitempty"`
-	Tags         openapi3.Tags                 `json:"tags,omitempty" yaml:"tags,omitempty"`
-	Info         *openapi3.Info                `json:"info" yaml:"info"`
-	Paths        *openapi3.Paths               `json:"paths" yaml:"paths"`
-	Components   *openapi3.Components          `json:"components,omitempty" yaml:"components,omitempty"`
-	ExternalDocs *openapi3.ExternalDocs        `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
-}
-
-func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
+func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*openapi3.T, error) {
 	for _, p := range paths {
 		spec, err := o.parser.CreateOpenAPISpecFromPath(p)
 		if err != nil {
@@ -82,8 +71,8 @@ func NewOasDiff(base string) (*OasDiff, error) {
 	}, nil
 }
 
-func newSpec(specInfo *load.SpecInfo) *Spec {
-	return &Spec{
+func newSpec(specInfo *load.SpecInfo) *openapi3.T {
+	return &openapi3.T{
 		OpenAPI:      specInfo.Spec.OpenAPI,
 		Components:   specInfo.Spec.Components,
 		Info:         specInfo.Spec.Info,

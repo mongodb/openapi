@@ -17,7 +17,6 @@ package merge
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
@@ -25,7 +24,6 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 type Opts struct {
@@ -53,7 +51,7 @@ func (o *Opts) Run() error {
 		return nil
 	}
 
-	return o.saveFile(federatedBytes)
+	return openapi.Save(o.outputPath, federated, o.format, o.fs)
 }
 
 func (o *Opts) PreRunE(_ []string) error {
@@ -76,29 +74,6 @@ func (o *Opts) PreRunE(_ []string) error {
 	m, err := openapi.NewOasDiff(o.basePath)
 	o.Merger = m
 	return err
-}
-
-func (o *Opts) saveFile(data []byte) error {
-	if strings.Contains(o.outputPath, ".yaml") || o.format == "yaml" {
-		var jsonData interface{}
-		if err := json.Unmarshal(data, &jsonData); err != nil {
-			return err
-		}
-
-		yamlData, err := yaml.Marshal(jsonData)
-		if err != nil {
-			return err
-		}
-
-		data = yamlData
-	}
-
-	if err := afero.WriteFile(o.fs, o.outputPath, data, 0o600); err != nil {
-		return err
-	}
-
-	log.Printf("\nMerged spec was saved in '%s'.\n\n", o.outputPath)
-	return nil
 }
 
 // Builder builds the merge command with the following signature:
