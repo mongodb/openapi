@@ -49,10 +49,7 @@ func (o *Opts) Run() error {
 	}
 
 	if o.outputPath != "" {
-		if err := afero.WriteFile(o.fs, o.outputPath, bytes, 0o600); err != nil {
-			return err
-		}
-		return nil
+		return afero.WriteFile(o.fs, o.outputPath, bytes, 0o600)
 	}
 
 	fmt.Println(string(bytes))
@@ -70,8 +67,8 @@ func (o *Opts) getVersionBytes(versions []string) ([]byte, error) {
 	}
 
 	var jsonData interface{}
-	if err := json.Unmarshal(data, &jsonData); err != nil {
-		return nil, err
+	if mErr := json.Unmarshal(data, &jsonData); mErr != nil {
+		return nil, mErr
 	}
 
 	yamlData, err := yaml.Marshal(jsonData)
