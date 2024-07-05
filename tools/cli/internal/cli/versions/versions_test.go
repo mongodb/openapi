@@ -39,6 +39,6 @@ func TestVersions(t *testing.T) {
 	}
 
 	// Check initial versions
-	assert.Greater(t, len(b), 0)
+	assert.NotEmpty(t, b)
 	assert.Contains(t, string(b), "2023-02-01")
 }
