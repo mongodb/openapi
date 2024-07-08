@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
@@ -55,7 +56,6 @@ func (o *Opts) Run() error {
 	oas := specInfo.Spec
 	versions := openapi.ExtractVersions(oas)
 	for _, version := range versions {
-		// TODO: filter oas by version
 		filteredOAS, _ := o.filter(oas, version)
 		if err := o.writeVersionedOas(filteredOAS, version); err != nil {
 			log.Fatalf("Failed to write OpenAPI document: %v", err)
@@ -69,7 +69,12 @@ func (o *Opts) Run() error {
 
 func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err error) {
 	log.Printf("Filtering OpenAPI document by version %s", version)
-	return oas, filter.ApplyFilters(oas)
+	apiVersion, err := apiversion.New(apiversion.WithVersion(version))
+	if err != nil {
+		return nil, err
+	}
+
+	return oas, filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, ""))
 }
 
 func (o *Opts) writeVersionedOas(oas *openapi3.T, version string) error {
