@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package versioning
+package apiversion
 
 import (
 	"fmt"
@@ -25,36 +25,64 @@ type APIVersion struct {
 }
 
 const (
-	dateFormat = "2006-01-02"
+	dateFormat     = "2006-01-02"
+	contentPattern = `application/vnd\.atlas\.(\d{4})-(\d{2})-(\d{2})\+(.+)`
 )
 
-// NewAPIVersion creates a new API version.
-func NewAPIVersionFromDateString(version string) (*APIVersion, error) {
-	versionDate, err := NewVersionDate(version)
-	if err != nil {
-		return nil, err
+// Option is a function that sets a value on the APIVersion.
+type Option func(v *APIVersion) error
+
+// New creates a new API version.
+func New(opts ...Option) (*APIVersion, error) {
+	version := &APIVersion{}
+	for _, opt := range opts {
+		if err := opt(version); err != nil {
+			return nil, err
+		}
 	}
-
-	return &APIVersion{
-		version:     version,
-		versionDate: versionDate,
-	}, nil
+	return version, nil
 }
 
-// NewAPIVersionFromContentType creates a new API version from a content type of the expected format.
-func NewAPIVersionFromContentType(contentType string) (*APIVersion, error) {
-	version, err := Parse(contentType)
-	if err != nil {
-		return nil, err
+// WithVersion sets the version on the APIVersion.
+func WithVersion(version string) Option {
+	return func(v *APIVersion) error {
+		versionDate, err := DateFromVersion(version)
+		if err != nil {
+			return err
+		}
+
+		v.version = version
+		v.versionDate = versionDate
+		return nil
 	}
-	return NewAPIVersionFromDateString(version)
 }
 
-func NewAPIVersionFromTime(t time.Time) (*APIVersion, error) {
-	return NewAPIVersionFromDateString(t.Format(dateFormat))
+// WithDate sets the version on the APIVersion.
+func WithDate(date time.Time) Option {
+	return func(v *APIVersion) error {
+		v.version = date.Format(dateFormat)
+		v.versionDate = date
+		return nil
+	}
 }
 
-func NewVersionDate(version string) (time.Time, error) {
+func WithContent(contentType string) Option {
+	return func(v *APIVersion) error {
+		version, err := Parse(contentType)
+		if err != nil {
+			return err
+		}
+
+		v.version = version
+		v.versionDate, err = DateFromVersion(version)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+func DateFromVersion(version string) (time.Time, error) {
 	return time.Parse(dateFormat, version)
 }
 
@@ -84,8 +112,7 @@ func (v *APIVersion) String() string {
 
 // Parse extracts the version date from the content type.
 func Parse(contentType string) (string, error) {
-	const pattern = `application/vnd\.atlas\.(\d{4})-(\d{2})-(\d{2})\+(.+)`
-	re := regexp.MustCompile(pattern)
+	re := regexp.MustCompile(contentPattern)
 	matches := re.FindStringSubmatch(contentType)
 	if matches == nil {
 		return "", fmt.Errorf("invalid content type: %s", contentType)

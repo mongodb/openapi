@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package versioning
+package apiversion
 
 import (
 	"testing"
@@ -103,11 +103,29 @@ func TestNewAPIVersionFromContentType(t *testing.T) {
 			expectedMatch: "",
 			wantErr:       true,
 		},
+		{
+			name:          "empty",
+			contentType:   "",
+			expectedMatch: "",
+			wantErr:       true,
+		},
+		{
+			name:          "invalidFormat",
+			contentType:   "application/vnd.atlas.2023-01-01",
+			expectedMatch: "",
+			wantErr:       true,
+		},
+		{
+			name:          "invalidDate",
+			contentType:   "application/vnd.atlas.2023111-01-01",
+			expectedMatch: "",
+			wantErr:       true,
+		},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			version, err := NewAPIVersionFromContentType(tt.contentType)
+			version, err := New(WithContent(tt.contentType))
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -140,8 +158,8 @@ func TestApiVersion_GreaterThan(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			v1, _ := NewAPIVersionFromDateString(tt.version1)
-			v2, _ := NewAPIVersionFromDateString(tt.version2)
+			v1, _ := New(WithVersion(tt.version1))
+			v2, _ := New(WithVersion(tt.version2))
 			assert.Equal(t, tt.expected, v1.GreaterThan(v2))
 		})
 	}
@@ -170,8 +188,8 @@ func TestApiVersion_LessThan(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			v1, _ := NewAPIVersionFromDateString(tt.version1)
-			v2, _ := NewAPIVersionFromDateString(tt.version2)
+			v1, _ := New(WithVersion(tt.version1))
+			v2, _ := New(WithVersion(tt.version2))
 			assert.Equal(t, tt.expected, v1.LessThan(v2))
 		})
 	}
@@ -197,7 +215,7 @@ func TestApiVersion_IsZero(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			v, _ := NewAPIVersionFromDateString(tt.version)
+			v, _ := New(WithVersion(tt.version))
 			assert.Equal(t, tt.expected, v.IsZero())
 		})
 	}
@@ -228,7 +246,7 @@ func TestApiVersion_String(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			v, _ := NewAPIVersionFromDateString(tt.version)
+			v, _ := New(WithVersion(tt.version))
 			assert.Equal(t, tt.expected, v.String())
 		})
 	}
@@ -257,8 +275,8 @@ func TestApiVersion_Equal(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			v1, _ := NewAPIVersionFromDateString(tt.version1)
-			v2, _ := NewAPIVersionFromDateString(tt.version2)
+			v1, _ := New(WithVersion(tt.version1))
+			v2, _ := New(WithVersion(tt.version2))
 			assert.Equal(t, tt.expected, v1.Equal(v2))
 		})
 	}
@@ -294,7 +312,7 @@ func TestNewAPIVersionFromTime(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			timeValue, _ := time.Parse("2006-01-02", tt.time)
-			match, err := NewAPIVersionFromTime(timeValue)
+			match, err := New(WithDate(timeValue))
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -333,7 +351,7 @@ func TestNewVersionDate(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			match, err := NewVersionDate(tt.version)
+			match, err := DateFromVersion(tt.version)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -372,7 +390,7 @@ func TestNewAPIVersionFromDateString(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			match, err := NewAPIVersionFromDateString(tt.version)
+			match, err := New(WithVersion(tt.version))
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -411,7 +429,7 @@ func TestNewAPIVersion(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			match, err := NewAPIVersionFromDateString(tt.version)
+			match, err := New(WithVersion(tt.version))
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
