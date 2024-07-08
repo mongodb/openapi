@@ -14,11 +14,11 @@
 package openapi
 
 import (
-	"fmt"
-	"regexp"
 	"sort"
 
 	"github.com/getkin/kin-openapi/openapi3"
+
+	"github.com/mongodb/openapi/tools/cli/internal/versioning"
 )
 
 // ExtractVersions extracts version strings from an OpenAPI specification.
@@ -43,7 +43,7 @@ func ExtractVersions(oas *openapi3.T) []string {
 					continue
 				}
 				for contentType := range response.Value.Content {
-					version, err := parseVersion(contentType)
+					version, err := versioning.ParseVersion(contentType)
 					if err == nil {
 						versions[version] = struct{}{}
 					}
@@ -53,17 +53,6 @@ func ExtractVersions(oas *openapi3.T) []string {
 	}
 
 	return mapKeysToSortedSlice(versions)
-}
-
-// parseVersion extracts the version date from the content type.
-func parseVersion(contentType string) (string, error) {
-	const pattern = `application/vnd\.atlas\.(\d{4})-(\d{2})-(\d{2})\+(.+)`
-	re := regexp.MustCompile(pattern)
-	matches := re.FindStringSubmatch(contentType)
-	if matches == nil {
-		return "", fmt.Errorf("invalid content type")
-	}
-	return fmt.Sprintf("%s-%s-%s", matches[1], matches[2], matches[3]), nil
 }
 
 // mapKeysToSortedSlice converts map keys to a sorted slice.

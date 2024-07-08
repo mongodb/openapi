@@ -29,16 +29,16 @@ const (
 )
 
 // NewAPIVersion creates a new API version.
-func NewAPIVersionFromDateString(version string) *ApiVersion {
+func NewAPIVersionFromDateString(version string) (*ApiVersion, error) {
 	versionDate, err := NewVersionDate(version)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	return &ApiVersion{
 		version:     version,
 		versionDate: versionDate,
-	}
+	}, nil
 }
 
 // NewAPIVersionFromContentType creates a new API version from a content type of the expected format.
@@ -47,10 +47,10 @@ func NewAPIVersionFromContentType(contentType string) (*ApiVersion, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewAPIVersionFromDateString(version), nil
+	return NewAPIVersionFromDateString(version)
 }
 
-func NewAPIVersionFromTime(t time.Time) *ApiVersion {
+func NewAPIVersionFromTime(t time.Time) (*ApiVersion, error) {
 	return NewAPIVersionFromDateString(t.Format(dateFormat))
 }
 
@@ -71,6 +71,10 @@ func (v *ApiVersion) LessThan(v2 *ApiVersion) bool {
 }
 
 func (v *ApiVersion) IsZero() bool {
+	if v == nil {
+		return true
+	}
+
 	return v.versionDate.IsZero()
 }
 
