@@ -41,9 +41,9 @@ type OperationConfig struct {
 	shouldApply          bool
 }
 
-func newOperationConfig() *OperationConfig {
+func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 	return &OperationConfig{
-		operation:            nil,
+		operation:            op,
 		latestMatchedVersion: nil,
 		deprecatedVersions:   make([]*apiversion.APIVersion, 0),
 		removeResponseCodes:  make([]string, 0),
@@ -53,7 +53,6 @@ func newOperationConfig() *OperationConfig {
 }
 
 func (f *PathFilter) Apply(doc *openapi3.T, metadata *Metadata) error {
-	log.Printf("Applying path for OAS with Title %s", doc.Info.Title)
 	for path, pathItem := range doc.Paths.Map() {
 		config := f.processPathItem(pathItem, metadata)
 		if config == nil {
@@ -61,10 +60,10 @@ func (f *PathFilter) Apply(doc *openapi3.T, metadata *Metadata) error {
 			return nil
 		}
 
-		log.Printf("[DEBUG] See config values {operationsToBeRemoved: %v, parsedOperations: %v}",
-			config.operationsToBeRemoved, config.parsedOperations)
+		// log.Printf("[DEBUG] See config values {operationsToBeRemoved: %v, parsedOperations: %v}",
+		// 	config.operationsToBeRemoved, config.parsedOperations)
 
-		// f.apply(config, pathItem)
+		f.apply(config, pathItem)
 	}
 	return nil
 }
@@ -78,8 +77,9 @@ func (f *PathFilter) processPathItem(path *openapi3.PathItem, m *Metadata) *Appl
 	}
 
 	for _, op := range path.Operations() {
-		opConfig := newOperationConfig()
+		opConfig := newOperationConfig(op)
 		config.parsedOperations[op.OperationID] = opConfig
+
 		var err error
 		opConfig.latestMatchedVersion, err = getLatestVersionMatch(op, m.targetVersion)
 		if err != nil {
@@ -87,11 +87,11 @@ func (f *PathFilter) processPathItem(path *openapi3.PathItem, m *Metadata) *Appl
 			return nil
 		}
 
-		for _, response := range op.Responses.Map() {
+		for responseCode, response := range op.Responses.Map() {
 			filteredResponse := filterResponse(response, op, config)
-			if filteredResponse == nil {
-				log.Printf("Marking response for removal: %s", response.Ref)
-				opConfig.removeResponseCodes = append(opConfig.removeResponseCodes, response.Ref)
+			if filteredResponse == nil && isVersionedContent(response.Value.Content) {
+				log.Printf("Marking response for removal: %s", responseCode)
+				opConfig.removeResponseCodes = append(opConfig.removeResponseCodes, responseCode)
 			}
 		}
 
@@ -109,18 +109,16 @@ func (f *PathFilter) apply(config *ApplyConfig, path *openapi3.PathItem) {
 		delete(path.Operations(), op.OperationID)
 	}
 
-	for _, op := range config.parsedOperations {
-		updateOpDescription(op.operation, op.deprecatedVersions)
-
-	}
 	for _, op := range path.Operations() {
 		opConfig := config.parsedOperations[op.OperationID]
 		updateOpDescription(op, opConfig.deprecatedVersions)
-
 		for _, c := range opConfig.removeResponseCodes {
-			log.Printf("Removing response code: %s", c)
+			log.Printf("Removing response code: {%s}", c)
 			delete(op.Responses.Map(), c)
 		}
+		// update OP response map
+		m := &op.Responses
+		*m = opConfig.operation.Responses
 	}
 }
 
@@ -195,7 +193,7 @@ func getLatestVersionMatch(
 		for contentType := range response.Value.Content {
 			contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
 			if err != nil {
-				log.Printf("Ignoring invalid content type: %s", contentType)
+				// log.Printf("Ignoring invalid content type: %s", contentType)
 				continue
 			}
 			if contentVersion.GreaterThan(requestedVersion) {
@@ -233,6 +231,8 @@ func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rCon
 	if filteredContent == nil && isVersionedContent(response.Value.Content) {
 		opConfig.removeResponseCodes = append(opConfig.removeResponseCodes, response.Ref)
 	}
+
+	response.Value.Content = filteredContent
 	return filteredContent
 }
 
@@ -263,7 +263,7 @@ func filterVersionedContent(content map[string]*openapi3.MediaType, version *api
 	for contentType, mediaType := range content {
 		v, err := apiversion.New(apiversion.WithContent(contentType))
 		if err != nil {
-			log.Printf("Ignoring invalid content type: %s", contentType)
+			// log.Printf("Ignoring invalid content type: %s", contentType)
 			continue
 		}
 
@@ -327,7 +327,7 @@ func isVersionedContent(content map[string]*openapi3.MediaType) bool {
 
 	for contentType := range content {
 		if _, err := apiversion.New(apiversion.WithContent(contentType)); err == nil {
-			log.Printf("Found versioned content: %s", contentType)
+			// log.Printf("Found versioned content: %s", contentType)
 			return true
 		}
 	}
