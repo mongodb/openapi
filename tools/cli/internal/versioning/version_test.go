@@ -20,7 +20,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPathFilter_parseContentType(t *testing.T) {
+func TestParseVersion(t *testing.T) {
 	testCases := []struct {
 		name          string
 		contentType   string
