@@ -24,7 +24,7 @@ import (
 type PathFilter struct {
 }
 
-func (f *PathFilter) Apply(doc *openapi3.T, metadata *FilterMetadata) error {
+func (f *PathFilter) Apply(doc *openapi3.T, metadata *Metadata) error {
 	log.Printf("Applying path for OAS with Title %s", doc.Info.Title)
 	for path, pathItem := range doc.Paths.Map() {
 		log.Printf("Path: %s", path)
@@ -33,7 +33,7 @@ func (f *PathFilter) Apply(doc *openapi3.T, metadata *FilterMetadata) error {
 	return nil
 }
 
-func filterPathItem(pPath *openapi3.PathItem, m *FilterMetadata) {
+func filterPathItem(pPath *openapi3.PathItem, m *Metadata) {
 	version := m.targetVersion
 	for _, op := range pPath.Operations() {
 		latestMatchedVersion, err := getLatestVersionMatch(op, version)
@@ -42,12 +42,14 @@ func filterPathItem(pPath *openapi3.PathItem, m *FilterMetadata) {
 			return
 		}
 
-		log.Printf("Parsing OperationId: %s for targetVersion %s and got the latest matched version: %s", op.OperationID, version, latestMatchedVersion)
+		log.Printf("Parsing OperationId: %s for targetVersion %s and got the latest matched version: %s",
+			op.OperationID, version, latestMatchedVersion)
 		// TODO: Continue parsing...
 	}
 }
 
-func getLatestVersionMatch(op *openapi3.Operation, requestedVersion *apiversion.APIVersion) (*apiversion.APIVersion, error) {
+func getLatestVersionMatch(
+	op *openapi3.Operation, requestedVersion *apiversion.APIVersion) (*apiversion.APIVersion, error) {
 	/*
 		  given:
 			 version: 2024-01-01
@@ -59,7 +61,7 @@ func getLatestVersionMatch(op *openapi3.Operation, requestedVersion *apiversion.
 				  content: application/vnd.atlas.2025-01-01+json
 		  should return latestVersionMatch=2023-12-01
 	*/
-	var latestVersionMatch *apiversion.APIVersion = nil
+	var latestVersionMatch *apiversion.APIVersion
 	for _, response := range op.Responses.Map() {
 		if response.Value.Content == nil {
 			continue

@@ -19,10 +19,10 @@ import (
 )
 
 type Filter interface {
-	Apply(doc *openapi3.T, metadata *FilterMetadata) error
+	Apply(doc *openapi3.T, metadata *Metadata) error
 }
 
-type FilterMetadata struct {
+type Metadata struct {
 	targetVersion *apiversion.APIVersion
 	targetEnv     string
 }
@@ -31,14 +31,14 @@ var filters = map[string]Filter{
 	"path": &PathFilter{},
 }
 
-func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *FilterMetadata {
-	return &FilterMetadata{
+func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metadata {
+	return &Metadata{
 		targetVersion: targetVersion,
 		targetEnv:     targetEnv,
 	}
 }
 
-func ApplyFilters(doc *openapi3.T, metadata *FilterMetadata) error {
+func ApplyFilters(doc *openapi3.T, metadata *Metadata) error {
 	for _, filter := range filters {
 		if err := filter.Apply(doc, metadata); err != nil {
 			return err

@@ -20,6 +20,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPathFilter_getLatestVersionMatch(t *testing.T) {
@@ -73,14 +74,13 @@ func TestPathFilter_getLatestVersionMatch(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			targetVersion, err := apiversion.New(apiversion.WithVersion(tt.targetVersion))
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			r, err := getLatestVersionMatch(oasOperationAllVersions(), targetVersion)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			// transform time to str with format "2006-01-02"
 			assert.Equal(t, tt.expectedMatch, r.String())
 		})
 	}
-
 }
 
 func oasOperationAllVersions() *openapi3.Operation {
