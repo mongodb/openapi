@@ -17,8 +17,7 @@ import (
 	"sort"
 
 	"github.com/getkin/kin-openapi/openapi3"
-
-	"github.com/mongodb/openapi/tools/cli/internal/versioning"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
 // ExtractVersions extracts version strings from an OpenAPI specification.
@@ -43,7 +42,7 @@ func ExtractVersions(oas *openapi3.T) []string {
 					continue
 				}
 				for contentType := range response.Value.Content {
-					version, err := versioning.Parse(contentType)
+					version, err := apiversion.Parse(contentType)
 					if err == nil {
 						versions[version] = struct{}{}
 					}
