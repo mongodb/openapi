@@ -34,9 +34,6 @@ func (f *PathFilter) Apply(doc *openapi3.T, metadata *FilterMetadata) error {
 }
 
 func filterPathItem(pPath *openapi3.PathItem, m *FilterMetadata) {
-	// versionFoundForOperation := false
-	// operationsToBeRemoved := make(map[string]*openapi3.Operation)
-
 	version := m.targetVersion
 	for _, op := range pPath.Operations() {
 		latestMatchedVersion, err := getLatestVersionMatch(op, version)
@@ -45,48 +42,8 @@ func filterPathItem(pPath *openapi3.PathItem, m *FilterMetadata) {
 			return
 		}
 
-		log.Printf("targetVersion: %s", version)
-		log.Printf("latestMatchedVersion: %s", latestMatchedVersion)
-
-		versionFoundForOperation := false
-		deprecatedVersions := make([]*apiversion.APIVersion, 0)
-		removeResponseCodes := make([]string, 0)
-
-		for _, response := range op.Responses.Map() {
-			filteredContent, _ := filterVersionedContent(response.Value.Content, latestMatchedVersion, true)
-			if len(filteredContent) > 0 {
-				versionFoundForOperation = true
-				deprecatedVersionsPerContent := getDeprecatedVersionsPerContent(response.Value.Content, latestMatchedVersion)
-				deprecatedVersions = append(deprecatedVersions, deprecatedVersionsPerContent...)
-			}
-
-			log.Printf("versionFoundForOperation: %t", versionFoundForOperation)
-			log.Printf("deprecatedVersions: %v", deprecatedVersions)
-
-			// remove entirely the response code (e.g. "200") if the filtered content is empty
-			if filteredContent == nil && isVersionedContent(response.Value.Content) {
-				removeResponseCodes = append(removeResponseCodes, response.Ref)
-			}
-			response.Value.Content = filteredContent
-		}
-		for _, c := range removeResponseCodes {
-			log.Printf("Removing response code: %s", c)
-			delete(op.Responses.Map(), c)
-		}
-
-		// if requestBody := op.RequestBody; requestBody != nil && len(requestBody.Content) > 0 {
-		// 	filteredRequestBody := filterVersionedContent(requestBody.Content, pVersion, false).Content
-		// 	if filteredRequestBody != nil && len(filteredRequestBody) > 0 {
-		// 		requestBody.Content = filteredRequestBody
-		// 	} else {
-		// 		// We do not want empty request. Remove request body object
-		// 		op.RequestBody = nil
-		// 	}
-		// }
-
-		// if len(deprecatedVersions) > 0 {
-		// 	op.Description += ". Deprecated versions: " + strings.Join(deprecatedVersions, ", ")
-		// }
+		log.Printf("Parsing OperationId: %s for targetVersion %s and got the latest matched version: %s", op.OperationID, version, latestMatchedVersion)
+		// TODO: Continue parsing...
 	}
 }
 
