@@ -19,6 +19,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -83,6 +84,21 @@ func TestPathFilter_getLatestVersionMatch(t *testing.T) {
 	}
 }
 
+func TestPathFilter_processPathItem(t *testing.T) {
+	filter := &PathFilter{}
+	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
+	require.NoError(t, err)
+
+	processData := filter.processPathItem(oasPathAllVersions(), &Metadata{targetVersion: version})
+	assert.NotNil(t, processData.parsedOperations)
+	assert.Len(t, processData.parsedOperations, 1)
+	operationConfig := processData.parsedOperations["operationId"]
+	assert.NotNil(t, operationConfig.deprecatedVersions)
+	assert.Len(t, operationConfig.deprecatedVersions, 3)
+	assert.Len(t, operationConfig.removeResponseCodes, 3)
+
+}
+
 func oasOperationAllVersions() *openapi3.Operation {
 	responses := &openapi3.Responses{}
 	responses.Set("200", &openapi3.ResponseRef{
@@ -101,4 +117,37 @@ func oasOperationAllVersions() *openapi3.Operation {
 		OperationID: "operationId",
 		Responses:   responses,
 	}
+}
+
+func oasOperationFutureVersion() *openapi3.Operation {
+	responses := &openapi3.Responses{}
+	responses.Set("200", &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.9000-05-30+json": {},
+			},
+		},
+	})
+
+	return &openapi3.Operation{
+		OperationID: "operationIdFuture",
+		Responses:   responses,
+	}
+}
+
+func oasPathAllVersions() *openapi3.PathItem {
+
+	return &openapi3.PathItem{
+		Get: oasOperationAllVersions(),
+		Put: oasOperationFutureVersion(),
+	}
+}
+
+func loadVersionedFoas(t *testing.T) openapi3.T {
+	t.Helper()
+	path := "../../../test/data/base_spec.json"
+	loader := openapi.NewOpenAPI3()
+	specInfo, err := loader.CreateOpenAPISpecFromPath(path)
+	assert.NoError(t, err)
+	return *specInfo.Spec
 }
