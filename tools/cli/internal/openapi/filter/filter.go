@@ -15,19 +15,32 @@ package filter
 
 import (
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
 type Filter interface {
-	Apply(doc *openapi3.T) error
+	Apply(doc *openapi3.T, metadata *FilterMetadata) error
+}
+
+type FilterMetadata struct {
+	targetVersion *apiversion.APIVersion
+	targetEnv     string
 }
 
 var filters = map[string]Filter{
 	"path": &PathFilter{},
 }
 
-func ApplyFilters(doc *openapi3.T) error {
+func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *FilterMetadata {
+	return &FilterMetadata{
+		targetVersion: targetVersion,
+		targetEnv:     targetEnv,
+	}
+}
+
+func ApplyFilters(doc *openapi3.T, metadata *FilterMetadata) error {
 	for _, filter := range filters {
-		if err := filter.Apply(doc); err != nil {
+		if err := filter.Apply(doc, metadata); err != nil {
 			return err
 		}
 	}
