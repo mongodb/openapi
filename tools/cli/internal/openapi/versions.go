@@ -43,7 +43,7 @@ func ExtractVersions(oas *openapi3.T) []string {
 					continue
 				}
 				for contentType := range response.Value.Content {
-					version, err := versioning.ParseVersion(contentType)
+					version, err := versioning.Parse(contentType)
 					if err == nil {
 						versions[version] = struct{}{}
 					}

@@ -56,7 +56,7 @@ func TestParseVersion(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			match, err := ParseVersion(tt.contentType)
+			match, err := Parse(tt.contentType)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

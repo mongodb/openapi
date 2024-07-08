@@ -43,7 +43,7 @@ func NewAPIVersionFromDateString(version string) (*APIVersion, error) {
 
 // NewAPIVersionFromContentType creates a new API version from a content type of the expected format.
 func NewAPIVersionFromContentType(contentType string) (*APIVersion, error) {
-	version, err := ParseVersion(contentType)
+	version, err := Parse(contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +82,8 @@ func (v *APIVersion) String() string {
 	return v.version
 }
 
-// ParseVersion extracts the version date from the content type.
-func ParseVersion(contentType string) (string, error) {
+// Parse extracts the version date from the content type.
+func Parse(contentType string) (string, error) {
 	const pattern = `application/vnd\.atlas\.(\d{4})-(\d{2})-(\d{2})\+(.+)`
 	re := regexp.MustCompile(pattern)
 	matches := re.FindStringSubmatch(contentType)
