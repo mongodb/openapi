@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-type ApiVersion struct {
+type APIVersion struct {
 	version     string
 	versionDate time.Time
 }
@@ -29,20 +29,20 @@ const (
 )
 
 // NewAPIVersion creates a new API version.
-func NewAPIVersionFromDateString(version string) (*ApiVersion, error) {
+func NewAPIVersionFromDateString(version string) (*APIVersion, error) {
 	versionDate, err := NewVersionDate(version)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ApiVersion{
+	return &APIVersion{
 		version:     version,
 		versionDate: versionDate,
 	}, nil
 }
 
 // NewAPIVersionFromContentType creates a new API version from a content type of the expected format.
-func NewAPIVersionFromContentType(contentType string) (*ApiVersion, error) {
+func NewAPIVersionFromContentType(contentType string) (*APIVersion, error) {
 	version, err := ParseVersion(contentType)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func NewAPIVersionFromContentType(contentType string) (*ApiVersion, error) {
 	return NewAPIVersionFromDateString(version)
 }
 
-func NewAPIVersionFromTime(t time.Time) (*ApiVersion, error) {
+func NewAPIVersionFromTime(t time.Time) (*APIVersion, error) {
 	return NewAPIVersionFromDateString(t.Format(dateFormat))
 }
 
@@ -58,19 +58,19 @@ func NewVersionDate(version string) (time.Time, error) {
 	return time.Parse(dateFormat, version)
 }
 
-func (v *ApiVersion) Equal(v2 *ApiVersion) bool {
+func (v *APIVersion) Equal(v2 *APIVersion) bool {
 	return v.version == v2.version
 }
 
-func (v *ApiVersion) GreaterThan(v2 *ApiVersion) bool {
+func (v *APIVersion) GreaterThan(v2 *APIVersion) bool {
 	return v.versionDate.After(v2.versionDate)
 }
 
-func (v *ApiVersion) LessThan(v2 *ApiVersion) bool {
+func (v *APIVersion) LessThan(v2 *APIVersion) bool {
 	return v.versionDate.Before(v2.versionDate)
 }
 
-func (v *ApiVersion) IsZero() bool {
+func (v *APIVersion) IsZero() bool {
 	if v == nil {
 		return true
 	}
@@ -78,7 +78,7 @@ func (v *ApiVersion) IsZero() bool {
 	return v.versionDate.IsZero()
 }
 
-func (v *ApiVersion) String() string {
+func (v *APIVersion) String() string {
 	return v.version
 }
 
