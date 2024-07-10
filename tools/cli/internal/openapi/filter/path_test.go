@@ -89,14 +89,11 @@ func TestPathFilter_processPathItem(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
 
-	processData := filter.processPathItem(oasPathAllVersions(), &Metadata{targetVersion: version})
-	assert.NotNil(t, processData.parsedOperations)
-	assert.Len(t, processData.parsedOperations, 1)
-	operationConfig := processData.parsedOperations["operationId"]
-	assert.NotNil(t, operationConfig.deprecatedVersions)
-	assert.Len(t, operationConfig.deprecatedVersions, 3)
-	assert.Len(t, operationConfig.removeResponseCodes, 3)
-
+	oas := oasPathAllVersions()
+	err = filter.apply(oas, &Metadata{targetVersion: version})
+	assert.Nil(t, err)
+	assert.NotNil(t, oas.Get)
+	assert.Equal(t, oas.Get.Responses, "h")
 }
 
 func oasOperationAllVersions() *openapi3.Operation {

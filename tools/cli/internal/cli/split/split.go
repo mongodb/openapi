@@ -15,6 +15,7 @@
 package split
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -55,16 +56,40 @@ func (o *Opts) Run() error {
 
 	oas := specInfo.Spec
 	versions := openapi.ExtractVersions(oas)
+
+	// make a copy of the oas to avoid modifying the original document when applying filters
 	for _, version := range versions {
-		filteredOAS, _ := o.filter(oas, version)
+		oasCopy, err := duplicateOas(oas)
+		if err != nil {
+			log.Fatalf("Failed to duplicate OpenAPI document: %v", err)
+		}
+
+		filteredOAS, _ := o.filter(oasCopy, version)
 		if err := o.writeVersionedOas(filteredOAS, version); err != nil {
 			log.Fatalf("Failed to write OpenAPI document: %v", err)
 		}
-		err := filteredOAS.Validate(loader.Loader.Context)
+		err = filteredOAS.Validate(loader.Loader.Context)
 		log.Printf("[WARN] OpenAPI document is invalid: %v", err)
 	}
 
 	return nil
+}
+
+func duplicateOas(doc *openapi3.T) (*openapi3.T, error) {
+	// Marshal the original document to JSON
+	jsonData, err := json.Marshal(doc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal original OpenAPI specification: %w", err)
+	}
+
+	// Unmarshal the JSON data into a new OpenAPI document
+	duplicateDoc := &openapi3.T{}
+	err = json.Unmarshal(jsonData, duplicateDoc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal duplicated OpenAPI specification: %w", err)
+	}
+
+	return duplicateDoc, nil
 }
 
 func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err error) {

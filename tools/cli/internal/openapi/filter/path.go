@@ -53,30 +53,21 @@ func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 }
 
 func (f *PathFilter) Apply(doc *openapi3.T, metadata *Metadata) error {
-	for path, pathItem := range doc.Paths.Map() {
-		config := f.processPathItem(pathItem, metadata)
-		if config == nil {
-			log.Fatalf("Error processing path item: %s", path)
-			return nil
-		}
-
-		// log.Printf("[DEBUG] See config values {operationsToBeRemoved: %v, parsedOperations: %v}",
-		// 	config.operationsToBeRemoved, config.parsedOperations)
-
-		f.apply(config, pathItem)
+	for _, pathItem := range doc.Paths.Map() {
+		f.apply(pathItem, metadata)
 	}
 	return nil
 }
 
 // processPathItem processes a path item and returns an ApplyConfig
-func (f *PathFilter) processPathItem(path *openapi3.PathItem, m *Metadata) *ApplyConfig {
+func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 	config := &ApplyConfig{
 		requestedVersion:      m.targetVersion,
 		operationsToBeRemoved: make(map[string]*openapi3.Operation),
 		parsedOperations:      make(map[string]*OperationConfig),
 	}
 
-	for _, op := range path.Operations() {
+	for opKey, op := range path.Operations() {
 		opConfig := newOperationConfig(op)
 		config.parsedOperations[op.OperationID] = opConfig
 
@@ -92,34 +83,33 @@ func (f *PathFilter) processPathItem(path *openapi3.PathItem, m *Metadata) *Appl
 			if filteredResponse == nil && isVersionedContent(response.Value.Content) {
 				log.Printf("Marking response for removal: %s", responseCode)
 				opConfig.removeResponseCodes = append(opConfig.removeResponseCodes, responseCode)
+				response.Value = nil
+				response.Ref = ""
 			}
+			response.Value.Content = filteredResponse
 		}
 
 		if !opConfig.hasMinValidResponse {
-			config.operationsToBeRemoved[op.OperationID] = op
+			log.Printf("Removing operation: %s", op.OperationID)
+			path.SetOperation(opKey, nil)
 		}
-	}
 
-	return config
-}
-
-func (f *PathFilter) apply(config *ApplyConfig, path *openapi3.PathItem) {
-	for _, op := range config.operationsToBeRemoved {
-		log.Printf("Removing operation: %s", op.OperationID)
-		delete(path.Operations(), op.OperationID)
-	}
-
-	for _, op := range path.Operations() {
-		opConfig := config.parsedOperations[op.OperationID]
 		updateOpDescription(op, opConfig.deprecatedVersions)
-		for _, c := range opConfig.removeResponseCodes {
-			log.Printf("Removing response code: {%s}", c)
-			delete(op.Responses.Map(), c)
+
+		if op.RequestBody == nil || op.RequestBody.Value == nil {
+			continue
 		}
-		// update OP response map
-		m := &op.Responses
-		*m = opConfig.operation.Responses
+		filteredRequestBody, _ := filterVersionedContent(op.RequestBody.Value.Content, opConfig.latestMatchedVersion, false)
+		if filteredRequestBody == nil {
+			log.Printf("Removing request body for content type: %s", op.RequestBody.Value)
+			op.RequestBody.Value.Content = nil
+		} else {
+			op.RequestBody.Value.Content = filteredRequestBody
+		}
+
 	}
+
+	return nil
 }
 
 // func filterPathItem(path *openapi3.PathItem, m *Metadata) {
