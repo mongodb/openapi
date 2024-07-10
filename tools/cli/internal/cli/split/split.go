@@ -61,15 +61,21 @@ func (o *Opts) Run() error {
 	for _, version := range versions {
 		oasCopy, err := duplicateOas(oas)
 		if err != nil {
-			log.Fatalf("Failed to duplicate OpenAPI document: %v", err)
+			return err
 		}
 
-		filteredOAS, _ := o.filter(oasCopy, version)
-		if err := o.writeVersionedOas(filteredOAS, version); err != nil {
-			log.Fatalf("Failed to write OpenAPI document: %v", err)
+		filteredOAS, err := o.filter(oasCopy, version)
+		if err != nil {
+			return err
 		}
-		err = filteredOAS.Validate(loader.Loader.Context)
-		log.Printf("[WARN] OpenAPI document is invalid: %v", err)
+
+		if err := o.writeVersionedOas(filteredOAS, version); err != nil {
+			return err
+		}
+
+		if err := filteredOAS.Validate(loader.Loader.Context); err != nil {
+			log.Printf("[WARN] OpenAPI document is invalid: %v", err)
+		}
 	}
 
 	return nil
