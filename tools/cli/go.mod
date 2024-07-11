@@ -1,6 +1,7 @@
 module github.com/mongodb/openapi/tools/cli
 
-go 1.22.4
+go 1.22.5
+
 require (
 	github.com/getkin/kin-openapi v0.126.0
 	github.com/spf13/afero v1.11.0
