@@ -27,14 +27,12 @@ type OpenAPI3 struct {
 
 func NewOpenAPI3() *OpenAPI3 {
 	return &OpenAPI3{
-		IsExternalRefsAllowed:    true,
-		CircularReferenceCounter: 10,
-		Loader:                   openapi3.NewLoader(),
+		IsExternalRefsAllowed: true,
+		Loader:                openapi3.NewLoader(),
 	}
 }
 
 func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
-	openapi3.CircularReferenceCounter = o.CircularReferenceCounter
 	o.Loader.IsExternalRefsAllowed = o.IsExternalRefsAllowed
 	spec, err := load.NewSpecInfo(o.Loader, load.NewSource(path))
 	if err != nil {
