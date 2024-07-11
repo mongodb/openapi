@@ -79,6 +79,11 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 		}
 
 		for responseCode, response := range op.Responses.Map() {
+			if response.Value == nil {
+				log.Printf("Ignoring response: %s", responseCode)
+				continue
+			}
+
 			filteredResponse := filterResponse(response, op, config)
 			if filteredResponse == nil && isVersionedContent(response.Value.Content) {
 				log.Printf("Marking response for removal: %s", responseCode)
@@ -175,8 +180,12 @@ func getLatestVersionMatch(
 		  should return latestVersionMatch=2023-12-01
 	*/
 	var latestVersionMatch *apiversion.APIVersion
+	if op.Responses == nil {
+		return requestedVersion, nil
+	}
+
 	for _, response := range op.Responses.Map() {
-		if response.Value.Content == nil {
+		if response.Value == nil || response.Value.Content == nil {
 			continue
 		}
 
