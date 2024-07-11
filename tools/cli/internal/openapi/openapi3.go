@@ -15,6 +15,9 @@
 package openapi
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tufin/oasdiff/load"
 )
@@ -36,6 +39,12 @@ func NewOpenAPI3() *OpenAPI3 {
 func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
 	openapi3.CircularReferenceCounter = o.CircularReferenceCounter
 	o.Loader.IsExternalRefsAllowed = o.IsExternalRefsAllowed
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	fmt.Println("dir:", dir)
+
 	spec, err := load.NewSpecInfo(o.Loader, load.NewSource(path))
 	if err != nil {
 		return nil, err

@@ -18,11 +18,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
-
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
+// @Todo use the struct fields instead of
 type PathFilter struct {
 }
 
@@ -52,8 +52,8 @@ func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 	}
 }
 
-func (f *PathFilter) Apply(doc *openapi3.T, metadata *Metadata) error {
-	for _, pathItem := range doc.Paths.Map() {
+func (f *PathFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
+	for _, pathItem := range oas.Paths.Map() {
 		f.apply(pathItem, metadata)
 	}
 	return nil
@@ -80,7 +80,7 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 
 		for responseCode, response := range op.Responses.Map() {
 			if response.Value == nil {
-				log.Printf("Ignoring response: %s", responseCode)
+				log.Printf("Ignoring response: %s for operationID: %s", responseCode, op.OperationID)
 				continue
 			}
 
@@ -106,7 +106,7 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 		}
 		filteredRequestBody, _ := filterVersionedContent(op.RequestBody.Value.Content, opConfig.latestMatchedVersion, false)
 		if filteredRequestBody == nil {
-			log.Printf("Removing request body for content type: %s", op.RequestBody.Value)
+			log.Printf("Removing request body for content type: %+v", op.RequestBody.Value)
 			op.RequestBody.Value.Content = nil
 		} else {
 			op.RequestBody.Value.Content = filteredRequestBody
@@ -299,6 +299,7 @@ func filterVersionedContent(content map[string]*openapi3.MediaType, version *api
 	return nil, nil
 }
 
+// getDeprecatedVersionsPerContent returns the deprecated versions for a given content type
 func getDeprecatedVersionsPerContent(content map[string]*openapi3.MediaType, version *apiversion.APIVersion) []*apiversion.APIVersion {
 	versionsInContentType := make(map[string]*apiversion.APIVersion)
 	for contentType, _ := range content {
@@ -326,7 +327,7 @@ func isVersionedContent(content map[string]*openapi3.MediaType) bool {
 
 	for contentType := range content {
 		if _, err := apiversion.New(apiversion.WithContent(contentType)); err == nil {
-			// log.Printf("Found versioned content: %s", contentType)
+			log.Printf("Found versioned content: %s", contentType)
 			return true
 		}
 	}

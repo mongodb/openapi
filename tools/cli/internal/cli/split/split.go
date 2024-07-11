@@ -59,7 +59,7 @@ func (o *Opts) Run() error {
 
 	// make a copy of the oas to avoid modifying the original document when applying filters
 	for _, version := range versions {
-		oasCopy, err := duplicateOas(oas)
+		oasCopy, err := duplicateOas(oas) // @Todo this can go outside the loop maybe !?
 		if err != nil {
 			return err
 		}
@@ -105,16 +105,16 @@ func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err 
 		return nil, err
 	}
 
-	return oas, filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, ""))
+	return oas, filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, "")) //@Todo: we need to pass the env
 }
 
 func (o *Opts) writeVersionedOas(oas *openapi3.T, version string) error {
-	if o.outputPath == "" {
-		path := strings.Replace(o.basePath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
-		return openapi.Save(path, oas, o.format, o.fs)
+	path := o.basePath
+	if o.outputPath != "" {
+		path = o.outputPath
 	}
 
-	path := strings.Replace(o.outputPath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
+	path = strings.Replace(path, fmt.Sprintf(".%s", o.format), fmt.Sprintf("-%s.%s", version, o.format), 1)
 	return openapi.Save(path, oas, o.format, o.fs)
 }
 
@@ -129,6 +129,10 @@ func (o *Opts) PreRunE(_ []string) error {
 
 	if o.format != "json" && o.format != "yaml" {
 		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
+	}
+
+	if strings.Contains(o.basePath, ".yaml") {
+		o.format = "yaml"
 	}
 
 	return nil
