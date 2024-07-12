@@ -90,9 +90,16 @@ func TestPathFilter_processPathItem(t *testing.T) {
 
 	oas := oasPathAllVersions()
 	err = filter.apply(oas, &Metadata{targetVersion: version})
+
 	require.NoError(t, err)
 	assert.NotNil(t, oas.Get)
-	assert.Equal(t, "h", oas.Get.Responses)
+	assert.Equal(t, 1, oas.Get.Responses.Len())
+
+	get200Responses := oas.Get.Responses.Map()["200"]
+	assert.NotNil(t, get200Responses)
+
+	get200ResponsesContent := get200Responses.Value.Content
+	assert.NotNil(t, get200ResponsesContent.Get("application/vnd.atlas.2023-11-15+json"))
 }
 
 func oasOperationAllVersions() *openapi3.Operation {
