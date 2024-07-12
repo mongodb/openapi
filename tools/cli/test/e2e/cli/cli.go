@@ -67,14 +67,14 @@ func NewDuplicatedTagAuthNSpecPath(t *testing.T) string {
 
 func NewAtlasYAMLBaseSpecPath(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/tools/openapi-v2.yaml")
+	cliPath, err := filepath.Abs("../../data/split/openapi-v2.yaml")
 	require.NoError(t, err)
 	return cliPath
 }
 
 func NewValidVersionedAtlasYAMLSpecPath(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/tools/openapi-v2-2024-05-30.yaml")
+	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2024-05-30.yaml")
 	require.NoError(t, err)
 	return cliPath
 }
