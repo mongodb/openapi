@@ -18,7 +18,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-//go:generate mockgen -destination=../openapi/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi Apply
+//go:generate mockgen -destination=../openapi/filter/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi/filter Filter
 type Filter interface {
 	Apply(doc *openapi3.T, metadata *Metadata) error
 }
