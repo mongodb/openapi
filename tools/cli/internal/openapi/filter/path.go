@@ -144,7 +144,7 @@ func getLatestVersionMatch(
 		for contentType := range response.Value.Content {
 			contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
 			if err != nil {
-				// log.Printf("Ignoring invalid content type: %s", contentType)
+				log.Printf("Ignoring invalid content type: %s", contentType)
 				continue
 			}
 			if contentVersion.GreaterThan(requestedVersion) {
@@ -214,7 +214,7 @@ func filterVersionedContent(content map[string]*openapi3.MediaType, version *api
 	for contentType, mediaType := range content {
 		v, err := apiversion.New(apiversion.WithContent(contentType))
 		if err != nil {
-			// log.Printf("Ignoring invalid content type: %s", contentType)
+			log.Printf("Ignoring invalid content type: %s", contentType)
 			continue
 		}
 
@@ -254,7 +254,7 @@ func filterVersionedContent(content map[string]*openapi3.MediaType, version *api
 // getDeprecatedVersionsPerContent returns the deprecated versions for a given content type
 func getDeprecatedVersionsPerContent(content map[string]*openapi3.MediaType, version *apiversion.APIVersion) []*apiversion.APIVersion {
 	versionsInContentType := make(map[string]*apiversion.APIVersion)
-	for contentType, _ := range content {
+	for contentType := range content {
 		v, err := apiversion.New(apiversion.WithContent(contentType))
 		if err != nil {
 			log.Printf("Ignoring invalid content type: %s", contentType)

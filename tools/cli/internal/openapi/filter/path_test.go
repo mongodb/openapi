@@ -19,7 +19,6 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
-	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -91,7 +90,7 @@ func TestPathFilter_processPathItem(t *testing.T) {
 
 	oas := oasPathAllVersions()
 	err = filter.apply(oas, &Metadata{targetVersion: version})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, oas.Get)
 	assert.Equal(t, "h", oas.Get.Responses)
 }
@@ -138,4 +137,3 @@ func oasPathAllVersions() *openapi3.PathItem {
 		Put: oasOperationFutureVersion(),
 	}
 }
-

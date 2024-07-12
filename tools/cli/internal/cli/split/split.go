@@ -105,7 +105,7 @@ func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err 
 		return nil, err
 	}
 
-	return oas, filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, "")) //@Todo: we need to pass the env 
+	return oas, filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, "")) // @Todo: we need to pass the env
 }
 
 func (o *Opts) writeVersionedOas(oas *openapi3.T, version string) error {
