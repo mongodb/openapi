@@ -91,9 +91,9 @@ func TestPathFilter_processPathItem(t *testing.T) {
 
 	oas := oasPathAllVersions()
 	err = filter.apply(oas, &Metadata{targetVersion: version})
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.NotNil(t, oas.Get)
-	assert.Equal(t, oas.Get.Responses, "h")
+	assert.Equal(t, "h", oas.Get.Responses)
 }
 
 func oasOperationAllVersions() *openapi3.Operation {
@@ -133,18 +133,9 @@ func oasOperationFutureVersion() *openapi3.Operation {
 }
 
 func oasPathAllVersions() *openapi3.PathItem {
-
 	return &openapi3.PathItem{
 		Get: oasOperationAllVersions(),
 		Put: oasOperationFutureVersion(),
 	}
 }
 
-func loadVersionedFoas(t *testing.T) openapi3.T {
-	t.Helper()
-	path := "../../../test/data/base_spec.json"
-	loader := openapi.NewOpenAPI3()
-	specInfo, err := loader.CreateOpenAPISpecFromPath(path)
-	assert.NoError(t, err)
-	return *specInfo.Spec
-}

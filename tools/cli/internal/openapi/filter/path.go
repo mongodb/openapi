@@ -54,7 +54,9 @@ func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 
 func (f *PathFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
 	for _, pathItem := range oas.Paths.Map() {
-		f.apply(pathItem, metadata)
+		if err := f.apply(pathItem, metadata); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -111,60 +113,10 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 		} else {
 			op.RequestBody.Value.Content = filteredRequestBody
 		}
-
 	}
 
 	return nil
 }
-
-// func filterPathItem(path *openapi3.PathItem, m *Metadata) {
-// 	rConfig := &ApplyConfig{
-// 		requestedVersion:      m.targetVersion,
-// 		operationsToBeRemoved: make(map[string]*openapi3.Operation),
-// 		parsedOperations:      make(map[string]*OperationConfig),
-// 	}
-
-// 	version := m.targetVersion
-// 	for _, op := range path.Operations() {
-// 		opConfig := newOperationConfig()
-// 		rConfig.parsedOperations[op.OperationID] = opConfig
-
-// 		var err error
-// 		opConfig.latestMatchedVersion, err = getLatestVersionMatch(op, version)
-// 		if err != nil {
-// 			log.Fatalf("Error getting latest version match: %s", err)
-// 			return
-// 		}
-
-// 		log.Printf("Parsing OperationId: %s for targetVersion %s and got the latest matched version: %s",
-// 			op.OperationID, version, opConfig.latestMatchedVersion)
-
-// 		for _, response := range op.Responses.Map() {
-// 			response.Value.Content = filterResponse(response, op, rConfig)
-// 			if response.Value.Content == nil {
-// 				log.Printf("Marking response for removal: %s", response.Ref)
-// 				rConfig.operationsToBeRemoved[op.OperationID] = op
-// 			}
-// 		}
-
-// 		updateOpDescription(op, opConfig.deprecatedVersions)
-
-// 		for _, c := range opConfig.removeResponseCodes {
-// 			log.Printf("Removing response code: %s", c)
-// 			delete(op.Responses.Map(), c)
-// 		}
-
-// 		// if requestBody := op.RequestBody; requestBody != nil && len(requestBody.Content) > 0 {
-// 		// 	filteredRequestBody := filterVersionedContent(requestBody.Content, pVersion, false).Content
-// 		// 	if filteredRequestBody != nil && len(filteredRequestBody) > 0 {
-// 		// 		requestBody.Content = filteredRequestBody
-// 		// 	} else {
-// 		// 		// We do not want empty request. Remove request body object
-// 		// 		op.RequestBody = nil
-// 		// 	}
-// 		// }
-// 	}
-// }
 
 func getLatestVersionMatch(
 	op *openapi3.Operation, requestedVersion *apiversion.APIVersion) (*apiversion.APIVersion, error) {
