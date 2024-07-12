@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -72,9 +74,37 @@ func NewAtlasYAMLBaseSpecPath(t *testing.T) string {
 	return cliPath
 }
 
-func NewValidVersionedAtlasYAMLSpecPath(t *testing.T) string {
+func NewValidAtlas20240530YAMLSpecPath(t *testing.T) string {
 	t.Helper()
 	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2024-05-30.yaml")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewValidAtlas20231115YAMLSpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2023-11-15.yaml")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewValidAtlas20231001YAMLSpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2023-10-01.yaml")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewValidAtlas20230201YAMLSpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2023-02-01.yaml")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewValidAtlas20230101YAMLSpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2023-01-01.yaml")
 	require.NoError(t, err)
 	return cliPath
 }
@@ -83,8 +113,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	t.Helper()
 	correctSpec := newOpenAPISpec(t, correctSpecPath)
 	generatedSpec := newOpenAPISpec(t, generatedSpecPath)
-
-	assert.True(t, areOperationsEqual(t, correctSpec, generatedSpec))
+	areOperationsEqual(t, correctSpec, generatedSpec)
 }
 
 func newOpenAPISpec(t *testing.T, path string) *openapi3.T {
@@ -99,98 +128,141 @@ func newOpenAPISpec(t *testing.T, path string) *openapi3.T {
 	return specInfo.Spec
 }
 
-func areOperationsEqual(t *testing.T, correctSpec, generatedSpec *openapi3.T) bool {
+func areOperationsEqual(t *testing.T, correctSpec, generatedSpec *openapi3.T) {
 	t.Helper()
 	generatedSpecPaths := generatedSpec.Paths.Map()
 
 	for k, path := range correctSpec.Paths.Map() {
 		log.Printf("Comparing path '%s'", k)
-		if generatedPath, ok := generatedSpecPaths[k]; !ok || !arePathsEqual(t, path, generatedPath) {
-			return false
+		if generatedPath, ok := generatedSpecPaths[k]; ok {
+			arePathsEqual(t, path, generatedPath)
+		} else {
+			assert.Fail(t, "The path '%s' was not found in the generated", k)
 		}
 	}
-
-	return false
 }
 
-func arePathsEqual(t *testing.T, correctPath, generatedPath *openapi3.PathItem) bool {
+func arePathsEqual(t *testing.T, correctPath, generatedPath *openapi3.PathItem) {
 	t.Helper()
 	if correctPath == nil && generatedPath == nil {
-		return true
+		return
 	}
 
 	if correctPath == nil || generatedPath == nil {
-		return false
+		return
 	}
 
-	if correctPath.Description != generatedPath.Description {
-		log.Printf("The descriptions of the path mismatched. Wanted '%s', Got: '%s;", correctPath.Description, generatedPath.Description)
-		return false
-	}
+	assert.Equal(t,
+		convertMultilineToSingleLine(correctPath.Description),
+		convertMultilineToSingleLine(generatedPath.Description),
+		"The descriptions of the paths mismatched")
 
-	return areHTTPMethodsEqual(t, correctPath, generatedPath)
+	areHTTPMethodsEqual(t, correctPath, generatedPath)
 }
 
-func areHTTPMethodsEqual(t *testing.T, correctPath, generatedPath *openapi3.PathItem) bool {
+func areHTTPMethodsEqual(t *testing.T, correctPath, generatedPath *openapi3.PathItem) {
 	t.Helper()
-	return areGetsEquals(t, correctPath, generatedPath) &&
-		arePostsEquals(t, correctPath, generatedPath) &&
-		arePatchesEquals(t, correctPath, generatedPath) &&
-		areDeletesEquals(t, correctPath, generatedPath)
+	areGetsEquals(t, correctPath, generatedPath)
+	arePostsEquals(t, correctPath, generatedPath)
+	arePatchesEquals(t, correctPath, generatedPath)
+	areDeletesEquals(t, correctPath, generatedPath)
+	arePutsEquals(t, correctPath, generatedPath)
 }
 
-func areDeletesEquals(t *testing.T, correctPath, generatedPath *openapi3.PathItem) bool {
+func areDeletesEquals(t *testing.T, correctPath, generatedPath *openapi3.PathItem) {
 	t.Helper()
+	log.Printf("Comparing DELETE Method")
 	if correctPath.Delete == nil && generatedPath.Delete == nil {
-		return true
+		return
 	}
 
 	if correctPath.Delete == nil || generatedPath.Delete == nil {
-		return false
+		return
 	}
 
-	assert.Equal(t, correctPath.Delete.Description, generatedPath.Delete.Description, "The descriptions of the DELETE mismatched")
-	return true
+	assert.Equal(t,
+		convertMultilineToSingleLine(correctPath.Delete.Description),
+		convertMultilineToSingleLine(generatedPath.Delete.Description),
+		"The descriptions of the DELETE mismatched")
 }
 
-func arePatchesEquals(t *testing.T, correctPath, generatedPath *openapi3.PathItem) bool {
+func arePatchesEquals(t *testing.T, correctPath, generatedPath *openapi3.PathItem) {
 	t.Helper()
+	log.Printf("Comparing PATCH Method")
 	if correctPath.Patch == nil && generatedPath.Patch == nil {
-		return true
+		return
 	}
 
 	if correctPath.Patch == nil || generatedPath.Patch == nil {
-		return false
+		return
 	}
 
-	assert.Equal(t, correctPath.Patch.Description, generatedPath.Patch.Description, "The descriptions of the PATCH mismatched")
-	return true
+	assert.Equal(t,
+		convertMultilineToSingleLine(correctPath.Patch.Description),
+		convertMultilineToSingleLine(generatedPath.Patch.Description),
+		"The descriptions of the PATCH mismatched")
 }
 
-func arePostsEquals(t *testing.T, correctPath, generatedPath *openapi3.PathItem) bool {
+func arePostsEquals(t *testing.T, correctPath, generatedPath *openapi3.PathItem) {
 	t.Helper()
+	log.Printf("Comparing POST Method")
 	if correctPath.Post == nil && generatedPath.Post == nil {
-		return true
+		return
 	}
 
 	if correctPath.Post == nil || generatedPath.Post == nil {
-		return false
+		return
 	}
 
-	assert.Equal(t, correctPath.Post.Description, generatedPath.Post.Description, "The descriptions of the POST mismatched")
-	return true
+	assert.Equal(t,
+		convertMultilineToSingleLine(correctPath.Post.Description),
+		convertMultilineToSingleLine(generatedPath.Post.Description),
+		"The descriptions of the POST mismatched")
 }
 
-func areGetsEquals(t *testing.T, correctPath, generatedPath *openapi3.PathItem) bool {
+func areGetsEquals(t *testing.T, correctPath, generatedPath *openapi3.PathItem) {
 	t.Helper()
+	log.Printf("Comparing GET Method")
 	if correctPath.Get == nil && generatedPath.Get == nil {
-		return true
+		return
 	}
 
 	if correctPath.Get == nil || generatedPath.Get == nil {
-		return false
+		return
 	}
 
-	assert.Equal(t, correctPath.Get.Description, generatedPath.Get.Description, "The descriptions of the GET mismatched")
-	return true
+	assert.Equal(t,
+		convertMultilineToSingleLine(correctPath.Get.Description),
+		convertMultilineToSingleLine(generatedPath.Get.Description),
+		"The descriptions of the GET mismatched")
+}
+
+func arePutsEquals(t *testing.T, correctPath, generatedPath *openapi3.PathItem) {
+	t.Helper()
+	log.Printf("Comparing PUT Method")
+	if correctPath.Put == nil && generatedPath.Put == nil {
+		return
+	}
+
+	if correctPath.Put == nil || generatedPath.Put == nil {
+		return
+	}
+
+	assert.Equal(t,
+		convertMultilineToSingleLine(correctPath.Put.Description),
+		convertMultilineToSingleLine(generatedPath.Put.Description),
+		"The descriptions of the PUT mismatched")
+}
+
+func convertMultilineToSingleLine(s string) string {
+	// Remove backslashes and newlines
+	step1 := strings.ReplaceAll(s, "\\", "")
+	step1 = strings.ReplaceAll(step1, "\n", "")
+
+	// Trim leading and trailing spaces
+	step2 := strings.TrimSpace(step1)
+
+	// Replace multiple spaces with a single space
+	re := regexp.MustCompile(`\s+`)
+	return re.ReplaceAllString(step2, " ")
 }

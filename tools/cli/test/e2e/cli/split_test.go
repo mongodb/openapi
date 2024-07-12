@@ -27,7 +27,10 @@ func TestSplit(t *testing.T) {
 		cmd.Stderr = &e
 		require.NoError(t, cmd.Run(), e.String())
 
-		validVersionSpec := NewValidVersionedAtlasYAMLSpecPath(t)
-		ValidateVersionedSpec(t, validVersionSpec, "output-2024-05-30.yaml")
+		ValidateVersionedSpec(t, NewValidAtlas20230101YAMLSpecPath(t), "output-2023-01-01.yaml")
+		ValidateVersionedSpec(t, NewValidAtlas20230201YAMLSpecPath(t), "output-2023-02-01.yaml")
+		ValidateVersionedSpec(t, NewValidAtlas20231001YAMLSpecPath(t), "output-2023-10-01.yaml")
+		ValidateVersionedSpec(t, NewValidAtlas20231115YAMLSpecPath(t), "output-2023-11-15.yaml")
+		ValidateVersionedSpec(t, NewValidAtlas20240530YAMLSpecPath(t), "output-2024-05-30.yaml")
 	})
 }
