@@ -22,16 +22,18 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// @Todo use the struct fields instead of
-type PathFilter struct {
-}
+type PathFilter struct{}
 
-type ApplyConfig struct {
+// VersionConfig contains the information needed during the versioning filtering of the OAS.
+// It contains the parsed operations, the operations that need to be removed and the version
+// under scrutiny.
+type VersionConfig struct {
 	operationsToBeRemoved map[string]*openapi3.Operation
 	parsedOperations      map[string]*OperationConfig
 	requestedVersion      *apiversion.APIVersion
 }
 
+// OperationConfig contains the information needed while parsing an operation of the OAS.
 type OperationConfig struct {
 	operation            *openapi3.Operation
 	latestMatchedVersion *apiversion.APIVersion
@@ -61,9 +63,8 @@ func (f *PathFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
 	return nil
 }
 
-// processPathItem processes a path item and returns an ApplyConfig
 func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
-	config := &ApplyConfig{
+	config := &VersionConfig{
 		requestedVersion:      m.targetVersion,
 		operationsToBeRemoved: make(map[string]*openapi3.Operation),
 		parsedOperations:      make(map[string]*OperationConfig),
@@ -74,38 +75,22 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 		config.parsedOperations[op.OperationID] = opConfig
 
 		var err error
-		opConfig.latestMatchedVersion, err = getLatestVersionMatch(op, m.targetVersion)
-		if err != nil {
-			log.Fatalf("Error getting latest version match: %s", err)
-			return nil
+		if opConfig.latestMatchedVersion, err = getLatestVersionMatch(op, m.targetVersion); err != nil {
+			return err
 		}
 
-		for responseCode, response := range op.Responses.Map() {
-			if response.Value == nil {
-				log.Printf("Ignoring response: %s for operationID: %s", responseCode, op.OperationID)
-				continue
-			}
-
-			filteredResponse := filterResponse(response, op, config)
-			if filteredResponse == nil && isVersionedContent(response.Value.Content) {
-				log.Printf("Marking response for removal: %s", responseCode)
-				opConfig.removeResponseCodes = append(opConfig.removeResponseCodes, responseCode)
-				response.Value = nil
-				response.Ref = ""
-			}
-			response.Value.Content = filteredResponse
-		}
+		removeDeprecatedReponses(op, config, opConfig)
 
 		if !opConfig.hasMinValidResponse {
 			log.Printf("Removing operation: %s", op.OperationID)
 			path.SetOperation(opKey, nil)
 		}
 
-		updateOpDescription(op, opConfig.deprecatedVersions)
-
+		addDeprecationMessageToOperation(op, opConfig.deprecatedVersions)
 		if op.RequestBody == nil || op.RequestBody.Value == nil {
 			continue
 		}
+
 		filteredRequestBody, _ := filterVersionedContent(op.RequestBody.Value.Content, opConfig.latestMatchedVersion, false)
 		if filteredRequestBody == nil {
 			log.Printf("Removing request body for content type: %+v", op.RequestBody.Value)
@@ -116,6 +101,25 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 	}
 
 	return nil
+}
+
+// removeDeprecatedReponses removes the deprecated responses from the operation and add the  to the operation config
+func removeDeprecatedReponses(op *openapi3.Operation, config *VersionConfig, opConfig *OperationConfig) {
+	for responseCode, response := range op.Responses.Map() {
+		if response.Value == nil {
+			log.Printf("Ignoring response: %s for operationID: %s", responseCode, op.OperationID)
+			continue
+		}
+
+		filteredResponse := filterResponse(response, op, config)
+		if filteredResponse == nil && isVersionedContent(response.Value.Content) {
+			log.Printf("Marking response for removal: %s", responseCode)
+			opConfig.removeResponseCodes = append(opConfig.removeResponseCodes, responseCode)
+			response.Value = nil
+			response.Ref = ""
+		}
+		response.Value.Content = filteredResponse
+	}
 }
 
 func getLatestVersionMatch(
@@ -168,7 +172,7 @@ func getLatestVersionMatch(
 	return latestVersionMatch, nil
 }
 
-func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rConfig *ApplyConfig) openapi3.Content {
+func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rConfig *VersionConfig) openapi3.Content {
 	opConfig := rConfig.parsedOperations[op.OperationID]
 
 	filteredContent, _ := filterVersionedContent(response.Value.Content, opConfig.latestMatchedVersion, true)
@@ -187,7 +191,9 @@ func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rCon
 	return filteredContent
 }
 
-func updateOpDescription(op *openapi3.Operation, deprecatedVersions []*apiversion.APIVersion) {
+// addDeprecationMessageToOperation adds a deprecation message to the operation description if there are deprecated versions
+// Example: "Read Only role. Deprecated versions: v2-{2023-01-01}"
+func addDeprecationMessageToOperation(op *openapi3.Operation, deprecatedVersions []*apiversion.APIVersion) {
 	if len(deprecatedVersions) == 0 {
 		return
 	}
