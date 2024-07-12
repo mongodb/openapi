@@ -9,15 +9,13 @@ import (
 )
 
 func TestSplit(t *testing.T) {
-	cliPath, err := NewBin()
-	require.NoError(t, err)
+	cliPath := NewBin(t)
 
 	t.Run("Split valid specs", func(t *testing.T) {
-		base, err := NewAtlasYAMLBaseSpecPath()
-		require.NoError(t, err)
+		base := NewAtlasYAMLBaseSpecPath(t)
 
 		cmd := exec.Command(cliPath,
-			"merge",
+			"split",
 			"-s",
 			base,
 			"-o",
@@ -29,8 +27,7 @@ func TestSplit(t *testing.T) {
 		cmd.Stderr = &e
 		require.NoError(t, cmd.Run(), e.String())
 
-		validVersionSpec, err := NewValidVersionedAtlasYAMLSpecPath()
-		require.NoError(t, err)
+		validVersionSpec := NewValidVersionedAtlasYAMLSpecPath(t)
 		ValidateVersionedSpec(t, validVersionSpec, "output-2024-05-30.yaml")
 	})
 }

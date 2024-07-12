@@ -13,93 +13,81 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func NewBin() (string, error) {
+func NewBin(t *testing.T) string {
+	t.Helper()
 	path := os.Getenv("CLI_E2E_BINARY")
 	cliPath, err := filepath.Abs(path)
-	if err != nil {
-		return "", fmt.Errorf("%w: invalid bin path %q", err, path)
-	}
+	require.NoError(t, err)
 
 	if _, err := os.Stat(cliPath); err != nil {
-		return "", fmt.Errorf("%w: invalid bin %q", err, path)
+		assert.Fail(t, fmt.Sprintf("The binary %q does not exist", cliPath))
 	}
-	return cliPath, nil
+	return cliPath
 }
 
-func NewBaseSpecPath() (string, error) {
-	cliPath, err := filepath.Abs("../../data/merge/base_spec.json")
-	if err != nil {
-		return "", err
-	}
-	return cliPath, nil
+func NewBaseSpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/base_spec.json")
+	require.NoError(t, err)
+	return cliPath
 }
 
-func NewAPIRegistrySpecPath() (string, error) {
-	cliPath, err := filepath.Abs("../../data/merge/apiregistry_spec.json")
-	if err != nil {
-		return "", err
-	}
-	return cliPath, nil
+func NewAPIRegistrySpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/apiregistry_spec.json")
+	require.NoError(t, err)
+	return cliPath
 }
 
-func NewAuthNSpecPath() (string, error) {
-	cliPath, err := filepath.Abs("../../data/merge/authn_spec.json")
-	if err != nil {
-		return "", err
-	}
-	return cliPath, nil
+func NewAuthNSpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/authn_spec.json")
+	require.NoError(t, err)
+	return cliPath
 }
-func NewDuplicatedPathAPIRegistrySpecPath() (string, error) {
-	cliPath, err := filepath.Abs("../../data/merge/duplicated_path_apiregistry_spec.json")
-	if err != nil {
-		return "", err
-	}
-	return cliPath, nil
+func NewDuplicatedPathAPIRegistrySpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/duplicated_path_apiregistry_spec.json")
+	require.NoError(t, err)
+	return cliPath
 }
-func NewNotIdenticalComponentPIRegistrySpecPath() (string, error) {
-	cliPath, err := filepath.Abs("../../data/merge/not_identical_component_apiregistry_spec.json")
-	if err != nil {
-		return "", err
-	}
-	return cliPath, nil
+func NewNotIdenticalComponentPIRegistrySpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/not_identical_component_apiregistry_spec.json")
+	require.NoError(t, err)
+	return cliPath
 }
 
-func NewDuplicatedTagAuthNSpecPath() (string, error) {
-	cliPath, err := filepath.Abs("../../data/merge/duplicated_tag_authn_spec.json")
-	if err != nil {
-		return "", err
-	}
-	return cliPath, nil
+func NewDuplicatedTagAuthNSpecPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/duplicated_tag_authn_spec.json")
+	require.NoError(t, err)
+	return cliPath
 }
 
-func NewAtlasYAMLBaseSpecPath() (string, error) {
+func NewAtlasYAMLBaseSpecPath(t *testing.T) string {
+	t.Helper()
 	cliPath, err := filepath.Abs("../../data/split/tools/openapi-v2.yaml")
-	if err != nil {
-		return "", err
-	}
-	return cliPath, nil
+	require.NoError(t, err)
+	return cliPath
 }
 
-func NewValidVersionedAtlasYAMLSpecPath() (string, error) {
+func NewValidVersionedAtlasYAMLSpecPath(t *testing.T) string {
+	t.Helper()
 	cliPath, err := filepath.Abs("../../data/split/tools/openapi-v2-2024-05-30.yaml")
-	if err != nil {
-		return "", err
-	}
-	return cliPath, nil
+	require.NoError(t, err)
+	return cliPath
 }
 
 func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath string) {
 	t.Helper()
-	correctSpec, err := newOpenAPISpec(t, correctSpecPath)
-	require.NoError(t, err)
-
-	generatedSpec, err := newOpenAPISpec(t, generatedSpecPath)
-	require.NoError(t, err)
+	correctSpec := newOpenAPISpec(t, correctSpecPath)
+	generatedSpec := newOpenAPISpec(t, generatedSpecPath)
 
 	assert.True(t, areOperationsEqual(t, correctSpec, generatedSpec))
 }
 
-func newOpenAPISpec(t *testing.T, path string) (*openapi3.T, error) {
+func newOpenAPISpec(t *testing.T, path string) *openapi3.T {
 	t.Helper()
 	absPath, err := filepath.Abs(path)
 	require.NoError(t, err)
@@ -108,7 +96,7 @@ func newOpenAPISpec(t *testing.T, path string) (*openapi3.T, error) {
 	specInfo, err := loader.CreateOpenAPISpecFromPath(absPath)
 	require.NoError(t, err)
 
-	return specInfo.Spec, nil
+	return specInfo.Spec
 }
 
 func areOperationsEqual(t *testing.T, correctSpec, generatedSpec *openapi3.T) bool {
