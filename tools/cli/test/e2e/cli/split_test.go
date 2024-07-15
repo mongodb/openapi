@@ -23,7 +23,7 @@ func TestSplit(t *testing.T) {
 			"-s",
 			base,
 			"-o",
-			"./output/output.yaml",
+			"./test/e2e/cli/output/output.yaml",
 		)
 
 		var o, e bytes.Buffer
