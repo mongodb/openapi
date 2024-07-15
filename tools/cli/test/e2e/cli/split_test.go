@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -16,13 +17,12 @@ func TestSplit(t *testing.T) {
 
 	t.Run("Split valid specs", func(t *testing.T) {
 		base := NewAtlasYAMLBaseSpecPath(t)
-
 		cmd := exec.Command(cliPath,
 			"split",
 			"-s",
 			base,
 			"-o",
-			"./test/e2e/cli/output/output.yaml",
+			getOutputFolder(t)+"/output.yaml",
 		)
 
 		var o, e bytes.Buffer
@@ -35,6 +35,31 @@ func TestSplit(t *testing.T) {
 		}
 	})
 }
+
+func getOutputFolder(t *testing.T) string {
+	_, path, _, ok := runtime.Caller(0)
+	require.True(t, ok)
+
+	dir := filepath.Dir(path)
+	require.DirExists(t, dir)
+
+	return filepath.Join(dir, "output")
+}
+
+// func getOutputPath2() string {
+// 	_, currentFilePath, _, ok := runtime.Caller(0)
+// 	if !ok {
+// 		panic("No caller information")
+// 	}
+// 	// find current file path
+// 	absolutePath, err := filepath.Abs(currentFilePath)
+// 	if err != nil {
+// 		fmt.Println("Error getting absolute path:", err)
+// 		return ""
+// 	}
+// 	dir := filepath.Dir(absolutePath)
+// 	return filepath.Join(dir, "output")
+// }
 
 func validateFiles(t *testing.T, version string) {
 	t.Helper()
