@@ -34,13 +34,6 @@ func (f *HiddenEnvsFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
 			return err
 		}
 	}
-
-	for _, pathItem := range oas.Paths.Map() {
-		if err := f.applyOnPath(pathItem, metadata); err != nil {
-			return err
-		}
-	}
-	
 	return nil
 }
 
