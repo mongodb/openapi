@@ -259,6 +259,7 @@ func filterVersionedContent(content map[string]*openapi3.MediaType, version *api
 	return nil, nil
 }
 
+// updateSingleMediaTypeExtension updates the media type extension with the version in string format
 func updateSingleMediaTypeExtension(m *openapi3.MediaType, version *apiversion.APIVersion) {
 	if m.Extensions == nil {
 		m.Extensions = make(map[string]interface{})
