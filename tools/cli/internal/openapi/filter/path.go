@@ -305,6 +305,14 @@ func updateSingleMediaTypeExtension(m *openapi3.MediaType, version *apiversion.A
 	m.Extensions["x-xgen-version"] = version.String()
 }
 
+// updateSingleMediaTypeExtension updates the media type extension with the version in string format
+func updateSingleMediaTypeExtension(m *openapi3.MediaType, version *apiversion.APIVersion) {
+	if m.Extensions == nil {
+		m.Extensions = make(map[string]interface{})
+	}
+	m.Extensions["x-xgen-version"] = version.String()
+}
+
 // getDeprecatedVersionsPerContent returns the deprecated versions for a given content type
 func getDeprecatedVersionsPerContent(content map[string]*openapi3.MediaType, version *apiversion.APIVersion) []*apiversion.APIVersion {
 	versionsInContentType := make(map[string]*apiversion.APIVersion)
