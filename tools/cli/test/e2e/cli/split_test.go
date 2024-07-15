@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bytes"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"testing"
@@ -34,9 +33,6 @@ func TestSplit(t *testing.T) {
 		for _, version := range versions {
 			validateFiles(t, version)
 		}
-		t.Cleanup(func() {
-			require.NoError(t, deleteFiles())
-		})
 	})
 }
 
@@ -45,17 +41,4 @@ func validateFiles(t *testing.T, version string) {
 	path, err := filepath.Abs("./output/output-" + version + ".yaml")
 	require.NoError(t, err)
 	ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version), path)
-}
-
-func deleteFiles() error {
-	for _, version := range versions {
-		path, err := filepath.Abs("./output/output-" + version + ".yaml")
-		if err != nil {
-			return err
-		}
-		if err := os.Remove(path); err != nil {
-			return err
-		}
-	}
-	return nil
 }
