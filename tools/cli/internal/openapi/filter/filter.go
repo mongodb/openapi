@@ -18,7 +18,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-//go:generate mockgen -destination=../openapi/filter/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi/filter Filter
+//go:generate mockgen -destination=../filter/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi/filter Filter
 type Filter interface {
 	Apply(doc *openapi3.T, metadata *Metadata) error
 }
@@ -29,7 +29,8 @@ type Metadata struct {
 }
 
 var filters = map[string]Filter{
-	"path": &PathFilter{},
+	"path":       &PathFilter{},
+	"hiddenEnvs": &HiddenEnvsFilter{},
 }
 
 func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metadata {
