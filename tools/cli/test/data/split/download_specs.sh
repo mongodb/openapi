@@ -22,14 +22,14 @@ for version in "${versions[@]}"; do
   for fmt in "${format[@]}"; do
     full_link=$link/openapi-v2-$version.$fmt
     echo "Downloading specs for version $version on link $full_link"
-    curl -f --show-error  $full_link --output $BASEDIR/openapi-v2-$version.$fmt
+    curl -f --show-error  "$full_link" --output "$BASEDIR"/openapi-v2-"$version"."$fmt"
   done
 done
 
 for fmt in "${format[@]}"; do
   full_link=$link/openapi-v2.$fmt
   echo "Downloading specs for version v2-all on link $full_link"
-  curl -f --show-error $full_link --output $BASEDIR/openapi-v2.$fmt
+  curl -f --show-error "$full_link" --output "$BASEDIR"/openapi-v2."$fmt"
 done
 
 # Find the commit sha version and write to a readme file
@@ -37,7 +37,7 @@ commit_sha=$(echo "$full_link" | awk -F'mms/' '{print $2}' | awk -F'/' '{print $
 readme_file="$BASEDIR/README.md"
 
 # Write or update the README file
-echo "The last update for this folder was with commit SHA \"$commit_sha\"" in branch $branch > $readme_file
+echo "The last update for this folder was with commit SHA \"$commit_sha\"" in branch "$branch" > "$readme_file"
 
 # Output a confirmation message
 echo "Updated $readme_file with the latest commit SHA."
