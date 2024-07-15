@@ -63,7 +63,8 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	d, err := diff.Get(diff.NewConfig(), correctSpec, generatedSpec)
 	require.NoError(t, err)
 
-	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" + "git diff --no-index " + correctSpecPath + " " + generatedSpecPath + " > diff.diff"
+	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
+		"git diff --no-index " + correctSpecPath + " " + generatedSpecPath + " > diff.diff"
 
 	require.Empty(t, d.ExtensionsDiff, message)
 	require.Empty(t, d.OpenAPIDiff, message)
