@@ -89,7 +89,10 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 			return err
 		}
 
-		updateResponses(op, config, opConfig)
+		err = updateResponses(op, config, opConfig)
+		if err != nil {
+			return err
+		}
 
 		if !opConfig.hasMinValidResponse {
 			log.Printf("Removing operation: %s", op.OperationID)
@@ -108,14 +111,18 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 }
 
 // updateResponses filters the response and removes the deprecated responses from the operation and add the  to the operation config
-func updateResponses(op *openapi3.Operation, config *VersionConfig, opConfig *OperationConfig) {
+func updateResponses(op *openapi3.Operation, config *VersionConfig, opConfig *OperationConfig) error {
 	for responseCode, response := range op.Responses.Map() {
 		if response.Value == nil {
 			log.Printf("Ignoring response: %s for operationID: %s", responseCode, op.OperationID)
 			continue
 		}
 
-		filteredResponse := filterResponse(response, op, config)
+		filteredResponse, err := filterResponse(response, op, config)
+		if err != nil {
+			return err
+		}
+
 		if filteredResponse == nil && isVersionedContent(response.Value.Content) {
 			log.Printf("Marking response for removal: %s", responseCode)
 			opConfig.removeResponseCodes = append(opConfig.removeResponseCodes, responseCode)
@@ -124,6 +131,8 @@ func updateResponses(op *openapi3.Operation, config *VersionConfig, opConfig *Op
 		}
 		response.Value.Content = filteredResponse
 	}
+
+	return nil
 }
 
 func updateRequestBody(op *openapi3.Operation, opConfig *OperationConfig) error {
@@ -195,10 +204,14 @@ func getLatestVersionMatch(
 	return latestVersionMatch, nil
 }
 
-func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rConfig *VersionConfig) openapi3.Content {
+func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rConfig *VersionConfig) (openapi3.Content, error) {
 	opConfig := rConfig.parsedOperations[op.OperationID]
 
-	filteredContent, _ := filterVersionedContentWithVersion(response.Value.Content, opConfig.latestMatchedVersion)
+	filteredContent, err := filterContentExactMatch(response.Value.Content, opConfig.latestMatchedVersion)
+	if err != nil {
+		return nil, err
+	}
+
 	if len(filteredContent) > 0 {
 		opConfig.hasMinValidResponse = true
 		deprecatedVersionsPerContent := getDeprecatedVersionsPerContent(response.Value.Content, opConfig.latestMatchedVersion)
@@ -211,7 +224,7 @@ func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rCon
 	}
 
 	response.Value.Content = filteredContent
-	return filteredContent
+	return filteredContent, nil
 }
 
 // addDeprecationMessageToOperation adds a deprecation message to the operation description if there are deprecated versions
@@ -237,7 +250,7 @@ func filterLatestVersionedContent(content map[string]*openapi3.MediaType, latest
 	}
 
 	var latestVersion *apiversion.APIVersion
-	var latestContent openapi3.Content = nil
+	var latestContent openapi3.Content
 
 	for contentType, mediaType := range content {
 		contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
@@ -262,19 +275,18 @@ func filterLatestVersionedContent(content map[string]*openapi3.MediaType, latest
 			latestVersion = contentVersion
 			latestContent = openapi3.Content{contentType: mediaType}
 		}
-
 	}
 
 	return latestContent, nil
 }
 
-// filterVersionedContentWithVersion filters the content based on the exact match of the version
-func filterVersionedContentWithVersion(content map[string]*openapi3.MediaType, version *apiversion.APIVersion) (map[string]*openapi3.MediaType, error) {
+// filterContentExactMatch filters the content based on the exact match of the version
+func filterContentExactMatch(content map[string]*openapi3.MediaType, version *apiversion.APIVersion) (map[string]*openapi3.MediaType, error) {
 	if content == nil {
 		return nil, nil
 	}
 
-	var filteredContent map[string]*openapi3.MediaType = make(map[string]*openapi3.MediaType)
+	filteredContent := make(map[string]*openapi3.MediaType)
 	for contentType, mediaType := range content {
 		contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
 		if err != nil {
