@@ -74,37 +74,9 @@ func NewAtlasYAMLBaseSpecPath(t *testing.T) string {
 	return cliPath
 }
 
-func NewValidAtlas20240530YAMLSpecPath(t *testing.T) string {
+func NewValidAtlasSpecPath(t *testing.T, version string) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2024-05-30.yaml")
-	require.NoError(t, err)
-	return cliPath
-}
-
-func NewValidAtlas20231115YAMLSpecPath(t *testing.T) string {
-	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2023-11-15.yaml")
-	require.NoError(t, err)
-	return cliPath
-}
-
-func NewValidAtlas20231001YAMLSpecPath(t *testing.T) string {
-	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2023-10-01.yaml")
-	require.NoError(t, err)
-	return cliPath
-}
-
-func NewValidAtlas20230201YAMLSpecPath(t *testing.T) string {
-	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2023-02-01.yaml")
-	require.NoError(t, err)
-	return cliPath
-}
-
-func NewValidAtlas20230101YAMLSpecPath(t *testing.T) string {
-	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/openapi-v2-2023-01-01.yaml")
+	cliPath, err := filepath.Abs("../../data/split/openapi-v2-" + version + ".yaml")
 	require.NoError(t, err)
 	return cliPath
 }
