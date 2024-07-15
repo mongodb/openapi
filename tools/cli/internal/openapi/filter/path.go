@@ -79,7 +79,7 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 			return err
 		}
 
-		updateReponses(op, config, opConfig)
+		updateResponses(op, config, opConfig)
 
 		if !opConfig.hasMinValidResponse {
 			log.Printf("Removing operation: %s", op.OperationID)
@@ -103,8 +103,8 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 	return nil
 }
 
-// updateReponses filters the response and removes the deprecated responses from the operation and add the  to the operation config
-func updateReponses(op *openapi3.Operation, config *VersionConfig, opConfig *OperationConfig) {
+// updateResponses filters the response and removes the deprecated responses from the operation and add the  to the operation config
+func updateResponses(op *openapi3.Operation, config *VersionConfig, opConfig *OperationConfig) {
 	for responseCode, response := range op.Responses.Map() {
 		if response.Value == nil {
 			log.Printf("Ignoring response: %s for operationID: %s", responseCode, op.OperationID)
