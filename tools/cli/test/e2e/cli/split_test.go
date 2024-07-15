@@ -86,18 +86,18 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 		require.Empty(t, v.ParametersDiff)
 		require.Empty(t, v.RefDiff)
 		require.Empty(t, v.OperationsDiff.Added)
-		// require.Empty(t, v.OperationsDiff.Deleted)
+		// require.Empty(t, v.OperationsDiff.Deleted) TODO: add in next PR
 		for _, op := range v.OperationsDiff.Modified {
 			require.Empty(t, op.ExtensionsDiff)
 			require.Empty(t, op.SummaryDiff)
 			require.Empty(t, op.DescriptionDiff)
 			require.Empty(t, op.ServersDiff)
 			require.Empty(t, op.ParametersDiff)
-			// require.Empty(t, op.RequestBodyDiff)
+			// require.Empty(t, op.RequestBodyDiff)  TODO: add in next PR
 			if op.ResponsesDiff != nil {
 				require.Empty(t, op.ResponsesDiff.Deleted)
 				require.Empty(t, op.ResponsesDiff.Modified)
-				// require.Empty(t, op.ResponsesDiff.Added, message)
+				// require.Empty(t, op.ResponsesDiff.Added, message)  TODO: add in next PR
 			}
 		}
 	}
