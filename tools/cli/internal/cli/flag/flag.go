@@ -23,8 +23,7 @@ const (
 	OutputShort   = "o"
 	Format        = "format"
 	FormatShort   = "f"
-	Versions      = "versions"
-	VersionsShort = "v"
 	Spec          = "spec"
 	SpecShort     = "s"
+	Environment   = "env"
 )

@@ -24,7 +24,7 @@ import (
 func TestSuccessfulSplit_Run(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
-		basePath:   "base.json",
+		basePath:   "../../../test/data/base_spec.json",
 		outputPath: "foas.yaml",
 		fs:         fs,
 	}
@@ -54,9 +54,8 @@ func TestOpts_PreRunE(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Opts{
-				basePath:       tt.basePath,
-				format:         "json",
-				splitByVersion: true,
+				basePath: tt.basePath,
+				format:   "json",
 			}
 			tt.wantErr(t, o.PreRunE(nil))
 		})

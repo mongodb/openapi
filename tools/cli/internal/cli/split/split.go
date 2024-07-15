@@ -31,45 +31,36 @@ import (
 )
 
 type Opts struct {
-	fs             afero.Fs
-	basePath       string
-	outputPath     string
-	format         string
-	splitByVersion bool
+	fs         afero.Fs
+	basePath   string
+	outputPath string
+	env        string
+	format     string
 }
 
 func (o *Opts) Run() error {
-	if !o.splitByVersion {
-		return nil
-	}
-
 	loader := openapi.NewOpenAPI3()
 	specInfo, err := loader.CreateOpenAPISpecFromPath(o.basePath)
 	if err != nil {
 		return err
 	}
-	// TODO: Our specs are invalid. Oasdiff does not run this check.
-	//  Would be good to have this check in the future.
-	// if err := oas.Validate(loader.Context); err != nil {como
-	// 	log.Fatalf("OpenAPI document is invalid: %v", err)
-	// }
 
 	oas := specInfo.Spec
 	versions := openapi.ExtractVersions(oas)
 
-	// make a copy of the oas to avoid modifying the original document when applying filters
 	for _, version := range versions {
-		oasCopy, err := duplicateOas(oas)
+		// make a copy of the oas to avoid modifying the original document when applying filters
+		versionedOas, err := duplicateOas(oas)
 		if err != nil {
 			return err
 		}
 
-		filteredOAS, err := o.filter(oasCopy, version)
+		filteredOAS, err := o.filter(versionedOas, version)
 		if err != nil {
 			return err
 		}
 
-		if err := o.writeVersionedOas(filteredOAS, version); err != nil {
+		if err := o.saveVersionedOas(filteredOAS, version); err != nil {
 			return err
 		}
 
@@ -105,16 +96,16 @@ func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err 
 		return nil, err
 	}
 
-	return oas, filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, ""))
+	return oas, filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, o.env))
 }
 
-func (o *Opts) writeVersionedOas(oas *openapi3.T, version string) error {
-	if o.outputPath == "" {
-		path := strings.Replace(o.basePath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
-		return openapi.Save(path, oas, o.format, o.fs)
+func (o *Opts) saveVersionedOas(oas *openapi3.T, version string) error {
+	path := o.basePath
+	if o.outputPath != "" {
+		path = o.outputPath
 	}
 
-	path := strings.Replace(o.outputPath, ".yaml", fmt.Sprintf("-%s.yaml", version), 1)
+	path = strings.Replace(path, fmt.Sprintf(".%s", o.format), fmt.Sprintf("-%s.%s", version, o.format), 1)
 	return openapi.Save(path, oas, o.format, o.fs)
 }
 
@@ -123,19 +114,23 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("no OAS detected. Please, use the flag %s to include the base OAS", flag.Base)
 	}
 
-	if o.outputPath != "" && !strings.Contains(o.outputPath, ".json") && !strings.Contains(o.outputPath, ".yaml") {
+	if o.outputPath != "" && !strings.Contains(o.outputPath, openapi.DotJSON) && !strings.Contains(o.outputPath, openapi.DotYAML) {
 		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
 	}
 
-	if o.format != "json" && o.format != "yaml" {
+	if o.format != openapi.JSON && o.format != openapi.YAML {
 		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
+	}
+
+	if strings.Contains(o.basePath, openapi.DotYAML) {
+		o.format = openapi.YAML
 	}
 
 	return nil
 }
 
 // Builder builds the split command with the following signature:
-// split -b base-oas -o output-oas.json -v
+// split -b base-oas -o output-oas.json
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
@@ -154,8 +149,11 @@ func Builder() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
+	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
-	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
-	cmd.Flags().BoolVarP(&opts.splitByVersion, flag.Versions, flag.VersionsShort, false, usage.Versions)
+	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.JSON, usage.Format)
+
+	_ = cmd.MarkFlagRequired(flag.Spec)
+
 	return cmd
 }

@@ -11,14 +11,11 @@ import (
 )
 
 func TestMerge(t *testing.T) {
-	cliPath, err := NewBin()
-	require.NoError(t, err)
+	cliPath := NewBin(t)
 
 	t.Run("Merge valid specs", func(t *testing.T) {
-		base, err := NewBaseSpec()
-		require.NoError(t, err)
-		external, err := NewAPIRegistrySpec()
-		require.NoError(t, err)
+		base := NewBaseSpecPath(t)
+		external := NewAPIRegistrySpecPath(t)
 
 		cmd := exec.Command(cliPath,
 			"merge",
@@ -39,10 +36,8 @@ func TestMerge(t *testing.T) {
 	})
 
 	t.Run("Merge valid specs to yaml", func(t *testing.T) {
-		base, err := NewBaseSpec()
-		require.NoError(t, err)
-		external, err := NewAPIRegistrySpec()
-		require.NoError(t, err)
+		base := NewBaseSpecPath(t)
+		external := NewAPIRegistrySpecPath(t)
 
 		cmd := exec.Command(cliPath,
 			"merge",
@@ -65,12 +60,9 @@ func TestMerge(t *testing.T) {
 	})
 
 	t.Run("Expecting Error: Merge duplicated path with base spec", func(t *testing.T) {
-		base, err := NewBaseSpec()
-		require.NoError(t, err)
-		apiRegistrySpec, err := NewDuplicatedPathAPIRegistrySpec()
-		require.NoError(t, err)
-		authnSpec, err := NewAuthNSpec()
-		require.NoError(t, err)
+		base := NewBaseSpecPath(t)
+		apiRegistrySpec := NewDuplicatedPathAPIRegistrySpecPath(t)
+		authnSpec := NewAuthNSpecPath(t)
 
 		cmd := exec.Command(cliPath,
 			"merge",
@@ -90,12 +82,9 @@ func TestMerge(t *testing.T) {
 	})
 
 	t.Run("Expecting Error: Merge duplicated tag", func(t *testing.T) {
-		base, err := NewBaseSpec()
-		require.NoError(t, err)
-		apiRegistrySpec, err := NewAPIRegistrySpec()
-		require.NoError(t, err)
-		authnSpec, err := NewDuplicatedTagAuthNSpec()
-		require.NoError(t, err)
+		base := NewBaseSpecPath(t)
+		apiRegistrySpec := NewAPIRegistrySpecPath(t)
+		authnSpec := NewDuplicatedTagAuthNSpecPath(t)
 
 		cmd := exec.Command(cliPath,
 			"merge",
@@ -115,12 +104,9 @@ func TestMerge(t *testing.T) {
 	})
 
 	t.Run("Expecting Error: not identical component", func(t *testing.T) {
-		base, err := NewBaseSpec()
-		require.NoError(t, err)
-		apiRegistrySpec, err := NewNotIdenticalComponentPIRegistrySpec()
-		require.NoError(t, err)
-		authnSpec, err := NewAuthNSpec()
-		require.NoError(t, err)
+		base := NewBaseSpecPath(t)
+		apiRegistrySpec := NewNotIdenticalComponentPIRegistrySpecPath(t)
+		authnSpec := NewAuthNSpecPath(t)
 
 		cmd := exec.Command(cliPath,
 			"merge",

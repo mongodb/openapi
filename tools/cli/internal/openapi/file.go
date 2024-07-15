@@ -23,13 +23,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	JSON    = "json"
+	YAML    = "yaml"
+	DotYAML = ".yaml"
+	DotJSON = ".json"
+)
+
 func SaveSpec(path string, oas *Spec, format string, fs afero.Fs) error {
 	data, err := json.MarshalIndent(*oas, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	if strings.Contains(path, ".yaml") || format == "yaml" {
+	if strings.Contains(path, DotYAML) || format == YAML {
 		var jsonData interface{}
 		if err := json.Unmarshal(data, &jsonData); err != nil {
 			return err

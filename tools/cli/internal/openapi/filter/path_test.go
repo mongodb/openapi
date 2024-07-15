@@ -83,6 +83,25 @@ func TestPathFilter_getLatestVersionMatch(t *testing.T) {
 	}
 }
 
+func TestPathFilter_processPathItem(t *testing.T) {
+	filter := &PathFilter{}
+	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
+	require.NoError(t, err)
+
+	oas := oasPathAllVersions()
+	err = filter.apply(oas, &Metadata{targetVersion: version})
+
+	require.NoError(t, err)
+	assert.NotNil(t, oas.Get)
+	assert.Equal(t, 1, oas.Get.Responses.Len())
+
+	get200Responses := oas.Get.Responses.Map()["200"]
+	assert.NotNil(t, get200Responses)
+
+	get200ResponsesContent := get200Responses.Value.Content
+	assert.NotNil(t, get200ResponsesContent.Get("application/vnd.atlas.2023-11-15+json"))
+}
+
 func oasOperationAllVersions() *openapi3.Operation {
 	responses := &openapi3.Responses{}
 	responses.Set("200", &openapi3.ResponseRef{
@@ -100,5 +119,28 @@ func oasOperationAllVersions() *openapi3.Operation {
 	return &openapi3.Operation{
 		OperationID: "operationId",
 		Responses:   responses,
+	}
+}
+
+func oasOperationFutureVersion() *openapi3.Operation {
+	responses := &openapi3.Responses{}
+	responses.Set("200", &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.9000-05-30+json": {},
+			},
+		},
+	})
+
+	return &openapi3.Operation{
+		OperationID: "operationIdFuture",
+		Responses:   responses,
+	}
+}
+
+func oasPathAllVersions() *openapi3.PathItem {
+	return &openapi3.PathItem{
+		Get: oasOperationAllVersions(),
+		Put: oasOperationFutureVersion(),
 	}
 }

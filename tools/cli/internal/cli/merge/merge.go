@@ -100,5 +100,8 @@ func Builder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 
+	_ = cmd.MarkFlagRequired(flag.Base)
+	_ = cmd.MarkFlagRequired(flag.External)
+
 	return cmd
 }
