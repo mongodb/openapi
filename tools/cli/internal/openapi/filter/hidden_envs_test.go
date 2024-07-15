@@ -15,9 +15,11 @@
 package filter
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIsOperationHiddenForEnv(t *testing.T) {
@@ -285,6 +287,197 @@ func TestIsResponseHiddenForEnv(t *testing.T) {
 			got := filter.isResponseHiddenForEnv(tt.response, tt.metadata)
 			if got != tt.wantHidden {
 				t.Errorf("isResponseHiddenForEnv() = %v, want %v", got, tt.wantHidden)
+			}
+		})
+	}
+}
+
+func TestApplyOnPath(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *openapi3.PathItem
+		metadata *Metadata
+		expected *openapi3.PathItem
+	}{
+		{
+			name: "Operation Hidden extension matches target environment",
+			input: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Extensions: map[string]interface{}{
+						hiddenEnvsExtensionName: map[string]interface{}{
+							"envs": "prod",
+						},
+					},
+					Summary: "test",
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "prod",
+			},
+			expected: &openapi3.PathItem{
+				Get: nil,
+			},
+		},
+		{
+			name: "Operation Hidden extension does not matches target environment",
+			input: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Extensions: map[string]interface{}{
+						hiddenEnvsExtensionName: map[string]interface{}{
+							"envs": "dev",
+						},
+					},
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "prod",
+			},
+			expected: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Extensions: map[string]interface{}{},
+				},
+			},
+		},
+		{
+			name: "Response Hidden extension matches target environment",
+			input: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Summary: "test",
+					Responses: openapi3.NewResponses(
+						openapi3.WithName("200",
+							&openapi3.Response{
+								Extensions: map[string]interface{}{
+									hiddenEnvsExtensionName: map[string]interface{}{
+										"envs": "prod",
+									},
+								},
+							}),
+						openapi3.WithName("400", &openapi3.Response{}),
+					),
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "prod",
+			},
+			expected: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Summary: "test",
+					Responses: openapi3.NewResponses(
+						openapi3.WithName("400", &openapi3.Response{}),
+					),
+				},
+			},
+		},
+		{
+			name: "Response Hidden extension doesn't match target environment",
+			input: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Summary: "test",
+					Responses: openapi3.NewResponses(
+						openapi3.WithName("200",
+							&openapi3.Response{
+								Extensions: map[string]interface{}{
+									hiddenEnvsExtensionName: map[string]interface{}{
+										"envs": "prod",
+									},
+								},
+							}),
+						openapi3.WithName("400", &openapi3.Response{}),
+					),
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "dev",
+			},
+			expected: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Summary: "test",
+					Responses: openapi3.NewResponses(
+						openapi3.WithName("200",
+							&openapi3.Response{
+								Extensions: map[string]interface{}{
+									hiddenEnvsExtensionName: map[string]interface{}{
+										"envs": "prod",
+									},
+								},
+							}),
+						openapi3.WithName("400", &openapi3.Response{}),
+					),
+				},
+			},
+		},
+		{
+			name: "RequestBody Hidden extension matches target environment",
+			input: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Summary: "test",
+					Responses: openapi3.NewResponses(
+						openapi3.WithName("400", &openapi3.Response{}),
+					),
+					RequestBody: &openapi3.RequestBodyRef{
+						Extensions: map[string]interface{}{
+							hiddenEnvsExtensionName: map[string]interface{}{
+								"envs": "prod",
+							},
+						},
+					},
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "prod",
+			},
+			expected: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Summary: "test",
+					Responses: openapi3.NewResponses(
+						openapi3.WithName("400", &openapi3.Response{}),
+					),
+					RequestBody: nil,
+				},
+			},
+		},
+
+		{
+			name: "RequestBody Hidden extension doesn't match target environment",
+			input: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Summary: "test",
+					Responses: openapi3.NewResponses(
+						openapi3.WithName("400", &openapi3.Response{}),
+					),
+					RequestBody: &openapi3.RequestBodyRef{
+						Extensions: map[string]interface{}{
+							hiddenEnvsExtensionName: map[string]interface{}{
+								"envs": "prod",
+							},
+						},
+					},
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "dev",
+			},
+			expected: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Summary: "test",
+					Responses: openapi3.NewResponses(
+						openapi3.WithName("400", &openapi3.Response{}),
+					),
+					RequestBody: &openapi3.RequestBodyRef{
+						Extensions: map[string]interface{}{},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			filter := &HiddenEnvsFilter{}
+			err := filter.applyOnPath(tt.input, tt.metadata)
+			require.NoError(t, err)
+			if !reflect.DeepEqual(tt.expected, tt.input) {
+				t.Errorf("expected %v, got %v", tt.expected, tt.input)
 			}
 		})
 	}
