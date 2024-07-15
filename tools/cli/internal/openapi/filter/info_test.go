@@ -32,10 +32,24 @@ func TestInfoFilter(t *testing.T) {
 
 	oas := &openapi3.T{
 		Info: &openapi3.Info{
-			Description: "to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2025-30-05+json\" ",
+			Description: "to manage all components in MongoDB Atlas.\n\n" +
+				"The Atlas Administration API uses HTTP Digest Authentication to authenticate requests. " +
+				"Provide a programmatic API public key and corresponding private key as the username and password " +
+				"when constructing the HTTP request. For example, to [return database access history]" +
+				"(#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), " +
+				"run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n" +
+				"  --digest \\\n  --header \"Accept: application/vnd.atlas.2025-30-05+json\" ",
 		},
 	}
-	filter.Apply(oas, metadata)
-	require.NoError(t, err)
-	assert.Contains(t, oas.Info.Description, "to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2023-01-01+json\" ")
+
+	expectedDescription := "to manage all components in MongoDB Atlas.\n\n" +
+		"The Atlas Administration API uses HTTP Digest Authentication to authenticate requests. " +
+		"Provide a programmatic API public key and corresponding private key as the username and password " +
+		"when constructing the HTTP request. For example, to [return database access history]" +
+		"(#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), " +
+		"run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n" +
+		"  --digest \\\n  --header \"Accept: application/vnd.atlas.2023-01-01+json\" "
+
+	require.NoError(t, filter.Apply(oas, metadata))
+	assert.Contains(t, oas.Info.Description, expectedDescription)
 }
