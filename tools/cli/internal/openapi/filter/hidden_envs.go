@@ -62,12 +62,16 @@ func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem, metadata *Me
 }
 
 func (f *HiddenEnvsFilter) isOperationHiddenForEnv(operation *openapi3.Operation, metadata *Metadata) bool {
+	if operation == nil {
+		return false
+	}
+
 	for k, extension := range operation.Extensions {
 		if k != hiddenEnvsExtensionName {
 			continue
 		}
 
-		print(fmt.Printf("Found x-hidden-envs: K: %s, V: %s", k, extension))
+		log.Printf("Found x-hidden-envs: K: %s, V: %s", k, extension)
 		return isHiddenExtensionEqualToTargetEnv(extension, metadata)
 	}
 
@@ -75,12 +79,16 @@ func (f *HiddenEnvsFilter) isOperationHiddenForEnv(operation *openapi3.Operation
 }
 
 func (f *HiddenEnvsFilter) isResponseHiddenForEnv(response *openapi3.ResponseRef, metadata *Metadata) bool {
+	if response == nil {
+		return false
+	}
+
 	for k, extension := range response.Extensions {
 		if k != hiddenEnvsExtensionName {
 			continue
 		}
 
-		print(fmt.Printf("Found x-hidden-envs in the response: K: %s, V: %s", k, extension))
+		log.Printf("Found x-hidden-envs in the response: K: %s, V: %s", k, extension)
 		return isHiddenExtensionEqualToTargetEnv(extension, metadata)
 	}
 
@@ -88,6 +96,10 @@ func (f *HiddenEnvsFilter) isResponseHiddenForEnv(response *openapi3.ResponseRef
 }
 
 func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.RequestBodyRef, metadata *Metadata) bool {
+	if requestBody == nil {
+		return false
+	}
+
 	for k, extension := range requestBody.Extensions {
 		if k != hiddenEnvsExtensionName {
 			continue
