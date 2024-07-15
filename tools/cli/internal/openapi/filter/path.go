@@ -237,7 +237,7 @@ func filterLatestVersionedContent(content map[string]*openapi3.MediaType, latest
 	}
 
 	var latestVersion *apiversion.APIVersion
-	var latestContent openapi3.Content
+	var latestContent openapi3.Content = nil
 
 	for contentType, mediaType := range content {
 		contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
