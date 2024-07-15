@@ -37,6 +37,7 @@ func TestSplit(t *testing.T) {
 }
 
 func getOutputFolder(t *testing.T) string {
+	t.Helper()
 	_, path, _, ok := runtime.Caller(0)
 	require.True(t, ok)
 
@@ -45,21 +46,6 @@ func getOutputFolder(t *testing.T) string {
 
 	return filepath.Join(dir, "output")
 }
-
-// func getOutputPath2() string {
-// 	_, currentFilePath, _, ok := runtime.Caller(0)
-// 	if !ok {
-// 		panic("No caller information")
-// 	}
-// 	// find current file path
-// 	absolutePath, err := filepath.Abs(currentFilePath)
-// 	if err != nil {
-// 		fmt.Println("Error getting absolute path:", err)
-// 		return ""
-// 	}
-// 	dir := filepath.Dir(absolutePath)
-// 	return filepath.Join(dir, "output")
-// }
 
 func validateFiles(t *testing.T, version string) {
 	t.Helper()
