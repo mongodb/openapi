@@ -30,6 +30,7 @@ type Metadata struct {
 
 var filters = map[string]Filter{
 	"path": &PathFilter{},
+	"info": &InfoFilter{},
 }
 
 func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metadata {

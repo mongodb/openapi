@@ -68,7 +68,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 
 	require.Empty(t, d.ExtensionsDiff, message)
 	require.Empty(t, d.OpenAPIDiff, message)
-	// require.Empty(t, d.InfoDiff, message) TODO: add in next PR
+	require.Empty(t, d.InfoDiff, message)
 	// require.Empty(t, d.EndpointsDiff) TODO: add in next PR
 	// require.Empty(t, d.PathsDiff) TODO: add in next PR
 	require.Empty(t, d.SecurityDiff, message)
