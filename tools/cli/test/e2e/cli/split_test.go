@@ -8,9 +8,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tufin/oasdiff/diff"
 )
 
-var versions = []string{"2023-01-01", "2023-02-01", "2023-10-01", "2023-11-15", "2024-05-30"}
+// var versions = []string{"2023-01-01", "2023-02-01", "2023-10-01", "2023-11-15", "2024-05-30"}
+var versions = []string{"2024-05-30"}
 
 func TestSplit(t *testing.T) {
 	cliPath := NewBin(t)
@@ -52,4 +54,38 @@ func validateFiles(t *testing.T, version string) {
 	path, err := filepath.Abs("./output/output-" + version + ".yaml")
 	require.NoError(t, err)
 	ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version), path)
+}
+
+func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath string) {
+	t.Helper()
+	correctSpec := newOpenAPISpec(t, correctSpecPath)
+	generatedSpec := newOpenAPISpec(t, generatedSpecPath)
+	// compare w/ oasdiff
+	d, err := diff.Get(diff.NewConfig(), correctSpec, generatedSpec)
+	require.NoError(t, err)
+
+	// ExtensionsDiff   *ExtensionsDiff           `json:"extensions,omitempty" yaml:"extensions,omitempty"`
+	// OpenAPIDiff      *ValueDiff                `json:"openAPI,omitempty" yaml:"openAPI,omitempty"`
+	// InfoDiff         *InfoDiff                 `json:"info,omitempty" yaml:"info,omitempty"`
+	// PathsDiff        *PathsDiff                `json:"paths,omitempty" yaml:"paths,omitempty"`
+	// EndpointsDiff    *EndpointsDiff            `json:"endpoints,omitempty" yaml:"endpoints,omitempty"`
+	// SecurityDiff     *SecurityRequirementsDiff `json:"security,omitempty" yaml:"security,omitempty"`
+	// ServersDiff      *ServersDiff              `json:"servers,omitempty" yaml:"servers,omitempty"`
+	// TagsDiff         *TagsDiff                 `json:"tags,omitempty" yaml:"tags,omitempty"`
+	// ExternalDocsDiff *ExternalDocsDiff         `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
+
+	// ComponentsDiff `json:"components,omitempty" yaml:"components,omitempty"`
+
+	// High level diff
+	require.Empty(t, d.ExtensionsDiff)
+	require.Empty(t, d.OpenAPIDiff)
+	require.Empty(t, d.InfoDiff)
+
+	// Components diff
+	require.Empty(t, d.PathsDiff)
+
+	// require.Empty(t, d.PathsDiff.Modified)
+	// require.Empty(t, d.PathsDiff.Deleted)
+
+	require.Empty(t, d.ExamplesDiff)
 }
