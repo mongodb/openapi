@@ -16,7 +16,6 @@ package filter
 import (
 	"log"
 	"strings"
-	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
@@ -55,11 +54,22 @@ func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 }
 
 func (f *PathFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
-	for _, pathItem := range oas.Paths.Map() {
+	newPaths := &openapi3.Paths{
+		Extensions: oas.Paths.Extensions,
+	}
+
+	for k, pathItem := range oas.Paths.Map() {
 		if err := f.apply(pathItem, metadata); err != nil {
 			return err
 		}
+
+		if len(pathItem.Operations()) == 0 {
+			continue
+		}
+
+		newPaths.Set(k, pathItem)
 	}
+	oas.Paths = newPaths
 	return nil
 }
 
@@ -86,18 +96,12 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 			path.SetOperation(opKey, nil)
 		}
 
-		addDeprecationMessageToOperation(op, opConfig.deprecatedVersions)
-		if op.RequestBody == nil || op.RequestBody.Value == nil {
-			continue
+		err = updateRequestBody(op, opConfig)
+		if err != nil {
+			return err
 		}
 
-		filteredRequestBody, _ := filterVersionedContent(op.RequestBody.Value.Content, opConfig.latestMatchedVersion, false)
-		if filteredRequestBody == nil {
-			log.Printf("Removing request body for content type: %+v", op.RequestBody.Value)
-			op.RequestBody.Value.Content = nil
-		} else {
-			op.RequestBody.Value.Content = filteredRequestBody
-		}
+		addDeprecationMessageToOperation(op, opConfig.deprecatedVersions)
 	}
 
 	return nil
@@ -120,6 +124,25 @@ func updateResponses(op *openapi3.Operation, config *VersionConfig, opConfig *Op
 		}
 		response.Value.Content = filteredResponse
 	}
+}
+
+func updateRequestBody(op *openapi3.Operation, opConfig *OperationConfig) error {
+	if op.RequestBody == nil || op.RequestBody.Value == nil {
+		return nil
+	}
+
+	filteredRequestBody, err := filterLatestVersionedContent(op.RequestBody.Value.Content, opConfig.latestMatchedVersion)
+	if err != nil {
+		return err
+	}
+
+	if filteredRequestBody == nil {
+		log.Printf("Removing request body for content type: %+v", op.RequestBody.Value)
+		op.RequestBody.Value.Content = nil
+	} else {
+		op.RequestBody.Value.Content = filteredRequestBody
+	}
+	return nil
 }
 
 func getLatestVersionMatch(
@@ -175,7 +198,7 @@ func getLatestVersionMatch(
 func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rConfig *VersionConfig) openapi3.Content {
 	opConfig := rConfig.parsedOperations[op.OperationID]
 
-	filteredContent, _ := filterVersionedContent(response.Value.Content, opConfig.latestMatchedVersion, true)
+	filteredContent, _ := filterVersionedContentWithVersion(response.Value.Content, opConfig.latestMatchedVersion)
 	if len(filteredContent) > 0 {
 		opConfig.hasMinValidResponse = true
 		deprecatedVersionsPerContent := getDeprecatedVersionsPerContent(response.Value.Content, opConfig.latestMatchedVersion)
@@ -208,62 +231,77 @@ func addDeprecationMessageToOperation(op *openapi3.Operation, deprecatedVersions
 	op.Description += ". Deprecated versions: " + strings.Join(dVersions, ", ")
 }
 
-func parseVersionToDate(version string) (time.Time, error) {
-	return time.Parse("2006-01-02", version)
-}
-
-func filterVersionedContent(content map[string]*openapi3.MediaType, version *apiversion.APIVersion, exactMatch bool) (openapi3.Content, error) {
+func filterLatestVersionedContent(content map[string]*openapi3.MediaType, latestVersionMatched *apiversion.APIVersion) (openapi3.Content, error) {
 	if content == nil {
 		return nil, nil
 	}
 
+	var latestVersion *apiversion.APIVersion
+	var latestContent openapi3.Content
+
 	for contentType, mediaType := range content {
-		v, err := apiversion.New(apiversion.WithContent(contentType))
+		contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
 		if err != nil {
 			log.Printf("Ignoring invalid content type: %s", contentType)
 			continue
 		}
 
-		updateSingleMediaTypeExtension(mediaType, v)
-		if exactMatch && !v.Equal(version) {
+		updateSingleMediaTypeExtension(mediaType, contentVersion)
+
+		// if the version is not an exact match, we need to check if it is the latest version
+		if latestContent == nil {
+			latestVersion = contentVersion
+			latestContent = openapi3.Content{contentType: mediaType}
+		}
+
+		if contentVersion.GreaterThan(latestVersionMatched) {
 			continue
 		}
 
-		if exactMatch && !v.Equal(version) {
-			return openapi3.Content{contentType: mediaType}, nil
+		if contentVersion.LessThan(latestVersionMatched) && contentVersion.GreaterThan(latestVersion) {
+			latestVersion = contentVersion
+			latestContent = openapi3.Content{contentType: mediaType}
 		}
 
-		// if the version is not an exact match, we need to check if it is the latest version
-		if !exactMatch {
-			requestedVersion, err := parseVersionToDate(v.String())
-			if err != nil {
-				log.Fatalf("Error parsing version: %s", err)
-				return nil, nil
-			}
-
-			contentVersion, err := parseVersionToDate(v.String())
-			if err != nil {
-				log.Fatalf("Error parsing version: %s", err)
-				return nil, nil
-			}
-
-			if contentVersion.After(requestedVersion) {
-				continue
-			}
-		}
-
-		// if the version is an exact match or the latest version, return the content
-		return openapi3.Content{contentType: mediaType}, nil
 	}
 
-	return nil, nil
+	return latestContent, nil
+}
+
+// filterVersionedContentWithVersion filters the content based on the exact match of the version
+func filterVersionedContentWithVersion(content map[string]*openapi3.MediaType, version *apiversion.APIVersion) (map[string]*openapi3.MediaType, error) {
+	if content == nil {
+		return nil, nil
+	}
+
+	var filteredContent map[string]*openapi3.MediaType = make(map[string]*openapi3.MediaType)
+	for contentType, mediaType := range content {
+		contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
+		if err != nil {
+			log.Printf("Ignoring invalid content type: %s", contentType)
+			continue
+		}
+
+		if contentVersion.Equal(version) {
+			updateSingleMediaTypeExtension(mediaType, contentVersion)
+			filteredContent[contentType] = mediaType
+		}
+	}
+
+	if len(filteredContent) == 0 {
+		return nil, nil
+	}
+
+	return filteredContent, nil
 }
 
 // updateSingleMediaTypeExtension updates the media type extension with the version in string format
 func updateSingleMediaTypeExtension(m *openapi3.MediaType, version *apiversion.APIVersion) {
 	if m.Extensions == nil {
 		m.Extensions = make(map[string]interface{})
+		return
 	}
+
 	m.Extensions["x-xgen-version"] = version.String()
 }
 
