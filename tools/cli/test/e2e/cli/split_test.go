@@ -93,7 +93,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 			require.Empty(t, op.DescriptionDiff)
 			require.Empty(t, op.ServersDiff)
 			require.Empty(t, op.ParametersDiff)
-			// require.Empty(t, op.RequestBodyDiff)  TODO: add in next PR
+			require.Empty(t, op.RequestBodyDiff)
 			if op.ResponsesDiff != nil {
 				require.Empty(t, op.ResponsesDiff.Deleted)
 				require.Empty(t, op.ResponsesDiff.Modified)

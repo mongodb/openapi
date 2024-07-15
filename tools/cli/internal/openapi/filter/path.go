@@ -250,7 +250,7 @@ func filterLatestVersionedContent(content map[string]*openapi3.MediaType, latest
 	}
 
 	var latestVersion *apiversion.APIVersion
-	var latestContent openapi3.Content
+	latestContent := openapi3.Content{}
 
 	for contentType, mediaType := range content {
 		contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
@@ -261,14 +261,18 @@ func filterLatestVersionedContent(content map[string]*openapi3.MediaType, latest
 
 		updateSingleMediaTypeExtension(mediaType, contentVersion)
 
-		// if the version is not an exact match, we need to check if it is the latest version
-		if latestContent == nil {
+		if contentVersion.GreaterThan(latestVersionMatched) {
+			continue
+		}
+
+		if latestVersion == nil && contentVersion.LessThan(latestVersionMatched) {
 			latestVersion = contentVersion
 			latestContent = openapi3.Content{contentType: mediaType}
 		}
 
-		if contentVersion.GreaterThan(latestVersionMatched) {
-			continue
+		if contentVersion.Equal(latestVersionMatched) {
+			latestContent = openapi3.Content{contentType: mediaType}
+			break
 		}
 
 		if contentVersion.LessThan(latestVersionMatched) && contentVersion.GreaterThan(latestVersion) {
