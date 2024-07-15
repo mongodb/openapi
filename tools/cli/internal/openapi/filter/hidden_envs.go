@@ -45,16 +45,16 @@ func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem, metadata *Me
 			continue
 		}
 
-		for k, response := range operation.Responses.Map(){
+		for k, response := range operation.Responses.Map() {
 			if isResponseHiddenForEnv := f.isResponseHiddenForEnv(response, metadata); isResponseHiddenForEnv {
 				log.Printf("Removing response: '%s' from operationID: '%s' because is hidden for target env: %s", k, operation.OperationID, metadata.targetEnv)
 				operation.Responses.Set(k, nil) // Remove Response if it is hidden for the target environment
 			}
 		}
 
-		if isRequestBodyHiddenForEnv:= f.isRequestBodyHiddenForEnv(operation.RequestBody, metadata); isRequestBodyHiddenForEnv {
+		if isRequestBodyHiddenForEnv := f.isRequestBodyHiddenForEnv(operation.RequestBody, metadata); isRequestBodyHiddenForEnv {
 			log.Printf("Removing requestBody from operationID: '%s' because is hidden for target env: %s", operation.OperationID, metadata.targetEnv)
-			operation.RequestBody = nil // Remove RequestBody if it is hidden for the target environment	
+			operation.RequestBody = nil // Remove RequestBody if it is hidden for the target environment
 		}
 	}
 
