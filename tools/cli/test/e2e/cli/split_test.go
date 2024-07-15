@@ -23,7 +23,7 @@ func TestSplit(t *testing.T) {
 			"-s",
 			base,
 			"-o",
-			getOutputFolder(t)+"/output.yaml",
+			getOutputFolder(t)+"/output.json",
 		)
 
 		var o, e bytes.Buffer
@@ -50,7 +50,7 @@ func getOutputFolder(t *testing.T) string {
 
 func validateFiles(t *testing.T, version string) {
 	t.Helper()
-	path, err := filepath.Abs("./output/output-" + version + ".yaml")
+	path, err := filepath.Abs("./output/output-" + version + ".json")
 	require.NoError(t, err)
 	ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version), path)
 }
@@ -63,17 +63,19 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	d, err := diff.Get(diff.NewConfig(), correctSpec, generatedSpec)
 	require.NoError(t, err)
 
-	require.Empty(t, d.ExtensionsDiff)
-	require.Empty(t, d.OpenAPIDiff)
-	// require.Empty(t, d.InfoDiff)
-	// require.Empty(t, d.EndpointsDiff)
-	// require.Empty(t, d.PathsDiff)
-	require.Empty(t, d.SecurityDiff)
-	require.Empty(t, d.ServersDiff)
-	require.Empty(t, d.TagsDiff)
-	require.Empty(t, d.ExternalDocsDiff)
-	require.Empty(t, d.ExamplesDiff)
-	// require.Empty(t, d.ComponentsDiff)
+	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" + "git diff --no-index " + correctSpecPath + " " + generatedSpecPath + " > diff.diff"
+
+	require.Empty(t, d.ExtensionsDiff, message)
+	require.Empty(t, d.OpenAPIDiff, message)
+	// require.Empty(t, d.InfoDiff, message) TODO: add in next PR
+	// require.Empty(t, d.EndpointsDiff) TODO: add in next PR
+	// require.Empty(t, d.PathsDiff) TODO: add in next PR
+	require.Empty(t, d.SecurityDiff, message)
+	require.Empty(t, d.ServersDiff, message)
+	require.Empty(t, d.TagsDiff, message)
+	require.Empty(t, d.ExternalDocsDiff, message)
+	require.Empty(t, d.ExamplesDiff, message)
+	// require.Empty(t, d.ComponentsDiff) TODO: add in next PR
 
 	// Components diff
 	for _, v := range d.PathsDiff.Modified {
