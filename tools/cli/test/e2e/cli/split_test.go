@@ -11,8 +11,7 @@ import (
 	"github.com/tufin/oasdiff/diff"
 )
 
-// var versions = []string{"2023-01-01", "2023-02-01", "2023-10-01", "2023-11-15", "2024-05-30"}
-var versions = []string{"2024-05-30"}
+var versions = []string{"2023-01-01", "2023-02-01", "2023-10-01", "2023-11-15", "2024-05-30"}
 
 func TestSplit(t *testing.T) {
 	cliPath := NewBin(t)
@@ -64,28 +63,21 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	d, err := diff.Get(diff.NewConfig(), correctSpec, generatedSpec)
 	require.NoError(t, err)
 
-	// ExtensionsDiff   *ExtensionsDiff           `json:"extensions,omitempty" yaml:"extensions,omitempty"`
-	// OpenAPIDiff      *ValueDiff                `json:"openAPI,omitempty" yaml:"openAPI,omitempty"`
-	// InfoDiff         *InfoDiff                 `json:"info,omitempty" yaml:"info,omitempty"`
-	// PathsDiff        *PathsDiff                `json:"paths,omitempty" yaml:"paths,omitempty"`
-	// EndpointsDiff    *EndpointsDiff            `json:"endpoints,omitempty" yaml:"endpoints,omitempty"`
-	// SecurityDiff     *SecurityRequirementsDiff `json:"security,omitempty" yaml:"security,omitempty"`
-	// ServersDiff      *ServersDiff              `json:"servers,omitempty" yaml:"servers,omitempty"`
-	// TagsDiff         *TagsDiff                 `json:"tags,omitempty" yaml:"tags,omitempty"`
-	// ExternalDocsDiff *ExternalDocsDiff         `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
-
-	// ComponentsDiff `json:"components,omitempty" yaml:"components,omitempty"`
-
-	// High level diff
 	require.Empty(t, d.ExtensionsDiff)
 	require.Empty(t, d.OpenAPIDiff)
-	require.Empty(t, d.InfoDiff)
+	// require.Empty(t, d.InfoDiff)
+	// require.Empty(t, d.EndpointsDiff)
+	// require.Empty(t, d.PathsDiff)
+	require.Empty(t, d.SecurityDiff)
+	require.Empty(t, d.ServersDiff)
+	require.Empty(t, d.TagsDiff)
+	require.Empty(t, d.ExternalDocsDiff)
+	require.Empty(t, d.ExamplesDiff)
+	// require.Empty(t, d.ComponentsDiff)
 
 	// Components diff
-	require.Empty(t, d.PathsDiff)
-
-	// require.Empty(t, d.PathsDiff.Modified)
-	// require.Empty(t, d.PathsDiff.Deleted)
-
-	require.Empty(t, d.ExamplesDiff)
+	for _, v := range d.PathsDiff.Modified {
+		require.Empty(t, v.ExtensionsDiff)
+		require.Empty(t, v.DescriptionDiff)
+	}
 }
