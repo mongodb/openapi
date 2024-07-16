@@ -20,7 +20,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-//go:generate mockgen -destination=../openapi/filter/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi/filter Filter
+//go:generate mockgen -destination=../filter/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi/filter Filter
 type Filter interface {
 	Apply() error
 }
@@ -64,10 +64,17 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 		oas:      oas,
 		metadata: metadata,
 	}
+
 	filters["info"] = &InfoFilter{
 		oas:      oas,
 		metadata: metadata,
 	}
+
+	filters["hidden_envs"] = &HiddenEnvsFilter{
+		oas:      oas,
+		metadata: metadata,
+	}
+
 	return nil
 }
 
