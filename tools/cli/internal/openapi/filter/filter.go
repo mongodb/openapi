@@ -72,7 +72,10 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 }
 
 func ApplyFilters(doc *openapi3.T, metadata *Metadata) error {
-	initFilters(doc, metadata)
+	if err := initFilters(doc, metadata); err != nil {
+		return err
+	}
+
 	for _, filter := range filters {
 		if err := filter.Apply(); err != nil {
 			return err
