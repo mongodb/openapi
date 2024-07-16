@@ -59,28 +59,46 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	t.Helper()
 	correctSpec := newOpenAPISpec(t, correctSpecPath)
 	generatedSpec := newOpenAPISpec(t, generatedSpecPath)
-	// compare w/ oasdiff
-	d, err := diff.Get(diff.NewConfig(), correctSpec, generatedSpec)
+	d, err := diff.Get(diff.NewConfig().WithExcludeExtensions(), correctSpec, generatedSpec)
 	require.NoError(t, err)
 
 	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
-		"git diff --no-index " + correctSpecPath + " " + generatedSpecPath + " > diff.diff"
+		"oasdiff diff --max-circular-dep 15 " + correctSpecPath + " " + generatedSpecPath + " > diff.yaml"
 
 	require.Empty(t, d.ExtensionsDiff, message)
 	require.Empty(t, d.OpenAPIDiff, message)
-	// require.Empty(t, d.InfoDiff, message) TODO: add in next PR
+	require.Empty(t, d.InfoDiff, message)
 	// require.Empty(t, d.EndpointsDiff) TODO: add in next PR
-	// require.Empty(t, d.PathsDiff) TODO: add in next PR
+	require.Empty(t, d.PathsDiff.Added, message)
+	require.Empty(t, d.PathsDiff.Deleted, message)
 	require.Empty(t, d.SecurityDiff, message)
 	require.Empty(t, d.ServersDiff, message)
 	require.Empty(t, d.TagsDiff, message)
 	require.Empty(t, d.ExternalDocsDiff, message)
 	require.Empty(t, d.ExamplesDiff, message)
-	// require.Empty(t, d.ComponentsDiff) TODO: add in next PR
+	require.Empty(t, d.ComponentsDiff)
 
-	// Components diff
 	for _, v := range d.PathsDiff.Modified {
 		require.Empty(t, v.ExtensionsDiff)
+		require.Empty(t, v.SummaryDiff)
 		require.Empty(t, v.DescriptionDiff)
+		require.Empty(t, v.ServersDiff)
+		require.Empty(t, v.ParametersDiff)
+		require.Empty(t, v.RefDiff)
+		require.Empty(t, v.OperationsDiff.Added)
+		// require.Empty(t, v.OperationsDiff.Deleted) TODO: add in next PR
+		for _, op := range v.OperationsDiff.Modified {
+			require.Empty(t, op.ExtensionsDiff)
+			require.Empty(t, op.SummaryDiff)
+			require.Empty(t, op.DescriptionDiff)
+			require.Empty(t, op.ServersDiff)
+			require.Empty(t, op.ParametersDiff)
+			require.Empty(t, op.RequestBodyDiff)
+			if op.ResponsesDiff != nil {
+				require.Empty(t, op.ResponsesDiff.Deleted)
+				require.Empty(t, op.ResponsesDiff.Modified)
+				// require.Empty(t, op.ResponsesDiff.Added, message)  TODO: add in next PR
+			}
+		}
 	}
 }
