@@ -30,10 +30,7 @@ type Metadata struct {
 	targetEnv     string
 }
 
-var filters = map[string]Filter{
-	"path":       &PathFilter{},
-	"hiddenEnvs": &HiddenEnvsFilter{},
-}
+var filters = map[string]Filter{}
 
 func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metadata {
 	return &Metadata{
@@ -67,10 +64,17 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 		oas:      oas,
 		metadata: metadata,
 	}
+
 	filters["info"] = &InfoFilter{
 		oas:      oas,
 		metadata: metadata,
 	}
+
+	filters["hidden_envs"] = &HiddenEnvsFilter{
+		oas:      oas,
+		metadata: metadata,
+	}
+
 	return nil
 }
 
