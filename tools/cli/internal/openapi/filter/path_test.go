@@ -84,18 +84,20 @@ func TestPathFilter_getLatestVersionMatch(t *testing.T) {
 }
 
 func TestPathFilter_processPathItem(t *testing.T) {
-	filter := &PathFilter{}
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
 
-	oas := oasPathAllVersions()
-	err = filter.apply(oas, &Metadata{targetVersion: version})
+	filter := &PathFilter{
+		metadata: &Metadata{targetVersion: version},
+	}
 
-	require.NoError(t, err)
-	assert.NotNil(t, oas.Get)
-	assert.Equal(t, 1, oas.Get.Responses.Len())
+	path := oasPathAllVersions()
+	require.NoError(t, filter.apply(path))
 
-	get200Responses := oas.Get.Responses.Map()["200"]
+	assert.NotNil(t, path.Get)
+	assert.Equal(t, 1, path.Get.Responses.Len())
+
+	get200Responses := path.Get.Responses.Map()["200"]
 	assert.NotNil(t, get200Responses)
 
 	get200ResponsesContent := get200Responses.Value.Content
@@ -103,18 +105,21 @@ func TestPathFilter_processPathItem(t *testing.T) {
 }
 
 func TestPathFilter_moreThanOneResponse(t *testing.T) {
-	filter := &PathFilter{}
 	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
 	require.NoError(t, err)
 
-	oas := oasPathAllVersions()
-	err = filter.apply(oas, &Metadata{targetVersion: version})
+	filter := &PathFilter{
+		metadata: &Metadata{targetVersion: version},
+	}
+
+	path := oasPathAllVersions()
+	err = filter.apply(path)
 
 	require.NoError(t, err)
-	assert.NotNil(t, oas.Get)
-	assert.Equal(t, 1, oas.Get.Responses.Len())
+	assert.NotNil(t, path.Get)
+	assert.Equal(t, 1, path.Get.Responses.Len())
 
-	get200Responses := oas.Get.Responses.Map()["200"]
+	get200Responses := path.Get.Responses.Map()["200"]
 	assert.NotNil(t, get200Responses)
 
 	get200ResponsesContent := get200Responses.Value.Content
@@ -136,19 +141,20 @@ func TestPathFilter_removeEmptyPaths(t *testing.T) {
 }
 
 func TestPathFilter_filterRequestBody(t *testing.T) {
-	filter := &PathFilter{}
-
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
 
-	oas := oasPathAllVersions()
-	err = filter.apply(oas, &Metadata{targetVersion: version})
+	filter := &PathFilter{
+		metadata: &Metadata{targetVersion: version},
+	}
 
-	require.NoError(t, err)
-	assert.NotNil(t, oas.Get)
-	assert.NotNil(t, oas.Get.RequestBody)
-	assert.NotNil(t, oas.Get.RequestBody.Value.Content)
-	assert.NotNil(t, oas.Get.RequestBody.Value.Content.Get("application/vnd.atlas.2023-11-15+json"))
+	path := oasPathAllVersions()
+	require.NoError(t, filter.apply(path))
+
+	assert.NotNil(t, path.Get)
+	assert.NotNil(t, path.Get.RequestBody)
+	assert.NotNil(t, path.Get.RequestBody.Value.Content)
+	assert.NotNil(t, path.Get.RequestBody.Value.Content.Get("application/vnd.atlas.2023-11-15+json"))
 }
 
 func getOasWithEmptyPaths() *openapi3.T {
