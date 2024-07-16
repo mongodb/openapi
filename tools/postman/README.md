@@ -1,6 +1,7 @@
 # Postman Collections from OpenAPI
 
-Folder contains scripts and other files required to generate a Postman collections from the OpenAPI Specification
+This folder contains the code required to generate the MongoDB Atlas Postman collections from the MongoDB OpenAPI
+Specification
 
 ## Purpose of the project
 
