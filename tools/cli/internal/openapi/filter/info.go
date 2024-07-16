@@ -38,14 +38,12 @@ func (f *InfoFilter) apply(info *openapi3.Info, metadata *Metadata) error {
 	return nil
 }
 
-func replaceVersion(inputString string, v *apiversion.APIVersion) string {
-	matches := apiversion.ContentPattern.FindStringSubmatch(inputString)
+func replaceVersion(input string, v *apiversion.APIVersion) string {
+	matches := apiversion.ContentPattern.FindStringSubmatch(input)
 	if matches == nil {
-		return inputString // No match found, return the original string
+		return input // No match found, return the original string
 	}
 
-	replacementString := fmt.Sprintf("application/vnd.atlas.%s+%s", v.String(), matches[4])
-
-	resultString := apiversion.ContentPattern.ReplaceAllString(inputString, replacementString)
-	return resultString
+	replacement := fmt.Sprintf("application/vnd.atlas.%s+%s", v.String(), matches[4])
+	return apiversion.ContentPattern.ReplaceAllString(input, replacement)
 }
