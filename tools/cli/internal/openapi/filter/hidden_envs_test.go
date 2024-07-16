@@ -33,7 +33,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			name: "Hidden environment matches target environment",
 			operation: &openapi3.Operation{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "prod",
 					},
 				},
@@ -47,7 +47,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			name: "Hidden environment matches target environment, multiple environments",
 			operation: &openapi3.Operation{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "prod,dev,staging,prod",
 					},
 				},
@@ -61,7 +61,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			name: "Hidden environment does not match target environment",
 			operation: &openapi3.Operation{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "staging",
 					},
 				},
@@ -75,7 +75,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			name: "Hidden environment does not match target environment, empty envs",
 			operation: &openapi3.Operation{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "",
 					},
 				},
@@ -125,7 +125,7 @@ func TestIsRequestBodyHiddenForEnv(t *testing.T) {
 			name: "Hidden environment matches target environment",
 			requestBody: &openapi3.RequestBodyRef{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "prod",
 					},
 				},
@@ -139,7 +139,7 @@ func TestIsRequestBodyHiddenForEnv(t *testing.T) {
 			name: "Hidden environment matches target environment, multiple environments",
 			requestBody: &openapi3.RequestBodyRef{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "prod,dev,staging,prod",
 					},
 				},
@@ -153,7 +153,7 @@ func TestIsRequestBodyHiddenForEnv(t *testing.T) {
 			name: "Hidden environment does not match target environment",
 			requestBody: &openapi3.RequestBodyRef{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "staging",
 					},
 				},
@@ -167,7 +167,7 @@ func TestIsRequestBodyHiddenForEnv(t *testing.T) {
 			name: "Hidden environment does not match target environment, empty envs",
 			requestBody: &openapi3.RequestBodyRef{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "",
 					},
 				},
@@ -217,7 +217,7 @@ func TestIsResponseHiddenForEnv(t *testing.T) {
 			name: "Hidden environment matches target environment",
 			response: &openapi3.ResponseRef{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "prod",
 					},
 				},
@@ -231,7 +231,7 @@ func TestIsResponseHiddenForEnv(t *testing.T) {
 			name: "Hidden environment matches target environment, multiple environments",
 			response: &openapi3.ResponseRef{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "prod,dev,staging,prod",
 					},
 				},
@@ -245,7 +245,7 @@ func TestIsResponseHiddenForEnv(t *testing.T) {
 			name: "Hidden environment does not match target environment",
 			response: &openapi3.ResponseRef{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "staging",
 					},
 				},
@@ -259,7 +259,7 @@ func TestIsResponseHiddenForEnv(t *testing.T) {
 			name: "Hidden environment does not match target environment, empty envs",
 			response: &openapi3.ResponseRef{
 				Extensions: map[string]interface{}{
-					hiddenEnvsExtensionName: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "",
 					},
 				},
@@ -310,7 +310,7 @@ func TestApplyOnPath(t *testing.T) {
 			input: &openapi3.PathItem{
 				Get: &openapi3.Operation{
 					Extensions: map[string]interface{}{
-						hiddenEnvsExtensionName: map[string]interface{}{
+						hiddenEnvsExtension: map[string]interface{}{
 							"envs": "prod",
 						},
 					},
@@ -329,7 +329,7 @@ func TestApplyOnPath(t *testing.T) {
 			input: &openapi3.PathItem{
 				Get: &openapi3.Operation{
 					Extensions: map[string]interface{}{
-						hiddenEnvsExtensionName: map[string]interface{}{
+						hiddenEnvsExtension: map[string]interface{}{
 							"envs": "dev",
 						},
 					},
@@ -353,7 +353,7 @@ func TestApplyOnPath(t *testing.T) {
 						openapi3.WithName("200",
 							&openapi3.Response{
 								Extensions: map[string]interface{}{
-									hiddenEnvsExtensionName: map[string]interface{}{
+									hiddenEnvsExtension: map[string]interface{}{
 										"envs": "prod",
 									},
 								},
@@ -383,7 +383,7 @@ func TestApplyOnPath(t *testing.T) {
 						openapi3.WithName("200",
 							&openapi3.Response{
 								Extensions: map[string]interface{}{
-									hiddenEnvsExtensionName: map[string]interface{}{
+									hiddenEnvsExtension: map[string]interface{}{
 										"envs": "prod",
 									},
 								},
@@ -402,7 +402,7 @@ func TestApplyOnPath(t *testing.T) {
 						openapi3.WithName("200",
 							&openapi3.Response{
 								Extensions: map[string]interface{}{
-									hiddenEnvsExtensionName: map[string]interface{}{
+									hiddenEnvsExtension: map[string]interface{}{
 										"envs": "prod",
 									},
 								},
@@ -422,7 +422,7 @@ func TestApplyOnPath(t *testing.T) {
 					),
 					RequestBody: &openapi3.RequestBodyRef{
 						Extensions: map[string]interface{}{
-							hiddenEnvsExtensionName: map[string]interface{}{
+							hiddenEnvsExtension: map[string]interface{}{
 								"envs": "prod",
 							},
 						},
@@ -453,7 +453,7 @@ func TestApplyOnPath(t *testing.T) {
 					),
 					RequestBody: &openapi3.RequestBodyRef{
 						Extensions: map[string]interface{}{
-							hiddenEnvsExtensionName: map[string]interface{}{
+							hiddenEnvsExtension: map[string]interface{}{
 								"envs": "prod",
 							},
 						},

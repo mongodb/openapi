@@ -21,8 +21,8 @@ import (
 )
 
 const (
-	hiddenEnvsExtensionName     = "x-xgen-hidden-env"
-	hiddenEnvsExtionsionKeyName = "envs"
+	hiddenEnvsExtension = "x-xgen-hidden-env"
+	hiddenEnvsExtKey    = "envs"
 )
 
 type HiddenEnvsFilter struct {
@@ -47,7 +47,7 @@ func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem) error {
 			continue
 		} else if operation.Extensions != nil {
 			// Remove the Hidden extension from the final OAS
-			delete(operation.Extensions, hiddenEnvsExtensionName)
+			delete(operation.Extensions, hiddenEnvsExtension)
 		}
 
 		for k, response := range operation.Responses.Map() {
@@ -56,7 +56,7 @@ func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem) error {
 				operation.Responses.Delete(k) // Remove Response if it is hidden for the target environment
 			} else if response.Extensions != nil {
 				// Remove the Hidden extension from the final OAS
-				delete(response.Extensions, hiddenEnvsExtensionName)
+				delete(response.Extensions, hiddenEnvsExtension)
 			}
 		}
 
@@ -65,7 +65,7 @@ func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem) error {
 			operation.RequestBody = nil // Remove RequestBody if it is hidden for the target environment
 		} else if operation.RequestBody != nil && operation.RequestBody.Extensions != nil {
 			// Remove the Hidden extension from the final OAS
-			delete(operation.RequestBody.Extensions, hiddenEnvsExtensionName)
+			delete(operation.RequestBody.Extensions, hiddenEnvsExtension)
 		}
 	}
 
@@ -77,12 +77,8 @@ func (f *HiddenEnvsFilter) isOperationHiddenForEnv(operation *openapi3.Operation
 		return false
 	}
 
-	for k, extension := range operation.Extensions {
-		if k != hiddenEnvsExtensionName {
-			continue
-		}
-
-		log.Printf("Found x-hidden-envs: K: %q, V: %q", k, extension)
+	if extension, ok := operation.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs in the operation: K: %q, V: %q", hiddenEnvsExtension, extension)
 		return f.isHiddenExtensionEqualToTargetEnv(extension)
 	}
 
@@ -94,22 +90,14 @@ func (f *HiddenEnvsFilter) isResponseHiddenForEnv(response *openapi3.ResponseRef
 		return false
 	}
 
-	for k, extension := range response.Extensions {
-		if k != hiddenEnvsExtensionName {
-			continue
-		}
-
-		log.Printf("Found x-hidden-envs in the response: K: %q, V: %q", k, extension)
+	if extension, ok := response.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs in the response: K: %q, V: %q", hiddenEnvsExtension, extension)
 		return f.isHiddenExtensionEqualToTargetEnv(extension)
 	}
 
 	if response.Value != nil {
-		for k, extension := range response.Value.Extensions {
-			if k != hiddenEnvsExtensionName {
-				continue
-			}
-
-			log.Printf("Found x-hidden-envs in the response: K: %q, V: %q", k, extension)
+		if extension, ok := response.Value.Extensions[hiddenEnvsExtension]; ok {
+			log.Printf("Found x-hidden-envs in the response: K: %q, V: %q", hiddenEnvsExtension, extension)
 			return f.isHiddenExtensionEqualToTargetEnv(extension)
 		}
 	}
@@ -122,12 +110,8 @@ func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.Reque
 		return false
 	}
 
-	for k, extension := range requestBody.Extensions {
-		if k != hiddenEnvsExtensionName {
-			continue
-		}
-
-		log.Printf("Found x-hidden-envs: K: %q, V: %q", k, extension)
+	if extension, ok := requestBody.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
 		return f.isHiddenExtensionEqualToTargetEnv(extension)
 	}
 
@@ -136,7 +120,7 @@ func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.Reque
 
 func (f *HiddenEnvsFilter) isHiddenExtensionEqualToTargetEnv(extension interface{}) bool {
 	if envs, ok := extension.(map[string]interface{}); ok {
-		if v, ok := envs[hiddenEnvsExtionsionKeyName].(string); ok {
+		if v, ok := envs[hiddenEnvsExtKey].(string); ok {
 			log.Printf("Found x-hidden-envs: V: %q", v)
 			return strings.Contains(v, f.metadata.targetEnv)
 		}
