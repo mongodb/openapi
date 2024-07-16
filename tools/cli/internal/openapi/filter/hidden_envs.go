@@ -41,35 +41,45 @@ func (f *HiddenEnvsFilter) Apply() error {
 
 func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem) error {
 	for k, operation := range pathItem.Operations() {
-		if isOperationHiddenForEnv := f.isOperationHiddenForEnv(operation); isOperationHiddenForEnv {
-			log.Printf("Removing operation: %q from path: %q because is hidden for target env: %q", k, pathItem.Ref, f.metadata.targetEnv)
-			pathItem.SetOperation(k, nil) // Remove Operation if it is hidden for the target environment
-			continue
-		} else if operation.Extensions != nil {
-			// Remove the Hidden extension from the final OAS
-			delete(operation.Extensions, hiddenEnvsExtension)
-		}
-
-		for k, response := range operation.Responses.Map() {
-			if isResponseHiddenForEnv := f.isResponseHiddenForEnv(response); isResponseHiddenForEnv {
-				log.Printf("Removing response: %q from operationID: %q because is hidden for target env: %q", k, operation.OperationID, f.metadata.targetEnv)
-				operation.Responses.Delete(k) // Remove Response if it is hidden for the target environment
-			} else if response.Extensions != nil {
-				// Remove the Hidden extension from the final OAS
-				delete(response.Extensions, hiddenEnvsExtension)
-			}
-		}
-
-		if isRequestBodyHiddenForEnv := f.isRequestBodyHiddenForEnv(operation.RequestBody); isRequestBodyHiddenForEnv {
-			log.Printf("Removing requestBody from operationID: %q because is hidden for target env: %q", operation.OperationID, f.metadata.targetEnv)
-			operation.RequestBody = nil // Remove RequestBody if it is hidden for the target environment
-		} else if operation.RequestBody != nil && operation.RequestBody.Extensions != nil {
-			// Remove the Hidden extension from the final OAS
-			delete(operation.RequestBody.Extensions, hiddenEnvsExtension)
-		}
+		f.removeOperationIfHiddenForEnv(k, pathItem, operation)
+		f.removeResponseIfHiddenForEnv(operation)
+		f.removeRequestBodyIfHiddenForEnv(operation)
 	}
 
 	return nil
+}
+
+func (f *HiddenEnvsFilter) removeOperationIfHiddenForEnv(pathName string, pathItem *openapi3.PathItem, operation *openapi3.Operation) {
+	if isOperationHiddenForEnv := f.isOperationHiddenForEnv(operation); isOperationHiddenForEnv {
+		log.Printf("Removing operation: %q from path: %q because is hidden for target env: %q", pathName, pathItem.Ref, f.metadata.targetEnv)
+		pathItem.SetOperation(pathName, nil) // Remove Operation if it is hidden for the target environment
+		return
+	} else if operation.Extensions != nil {
+		// Remove the Hidden extension from the final OAS
+		delete(operation.Extensions, hiddenEnvsExtension)
+	}
+}
+
+func (f *HiddenEnvsFilter) removeRequestBodyIfHiddenForEnv(operation *openapi3.Operation) {
+	if isRequestBodyHiddenForEnv := f.isRequestBodyHiddenForEnv(operation.RequestBody); isRequestBodyHiddenForEnv {
+		log.Printf("Removing requestBody from operationID: %q because is hidden for target env: %q", operation.OperationID, f.metadata.targetEnv)
+		operation.RequestBody = nil // Remove RequestBody if it is hidden for the target environment
+	} else if operation.RequestBody != nil && operation.RequestBody.Extensions != nil {
+		// Remove the Hidden extension from the final OAS
+		delete(operation.RequestBody.Extensions, hiddenEnvsExtension)
+	}
+}
+
+func (f *HiddenEnvsFilter) removeResponseIfHiddenForEnv(operation *openapi3.Operation) {
+	for k, response := range operation.Responses.Map() {
+		if isResponseHiddenForEnv := f.isResponseHiddenForEnv(response); isResponseHiddenForEnv {
+			log.Printf("Removing response: %q from operationID: %q because is hidden for target env: %q", k, operation.OperationID, f.metadata.targetEnv)
+			operation.Responses.Delete(k) // Remove Response if it is hidden for the target environment
+		} else if response.Extensions != nil {
+			// Remove the Hidden extension from the final OAS
+			delete(response.Extensions, hiddenEnvsExtension)
+		}
+	}
 }
 
 func (f *HiddenEnvsFilter) isOperationHiddenForEnv(operation *openapi3.Operation) bool {
