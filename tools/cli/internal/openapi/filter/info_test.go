@@ -27,9 +27,6 @@ func TestInfoFilter(t *testing.T) {
 	targetVersion, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
 	require.NoError(t, err)
 
-	filter := &InfoFilter{}
-	metadata := NewMetadata(targetVersion, "test")
-
 	oas := &openapi3.T{
 		Info: &openapi3.Info{
 			Description: "to manage all components in MongoDB Atlas.\n\n" +
@@ -42,6 +39,11 @@ func TestInfoFilter(t *testing.T) {
 		},
 	}
 
+	filter := &InfoFilter{
+		metadata: NewMetadata(targetVersion, "test"),
+		oas:      oas,
+	}
+
 	expectedDescription := "to manage all components in MongoDB Atlas.\n\n" +
 		"The Atlas Administration API uses HTTP Digest Authentication to authenticate requests. " +
 		"Provide a programmatic API public key and corresponding private key as the username and password " +
@@ -50,6 +52,6 @@ func TestInfoFilter(t *testing.T) {
 		"run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n" +
 		"  --digest \\\n  --header \"Accept: application/vnd.atlas.2023-01-01+json\" "
 
-	require.NoError(t, filter.Apply(oas, metadata))
+	require.NoError(t, filter.Apply())
 	assert.Contains(t, oas.Info.Description, expectedDescription)
 }

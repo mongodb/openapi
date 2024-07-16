@@ -14,13 +14,15 @@
 package filter
 
 import (
+	"errors"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
 //go:generate mockgen -destination=../openapi/filter/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi/filter Filter
 type Filter interface {
-	Apply(doc *openapi3.T, metadata *Metadata) error
+	Apply() error
 }
 
 type Metadata struct {
@@ -28,10 +30,7 @@ type Metadata struct {
 	targetEnv     string
 }
 
-var filters = map[string]Filter{
-	"path": &PathFilter{},
-	"info": &InfoFilter{},
-}
+var filters = map[string]Filter{}
 
 func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metadata {
 	return &Metadata{
@@ -40,9 +39,42 @@ func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metada
 	}
 }
 
+func validateMetadata(metadata *Metadata) error {
+	if metadata == nil {
+		return errors.New("metadata is nil")
+	}
+
+	if metadata.targetVersion == nil {
+		return errors.New("target version is nil")
+	}
+
+	return nil
+}
+
+func initFilters(oas *openapi3.T, metadata *Metadata) error {
+	if oas == nil {
+		return errors.New("openapi document is nil")
+	}
+
+	if err := validateMetadata(metadata); err != nil {
+		return err
+	}
+
+	filters["path"] = &PathFilter{
+		oas:      oas,
+		metadata: metadata,
+	}
+	filters["info"] = &InfoFilter{
+		oas:      oas,
+		metadata: metadata,
+	}
+	return nil
+}
+
 func ApplyFilters(doc *openapi3.T, metadata *Metadata) error {
+	initFilters(doc, metadata)
 	for _, filter := range filters {
-		if err := filter.Apply(doc, metadata); err != nil {
+		if err := filter.Apply(); err != nil {
 			return err
 		}
 	}

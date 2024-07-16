@@ -123,16 +123,16 @@ func TestPathFilter_moreThanOneResponse(t *testing.T) {
 }
 
 func TestPathFilter_removeEmptyPaths(t *testing.T) {
-	filter := &PathFilter{}
-
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
 
-	oas := getOasWithEmptyPaths()
-	err = filter.Apply(oas, &Metadata{targetVersion: version})
+	filter := &PathFilter{
+		oas:      getOasWithEmptyPaths(),
+		metadata: &Metadata{targetVersion: version},
+	}
 
-	require.NoError(t, err)
-	assert.Empty(t, oas.Paths.Map())
+	require.NoError(t, filter.Apply())
+	assert.Empty(t, filter.oas.Paths.Map())
 }
 
 func TestPathFilter_filterRequestBody(t *testing.T) {

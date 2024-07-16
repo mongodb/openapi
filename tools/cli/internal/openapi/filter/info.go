@@ -20,15 +20,18 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-type InfoFilter struct{}
+type InfoFilter struct {
+	oas      *openapi3.T
+	metadata *Metadata
+}
 
-func (f *InfoFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
-	if oas.Info == nil {
+func (f *InfoFilter) Apply() error {
+	if f.oas.Info == nil {
 		return nil
 	}
 
-	if oas.Info.Description != "" {
-		oas.Info.Description = replaceVersion(oas.Info.Description, metadata.targetVersion)
+	if f.oas.Info.Description != "" {
+		f.oas.Info.Description = replaceVersion(f.oas.Info.Description, f.metadata.targetVersion)
 	}
 
 	return nil

@@ -21,7 +21,10 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-type PathFilter struct{}
+type PathFilter struct {
+	oas      *openapi3.T
+	metadata *Metadata
+}
 
 // VersionConfig contains the information needed during the versioning filtering of the OAS.
 // It contains the parsed operations, the operations that need to be removed and the version
@@ -53,13 +56,13 @@ func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 	}
 }
 
-func (f *PathFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
+func (f *PathFilter) Apply() error {
 	newPaths := &openapi3.Paths{
-		Extensions: oas.Paths.Extensions,
+		Extensions: f.oas.Paths.Extensions,
 	}
 
-	for k, pathItem := range oas.Paths.Map() {
-		if err := f.apply(pathItem, metadata); err != nil {
+	for k, pathItem := range f.oas.Paths.Map() {
+		if err := f.apply(pathItem); err != nil {
 			return err
 		}
 
@@ -69,13 +72,13 @@ func (f *PathFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
 
 		newPaths.Set(k, pathItem)
 	}
-	oas.Paths = newPaths
+	f.oas.Paths = newPaths
 	return nil
 }
 
-func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
+func (f *PathFilter) apply(path *openapi3.PathItem) error {
 	config := &VersionConfig{
-		requestedVersion:      m.targetVersion,
+		requestedVersion:      f.metadata.targetVersion,
 		operationsToBeRemoved: make(map[string]*openapi3.Operation),
 		parsedOperations:      make(map[string]*OperationConfig),
 	}
@@ -85,7 +88,7 @@ func (f *PathFilter) apply(path *openapi3.PathItem, m *Metadata) error {
 		config.parsedOperations[op.OperationID] = opConfig
 
 		var err error
-		if opConfig.latestMatchedVersion, err = getLatestVersionMatch(op, m.targetVersion); err != nil {
+		if opConfig.latestMatchedVersion, err = getLatestVersionMatch(op, f.metadata.targetVersion); err != nil {
 			return err
 		}
 
