@@ -103,8 +103,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			filter := &HiddenEnvsFilter{}
-			got := filter.isOperationHiddenForEnv(tt.operation, tt.metadata)
+			got := isOperationHiddenForEnv(tt.operation, tt.metadata)
 			if got != tt.wantHidden {
 				t.Errorf("isOperationHiddenForEnv() = %v, want %v", got, tt.wantHidden)
 			}
@@ -193,8 +192,7 @@ func TestIsRequestBodyHiddenForEnv(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			filter := &HiddenEnvsFilter{}
-			got := filter.isRequestBodyHiddenForEnv(tt.requestBody, tt.metadata)
+			got := isRequestBodyHiddenForEnv(tt.requestBody, tt.metadata)
 			if got != tt.wantHidden {
 				t.Errorf("isRequestBodyHiddenForEnv() = %v, want %v", got, tt.wantHidden)
 			}
@@ -283,8 +281,7 @@ func TestIsResponseHiddenForEnv(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			filter := &HiddenEnvsFilter{}
-			got := filter.isResponseHiddenForEnv(tt.response, tt.metadata)
+			got := isResponseHiddenForEnv(tt.response, tt.metadata)
 			if got != tt.wantHidden {
 				t.Errorf("isResponseHiddenForEnv() = %v, want %v", got, tt.wantHidden)
 			}
@@ -473,8 +470,7 @@ func TestApplyOnPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			filter := &HiddenEnvsFilter{}
-			err := filter.applyOnPath(tt.input, tt.metadata)
+			err := applyOnPath(tt.input, tt.metadata)
 			require.NoError(t, err)
 			if !reflect.DeepEqual(tt.expected, tt.input) {
 				t.Errorf("expected %v, got %v", tt.expected, tt.input)

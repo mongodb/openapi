@@ -29,16 +29,16 @@ type HiddenEnvsFilter struct{}
 
 func (f *HiddenEnvsFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
 	for _, pathItem := range oas.Paths.Map() {
-		if err := f.applyOnPath(pathItem, metadata); err != nil {
+		if err := applyOnPath(pathItem, metadata); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem, metadata *Metadata) error {
+func applyOnPath(pathItem *openapi3.PathItem, metadata *Metadata) error {
 	for k, operation := range pathItem.Operations() {
-		if isOperationHiddenForEnv := f.isOperationHiddenForEnv(operation, metadata); isOperationHiddenForEnv {
+		if isOperationHiddenForEnv := isOperationHiddenForEnv(operation, metadata); isOperationHiddenForEnv {
 			log.Printf("Removing operation: '%s' from path: '%s' because is hidden for target env: %s", k, pathItem.Ref, metadata.targetEnv)
 			pathItem.SetOperation(k, nil) // Remove Operation if it is hidden for the target environment
 			continue
@@ -48,7 +48,7 @@ func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem, metadata *Me
 		}
 
 		for k, response := range operation.Responses.Map() {
-			if isResponseHiddenForEnv := f.isResponseHiddenForEnv(response, metadata); isResponseHiddenForEnv {
+			if isResponseHiddenForEnv := isResponseHiddenForEnv(response, metadata); isResponseHiddenForEnv {
 				log.Printf("Removing response: '%s' from operationID: '%s' because is hidden for target env: %s", k, operation.OperationID, metadata.targetEnv)
 				operation.Responses.Delete(k) // Remove Response if it is hidden for the target environment
 			} else if response.Extensions != nil {
@@ -57,7 +57,7 @@ func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem, metadata *Me
 			}
 		}
 
-		if isRequestBodyHiddenForEnv := f.isRequestBodyHiddenForEnv(operation.RequestBody, metadata); isRequestBodyHiddenForEnv {
+		if isRequestBodyHiddenForEnv := isRequestBodyHiddenForEnv(operation.RequestBody, metadata); isRequestBodyHiddenForEnv {
 			log.Printf("Removing requestBody from operationID: '%s' because is hidden for target env: %s", operation.OperationID, metadata.targetEnv)
 			operation.RequestBody = nil // Remove RequestBody if it is hidden for the target environment
 		} else if operation.RequestBody != nil && operation.RequestBody.Extensions != nil {
@@ -69,7 +69,7 @@ func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem, metadata *Me
 	return nil
 }
 
-func (f *HiddenEnvsFilter) isOperationHiddenForEnv(operation *openapi3.Operation, metadata *Metadata) bool {
+func isOperationHiddenForEnv(operation *openapi3.Operation, metadata *Metadata) bool {
 	if operation == nil {
 		return false
 	}
@@ -86,7 +86,7 @@ func (f *HiddenEnvsFilter) isOperationHiddenForEnv(operation *openapi3.Operation
 	return false
 }
 
-func (f *HiddenEnvsFilter) isResponseHiddenForEnv(response *openapi3.ResponseRef, metadata *Metadata) bool {
+func isResponseHiddenForEnv(response *openapi3.ResponseRef, metadata *Metadata) bool {
 	if response == nil {
 		return false
 	}
@@ -114,7 +114,7 @@ func (f *HiddenEnvsFilter) isResponseHiddenForEnv(response *openapi3.ResponseRef
 	return false
 }
 
-func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.RequestBodyRef, metadata *Metadata) bool {
+func isRequestBodyHiddenForEnv(requestBody *openapi3.RequestBodyRef, metadata *Metadata) bool {
 	if requestBody == nil {
 		return false
 	}
