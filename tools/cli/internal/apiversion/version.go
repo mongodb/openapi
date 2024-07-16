@@ -28,7 +28,7 @@ const (
 	dateFormat = "2006-01-02"
 )
 
-var contentPattern = regexp.MustCompile(`application/vnd\.atlas\.(\d{4})-(\d{2})-(\d{2})\+(.+)`)
+var ContentPattern = regexp.MustCompile(`application/vnd\.atlas\.(\d{4})-(\d{2})-(\d{2})\+(.+)`)
 
 // Option is a function that sets a value on the APIVersion.
 type Option func(v *APIVersion) error
@@ -113,7 +113,7 @@ func (v *APIVersion) String() string {
 
 // Parse extracts the version date from the content type.
 func Parse(contentType string) (string, error) {
-	matches := contentPattern.FindStringSubmatch(contentType)
+	matches := ContentPattern.FindStringSubmatch(contentType)
 	if matches == nil {
 		return "", fmt.Errorf("invalid content type: %s", contentType)
 	}

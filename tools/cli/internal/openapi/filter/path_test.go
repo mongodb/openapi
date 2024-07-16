@@ -84,22 +84,87 @@ func TestPathFilter_getLatestVersionMatch(t *testing.T) {
 }
 
 func TestPathFilter_processPathItem(t *testing.T) {
-	filter := &PathFilter{}
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
 
-	oas := oasPathAllVersions()
-	err = filter.apply(oas, &Metadata{targetVersion: version})
+	filter := &PathFilter{
+		metadata: &Metadata{targetVersion: version},
+	}
 
-	require.NoError(t, err)
-	assert.NotNil(t, oas.Get)
-	assert.Equal(t, 1, oas.Get.Responses.Len())
+	path := oasPathAllVersions()
+	require.NoError(t, filter.apply(path))
 
-	get200Responses := oas.Get.Responses.Map()["200"]
+	assert.NotNil(t, path.Get)
+	assert.Equal(t, 1, path.Get.Responses.Len())
+
+	get200Responses := path.Get.Responses.Map()["200"]
 	assert.NotNil(t, get200Responses)
 
 	get200ResponsesContent := get200Responses.Value.Content
 	assert.NotNil(t, get200ResponsesContent.Get("application/vnd.atlas.2023-11-15+json"))
+}
+
+func TestPathFilter_moreThanOneResponse(t *testing.T) {
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
+
+	filter := &PathFilter{
+		metadata: &Metadata{targetVersion: version},
+	}
+
+	path := oasPathAllVersions()
+	err = filter.apply(path)
+
+	require.NoError(t, err)
+	assert.NotNil(t, path.Get)
+	assert.Equal(t, 1, path.Get.Responses.Len())
+
+	get200Responses := path.Get.Responses.Map()["200"]
+	assert.NotNil(t, get200Responses)
+
+	get200ResponsesContent := get200Responses.Value.Content
+	assert.NotNil(t, get200ResponsesContent.Get("application/vnd.atlas.2023-01-01+json"))
+	assert.NotNil(t, get200ResponsesContent.Get("application/vnd.atlas.2023-01-01+csv"))
+}
+
+func TestPathFilter_removeEmptyPaths(t *testing.T) {
+	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
+	require.NoError(t, err)
+
+	filter := &PathFilter{
+		oas:      getOasWithEmptyPaths(),
+		metadata: &Metadata{targetVersion: version},
+	}
+
+	require.NoError(t, filter.Apply())
+	assert.Empty(t, filter.oas.Paths.Map())
+}
+
+func TestPathFilter_filterRequestBody(t *testing.T) {
+	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
+	require.NoError(t, err)
+
+	filter := &PathFilter{
+		metadata: &Metadata{targetVersion: version},
+	}
+
+	path := oasPathAllVersions()
+	require.NoError(t, filter.apply(path))
+
+	assert.NotNil(t, path.Get)
+	assert.NotNil(t, path.Get.RequestBody)
+	assert.NotNil(t, path.Get.RequestBody.Value.Content)
+	assert.NotNil(t, path.Get.RequestBody.Value.Content.Get("application/vnd.atlas.2023-11-15+json"))
+}
+
+func getOasWithEmptyPaths() *openapi3.T {
+	oas := &openapi3.T{}
+	oas.Paths = &openapi3.Paths{}
+	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams", &openapi3.PathItem{})
+	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs", &openapi3.PathItem{})
+	oas.Paths.Set("/path3", &openapi3.PathItem{})
+
+	return oas
 }
 
 func oasOperationAllVersions() *openapi3.Operation {
@@ -108,6 +173,7 @@ func oasOperationAllVersions() *openapi3.Operation {
 		Value: &openapi3.Response{
 			Content: map[string]*openapi3.MediaType{
 				"application/vnd.atlas.2023-01-01+json": {},
+				"application/vnd.atlas.2023-01-01+csv":  {},
 				"application/vnd.atlas.2023-02-01+json": {},
 				"application/vnd.atlas.2023-10-01+json": {},
 				"application/vnd.atlas.2023-11-15+json": {},
@@ -119,6 +185,17 @@ func oasOperationAllVersions() *openapi3.Operation {
 	return &openapi3.Operation{
 		OperationID: "operationId",
 		Responses:   responses,
+		RequestBody: &openapi3.RequestBodyRef{
+			Value: &openapi3.RequestBody{
+				Content: map[string]*openapi3.MediaType{
+					"application/vnd.atlas.2023-01-01+json": {},
+					"application/vnd.atlas.2023-02-01+json": {},
+					"application/vnd.atlas.2023-10-01+json": {},
+					"application/vnd.atlas.2023-11-15+json": {},
+					"application/vnd.atlas.2024-05-30+json": {},
+				},
+			},
+		},
 	}
 }
 
