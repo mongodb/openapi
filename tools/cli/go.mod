@@ -7,7 +7,7 @@ require (
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
-	github.com/tufin/oasdiff v1.10.19
+	github.com/tufin/oasdiff v1.10.20
 	go.uber.org/mock v0.4.0
 	gopkg.in/yaml.v3 v3.0.1
 )
