@@ -23,16 +23,12 @@ import (
 type InfoFilter struct{}
 
 func (f *InfoFilter) Apply(oas *openapi3.T, metadata *Metadata) error {
-	return f.apply(oas.Info, metadata)
-}
-
-func (f *InfoFilter) apply(info *openapi3.Info, metadata *Metadata) error {
-	if info == nil {
+	if oas.Info == nil {
 		return nil
 	}
 
-	if info.Description != "" {
-		info.Description = replaceVersion(info.Description, metadata.targetVersion)
+	if oas.Info.Description != "" {
+		oas.Info.Description = replaceVersion(oas.Info.Description, metadata.targetVersion)
 	}
 
 	return nil
