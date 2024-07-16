@@ -35,6 +35,28 @@ func TestSplit(t *testing.T) {
 			validateFiles(t, version)
 		}
 	})
+
+	t.Run("Split valid specs with env=prod", func(t *testing.T) {
+		base := NewValidAtlasSpecWithExtensionsPath(t)
+		cmd := exec.Command(cliPath,
+			"split",
+			"-s",
+			base,
+			"-o",
+			getOutputFolder(t)+"/output.json",
+			"--env",
+			"prod",
+		)
+
+		var o, e bytes.Buffer
+		cmd.Stdout = &o
+		cmd.Stderr = &e
+		require.NoError(t, cmd.Run(), e.String())
+
+		for _, version := range versions {
+			validateFiles(t, version)
+		}
+	})
 }
 
 func getOutputFolder(t *testing.T) string {

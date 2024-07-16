@@ -78,6 +78,13 @@ func NewValidAtlasSpecPath(t *testing.T, version string) string {
 	return cliPath
 }
 
+func NewValidAtlasSpecWithExtensionsPath(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/split/openapi-mms-extensions.json")
+	require.NoError(t, err)
+	return cliPath
+}
+
 func newOpenAPISpec(t *testing.T, path string) *openapi3.T {
 	t.Helper()
 	absPath, err := filepath.Abs(path)
