@@ -157,12 +157,43 @@ func TestPathFilter_filterRequestBody(t *testing.T) {
 	assert.NotNil(t, path.Get.RequestBody.Value.Content.Get("application/vnd.atlas.2023-11-15+json"))
 }
 
+func TestPathFilter_keepExtension(t *testing.T) {
+	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
+	require.NoError(t, err)
+
+	filter := &PathFilter{
+		oas:      getOasWithPaths(),
+		metadata: &Metadata{targetVersion: version},
+	}
+
+	require.NoError(t, filter.Apply())
+	assert.NotEmpty(t, filter.oas.Paths.Map())
+	assert.NotEmpty(t, filter.oas.Paths.Extensions)
+	assert.Contains(t, filter.oas.Paths.Extensions, "x-sunset")
+}
+
 func getOasWithEmptyPaths() *openapi3.T {
 	oas := &openapi3.T{}
 	oas.Paths = &openapi3.Paths{}
 	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams", &openapi3.PathItem{})
 	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs", &openapi3.PathItem{})
 	oas.Paths.Set("/path3", &openapi3.PathItem{})
+
+	return oas
+}
+
+func getOasWithPaths() *openapi3.T {
+	oas := &openapi3.T{}
+	oas.Paths = &openapi3.Paths{
+		Extensions: map[string]interface{}{
+			"x-sunset": "2025-01-10",
+		},
+	}
+
+	validPath := &openapi3.PathItem{}
+	validPath.SetOperation("GET", oasOperationAllVersions())
+
+	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams", validPath)
 
 	return oas
 }
