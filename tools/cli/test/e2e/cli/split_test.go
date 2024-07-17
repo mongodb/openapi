@@ -125,7 +125,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	require.Empty(t, d.PathsDiff.Deleted, message)
 	require.Empty(t, d.SecurityDiff, message)
 	require.Empty(t, d.ServersDiff, message)
-	// require.Empty(t, d.TagsDiff, message)
+	// require.Empty(t, d.TagsDiff, message) TODO: add in next PR
 	require.Empty(t, d.ExternalDocsDiff, message)
 	require.Empty(t, d.ExamplesDiff, message)
 	require.Empty(t, d.ComponentsDiff)
