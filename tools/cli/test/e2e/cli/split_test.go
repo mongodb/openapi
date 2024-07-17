@@ -17,13 +17,15 @@ var versions = []string{"2023-01-01", "2023-02-01", "2023-10-01", "2023-11-15", 
 func TestSplitVersions(t *testing.T) {
 	cliPath := NewBin(t)
 
-	t.Run("Split valid specs json dev", func(t *testing.T) {
+	t.Run("Split valid specs json env=dev", func(t *testing.T) {
 		devFolder := "dev"
 		base := NewAtlasJSONBaseSpecPath(t, devFolder)
 		cmd := exec.Command(cliPath,
 			"split",
 			"-s",
 			base,
+			"--env",
+			"dev",
 			"-o",
 			getOutputFolder(t, devFolder)+"/output.json",
 		)
@@ -38,13 +40,15 @@ func TestSplitVersions(t *testing.T) {
 		}
 	})
 
-	t.Run("Split valid specs yaml dev", func(t *testing.T) {
+	t.Run("Split valid specs yaml env=dev", func(t *testing.T) {
 		devFolder := "dev"
 		base := NewAtlasYAMLBaseSpecPath(t, devFolder)
 		cmd := exec.Command(cliPath,
 			"split",
 			"-s",
 			base,
+			"--env",
+			"dev",
 			"-o",
 			getOutputFolder(t, devFolder)+"/output.yaml",
 		)
@@ -58,11 +62,8 @@ func TestSplitVersions(t *testing.T) {
 			validateFiles(t, version, devFolder)
 		}
 	})
-}
-func TestSplitEnvironments(t *testing.T) {
-	cliPath := NewBin(t)
 
-	t.Run("Split valid specs with env=dev", func(t *testing.T) {
+	t.Run("Split valid specs (with all extensions) with env=dev", func(t *testing.T) {
 		prodFolder := "dev"
 		base := NewValidAtlasSpecWithExtensionsPath(t, prodFolder)
 		cmd := exec.Command(cliPath,
@@ -72,7 +73,7 @@ func TestSplitEnvironments(t *testing.T) {
 			"-o",
 			getOutputFolder(t, prodFolder)+"/output.json",
 			"--env",
-			"prod",
+			"dev",
 		)
 
 		var o, e bytes.Buffer
@@ -140,7 +141,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 		require.Empty(t, v.OperationsDiff.Added)
 		require.Empty(t, v.OperationsDiff.Deleted)
 		for _, op := range v.OperationsDiff.Modified {
-			require.Empty(t, op.ExtensionsDiff)
+			require.Empty(t, op.ExtensionsDiff, message)
 			require.Empty(t, op.SummaryDiff)
 			require.Empty(t, op.DescriptionDiff)
 			require.Empty(t, op.ServersDiff)
