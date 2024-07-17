@@ -36,7 +36,7 @@ func TestSplit(t *testing.T) {
 		}
 	})
 
-	t.Run("Split valid specs with env=prod", func(t *testing.T) {
+	t.Run("Split valid specs with env=dev", func(t *testing.T) {
 		base := NewValidAtlasSpecWithExtensionsPath(t)
 		cmd := exec.Command(cliPath,
 			"split",
@@ -108,7 +108,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 		require.Empty(t, v.ParametersDiff)
 		require.Empty(t, v.RefDiff)
 		require.Empty(t, v.OperationsDiff.Added)
-		// require.Empty(t, v.OperationsDiff.Deleted) TODO: add in next PR
+		require.Empty(t, v.OperationsDiff.Deleted)
 		for _, op := range v.OperationsDiff.Modified {
 			require.Empty(t, op.ExtensionsDiff)
 			require.Empty(t, op.SummaryDiff)
