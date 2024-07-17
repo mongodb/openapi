@@ -58,7 +58,6 @@ func TestSplitVersions(t *testing.T) {
 			validateFiles(t, version, devFolder)
 		}
 	})
-
 }
 func TestSplitEnvironments(t *testing.T) {
 	cliPath := NewBin(t)
@@ -101,7 +100,7 @@ func getOutputFolder(t *testing.T, subFolder string) string {
 	return finalPath
 }
 
-func validateFiles(t *testing.T, version string, folder string) {
+func validateFiles(t *testing.T, version, folder string) {
 	t.Helper()
 	fileName := "output-" + version + ".json"
 	path := getOutputFolder(t, folder) + "/" + fileName

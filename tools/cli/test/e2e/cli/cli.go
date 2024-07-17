@@ -78,7 +78,7 @@ func NewAtlasJSONBaseSpecPath(t *testing.T, folder string) string {
 	return cliPath
 }
 
-func NewValidAtlasSpecPath(t *testing.T, version string, folder string) string {
+func NewValidAtlasSpecPath(t *testing.T, version, folder string) string {
 	t.Helper()
 	cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-v2-" + version + ".json")
 	require.NoError(t, err)
