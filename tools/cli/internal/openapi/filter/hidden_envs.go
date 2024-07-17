@@ -31,8 +31,12 @@ type HiddenEnvsFilter struct {
 }
 
 func (f *HiddenEnvsFilter) Apply() error {
+	// delete hidden paths first before processing
 	for pathName, pathItem := range f.oas.Paths.Map() {
 		f.removePathIfHiddenForEnv(pathName, pathItem)
+	}
+
+	for _, pathItem := range f.oas.Paths.Map() {
 		if err := f.applyOnPath(pathItem); err != nil {
 			return err
 		}

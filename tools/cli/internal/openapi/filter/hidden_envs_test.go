@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -576,4 +577,46 @@ func TestApplyOnPath(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestApply(t *testing.T) {
+	metadata := &Metadata{
+		targetEnv: "prod",
+	}
+
+	oas := getApplyOas()
+	filter := HiddenEnvsFilter{
+		oas:      oas,
+		metadata: metadata,
+	}
+
+	err := filter.Apply()
+	require.NoError(t, err)
+	assert.NotContains(t, oas.Paths.Map(), "/api/atlas/v2/groups/{groupId}/streams")
+	assert.Contains(t, oas.Paths.Map(), "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs")
+}
+
+func getApplyOas() *openapi3.T {
+	oas := &openapi3.T{}
+	oas.Paths = &openapi3.Paths{}
+	hiddenFromProd := &openapi3.PathItem{
+		Extensions: map[string]interface{}{
+			hiddenEnvsExtension: map[string]interface{}{
+				"envs": "prod",
+			},
+		},
+	}
+
+	hiddenFromDev := &openapi3.PathItem{
+		Extensions: map[string]interface{}{
+			hiddenEnvsExtension: map[string]interface{}{
+				"envs": "dev",
+			},
+		},
+	}
+
+	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams", hiddenFromProd)
+	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs", hiddenFromDev)
+
+	return oas
 }
