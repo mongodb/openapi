@@ -62,6 +62,10 @@ func (f *PathFilter) Apply() error {
 	}
 
 	for k, pathItem := range f.oas.Paths.Map() {
+		if pathItem == nil {
+			continue
+		}
+
 		if err := f.apply(pathItem); err != nil {
 			return err
 		}

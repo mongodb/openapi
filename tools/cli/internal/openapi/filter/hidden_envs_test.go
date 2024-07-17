@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -89,7 +90,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			name: "No hidden environment extension",
 			operation: &openapi3.Operation{
 				Extensions: map[string]interface{}{
-					"other-extension": map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
 						"envs": "no",
 					},
 				},
@@ -109,6 +110,93 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			got := filter.isOperationHiddenForEnv(tt.operation)
 			if got != tt.wantHidden {
 				t.Errorf("isOperationHiddenForEnv() = %v, want %v", got, tt.wantHidden)
+			}
+		})
+	}
+}
+
+func TestIsPathHiddenForEnv(t *testing.T) {
+	tests := []struct {
+		name       string
+		pathItem   *openapi3.PathItem
+		metadata   *Metadata
+		wantHidden bool
+	}{
+		{
+			name: "Hidden environment matches target environment",
+			pathItem: &openapi3.PathItem{
+				Extensions: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
+						"envs": "prod",
+					},
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "prod",
+			},
+			wantHidden: true,
+		},
+		{
+			name: "Hidden environment matches target environment, multiple environments",
+			pathItem: &openapi3.PathItem{
+				Extensions: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
+						"envs": "prod,dev,staging,prod",
+					},
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "dev",
+			},
+			wantHidden: true,
+		},
+		{
+			name: "Hidden environment does not match target environment",
+			pathItem: &openapi3.PathItem{
+				Extensions: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
+						"envs": "staging",
+					},
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "prod",
+			},
+			wantHidden: false,
+		},
+		{
+			name: "Hidden environment does not match target environment, empty envs",
+			pathItem: &openapi3.PathItem{
+				Extensions: map[string]interface{}{
+					hiddenEnvsExtension: map[string]interface{}{
+						"envs": "",
+					},
+				},
+			},
+			metadata: &Metadata{
+				targetEnv: "prod",
+			},
+			wantHidden: false,
+		},
+		{
+			name: "No hidden environment extension",
+			pathItem: &openapi3.PathItem{
+				Extensions: map[string]interface{}{},
+			},
+			metadata: &Metadata{
+				targetEnv: "prod",
+			},
+			wantHidden: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			filter := HiddenEnvsFilter{
+				metadata: tt.metadata,
+			}
+			got := filter.isPathHiddenForEnv(tt.pathItem)
+			if got != tt.wantHidden {
+				t.Errorf("isPathHiddenForEnv() = %v, want %v", got, tt.wantHidden)
 			}
 		})
 	}
@@ -489,4 +577,46 @@ func TestApplyOnPath(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestApply(t *testing.T) {
+	metadata := &Metadata{
+		targetEnv: "prod",
+	}
+
+	oas := getApplyOas()
+	filter := HiddenEnvsFilter{
+		oas:      oas,
+		metadata: metadata,
+	}
+
+	err := filter.Apply()
+	require.NoError(t, err)
+	assert.NotContains(t, oas.Paths.Map(), "/api/atlas/v2/groups/{groupId}/streams")
+	assert.Contains(t, oas.Paths.Map(), "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs")
+}
+
+func getApplyOas() *openapi3.T {
+	oas := &openapi3.T{}
+	oas.Paths = &openapi3.Paths{}
+	hiddenFromProd := &openapi3.PathItem{
+		Extensions: map[string]interface{}{
+			hiddenEnvsExtension: map[string]interface{}{
+				"envs": "prod",
+			},
+		},
+	}
+
+	hiddenFromDev := &openapi3.PathItem{
+		Extensions: map[string]interface{}{
+			hiddenEnvsExtension: map[string]interface{}{
+				"envs": "dev",
+			},
+		},
+	}
+
+	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams", hiddenFromProd)
+	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs", hiddenFromDev)
+
+	return oas
 }
