@@ -79,16 +79,6 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 		metadata: metadata,
 	}
 
-	filters["operations"] = &OperationsFilter{
-		oas: oas,
-		// metadata: metadata,
-	}
-
-	filters["path"] = &PathFilter{
-		oas:      oas,
-		metadata: metadata,
-	}
-
 	filters["tags"] = &TagsFilter{
 		oas: oas,
 	}
