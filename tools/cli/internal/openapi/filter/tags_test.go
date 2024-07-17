@@ -39,7 +39,6 @@ func TestTagsApply_Unused(t *testing.T) {
 }
 
 func TestTagsApply_Used(t *testing.T) {
-
 	path := &openapi3.PathItem{
 		Get: &openapi3.Operation{
 			Tags: []string{"tag1"},
