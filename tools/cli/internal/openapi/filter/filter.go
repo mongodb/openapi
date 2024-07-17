@@ -75,6 +75,10 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 		metadata: metadata,
 	}
 
+	filters["tags"] = &TagsFilter{
+		oas: oas,
+	}
+
 	return nil
 }
 
