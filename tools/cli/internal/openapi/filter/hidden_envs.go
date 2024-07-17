@@ -31,7 +31,8 @@ type HiddenEnvsFilter struct {
 }
 
 func (f *HiddenEnvsFilter) Apply() error {
-	for _, pathItem := range f.oas.Paths.Map() {
+	for pathName, pathItem := range f.oas.Paths.Map() {
+		f.removePathIfHiddenForEnv(pathName, pathItem)
 		if err := f.applyOnPath(pathItem); err != nil {
 			return err
 		}
@@ -47,6 +48,16 @@ func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem) error {
 	}
 
 	return nil
+}
+
+func (f *HiddenEnvsFilter) removePathIfHiddenForEnv(pathName string, pathItem *openapi3.PathItem) {
+	if isPathHiddenForEnv := f.isPathHiddenForEnv(pathItem); isPathHiddenForEnv {
+		log.Printf("Removing path: %q because is hidden for target env: %q", pathItem.Ref, f.metadata.targetEnv)
+		f.oas.Paths.Delete(pathName) // Remove Path if it is hidden for the target environment
+	} else if pathItem.Extensions != nil {
+		// Remove the Hidden extension from the final OAS
+		delete(pathItem.Extensions, hiddenEnvsExtension)
+	}
 }
 
 func (f *HiddenEnvsFilter) removeOperationIfHiddenForEnv(pathName string, pathItem *openapi3.PathItem, operation *openapi3.Operation) {
@@ -125,6 +136,14 @@ func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.Reque
 		return f.isHiddenExtensionEqualToTargetEnv(extension)
 	}
 
+	return false
+}
+
+func (f *HiddenEnvsFilter) isPathHiddenForEnv(pathItem *openapi3.PathItem) bool {
+	if extension, ok := pathItem.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
+		return f.isHiddenExtensionEqualToTargetEnv(extension)
+	}
 	return false
 }
 
