@@ -60,6 +60,10 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 		return err
 	}
 
+	filters["operations"] = &OperationsFilter{
+		oas: oas,
+	}
+
 	filters["path"] = &PathFilter{
 		oas:      oas,
 		metadata: metadata,
