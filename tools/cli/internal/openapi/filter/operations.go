@@ -48,7 +48,6 @@ func moveSunsetExtensionToOperation(operation *openapi3.Operation) {
 		}
 
 		for _, mediaType := range response.Value.Content {
-
 			if mediaType == nil || mediaType.Extensions == nil {
 				continue
 			}
