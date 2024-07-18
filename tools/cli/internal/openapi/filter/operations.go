@@ -31,7 +31,35 @@ func (f *OperationsFilter) Apply() error {
 			if operation.Extensions != nil {
 				delete(operation.Extensions, "x-xgen-owner-team")
 			}
+			moveSunsetExtensionToOperation(operation)
 		}
 	}
 	return nil
+}
+
+func moveSunsetExtensionToOperation(operation *openapi3.Operation) {
+	if operation.Responses == nil {
+		return
+	}
+	// search for sunset in content responses
+	for _, response := range operation.Responses.Map() {
+		if response == nil || response.Value == nil || response.Value.Content == nil {
+			continue
+		}
+
+		for _, mediaType := range response.Value.Content {
+			if mediaType == nil || mediaType.Extensions == nil {
+				continue
+			}
+
+			if sunset, ok := mediaType.Extensions["x-sunset"]; ok {
+				if operation.Extensions == nil {
+					operation.Extensions = make(map[string]interface{})
+				}
+				operation.Extensions["x-sunset"] = sunset
+				delete(mediaType.Extensions, "x-sunset")
+				operation.Deprecated = true
+			}
+		}
+	}
 }
