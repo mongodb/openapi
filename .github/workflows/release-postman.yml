@@ -1,0 +1,21 @@
+name: Postman Release
+on:
+  # Enabled by CLOUDP-262512
+  #  schedule:
+  #    - cron: '0 0 10 ? * *'
+  workflow_dispatch:
+
+jobs:
+  release-postman:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build collection
+        working-directory: ./tools/postman
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
+        run: |
+          make build_and_upload
