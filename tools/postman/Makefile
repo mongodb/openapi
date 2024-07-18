@@ -27,4 +27,4 @@ build_and_upload: build upload_collection
 
 .PHONY: clean
 clean:
-	rm openapi/*; rm tmp/*
+	rm ./openapi/*; rm ./tmp/*
