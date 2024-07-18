@@ -10,8 +10,9 @@ set -o pipefail
 #   COLLECTION_TRANSFORMED_FILE_NAME - name of the transformed collection file
 #   OPENAPI_FOLDER - folder where openapi file is saved
 #   TMP_FOLDER - folder for temporary files during transformations
-#   USE_ENVIRONMENT_AUTH - Bool for if auth variables are stored at the environment or collection level
+#   USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
 #   VERSIONS_FILE - name for the openapi versions file
+#   BASE_URL - the default base url the Postman Collection will use
 #########################################################
 
 COLLECTION_FILE_NAME=${COLLECTION_FILE_NAME:-"collection.json"}
@@ -38,8 +39,8 @@ jq 'del(.collection.info._postman_id)' intermediateCollection2.json > intermedia
 echo "Updating name with version"
 jq '.collection.info.name = "MongoDB Atlas Administration API '"${current_api_revision}"'"' intermediateCollection1.json >  intermediateCollection2.json
 
-echo "DEV: Updating baseurl to cloud-dev.mongodb.com"
-jq '.collection.variable.[0].value = "cloud-dev.mongodb.com"' intermediateCollection2.json > intermediateCollection1.json
+echo "Updating baseUrl"
+jq '.collection.variable.[0].value = "'"${BASE_URL}"'"' intermediateCollection2.json > intermediateCollection1.json
 
 if [ "$USE_ENVIRONMENT_AUTH" = "false" ]; then
   echo "Adding auth variables"
