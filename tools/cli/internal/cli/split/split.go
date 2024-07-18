@@ -46,7 +46,6 @@ func (o *Opts) Run() error {
 	}
 
 	oas := specInfo.Spec
-
 	versions := openapi.ExtractVersions(oas)
 	for _, version := range versions {
 		// make a copy of the oas to avoid modifying the original document when applying filters
