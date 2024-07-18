@@ -4,11 +4,11 @@ set -o nounset
 set -o pipefail
 
 #########################################################
-# Fetch openapi from remote file
+# Convert from OpenAPI to PostmanV2 Collection
 # Environment variables:
-#   OPENAPI_FILE_NAME - openapi file name to use
-#   OPENAPI_FOLDER - folder for saving openapi file
-#   COLLECTION_FILE_NAME - postman collection file name to save to
+#   OPENAPI_FILE_NAME - name of the openapi file
+#   OPENAPI_FOLDER - folder where openapi file is saved
+#   COLLECTION_FILE_NAME - name of the postman collection file
 #   TMP_FOLDER - folder for temporary files during transformations
 #########################################################
 
