@@ -28,12 +28,8 @@ func ExtractVersions(oas *openapi3.T) []string {
 		if pathItem == nil {
 			continue
 		}
-		operations := []*openapi3.Operation{
-			pathItem.Get, pathItem.Put, pathItem.Post,
-			pathItem.Delete, pathItem.Options, pathItem.Head,
-			pathItem.Patch, pathItem.Trace,
-		}
-		for _, op := range operations {
+
+		for _, op := range pathItem.Operations() {
 			if op == nil {
 				continue
 			}

@@ -17,6 +17,8 @@ package filter
 import (
 	"testing"
 
+	"fmt"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/stretchr/testify/assert"
@@ -170,6 +172,171 @@ func TestPathFilter_keepExtension(t *testing.T) {
 	assert.NotEmpty(t, filter.oas.Paths.Map())
 	assert.NotEmpty(t, filter.oas.Paths.Extensions)
 	assert.Contains(t, filter.oas.Paths.Extensions, "x-sunset")
+}
+
+func TestPathFilter_removeResponses(t *testing.T) {
+	oas := &openapi3.T{}
+	oas.Paths = &openapi3.Paths{}
+
+	operation := &openapi3.Operation{
+		Responses: &openapi3.Responses{},
+	}
+
+	operation.Responses.Set("200", &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.2023-01-01+json": {
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+						},
+					},
+				},
+			},
+		},
+	})
+
+	operation.Responses.Set("201", &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.2024-05-30+json": {
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+						},
+					},
+				},
+			},
+		},
+	})
+
+	oas.Paths.Set("/path", &openapi3.PathItem{Get: operation})
+
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
+
+	filter := &PathFilter{
+		oas:      oas,
+		metadata: &Metadata{targetVersion: version},
+	}
+
+	require.NoError(t, filter.Apply())
+	assert.NotNil(t, oas.Paths.Find("/path").Get)
+	assert.NotNil(t, oas.Paths.Find("/path").Get.Responses)
+	assert.NotNil(t, oas.Paths.Find("/path").Get.Responses.Map()["200"])
+	assert.Nil(t, oas.Paths.Find("/path").Get.Responses.Map()["201"])
+	assert.Equal(t, 1, oas.Paths.Find("/path").Get.Responses.Len())
+}
+
+func TestPathFilter_removeSunset(t *testing.T) {
+	tests := []struct {
+		name       string
+		oas        *openapi3.T
+		version    string
+		sunsetDate string
+	}{
+		{
+			name:       "sunset 2023-01-01",
+			oas:        getOasSunset(),
+			version:    "2023-01-01",
+			sunsetDate: "2024-05-30",
+		},
+		{
+			name:       "sunset 2024-05-30",
+			oas:        getOasSunset(),
+			version:    "2024-05-30",
+			sunsetDate: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+			require.NoError(t, err)
+			oas := tt.oas
+
+			filter := &PathFilter{
+				oas:      oas,
+				metadata: &Metadata{targetVersion: version, targetEnv: "dev"},
+			}
+
+			contentKey := fmt.Sprintf("application/vnd.atlas.%s+json", tt.version)
+			require.NoError(t, filter.Apply())
+			assert.NotNil(t, oas.Paths.Find("/path").Get)
+			assert.NotEmpty(t, oas.Paths.Find("/path").Get.Responses)
+			assert.NotNil(t, oas.Paths.Find("/path").Get.Responses.Map()["200"])
+
+			if tt.sunsetDate == "" {
+				assert.Nil(t, oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey))
+				return
+			}
+
+			assert.NotNil(t, oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey))
+			contentExtensions := oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey).Extensions
+			assert.Contains(t, contentExtensions, "x-sunset")
+			assert.Equal(t, tt.sunsetDate, contentExtensions["x-sunset"])
+		})
+	}
+}
+
+func getOasSunset() *openapi3.T {
+	oas := &openapi3.T{}
+	oas.Paths = &openapi3.Paths{}
+
+	operation := &openapi3.Operation{
+		Responses: &openapi3.Responses{},
+	}
+
+	operation.Responses.Set("200", &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.2023-01-01+json": {
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+						},
+					},
+					Extensions: map[string]interface{}{
+						"x-sunset": "2024-05-30",
+					},
+				},
+				"application/vnd.atlas.2024-02-30+json": {
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+						},
+					},
+					Extensions: map[string]interface{}{
+						"x-sunset": "2024-04-10",
+					},
+				},
+				"application/vnd.atlas.2024-05-30+json": {
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+						},
+					},
+					Extensions: map[string]interface{}{
+						"x-sunset": "2025-01-10",
+					},
+				},
+				"application/vnd.atlas.2025-01-01+json": {
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+						},
+					},
+					Extensions: map[string]interface{}{
+						hiddenEnvsExtension: map[string]interface{}{
+							"envs": "dev,qa,prod,stage",
+						},
+					},
+				},
+			},
+		},
+	})
+
+	oas.Paths.Set("/path", &openapi3.PathItem{Get: operation})
+	return oas
 }
 
 func getOasWithEmptyPaths() *openapi3.T {
