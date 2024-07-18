@@ -30,15 +30,16 @@ current_collection_name="MongoDB Atlas Administration API ${current_api_revision
 
 echo "Fetching list of current collections"
 curl --show-error --fail --silent -o "${COLLECTIONS_LIST_FILE}" \
---location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
---header "X-API-Key: ${POSTMAN_API_KEY}"
+     --location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
+     --header "X-API-Key: ${POSTMAN_API_KEY}"
 
 collection_exists=$(jq '.collections | any(.name=="'"${current_collection_name}"'")' "${COLLECTIONS_LIST_FILE}")
 
 if [  "$collection_exists" = "false" ]; then
   # Create new collection
   echo "Creating new remote collection ${current_collection_name}"
-  curl --show-error --fail --retry 5 --retry-connrefused --silent --location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
+  curl --show-error --fail --retry 5 --retry-connrefused --silent \
+       --location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
        --header "Content-Type: application/json" \
        --header "X-API-Key: ${POSTMAN_API_KEY}" \
        --data "@${collection_transformed_path}"
