@@ -134,5 +134,32 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	require.Empty(t, d.ExternalDocsDiff, message)
 	require.Empty(t, d.ExamplesDiff, message)
 	require.Empty(t, d.ComponentsDiff)
+<<<<<<< HEAD
 	require.Empty(t, d, message)
+=======
+
+	for _, v := range d.PathsDiff.Modified {
+		require.Empty(t, v.ExtensionsDiff)
+		require.Empty(t, v.SummaryDiff)
+		require.Empty(t, v.DescriptionDiff)
+		require.Empty(t, v.ServersDiff)
+		require.Empty(t, v.ParametersDiff)
+		require.Empty(t, v.RefDiff)
+		require.Empty(t, v.OperationsDiff.Added)
+		require.Empty(t, v.OperationsDiff.Deleted)
+		for _, op := range v.OperationsDiff.Modified {
+			require.Empty(t, op.ExtensionsDiff)
+			require.Empty(t, op.SummaryDiff)
+			require.Empty(t, op.DescriptionDiff)
+			require.Empty(t, op.ServersDiff)
+			require.Empty(t, op.ParametersDiff, message)
+			require.Empty(t, op.RequestBodyDiff)
+			if op.ResponsesDiff != nil {
+				require.Empty(t, op.ResponsesDiff.Deleted)
+				require.Empty(t, op.ResponsesDiff.Modified)
+				// require.Empty(t, op.ResponsesDiff.Added, message)  TODO: add in next PR
+			}
+		}
+	}
+>>>>>>> main
 }
