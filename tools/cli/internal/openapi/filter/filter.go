@@ -64,7 +64,7 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 		oas: oas,
 	}
 
-	filters["path"] = &PathFilter{
+	filters["path"] = &VersioningFilter{
 		oas:      oas,
 		metadata: metadata,
 	}

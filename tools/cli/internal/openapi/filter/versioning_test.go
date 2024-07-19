@@ -87,7 +87,7 @@ func TestPathFilter_processPathItem(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
 
-	filter := &PathFilter{
+	filter := &VersioningFilter{
 		metadata: &Metadata{targetVersion: version},
 	}
 
@@ -108,7 +108,7 @@ func TestPathFilter_moreThanOneResponse(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
 	require.NoError(t, err)
 
-	filter := &PathFilter{
+	filter := &VersioningFilter{
 		metadata: &Metadata{targetVersion: version},
 	}
 
@@ -131,7 +131,7 @@ func TestPathFilter_removeEmptyPaths(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
 
-	filter := &PathFilter{
+	filter := &VersioningFilter{
 		oas:      getOasWithEmptyPaths(),
 		metadata: &Metadata{targetVersion: version},
 	}
@@ -144,7 +144,7 @@ func TestPathFilter_filterRequestBody(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
 
-	filter := &PathFilter{
+	filter := &VersioningFilter{
 		metadata: &Metadata{targetVersion: version},
 	}
 
@@ -161,7 +161,7 @@ func TestPathFilter_keepExtension(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
 
-	filter := &PathFilter{
+	filter := &VersioningFilter{
 		oas:      getOasWithPaths(),
 		metadata: &Metadata{targetVersion: version},
 	}
@@ -223,7 +223,7 @@ func TestPathFilter_removeResponses(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
 	require.NoError(t, err)
 
-	filter := &PathFilter{
+	filter := &VersioningFilter{
 		oas:      oas,
 		metadata: &Metadata{targetVersion: version},
 	}

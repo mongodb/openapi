@@ -21,7 +21,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-type PathFilter struct {
+type VersioningFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
 }
@@ -52,7 +52,7 @@ func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 	}
 }
 
-func (f *PathFilter) Apply() error {
+func (f *VersioningFilter) Apply() error {
 	newPaths := &openapi3.Paths{
 		Extensions: f.oas.Paths.Extensions,
 	}
@@ -76,7 +76,7 @@ func (f *PathFilter) Apply() error {
 	return nil
 }
 
-func (f *PathFilter) apply(path *openapi3.PathItem) error {
+func (f *VersioningFilter) apply(path *openapi3.PathItem) error {
 	config := &VersionConfig{
 		requestedVersion:      f.metadata.targetVersion,
 		operationsToBeRemoved: make(map[string]*openapi3.Operation),
