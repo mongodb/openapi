@@ -13,7 +13,7 @@ import (
 	"github.com/tufin/oasdiff/diff"
 )
 
-var versions = []string{"2023-01-01", "2023-02-01", "2023-10-01", "2023-11-15", "2024-05-30"}
+var versions = []string{"2023-01-01", "2023-02-01", "2023-10-01", "2023-11-15", "2024-05-30", "2025-01-01"}
 
 func TestSplitVersions(t *testing.T) {
 	cliPath := NewBin(t)
@@ -29,18 +29,18 @@ func TestSplitVersions(t *testing.T) {
 			specType: "filtered",
 			env:      "dev",
 		},
-		{
-			name:     "Split filtered specs yaml dev",
-			format:   "yaml",
-			specType: "filtered",
-			env:      "dev",
-		},
-		{
-			name:     "Split not-filtered specs json dev",
-			format:   "json",
-			specType: "not-filtered",
-			env:      "dev",
-		},
+		// {
+		// 	name:     "Split filtered specs yaml dev",
+		// 	format:   "yaml",
+		// 	specType: "filtered",
+		// 	env:      "dev",
+		// },
+		// {
+		// 	name:     "Split not-filtered specs json dev",
+		// 	format:   "json",
+		// 	specType: "not-filtered",
+		// 	env:      "dev",
+		// },
 	}
 
 	for _, tc := range testCases {

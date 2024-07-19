@@ -223,11 +223,7 @@ func TestPathFilter_removeResponses(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
 	require.NoError(t, err)
 
-<<<<<<< HEAD:tools/cli/internal/openapi/filter/versioning_test.go
 	filter := &VersioningFilter{
-=======
-	filter := &PathFilter{
->>>>>>> improve-e2e:tools/cli/internal/openapi/filter/path_test.go
 		oas:      oas,
 		metadata: &Metadata{targetVersion: version},
 	}
