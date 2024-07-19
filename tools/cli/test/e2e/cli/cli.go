@@ -64,30 +64,9 @@ func NewDuplicatedTagAuthNSpecPath(t *testing.T) string {
 	return cliPath
 }
 
-func NewAtlasYAMLBaseSpecPath(t *testing.T, folder string) string {
-	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-v2.yaml")
-	require.NoError(t, err)
-	return cliPath
-}
-
-func NewAtlasJSONBaseSpecPath(t *testing.T, folder string) string {
-	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-v2.json")
-	require.NoError(t, err)
-	return cliPath
-}
-
 func NewValidAtlasSpecPath(t *testing.T, version, folder string) string {
 	t.Helper()
 	cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-v2-" + version + ".json")
-	require.NoError(t, err)
-	return cliPath
-}
-
-func NewValidAtlasSpecWithExtensionsPath(t *testing.T, folder string) string {
-	t.Helper()
-	cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-mms-extensions.json")
 	require.NoError(t, err)
 	return cliPath
 }
