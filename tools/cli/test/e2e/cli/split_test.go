@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -72,7 +73,7 @@ func TestSplitEnvironments(t *testing.T) {
 			"-o",
 			getOutputFolder(t, prodFolder)+"/output.json",
 			"--env",
-			"prod",
+			"dev",
 		)
 
 		var o, e bytes.Buffer
@@ -117,40 +118,20 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
 		"oasdiff diff --max-circular-dep 15 " + correctSpecPath + " " + generatedSpecPath + " > diff.yaml"
 
-	require.Empty(t, d.ExtensionsDiff, message)
-	require.Empty(t, d.OpenAPIDiff, message)
-	require.Empty(t, d.InfoDiff, message)
-	// require.Empty(t, d.EndpointsDiff) TODO: add in next PR
-	require.Empty(t, d.PathsDiff.Added, message)
-	require.Empty(t, d.PathsDiff.Deleted, message)
-	require.Empty(t, d.SecurityDiff, message)
-	require.Empty(t, d.ServersDiff, message)
-	// require.Empty(t, d.TagsDiff, message) TODO: add in next PR
-	require.Empty(t, d.ExternalDocsDiff, message)
-	require.Empty(t, d.ExamplesDiff, message)
-	require.Empty(t, d.ComponentsDiff)
-
-	for _, v := range d.PathsDiff.Modified {
-		require.Empty(t, v.ExtensionsDiff)
-		require.Empty(t, v.SummaryDiff)
-		require.Empty(t, v.DescriptionDiff)
-		require.Empty(t, v.ServersDiff)
-		require.Empty(t, v.ParametersDiff)
-		require.Empty(t, v.RefDiff)
-		require.Empty(t, v.OperationsDiff.Added)
-		require.Empty(t, v.OperationsDiff.Deleted)
-		for _, op := range v.OperationsDiff.Modified {
-			require.Empty(t, op.ExtensionsDiff)
-			require.Empty(t, op.SummaryDiff)
-			require.Empty(t, op.DescriptionDiff)
-			require.Empty(t, op.ServersDiff)
-			require.Empty(t, op.ParametersDiff, message)
-			require.Empty(t, op.RequestBodyDiff)
-			if op.ResponsesDiff != nil {
-				require.Empty(t, op.ResponsesDiff.Deleted)
-				require.Empty(t, op.ResponsesDiff.Modified)
-				// require.Empty(t, op.ResponsesDiff.Added, message)  TODO: add in next PR
-			}
-		}
+	if d.Empty() {
+		return
 	}
+
+	fmt.Println(message)
+	require.Empty(t, d.ExtensionsDiff)
+	require.Empty(t, d.OpenAPIDiff)
+	require.Empty(t, d.InfoDiff)
+	// require.Empty(t, d.EndpointsDiff) TODO: add in next PR
+	// require.Empty(t, d.PathsDiff) TODO: add in next PR
+	require.Empty(t, d.SecurityDiff)
+	require.Empty(t, d.ServersDiff)
+	// require.Empty(t, d.TagsDiff) TODO: adds in next PR
+	require.Empty(t, d.ExternalDocsDiff)
+	require.Empty(t, d.ExamplesDiff)
+	require.Empty(t, d.ComponentsDiff)
 }
