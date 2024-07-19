@@ -60,6 +60,11 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 		return err
 	}
 
+	filters["sunset"] = &SunsetFilter{
+		oas:      oas,
+		metadata: metadata,
+	}
+
 	filters["operations"] = &OperationsFilter{
 		oas: oas,
 	}

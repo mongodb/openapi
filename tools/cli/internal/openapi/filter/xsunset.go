@@ -14,6 +14,8 @@
 package filter
 
 import (
+	"log"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
@@ -24,11 +26,7 @@ type SunsetFilter struct {
 }
 
 func (f *SunsetFilter) Apply() error {
-	newPaths := &openapi3.Paths{
-		Extensions: f.oas.Paths.Extensions,
-	}
-
-	for k, pathItem := range f.oas.Paths.Map() {
+	for _, pathItem := range f.oas.Paths.Map() {
 		if pathItem == nil {
 			continue
 		}
@@ -39,7 +37,7 @@ func (f *SunsetFilter) Apply() error {
 			}
 
 			for _, response := range operation.Responses.Map() {
-				if response.Value.Content == nil {
+				if response.Value == nil || response.Value.Content == nil {
 					continue
 				}
 
@@ -82,4 +80,26 @@ func storeDeprecatedVersions(opConfig *OperationConfig, response *openapi3.Respo
 	}
 
 	opConfig.deprecatedVersions = append(opConfig.deprecatedVersions, deprecatedVersions...)
+}
+
+func getVersionsInContentType(content map[string]*openapi3.MediaType) ([]*apiversion.APIVersion, map[string]*openapi3.MediaType) {
+	contentsInVersion := make(map[string]*openapi3.MediaType)
+	versionsInContentType := make(map[string]*apiversion.APIVersion)
+
+	for contentType := range content {
+		v, err := apiversion.New(apiversion.WithContent(contentType))
+		if err != nil {
+			log.Printf("Ignoring invalid content type: %s", contentType)
+			continue
+		}
+
+		versionsInContentType[v.String()] = v
+		contentsInVersion[v.String()] = content[contentType]
+	}
+
+	versions := make([]*apiversion.APIVersion, 0)
+	for _, v := range versionsInContentType {
+		versions = append(versions, v)
+	}
+	return versions, contentsInVersion
 }
