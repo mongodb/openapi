@@ -16,74 +16,67 @@ var versions = []string{"2023-01-01", "2023-02-01", "2023-10-01", "2023-11-15", 
 
 func TestSplitVersions(t *testing.T) {
 	cliPath := NewBin(t)
+	testCases := []struct {
+		name     string
+		format   string
+		specType string
+		env      string
+	}{
+		{
+			name:     "Split filtered specs json dev",
+			format:   "json",
+			specType: "filtered",
+			env:      "dev",
+		},
+		{
+			name:     "Split filtered specs yaml dev",
+			format:   "yaml",
+			specType: "filtered",
+			env:      "dev",
+		},
+		{
+			name:     "Split not-filtered specs json dev",
+			format:   "json",
+			specType: "not-filtered",
+			env:      "dev",
+		},
+	}
 
-	t.Run("Split valid specs json dev", func(t *testing.T) {
-		devFolder := "dev"
-		base := NewAtlasJSONBaseSpecPath(t, devFolder)
-		cmd := exec.Command(cliPath,
-			"split",
-			"-s",
-			base,
-			"-o",
-			getOutputFolder(t, devFolder)+"/output.json",
-		)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			folder := tc.env
+			base := getInputFolder(t, tc.specType, tc.format, folder)
+			cmd := exec.Command(cliPath,
+				"split",
+				"-s",
+				base,
+				"-o",
+				getOutputFolder(t, folder)+"/output."+tc.format,
+			)
 
-		var o, e bytes.Buffer
-		cmd.Stdout = &o
-		cmd.Stderr = &e
-		require.NoError(t, cmd.Run(), e.String())
+			var o, e bytes.Buffer
+			cmd.Stdout = &o
+			cmd.Stderr = &e
+			require.NoError(t, cmd.Run(), e.String())
 
-		for _, version := range versions {
-			validateFiles(t, version, devFolder)
-		}
-	})
-
-	t.Run("Split valid specs yaml dev", func(t *testing.T) {
-		devFolder := "dev"
-		base := NewAtlasYAMLBaseSpecPath(t, devFolder)
-		cmd := exec.Command(cliPath,
-			"split",
-			"-s",
-			base,
-			"-o",
-			getOutputFolder(t, devFolder)+"/output.yaml",
-		)
-
-		var o, e bytes.Buffer
-		cmd.Stdout = &o
-		cmd.Stderr = &e
-		require.NoError(t, cmd.Run(), e.String())
-
-		for _, version := range versions {
-			validateFiles(t, version, devFolder)
-		}
-	})
+			for _, version := range versions {
+				validateFiles(t, version, folder)
+			}
+		})
+	}
 }
-func TestSplitEnvironments(t *testing.T) {
-	cliPath := NewBin(t)
 
-	t.Run("Split valid specs with env=dev", func(t *testing.T) {
-		prodFolder := "dev"
-		base := NewValidAtlasSpecWithExtensionsPath(t, prodFolder)
-		cmd := exec.Command(cliPath,
-			"split",
-			"-s",
-			base,
-			"-o",
-			getOutputFolder(t, prodFolder)+"/output.json",
-			"--env",
-			"prod",
-		)
+func getInputFolder(t *testing.T, specType, format, folder string) string {
+	t.Helper()
+	if specType == "not-filtered" {
+		cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-mms-extensions.json")
+		require.NoError(t, err)
+		return cliPath
+	}
 
-		var o, e bytes.Buffer
-		cmd.Stdout = &o
-		cmd.Stderr = &e
-		require.NoError(t, cmd.Run(), e.String())
-
-		for _, version := range versions {
-			validateFiles(t, version, prodFolder)
-		}
-	})
+	cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-v2." + format)
+	require.NoError(t, err)
+	return cliPath
 }
 
 func getOutputFolder(t *testing.T, subFolder string) string {
@@ -115,7 +108,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	require.NoError(t, err)
 
 	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
-		"oasdiff diff --max-circular-dep 15 " + correctSpecPath + " " + generatedSpecPath + " > diff.yaml"
+		"oasdiff diff --max-circular-dep 15 " + correctSpecPath + " " + generatedSpecPath + " > diff.yaml\n"
 
 	require.Empty(t, d.ExtensionsDiff, message)
 	require.Empty(t, d.OpenAPIDiff, message)
