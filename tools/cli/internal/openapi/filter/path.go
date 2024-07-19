@@ -40,9 +40,7 @@ type OperationConfig struct {
 	operation            *openapi3.Operation
 	latestMatchedVersion *apiversion.APIVersion
 	deprecatedVersions   []*apiversion.APIVersion
-	removeResponseCodes  []string
 	hasMinValidResponse  bool
-	shouldApply          bool
 }
 
 func newOperationConfig(op *openapi3.Operation) *OperationConfig {
@@ -50,9 +48,7 @@ func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 		operation:            op,
 		latestMatchedVersion: nil,
 		deprecatedVersions:   make([]*apiversion.APIVersion, 0),
-		removeResponseCodes:  make([]string, 0),
 		hasMinValidResponse:  false,
-		shouldApply:          false,
 	}
 }
 
@@ -132,9 +128,7 @@ func updateResponses(op *openapi3.Operation, config *VersionConfig, opConfig *Op
 
 		if filteredResponse == nil && isVersionedContent(response.Value.Content) {
 			log.Printf("Marking response for removal: %s", responseCode)
-			opConfig.removeResponseCodes = append(opConfig.removeResponseCodes, responseCode)
-			response.Value = nil
-			response.Ref = ""
+			op.Responses.Delete(responseCode)
 		}
 		response.Value.Content = filteredResponse
 	}
@@ -225,12 +219,6 @@ func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rCon
 		opConfig.deprecatedVersions = append(opConfig.deprecatedVersions, deprecatedVersionsPerContent...)
 	}
 
-	// remove entirely the response code (e.g. "200") if the filtered content is empty
-	if filteredContent == nil && isVersionedContent(response.Value.Content) {
-		opConfig.removeResponseCodes = append(opConfig.removeResponseCodes, response.Ref)
-	}
-
-	response.Value.Content = filteredContent
 	return filteredContent, nil
 }
 
