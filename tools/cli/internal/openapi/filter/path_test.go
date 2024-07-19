@@ -182,6 +182,60 @@ func getOasWithEmptyPaths() *openapi3.T {
 	return oas
 }
 
+func TestPathFilter_removeResponses(t *testing.T) {
+	oas := &openapi3.T{}
+	oas.Paths = &openapi3.Paths{}
+
+	operation := &openapi3.Operation{
+		Responses: &openapi3.Responses{},
+	}
+
+	operation.Responses.Set("200", &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.2023-01-01+json": {
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+						},
+					},
+				},
+			},
+		},
+	})
+
+	operation.Responses.Set("201", &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.2024-05-30+json": {
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+						},
+					},
+				},
+			},
+		},
+	})
+
+	oas.Paths.Set("/path", &openapi3.PathItem{Get: operation})
+
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
+
+	filter := &PathFilter{
+		oas:      oas,
+		metadata: &Metadata{targetVersion: version},
+	}
+
+	require.NoError(t, filter.Apply())
+	assert.NotNil(t, oas.Paths.Find("/path").Get)
+	assert.NotNil(t, oas.Paths.Find("/path").Get.Responses)
+	assert.NotNil(t, oas.Paths.Find("/path").Get.Responses.Map()["200"])
+	assert.Nil(t, oas.Paths.Find("/path").Get.Responses.Map()["201"])
+	assert.Equal(t, 1, oas.Paths.Find("/path").Get.Responses.Len())
+}
+
 func getOasWithPaths() *openapi3.T {
 	oas := &openapi3.T{}
 	oas.Paths = &openapi3.Paths{
