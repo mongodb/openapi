@@ -73,7 +73,7 @@ func TestSplitEnvironments(t *testing.T) {
 			"-o",
 			getOutputFolder(t, prodFolder)+"/output.json",
 			"--env",
-			"prod",
+			"dev",
 		)
 
 		var o, e bytes.Buffer
