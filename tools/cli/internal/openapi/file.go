@@ -14,11 +14,12 @@
 package openapi
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"strings"
 
-	openapi3 "github.com/getkin/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 )
@@ -31,23 +32,9 @@ const (
 )
 
 func SaveSpec(path string, oas *Spec, format string, fs afero.Fs) error {
-	data, err := json.MarshalIndent(*oas, "", "  ")
+	data, err := NewArrayBytesFromOAS(oas, path, format)
 	if err != nil {
 		return err
-	}
-
-	if strings.Contains(path, DotYAML) || format == YAML {
-		var jsonData interface{}
-		if err := json.Unmarshal(data, &jsonData); err != nil {
-			return err
-		}
-
-		yamlData, err := yaml.Marshal(jsonData)
-		if err != nil {
-			return err
-		}
-
-		data = yamlData
 	}
 
 	if err := afero.WriteFile(fs, path, data, 0o600); err != nil {
@@ -56,6 +43,50 @@ func SaveSpec(path string, oas *Spec, format string, fs afero.Fs) error {
 
 	log.Printf("\nVersioned spec was saved in '%s'.\n\n", path)
 	return nil
+}
+
+func NewArrayBytesFromOAS(oas *Spec, path, format string) ([]byte, error) {
+	data, err := serializeToJSON(oas)
+	if err != nil {
+		return nil, err
+	}
+
+	if strings.Contains(path, DotJSON) || format == JSON {
+		return data, nil
+	}
+
+	return serializeToYAML(data)
+}
+
+func serializeToJSON(oas *Spec) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	err := enc.Encode(*oas)
+	if err != nil {
+		return nil, err
+	}
+
+	// enc.SetEscapeHTML(false) doesn't seem to work for Spec. Replace characters <>& manually.
+	data := bytes.ReplaceAll(buf.Bytes(), []byte(`\u003c`), []byte("<"))
+	data = bytes.ReplaceAll(data, []byte(`\u003e`), []byte(">"))
+	data = bytes.ReplaceAll(data, []byte(`\u0026`), []byte("&"))
+	return data, nil
+}
+
+func serializeToYAML(data []byte) ([]byte, error) {
+	var jsonData interface{}
+	if err := json.Unmarshal(data, &jsonData); err != nil {
+		return nil, err
+	}
+
+	yamlData, err := yaml.Marshal(jsonData)
+	if err != nil {
+		return nil, err
+	}
+
+	return yamlData, nil
 }
 
 func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
