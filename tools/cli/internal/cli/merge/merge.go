@@ -32,6 +32,7 @@ type Opts struct {
 	basePath      string
 	outputPath    string
 	format        string
+	gitSha        string
 	externalPaths []string
 }
 
@@ -39,6 +40,12 @@ func (o *Opts) Run() error {
 	federated, err := o.Merger.MergeOpenAPISpecs(o.externalPaths)
 	if err != nil {
 		return err
+	}
+
+	if o.gitSha != "" {
+		federated.Info.Extensions = map[string]interface{}{
+			"x-xgen-sha": o.gitSha,
+		}
 	}
 
 	federatedBytes, err := json.MarshalIndent(*federated, "", "  ")
@@ -97,6 +104,7 @@ func Builder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.Base)
 	cmd.Flags().StringArrayVarP(&opts.externalPaths, flag.External, flag.ExternalShort, nil, usage.External)
+	cmd.Flags().StringVar(&opts.gitSha, flag.GitSha, "", usage.GitSha)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 
