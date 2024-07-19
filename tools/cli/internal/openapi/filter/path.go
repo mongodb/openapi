@@ -92,7 +92,7 @@ func (f *PathFilter) apply(path *openapi3.PathItem) error {
 			return err
 		}
 
-		err = updateResponses(op, config, opConfig)
+		err = updateResponses(op, config)
 		if err != nil {
 			return err
 		}
@@ -114,7 +114,7 @@ func (f *PathFilter) apply(path *openapi3.PathItem) error {
 }
 
 // updateResponses filters the response and removes the deprecated responses from the operation and add the  to the operation config
-func updateResponses(op *openapi3.Operation, config *VersionConfig, opConfig *OperationConfig) error {
+func updateResponses(op *openapi3.Operation, config *VersionConfig) error {
 	for responseCode, response := range op.Responses.Map() {
 		if response.Value == nil {
 			log.Printf("Ignoring response: %s for operationID: %s", responseCode, op.OperationID)
