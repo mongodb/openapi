@@ -48,6 +48,24 @@ func TestSplitVersions(t *testing.T) {
 			specType: "not-filtered",
 			env:      "dev",
 		},
+		{
+			name:     "Split filtered specs json prod",
+			format:   "json",
+			specType: "filtered",
+			env:      "prod",
+		},
+		{
+			name:     "Split filtered specs json prod",
+			format:   "yaml",
+			specType: "filtered",
+			env:      "prod",
+		},
+		{
+			name:     "Split not-filtered specs json prod",
+			format:   "json",
+			specType: "not-filtered",
+			env:      "prod",
+		},
 	}
 
 	for _, tc := range testCases {

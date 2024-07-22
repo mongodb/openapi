@@ -9,7 +9,7 @@
     "termsOfService" : "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title" : "MongoDB Atlas Administration API",
     "version" : "2.0",
-    "x-xgen-sha" : "e5635db742b9ad78707b2d34eda9f423a591a217"
+    "x-xgen-sha" : "44ddcf12de9dee9afd13b831d0497bbbda1086f3"
   },
   "servers" : [ {
     "url" : "https://cloud.mongodb.com"
@@ -293,10 +293,7 @@
             "content" : {
               "application/vnd.atlas.2023-01-01+json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/EventTypeDetails"
-                  }
+                  "$ref" : "#/components/schemas/PaginatedEventTypeDetailsResponse"
                 },
                 "x-xgen-version" : "2023-01-01"
               }
@@ -895,77 +892,9 @@
         } ],
         "summary" : "Return All Identity Providers in One Federation",
         "tags" : [ "Federated Authentication" ]
-      },
-      "post" : {
-        "description" : "Creates one identity provider within the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.\n\n**Note**: This resource only supports the creation of OIDC identity providers.",
-        "operationId" : "createIdentityProvider",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/federationSettingsId"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        } ],
-        "responses" : {
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Create One Identity Provider",
-        "tags" : [ "Federated Authentication" ]
       }
     },
     "/api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}" : {
-      "delete" : {
-        "description" : "Deletes one identity provider in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations. \n\n**Note**: Requests to this resource will fail if the identity provider has any connected organizations. Before deleting an identity provider, disconnect all organizations and confirm that no organization in your account uses this identity provider. To learn more, see [Manage Organization Mapping for Federated Authentication](https://www.mongodb.com/docs/atlas/security/manage-org-mapping/).",
-        "operationId" : "deleteIdentityProvider",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/federationSettingsId"
-        }, {
-          "description" : "Unique 24-hexadecimal digit string that identifies the identity provider to connect.",
-          "in" : "path",
-          "name" : "identityProviderId",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "example" : "32b6e34b3d91647abb20e7b8"
-          }
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        } ],
-        "responses" : {
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Delete One Identity Provider",
-        "tags" : [ "Federated Authentication" ]
-      },
       "get" : {
         "deprecated" : true,
         "description" : "Returns one identity provider in the specified federation by the identity provider's id. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.",
@@ -2546,16 +2475,16 @@
           "required" : true
         },
         "responses" : {
-          "200" : {
+          "204" : {
             "content" : {
               "application/vnd.atlas.2023-01-01+json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ApiKeyUserDetails"
+                  "$ref" : "#/components/schemas/NoBody"
                 },
                 "x-xgen-version" : "2023-01-01"
               }
             },
-            "description" : "OK"
+            "description" : "This endpoint does not return a response body."
           },
           "401" : {
             "$ref" : "#/components/responses/unauthorized"
@@ -2743,7 +2672,7 @@
     "/api/atlas/v2/groups/{groupId}/backup/exportBuckets" : {
       "get" : {
         "deprecated" : true,
-        "description" : "Returns all AWS S3 buckets and Azure Blob Storages associated with the specified project. To use this resource, the requesting API Key must have the Project Read Only role.",
+        "description" : "Returns all AWS S3 buckets and Azure Blob Storage Containers associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.",
         "operationId" : "listExportBuckets",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -2780,13 +2709,13 @@
         "security" : [ {
           "DigestAuth" : [ ]
         } ],
-        "summary" : "Return All AWS S3 Buckets and Azure Blob Storages Used for Cloud Backup Snapshot Exports",
+        "summary" : "Return All AWS S3 Buckets and Azure Blob Storage Containers Used for Cloud Backup Snapshot Exports",
         "tags" : [ "Cloud Backups" ],
         "x-sunset" : "2025-05-30"
       },
       "post" : {
         "deprecated" : true,
-        "description" : "Grants MongoDB Cloud access to the specified AWS S3 bucket or Azure Blob Storage. This enables this bucket to receive Atlas Cloud Backup snapshots. To use this resource, the requesting API Key must have the Project Owner role.",
+        "description" : "Grants MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container. This enables this Export Bucket to receive Atlas Cloud Backup Snapshots. To use this resource, the requesting API Key must have the Project Owner role.",
         "operationId" : "createExportBucket",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -2805,7 +2734,7 @@
               "x-xgen-version" : "2023-01-01"
             }
           },
-          "description" : "Grants MongoDB Cloud access to the specified AWS S3 bucket or Azure Blob Storage.",
+          "description" : "Grants MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container.",
           "required" : true
         },
         "responses" : {
@@ -2836,29 +2765,30 @@
         "security" : [ {
           "DigestAuth" : [ ]
         } ],
-        "summary" : "Grant Access to AWS S3 Bucket or Azure Blob Storage for Cloud Backup Snapshot Exports",
+        "summary" : "Grant Access to AWS S3 Bucket or Azure Blob Storage Container for Cloud Backup Snapshot Exports",
         "tags" : [ "Cloud Backups" ],
         "x-sunset" : "2025-05-30"
       }
     },
     "/api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}" : {
       "delete" : {
-        "description" : "Revoke MongoDB Cloud access to the specified AWS S3 bucket. This prevents this bucket to receive Atlas Cloud Backup snapshots. Auto export must be disabled on all clusters in this project exporting to this bucket before revoking access. To use this resource, the requesting API Key must have the Project Owner role.",
+        "description" : "Revoke MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container. This prevents this Export Bucket from receiving Atlas Cloud Backup Snapshots. Auto export must be disabled on all clusters in this Project exporting to this Export Bucket before revoking access. To use this resource, the requesting API Key must have the Project Owner role.",
         "operationId" : "deleteExportBucket",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
         }, {
           "$ref" : "#/components/parameters/groupId"
         }, {
-          "description" : "Unique string that identifies the AWS S3 bucket to which you export your snapshots.",
+          "description" : "Unique string that identifies the AWS S3 Bucket or Azure Blob Storage Container to which you export your Snapshots.",
           "in" : "path",
           "name" : "exportBucketId",
           "required" : true,
           "schema" : {
             "type" : "string",
-            "maxLength" : 63,
-            "minLength" : 3,
-            "pattern" : "^((?!xn--)(?!.*-s3alias)[a-z0-9][a-z0-9-]{1,61}[a-z0-9])$"
+            "example" : "32b6e34b3d91647abb20e7b8",
+            "maxLength" : 24,
+            "minLength" : 24,
+            "pattern" : "^([a-f0-9]{24})$"
           }
         } ],
         "responses" : {
@@ -2889,27 +2819,28 @@
         "security" : [ {
           "DigestAuth" : [ ]
         } ],
-        "summary" : "Revoke Access to AWS S3 Bucket for Cloud Backup Snapshot Exports",
+        "summary" : "Revoke Access to AWS S3 Bucket or Azure Blob Storage Container for Cloud Backup Snapshot Exports",
         "tags" : [ "Cloud Backups" ]
       },
       "get" : {
         "deprecated" : true,
-        "description" : "Returns one AWS S3 bucket or Azure Blob Storage associated with the specified project. To use this resource, the requesting API Key must have the Project Read Only role.",
+        "description" : "Returns one AWS S3 Bucket or Azure Blob Storage Container associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.",
         "operationId" : "getExportBucket",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
         }, {
           "$ref" : "#/components/parameters/groupId"
         }, {
-          "description" : "Unique string that identifies the AWS S3 bucket or Azure Blob Storage to which you export your snapshots.",
+          "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket.",
           "in" : "path",
           "name" : "exportBucketId",
           "required" : true,
           "schema" : {
             "type" : "string",
-            "maxLength" : 63,
-            "minLength" : 3,
-            "pattern" : "^((?!xn--)(?!.*-s3alias)[a-z0-9][a-z0-9-]{1,61}[a-z0-9])$"
+            "example" : "32b6e34b3d91647abb20e7b8",
+            "maxLength" : 24,
+            "minLength" : 24,
+            "pattern" : "^([a-f0-9]{24})$"
           }
         } ],
         "responses" : {
@@ -2937,7 +2868,7 @@
         "security" : [ {
           "DigestAuth" : [ ]
         } ],
-        "summary" : "Return One AWS S3 Bucket or Azure Blob Storage Used for Cloud Backup Snapshot Exports",
+        "summary" : "Return One AWS S3 Bucket or Azure Blob Storage Container Used for Cloud Backup Snapshot Exports",
         "tags" : [ "Cloud Backups" ],
         "x-sunset" : "2025-05-30"
       }
@@ -3309,6 +3240,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters" : {
       "get" : {
+        "deprecated" : true,
         "description" : "Returns the details for all clusters in the specific project to which you have access. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not  available for serverless clusters.",
         "operationId" : "listClusters",
         "parameters" : [ {
@@ -3355,9 +3287,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return All Clusters in One Project",
-        "tags" : [ "Clusters" ]
+        "tags" : [ "Clusters" ],
+        "x-sunset" : "2025-06-01"
       },
       "post" : {
+        "deprecated" : true,
         "description" : "Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters.",
         "operationId" : "createCluster",
         "parameters" : [ {
@@ -3413,7 +3347,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Create One Cluster from One Project",
-        "tags" : [ "Clusters" ]
+        "tags" : [ "Clusters" ],
+        "x-sunset" : "2025-06-01"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/provider/regions" : {
@@ -3659,6 +3594,7 @@
         "x-sunset" : "2025-06-01"
       },
       "get" : {
+        "deprecated" : true,
         "description" : "Returns the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not available for serverless clusters.",
         "operationId" : "getCluster",
         "parameters" : [ {
@@ -3708,9 +3644,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return One Cluster from One Project",
-        "tags" : [ "Clusters" ]
+        "tags" : [ "Clusters" ],
+        "x-sunset" : "2025-06-01"
       },
       "patch" : {
+        "deprecated" : true,
         "description" : "Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster's termination protection, the requesting API Key must have the Project Owner role. For all other updates, the requesting API Key must have the Project Cluster Manager role. You can't modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters.",
         "operationId" : "updateCluster",
         "parameters" : [ {
@@ -3774,7 +3712,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Modify One Cluster from One Project",
-        "tags" : [ "Clusters" ]
+        "tags" : [ "Clusters" ],
+        "x-sunset" : "2025-06-01"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/exports" : {
@@ -3831,7 +3770,7 @@
         "tags" : [ "Cloud Backups" ]
       },
       "post" : {
-        "description" : "Exports one backup snapshot for dedicated Atlas cluster using Cloud Backups to an AWS bucket. To use this resource, the requesting API Key must have the Project Atlas Admin role.",
+        "description" : "Exports one backup snapshot for dedicated Atlas cluster using Cloud Backups to an Export Bucket. To use this resource, the requesting API Key must have the Project Atlas Admin role.",
         "operationId" : "createBackupExportJob",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -4190,6 +4129,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/schedule" : {
       "delete" : {
+        "deprecated" : true,
         "description" : "Removes all cloud backup schedules for the specified cluster. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Atlas Admin role.",
         "operationId" : "deleteAllBackupSchedules",
         "parameters" : [ {
@@ -4234,9 +4174,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Remove All Cloud Backup Schedules",
-        "tags" : [ "Cloud Backups" ]
+        "tags" : [ "Cloud Backups" ],
+        "x-sunset" : "2026-01-01"
       },
       "get" : {
+        "deprecated" : true,
         "description" : "Returns the cloud backup schedule for the specified cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Read Only role.",
         "operationId" : "getBackupSchedule",
         "parameters" : [ {
@@ -4280,9 +4222,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return One Cloud Backup Schedule",
-        "tags" : [ "Cloud Backups" ]
+        "tags" : [ "Cloud Backups" ],
+        "x-sunset" : "2026-01-01"
       },
       "patch" : {
+        "deprecated" : true,
         "description" : "Updates the cloud backup schedule for one cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Owner role.",
         "operationId" : "updateBackupSchedule",
         "parameters" : [ {
@@ -4340,7 +4284,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Update Cloud Backup Schedule for One Cluster",
-        "tags" : [ "Cloud Backups" ]
+        "tags" : [ "Cloud Backups" ],
+        "x-sunset" : "2026-01-01"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots" : {
@@ -6737,6 +6682,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs" : {
       "get" : {
+        "deprecated" : true,
         "description" : "Returns the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters. To use this resource, the requesting API Key must have the Project Read Only role.",
         "externalDocs" : {
           "description" : "Global Clusters",
@@ -6787,9 +6733,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return One Advanced Configuration Options for One Cluster",
-        "tags" : [ "Clusters" ]
+        "tags" : [ "Clusters" ],
+        "x-sunset" : "2026-01-01"
       },
       "patch" : {
+        "deprecated" : true,
         "description" : "Updates the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. To use this resource, the requesting API Key must have the Project Cluster Manager role. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters.",
         "externalDocs" : {
           "description" : "Global Clusters",
@@ -6855,7 +6803,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Update Advanced Configuration Options for One Cluster",
-        "tags" : [ "Clusters" ]
+        "tags" : [ "Clusters" ],
+        "x-sunset" : "2026-01-01"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries" : {
@@ -8055,7 +8004,7 @@
         }, {
           "$ref" : "#/components/parameters/pretty"
         }, {
-          "description" : "Unique 24-hexadecimal digit string that identifies the MongoDB Cloud network container that you want to remove.",
+          "description" : "Unique 24-hexadecimal digit string that identifies the MongoDB Cloud network container.",
           "in" : "path",
           "name" : "containerId",
           "required" : true,
@@ -10907,7 +10856,7 @@
         "description" : "Removes the specified project limit. Depending on the limit, Atlas either resets the limit to its default value or removes the limit entirely. To use this resource, the requesting API Key must have the Project Owner role.",
         "operationId" : "deleteProjectLimit",
         "parameters" : [ {
-          "description" : "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| atlas.project.deployment.clusters | Limit on the number of clusters in this project | 25 | 90 |\n| atlas.project.deployment.nodesPerPrivateLinkRegion | Limit on the number of nodes per Private Link region in this project | 50 | 90 |\n| atlas.project.security.databaseAccess.customRoles | Limit on the number of custom roles in this project | 100 | 1400 |\n| atlas.project.security.databaseAccess.users | Limit on the number of database users in this project | 100 | 900 |\n| atlas.project.security.networkAccess.crossRegionEntries | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| atlas.project.security.networkAccess.entries | Limit on the number of network access entries in this project | 200 | 20 |\n| dataFederation.bytesProcessed.query | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| dataFederation.bytesProcessed.daily | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| dataFederation.bytesProcessed.weekly | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| dataFederation.bytesProcessed.monthly | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| atlas.project.deployment.privateServiceConnectionsPerRegionGroup | Number of Private Serivce Connections per Region Group | 50 | 100|\n| atlas.project.deployment.privateServiceConnectionsSubnetMask | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
+          "description" : "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| atlas.project.deployment.clusters | Limit on the number of clusters in this project | 25 | 90 |\n| atlas.project.deployment.nodesPerPrivateLinkRegion | Limit on the number of nodes per Private Link region in this project | 50 | 90 |\n| atlas.project.security.databaseAccess.customRoles | Limit on the number of custom roles in this project | 100 | 1400 |\n| atlas.project.security.databaseAccess.users | Limit on the number of database users in this project | 100 | 900 |\n| atlas.project.security.networkAccess.crossRegionEntries | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| atlas.project.security.networkAccess.entries | Limit on the number of network access entries in this project | 200 | 20 |\n| dataFederation.bytesProcessed.query | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| dataFederation.bytesProcessed.daily | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| dataFederation.bytesProcessed.weekly | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| dataFederation.bytesProcessed.monthly | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| atlas.project.deployment.privateServiceConnectionsPerRegionGroup | Number of Private Service Connections per Region Group | 50 | 100|\n| atlas.project.deployment.privateServiceConnectionsSubnetMask | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
           "in" : "path",
           "name" : "limitName",
           "required" : true,
@@ -10957,7 +10906,7 @@
         "description" : "Returns the specified limit for the specified project. To use this resource, the requesting API Key must have the Project Read Only role.",
         "operationId" : "getProjectLimit",
         "parameters" : [ {
-          "description" : "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| atlas.project.deployment.clusters | Limit on the number of clusters in this project | 25 | 90 |\n| atlas.project.deployment.nodesPerPrivateLinkRegion | Limit on the number of nodes per Private Link region in this project | 50 | 90 |\n| atlas.project.security.databaseAccess.customRoles | Limit on the number of custom roles in this project | 100 | 1400 |\n| atlas.project.security.databaseAccess.users | Limit on the number of database users in this project | 100 | 900 |\n| atlas.project.security.networkAccess.crossRegionEntries | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| atlas.project.security.networkAccess.entries | Limit on the number of network access entries in this project | 200 | 20 |\n| dataFederation.bytesProcessed.query | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| dataFederation.bytesProcessed.daily | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| dataFederation.bytesProcessed.weekly | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| dataFederation.bytesProcessed.monthly | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| atlas.project.deployment.privateServiceConnectionsPerRegionGroup | Number of Private Serivce Connections per Region Group | 50 | 100|\n| atlas.project.deployment.privateServiceConnectionsSubnetMask | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
+          "description" : "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| atlas.project.deployment.clusters | Limit on the number of clusters in this project | 25 | 90 |\n| atlas.project.deployment.nodesPerPrivateLinkRegion | Limit on the number of nodes per Private Link region in this project | 50 | 90 |\n| atlas.project.security.databaseAccess.customRoles | Limit on the number of custom roles in this project | 100 | 1400 |\n| atlas.project.security.databaseAccess.users | Limit on the number of database users in this project | 100 | 900 |\n| atlas.project.security.networkAccess.crossRegionEntries | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| atlas.project.security.networkAccess.entries | Limit on the number of network access entries in this project | 200 | 20 |\n| dataFederation.bytesProcessed.query | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| dataFederation.bytesProcessed.daily | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| dataFederation.bytesProcessed.weekly | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| dataFederation.bytesProcessed.monthly | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| atlas.project.deployment.privateServiceConnectionsPerRegionGroup | Number of Private Service Connections per Region Group | 50 | 100|\n| atlas.project.deployment.privateServiceConnectionsSubnetMask | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
           "in" : "path",
           "name" : "limitName",
           "required" : true,
@@ -11010,7 +10959,7 @@
         "description" : "Sets the specified project limit. To use this resource, the requesting API Key must have the Project Owner role.\n\n**NOTE**: Increasing the following configuration limits might lead to slower response times in the MongoDB Cloud UI or increased user management overhead leading to authentication or authorization re-architecture. If possible, we recommend that you create additional projects to gain access to more of these resources for a more sustainable growth pattern.",
         "operationId" : "setProjectLimit",
         "parameters" : [ {
-          "description" : "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| atlas.project.deployment.clusters | Limit on the number of clusters in this project | 25 | 90 |\n| atlas.project.deployment.nodesPerPrivateLinkRegion | Limit on the number of nodes per Private Link region in this project | 50 | 90 |\n| atlas.project.security.databaseAccess.customRoles | Limit on the number of custom roles in this project | 100 | 1400 |\n| atlas.project.security.databaseAccess.users | Limit on the number of database users in this project | 100 | 900 |\n| atlas.project.security.networkAccess.crossRegionEntries | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| atlas.project.security.networkAccess.entries | Limit on the number of network access entries in this project | 200 | 20 |\n| dataFederation.bytesProcessed.query | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| dataFederation.bytesProcessed.daily | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| dataFederation.bytesProcessed.weekly | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| dataFederation.bytesProcessed.monthly | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| atlas.project.deployment.privateServiceConnectionsPerRegionGroup | Number of Private Serivce Connections per Region Group | 50 | 100|\n| atlas.project.deployment.privateServiceConnectionsSubnetMask | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
+          "description" : "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| atlas.project.deployment.clusters | Limit on the number of clusters in this project | 25 | 90 |\n| atlas.project.deployment.nodesPerPrivateLinkRegion | Limit on the number of nodes per Private Link region in this project | 50 | 90 |\n| atlas.project.security.databaseAccess.customRoles | Limit on the number of custom roles in this project | 100 | 1400 |\n| atlas.project.security.databaseAccess.users | Limit on the number of database users in this project | 100 | 900 |\n| atlas.project.security.networkAccess.crossRegionEntries | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| atlas.project.security.networkAccess.entries | Limit on the number of network access entries in this project | 200 | 20 |\n| dataFederation.bytesProcessed.query | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| dataFederation.bytesProcessed.daily | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| dataFederation.bytesProcessed.weekly | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| dataFederation.bytesProcessed.monthly | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| atlas.project.deployment.privateServiceConnectionsPerRegionGroup | Number of Private Service Connections per Region Group | 50 | 100|\n| atlas.project.deployment.privateServiceConnectionsSubnetMask | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
           "in" : "path",
           "name" : "limitName",
           "required" : true,
@@ -17817,6 +17766,55 @@
             "default" : true,
             "example" : true
           }
+        }, {
+          "description" : "Statuses of the invoice to be retrieved. Omit to return invoices of all statuses.",
+          "in" : "query",
+          "name" : "statusNames",
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "PENDING", "CLOSED", "FORGIVEN", "FAILED", "PAID", "FREE", "PREPAID", "INVOICED" ]
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "description" : "Retrieve the invoices the startDates of which are greater than or equal to the fromDate. If omit, the invoices return will go back to earliest startDate.",
+          "in" : "query",
+          "name" : "fromDate",
+          "schema" : {
+            "type" : "string",
+            "format" : "date",
+            "example" : "2023-01-01"
+          }
+        }, {
+          "description" : "Retrieve the invoices the endDates of which are smaller than or equal to the toDate. If omit, the invoices return will go further to latest endDate.",
+          "in" : "query",
+          "name" : "toDate",
+          "schema" : {
+            "type" : "string",
+            "format" : "date",
+            "example" : "2023-01-01"
+          }
+        }, {
+          "description" : "Field used to sort the returned invoices by. Use in combination with orderBy parameter to control the order of the result.",
+          "in" : "query",
+          "name" : "sortBy",
+          "schema" : {
+            "type" : "string",
+            "default" : "END_DATE",
+            "enum" : [ "START_DATE", "END_DATE" ]
+          }
+        }, {
+          "description" : "Field used to order the returned invoices by. Use in combination of sortBy parameter to control the order of the result.",
+          "example" : "desc",
+          "in" : "query",
+          "name" : "orderBy",
+          "schema" : {
+            "type" : "string",
+            "default" : "desc",
+            "enum" : [ "desc", "asc" ]
+          }
         } ],
         "responses" : {
           "200" : {
@@ -20038,7 +20036,7 @@
           },
           "mongoDBMajorVersion" : {
             "type" : "string",
-            "description" : "MongoDB major version of the cluster.\n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time.",
+            "description" : "MongoDB major version of the cluster.\n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time. If the cluster is pinned to a MongoDB feature compatibility version exactly one major version below the current MongoDB version, the MongoDB version can be downgraded to the previous major version.",
             "externalDocs" : {
               "description" : "Available MongoDB Versions in Atlas",
               "url" : "https://www.mongodb.com/docs/atlas/reference/faq/database/#which-versions-of-mongodb-do-service-clusters-use-"
@@ -20793,6 +20791,9 @@
         "type" : "string",
         "description" : "Atlas Data Federation AWS Regions.",
         "enum" : [ "SYDNEY_AUS", "MUMBAI_IND", "FRANKFURT_DEU", "DUBLIN_IRL", "LONDON_GBR", "VIRGINIA_USA", "OREGON_USA", "SAOPAULO_BRA", "MONTREAL_CAN", "TOKYO_JPN", "SINGAPORE_SGP" ]
+      },
+      "ApiAtlasDataLakeStorageView" : {
+        "$ref" : "#/components/schemas/DataLakeStorage"
       },
       "ApiAtlasFTSAnalyzersViewManual" : {
         "type" : "object",
@@ -22250,11 +22251,11 @@
       },
       "AutoExportPolicyView" : {
         "type" : "object",
-        "description" : "Policy for automatically exporting cloud backup snapshots.",
+        "description" : "Policy for automatically exporting Cloud Backup Snapshots.",
         "properties" : {
           "exportBucketId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the AWS Bucket.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -22709,6 +22710,10 @@
           "keyVaultName" : {
             "type" : "string",
             "description" : "Unique string that identifies the Azure Key Vault that contains your key."
+          },
+          "requirePrivateNetworking" : {
+            "type" : "boolean",
+            "description" : "Enable connection to your Azure Key Vault over private networking."
           },
           "resourceGroupName" : {
             "type" : "string",
@@ -23395,7 +23400,7 @@
           "statusName" : {
             "type" : "string",
             "description" : "State of the downloadable snapshot file when MongoDB Cloud received this request.",
-            "enum" : [ "NOT_STARTED", "IN_PROGRESS", "READY", "FAILED", "INTERRUPTED", "EXPIRED", "MAX_DOWNLOADS_EXCEEDED" ],
+            "enum" : [ "NOT_STARTED", "IN_PROGRESS", "READY", "FAILED", "INTERRUPTED", "EXPIRED", "MAX_DOWNLOADS_EXCEEDED", "PENDING" ],
             "readOnly" : true
           },
           "targetClusterId" : {
@@ -25805,7 +25810,7 @@
           },
           "mongoDBMajorVersion" : {
             "type" : "string",
-            "description" : "MongoDB major version of the cluster.\n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time.",
+            "description" : "MongoDB major version of the cluster.\n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time. If the cluster is pinned to a MongoDB feature compatibility version exactly one major version below the current MongoDB version, the MongoDB version can be downgraded to the previous major version.",
             "externalDocs" : {
               "description" : "Available MongoDB Versions in Atlas",
               "url" : "https://www.mongodb.com/docs/atlas/reference/faq/database/#which-versions-of-mongodb-do-service-clusters-use-"
@@ -25838,7 +25843,7 @@
           },
           "replicationSpecs" : {
             "type" : "array",
-            "description" : "List of settings that configure your cluster regions. For Global Clusters, each object in the array represents a zone where your clusters nodes deploy. For non-Global sharded clusters and replica sets, this array has one object representing where your clusters nodes deploy.",
+            "description" : "List of settings that configure your cluster regions. This array has one object per shard representing node configurations in each shard. For replica sets there is only one object representing node configurations.",
             "items" : {
               "$ref" : "#/components/schemas/ReplicationSpec20250101"
             }
@@ -28158,6 +28163,7 @@
         "discriminator" : {
           "mapping" : {
             "atlas" : "#/components/schemas/DataLakeAtlasStoreInstance",
+            "azure" : "#/components/schemas/DataLakeAzureBlobStore",
             "dls:aws" : "#/components/schemas/DataLakeDLSAWSStore",
             "dls:azure" : "#/components/schemas/DataLakeDLSAzureStore",
             "http" : "#/components/schemas/DataLakeHTTPStore",
@@ -28175,6 +28181,8 @@
           "$ref" : "#/components/schemas/DataLakeAtlasStoreInstance"
         }, {
           "$ref" : "#/components/schemas/DataLakeHTTPStore"
+        }, {
+          "$ref" : "#/components/schemas/DataLakeAzureBlobStore"
         } ],
         "properties" : {
           "name" : {
@@ -29476,7 +29484,7 @@
               "title" : "Tenant Backup Event Types"
             }, {
               "type" : "string",
-              "enum" : [ "CLUSTER_VERSION_FIXED", "CLUSTER_VERSION_UNFIXED", "CLUSTER_FCV_FIXED", "CLUSTER_FCV_UNFIXED", "AGENT_VERSION_FIXED", "AGENT_VERSION_UNFIXED", "FIXED_VERSION_UPDATED", "FIXED_AGENT_VERSION_UPDATED" ],
+              "enum" : [ "CLUSTER_VERSION_FIXED", "CLUSTER_VERSION_UNFIXED", "CLUSTER_FCV_FIXED", "CLUSTER_FCV_UNFIXED", "AGENT_VERSION_FIXED", "AGENT_VERSION_UNFIXED", "FIXED_VERSION_UPDATED", "FIXED_AGENT_VERSION_UPDATED", "CLUSTER_FCV_DOWNGRADED" ],
               "title" : "Version Audit Types"
             } ]
           },
@@ -29818,7 +29826,7 @@
           "frequencyInterval" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Number that indicates the frequency interval for a set of snapshots. A value of `1` specifies the first instance of the corresponding `frequencyType`.\n\n- In a yearly policy item, `1` indicates that the yearly snapshot occurs on the first day of January and `12` indicates the first day of December.\n\n- In a monthly policy item, `1` indicates that the monthly snapshot occurs on the first day of the month and `40` indicates the last day of the month.\n\n- In a weekly policy item, `1` indicates that the weekly snapshot occurs on Monday and `7` indicates Sunday.\n\n- In an hourly policy item, you can set the frequency interval to `1`, `2`, `4`, `6`, `8`, or `12`. For hourly policy items for NVMe clusters, MongoDB Cloud accepts only `12` as the frequency interval value.\n\n MongoDB Cloud ignores this setting for non-hourly policy items in Backup Compliance Policy settings.",
+            "description" : "Number that indicates the frequency interval for a set of Snapshots. A value of `1` specifies the first instance of the corresponding `frequencyType`.\n\n- In a yearly policy item, `1` indicates that the yearly Snapshot occurs on the first day of January and `12` indicates the first day of December.\n\n- In a monthly policy item, `1` indicates that the monthly Snapshot occurs on the first day of the month and `40` indicates the last day of the month.\n\n- In a weekly policy item, `1` indicates that the weekly Snapshot occurs on Monday and `7` indicates Sunday.\n\n- In an hourly policy item, you can set the frequency interval to `1`, `2`, `4`, `6`, `8`, or `12`. For hourly policy items for NVMe clusters, MongoDB Cloud accepts only `12` as the frequency interval value.\n\n MongoDB Cloud ignores this setting for non-hourly policy items in Backup Compliance Policy settings.",
             "enum" : [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 40 ]
           },
           "frequencyType" : {
@@ -29836,13 +29844,13 @@
           },
           "retentionUnit" : {
             "type" : "string",
-            "description" : "Unit of time in which MongoDB Cloud measures snapshot retention.",
+            "description" : "Unit of time in which MongoDB Cloud measures Snapshot retention.",
             "enum" : [ "days", "weeks", "months", "years" ]
           },
           "retentionValue" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Duration in days, weeks, months, or years that MongoDB Cloud retains the snapshot. For less frequent policy items, MongoDB Cloud requires that you specify a value greater than or equal to the value specified for more frequent policy items.\n\nFor example: If the hourly policy item specifies a retention of two days, you must specify two days or greater for the retention of the weekly policy item."
+            "description" : "Duration in days, weeks, months, or years that MongoDB Cloud retains the Snapshot. For less frequent policy items, MongoDB Cloud requires that you specify a value greater than or equal to the value specified for more frequent policy items.\n\nFor example: If the hourly policy item specifies a retention of two days, you must specify two days or greater for the retention of the weekly policy item."
           }
         },
         "required" : [ "frequencyInterval", "frequencyType", "retentionUnit", "retentionValue" ]
@@ -29945,7 +29953,7 @@
           },
           "exportBucketId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the AWS bucket to which MongoDB Cloud exports the Cloud Backup snapshot.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket to export to.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -30017,7 +30025,7 @@
           },
           "exportBucketId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the AWS bucket to which MongoDB Cloud exports the Cloud Backup snapshot.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket to export to.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -30038,7 +30046,7 @@
           },
           "snapshotId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the Cloud Backup snasphot to export.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Cloud Backup Snapshot to export.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -30492,7 +30500,7 @@
         "properties" : {
           "_id" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the Amazon Web Services (AWS) Simple Storage Service (S3) export bucket.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -30501,11 +30509,14 @@
           },
           "bucketName" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the AWS bucket that the role is authorized to access."
+            "description" : "Human-readable label that identifies the AWS S3 Bucket or Azure Storage Container that the role is authorized to export to.",
+            "example" : "export-bucket",
+            "maxLength" : 63,
+            "minLength" : 3
           },
           "cloudProvider" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the cloud provider that stores this snapshot.",
+            "description" : "Human-readable label that identifies the cloud provider that Snapshots will be exported to.",
             "enum" : [ "AWS", "AZURE" ]
           },
           "iamRoleId" : {
@@ -30528,7 +30539,8 @@
             },
             "readOnly" : true
           }
-        }
+        },
+        "required" : [ "bucketName", "cloudProvider", "iamRoleId" ]
       },
       "DiskBackupSnapshotAzureExportBucket" : {
         "type" : "object",
@@ -30539,7 +30551,7 @@
           "properties" : {
             "roleId" : {
               "type" : "string",
-              "description" : "Unique 24-hexadecimal digit string that identifies the Azure Service Principal that MongoDB Cloud uses to access the Azure Blob Storage.",
+              "description" : "Unique 24-hexadecimal digit string that identifies the Azure Service Principal that MongoDB Cloud uses to access the Azure Blob Storage Container.",
               "example" : "32b6e34b3d91647abb20e7b8",
               "maxLength" : 24,
               "minLength" : 24,
@@ -30547,21 +30559,26 @@
             },
             "serviceUrl" : {
               "type" : "string",
-              "description" : "Url that identifies the Azure Blob Storage Account."
+              "description" : "URL that identifies the blob Endpoint of the Azure Blob Storage Account.",
+              "example" : "https://examplestorageaccount.blob.core.windows.net",
+              "maxLength" : 55,
+              "minLength" : 33
             },
             "tenantId" : {
               "type" : "string",
-              "description" : "UUID String that identifies the Azure Active Directory Tenant ID.",
+              "description" : "UUID that identifies the Azure Active Directory Tenant ID.",
+              "example" : "4297fc77-1592-4de8-a6d5-a8c32401df87",
               "maxLength" : 36,
-              "minLength" : 32,
+              "minLength" : 36,
               "pattern" : "^[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{12}$"
             }
           }
-        } ]
+        } ],
+        "required" : [ "bucketName", "cloudProvider", "roleId", "serviceUrl", "tenantId" ]
       },
       "DiskBackupSnapshotExportBucket" : {
         "type" : "object",
-        "description" : "Disk backup snapshot export bucket.",
+        "description" : "Disk backup snapshot Export Bucket.",
         "discriminator" : {
           "mapping" : {
             "AWS" : "#/components/schemas/DiskBackupSnapshotAWSExportBucket",
@@ -30577,7 +30594,7 @@
         "properties" : {
           "_id" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the Amazon Web Services (AWS) Simple Storage Service (S3) export bucket.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -30586,11 +30603,14 @@
           },
           "bucketName" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the AWS bucket that the role is authorized to access."
+            "description" : "Human-readable label that identifies the AWS S3 Bucket or Azure Storage Container that the role is authorized to export to.",
+            "example" : "export-bucket",
+            "maxLength" : 63,
+            "minLength" : 3
           },
           "cloudProvider" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the cloud provider that stores this snapshot.",
+            "description" : "Human-readable label that identifies the cloud provider that Snapshots will be exported to.",
             "enum" : [ "AWS", "AZURE" ]
           },
           "links" : {
@@ -30605,7 +30625,8 @@
             },
             "readOnly" : true
           }
-        }
+        },
+        "required" : [ "bucketName", "cloudProvider" ]
       },
       "DiskBackupSnapshotRestoreJob" : {
         "type" : "object",
@@ -30739,11 +30760,11 @@
         "properties" : {
           "autoExportEnabled" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether MongoDB Cloud automatically exports cloud backup snapshots to the AWS bucket."
+            "description" : "Flag that indicates whether MongoDB Cloud automatically exports Cloud Backup Snapshots to the Export Bucket."
           },
           "clusterId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal digit string that identifies the cluster with the snapshot you want to return.",
+            "description" : "Unique 24-hexadecimal digit string that identifies the cluster with the Snapshot you want to return.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -30752,7 +30773,7 @@
           },
           "clusterName" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the cluster with the snapshot you want to return.",
+            "description" : "Human-readable label that identifies the cluster with the Snapshot you want to return.",
             "maxLength" : 64,
             "minLength" : 1,
             "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
@@ -30798,7 +30819,7 @@
           "nextSnapshot" : {
             "type" : "string",
             "format" : "date-time",
-            "description" : "Date and time when MongoDB Cloud takes the next snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "description" : "Date and time when MongoDB Cloud takes the next Snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "readOnly" : true
           },
           "policies" : {
@@ -30812,26 +30833,26 @@
           "referenceHourOfDay" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Hour of day in Coordinated Universal Time (UTC) that represents when MongoDB Cloud takes the snapshot."
+            "description" : "Hour of day in Coordinated Universal Time (UTC) that represents when MongoDB Cloud takes the Snapshot."
           },
           "referenceMinuteOfHour" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Minute of the **referenceHourOfDay** that represents when MongoDB Cloud takes the snapshot."
+            "description" : "Minute of the **referenceHourOfDay** that represents when MongoDB Cloud takes the Snapshot."
           },
           "restoreWindowDays" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Number of previous days that you can restore back to with Continuous Cloud Backup accuracy. You must specify a positive, non-zero integer. This parameter applies to continuous cloud backups only."
+            "description" : "Number of previous days that you can restore back to with Continuous Cloud Backup accuracy. You must specify a positive, non-zero integer. This parameter applies to continuous Cloud Backups only."
           },
           "updateSnapshots" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether to apply the retention changes in the updated backup policy to snapshots that MongoDB Cloud took previously.",
+            "description" : "Flag that indicates whether to apply the retention changes in the updated backup policy to Snapshots that MongoDB Cloud took previously.",
             "writeOnly" : true
           },
           "useOrgAndGroupNamesInExportPrefix" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your AWS bucket."
+            "description" : "Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your Export Bucket."
           }
         }
       },
@@ -30840,11 +30861,11 @@
         "properties" : {
           "autoExportEnabled" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether MongoDB Cloud automatically exports cloud backup snapshots to the AWS bucket."
+            "description" : "Flag that indicates whether MongoDB Cloud automatically exports Cloud Backup Snapshots to the Export Bucket."
           },
           "clusterId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal digit string that identifies the cluster with the snapshot you want to return.",
+            "description" : "Unique 24-hexadecimal digit string that identifies the cluster with the Snapshot you want to return.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -30853,7 +30874,7 @@
           },
           "clusterName" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the cluster with the snapshot you want to return.",
+            "description" : "Human-readable label that identifies the cluster with the Snapshot you want to return.",
             "maxLength" : 64,
             "minLength" : 1,
             "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
@@ -30899,7 +30920,7 @@
           "nextSnapshot" : {
             "type" : "string",
             "format" : "date-time",
-            "description" : "Date and time when MongoDB Cloud takes the next snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "description" : "Date and time when MongoDB Cloud takes the next Snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "readOnly" : true
           },
           "policies" : {
@@ -30913,26 +30934,26 @@
           "referenceHourOfDay" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Hour of day in Coordinated Universal Time (UTC) that represents when MongoDB Cloud takes the snapshot."
+            "description" : "Hour of day in Coordinated Universal Time (UTC) that represents when MongoDB Cloud takes the Snapshot."
           },
           "referenceMinuteOfHour" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Minute of the **referenceHourOfDay** that represents when MongoDB Cloud takes the snapshot."
+            "description" : "Minute of the **referenceHourOfDay** that represents when MongoDB Cloud takes the Snapshot."
           },
           "restoreWindowDays" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Number of previous days that you can restore back to with Continuous Cloud Backup accuracy. You must specify a positive, non-zero integer. This parameter applies to continuous cloud backups only."
+            "description" : "Number of previous days that you can restore back to with Continuous Cloud Backup accuracy. You must specify a positive, non-zero integer. This parameter applies to continuous Cloud Backups only."
           },
           "updateSnapshots" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether to apply the retention changes in the updated backup policy to snapshots that MongoDB Cloud took previously.",
+            "description" : "Flag that indicates whether to apply the retention changes in the updated backup policy to Snapshots that MongoDB Cloud took previously.",
             "writeOnly" : true
           },
           "useOrgAndGroupNamesInExportPrefix" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your AWS bucket."
+            "description" : "Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your Export Bucket."
           }
         }
       },
@@ -30945,6 +30966,16 @@
             "description" : "Flag that indicates whether this cluster enables disk auto-scaling. The maximum memory allowed for the selected cluster tier and the oplog size can limit storage auto-scaling."
           }
         }
+      },
+      "Document" : {
+        "type" : "object",
+        "additionalProperties" : {
+          "type" : "object",
+          "description" : "The stats associated with the stream processor.",
+          "readOnly" : true
+        },
+        "description" : "The stats associated with the stream processor.",
+        "readOnly" : true
       },
       "EmailNotification" : {
         "type" : "object",
@@ -31139,18 +31170,6 @@
             "type" : "string",
             "description" : "Enum representation of the event type.",
             "readOnly" : true
-          },
-          "links" : {
-            "type" : "array",
-            "description" : "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs" : {
-              "description" : "Web Linking Specification (RFC 5988)",
-              "url" : "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items" : {
-              "$ref" : "#/components/schemas/Link"
-            },
-            "readOnly" : true
           }
         },
         "title" : "Event type details"
@@ -31263,7 +31282,7 @@
           "title" : "Index Build Audit Types"
         }, {
           "type" : "string",
-          "enum" : [ "CLUSTER_CREATED", "CLUSTER_RESURRECTED", "CLUSTER_READY", "CLUSTER_UPDATE_SUBMITTED", "CLUSTER_UPDATE_SUBMITTED_INTERNAL", "CLUSTER_PROCESS_ARGS_UPDATE_SUBMITTED", "CLUSTER_MONGOT_PROCESS_ARGS_UPDATE_SUBMITTED", "CLUSTER_SERVER_PARAMETERS_UPDATE_SUBMITTED", "CLUSTER_AUTOMATICALLY_PAUSED", "CLUSTER_UPDATE_STARTED", "CLUSTER_UPDATE_STARTED_INTERNAL", "CLUSTER_UPDATE_COMPLETED", "MATERIAL_CLUSTER_UPDATE_COMPLETED_INTERNAL", "CLUSTER_DELETE_SUBMITTED", "CLUSTER_DELETE_SUBMITTED_INTERNAL", "CLUSTER_DELETED", "CLUSTER_IMPORT_STARTED", "CLUSTER_IMPORT_CANCELLED", "CLUSTER_IMPORT_EXPIRED", "CLUSTER_IMPORT_CUTOVER", "CLUSTER_IMPORT_RESTART_REQUESTED", "PROJECT_LIVE_IMPORT_OVERRIDES_ADDED", "PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED", "PROJECT_LIVE_IMPORT_OVERRIDES_DELETED", "CLUSTER_OPLOG_RESIZED", "CLUSTER_INSTANCE_RESTARTED", "CLUSTER_INSTANCE_STOP_START", "CLUSTER_INSTANCE_RESYNC_REQUESTED", "CLUSTER_INSTANCE_RESYNC_CLEARED", "CLUSTER_INSTANCE_UPDATE_REQUESTED", "CLUSTER_INSTANCE_REPLACED", "CLUSTER_INSTANCE_REPLACE_CLEARED", "CLUSTER_INSTANCE_CONFIG_UPDATED", "CLUSTER_INSTANCE_SSL_ROTATED", "CLUSTER_INSTANCE_SSL_ROTATED_PER_CLUSTER", "CLUSTER_INSTANCE_SSL_REVOKED", "RELOAD_SSL_ON_PROCESSES", "CLUSTER_INSTANCE_ADMIN_BACKUP_SNAPSHOT_REQUESTED", "UPDATE_BUMPER_FILES", "DATA_LAKE_QUERY_LOGS_DOWNLOADED", "FEDERATED_DATABASE_QUERY_LOGS_DOWNLOADED", "ONLINE_ARCHIVE_QUERY_LOGS_DOWNLOADED", "MONGODB_LOGS_DOWNLOADED", "MONGOSQLD_LOGS_DOWNLOADED", "MONGODB_USER_ADDED", "MONGODB_USER_DELETED", "MONGODB_USER_X509_CERT_CREATED", "MONGODB_USER_X509_CERT_REVOKED", "MONGODB_USER_UPDATED", "MONGODB_ROLE_ADDED", "MONGODB_ROLE_DELETED", "MONGODB_ROLE_UPDATED", "NETWORK_PERMISSION_ENTRY_ADDED", "NETWORK_PERMISSION_ENTRY_REMOVED", "NETWORK_PERMISSION_ENTRY_UPDATED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_ADDED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_REMOVED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_UPDATED", "PLAN_STARTED", "PLAN_COMPLETED", "PLAN_ABANDONED", "PLAN_FAILURE_COUNT_RESET", "PLAN_ASAP_REQUESTED", "MOVE_SKIPPED", "PROXY_RESTARTED", "PROXY_PANICKED", "ATLAS_MAINTENANCE_WINDOW_ADDED", "ATLAS_MAINTENANCE_WINDOW_MODIFIED", "ATLAS_MAINTENANCE_WINDOW_REMOVED", "ATLAS_MAINTENANCE_START_ASAP", "ATLAS_MAINTENANCE_SCHEDULED_FOR_NEXT_WINDOW", "ATLAS_MAINTENANCE_DEFERRED", "ATLAS_MAINTENANCE_AUTO_DEFER_ENABLED", "ATLAS_MAINTENANCE_AUTO_DEFER_DISABLED", "SCHEDULED_MAINTENANCE", "PROJECT_SCHEDULED_MAINTENANCE", "PROJECT_LIMIT_UPDATED", "PROJECT_OPERATIONAL_LIMIT_UPDATED", "PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED", "OS_MAINTENANCE", "OS_MAINTENANCE_RESTART", "OS_MAINTENANCE_REPLACEMENT", "FREE_UPGRADE_STARTED", "TEST_FAILOVER_REQUESTED", "USER_SECURITY_SETTINGS_UPDATED", "AUDIT_LOG_CONFIGURATION_UPDATED", "STREAMS_AUDIT_LOG_CONFIGURATION_UPDATED", "ENCRYPTION_AT_REST_CONFIGURATION_UPDATED", "ENCRYPTION_AT_REST_CONFIGURATION_VALIDATION_FAILED", "NDS_SET_IMAGE_OVERRIDES", "NDS_SET_CHEF_TARBALL_URI", "RESTRICTED_EMPLOYEE_ACCESS_BYPASS", "REVOKED_EMPLOYEE_ACCESS_BYPASS", "DEVICE_SYNC_DEBUG_ACCESS_GRANTED", "DEVICE_SYNC_DEBUG_ACCESS_REVOKED", "DEVICE_SYNC_DEBUG_X509_CERT_CREATED", "QUERY_ENGINE_TENANT_CREATED", "QUERY_ENGINE_TENANT_UPDATED", "QUERY_ENGINE_TENANT_REMOVED", "FEDERATED_DATABASE_CREATED", "FEDERATED_DATABASE_UPDATED", "FEDERATED_DATABASE_REMOVED", "TENANT_CLUSTER_UPGRADE_FROM_MTM", "TENANT_SNAPSHOT_FAILED", "TENANT_RESTORE_FAILED", "SAMPLE_DATASET_LOAD_REQUESTED", "CUSTOMER_X509_CRL_UPDATED", "CONTAINER_SUBNETS_UPDATE_REQUESTED", "CLEAR_UNPROVISIONED_TARGET_GROUPS_REQUESTED", "ONLINE_ARCHIVE_CREATED", "ONLINE_ARCHIVE_DELETED", "ONLINE_ARCHIVE_UPDATED", "ONLINE_ARCHIVE_PAUSE_REQUESTED", "ONLINE_ARCHIVE_PAUSED", "ONLINE_ARCHIVE_ACTIVE", "ONLINE_ARCHIVE_ORPHANED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_ENABLED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_UPDATED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_DISABLED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_ADDED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_DELETED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_UPDATED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_ADDED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_DELETED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_UPDATED", "PENDING_INDEXES_DELETED", "PENDING_INDEXES_CANCELED", "PROCESS_RESTART_REQUESTED", "AUTO_HEALING_ACTION", "EXTRA_MAINTENANCE_DEFERRAL_GRANTED", "ADMIN_NOTE_UPDATED", "GROUP_AUTOMATION_CONFIG_PUBLISHED", "CLUSTER_AUTOMATION_CONFIG_PUBLISHED", "SET_ENSURE_CLUSTER_CONNECTIVITY_AFTER_FOR_CLUSTER", "CLUSTER_LINKED_TO_VERCEL", "CLUSTER_UNLINKED_FROM_VERCEL", "INGESTION_PIPELINE_DELETED", "INGESTION_PIPELINE_DESTROYED", "INGESTION_PIPELINE_CREATED", "INGESTION_PIPELINE_UPDATED", "OS_TUNE_FILE_OVERRIDES", "CLUSTER_PREFERRED_CPU_ARCHITECTURE_MODIFIED", "CLUSTER_FORCE_PLANNED", "DATA_PROCESSING_REGION_UPDATED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_STARTED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_FAILED_TO_START", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_END_REQUESTED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_COMPLETED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_CANCELLED_CLUSTER_PAUSE", "UIS_PANICKED", "TENANT_UPGRADE_TO_SERVERLESS_SUCCESSFUL", "TENANT_UPGRADE_TO_SERVERLESS_FAILED", "CLUSTER_FORCE_RECONFIG_REQUESTED", "PROJECT_BYPASSED_MAINTENANCE", "DATA_FEDERATION_QUERY_LIMIT_CONFIGURED", "DATA_FEDERATION_QUERY_LIMIT_DELETED", "DATA_API_SETUP_FOR_VERCEL", "ADMIN_CLUSTER_LOCK_UPDATED", "CLUSTER_ROLLING_RESYNC_STARTED", "CLUSTER_ROLLING_RESYNC_COMPLETED", "CLUSTER_ROLLING_RESYNC_FAILED", "NODE_ROLLING_RESYNC_SCHEDULED", "CLUSTER_ROLLING_RESYNC_CANCELED", "CLUSTER_OS_UPDATED", "CLUSTER_INSTANCE_FAMILY_UPDATED", "PUSH_BASED_LOG_EXPORT_ENABLED", "PUSH_BASED_LOG_EXPORT_CONFIGURATION_UPDATED", "PUSH_BASED_LOG_EXPORT_DISABLED", "AZURE_CLUSTER_PREFERRED_STORAGE_TYPE_UPDATED", "CONTAINER_DELETED", "REGIONALIZED_PRIVATE_ENDPOINT_MODE_ENABLED", "REGIONALIZED_PRIVATE_ENDPOINT_MODE_DISABLED", "STREAM_TENANT_CREATED", "STREAM_TENANT_UPDATED", "STREAM_TENANT_DELETED", "STREAM_TENANT_CONNECTIONS_LISTED", "STREAM_TENANT_CONNECTION_UPDATED", "STREAM_TENANT_CONNECTION_DELETED", "STREAM_TENANT_CONNECTION_CREATED", "STREAM_TENANT_CONNECTION_VIEWED", "STREAM_TENANT_AUDIT_LOGS", "STREAM_TENANT_AUDIT_LOGS_DELETED" ],
+          "enum" : [ "CLUSTER_CREATED", "CLUSTER_RESURRECTED", "CLUSTER_READY", "CLUSTER_UPDATE_SUBMITTED", "CLUSTER_UPDATE_SUBMITTED_INTERNAL", "CLUSTER_PROCESS_ARGS_UPDATE_SUBMITTED", "CLUSTER_MONGOT_PROCESS_ARGS_UPDATE_SUBMITTED", "CLUSTER_SERVER_PARAMETERS_UPDATE_SUBMITTED", "CLUSTER_AUTOMATICALLY_PAUSED", "CLUSTER_UPDATE_STARTED", "CLUSTER_UPDATE_STARTED_INTERNAL", "CLUSTER_UPDATE_COMPLETED", "MATERIAL_CLUSTER_UPDATE_COMPLETED_INTERNAL", "CLUSTER_DELETE_SUBMITTED", "CLUSTER_DELETE_SUBMITTED_INTERNAL", "CLUSTER_DELETED", "CLUSTER_IMPORT_STARTED", "CLUSTER_IMPORT_CANCELLED", "CLUSTER_IMPORT_EXPIRED", "CLUSTER_IMPORT_CUTOVER", "CLUSTER_IMPORT_RESTART_REQUESTED", "PROJECT_LIVE_IMPORT_OVERRIDES_ADDED", "PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED", "PROJECT_LIVE_IMPORT_OVERRIDES_DELETED", "CLUSTER_OPLOG_RESIZED", "CLUSTER_INSTANCE_RESTARTED", "CLUSTER_INSTANCE_STOP_START", "CLUSTER_INSTANCE_RESYNC_REQUESTED", "CLUSTER_INSTANCE_RESYNC_CLEARED", "CLUSTER_INSTANCE_UPDATE_REQUESTED", "CLUSTER_INSTANCE_REPLACED", "CLUSTER_INSTANCE_REPLACE_CLEARED", "CLUSTER_INSTANCE_CONFIG_UPDATED", "CLUSTER_INSTANCE_SSL_ROTATED", "CLUSTER_INSTANCE_SSL_ROTATED_PER_CLUSTER", "CLUSTER_INSTANCE_SSL_REVOKED", "RELOAD_SSL_ON_PROCESSES", "CLUSTER_INSTANCE_ADMIN_BACKUP_SNAPSHOT_REQUESTED", "UPDATE_BUMPER_FILES", "DATA_LAKE_QUERY_LOGS_DOWNLOADED", "FEDERATED_DATABASE_QUERY_LOGS_DOWNLOADED", "ONLINE_ARCHIVE_QUERY_LOGS_DOWNLOADED", "MONGODB_LOGS_DOWNLOADED", "MONGOSQLD_LOGS_DOWNLOADED", "MONGODB_USER_ADDED", "MONGODB_USER_DELETED", "MONGODB_USER_X509_CERT_CREATED", "MONGODB_USER_X509_CERT_REVOKED", "MONGODB_USER_UPDATED", "MONGODB_ROLE_ADDED", "MONGODB_ROLE_DELETED", "MONGODB_ROLE_UPDATED", "NETWORK_PERMISSION_ENTRY_ADDED", "NETWORK_PERMISSION_ENTRY_REMOVED", "NETWORK_PERMISSION_ENTRY_UPDATED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_ADDED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_REMOVED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_UPDATED", "PLAN_STARTED", "PLAN_COMPLETED", "PLAN_ABANDONED", "PLAN_FAILURE_COUNT_RESET", "PLAN_ASAP_REQUESTED", "INDEPENDENT_SHARD_SCALING_AVAILABLE", "MOVE_SKIPPED", "PROXY_RESTARTED", "PROXY_PANICKED", "ATLAS_MAINTENANCE_WINDOW_ADDED", "ATLAS_MAINTENANCE_WINDOW_MODIFIED", "ATLAS_MAINTENANCE_WINDOW_REMOVED", "ATLAS_MAINTENANCE_START_ASAP", "ATLAS_MAINTENANCE_SCHEDULED_FOR_NEXT_WINDOW", "ATLAS_MAINTENANCE_DEFERRED", "ATLAS_MAINTENANCE_AUTO_DEFER_ENABLED", "ATLAS_MAINTENANCE_AUTO_DEFER_DISABLED", "SCHEDULED_MAINTENANCE", "PROJECT_SCHEDULED_MAINTENANCE", "PROJECT_LIMIT_UPDATED", "PROJECT_OPERATIONAL_LIMIT_UPDATED", "PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED", "OS_MAINTENANCE", "OS_MAINTENANCE_RESTART", "OS_MAINTENANCE_REPLACEMENT", "FREE_UPGRADE_STARTED", "TEST_FAILOVER_REQUESTED", "USER_SECURITY_SETTINGS_UPDATED", "AUDIT_LOG_CONFIGURATION_UPDATED", "STREAMS_AUDIT_LOG_CONFIGURATION_UPDATED", "ENCRYPTION_AT_REST_CONFIGURATION_UPDATED", "ENCRYPTION_AT_REST_CONFIGURATION_VALIDATION_FAILED", "NDS_SET_IMAGE_OVERRIDES", "NDS_SET_CHEF_TARBALL_URI", "RESTRICTED_EMPLOYEE_ACCESS_BYPASS", "REVOKED_EMPLOYEE_ACCESS_BYPASS", "DEVICE_SYNC_DEBUG_ACCESS_GRANTED", "DEVICE_SYNC_DEBUG_ACCESS_REVOKED", "DEVICE_SYNC_DEBUG_X509_CERT_CREATED", "QUERY_ENGINE_TENANT_CREATED", "QUERY_ENGINE_TENANT_UPDATED", "QUERY_ENGINE_TENANT_REMOVED", "FEDERATED_DATABASE_CREATED", "FEDERATED_DATABASE_UPDATED", "FEDERATED_DATABASE_REMOVED", "TENANT_CLUSTER_UPGRADE_FROM_MTM", "TENANT_SNAPSHOT_FAILED", "TENANT_RESTORE_FAILED", "SAMPLE_DATASET_LOAD_REQUESTED", "CUSTOMER_X509_CRL_UPDATED", "CONTAINER_SUBNETS_UPDATE_REQUESTED", "CLEAR_UNPROVISIONED_TARGET_GROUPS_REQUESTED", "ONLINE_ARCHIVE_CREATED", "ONLINE_ARCHIVE_DELETED", "ONLINE_ARCHIVE_UPDATED", "ONLINE_ARCHIVE_PAUSE_REQUESTED", "ONLINE_ARCHIVE_PAUSED", "ONLINE_ARCHIVE_ACTIVE", "ONLINE_ARCHIVE_ORPHANED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_ENABLED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_UPDATED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_DISABLED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_ADDED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_DELETED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_UPDATED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_ADDED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_DELETED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_UPDATED", "PENDING_INDEXES_DELETED", "PENDING_INDEXES_CANCELED", "PROCESS_RESTART_REQUESTED", "AUTO_HEALING_ACTION", "EXTRA_MAINTENANCE_DEFERRAL_GRANTED", "ADMIN_NOTE_UPDATED", "GROUP_AUTOMATION_CONFIG_PUBLISHED", "CLUSTER_AUTOMATION_CONFIG_PUBLISHED", "SET_ENSURE_CLUSTER_CONNECTIVITY_AFTER_FOR_CLUSTER", "CLUSTER_LINKED_TO_VERCEL", "CLUSTER_UNLINKED_FROM_VERCEL", "INGESTION_PIPELINE_DELETED", "INGESTION_PIPELINE_DESTROYED", "INGESTION_PIPELINE_CREATED", "INGESTION_PIPELINE_UPDATED", "OS_TUNE_FILE_OVERRIDES", "CLUSTER_PREFERRED_CPU_ARCHITECTURE_MODIFIED", "CLUSTER_FORCE_PLANNED", "DATA_PROCESSING_REGION_UPDATED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_STARTED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_FAILED_TO_START", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_END_REQUESTED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_COMPLETED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_CANCELLED_CLUSTER_PAUSE", "UIS_PANICKED", "TENANT_UPGRADE_TO_SERVERLESS_SUCCESSFUL", "TENANT_UPGRADE_TO_SERVERLESS_FAILED", "CLUSTER_FORCE_RECONFIG_REQUESTED", "PROJECT_BYPASSED_MAINTENANCE", "DATA_FEDERATION_QUERY_LIMIT_CONFIGURED", "DATA_FEDERATION_QUERY_LIMIT_DELETED", "DATA_API_SETUP_FOR_VERCEL", "ADMIN_CLUSTER_LOCK_UPDATED", "CLUSTER_ROLLING_RESYNC_STARTED", "CLUSTER_ROLLING_RESYNC_COMPLETED", "CLUSTER_ROLLING_RESYNC_FAILED", "NODE_ROLLING_RESYNC_SCHEDULED", "CLUSTER_ROLLING_RESYNC_CANCELED", "CLUSTER_OS_UPDATED", "CLUSTER_INSTANCE_FAMILY_UPDATED", "PUSH_BASED_LOG_EXPORT_ENABLED", "PUSH_BASED_LOG_EXPORT_CONFIGURATION_UPDATED", "PUSH_BASED_LOG_EXPORT_DISABLED", "AZURE_CLUSTER_PREFERRED_STORAGE_TYPE_UPDATED", "CONTAINER_DELETED", "REGIONALIZED_PRIVATE_ENDPOINT_MODE_ENABLED", "REGIONALIZED_PRIVATE_ENDPOINT_MODE_DISABLED", "STREAM_TENANT_CREATED", "STREAM_TENANT_UPDATED", "STREAM_TENANT_DELETED", "STREAM_TENANT_CONNECTIONS_LISTED", "STREAM_TENANT_CONNECTION_UPDATED", "STREAM_TENANT_CONNECTION_DELETED", "STREAM_TENANT_CONNECTION_CREATED", "STREAM_TENANT_CONNECTION_VIEWED", "STREAM_TENANT_AUDIT_LOGS", "STREAM_TENANT_AUDIT_LOGS_DELETED", "QUEUED_ADMIN_ACTION_CREATED", "ATLAS_SQL_SCHEDULED_UPDATE_CREATED", "ATLAS_SQL_SCHEDULED_UPDATE_MODIFIED", "ATLAS_SQL_SCHEDULED_UPDATE_REMOVED" ],
           "title" : "NDS Audit Types"
         }, {
           "type" : "string",
@@ -31359,7 +31378,7 @@
           "title" : "User Event Types"
         }, {
           "type" : "string",
-          "enum" : [ "CLUSTER_VERSION_FIXED", "CLUSTER_VERSION_UNFIXED", "CLUSTER_FCV_FIXED", "CLUSTER_FCV_UNFIXED", "AGENT_VERSION_FIXED", "AGENT_VERSION_UNFIXED", "FIXED_VERSION_UPDATED", "FIXED_AGENT_VERSION_UPDATED" ],
+          "enum" : [ "CLUSTER_VERSION_FIXED", "CLUSTER_VERSION_UNFIXED", "CLUSTER_FCV_FIXED", "CLUSTER_FCV_UNFIXED", "AGENT_VERSION_FIXED", "AGENT_VERSION_UNFIXED", "FIXED_VERSION_UPDATED", "FIXED_AGENT_VERSION_UPDATED", "CLUSTER_FCV_DOWNGRADED" ],
           "title" : "Version Audit Types"
         }, {
           "type" : "string",
@@ -31407,7 +31426,7 @@
           "title" : "NDS Audit Types"
         }, {
           "type" : "string",
-          "enum" : [ "ORG_CREATED", "ORG_CREDIT_CARD_ADDED", "ORG_CREDIT_CARD_UPDATED", "ORG_CREDIT_CARD_CURRENT", "ORG_CREDIT_CARD_ABOUT_TO_EXPIRE", "ORG_PAYPAL_LINKED", "ORG_PAYPAL_UPDATED", "ORG_PAYPAL_CANCELLED", "ORG_OVERRIDE_PAYMENT_METHOD_ADDED", "ORG_ACTIVATED", "ORG_TEMPORARILY_ACTIVATED", "ORG_SUSPENSION_DATE_CHANGED", "ORG_SUSPENDED", "ORG_ADMIN_SUSPENDED", "ORG_ADMIN_LOCKED", "ORG_CLUSTERS_DELETED", "ORG_CLUSTERS_PAUSED", "ORG_LOCKED", "ORG_UNDER_FINANCIAL_PROTECTION", "ORG_NO_FINANCIAL_PROTECTION", "ORG_RENAMED", "ALL_ORG_USERS_HAVE_MFA", "ORG_USERS_WITHOUT_MFA", "ORG_INVOICE_UNDER_THRESHOLD", "ORG_INVOICE_OVER_THRESHOLD", "ORG_DAILY_BILL_UNDER_THRESHOLD", "ORG_DAILY_BILL_OVER_THRESHOLD", "ORG_GROUP_CHARGES_UNDER_THRESHOLD", "ORG_GROUP_CHARGES_OVER_THRESHOLD", "ORG_TWO_FACTOR_AUTH_REQUIRED", "ORG_TWO_FACTOR_AUTH_OPTIONAL", "ORG_PUBLIC_API_ACCESS_LIST_REQUIRED", "ORG_PUBLIC_API_ACCESS_LIST_NOT_REQUIRED", "ORG_EMPLOYEE_ACCESS_RESTRICTED", "ORG_EMPLOYEE_ACCESS_UNRESTRICTED", "ORG_SFDC_ACCOUNT_ID_CHANGED", "ORG_CONNECTED_TO_MLAB", "ORG_DISCONNECTED_FROM_MLAB", "ORG_IDP_CERTIFICATE_CURRENT", "ORG_IDP_CERTIFICATE_ABOUT_TO_EXPIRE", "ORG_CONNECTED_TO_VERCEL", "ORG_DISCONNECTED_TO_VERCEL", "ORG_CONNECTION_UNINSTALLED_FROM_VERCEL", "ORG_UI_IP_ACCESS_LIST_ENABLED", "ORG_UI_IP_ACCESS_LIST_DISABLED", "ORG_EDITED_UI_IP_ACCESS_LIST_ENTRIES", "ORG_SERVICE_ACCOUNT_MAX_SECRET_VALIDITY_EDITED" ],
+          "enum" : [ "ORG_CREATED", "SECURITY_CONTACT_MODIFIED", "ORG_CREDIT_CARD_ADDED", "ORG_CREDIT_CARD_UPDATED", "ORG_CREDIT_CARD_CURRENT", "ORG_CREDIT_CARD_ABOUT_TO_EXPIRE", "ORG_PAYPAL_LINKED", "ORG_PAYPAL_UPDATED", "ORG_PAYPAL_CANCELLED", "ORG_OVERRIDE_PAYMENT_METHOD_ADDED", "ORG_ACTIVATED", "ORG_TEMPORARILY_ACTIVATED", "ORG_SUSPENSION_DATE_CHANGED", "ORG_SUSPENDED", "ORG_ADMIN_SUSPENDED", "ORG_ADMIN_LOCKED", "ORG_CLUSTERS_DELETED", "ORG_CLUSTERS_PAUSED", "ORG_LOCKED", "ORG_UNDER_FINANCIAL_PROTECTION", "ORG_NO_FINANCIAL_PROTECTION", "ORG_RENAMED", "ALL_ORG_USERS_HAVE_MFA", "ORG_USERS_WITHOUT_MFA", "ORG_INVOICE_UNDER_THRESHOLD", "ORG_INVOICE_OVER_THRESHOLD", "ORG_DAILY_BILL_UNDER_THRESHOLD", "ORG_DAILY_BILL_OVER_THRESHOLD", "ORG_GROUP_CHARGES_UNDER_THRESHOLD", "ORG_GROUP_CHARGES_OVER_THRESHOLD", "ORG_TWO_FACTOR_AUTH_REQUIRED", "ORG_TWO_FACTOR_AUTH_OPTIONAL", "ORG_PUBLIC_API_ACCESS_LIST_REQUIRED", "ORG_PUBLIC_API_ACCESS_LIST_NOT_REQUIRED", "ORG_EMPLOYEE_ACCESS_RESTRICTED", "ORG_EMPLOYEE_ACCESS_UNRESTRICTED", "ORG_SFDC_ACCOUNT_ID_CHANGED", "ORG_CONNECTED_TO_MLAB", "ORG_DISCONNECTED_FROM_MLAB", "ORG_IDP_CERTIFICATE_CURRENT", "ORG_IDP_CERTIFICATE_ABOUT_TO_EXPIRE", "ORG_CONNECTED_TO_VERCEL", "ORG_DISCONNECTED_TO_VERCEL", "ORG_CONNECTION_UNINSTALLED_FROM_VERCEL", "ORG_UI_IP_ACCESS_LIST_ENABLED", "ORG_UI_IP_ACCESS_LIST_DISABLED", "ORG_EDITED_UI_IP_ACCESS_LIST_ENTRIES", "ORG_SERVICE_ACCOUNT_MAX_SECRET_VALIDITY_EDITED" ],
           "title" : "Org Event Types"
         }, {
           "type" : "string",
@@ -31823,7 +31842,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           },
           "updatedAt" : {
             "type" : "string",
@@ -31866,7 +31886,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           }
         }
       },
@@ -31940,7 +31961,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           },
           "updatedAt" : {
             "type" : "string",
@@ -31998,7 +32020,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           },
           "userClaim" : {
             "type" : "string",
@@ -32083,7 +32106,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           },
           "requestedScopes" : {
             "type" : "array",
@@ -32156,7 +32180,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           },
           "requestedScopes" : {
             "type" : "array",
@@ -32237,7 +32262,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           },
           "updatedAt" : {
             "type" : "string",
@@ -32291,7 +32317,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           },
           "userClaim" : {
             "type" : "string",
@@ -32371,7 +32398,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           },
           "requestBinding" : {
             "type" : "string",
@@ -32446,7 +32474,8 @@
           },
           "protocol" : {
             "type" : "string",
-            "description" : "The protocol of the identity provider. Either SAML or OIDC."
+            "description" : "String enum that indicates the protocol of the identity provider. Either SAML or OIDC.",
+            "enum" : [ "SAML", "OIDC" ]
           },
           "requestBinding" : {
             "type" : "string",
@@ -35144,11 +35173,6 @@
             "default" : 3,
             "description" : "Version applied to this text index. MongoDB 3.2 and later use version `3`. Use this option to override the default version number. This option applies to the **text** index type only."
           },
-          "unique" : {
-            "type" : "boolean",
-            "default" : false,
-            "description" : "Flag that indicates whether this index can accept insertion or update of documents when the index key value matches an existing index key value. Set `\"unique\" : true` to set this index as unique. You can't set a hashed index to be unique. This option applies to all index types. This option is unsupported for rolling indexes."
-          },
           "weights" : {
             "type" : "object",
             "additionalProperties" : {
@@ -35730,7 +35754,7 @@
           },
           "mongoDBMajorVersion" : {
             "type" : "string",
-            "description" : "MongoDB major version of the cluster.\n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time.",
+            "description" : "MongoDB major version of the cluster.\n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time. If the cluster is pinned to a MongoDB feature compatibility version exactly one major version below the current MongoDB version, the MongoDB version can be downgraded to the previous major version.",
             "externalDocs" : {
               "description" : "Available MongoDB Versions in Atlas",
               "url" : "https://www.mongodb.com/docs/atlas/reference/faq/database/#which-versions-of-mongodb-do-service-clusters-use-"
@@ -35983,7 +36007,7 @@
           },
           "mongoDBMajorVersion" : {
             "type" : "string",
-            "description" : "MongoDB major version of the cluster.\n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time.",
+            "description" : "MongoDB major version of the cluster.\n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time. If the cluster is pinned to a MongoDB feature compatibility version exactly one major version below the current MongoDB version, the MongoDB version can be downgraded to the previous major version.",
             "externalDocs" : {
               "description" : "Available MongoDB Versions in Atlas",
               "url" : "https://www.mongodb.com/docs/atlas/reference/faq/database/#which-versions-of-mongodb-do-service-clusters-use-"
@@ -37289,7 +37313,7 @@
       "NDSAuditTypeViewForNdsGroup" : {
         "type" : "string",
         "description" : "Unique identifier of event type.",
-        "enum" : [ "CLUSTER_CREATED", "CLUSTER_RESURRECTED", "CLUSTER_READY", "CLUSTER_UPDATE_SUBMITTED", "CLUSTER_UPDATE_SUBMITTED_INTERNAL", "CLUSTER_PROCESS_ARGS_UPDATE_SUBMITTED", "CLUSTER_MONGOT_PROCESS_ARGS_UPDATE_SUBMITTED", "CLUSTER_SERVER_PARAMETERS_UPDATE_SUBMITTED", "CLUSTER_AUTOMATICALLY_PAUSED", "CLUSTER_UPDATE_STARTED", "CLUSTER_UPDATE_STARTED_INTERNAL", "CLUSTER_UPDATE_COMPLETED", "MATERIAL_CLUSTER_UPDATE_COMPLETED_INTERNAL", "CLUSTER_DELETE_SUBMITTED", "CLUSTER_DELETE_SUBMITTED_INTERNAL", "CLUSTER_DELETED", "CLUSTER_IMPORT_STARTED", "CLUSTER_IMPORT_CANCELLED", "CLUSTER_IMPORT_EXPIRED", "CLUSTER_IMPORT_CUTOVER", "CLUSTER_IMPORT_RESTART_REQUESTED", "PROJECT_LIVE_IMPORT_OVERRIDES_ADDED", "PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED", "PROJECT_LIVE_IMPORT_OVERRIDES_DELETED", "CLUSTER_OPLOG_RESIZED", "CLUSTER_INSTANCE_RESTARTED", "CLUSTER_INSTANCE_STOP_START", "CLUSTER_INSTANCE_RESYNC_REQUESTED", "CLUSTER_INSTANCE_RESYNC_CLEARED", "CLUSTER_INSTANCE_UPDATE_REQUESTED", "CLUSTER_INSTANCE_REPLACED", "CLUSTER_INSTANCE_REPLACE_CLEARED", "CLUSTER_INSTANCE_CONFIG_UPDATED", "CLUSTER_INSTANCE_SSL_ROTATED", "CLUSTER_INSTANCE_SSL_ROTATED_PER_CLUSTER", "CLUSTER_INSTANCE_SSL_REVOKED", "RELOAD_SSL_ON_PROCESSES", "CLUSTER_INSTANCE_ADMIN_BACKUP_SNAPSHOT_REQUESTED", "UPDATE_BUMPER_FILES", "DATA_LAKE_QUERY_LOGS_DOWNLOADED", "FEDERATED_DATABASE_QUERY_LOGS_DOWNLOADED", "ONLINE_ARCHIVE_QUERY_LOGS_DOWNLOADED", "MONGODB_LOGS_DOWNLOADED", "MONGOSQLD_LOGS_DOWNLOADED", "MONGODB_USER_ADDED", "MONGODB_USER_DELETED", "MONGODB_USER_X509_CERT_CREATED", "MONGODB_USER_X509_CERT_REVOKED", "MONGODB_USER_UPDATED", "MONGODB_ROLE_ADDED", "MONGODB_ROLE_DELETED", "MONGODB_ROLE_UPDATED", "NETWORK_PERMISSION_ENTRY_ADDED", "NETWORK_PERMISSION_ENTRY_REMOVED", "NETWORK_PERMISSION_ENTRY_UPDATED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_ADDED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_REMOVED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_UPDATED", "PLAN_STARTED", "PLAN_COMPLETED", "PLAN_ABANDONED", "PLAN_FAILURE_COUNT_RESET", "PLAN_ASAP_REQUESTED", "MOVE_SKIPPED", "PROXY_RESTARTED", "PROXY_PANICKED", "ATLAS_MAINTENANCE_WINDOW_ADDED", "ATLAS_MAINTENANCE_WINDOW_MODIFIED", "ATLAS_MAINTENANCE_WINDOW_REMOVED", "ATLAS_MAINTENANCE_START_ASAP", "ATLAS_MAINTENANCE_SCHEDULED_FOR_NEXT_WINDOW", "ATLAS_MAINTENANCE_DEFERRED", "ATLAS_MAINTENANCE_AUTO_DEFER_ENABLED", "ATLAS_MAINTENANCE_AUTO_DEFER_DISABLED", "SCHEDULED_MAINTENANCE", "PROJECT_SCHEDULED_MAINTENANCE", "PROJECT_LIMIT_UPDATED", "PROJECT_OPERATIONAL_LIMIT_UPDATED", "PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED", "OS_MAINTENANCE", "OS_MAINTENANCE_RESTART", "OS_MAINTENANCE_REPLACEMENT", "FREE_UPGRADE_STARTED", "TEST_FAILOVER_REQUESTED", "USER_SECURITY_SETTINGS_UPDATED", "AUDIT_LOG_CONFIGURATION_UPDATED", "STREAMS_AUDIT_LOG_CONFIGURATION_UPDATED", "ENCRYPTION_AT_REST_CONFIGURATION_UPDATED", "ENCRYPTION_AT_REST_CONFIGURATION_VALIDATION_FAILED", "NDS_SET_IMAGE_OVERRIDES", "NDS_SET_CHEF_TARBALL_URI", "RESTRICTED_EMPLOYEE_ACCESS_BYPASS", "REVOKED_EMPLOYEE_ACCESS_BYPASS", "DEVICE_SYNC_DEBUG_ACCESS_GRANTED", "DEVICE_SYNC_DEBUG_ACCESS_REVOKED", "DEVICE_SYNC_DEBUG_X509_CERT_CREATED", "QUERY_ENGINE_TENANT_CREATED", "QUERY_ENGINE_TENANT_UPDATED", "QUERY_ENGINE_TENANT_REMOVED", "FEDERATED_DATABASE_CREATED", "FEDERATED_DATABASE_UPDATED", "FEDERATED_DATABASE_REMOVED", "TENANT_CLUSTER_UPGRADE_FROM_MTM", "TENANT_SNAPSHOT_FAILED", "TENANT_RESTORE_FAILED", "SAMPLE_DATASET_LOAD_REQUESTED", "CUSTOMER_X509_CRL_UPDATED", "CONTAINER_SUBNETS_UPDATE_REQUESTED", "CLEAR_UNPROVISIONED_TARGET_GROUPS_REQUESTED", "ONLINE_ARCHIVE_CREATED", "ONLINE_ARCHIVE_DELETED", "ONLINE_ARCHIVE_UPDATED", "ONLINE_ARCHIVE_PAUSE_REQUESTED", "ONLINE_ARCHIVE_PAUSED", "ONLINE_ARCHIVE_ACTIVE", "ONLINE_ARCHIVE_ORPHANED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_ENABLED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_UPDATED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_DISABLED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_ADDED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_DELETED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_UPDATED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_ADDED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_DELETED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_UPDATED", "PENDING_INDEXES_DELETED", "PENDING_INDEXES_CANCELED", "PROCESS_RESTART_REQUESTED", "AUTO_HEALING_ACTION", "EXTRA_MAINTENANCE_DEFERRAL_GRANTED", "ADMIN_NOTE_UPDATED", "GROUP_AUTOMATION_CONFIG_PUBLISHED", "CLUSTER_AUTOMATION_CONFIG_PUBLISHED", "SET_ENSURE_CLUSTER_CONNECTIVITY_AFTER_FOR_CLUSTER", "CLUSTER_LINKED_TO_VERCEL", "CLUSTER_UNLINKED_FROM_VERCEL", "INGESTION_PIPELINE_DELETED", "INGESTION_PIPELINE_DESTROYED", "INGESTION_PIPELINE_CREATED", "INGESTION_PIPELINE_UPDATED", "OS_TUNE_FILE_OVERRIDES", "CLUSTER_PREFERRED_CPU_ARCHITECTURE_MODIFIED", "CLUSTER_FORCE_PLANNED", "DATA_PROCESSING_REGION_UPDATED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_STARTED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_FAILED_TO_START", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_END_REQUESTED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_COMPLETED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_CANCELLED_CLUSTER_PAUSE", "UIS_PANICKED", "TENANT_UPGRADE_TO_SERVERLESS_SUCCESSFUL", "TENANT_UPGRADE_TO_SERVERLESS_FAILED", "CLUSTER_FORCE_RECONFIG_REQUESTED", "PROJECT_BYPASSED_MAINTENANCE", "DATA_FEDERATION_QUERY_LIMIT_CONFIGURED", "DATA_FEDERATION_QUERY_LIMIT_DELETED", "DATA_API_SETUP_FOR_VERCEL", "ADMIN_CLUSTER_LOCK_UPDATED", "CLUSTER_ROLLING_RESYNC_STARTED", "CLUSTER_ROLLING_RESYNC_COMPLETED", "CLUSTER_ROLLING_RESYNC_FAILED", "NODE_ROLLING_RESYNC_SCHEDULED", "CLUSTER_ROLLING_RESYNC_CANCELED", "CLUSTER_OS_UPDATED", "CLUSTER_INSTANCE_FAMILY_UPDATED", "PUSH_BASED_LOG_EXPORT_ENABLED", "PUSH_BASED_LOG_EXPORT_CONFIGURATION_UPDATED", "PUSH_BASED_LOG_EXPORT_DISABLED", "AZURE_CLUSTER_PREFERRED_STORAGE_TYPE_UPDATED", "CONTAINER_DELETED", "REGIONALIZED_PRIVATE_ENDPOINT_MODE_ENABLED", "REGIONALIZED_PRIVATE_ENDPOINT_MODE_DISABLED", "STREAM_TENANT_CREATED", "STREAM_TENANT_UPDATED", "STREAM_TENANT_DELETED", "STREAM_TENANT_CONNECTIONS_LISTED", "STREAM_TENANT_CONNECTION_UPDATED", "STREAM_TENANT_CONNECTION_DELETED", "STREAM_TENANT_CONNECTION_CREATED", "STREAM_TENANT_CONNECTION_VIEWED", "STREAM_TENANT_AUDIT_LOGS", "STREAM_TENANT_AUDIT_LOGS_DELETED" ],
+        "enum" : [ "CLUSTER_CREATED", "CLUSTER_RESURRECTED", "CLUSTER_READY", "CLUSTER_UPDATE_SUBMITTED", "CLUSTER_UPDATE_SUBMITTED_INTERNAL", "CLUSTER_PROCESS_ARGS_UPDATE_SUBMITTED", "CLUSTER_MONGOT_PROCESS_ARGS_UPDATE_SUBMITTED", "CLUSTER_SERVER_PARAMETERS_UPDATE_SUBMITTED", "CLUSTER_AUTOMATICALLY_PAUSED", "CLUSTER_UPDATE_STARTED", "CLUSTER_UPDATE_STARTED_INTERNAL", "CLUSTER_UPDATE_COMPLETED", "MATERIAL_CLUSTER_UPDATE_COMPLETED_INTERNAL", "CLUSTER_DELETE_SUBMITTED", "CLUSTER_DELETE_SUBMITTED_INTERNAL", "CLUSTER_DELETED", "CLUSTER_IMPORT_STARTED", "CLUSTER_IMPORT_CANCELLED", "CLUSTER_IMPORT_EXPIRED", "CLUSTER_IMPORT_CUTOVER", "CLUSTER_IMPORT_RESTART_REQUESTED", "PROJECT_LIVE_IMPORT_OVERRIDES_ADDED", "PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED", "PROJECT_LIVE_IMPORT_OVERRIDES_DELETED", "CLUSTER_OPLOG_RESIZED", "CLUSTER_INSTANCE_RESTARTED", "CLUSTER_INSTANCE_STOP_START", "CLUSTER_INSTANCE_RESYNC_REQUESTED", "CLUSTER_INSTANCE_RESYNC_CLEARED", "CLUSTER_INSTANCE_UPDATE_REQUESTED", "CLUSTER_INSTANCE_REPLACED", "CLUSTER_INSTANCE_REPLACE_CLEARED", "CLUSTER_INSTANCE_CONFIG_UPDATED", "CLUSTER_INSTANCE_SSL_ROTATED", "CLUSTER_INSTANCE_SSL_ROTATED_PER_CLUSTER", "CLUSTER_INSTANCE_SSL_REVOKED", "RELOAD_SSL_ON_PROCESSES", "CLUSTER_INSTANCE_ADMIN_BACKUP_SNAPSHOT_REQUESTED", "UPDATE_BUMPER_FILES", "DATA_LAKE_QUERY_LOGS_DOWNLOADED", "FEDERATED_DATABASE_QUERY_LOGS_DOWNLOADED", "ONLINE_ARCHIVE_QUERY_LOGS_DOWNLOADED", "MONGODB_LOGS_DOWNLOADED", "MONGOSQLD_LOGS_DOWNLOADED", "MONGODB_USER_ADDED", "MONGODB_USER_DELETED", "MONGODB_USER_X509_CERT_CREATED", "MONGODB_USER_X509_CERT_REVOKED", "MONGODB_USER_UPDATED", "MONGODB_ROLE_ADDED", "MONGODB_ROLE_DELETED", "MONGODB_ROLE_UPDATED", "NETWORK_PERMISSION_ENTRY_ADDED", "NETWORK_PERMISSION_ENTRY_REMOVED", "NETWORK_PERMISSION_ENTRY_UPDATED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_ADDED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_REMOVED", "PRIVATE_NETWORK_ENDPOINT_ENTRY_UPDATED", "PLAN_STARTED", "PLAN_COMPLETED", "PLAN_ABANDONED", "PLAN_FAILURE_COUNT_RESET", "PLAN_ASAP_REQUESTED", "INDEPENDENT_SHARD_SCALING_AVAILABLE", "MOVE_SKIPPED", "PROXY_RESTARTED", "PROXY_PANICKED", "ATLAS_MAINTENANCE_WINDOW_ADDED", "ATLAS_MAINTENANCE_WINDOW_MODIFIED", "ATLAS_MAINTENANCE_WINDOW_REMOVED", "ATLAS_MAINTENANCE_START_ASAP", "ATLAS_MAINTENANCE_SCHEDULED_FOR_NEXT_WINDOW", "ATLAS_MAINTENANCE_DEFERRED", "ATLAS_MAINTENANCE_AUTO_DEFER_ENABLED", "ATLAS_MAINTENANCE_AUTO_DEFER_DISABLED", "SCHEDULED_MAINTENANCE", "PROJECT_SCHEDULED_MAINTENANCE", "PROJECT_LIMIT_UPDATED", "PROJECT_OPERATIONAL_LIMIT_UPDATED", "PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED", "OS_MAINTENANCE", "OS_MAINTENANCE_RESTART", "OS_MAINTENANCE_REPLACEMENT", "FREE_UPGRADE_STARTED", "TEST_FAILOVER_REQUESTED", "USER_SECURITY_SETTINGS_UPDATED", "AUDIT_LOG_CONFIGURATION_UPDATED", "STREAMS_AUDIT_LOG_CONFIGURATION_UPDATED", "ENCRYPTION_AT_REST_CONFIGURATION_UPDATED", "ENCRYPTION_AT_REST_CONFIGURATION_VALIDATION_FAILED", "NDS_SET_IMAGE_OVERRIDES", "NDS_SET_CHEF_TARBALL_URI", "RESTRICTED_EMPLOYEE_ACCESS_BYPASS", "REVOKED_EMPLOYEE_ACCESS_BYPASS", "DEVICE_SYNC_DEBUG_ACCESS_GRANTED", "DEVICE_SYNC_DEBUG_ACCESS_REVOKED", "DEVICE_SYNC_DEBUG_X509_CERT_CREATED", "QUERY_ENGINE_TENANT_CREATED", "QUERY_ENGINE_TENANT_UPDATED", "QUERY_ENGINE_TENANT_REMOVED", "FEDERATED_DATABASE_CREATED", "FEDERATED_DATABASE_UPDATED", "FEDERATED_DATABASE_REMOVED", "TENANT_CLUSTER_UPGRADE_FROM_MTM", "TENANT_SNAPSHOT_FAILED", "TENANT_RESTORE_FAILED", "SAMPLE_DATASET_LOAD_REQUESTED", "CUSTOMER_X509_CRL_UPDATED", "CONTAINER_SUBNETS_UPDATE_REQUESTED", "CLEAR_UNPROVISIONED_TARGET_GROUPS_REQUESTED", "ONLINE_ARCHIVE_CREATED", "ONLINE_ARCHIVE_DELETED", "ONLINE_ARCHIVE_UPDATED", "ONLINE_ARCHIVE_PAUSE_REQUESTED", "ONLINE_ARCHIVE_PAUSED", "ONLINE_ARCHIVE_ACTIVE", "ONLINE_ARCHIVE_ORPHANED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_ENABLED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_UPDATED", "ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_DISABLED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_ADDED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_DELETED", "CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_UPDATED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_ADDED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_DELETED", "CLOUD_PROVIDER_ACCESS_AZURE_SERVICE_PRINCIPAL_UPDATED", "PENDING_INDEXES_DELETED", "PENDING_INDEXES_CANCELED", "PROCESS_RESTART_REQUESTED", "AUTO_HEALING_ACTION", "EXTRA_MAINTENANCE_DEFERRAL_GRANTED", "ADMIN_NOTE_UPDATED", "GROUP_AUTOMATION_CONFIG_PUBLISHED", "CLUSTER_AUTOMATION_CONFIG_PUBLISHED", "SET_ENSURE_CLUSTER_CONNECTIVITY_AFTER_FOR_CLUSTER", "CLUSTER_LINKED_TO_VERCEL", "CLUSTER_UNLINKED_FROM_VERCEL", "INGESTION_PIPELINE_DELETED", "INGESTION_PIPELINE_DESTROYED", "INGESTION_PIPELINE_CREATED", "INGESTION_PIPELINE_UPDATED", "OS_TUNE_FILE_OVERRIDES", "CLUSTER_PREFERRED_CPU_ARCHITECTURE_MODIFIED", "CLUSTER_FORCE_PLANNED", "DATA_PROCESSING_REGION_UPDATED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_STARTED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_FAILED_TO_START", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_END_REQUESTED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_COMPLETED", "CLUSTER_REGIONAL_OUTAGE_SIMULATION_CANCELLED_CLUSTER_PAUSE", "UIS_PANICKED", "TENANT_UPGRADE_TO_SERVERLESS_SUCCESSFUL", "TENANT_UPGRADE_TO_SERVERLESS_FAILED", "CLUSTER_FORCE_RECONFIG_REQUESTED", "PROJECT_BYPASSED_MAINTENANCE", "DATA_FEDERATION_QUERY_LIMIT_CONFIGURED", "DATA_FEDERATION_QUERY_LIMIT_DELETED", "DATA_API_SETUP_FOR_VERCEL", "ADMIN_CLUSTER_LOCK_UPDATED", "CLUSTER_ROLLING_RESYNC_STARTED", "CLUSTER_ROLLING_RESYNC_COMPLETED", "CLUSTER_ROLLING_RESYNC_FAILED", "NODE_ROLLING_RESYNC_SCHEDULED", "CLUSTER_ROLLING_RESYNC_CANCELED", "CLUSTER_OS_UPDATED", "CLUSTER_INSTANCE_FAMILY_UPDATED", "PUSH_BASED_LOG_EXPORT_ENABLED", "PUSH_BASED_LOG_EXPORT_CONFIGURATION_UPDATED", "PUSH_BASED_LOG_EXPORT_DISABLED", "AZURE_CLUSTER_PREFERRED_STORAGE_TYPE_UPDATED", "CONTAINER_DELETED", "REGIONALIZED_PRIVATE_ENDPOINT_MODE_ENABLED", "REGIONALIZED_PRIVATE_ENDPOINT_MODE_DISABLED", "STREAM_TENANT_CREATED", "STREAM_TENANT_UPDATED", "STREAM_TENANT_DELETED", "STREAM_TENANT_CONNECTIONS_LISTED", "STREAM_TENANT_CONNECTION_UPDATED", "STREAM_TENANT_CONNECTION_DELETED", "STREAM_TENANT_CONNECTION_CREATED", "STREAM_TENANT_CONNECTION_VIEWED", "STREAM_TENANT_AUDIT_LOGS", "STREAM_TENANT_AUDIT_LOGS_DELETED", "QUEUED_ADMIN_ACTION_CREATED", "ATLAS_SQL_SCHEDULED_UPDATE_CREATED", "ATLAS_SQL_SCHEDULED_UPDATE_MODIFIED", "ATLAS_SQL_SCHEDULED_UPDATE_REMOVED" ],
         "example" : "CLUSTER_CREATED",
         "title" : "NDS Audit Types"
       },
@@ -38615,7 +38639,7 @@
       "OrgEventTypeViewForOrg" : {
         "type" : "string",
         "description" : "Unique identifier of event type.",
-        "enum" : [ "ORG_CREATED", "ORG_CREDIT_CARD_ADDED", "ORG_CREDIT_CARD_UPDATED", "ORG_CREDIT_CARD_CURRENT", "ORG_CREDIT_CARD_ABOUT_TO_EXPIRE", "ORG_PAYPAL_LINKED", "ORG_PAYPAL_UPDATED", "ORG_PAYPAL_CANCELLED", "ORG_OVERRIDE_PAYMENT_METHOD_ADDED", "ORG_ACTIVATED", "ORG_TEMPORARILY_ACTIVATED", "ORG_SUSPENSION_DATE_CHANGED", "ORG_SUSPENDED", "ORG_ADMIN_SUSPENDED", "ORG_ADMIN_LOCKED", "ORG_CLUSTERS_DELETED", "ORG_CLUSTERS_PAUSED", "ORG_LOCKED", "ORG_UNDER_FINANCIAL_PROTECTION", "ORG_NO_FINANCIAL_PROTECTION", "ORG_RENAMED", "ALL_ORG_USERS_HAVE_MFA", "ORG_USERS_WITHOUT_MFA", "ORG_INVOICE_UNDER_THRESHOLD", "ORG_INVOICE_OVER_THRESHOLD", "ORG_DAILY_BILL_UNDER_THRESHOLD", "ORG_DAILY_BILL_OVER_THRESHOLD", "ORG_GROUP_CHARGES_UNDER_THRESHOLD", "ORG_GROUP_CHARGES_OVER_THRESHOLD", "ORG_TWO_FACTOR_AUTH_REQUIRED", "ORG_TWO_FACTOR_AUTH_OPTIONAL", "ORG_PUBLIC_API_ACCESS_LIST_REQUIRED", "ORG_PUBLIC_API_ACCESS_LIST_NOT_REQUIRED", "ORG_EMPLOYEE_ACCESS_RESTRICTED", "ORG_EMPLOYEE_ACCESS_UNRESTRICTED", "ORG_SFDC_ACCOUNT_ID_CHANGED", "ORG_CONNECTED_TO_MLAB", "ORG_DISCONNECTED_FROM_MLAB", "ORG_IDP_CERTIFICATE_CURRENT", "ORG_IDP_CERTIFICATE_ABOUT_TO_EXPIRE", "ORG_CONNECTED_TO_VERCEL", "ORG_DISCONNECTED_TO_VERCEL", "ORG_CONNECTION_UNINSTALLED_FROM_VERCEL", "ORG_UI_IP_ACCESS_LIST_ENABLED", "ORG_UI_IP_ACCESS_LIST_DISABLED", "ORG_EDITED_UI_IP_ACCESS_LIST_ENTRIES", "ORG_SERVICE_ACCOUNT_MAX_SECRET_VALIDITY_EDITED" ],
+        "enum" : [ "ORG_CREATED", "SECURITY_CONTACT_MODIFIED", "ORG_CREDIT_CARD_ADDED", "ORG_CREDIT_CARD_UPDATED", "ORG_CREDIT_CARD_CURRENT", "ORG_CREDIT_CARD_ABOUT_TO_EXPIRE", "ORG_PAYPAL_LINKED", "ORG_PAYPAL_UPDATED", "ORG_PAYPAL_CANCELLED", "ORG_OVERRIDE_PAYMENT_METHOD_ADDED", "ORG_ACTIVATED", "ORG_TEMPORARILY_ACTIVATED", "ORG_SUSPENSION_DATE_CHANGED", "ORG_SUSPENDED", "ORG_ADMIN_SUSPENDED", "ORG_ADMIN_LOCKED", "ORG_CLUSTERS_DELETED", "ORG_CLUSTERS_PAUSED", "ORG_LOCKED", "ORG_UNDER_FINANCIAL_PROTECTION", "ORG_NO_FINANCIAL_PROTECTION", "ORG_RENAMED", "ALL_ORG_USERS_HAVE_MFA", "ORG_USERS_WITHOUT_MFA", "ORG_INVOICE_UNDER_THRESHOLD", "ORG_INVOICE_OVER_THRESHOLD", "ORG_DAILY_BILL_UNDER_THRESHOLD", "ORG_DAILY_BILL_OVER_THRESHOLD", "ORG_GROUP_CHARGES_UNDER_THRESHOLD", "ORG_GROUP_CHARGES_OVER_THRESHOLD", "ORG_TWO_FACTOR_AUTH_REQUIRED", "ORG_TWO_FACTOR_AUTH_OPTIONAL", "ORG_PUBLIC_API_ACCESS_LIST_REQUIRED", "ORG_PUBLIC_API_ACCESS_LIST_NOT_REQUIRED", "ORG_EMPLOYEE_ACCESS_RESTRICTED", "ORG_EMPLOYEE_ACCESS_UNRESTRICTED", "ORG_SFDC_ACCOUNT_ID_CHANGED", "ORG_CONNECTED_TO_MLAB", "ORG_DISCONNECTED_FROM_MLAB", "ORG_IDP_CERTIFICATE_CURRENT", "ORG_IDP_CERTIFICATE_ABOUT_TO_EXPIRE", "ORG_CONNECTED_TO_VERCEL", "ORG_DISCONNECTED_TO_VERCEL", "ORG_CONNECTION_UNINSTALLED_FROM_VERCEL", "ORG_UI_IP_ACCESS_LIST_ENABLED", "ORG_UI_IP_ACCESS_LIST_DISABLED", "ORG_EDITED_UI_IP_ACCESS_LIST_ENTRIES", "ORG_SERVICE_ACCOUNT_MAX_SECRET_VALIDITY_EDITED" ],
         "example" : "ORG_CREATED",
         "title" : "Org Event Types"
       },
@@ -40341,6 +40365,38 @@
           }
         }
       },
+      "PaginatedEventTypeDetailsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "links" : {
+            "type" : "array",
+            "description" : "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs" : {
+              "description" : "Web Linking Specification (RFC 5988)",
+              "url" : "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            },
+            "readOnly" : true
+          },
+          "results" : {
+            "type" : "array",
+            "description" : "List of returned documents that MongoDB Cloud providers when completing this request.",
+            "items" : {
+              "$ref" : "#/components/schemas/EventTypeDetails"
+            },
+            "readOnly" : true
+          },
+          "totalCount" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.",
+            "minimum" : 0,
+            "readOnly" : true
+          }
+        }
+      },
       "PaginatedFederationIdentityProvider" : {
         "type" : "object",
         "properties" : {
@@ -41017,6 +41073,38 @@
           }
         }
       },
+      "PaginatedUSSInstance20250101" : {
+        "type" : "object",
+        "properties" : {
+          "links" : {
+            "type" : "array",
+            "description" : "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs" : {
+              "description" : "Web Linking Specification (RFC 5988)",
+              "url" : "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            },
+            "readOnly" : true
+          },
+          "results" : {
+            "type" : "array",
+            "description" : "List of returned documents that MongoDB Cloud providers when completing this request.",
+            "items" : {
+              "type" : "object"
+            },
+            "readOnly" : true
+          },
+          "totalCount" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.",
+            "minimum" : 0,
+            "readOnly" : true
+          }
+        }
+      },
       "PaginatedUserCertView" : {
         "type" : "object",
         "properties" : {
@@ -41361,6 +41449,28 @@
         } ],
         "description" : "Scheduled Cloud Provider Snapshot as Source for a Data Lake Pipeline.",
         "title" : "Periodic Cloud Provider Snapshot Source"
+      },
+      "PinFCVView" : {
+        "type" : "object",
+        "properties" : {
+          "expirationDate" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Expiration date of the fixed FCV. If left unspecified, will default to 4 weeks ahead of the existing pinnedDate (if an FCV is already pinned) or the current date. Note that this field cannot exceed 4 weeks from the pinned date."
+          },
+          "links" : {
+            "type" : "array",
+            "description" : "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs" : {
+              "description" : "Web Linking Specification (RFC 5988)",
+              "url" : "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            },
+            "readOnly" : true
+          }
+        }
       },
       "PinnedNamespaces" : {
         "type" : "object",
@@ -42449,7 +42559,7 @@
           },
           "zoneId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal digit string that identifies the zone in a Global Cluster. Provide this value only if `\"clusterType\" : \"GEOSHARDED\"`.",
+            "description" : "Unique 24-hexadecimal digit string that identifies the zone in a Global Cluster. This value can be used to configure Global Cluster backup policies.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -42458,7 +42568,7 @@
           },
           "zoneName" : {
             "type" : "string",
-            "description" : "Human-readable label that describes the zone in a Global Cluster. Provide this value only if `\"clusterType\" : \"GEOSHARDED\"`."
+            "description" : "Human-readable label that describes the zone this shard belongs to in a Global Cluster. Provide this value only if \"clusterType\" : \"GEOSHARDED\" but not \"selfManagedSharding\" : true."
           }
         },
         "title" : "Replication Specifications"
@@ -45238,6 +45348,59 @@
           }
         }
       },
+      "StreamsProcessorWithStats" : {
+        "type" : "object",
+        "description" : "An atlas stream processor with optional stats.",
+        "properties" : {
+          "_id" : {
+            "type" : "string",
+            "description" : "Unique 24-hexadecimal character string that identifies the stream processor.",
+            "example" : "32b6e34b3d91647abb20e7b8",
+            "maxLength" : 24,
+            "minLength" : 24,
+            "pattern" : "^([a-f0-9]{24})$",
+            "readOnly" : true
+          },
+          "links" : {
+            "type" : "array",
+            "description" : "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs" : {
+              "description" : "Web Linking Specification (RFC 5988)",
+              "url" : "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            },
+            "readOnly" : true
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "Human-readable name of the stream processor.",
+            "readOnly" : true
+          },
+          "pipeline" : {
+            "type" : "string",
+            "description" : "Stream aggregation pipeline you want to apply to your streaming data.",
+            "readOnly" : true
+          },
+          "state" : {
+            "type" : "string",
+            "description" : "The state of the stream processor.",
+            "readOnly" : true
+          },
+          "stats" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object",
+              "description" : "The stats associated with the stream processor.",
+              "readOnly" : true
+            },
+            "description" : "The stats associated with the stream processor.",
+            "readOnly" : true
+          }
+        },
+        "required" : [ "_id", "name", "pipeline", "state" ]
+      },
       "StreamsSampleConnection" : {
         "type" : "object",
         "allOf" : [ {
@@ -46737,6 +46900,264 @@
         },
         "required" : [ "snapshotId" ]
       },
+      "USSBackupSettings20250101" : {
+        "type" : "object",
+        "description" : "USS backup configuration",
+        "properties" : {
+          "enabled" : {
+            "type" : "boolean",
+            "default" : true,
+            "description" : "Flag that indicates whether backups are performed for this USS instance. Backup uses [TODO](TODO) for USS instances.",
+            "readOnly" : true
+          }
+        },
+        "readOnly" : true,
+        "title" : "USS backup configuration"
+      },
+      "USSConnectionStrings20250101" : {
+        "type" : "object",
+        "description" : "Collection of Uniform Resource Locators that point to the MongoDB database.",
+        "externalDocs" : {
+          "description" : "Connection string URI format.",
+          "url" : "https://docs.mongodb.com/manual/reference/connection-string/"
+        },
+        "properties" : {
+          "standard" : {
+            "type" : "string",
+            "description" : "Public connection string that you can use to connect to this cluster. This connection string uses the mongodb:// protocol.",
+            "externalDocs" : {
+              "description" : "Connection String URI Format",
+              "url" : "https://docs.mongodb.com/manual/reference/connection-string/"
+            },
+            "readOnly" : true
+          },
+          "standardSrv" : {
+            "type" : "string",
+            "description" : "Public connection string that you can use to connect to this USS instance. This connection string uses the `mongodb+srv://` protocol.",
+            "externalDocs" : {
+              "description" : "Connection String URI Format",
+              "url" : "https://docs.mongodb.com/manual/reference/connection-string/"
+            },
+            "readOnly" : true
+          }
+        },
+        "readOnly" : true,
+        "title" : "USS Instance Connection Strings"
+      },
+      "USSInstanceDescription20250101" : {
+        "type" : "object",
+        "description" : "Group of settings that configure a MongoDB USS instance.",
+        "properties" : {
+          "backupSettings" : {
+            "$ref" : "#/components/schemas/USSBackupSettings20250101"
+          },
+          "clusterType" : {
+            "type" : "string",
+            "description" : "USS instance topology.",
+            "enum" : [ "REPLICASET", "LOADBALANCED" ],
+            "readOnly" : true
+          },
+          "connectionStrings" : {
+            "$ref" : "#/components/schemas/USSConnectionStrings20250101"
+          },
+          "createDate" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Date and time when MongoDB Cloud created this instance. This parameter expresses its value in ISO 8601 format in UTC.",
+            "readOnly" : true
+          },
+          "groupId" : {
+            "type" : "string",
+            "description" : "Unique 24-hexadecimal character string that identifies the project.",
+            "example" : "32b6e34b3d91647abb20e7b8",
+            "maxLength" : 24,
+            "minLength" : 24,
+            "pattern" : "^([a-f0-9]{24})$",
+            "readOnly" : true
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "Unique 24-hexadecimal digit string that identifies the instance.",
+            "example" : "32b6e34b3d91647abb20e7b8",
+            "maxLength" : 24,
+            "minLength" : 24,
+            "pattern" : "^([a-f0-9]{24})$",
+            "readOnly" : true
+          },
+          "links" : {
+            "type" : "array",
+            "description" : "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs" : {
+              "description" : "Web Linking Specification (RFC 5988)",
+              "url" : "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            },
+            "readOnly" : true
+          },
+          "mongoDBVersion" : {
+            "type" : "string",
+            "description" : "Version of MongoDB that the instance runs.",
+            "pattern" : "([\\d]+\\.[\\d]+\\.[\\d]+)",
+            "readOnly" : true
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "Human-readable label that identifies the instance.",
+            "maxLength" : 64,
+            "minLength" : 1,
+            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+            "readOnly" : true
+          },
+          "providerSettings" : {
+            "$ref" : "#/components/schemas/USSProviderSettings20250101"
+          },
+          "stateName" : {
+            "type" : "string",
+            "description" : "Human-readable label that indicates the current operating condition of this instance.",
+            "enum" : [ "IDLE", "CREATING", "UPDATING", "DELETING", "REPAIRING" ],
+            "readOnly" : true
+          },
+          "tags" : {
+            "type" : "array",
+            "description" : "List that contains key-value pairs between 1 to 255 characters in length for tagging and categorizing the instance.",
+            "externalDocs" : {
+              "description" : "Resource Tags",
+              "url" : "https://dochub.mongodb.org/core/add-cluster-tag-atlas"
+            },
+            "items" : {
+              "$ref" : "#/components/schemas/ResourceTag"
+            }
+          },
+          "terminationProtectionEnabled" : {
+            "type" : "boolean",
+            "default" : false,
+            "description" : "Flag that indicates whether termination protection is enabled on the cluster. If set to `true`, MongoDB Cloud won't delete the cluster. If set to `false`, MongoDB Cloud will delete the cluster."
+          },
+          "versionReleaseSystem" : {
+            "type" : "string",
+            "default" : "LTS",
+            "description" : "Method by which the cluster maintains the MongoDB versions.",
+            "enum" : [ "LTS" ],
+            "readOnly" : true
+          }
+        },
+        "required" : [ "providerSettings" ],
+        "title" : "USS Instance Description"
+      },
+      "USSInstanceDescriptionCreate20250101" : {
+        "type" : "object",
+        "description" : "Settings that you can specify when you create a USS instance.",
+        "properties" : {
+          "links" : {
+            "type" : "array",
+            "description" : "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs" : {
+              "description" : "Web Linking Specification (RFC 5988)",
+              "url" : "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            },
+            "readOnly" : true
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "Human-readable label that identifies the instance.",
+            "maxLength" : 64,
+            "minLength" : 1,
+            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+            "writeOnly" : true
+          },
+          "providerSettings" : {
+            "$ref" : "#/components/schemas/USSProviderSettingsCreate20250101"
+          },
+          "tags" : {
+            "type" : "array",
+            "description" : "List that contains key-value pairs between 1 to 255 characters in length for tagging and categorizing the instance.",
+            "externalDocs" : {
+              "description" : "Resource Tags",
+              "url" : "https://dochub.mongodb.org/core/add-cluster-tag-atlas"
+            },
+            "items" : {
+              "$ref" : "#/components/schemas/ResourceTag"
+            }
+          },
+          "terminationProtectionEnabled" : {
+            "type" : "boolean",
+            "default" : false,
+            "description" : "Flag that indicates whether termination protection is enabled on the cluster. If set to `true`, MongoDB Cloud won't delete the cluster. If set to `false`, MongoDB Cloud will delete the cluster."
+          }
+        },
+        "required" : [ "name", "providerSettings" ],
+        "title" : "USS Instance Description Create"
+      },
+      "USSProviderSettings20250101" : {
+        "type" : "object",
+        "description" : "Group of cloud provider settings that configure the provisioned MongoDB USS instance.",
+        "properties" : {
+          "backingProviderName" : {
+            "type" : "string",
+            "description" : "Cloud service provider on which MongoDB Cloud provisioned the USS instance.",
+            "enum" : [ "AWS", "AZURE", "GCP" ],
+            "readOnly" : true
+          },
+          "diskSizeGB" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "Storage capacity available to the USS instance expressed in gigabytes.",
+            "readOnly" : true
+          },
+          "providerName" : {
+            "type" : "string",
+            "default" : "USS",
+            "description" : "Human-readable label that identifies the cloud service provider.",
+            "enum" : [ "USS" ],
+            "readOnly" : true
+          },
+          "regionName" : {
+            "type" : "string",
+            "description" : "Human-readable label that identifies the geographic location of your MongoDB USS instance. The region you choose can affect network latency for clients accessing your databases. For a complete list of region names, see [AWS](https://docs.atlas.mongodb.com/reference/amazon-aws/#std-label-amazon-aws), [GCP](https://docs.atlas.mongodb.com/reference/google-gcp/), and [Azure](https://docs.atlas.mongodb.com/reference/microsoft-azure/).",
+            "readOnly" : true
+          }
+        },
+        "readOnly" : true,
+        "title" : "Cloud Service Provider Settings for a USS Instance"
+      },
+      "USSProviderSettingsCreate20250101" : {
+        "type" : "object",
+        "description" : "Group of cloud provider settings that configure the provisioned MongoDB USS instance.",
+        "properties" : {
+          "backingProviderName" : {
+            "type" : "string",
+            "description" : "Cloud service provider on which MongoDB Cloud provisioned the serverless instance.",
+            "enum" : [ "AWS", "AZURE", "GCP" ],
+            "writeOnly" : true
+          },
+          "diskSizeGB" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "Storage capacity available to the USS instance expressed in gigabytes.",
+            "readOnly" : true
+          },
+          "providerName" : {
+            "type" : "string",
+            "default" : "USS",
+            "description" : "Human-readable label that identifies the cloud service provider.",
+            "enum" : [ "USS" ],
+            "readOnly" : true
+          },
+          "regionName" : {
+            "type" : "string",
+            "description" : "Human-readable label that identifies the geographic location of your MongoDB USS instance. The region you choose can affect network latency for clients accessing your databases. For a complete list of region names, see [AWS](https://docs.atlas.mongodb.com/reference/amazon-aws/#std-label-amazon-aws), [GCP](https://docs.atlas.mongodb.com/reference/google-gcp/), and [Azure](https://docs.atlas.mongodb.com/reference/microsoft-azure/).",
+            "writeOnly" : true
+          }
+        },
+        "required" : [ "backingProviderName", "regionName" ],
+        "title" : "Cloud Service Provider Settings for a USS Instance",
+        "writeOnly" : true
+      },
       "UpdateAtlasOrganizationApiKey" : {
         "type" : "object",
         "properties" : {
@@ -46922,14 +47343,6 @@
       "UserAccessRoleAssignment" : {
         "type" : "object",
         "properties" : {
-          "apiUserId" : {
-            "type" : "string",
-            "description" : "Unique 24-hexadecimal digit string that identifies the organization API key.",
-            "maxLength" : 24,
-            "minLength" : 24,
-            "pattern" : "^([a-f0-9]{24})$",
-            "readOnly" : true
-          },
           "roles" : {
             "type" : "array",
             "description" : "List of roles to grant this API key. If you provide this list, provide a minimum of one role and ensure each role applies to this project.",
@@ -46937,6 +47350,14 @@
               "type" : "string",
               "enum" : [ "GROUP_CLUSTER_MANAGER", "GROUP_DATA_ACCESS_ADMIN", "GROUP_DATA_ACCESS_READ_ONLY", "GROUP_DATA_ACCESS_READ_WRITE", "GROUP_SEARCH_INDEX_EDITOR", "GROUP_STREAM_PROCESSING_OWNER", "GROUP_OWNER", "GROUP_READ_ONLY" ]
             }
+          },
+          "userId" : {
+            "type" : "string",
+            "description" : "Unique 24-hexadecimal digit string that identifies the organization API key.",
+            "maxLength" : 24,
+            "minLength" : 24,
+            "pattern" : "^([a-f0-9]{24})$",
+            "readOnly" : true
           }
         }
       },
