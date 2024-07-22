@@ -14,13 +14,14 @@ jobs:
 
       - name: Fetch Collection
         working-directory: ./tools/postman
-        run: make fetch_openapi
+        run: |
+          make fetch_openapi
 
       - name: Compute checksum for current OpenAPI Specification
         working-directory: ./tools/postman/openapi
         run: |
           checksum=$(sha256sum atlas-api.json | cut -d ' ' -f 1)
-          echo "checksum=$checksum" >> $GITHUB_ENV
+          echo 'checksum="$checksum"' >> "$GITHUB_ENV"
 
       - name: Restore previous checksum from cache
         uses: actions/cache/restore@v3
@@ -34,18 +35,19 @@ jobs:
           if [ -f openapi-checksum.txt ]; then
             cached_checksum=$(cat openapi-checksum.txt)
             if [ "$cached_checksum" = "${{ env.checksum }}" ]; then
-              echo "file_changed=false" >> $GITHUB_ENV
+              echo "file_changed=false" >> "$GITHUB_ENV"
             else
-              echo "file_changed=true" >> $GITHUB_ENV
+              echo "file_changed=true" >> "$GITHUB_ENV"
             fi
           else
-            echo "file_changed=true" >> $GITHUB_ENV
+            echo "file_changed=true" >> "$GITHUB_ENV"
           fi
 
       - name: Convert the OpenAPI Specification into Collection
         if: env.file_changed == 'true'
         working-directory: ./tools/postman
-        run: make convert_to_collection
+        run: |
+          make convert_to_collection
 
       - name: Upload Collection to Postman
         if: env.file_changed == 'true'
@@ -54,12 +56,14 @@ jobs:
           POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
           WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
         working-directory: ./tools/postman
-        run: make upload_collection
+        run: |
+          make upload_collection
 
       - name: Save new checksum to file
         if: env.file_changed == 'true'
         working-directory: ./tools/postman/openapi
-        run: echo ${{ env.checksum }} > openapi-checksum.txt
+        run: |
+          echo "${{ env.checksum }}" > openapi-checksum.txt
 
       - name: Cache new checksum file
         if: env.file_changed == 'true'
