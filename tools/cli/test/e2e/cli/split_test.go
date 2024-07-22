@@ -138,6 +138,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 }
 
 func logOasdiff(t *testing.T, correctSpecPath, generatedSpecPath string) {
+	t.Helper()
 	_, err := exec.LookPath("oasdiff")
 	if err != nil {
 		return
