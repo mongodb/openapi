@@ -61,12 +61,15 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 	}
 
 	// using an array to keep the order of filter execution
-	filters = append(filters, &SunsetFilter{oas: oas, metadata: metadata})
-	filters = append(filters, &VersioningFilter{oas: oas, metadata: metadata})
-	filters = append(filters, &InfoFilter{oas: oas, metadata: metadata})
-	filters = append(filters, &HiddenEnvsFilter{oas: oas, metadata: metadata})
-	filters = append(filters, &TagsFilter{oas: oas})
-	filters = append(filters, &OperationsFilter{oas: oas})
+	filters = append(
+		filters,
+		&SunsetFilter{oas: oas, metadata: metadata},
+		&VersioningFilter{oas: oas, metadata: metadata},
+		&InfoFilter{oas: oas, metadata: metadata},
+		&HiddenEnvsFilter{oas: oas, metadata: metadata},
+		&TagsFilter{oas: oas},
+		&OperationsFilter{oas: oas},
+	)
 
 	return nil
 }

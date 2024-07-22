@@ -26,6 +26,8 @@ type VersioningFilter struct {
 	metadata *Metadata
 }
 
+const versionExtension = "x-xgen-version"
+
 // VersionConfig contains the information needed during the versioning filtering of the OAS.
 // It contains the parsed operations, the operations that need to be removed and the version
 // under scrutiny.
@@ -259,8 +261,8 @@ func filterContentExactMatch(content map[string]*openapi3.MediaType, version *ap
 
 // updateSingleMediaTypeExtension updates the media type extension with the version in string format
 func updateSingleMediaTypeExtension(m *openapi3.MediaType, version *apiversion.APIVersion) {
-	if _, ok := m.Extensions["x-xgen-version"]; ok {
-		m.Extensions["x-xgen-version"] = version.String()
+	if _, ok := m.Extensions[versionExtension]; ok {
+		m.Extensions[versionExtension] = version.String()
 	}
 }
 

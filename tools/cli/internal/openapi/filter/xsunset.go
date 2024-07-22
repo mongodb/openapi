@@ -86,10 +86,10 @@ func (f *SunsetFilter) deleteSunsetIfDeprecatedByHiddenVersions(latestMatchedVer
 	}
 }
 
-func getVersionsInContentType(content map[string]*openapi3.MediaType) ([]*apiversion.APIVersion, map[string]*openapi3.MediaType) {
-	contentsInVersion := make(map[string]*openapi3.MediaType)
+func getVersionsInContentType(content map[string]*openapi3.MediaType) (
+	versions []*apiversion.APIVersion, contentsInVersion map[string]*openapi3.MediaType) {
+	contentsInVersion = make(map[string]*openapi3.MediaType)
 	versionsInContentType := make(map[string]*apiversion.APIVersion)
-	versions := make([]*apiversion.APIVersion, 0)
 
 	for contentType := range content {
 		v, err := apiversion.New(apiversion.WithContent(contentType))

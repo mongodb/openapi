@@ -116,24 +116,24 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	d, err := diff.Get(diff.NewConfig(), correctSpec, generatedSpec)
 	require.NoError(t, err)
 
-	// message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
-	// 	"oasdiff diff --max-circular-dep 15 " + correctSpecPath + " " + generatedSpecPath + " > diff.yaml\n"
+	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
+		"oasdiff diff --max-circular-dep 15 " + correctSpecPath + " " + generatedSpecPath + " > diff.yaml\n"
 
 	if d.Empty() {
 		return
 	}
 
-	require.Empty(t, d.ExtensionsDiff)
-	require.Empty(t, d.OpenAPIDiff)
-	require.Empty(t, d.InfoDiff)
-	require.Empty(t, d.EndpointsDiff)
-	require.Empty(t, d.PathsDiff)
-	require.Empty(t, d.SecurityDiff)
-	require.Empty(t, d.ServersDiff)
-	// require.Empty(t, d.TagsDiff) TODO: adds in next PR
-	require.Empty(t, d.ExternalDocsDiff)
-	require.Empty(t, d.ExamplesDiff)
-	require.Empty(t, d.ComponentsDiff)
+	require.Empty(t, d.ExtensionsDiff, message)
+	require.Empty(t, d.OpenAPIDiff, message)
+	require.Empty(t, d.InfoDiff, message)
+	require.Empty(t, d.EndpointsDiff, message)
+	require.Empty(t, d.PathsDiff, message)
+	require.Empty(t, d.SecurityDiff, message)
+	require.Empty(t, d.ServersDiff, message)
+	// require.Empty(t, d.TagsDiff, message) TODO: adds in next PR
+	require.Empty(t, d.ExternalDocsDiff, message)
+	require.Empty(t, d.ExamplesDiff, message)
+	require.Empty(t, d.ComponentsDiff, message)
 }
 
 func logOasdiff(t *testing.T, correctSpecPath, generatedSpecPath string) {
