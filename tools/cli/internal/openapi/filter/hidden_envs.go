@@ -36,9 +36,12 @@ func (f *HiddenEnvsFilter) Apply() error {
 		f.removePathIfHiddenForEnv(pathName, pathItem)
 	}
 
-	for _, pathItem := range f.oas.Paths.Map() {
+	for path, pathItem := range f.oas.Paths.Map() {
 		if err := f.applyOnPath(pathItem); err != nil {
 			return err
+		}
+		if len(pathItem.Operations()) == 0 {
+			f.oas.Paths.Delete(path)
 		}
 	}
 	return nil
@@ -83,6 +86,14 @@ func (f *HiddenEnvsFilter) removeRequestBodyIfHiddenForEnv(operation *openapi3.O
 		// Remove the Hidden extension from the final OAS
 		delete(operation.RequestBody.Extensions, hiddenEnvsExtension)
 	}
+
+	if operation.RequestBody == nil || operation.RequestBody.Value == nil || operation.RequestBody.Value.Content == nil {
+		return
+	}
+
+	for _, contentType := range operation.RequestBody.Value.Content {
+		f.removeContentIfHiddenForEnv(contentType)
+	}
 }
 
 func (f *HiddenEnvsFilter) removeResponseIfHiddenForEnv(operation *openapi3.Operation) {
@@ -105,7 +116,7 @@ func (f *HiddenEnvsFilter) removeResponseIfHiddenForEnv(operation *openapi3.Oper
 }
 
 func (f *HiddenEnvsFilter) removeContentIfHiddenForEnv(contentType *openapi3.MediaType) {
-	if isContentTypeHiddenForEnv := f.isContentTypeHiddenForEnv(contentType); isContentTypeHiddenForEnv {
+	if isContentTypeHiddenForEnv := isContentTypeHiddenForEnv(contentType, f.metadata.targetEnv); isContentTypeHiddenForEnv {
 		log.Printf("Removing contentType: %q because is hidden for target env: %q", contentType.Schema.Ref, f.metadata.targetEnv)
 		contentType.Schema = nil // Remove ContentType if it is hidden for the target environment
 	} else if contentType.Extensions != nil {
@@ -121,7 +132,7 @@ func (f *HiddenEnvsFilter) isOperationHiddenForEnv(operation *openapi3.Operation
 
 	if extension, ok := operation.Extensions[hiddenEnvsExtension]; ok {
 		log.Printf("Found x-hidden-envs in the operation: K: %q, V: %q", hiddenEnvsExtension, extension)
-		return f.isHiddenExtensionEqualToTargetEnv(extension)
+		return isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv)
 	}
 
 	return false
@@ -134,27 +145,27 @@ func (f *HiddenEnvsFilter) isResponseHiddenForEnv(response *openapi3.ResponseRef
 
 	if extension, ok := response.Extensions[hiddenEnvsExtension]; ok {
 		log.Printf("Found x-hidden-envs in the response: K: %q, V: %q", hiddenEnvsExtension, extension)
-		return f.isHiddenExtensionEqualToTargetEnv(extension)
+		return isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv)
 	}
 
 	if response.Value != nil {
 		if extension, ok := response.Value.Extensions[hiddenEnvsExtension]; ok {
 			log.Printf("Found x-hidden-envs in the response: K: %q, V: %q", hiddenEnvsExtension, extension)
-			return f.isHiddenExtensionEqualToTargetEnv(extension)
+			return isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv)
 		}
 	}
 
 	return false
 }
 
-func (f *HiddenEnvsFilter) isContentTypeHiddenForEnv(contentType *openapi3.MediaType) bool {
+func isContentTypeHiddenForEnv(contentType *openapi3.MediaType, targetEnv string) bool {
 	if contentType == nil {
 		return false
 	}
 
 	if extension, ok := contentType.Extensions[hiddenEnvsExtension]; ok {
 		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
-		return f.isHiddenExtensionEqualToTargetEnv(extension)
+		return isHiddenExtensionEqualToTargetEnv(extension, targetEnv)
 	}
 
 	return false
@@ -167,7 +178,7 @@ func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.Reque
 
 	if extension, ok := requestBody.Extensions[hiddenEnvsExtension]; ok {
 		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
-		return f.isHiddenExtensionEqualToTargetEnv(extension)
+		return isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv)
 	}
 
 	return false
@@ -176,16 +187,16 @@ func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.Reque
 func (f *HiddenEnvsFilter) isPathHiddenForEnv(pathItem *openapi3.PathItem) bool {
 	if extension, ok := pathItem.Extensions[hiddenEnvsExtension]; ok {
 		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
-		return f.isHiddenExtensionEqualToTargetEnv(extension)
+		return isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv)
 	}
 	return false
 }
 
-func (f *HiddenEnvsFilter) isHiddenExtensionEqualToTargetEnv(extension interface{}) bool {
+func isHiddenExtensionEqualToTargetEnv(extension interface{}, target string) bool {
 	if envs, ok := extension.(map[string]interface{}); ok {
 		if v, ok := envs[hiddenEnvsExtKey].(string); ok {
 			log.Printf("Found x-hidden-envs: V: %q", v)
-			return strings.Contains(v, f.metadata.targetEnv)
+			return strings.Contains(v, target)
 		}
 	}
 	return false

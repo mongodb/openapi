@@ -601,7 +601,7 @@ func TestIsContentTypeHiddenForEnv(t *testing.T) {
 				},
 			}
 			f := HiddenEnvsFilter{metadata: &Metadata{targetEnv: tt.targetEnv}}
-			result := f.isContentTypeHiddenForEnv(contentType)
+			result := isContentTypeHiddenForEnv(contentType, f.metadata.targetEnv)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
@@ -661,6 +661,9 @@ func getApplyOas() *openapi3.T {
 				"envs": "prod",
 			},
 		},
+		Get: &openapi3.Operation{
+			Summary: "test",
+		},
 	}
 
 	hiddenFromDev := &openapi3.PathItem{
@@ -668,6 +671,9 @@ func getApplyOas() *openapi3.T {
 			hiddenEnvsExtension: map[string]interface{}{
 				"envs": "dev",
 			},
+		},
+		Get: &openapi3.Operation{
+			Summary: "test",
 		},
 	}
 

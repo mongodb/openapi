@@ -21,10 +21,12 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-type PathFilter struct {
+type VersioningFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
 }
+
+const versionExtension = "x-xgen-version"
 
 // VersionConfig contains the information needed during the versioning filtering of the OAS.
 // It contains the parsed operations, the operations that need to be removed and the version
@@ -52,7 +54,7 @@ func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 	}
 }
 
-func (f *PathFilter) Apply() error {
+func (f *VersioningFilter) Apply() error {
 	newPaths := &openapi3.Paths{
 		Extensions: f.oas.Paths.Extensions,
 	}
@@ -76,7 +78,7 @@ func (f *PathFilter) Apply() error {
 	return nil
 }
 
-func (f *PathFilter) apply(path *openapi3.PathItem) error {
+func (f *VersioningFilter) apply(path *openapi3.PathItem) error {
 	config := &VersionConfig{
 		requestedVersion:      f.metadata.targetVersion,
 		operationsToBeRemoved: make(map[string]*openapi3.Operation),
@@ -88,7 +90,7 @@ func (f *PathFilter) apply(path *openapi3.PathItem) error {
 		config.parsedOperations[op.OperationID] = opConfig
 
 		var err error
-		if opConfig.latestMatchedVersion, err = getLatestVersionMatch(op, f.metadata.targetVersion); err != nil {
+		if opConfig.latestMatchedVersion, err = apiversion.FindLatestContentVersionMatched(op, f.metadata.targetVersion); err != nil {
 			return err
 		}
 
@@ -155,56 +157,6 @@ func updateRequestBody(op *openapi3.Operation, opConfig *OperationConfig) error 
 	return nil
 }
 
-func getLatestVersionMatch(
-	op *openapi3.Operation, requestedVersion *apiversion.APIVersion) (*apiversion.APIVersion, error) {
-	/*
-		  given:
-			 version: 2024-01-01
-			 op response:
-			   "200":
-				  content: application/vnd.atlas.2023-01-01+json
-			   "201":
-				  content: application/vnd.atlas.2023-12-01+json
-				  content: application/vnd.atlas.2025-01-01+json
-		  should return latestVersionMatch=2023-12-01
-	*/
-	var latestVersionMatch *apiversion.APIVersion
-	if op.Responses == nil {
-		return requestedVersion, nil
-	}
-
-	for _, response := range op.Responses.Map() {
-		if response.Value == nil || response.Value.Content == nil {
-			continue
-		}
-
-		for contentType := range response.Value.Content {
-			contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
-			if err != nil {
-				log.Printf("Ignoring invalid content type: %s", contentType)
-				continue
-			}
-			if contentVersion.GreaterThan(requestedVersion) {
-				continue
-			}
-
-			if contentVersion.Equal(requestedVersion) {
-				return contentVersion, nil
-			}
-
-			if latestVersionMatch == nil || contentVersion.GreaterThan(latestVersionMatch) {
-				latestVersionMatch = contentVersion
-			}
-		}
-	}
-
-	if latestVersionMatch == nil {
-		return requestedVersion, nil
-	}
-
-	return latestVersionMatch, nil
-}
-
 func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rConfig *VersionConfig) (openapi3.Content, error) {
 	opConfig := rConfig.parsedOperations[op.OperationID]
 
@@ -229,6 +181,7 @@ func addDeprecationMessageToOperation(op *openapi3.Operation, deprecatedVersions
 		return
 	}
 
+	apiversion.Sort(deprecatedVersions)
 	dVersions := make([]string, 0)
 	for _, v := range deprecatedVersions {
 		dVersions = append(dVersions, "v2-{"+v.String()+"}")
@@ -308,12 +261,9 @@ func filterContentExactMatch(content map[string]*openapi3.MediaType, version *ap
 
 // updateSingleMediaTypeExtension updates the media type extension with the version in string format
 func updateSingleMediaTypeExtension(m *openapi3.MediaType, version *apiversion.APIVersion) {
-	if m.Extensions == nil {
-		m.Extensions = make(map[string]interface{})
-		return
+	if _, ok := m.Extensions[versionExtension]; ok {
+		m.Extensions[versionExtension] = version.String()
 	}
-
-	m.Extensions["x-xgen-version"] = version.String()
 }
 
 // getDeprecatedVersionsPerContent returns the deprecated versions for a given content type

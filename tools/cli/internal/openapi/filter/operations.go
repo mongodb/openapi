@@ -56,8 +56,8 @@ func moveSunsetExtensionToOperation(operation *openapi3.Operation) {
 				if operation.Extensions == nil {
 					operation.Extensions = make(map[string]interface{})
 				}
-				operation.Extensions["x-sunset"] = sunset
-				delete(mediaType.Extensions, "x-sunset")
+				operation.Extensions[sunsetExtension] = sunset
+				delete(mediaType.Extensions, sunsetExtension)
 				operation.Deprecated = true
 			}
 		}
