@@ -26,4 +26,5 @@ const (
 	Spec          = "spec"
 	SpecShort     = "s"
 	Environment   = "env"
+	GitSha        = "sha"
 )

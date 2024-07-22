@@ -22,4 +22,5 @@ const (
 	Versions    = "Boolean flag that defines wether to split the OAS into multiple versions."
 	Spec        = "Path to the OAS file."
 	Environment = "Environment to consider when generating the versioned OAS."
+	GitSha      = "GitSHA to use as identifier (x-xgen-sha) of the generated specification."
 )
