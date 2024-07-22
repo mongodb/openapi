@@ -36,9 +36,12 @@ func (f *HiddenEnvsFilter) Apply() error {
 		f.removePathIfHiddenForEnv(pathName, pathItem)
 	}
 
-	for _, pathItem := range f.oas.Paths.Map() {
+	for path, pathItem := range f.oas.Paths.Map() {
 		if err := f.applyOnPath(pathItem); err != nil {
 			return err
+		}
+		if len(pathItem.Operations()) == 0 {
+			f.oas.Paths.Delete(path)
 		}
 	}
 	return nil
@@ -82,6 +85,14 @@ func (f *HiddenEnvsFilter) removeRequestBodyIfHiddenForEnv(operation *openapi3.O
 	} else if operation.RequestBody != nil && operation.RequestBody.Extensions != nil {
 		// Remove the Hidden extension from the final OAS
 		delete(operation.RequestBody.Extensions, hiddenEnvsExtension)
+	}
+
+	if operation.RequestBody == nil || operation.RequestBody.Value == nil || operation.RequestBody.Value.Content == nil {
+		return
+	}
+
+	for _, contentType := range operation.RequestBody.Value.Content {
+		f.removeContentIfHiddenForEnv(contentType)
 	}
 }
 

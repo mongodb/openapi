@@ -25,6 +25,8 @@ type SunsetFilter struct {
 	metadata *Metadata
 }
 
+const sunsetExtension = "x-sunset"
+
 func (f *SunsetFilter) Apply() error {
 	for _, pathItem := range f.oas.Paths.Map() {
 		if pathItem == nil {
@@ -36,14 +38,17 @@ func (f *SunsetFilter) Apply() error {
 				continue
 			}
 
+			latestVersionMatch, err := apiversion.FindLatestContentVersionMatched(operation, f.metadata.targetVersion)
+			if err != nil {
+				return err
+			}
+
 			for _, response := range operation.Responses.Map() {
 				if response.Value == nil || response.Value.Content == nil {
 					continue
 				}
 
-				storeDeprecatedVersions(&OperationConfig{
-					latestMatchedVersion: f.metadata.targetVersion,
-				}, response)
+				f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, response)
 			}
 		}
 
@@ -51,40 +56,40 @@ func (f *SunsetFilter) Apply() error {
 	return nil
 }
 
-// storeDeprecatedVersions stores the deprecated versions for a given response
-func storeDeprecatedVersions(opConfig *OperationConfig, response *openapi3.ResponseRef) {
-	versions, contentTypeToVersion := getVersionsInContentType(response.Value.Content)
+// deleteSunsetIfDeprecatedByHiddenVersions deletes the sunset extension if the latest matched version is deprecated by hidden versions
+func (f *SunsetFilter) deleteSunsetIfDeprecatedByHiddenVersions(latestMatchedVersion *apiversion.APIVersion, response *openapi3.ResponseRef) {
+	versions, versionToContentType := getVersionsInContentType(response.Value.Content)
 
-	deprecatedVersions := make([]*apiversion.APIVersion, 0)
+	deprecatedByHiddenVersions := make([]*apiversion.APIVersion, 0)
+	deprecatedByVersions := make([]*apiversion.APIVersion, 0)
 
 	for _, v := range versions {
-		if v.LessThan(opConfig.latestMatchedVersion) {
-			deprecatedVersions = append(deprecatedVersions, v)
-		}
-		if v.GreaterThan(opConfig.latestMatchedVersion) {
-			if v, ok := contentTypeToVersion[v.String()]; ok {
+		if v.GreaterThan(latestMatchedVersion) {
+			if value, ok := versionToContentType[v.String()]; ok {
 				f := &HiddenEnvsFilter{
-					metadata: &Metadata{
-						targetVersion: opConfig.latestMatchedVersion,
-						targetEnv:     "dev",
-					},
+					metadata: f.metadata,
 				}
-				// its not deprecated by version
-				if f.isContentTypeHiddenForEnv(v) {
-					//delete x sunset
-					delete(v.Extensions, "x-sunset")
+				if f.isContentTypeHiddenForEnv(value) {
+					deprecatedByHiddenVersions = append(deprecatedByHiddenVersions, v)
 					continue
 				}
+				deprecatedByVersions = append(deprecatedByVersions, v)
 			}
 		}
 	}
 
-	opConfig.deprecatedVersions = append(opConfig.deprecatedVersions, deprecatedVersions...)
+	// If the exact requested version is marked for sunset for a list of hidden versions
+	if value, ok := versionToContentType[latestMatchedVersion.String()]; ok {
+		if len(deprecatedByHiddenVersions) > 0 && len(deprecatedByVersions) == 0 && value.Extensions != nil {
+			delete(value.Extensions, sunsetExtension)
+		}
+	}
 }
 
 func getVersionsInContentType(content map[string]*openapi3.MediaType) ([]*apiversion.APIVersion, map[string]*openapi3.MediaType) {
 	contentsInVersion := make(map[string]*openapi3.MediaType)
 	versionsInContentType := make(map[string]*apiversion.APIVersion)
+	versions := make([]*apiversion.APIVersion, 0)
 
 	for contentType := range content {
 		v, err := apiversion.New(apiversion.WithContent(contentType))
@@ -92,14 +97,10 @@ func getVersionsInContentType(content map[string]*openapi3.MediaType) ([]*apiver
 			log.Printf("Ignoring invalid content type: %s", contentType)
 			continue
 		}
-
+		versions = append(versions, v)
 		versionsInContentType[v.String()] = v
 		contentsInVersion[v.String()] = content[contentType]
 	}
 
-	versions := make([]*apiversion.APIVersion, 0)
-	for _, v := range versionsInContentType {
-		versions = append(versions, v)
-	}
 	return versions, contentsInVersion
 }

@@ -13,7 +13,14 @@ import (
 	"github.com/tufin/oasdiff/diff"
 )
 
-var versions = []string{"2023-01-01", "2023-02-01", "2023-10-01", "2023-11-15", "2024-05-30", "2025-01-01"}
+var versions = []string{
+	"2023-01-01",
+	"2023-02-01",
+	"2023-10-01",
+	"2023-11-15",
+	"2024-05-30",
+	"2025-01-01",
+}
 
 func TestSplitVersions(t *testing.T) {
 	cliPath := NewBin(t)
@@ -29,18 +36,18 @@ func TestSplitVersions(t *testing.T) {
 			specType: "filtered",
 			env:      "dev",
 		},
-		// {
-		// 	name:     "Split filtered specs yaml dev",
-		// 	format:   "yaml",
-		// 	specType: "filtered",
-		// 	env:      "dev",
-		// },
-		// {
-		// 	name:     "Split not-filtered specs json dev",
-		// 	format:   "json",
-		// 	specType: "not-filtered",
-		// 	env:      "dev",
-		// },
+		{
+			name:     "Split filtered specs yaml dev",
+			format:   "yaml",
+			specType: "filtered",
+			env:      "dev",
+		},
+		{
+			name:     "Split not-filtered specs json dev",
+			format:   "json",
+			specType: "not-filtered",
+			env:      "dev",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -107,26 +114,36 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	t.Helper()
 	correctSpec := newOpenAPISpec(t, correctSpecPath)
 	generatedSpec := newOpenAPISpec(t, generatedSpecPath)
-	d, err := diff.Get(diff.NewConfig().WithExcludeExtensions(), correctSpec, generatedSpec)
+	exclude := []string{"tags", "examples"}
+	d, err := diff.Get(diff.NewConfig().WithExcludeElements(exclude), correctSpec, generatedSpec)
 	require.NoError(t, err)
 
-	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
-		"oasdiff diff --max-circular-dep 15 " + correctSpecPath + " " + generatedSpecPath + " > diff.yaml\n"
+	// message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
+	// 	"oasdiff diff --max-circular-dep 15 " + correctSpecPath + " " + generatedSpecPath + " > diff.yaml\n"
 
 	if d.Empty() {
 		return
 	}
 
-	fmt.Println(message)
+	logOasdiff(t, correctSpecPath, generatedSpecPath)
 	require.Empty(t, d.ExtensionsDiff)
 	require.Empty(t, d.OpenAPIDiff)
 	require.Empty(t, d.InfoDiff)
-	// require.Empty(t, d.EndpointsDiff) TODO: add in next PR
-	// require.Empty(t, d.PathsDiff) TODO: add in next PR
+	require.Empty(t, d.EndpointsDiff)
+	require.Empty(t, d.PathsDiff)
 	require.Empty(t, d.SecurityDiff)
 	require.Empty(t, d.ServersDiff)
 	// require.Empty(t, d.TagsDiff) TODO: adds in next PR
 	require.Empty(t, d.ExternalDocsDiff)
 	require.Empty(t, d.ExamplesDiff)
 	require.Empty(t, d.ComponentsDiff)
+}
+
+func logOasdiff(t *testing.T, correctSpecPath, generatedSpecPath string) {
+	cmd := exec.Command("oasdiff", "diff", "--max-circular-dep", "15", "--exclude-elements", "examples", correctSpecPath, generatedSpecPath)
+	var o, e bytes.Buffer
+	cmd.Stdout = &o
+	cmd.Stderr = &e
+	require.NoError(t, cmd.Run(), e.String())
+	fmt.Println(o.String())
 }

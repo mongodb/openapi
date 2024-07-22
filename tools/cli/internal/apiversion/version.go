@@ -15,8 +15,11 @@ package apiversion
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"time"
+
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 type APIVersion struct {
@@ -118,4 +121,65 @@ func Parse(contentType string) (string, error) {
 		return "", fmt.Errorf("invalid content type: %s", contentType)
 	}
 	return fmt.Sprintf("%s-%s-%s", matches[1], matches[2], matches[3]), nil
+}
+
+// FindLatestContentVersionMatched finds the latest content version that matches the requested version.
+func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *APIVersion) (*APIVersion, error) {
+	/*
+		  given:
+			 version: 2024-01-01
+			 op response:
+			   "200":
+				  content: application/vnd.atlas.2023-01-01+json
+			   "201":
+				  content: application/vnd.atlas.2023-12-01+json
+				  content: application/vnd.atlas.2025-01-01+json
+		  should return latestVersionMatch=2023-12-01
+	*/
+	var latestVersionMatch *APIVersion
+	if op.Responses == nil {
+		return requestedVersion, nil
+	}
+
+	for _, response := range op.Responses.Map() {
+		if response.Value == nil || response.Value.Content == nil {
+			continue
+		}
+
+		for contentType := range response.Value.Content {
+			contentVersion, err := New(WithContent(contentType))
+			if err != nil {
+				log.Printf("Ignoring invalid content type: %s", contentType)
+				continue
+			}
+			if contentVersion.GreaterThan(requestedVersion) {
+				continue
+			}
+
+			if contentVersion.Equal(requestedVersion) {
+				return contentVersion, nil
+			}
+
+			if latestVersionMatch == nil || contentVersion.GreaterThan(latestVersionMatch) {
+				latestVersionMatch = contentVersion
+			}
+		}
+	}
+
+	if latestVersionMatch == nil {
+		return requestedVersion, nil
+	}
+
+	return latestVersionMatch, nil
+}
+
+// Sort versions
+func Sort(versions []*APIVersion) {
+	for i := 0; i < len(versions); i++ {
+		for j := i + 1; j < len(versions); j++ {
+			if versions[i].LessThan(versions[j]) {
+				versions[i], versions[j] = versions[j], versions[i]
+			}
+		}
+	}
 }

@@ -30,7 +30,7 @@ type Metadata struct {
 	targetEnv     string
 }
 
-var filters = map[string]Filter{}
+var filters = []Filter{}
 
 func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metadata {
 	return &Metadata{
@@ -60,33 +60,13 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 		return err
 	}
 
-	filters["sunset"] = &SunsetFilter{
-		oas:      oas,
-		metadata: metadata,
-	}
-
-	filters["operations"] = &OperationsFilter{
-		oas: oas,
-	}
-
-	filters["path"] = &VersioningFilter{
-		oas:      oas,
-		metadata: metadata,
-	}
-
-	filters["info"] = &InfoFilter{
-		oas:      oas,
-		metadata: metadata,
-	}
-
-	filters["hidden_envs"] = &HiddenEnvsFilter{
-		oas:      oas,
-		metadata: metadata,
-	}
-
-	filters["tags"] = &TagsFilter{
-		oas: oas,
-	}
+	// using an array to keep the order of filter execution
+	filters = append(filters, &SunsetFilter{oas: oas, metadata: metadata})
+	filters = append(filters, &VersioningFilter{oas: oas, metadata: metadata})
+	filters = append(filters, &InfoFilter{oas: oas, metadata: metadata})
+	filters = append(filters, &HiddenEnvsFilter{oas: oas, metadata: metadata})
+	filters = append(filters, &TagsFilter{oas: oas})
+	filters = append(filters, &OperationsFilter{oas: oas})
 
 	return nil
 }

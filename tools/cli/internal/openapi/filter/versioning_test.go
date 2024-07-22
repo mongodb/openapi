@@ -75,7 +75,7 @@ func TestPathFilter_getLatestVersionMatch(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			targetVersion, err := apiversion.New(apiversion.WithVersion(tt.targetVersion))
 			require.NoError(t, err)
-			r, err := getLatestVersionMatch(oasOperationAllVersions(), targetVersion)
+			r, err := apiversion.FindLatestContentVersionMatched(oasOperationAllVersions(), targetVersion)
 			require.NoError(t, err)
 			// transform time to str with format "2006-01-02"
 			assert.Equal(t, tt.expectedMatch, r.String())
