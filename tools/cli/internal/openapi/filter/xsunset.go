@@ -65,10 +65,7 @@ func (f *SunsetFilter) deleteSunsetIfDeprecatedByHiddenVersions(latestMatchedVer
 	for _, v := range versions {
 		if v.GreaterThan(latestMatchedVersion) {
 			if value, ok := versionToContentType[v.String()]; ok {
-				f := &HiddenEnvsFilter{
-					metadata: f.metadata,
-				}
-				if f.isContentTypeHiddenForEnv(value) {
+				if isContentTypeHiddenForEnv(value, f.metadata.targetEnv) {
 					deprecatedByHiddenVersions = append(deprecatedByHiddenVersions, v)
 					continue
 				}

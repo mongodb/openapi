@@ -601,7 +601,7 @@ func TestIsContentTypeHiddenForEnv(t *testing.T) {
 				},
 			}
 			f := HiddenEnvsFilter{metadata: &Metadata{targetEnv: tt.targetEnv}}
-			result := f.isContentTypeHiddenForEnv(contentType)
+			result := isContentTypeHiddenForEnv(contentType, f.metadata.targetEnv)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
