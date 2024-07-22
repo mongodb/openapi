@@ -75,7 +75,6 @@ func TestSplitVersions(t *testing.T) {
 		})
 	}
 }
-
 func getInputFolder(t *testing.T, specType, format, folder string) string {
 	t.Helper()
 	if specType == "not-filtered" {
@@ -114,8 +113,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	t.Helper()
 	correctSpec := newOpenAPISpec(t, correctSpecPath)
 	generatedSpec := newOpenAPISpec(t, generatedSpecPath)
-	exclude := []string{"tags", "examples"}
-	d, err := diff.Get(diff.NewConfig().WithExcludeElements(exclude), correctSpec, generatedSpec)
+	d, err := diff.Get(diff.NewConfig(), correctSpec, generatedSpec)
 	require.NoError(t, err)
 
 	// message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
@@ -125,7 +123,6 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 		return
 	}
 
-	logOasdiff(t, correctSpecPath, generatedSpecPath)
 	require.Empty(t, d.ExtensionsDiff)
 	require.Empty(t, d.OpenAPIDiff)
 	require.Empty(t, d.InfoDiff)
