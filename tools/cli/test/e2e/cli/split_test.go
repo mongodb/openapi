@@ -123,6 +123,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 		return
 	}
 
+	logOasdiff(t, correctSpecPath, generatedSpecPath)
 	require.Empty(t, d.ExtensionsDiff, message)
 	require.Empty(t, d.OpenAPIDiff, message)
 	require.Empty(t, d.InfoDiff, message)
@@ -137,6 +138,11 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 }
 
 func logOasdiff(t *testing.T, correctSpecPath, generatedSpecPath string) {
+	_, err := exec.LookPath("oasdiff")
+	if err != nil {
+		return
+	}
+
 	cmd := exec.Command("oasdiff", "diff", "--max-circular-dep", "15", "--exclude-elements", "examples", correctSpecPath, generatedSpecPath)
 	var o, e bytes.Buffer
 	cmd.Stdout = &o

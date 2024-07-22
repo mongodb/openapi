@@ -51,7 +51,6 @@ func (f *SunsetFilter) Apply() error {
 				f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, response)
 			}
 		}
-
 	}
 	return nil
 }
