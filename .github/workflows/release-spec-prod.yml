@@ -12,7 +12,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Run Spectral
-        run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ./tools/cli/test/data/openapi_foas*.{yml,yaml} --ruleset=.spectral.yaml # we will update this to lint the FOAS in CLOUDP-263186
         env:
           SPECTRAL_VERSION: ${{ vars.SPECTRAL_VERSION }}
+        run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ./tools/cli/test/data/openapi-foas*.{yml,yaml} --ruleset=.spectral.yaml # we will update this to lint the FOAS in CLOUDP-263186
+      - name: Install Go
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
+        with:
+          go-version-file: 'tools/cli/go.mod'
+      - name: Checkout GO SDK repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+         repository: 'mongodb/atlas-sdk-go'
+         token: ${{ secrets.API_BOT_PAT }}
+         path: 'atlas-sdk-go'
+      - name: Validate the FOAS can be used with the Go SDK
+        run: |
+          cp -rf "./tools/cli/test/data/openapi-foas-dev.yaml" "atlas-sdk-go/openapi/atlas-sdk.yaml"
+          pushd atlas-sdk-go
+          make -e openapi-pipeline
 
