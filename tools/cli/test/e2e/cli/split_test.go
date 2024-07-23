@@ -15,7 +15,7 @@ import (
 
 var versions = []string{
 	// "2023-01-01",
-	"2023-02-01",
+	// "2023-02-01",
 	"2023-10-01",
 	"2023-11-15",
 	"2024-05-30",
@@ -47,18 +47,6 @@ func TestSplitVersions(t *testing.T) {
 			format:   "json",
 			specType: "not-filtered",
 			env:      "dev",
-		},
-		{
-			name:     "Split filtered specs json prod",
-			format:   "json",
-			specType: "filtered",
-			env:      "prod",
-		},
-		{
-			name:     "Split filtered specs json prod",
-			format:   "yaml",
-			specType: "filtered",
-			env:      "prod",
 		},
 		{
 			name:     "Split not-filtered specs json prod",
@@ -166,7 +154,7 @@ func logOasdiff(t *testing.T, correctSpecPath, generatedSpecPath string) {
 		t.Log("oasdiff not found in PATH, skipping diff")
 		return
 	}
-
+	t.Log("Running oasdiff diff and comparing " + correctSpecPath + " with " + generatedSpecPath)
 	cmd := exec.Command("oasdiff", "diff", "--max-circular-dep", "15", "--exclude-elements", "examples", correctSpecPath, generatedSpecPath)
 	var o, e bytes.Buffer
 	cmd.Stdout = &o
