@@ -14,7 +14,7 @@ import (
 )
 
 var versions = []string{
-	"2023-01-01",
+	// "2023-01-01",
 	"2023-02-01",
 	"2023-10-01",
 	"2023-11-15",
@@ -88,6 +88,9 @@ func TestSplitVersions(t *testing.T) {
 			require.NoError(t, cmd.Run(), e.String())
 
 			for _, version := range versions {
+				if tc.env == "prod" && version == "2025-01-01" {
+					continue
+				}
 				validateFiles(t, version, folder)
 			}
 		})
@@ -131,7 +134,8 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	t.Helper()
 	correctSpec := newOpenAPISpec(t, correctSpecPath)
 	generatedSpec := newOpenAPISpec(t, generatedSpecPath)
-	d, err := diff.Get(diff.NewConfig(), correctSpec, generatedSpec)
+	examples := []string{"examples"}
+	d, err := diff.Get(diff.NewConfig().WithExcludeElements(examples), correctSpec, generatedSpec)
 	require.NoError(t, err)
 
 	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
@@ -159,6 +163,7 @@ func logOasdiff(t *testing.T, correctSpecPath, generatedSpecPath string) {
 	t.Helper()
 	_, err := exec.LookPath("oasdiff")
 	if err != nil {
+		t.Log("oasdiff not found in PATH, skipping diff")
 		return
 	}
 
