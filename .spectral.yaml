@@ -1,0 +1,202 @@
+# https://meta.stoplight.io/docs/spectral/cb95cf0d26b83-core-functions
+extends:
+  - spectral:oas
+
+aliases:
+  PathItem:
+    - "$.paths[*]"
+  OperationObject:
+    - "#PathItem[get,put,post,delete,options,head,patch,trace]"
+  DescribableObjects:
+    - "$.info"
+    - "$.tags[*]"
+    - "#OperationObject"
+    - "#PathItem.parameters[?(@ && @.in)]"
+    - "#OperationObject.parameters[?(@ && @.in)]"
+    - "$.components.schemas[*].properties[?(@ && @.type)]"
+
+rules:
+  xgen-schema-properties-camel-case:
+    description:
+        All properties in the schema must be camelCase. http://go/ipa/112
+    severity: error
+    recommended: true
+    message: "`{{property}}` MUST follow camelCase"
+    given: "$.components.schemas..properties[*]~"
+    then:
+      function: pattern # casing?
+      functionOptions:
+        match: "/^[a-z$_]{1}[A-Z09$_]*/" # type: camel ?
+
+  xgen-schema-name-pascal-case:
+    description: OpenAPI Schema names should use PascalCase. PascalCase ensures consistency with OpenAPI generated code.
+    message: "`{{property}}` name must follow PascalCase. Please verify if you have provided valid @Schema(name='') annotation"
+    severity: error
+    given: "$.components.schemas[*]~"
+    then:
+      function: pattern # casing?
+      functionOptions:
+        match: "^[A-Z].*" # type: pascal ?
+
+  xgen-description:
+    description: "Use this field to describe the action performed by each specific API endpoint or property, to provide context for how to use it to the users of the API."
+    message: "{{error}}."
+    severity: error
+    given: "#DescribableObjects"
+    then:
+      - field: "description"
+        function: truthy
+      - field: "description"
+        function: pattern
+        functionOptions:
+          match: "/^[A-Z]/"
+      - field: "description"
+        function: pattern
+        functionOptions:
+          match: "\\.|\|$"
+
+  xgen-request-GET-no-body:
+    description: "A 'GET' request MUST NOT accept a 'body` parameter. http://go/ipa/104"
+    severity: error
+    given: $.paths..get.parameters..in
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: "/^body$/"
+
+  xgen-request-DELETE-no-body:
+    description: "A 'DELETE' request MUST NOT accept a 'body` parameter. http://go/ipa/108"
+    severity: error
+    given: $.paths..delete.parameters..in
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: "/^body$/"
+
+  xgen-no-security:
+    description: "Operation MUST have security definition"
+    severity: error
+    given: "#OperationObject"
+    then:
+      field: "security"
+      function: truthy
+
+  xgen-docs-tags-alphabetical:
+    message: "Tags should be defined in alphabetical order."
+    description: "Many documentation tools show tags in the order they are defined, so defining them not in alphabetical order can look funny to API consumers."
+    severity: error
+    given: "$"
+    then:
+      field: "tags"
+      function: alphabetical
+      functionOptions:
+        keyedBy: "name"
+
+  xgen-docs-tags:
+    message: "{{error}}."
+    description: "Tags help group logic into conceptual groups instead of making end-users dig through URLs or lists of operation names."
+    severity: error
+    given: "$"
+    then:
+      field: "tags"
+      function: schema
+      functionOptions:
+        schema:
+          type: "array"
+          minItems: 1
+
+  xgen-docs-operation-tags:
+    message: "Operation should have non-empty `tags` array."
+    description:
+     "Once tags are defined they should be references in the operation, otherwise they will not be doing anything."
+    severity: error
+    given: "#OperationObject"
+    then:
+      field: "tags"
+      function: schema
+      functionOptions:
+        schema:
+          type: "array"
+          minItems: 1
+
+  xgen-docs-operationId-valid-in-url:
+    message: "operationId must only contain URL friendly characters."
+    description: "Most documentation tools use the operationId to produce URLs, so the characters used must be safe and legal when used in the URL."
+    severity: error
+    given: "#OperationObject"
+    then:
+      field: "operationId"
+      function: pattern
+      functionOptions:
+        match: "^[A-Za-z0-9-._~:/?#\\[\\]@!\\$&'()*+,;=]*$"
+
+  xgen-docs-parameter-examples-or-schema:
+    message: "No example or schema provided for {{property}}."
+    description: "Without providing a well defined schema or example(s) an API consumer will have a hard time knowing how to interact with this API."
+    severity: error
+    given: "$.paths[*]..parameters[*]"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          anyOf:
+            - required: ["example"]
+            - required: ["examples"]
+            - required: ["schema"]
+
+overrides:
+  - files: # load sample data has an issue with different path param names for different VERBS
+      - "*.yaml#/paths/~1api~1atlas~1v1.0~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7BsampleDatasetId%7D"
+      - "*.yaml#/paths/~1api~1atlas~1v1.0~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7Bname%7D"
+      - "*.yaml#/paths/~1api~1atlas~1v2~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7Bname%7D"
+      - "*.yaml#/paths/~1api~1atlas~1v2~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7BsampleDatasetId%7D"
+    rules:
+      path-params: "off"
+  - files:
+      - "*.yaml#/components/schemas/raw"
+      - "*.yaml#/components/schemas/charFilterhtmlStrip"
+      - "*.yaml#/components/schemas/charFiltericuNormalize"
+      - "*.yaml#/components/schemas/charFiltermapping"
+      - "*.yaml#/components/schemas/charFilterpersian"
+      - "*.yaml#/components/schemas/tokenizernGram"
+      - "*.yaml#/components/schemas/tokenizeredgeGram"
+      - "*.yaml#/components/schemas/tokenizerkeyword"
+      - "*.yaml#/components/schemas/tokenizerregexCaptureGroup"
+      - "*.yaml#/components/schemas/tokenizerregexSplit"
+      - "*.yaml#/components/schemas/tokenizerstandard"
+      - "*.yaml#/components/schemas/tokenizeruaxUrlEmail"
+      - "*.yaml#/components/schemas/tokenizerwhitespace"
+      - "*.yaml#/components/schemas/tokenFilterasciiFolding"
+      - "*.yaml#/components/schemas/tokenFilterdaitchMokotoffSoundex"
+      - "*.yaml#/components/schemas/tokenFilteredgeGram"
+      - "*.yaml#/components/schemas/tokenFiltericuFolding"
+      - "*.yaml#/components/schemas/tokenFiltericuNormalizer"
+      - "*.yaml#/components/schemas/tokenFilterlength"
+      - "*.yaml#/components/schemas/tokenFilterlowercase"
+      - "*.yaml#/components/schemas/tokenFilternGram"
+      - "*.yaml#/components/schemas/tokenFilterregex"
+      - "*.yaml#/components/schemas/tokenFilterreverse"
+      - "*.yaml#/components/schemas/tokenFiltershingle"
+      - "*.yaml#/components/schemas/tokenFiltersnowballStemming"
+      - "*.yaml#/components/schemas/tokenFilterstopword"
+      - "*.yaml#/components/schemas/tokenFiltertrim"
+    rules:
+        xgen-schema-name-pascal-case: "off"
+  - files:
+      - "*.yaml#/components/schemas/IndexOptions"
+      - "*.yaml#/components/schemas/NetworkPermissionEntryStatus"
+    rules:
+      xgen-schema-properties-camel-case: "off"
+  - files:
+      - "*.yaml#/components/schemas/DataLakeStoreSettings/properties/provider" # dynamic field which can't be documented
+      - "*.yaml#/components/schemas/ClusterProviderSettings/properties/providerName" # dynamic field which can't be documented
+    rules:
+      xgen-description: "off"
+  - files:
+      - "*.yaml#/paths/~1api~1atlas~1v2~1unauth~1controlPlaneIPAddresses/get"
+    rules:
+      xgen-no-security: "off"
+  - files:
+      - "**#/components/schemas/ApiError/properties/parameters" # see https://github.com/stoplightio/spectral/issues/2592
+    rules:
+      xgen-docs-parameter-examples-or-schema: "off"
