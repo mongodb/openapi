@@ -8,64 +8,30 @@ permissions:
 jobs:
   # Required validations will stop the release if they fail
   run-required-validations:
+    uses: ./.github/workflows/required-spec-validations.yml
+    secrets:
+      api_bot_pat: ${{ secrets.API_BOT_PAT }}
+    with:
+      spectral_version: ${{ vars.SPECTRAL_VERSION }}
+  # Optional validations won't stop the release but only open a GH issue if they fail
+  run-optional-validations:
+    uses: ./.github/workflows/optional-spec-validations.yml
+    secrets:
+      api_bot_pat: ${{ secrets.API_BOT_PAT }}
+
+  split-spec-to-versions:
     runs-on: ubuntu-latest
+    needs: [run-required-validations]
     steps:
       - name: Checkout repository
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-      - name: Run Spectral
-        env:
-          SPECTRAL_VERSION: ${{ vars.SPECTRAL_VERSION }}
-        run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ./tools/cli/test/data/openapi-foas*.{yml,yaml} --ruleset=.spectral.yaml # we will update this to lint the FOAS in CLOUDP-263186
-      - name: Create Issue
-        if: ${{ failure() }}
-        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-        with:
-          labels: failed-release
-          title: "(PROD) Required Spectral validation failed :scream_cat:"
-          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          token: ${{ secrets.API_BOT_PAT }}
       - name: Install Go
         uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
         with:
           go-version-file: 'tools/cli/go.mod'
-      - name: Checkout GO SDK repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-        with:
-         repository: 'mongodb/atlas-sdk-go'
-         token: ${{ secrets.API_BOT_PAT }}
-         path: 'atlas-sdk-go'
-      - name: Validate the FOAS can be used with the Go SDK
+      - name: Run foascli split command
         run: |
-          cp -rf "./tools/cli/test/data/openapi-foas-dev.yaml" "atlas-sdk-go/openapi/atlas-sdk.yaml"
-          pushd atlas-sdk-go
-          make -e openapi-pipeline
+          pushd tools/cli
+          make build
           popd
-      - name: Create Issue
-        if: ${{ failure() }}
-        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-        with:
-          labels: failed-release
-          title: "(PROD) Required GO SDK validation failed :scream_cat:"
-          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          token: ${{ secrets.API_BOT_PAT }}
-  
-  # Optional validations won't stop the release but only open a GH issue if they fail
-  run-optional-validations:
-      runs-on: ubuntu-latest
-      steps:
-      - name: Checkout repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-      - name: Validate the FOAS can be used to generate Postman collection
-        run: |
-          cp -rf "./tools/cli/test/data/openapi-foas-dev.json" "./tools/postman/openapi/atlas-api.json"
-          pushd tools/postman
-          make convert_to_collection
-          popd
-      - name: Create Issue
-        if: ${{ failure() }}
-        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-        with:
-          labels: failed-release
-          title: "(PROD) Optional Postman validation failed :scream_cat:"
-          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          token: ${{ secrets.API_BOT_PAT }}
+          ./tools/cli/bin/foascli split -s ./tools/cli/test/data/openapi-foas-dev.yaml --env prod
