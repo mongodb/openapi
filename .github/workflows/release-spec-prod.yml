@@ -15,6 +15,12 @@ jobs:
         env:
           SPECTRAL_VERSION: ${{ vars.SPECTRAL_VERSION }}
         run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ./tools/cli/test/data/openapi-foas*.{yml,yaml} --ruleset=.spectral.yaml # we will update this to lint the FOAS in CLOUDP-263186
+      - name: Validate the FOAS can be used to generate Postman collection
+        run: |
+          cp -rf "./tools/cli/test/data/openapi-foas-dev.json" "./tools/postman/openapi/atlas-api.json"
+          pushd tools/postman
+          make convert_to_collection
+          popd      
       - name: Install Go
         uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
         with:
