@@ -88,3 +88,33 @@ func NewVersionedResponses(t *testing.T) *openapi3.T {
 
 	return oas
 }
+
+func TestIsFutureVersion(t *testing.T) {
+	tests := []struct {
+		version string
+		isFuture bool
+		wantErr bool
+	}{
+		{"2022-12-31", false, false},
+		{"2023-01-01", false, false},
+		{"2023-02-01", false, false},
+		{"4023-03-01", true, false},
+		{"5024-01-01", true, false},
+		{"5025-12-31", true, false},
+		{"2006-01-02T15:04:05Z07:00", true, true},
+		{"01/02/2006", true, true},
+		{"02.01.2006", true, true},
+	}
+
+	for _, tt := range tests {
+		isFuture, err := IsFutureVersion(tt.version)
+		if tt.wantErr {
+			assert.Error(t, err)
+			continue
+		}
+
+		assert.NoError(t, err)
+		assert.Equal(t, tt.isFuture, isFuture)
+	}
+}
+

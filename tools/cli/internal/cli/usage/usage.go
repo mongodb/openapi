@@ -23,4 +23,5 @@ const (
 	Spec        = "Path to the OAS file."
 	Environment = "Environment to consider when generating the versioned OAS."
 	GitSha      = "GitSHA to use as identifier (x-xgen-sha) of the generated specification."
+	IncludeFutureVersion = "Boolean flag that defines wether to include future API versions."
 )

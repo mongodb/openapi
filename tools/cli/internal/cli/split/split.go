@@ -31,11 +31,12 @@ import (
 )
 
 type Opts struct {
-	fs         afero.Fs
-	basePath   string
-	outputPath string
-	env        string
-	format     string
+	fs                   afero.Fs
+	basePath             string
+	outputPath           string
+	env                  string
+	format               string
+	includeFutureVersion bool
 }
 
 func (o *Opts) Run() error {
@@ -49,6 +50,9 @@ func (o *Opts) Run() error {
 	versions := openapi.ExtractVersions(oas)
 
 	for _, version := range versions {
+		if o.skipVersion(version) {
+			continue
+		}
 		// make a copy of the oas to avoid modifying the original document when applying filters
 		versionedOas, err := duplicateOas(oas)
 		if err != nil {
@@ -70,6 +74,20 @@ func (o *Opts) Run() error {
 	}
 
 	return nil
+}
+
+func (o *Opts) skipVersion(version string) bool {
+	if o.includeFutureVersion {
+		return false
+	}
+
+	isFutureVersion, err := openapi.IsFutureVersion(version)
+	if err != nil {
+		log.Printf("[WARN] Failed to parse version %s: %v", version, err)
+		log.Printf("[WARN] Skipping the version %s", version)
+		return true
+	}
+	return isFutureVersion
 }
 
 func duplicateOas(doc *openapi3.T) (*openapi3.T, error) {
@@ -149,6 +167,7 @@ func Builder() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
+	cmd.Flags().BoolVarP(&opts.includeFutureVersion, flag.IncludeFutureVersion, flag.IncludeFutureVersionShort, false, usage.IncludeFutureVersion)
 	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.JSON, usage.Format)

@@ -68,6 +68,7 @@ func TestSplitVersions(t *testing.T) {
 				getOutputFolder(t, folder)+"/output."+tc.format,
 				"--env",
 				tc.env,
+				"-i",
 			)
 
 			var o, e bytes.Buffer

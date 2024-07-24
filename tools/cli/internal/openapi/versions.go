@@ -14,7 +14,9 @@
 package openapi
 
 import (
+	"fmt"
 	"sort"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
@@ -57,4 +59,16 @@ func mapKeysToSortedSlice(m map[string]struct{}) []string {
 	}
 	sort.Strings(keys)
 	return keys
+}
+
+// IsFutureVersion checks if the version is a future version.
+// Valid versions are in the format "YYYY-MM-DD".
+func IsFutureVersion(version string) (bool, error) {
+	const layout = "2006-01-02"
+	inputDate, err := time.Parse(layout, version)
+	if err != nil {
+		return false, fmt.Errorf("invalid date format: %v", err)
+	}
+
+	return inputDate.After(time.Now()), nil
 }
