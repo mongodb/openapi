@@ -76,39 +76,39 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 	return nil
 }
 
-func ApplyFiltersWithInit(doc *openapi3.T, metadata *Metadata, init func(oas *openapi3.T, metadata *Metadata) []Filter) error {
+func ApplyFiltersWithInit(doc *openapi3.T, metadata *Metadata, init func(oas *openapi3.T, metadata *Metadata) []Filter) (*openapi3.T, error) {
 	// make a copy of the oas to avoid modifying the original document when applying filters
 	oas, err := duplicateOas(doc)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	filtersWithInit := init(oas, metadata)
 	for _, filter := range filtersWithInit {
 		if err := filter.Apply(); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return oas, nil
 }
 
-func ApplyFilters(doc *openapi3.T, metadata *Metadata) error {
+func ApplyFilters(doc *openapi3.T, metadata *Metadata) (*openapi3.T, error) {
 	// make a copy of the oas to avoid modifying the original document when applying filters
 	oas, err := duplicateOas(doc)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := initFilters(oas, metadata); err != nil {
-		return err
+		return nil, err
 	}
 
 	for _, filter := range filters {
 		if err := filter.Apply(); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return oas, nil
 }
 
 func duplicateOas(doc *openapi3.T) (*openapi3.T, error) {

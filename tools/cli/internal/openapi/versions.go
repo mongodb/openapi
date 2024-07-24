@@ -24,16 +24,18 @@ import (
 // ExtractVersions extracts version strings from an OpenAPI specification.
 func ExtractVersions(oas *openapi3.T, env string) ([]string, error) {
 	// We need to remove the version that are hidden for the given environment
-	if err := filter.ApplyFiltersWithInit(oas, filter.NewMetadata(nil, env), func(oas *openapi3.T, metadata *filter.Metadata) []filter.Filter {
+	doc, err := filter.ApplyFiltersWithInit(oas, filter.NewMetadata(nil, env), func(oas *openapi3.T, metadata *filter.Metadata) []filter.Filter {
 		return []filter.Filter{
 			filter.InitHiddenEnvsFilter(oas, metadata),
 		}
-	}); err != nil {
+	})
+
+	if err != nil {
 		return nil, nil
 	}
 
 	versions := make(map[string]struct{})
-	for _, pathItem := range oas.Paths.Map() {
+	for _, pathItem := range doc.Paths.Map() {
 		if pathItem == nil {
 			continue
 		}
@@ -54,6 +56,7 @@ func ExtractVersions(oas *openapi3.T, env string) ([]string, error) {
 			}
 		}
 	}
+
 	return mapKeysToSortedSlice(versions), nil
 }
 
