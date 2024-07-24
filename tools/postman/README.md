@@ -24,13 +24,12 @@ API.
 ```mermaid
 flowchart TD
     A[Fetch the OpenAPI Specification] --> B{Has the OpenAPI\n file changed}
-    B --> |Yes| C[Apply OpenAPI\ntransformations]
-    B --> |No| G[Wait 24 hours]
-    C --> D[Convert to\nPostman Collection]
-    D --> E[Apply JSON\ntransformations]
-    E --> F[Upload Collection\nto Postman]
-    F --> G[Wait 24 hours]
-    G --> A[Fetch the OpenAPI\nSpecification]
+    B --> |Yes| C[Convert to\nPostman Collection]
+    B --> |No| F[Wait 24 hours]
+    C --> D[Apply JSON\ntransformations]
+    D --> E[Upload Collection\nto Postman]
+    E --> F[Wait 24 hours]
+    F --> A[Fetch the OpenAPI\nSpecification]
 
     style A width:160px,height:60px,text-align:center;
     style B width:160px,height:60px,text-align:center;
@@ -38,7 +37,6 @@ flowchart TD
     style D width:160px,height:60px,text-align:center;
     style E width:160px,height:60px,text-align:center;
     style F width:160px,height:60px,text-align:center;
-    style G width:160px,height:60px,text-align:center;
 ```
 
 1. **Fetch the OpenAPI Specification**: Periodically Fetch for the Changes in the Public OpenAPI file.
@@ -46,12 +44,9 @@ flowchart TD
 2. **Has the OpenAPI file changed**: Checking for that the OpenAPI file has changed stops redundant updates to the
    Collection.
 
-3. **Apply OpenAPI transformations**: Apply transformations such as removing regex to prepare openapi file for
-   conversion.
+3. **Convert to Postman Collection**: Use openapi-to-postmanv2 to convert to a Postman Collection.
 
-4. **Convert to Postman Collection**: Use openapi-to-postmanv2 to convert to a Postman Collection.
-
-5. **Apply JSON transformations**: Apply transformations such as changing title, adding fields, and preparing Collection
+4. **Apply JSON transformations**: Apply transformations such as changing title, adding fields, and preparing Collection
    for upload.
 
-6. **Upload Collection to Postman**: Use the Postman API to upload the Collection to Postman.
+5. **Upload Collection to Postman**: Use the Postman API to upload the Collection to Postman.
