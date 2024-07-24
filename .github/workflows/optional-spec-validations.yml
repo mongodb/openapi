@@ -1,0 +1,27 @@
+name: 'Optional Spec Validations'
+on:
+  workflow_call:
+    secrets: # all secrets are passed explicitly in this workflow
+      api_bot_pat:
+        required: true
+
+jobs:  
+  optional-validations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Validate the FOAS can be used to generate Postman collection
+        run: |
+          cp -rf "./tools/cli/test/data/openapi-foas-dev.json" "./tools/postman/openapi/atlas-api.json"
+          pushd tools/postman
+          make convert_to_collection
+          popd
+      - name: Create Issue
+        if: ${{ failure() }}
+        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+        with:
+          labels: failed-release
+          title: "(PROD) Optional Postman validation failed :scream_cat:"
+          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          token: ${{ secrets.api_bot_pat }}

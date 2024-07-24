@@ -8,7 +8,7 @@ info:
     ```
     curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
       --digest \
-      --header "Accept: application/vnd.atlas.2023-01-01+json" \
+      --header "Accept: application/vnd.atlas.2023-02-01+json" \
       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
     ```
 
@@ -19,7 +19,7 @@ info:
   termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
   title: MongoDB Atlas Administration API
   version: "2.0"
-  x-xgen-sha: e5635db742b9ad78707b2d34eda9f423a591a217
+  x-xgen-sha: 006c96a768328e05d29eda7041739a8af7e1918b
 servers:
 - url: https://cloud.mongodb.com
 tags:
@@ -300,9 +300,7 @@ paths:
           content:
             application/vnd.atlas.2023-01-01+json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/EventTypeDetails"
+                $ref: "#/components/schemas/PaginatedEventTypeDetailsResponse"
               x-xgen-version: 2023-01-01
           description: OK
         "401":
@@ -764,66 +762,7 @@ paths:
       summary: Return All Identity Providers in One Federation
       tags:
       - Federated Authentication
-    post:
-      description: |-
-        Creates one identity provider within the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
-
-        **Note**: This resource only supports the creation of OIDC identity providers.
-      operationId: createIdentityProvider
-      parameters:
-      - $ref: "#/components/parameters/federationSettingsId"
-      - $ref: "#/components/parameters/envelope"
-      responses:
-        "400":
-          $ref: "#/components/responses/badRequest"
-        "401":
-          $ref: "#/components/responses/unauthorized"
-        "403":
-          $ref: "#/components/responses/forbidden"
-        "404":
-          $ref: "#/components/responses/notFound"
-        "500":
-          $ref: "#/components/responses/internalServerError"
-      security:
-      - DigestAuth: []
-      summary: Create One Identity Provider
-      tags:
-      - Federated Authentication
   /api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}:
-    delete:
-      description: "Deletes one identity provider in the specified federation. To\
-        \ use this resource, the requesting API Key must have the Organization Owner\
-        \ role in one of the connected organizations. \n\n**Note**: Requests to this\
-        \ resource will fail if the identity provider has any connected organizations.\
-        \ Before deleting an identity provider, disconnect all organizations and confirm\
-        \ that no organization in your account uses this identity provider. To learn\
-        \ more, see [Manage Organization Mapping for Federated Authentication](https://www.mongodb.com/docs/atlas/security/manage-org-mapping/)."
-      operationId: deleteIdentityProvider
-      parameters:
-      - $ref: "#/components/parameters/federationSettingsId"
-      - description: Unique 24-hexadecimal digit string that identifies the identity
-          provider to connect.
-        in: path
-        name: identityProviderId
-        required: true
-        schema:
-          type: string
-          example: 32b6e34b3d91647abb20e7b8
-      - $ref: "#/components/parameters/envelope"
-      responses:
-        "400":
-          $ref: "#/components/responses/badRequest"
-        "403":
-          $ref: "#/components/responses/forbidden"
-        "404":
-          $ref: "#/components/responses/notFound"
-        "500":
-          $ref: "#/components/responses/internalServerError"
-      security:
-      - DigestAuth: []
-      summary: Delete One Identity Provider
-      tags:
-      - Federated Authentication
     get:
       deprecated: true
       description: "Returns one identity provider in the specified federation by the\
@@ -1176,6 +1115,49 @@ paths:
       security:
       - DigestAuth: []
       summary: Update One Project
+      tags:
+      - Projects
+  /api/atlas/v2/groups/{groupId}/access:
+    post:
+      description: "Adds one MongoDB Cloud user to the specified project. If the MongoDB\
+        \ Cloud user is not a member of the project's organization, then the user\
+        \ must accept their invitation to the organization to access information within\
+        \ the specified project. If the MongoDB Cloud User is already a member of\
+        \ the project's organization, then they will be added to the project immediately\
+        \ and an invitation will not be returned by this resource. To use this resource,\
+        \ the requesting API Key must have the Group User Admin role."
+      operationId: addUserToProject
+      parameters:
+      - $ref: "#/components/parameters/groupId"
+      - $ref: "#/components/parameters/pretty"
+      - $ref: "#/components/parameters/envelope"
+      requestBody:
+        content:
+          application/vnd.atlas.2023-02-01+json:
+            schema:
+              $ref: "#/components/schemas/GroupInvitationRequest"
+        description: Adds one MongoDB Cloud user to the specified project.
+        required: true
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/OrganizationInvitation"
+              x-xgen-version: 2023-02-01
+          description: OK
+        "204":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              x-xgen-version: 2023-02-01
+          description: No Content
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Add One MongoDB Cloud User to One Project
       tags:
       - Projects
   /api/atlas/v2/groups/{groupId}/accessList:
@@ -2252,8 +2234,8 @@ paths:
   /api/atlas/v2/groups/{groupId}/backup/exportBuckets:
     get:
       deprecated: true
-      description: "Returns all AWS S3 buckets and Azure Blob Storages associated\
-        \ with the specified project. To use this resource, the requesting API Key\
+      description: "Returns all AWS S3 buckets and Azure Blob Storage Containers associated\
+        \ with the specified Project. To use this resource, the requesting API Key\
         \ must have the Project Read Only role."
       operationId: listExportBuckets
       parameters:
@@ -2277,17 +2259,17 @@ paths:
           $ref: "#/components/responses/internalServerError"
       security:
       - DigestAuth: []
-      summary: Return All AWS S3 Buckets and Azure Blob Storages Used for Cloud Backup
-        Snapshot Exports
+      summary: Return All AWS S3 Buckets and Azure Blob Storage Containers Used for
+        Cloud Backup Snapshot Exports
       tags:
       - Cloud Backups
       x-sunset: 2025-05-30
     post:
       deprecated: true
-      description: "Grants MongoDB Cloud access to the specified AWS S3 bucket or\
-        \ Azure Blob Storage. This enables this bucket to receive Atlas Cloud Backup\
-        \ snapshots. To use this resource, the requesting API Key must have the Project\
-        \ Owner role."
+      description: "Grants MongoDB Cloud access to the specified AWS S3 Bucket or\
+        \ Azure Blob Storage Container. This enables this Export Bucket to receive\
+        \ Atlas Cloud Backup Snapshots. To use this resource, the requesting API Key\
+        \ must have the Project Owner role."
       operationId: createExportBucket
       parameters:
       - $ref: "#/components/parameters/envelope"
@@ -2300,8 +2282,8 @@ paths:
               $ref: "#/components/schemas/DiskBackupSnapshotAWSExportBucket"
             x-sunset: 2025-05-30
             x-xgen-version: 2023-01-01
-        description: Grants MongoDB Cloud access to the specified AWS S3 bucket or
-          Azure Blob Storage.
+        description: Grants MongoDB Cloud access to the specified AWS S3 Bucket or
+          Azure Blob Storage Container.
         required: true
       responses:
         "200":
@@ -2321,32 +2303,34 @@ paths:
           $ref: "#/components/responses/internalServerError"
       security:
       - DigestAuth: []
-      summary: Grant Access to AWS S3 Bucket or Azure Blob Storage for Cloud Backup
-        Snapshot Exports
+      summary: Grant Access to AWS S3 Bucket or Azure Blob Storage Container for Cloud
+        Backup Snapshot Exports
       tags:
       - Cloud Backups
       x-sunset: 2025-05-30
   /api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}:
     delete:
-      description: "Revoke MongoDB Cloud access to the specified AWS S3 bucket. This\
-        \ prevents this bucket to receive Atlas Cloud Backup snapshots. Auto export\
-        \ must be disabled on all clusters in this project exporting to this bucket\
-        \ before revoking access. To use this resource, the requesting API Key must\
-        \ have the Project Owner role."
+      description: "Revoke MongoDB Cloud access to the specified AWS S3 Bucket or\
+        \ Azure Blob Storage Container. This prevents this Export Bucket from receiving\
+        \ Atlas Cloud Backup Snapshots. Auto export must be disabled on all clusters\
+        \ in this Project exporting to this Export Bucket before revoking access.\
+        \ To use this resource, the requesting API Key must have the Project Owner\
+        \ role."
       operationId: deleteExportBucket
       parameters:
       - $ref: "#/components/parameters/envelope"
       - $ref: "#/components/parameters/groupId"
-      - description: Unique string that identifies the AWS S3 bucket to which you
-          export your snapshots.
+      - description: Unique string that identifies the AWS S3 Bucket or Azure Blob
+          Storage Container to which you export your Snapshots.
         in: path
         name: exportBucketId
         required: true
         schema:
           type: string
-          maxLength: 63
-          minLength: 3
-          pattern: "^((?!xn--)(?!.*-s3alias)[a-z0-9][a-z0-9-]{1,61}[a-z0-9])$"
+          example: 32b6e34b3d91647abb20e7b8
+          maxLength: 24
+          minLength: 24
+          pattern: "^([a-f0-9]{24})$"
       responses:
         "204":
           content:
@@ -2365,28 +2349,30 @@ paths:
           $ref: "#/components/responses/internalServerError"
       security:
       - DigestAuth: []
-      summary: Revoke Access to AWS S3 Bucket for Cloud Backup Snapshot Exports
+      summary: Revoke Access to AWS S3 Bucket or Azure Blob Storage Container for
+        Cloud Backup Snapshot Exports
       tags:
       - Cloud Backups
     get:
       deprecated: true
-      description: "Returns one AWS S3 bucket or Azure Blob Storage associated with\
-        \ the specified project. To use this resource, the requesting API Key must\
-        \ have the Project Read Only role."
+      description: "Returns one AWS S3 Bucket or Azure Blob Storage Container associated\
+        \ with the specified Project. To use this resource, the requesting API Key\
+        \ must have the Project Read Only role."
       operationId: getExportBucket
       parameters:
       - $ref: "#/components/parameters/envelope"
       - $ref: "#/components/parameters/groupId"
-      - description: Unique string that identifies the AWS S3 bucket or Azure Blob
-          Storage to which you export your snapshots.
+      - description: Unique 24-hexadecimal character string that identifies the Export
+          Bucket.
         in: path
         name: exportBucketId
         required: true
         schema:
           type: string
-          maxLength: 63
-          minLength: 3
-          pattern: "^((?!xn--)(?!.*-s3alias)[a-z0-9][a-z0-9-]{1,61}[a-z0-9])$"
+          example: 32b6e34b3d91647abb20e7b8
+          maxLength: 24
+          minLength: 24
+          pattern: "^([a-f0-9]{24})$"
       responses:
         "200":
           content:
@@ -2403,8 +2389,8 @@ paths:
           $ref: "#/components/responses/internalServerError"
       security:
       - DigestAuth: []
-      summary: Return One AWS S3 Bucket or Azure Blob Storage Used for Cloud Backup
-        Snapshot Exports
+      summary: Return One AWS S3 Bucket or Azure Blob Storage Container Used for Cloud
+        Backup Snapshot Exports
       tags:
       - Cloud Backups
       x-sunset: 2025-05-30
@@ -2689,7 +2675,8 @@ paths:
         \ which you have access. Clusters contain a group of hosts that maintain the\
         \ same data set. The response includes clusters with asymmetrically-sized\
         \ shards. To use this resource, the requesting API Key must have the Project\
-        \ Read Only role. This feature is not  available for serverless clusters."
+        \ Read Only role. This feature is not  available for serverless clusters.\
+        \ Deprecated versions: v2-{2023-01-01}"
       operationId: listClusters
       parameters:
       - $ref: "#/components/parameters/envelope"
@@ -2707,10 +2694,10 @@ paths:
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+json:
+            application/vnd.atlas.2023-02-01+json:
               schema:
-                $ref: "#/components/schemas/PaginatedLegacyClusterView"
-              x-xgen-version: 2023-01-01
+                $ref: "#/components/schemas/PaginatedAdvancedClusterDescriptionView"
+              x-xgen-version: 2023-02-01
           description: OK
         "401":
           $ref: "#/components/responses/unauthorized"
@@ -2727,7 +2714,7 @@ paths:
         \ clusters with asymmetrically-sized shards. Each project supports up to 25\
         \ database deployments. To use this resource, the requesting API Key must\
         \ have the Project Owner role. This feature is not available for serverless\
-        \ clusters."
+        \ clusters. Deprecated versions: v2-{2023-01-01}"
       operationId: createCluster
       parameters:
       - $ref: "#/components/parameters/envelope"
@@ -2735,18 +2722,18 @@ paths:
       - $ref: "#/components/parameters/pretty"
       requestBody:
         content:
-          application/vnd.atlas.2023-01-01+json:
+          application/vnd.atlas.2023-02-01+json:
             schema:
-              $ref: "#/components/schemas/LegacyAtlasCluster"
+              $ref: "#/components/schemas/AdvancedClusterDescription"
         description: Cluster to create in the specific project.
         required: true
       responses:
         "201":
           content:
-            application/vnd.atlas.2023-01-01+json:
+            application/vnd.atlas.2023-02-01+json:
               schema:
-                $ref: "#/components/schemas/LegacyAtlasCluster"
-              x-xgen-version: 2023-01-01
+                $ref: "#/components/schemas/AdvancedClusterDescription"
+              x-xgen-version: 2023-02-01
           description: Created
         "400":
           $ref: "#/components/responses/badRequest"
@@ -2895,11 +2882,10 @@ paths:
       - Clusters
   /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:
     delete:
-      deprecated: true
       description: "Removes one cluster from the specified project. The cluster must\
         \ have termination protection disabled in order to be deleted. To use this\
         \ resource, the requesting API Key must have the Project Owner role. This\
-        \ feature is not available for serverless clusters."
+        \ feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}"
       operationId: deleteCluster
       parameters:
       - $ref: "#/components/parameters/envelope"
@@ -2923,8 +2909,8 @@ paths:
       responses:
         "202":
           content:
-            application/vnd.atlas.2023-01-01+json:
-              x-xgen-version: 2023-01-01
+            application/vnd.atlas.2023-02-01+json:
+              x-xgen-version: 2023-02-01
           description: Accepted
         "400":
           $ref: "#/components/responses/badRequest"
@@ -2941,13 +2927,12 @@ paths:
       summary: Remove One Cluster from One Project
       tags:
       - Clusters
-      x-sunset: 2025-06-01
     get:
       description: "Returns the details for one cluster in the specified project.\
         \ Clusters contain a group of hosts that maintain the same data set. The response\
         \ includes clusters with asymmetrically-sized shards. To use this resource,\
         \ the requesting API Key must have the Project Read Only role. This feature\
-        \ is not available for serverless clusters."
+        \ is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}"
       operationId: getCluster
       parameters:
       - $ref: "#/components/parameters/envelope"
@@ -2965,10 +2950,10 @@ paths:
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+json:
+            application/vnd.atlas.2023-02-01+json:
               schema:
-                $ref: "#/components/schemas/LegacyAtlasCluster"
-              x-xgen-version: 2023-01-01
+                $ref: "#/components/schemas/AdvancedClusterDescription"
+              x-xgen-version: 2023-02-01
           description: OK
         "401":
           $ref: "#/components/responses/unauthorized"
@@ -2993,7 +2978,7 @@ paths:
         \ : true`). You must call this endpoint to set `paused : false`. After this\
         \ endpoint responds with `paused : false`, you can call it again with the\
         \ changes you want to make to the cluster. This feature is not available for\
-        \ serverless clusters."
+        \ serverless clusters. Deprecated versions: v2-{2023-01-01}"
       operationId: updateCluster
       parameters:
       - $ref: "#/components/parameters/envelope"
@@ -3010,18 +2995,18 @@ paths:
           pattern: "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
       requestBody:
         content:
-          application/vnd.atlas.2023-01-01+json:
+          application/vnd.atlas.2023-02-01+json:
             schema:
-              $ref: "#/components/schemas/LegacyAtlasCluster"
+              $ref: "#/components/schemas/AdvancedClusterDescription"
         description: Cluster to update in the specified project.
         required: true
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+json:
+            application/vnd.atlas.2023-02-01+json:
               schema:
-                $ref: "#/components/schemas/LegacyAtlasCluster"
-              x-xgen-version: 2023-01-01
+                $ref: "#/components/schemas/AdvancedClusterDescription"
+              x-xgen-version: 2023-02-01
           description: OK
         "400":
           $ref: "#/components/responses/badRequest"
@@ -3079,8 +3064,8 @@ paths:
       - Cloud Backups
     post:
       description: "Exports one backup snapshot for dedicated Atlas cluster using\
-        \ Cloud Backups to an AWS bucket. To use this resource, the requesting API\
-        \ Key must have the Project Atlas Admin role."
+        \ Cloud Backups to an Export Bucket. To use this resource, the requesting\
+        \ API Key must have the Project Atlas Admin role."
       operationId: createBackupExportJob
       parameters:
       - $ref: "#/components/parameters/envelope"
@@ -4492,11 +4477,10 @@ paths:
       x-sunset: 2025-06-01
   /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites:
     get:
-      deprecated: true
       description: "Returns one managed namespace within the specified global cluster.\
         \ A managed namespace identifies a collection using the database name, the\
         \ dot separator, and the collection name. To use this resource, the requesting\
-        \ API Key must have the Project Read Only role."
+        \ API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}"
       externalDocs:
         description: Global Clusters
         url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -4517,10 +4501,10 @@ paths:
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+json:
+            application/vnd.atlas.2023-02-01+json:
               schema:
                 $ref: "#/components/schemas/GeoSharding"
-              x-xgen-version: 2023-01-01
+              x-xgen-version: 2023-02-01
           description: OK
         "401":
           $ref: "#/components/responses/unauthorized"
@@ -4531,16 +4515,14 @@ paths:
       summary: Return One Managed Namespace in One Global Cluster
       tags:
       - Global Clusters
-      x-sunset: 2025-06-01
   /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/customZoneMapping:
     delete:
-      deprecated: true
       description: "Removes all custom zone mappings for the specified global cluster.\
         \ A custom zone mapping matches one ISO 3166-2 location code to a zone in\
         \ your global cluster. Removing the custom zone mappings restores the default\
         \ mapping. By default, MongoDB Cloud maps each location code to the closest\
         \ geographical zone. To use this resource, the requesting API Key must have\
-        \ the Project Owner role."
+        \ the Project Owner role. Deprecated versions: v2-{2023-01-01}"
       externalDocs:
         description: Global Clusters
         url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -4561,10 +4543,10 @@ paths:
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+json:
+            application/vnd.atlas.2023-02-01+json:
               schema:
                 $ref: "#/components/schemas/GeoSharding"
-              x-xgen-version: 2023-01-01
+              x-xgen-version: 2023-02-01
           description: OK
         "401":
           $ref: "#/components/responses/unauthorized"
@@ -4575,14 +4557,12 @@ paths:
       summary: Remove All Custom Zone Mappings from One Global Cluster
       tags:
       - Global Clusters
-      x-sunset: 2025-06-01
     post:
-      deprecated: true
       description: "Creates one custom zone mapping for the specified global cluster.\
         \ A custom zone mapping matches one ISO 3166-2 location code to a zone in\
         \ your global cluster. By default, MongoDB Cloud maps each location code to\
         \ the closest geographical zone. To use this resource, the requesting API\
-        \ Key must have the Project Owner role."
+        \ Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}"
       externalDocs:
         description: Global Clusters
         url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -4602,7 +4582,7 @@ paths:
           pattern: "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
       requestBody:
         content:
-          application/vnd.atlas.2023-01-01+json:
+          application/vnd.atlas.2023-02-01+json:
             schema:
               $ref: "#/components/schemas/CustomZoneMappings"
         description: Custom zone mapping to add to the specified global cluster.
@@ -4610,10 +4590,10 @@ paths:
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+json:
+            application/vnd.atlas.2023-02-01+json:
               schema:
                 $ref: "#/components/schemas/GeoSharding"
-              x-xgen-version: 2023-01-01
+              x-xgen-version: 2023-02-01
           description: OK
         "400":
           $ref: "#/components/responses/badRequest"
@@ -4626,15 +4606,14 @@ paths:
       summary: Add One Entry to One Custom Zone Mapping
       tags:
       - Global Clusters
-      x-sunset: 2025-06-01
   /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces:
     delete:
-      deprecated: true
       description: "Removes one managed namespace within the specified global cluster.\
         \ A managed namespace identifies a collection using the database name, the\
         \ dot separator, and the collection name. Deleting a managed namespace does\
         \ not remove the associated collection or data. To use this resource, the\
-        \ requesting API Key must have the Project Data Access Admin role."
+        \ requesting API Key must have the Project Data Access Admin role. Deprecated\
+        \ versions: v2-{2023-01-01}"
       externalDocs:
         description: Global Clusters
         url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -4667,10 +4646,10 @@ paths:
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+json:
+            application/vnd.atlas.2023-02-01+json:
               schema:
                 $ref: "#/components/schemas/GeoSharding"
-              x-xgen-version: 2023-01-01
+              x-xgen-version: 2023-02-01
           description: OK
         "400":
           $ref: "#/components/responses/badRequest"
@@ -4683,13 +4662,12 @@ paths:
       summary: Remove One Managed Namespace from One Global Cluster
       tags:
       - Global Clusters
-      x-sunset: 2025-06-01
     post:
-      deprecated: true
       description: "Creates one managed namespace within the specified global cluster.\
         \ A managed namespace identifies a collection using the database name, the\
         \ dot separator, and the collection name. To use this resource, the requesting\
-        \ API Key must have the Project Data Access Admin role."
+        \ API Key must have the Project Data Access Admin role. Deprecated versions:\
+        \ v2-{2023-01-01}"
       externalDocs:
         description: Global Clusters
         url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -4709,18 +4687,18 @@ paths:
           pattern: "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
       requestBody:
         content:
-          application/vnd.atlas.2023-01-01+json:
+          application/vnd.atlas.2023-02-01+json:
             schema:
-              $ref: "#/components/schemas/ManagedNamespaces"
+              $ref: "#/components/schemas/ManagedNamespaceView"
         description: Managed namespace to create within the specified global cluster.
         required: true
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+json:
+            application/vnd.atlas.2023-02-01+json:
               schema:
                 $ref: "#/components/schemas/GeoSharding"
-              x-xgen-version: 2023-01-01
+              x-xgen-version: 2023-02-01
           description: OK
         "400":
           $ref: "#/components/responses/badRequest"
@@ -4735,7 +4713,6 @@ paths:
       summary: Create One Managed Namespace in One Global Cluster
       tags:
       - Global Clusters
-      x-sunset: 2025-06-01
   /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index:
     post:
       description: "Creates an index on the cluster identified by its name in a rolling\
@@ -5426,13 +5403,12 @@ paths:
       - Clusters
   /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries:
     post:
-      deprecated: true
       description: "Starts a failover test for the specified cluster in the specified\
         \ project. Clusters contain a group of hosts that maintain the same data set.\
         \ A failover test checks how MongoDB Cloud handles the failure of the cluster's\
         \ primary node. During the test, MongoDB Cloud shuts down the primary node\
         \ and elects a new primary. To use this resource, the requesting API Key must\
-        \ have the Project Cluster Manager role."
+        \ have the Project Cluster Manager role. Deprecated versions: v2-{2023-01-01}"
       operationId: testFailover
       parameters:
       - $ref: "#/components/parameters/envelope"
@@ -5450,8 +5426,8 @@ paths:
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+json:
-              x-xgen-version: 2023-01-01
+            application/vnd.atlas.2023-02-01+json:
+              x-xgen-version: 2023-02-01
           description: OK
         "401":
           $ref: "#/components/responses/unauthorized"
@@ -5462,7 +5438,6 @@ paths:
       summary: Test Failover for One Cluster
       tags:
       - Clusters
-      x-sunset: 2025-06-01
   /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restoreJobs:
     get:
       deprecated: true
@@ -6147,7 +6122,6 @@ paths:
       - Clusters
   /api/atlas/v2/groups/{groupId}/clusters/{hostName}/logs/{logName}.gz:
     get:
-      deprecated: true
       description: "Returns a compressed (.gz) log file that contains a range of log\
         \ messages for the specified host for the specified project. MongoDB updates\
         \ process and audit logs from the cluster backend infrastructure every five\
@@ -6159,7 +6133,8 @@ paths:
         \ use this resource, the requesting API Key must have the Project Data Access\
         \ Read Only or higher role. The API does not support direct calls with the\
         \ json response schema. You must request a gzip response schema using an accept\
-        \ header of the format: \"Accept: application/vnd.atlas.YYYY-MM-DD+gzip\"."
+        \ header of the format: \"Accept: application/vnd.atlas.YYYY-MM-DD+gzip\"\
+        . Deprecated versions: v2-{2023-01-01}"
       operationId: getHostLogs
       parameters:
       - $ref: "#/components/parameters/envelope"
@@ -6210,13 +6185,13 @@ paths:
       responses:
         "200":
           content:
-            application/vnd.atlas.2023-01-01+gzip:
+            application/vnd.atlas.2023-02-01+gzip:
               schema:
                 type: string
                 format: binary
                 description: Compressed (.gz) log file that contains a range of log
                   messages for the specified host for the specified project
-              x-xgen-version: 2023-01-01
+              x-xgen-version: 2023-02-01
           description: OK
         "400":
           $ref: "#/components/responses/badRequest"
@@ -6235,7 +6210,6 @@ paths:
       summary: Download Logs for One Cluster Host in One Project
       tags:
       - Monitoring and Logs
-      x-sunset: 2025-06-01
   /api/atlas/v2/groups/{groupId}/containers:
     get:
       description: "Returns details about all network peering containers in the specified\
@@ -12803,6 +12777,506 @@ paths:
       summary: Update One Project Settings
       tags:
       - Projects
+  /api/atlas/v2/groups/{groupId}/streams:
+    get:
+      description: Returns all stream instances for the specified project.
+      operationId: listStreamInstances
+      parameters:
+      - $ref: "#/components/parameters/groupId"
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/itemsPerPage"
+      - $ref: "#/components/parameters/pageNum"
+      - $ref: "#/components/parameters/pretty"
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/PaginatedApiStreamsTenantView"
+              x-xgen-version: 2023-02-01
+          description: OK
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Return All Project Stream Instances
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
+    post:
+      description: "Creates one stream instance in the specified project. To use this\
+        \ resource, the requesting API Key must have the Project Data Access Admin\
+        \ role, Project Owner role or Project Stream Processing Owner role."
+      operationId: createStreamInstance
+      parameters:
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/pretty"
+      - $ref: "#/components/parameters/groupId"
+      requestBody:
+        content:
+          application/vnd.atlas.2023-02-01+json:
+            schema:
+              $ref: "#/components/schemas/StreamsTenant"
+        description: Details to create one streams instance in the specified project.
+        required: true
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/StreamsTenant"
+              x-xgen-version: 2023-02-01
+          description: OK
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Create One Stream Instance
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
+  /api/atlas/v2/groups/{groupId}/streams/{tenantName}:
+    delete:
+      description: "Delete one stream instance in the specified project. To use this\
+        \ resource, the requesting API Key must have the Project Data Access Admin\
+        \ role, Project Owner role or Project Stream Processing Owner role."
+      operationId: deleteStreamInstance
+      parameters:
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/pretty"
+      - $ref: "#/components/parameters/groupId"
+      - description: Human-readable label that identifies the stream instance to delete.
+        in: path
+        name: tenantName
+        required: true
+        schema:
+          type: string
+      responses:
+        "202":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/NoBody"
+              x-xgen-version: 2023-02-01
+          description: Accepted
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Delete One Stream Instance
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
+    get:
+      description: "Returns the details of one stream instance within the specified\
+        \ project. To use this resource, the requesting API Key must have the Project\
+        \ Data Access roles, Project Owner role or Project Stream Processing Owner\
+        \ role."
+      operationId: getStreamInstance
+      parameters:
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/groupId"
+      - description: Human-readable label that identifies the stream instance to return.
+        in: path
+        name: tenantName
+        required: true
+        schema:
+          type: string
+      - description: Flag to indicate whether connections information should be included
+          in the stream instance.
+        in: query
+        name: includeConnections
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/StreamsTenant"
+              x-xgen-version: 2023-02-01
+          description: OK
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Return One Stream Instance
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
+    patch:
+      description: "Update one stream instance in the specified project. To use this\
+        \ resource, the requesting API Key must have the Project Data Access Admin\
+        \ role, Project Owner role or Project Stream Processing Owner role."
+      operationId: updateStreamInstance
+      parameters:
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/pretty"
+      - $ref: "#/components/parameters/groupId"
+      - description: Human-readable label that identifies the stream instance to update.
+        in: path
+        name: tenantName
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/vnd.atlas.2023-02-01+json:
+            schema:
+              $ref: "#/components/schemas/StreamsDataProcessRegion"
+        description: Details of the new data process region to update in the streams
+          instance.
+        required: true
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/StreamsTenant"
+              x-xgen-version: 2023-02-01
+          description: OK
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Update One Stream Instance
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
+  /api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs:
+    get:
+      description: "Downloads the audit logs for the specified Atlas Streams Processing\
+        \ instance. By default, logs cover periods of 30 days. To use this resource,\
+        \ the requesting API Key must have the Project Data Access roles, Project\
+        \ Owner role or Project Stream Processing Owner role. The API does not support\
+        \ direct calls with the json response schema. You must request a gzip response\
+        \ schema using an accept header of the format: \"Accept: application/vnd.atlas.YYYY-MM-DD+gzip\"\
+        ."
+      operationId: downloadStreamTenantAuditLogs
+      parameters:
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/groupId"
+      - description: Timestamp that specifies the end point for the range of log messages
+          to download.  MongoDB Cloud expresses this timestamp in the number of seconds
+          that have elapsed since the UNIX epoch.
+        in: query
+        name: endDate
+        schema:
+          type: integer
+          format: int64
+          example: 1636481348
+          pattern: "1199145600"
+      - description: Timestamp that specifies the starting point for the range of
+          log messages to download. MongoDB Cloud expresses this timestamp in the
+          number of seconds that have elapsed since the UNIX epoch.
+        in: query
+        name: startDate
+        schema:
+          type: integer
+          format: int64
+          example: 1636466948
+          pattern: "1199145600"
+      - description: Human-readable label that identifies the stream instance.
+        in: path
+        name: tenantName
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+gzip:
+              schema:
+                type: string
+                format: binary
+                description: Compressed archive labeled `auditLogs.gz` downloads
+              x-xgen-version: 2023-02-01
+          description: OK
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "409":
+          $ref: "#/components/responses/conflict"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Download Audit Logs for One Atlas Stream Processing Instance
+      tags:
+      - Streams
+  /api/atlas/v2/groups/{groupId}/streams/{tenantName}/connections:
+    get:
+      description: "Returns all connections of the stream instance for the specified\
+        \ project.To use this resource, the requesting API Key must have the Project\
+        \ Data Access roles, Project Owner role or Project Stream Processing Owner\
+        \ role."
+      operationId: listStreamConnections
+      parameters:
+      - $ref: "#/components/parameters/groupId"
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/itemsPerPage"
+      - $ref: "#/components/parameters/pageNum"
+      - $ref: "#/components/parameters/pretty"
+      - description: Human-readable label that identifies the stream instance.
+        in: path
+        name: tenantName
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/PaginatedApiStreamsConnectionView"
+              x-xgen-version: 2023-02-01
+          description: OK
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Return All Connections Of The Stream Instances
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
+    post:
+      description: "Creates one connection for a stream instance in the specified\
+        \ project. To use this resource, the requesting API Key must have the Project\
+        \ Owner or Project Stream Processing Owner role."
+      operationId: createStreamConnection
+      parameters:
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/pretty"
+      - $ref: "#/components/parameters/groupId"
+      - description: Human-readable label that identifies the stream instance.
+        in: path
+        name: tenantName
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/vnd.atlas.2023-02-01+json:
+            schema:
+              $ref: "#/components/schemas/StreamsConnection"
+        description: Details to create one connection for a streams instance in the
+          specified project.
+        required: true
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/StreamsConnection"
+              x-xgen-version: 2023-02-01
+          description: OK
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "409":
+          $ref: "#/components/responses/unauthorized"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Create One Connection
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
+  /api/atlas/v2/groups/{groupId}/streams/{tenantName}/connections/{connectionName}:
+    delete:
+      description: "Delete one connection of the specified stream instance. To use\
+        \ this resource, the requesting API Key must have the Project Owner role or\
+        \ Project Stream Processing Owner role."
+      operationId: deleteStreamConnection
+      parameters:
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/pretty"
+      - $ref: "#/components/parameters/groupId"
+      - description: Human-readable label that identifies the stream instance.
+        in: path
+        name: tenantName
+        required: true
+        schema:
+          type: string
+      - description: Human-readable label that identifies the stream connection.
+        in: path
+        name: connectionName
+        required: true
+        schema:
+          type: string
+      responses:
+        "202":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/NoBody"
+              x-xgen-version: 2023-02-01
+          description: Accepted
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Delete One Stream Connection
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
+    get:
+      description: "Returns the details of one stream connection within the specified\
+        \ stream instance. To use this resource, the requesting API Key must have\
+        \ the Project Read Only role."
+      operationId: getStreamConnection
+      parameters:
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/groupId"
+      - description: Human-readable label that identifies the stream instance to return.
+        in: path
+        name: tenantName
+        required: true
+        schema:
+          type: string
+      - description: Human-readable label that identifies the stream connection to
+          return.
+        in: path
+        name: connectionName
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/StreamsConnection"
+              x-xgen-version: 2023-02-01
+          description: OK
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Return One Stream Connection
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
+    patch:
+      description: "Update one connection for the specified stream instance in the\
+        \ specified project. To use this resource, the requesting API Key must have\
+        \ the Project Owner role or Project Stream Processing Owner role."
+      operationId: updateStreamConnection
+      parameters:
+      - $ref: "#/components/parameters/envelope"
+      - $ref: "#/components/parameters/pretty"
+      - $ref: "#/components/parameters/groupId"
+      - description: Human-readable label that identifies the stream instance.
+        in: path
+        name: tenantName
+        required: true
+        schema:
+          type: string
+      - description: Human-readable label that identifies the stream connection.
+        in: path
+        name: connectionName
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/vnd.atlas.2023-02-01+json:
+            schema:
+              $ref: "#/components/schemas/StreamsConnection"
+        description: Details to update one connection for a streams instance in the
+          specified project.
+        required: true
+      responses:
+        "200":
+          content:
+            application/vnd.atlas.2023-02-01+json:
+              schema:
+                $ref: "#/components/schemas/StreamsConnection"
+              x-xgen-version: 2023-02-01
+          description: OK
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/internalServerError"
+      security:
+      - DigestAuth: []
+      summary: Update One Stream Connection
+      tags:
+      - Streams
+      x-xgen-changelog:
+        "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as\
+          \ part of private preview, but is subject to change until GA."
   /api/atlas/v2/groups/{groupId}/teams:
     get:
       description: "Returns all teams to which the authenticated user has access in\
@@ -19100,12 +19574,12 @@ components:
       title: Federated Authentication Role Mapping
     AutoExportPolicyView:
       type: object
-      description: Policy for automatically exporting cloud backup snapshots.
+      description: Policy for automatically exporting Cloud Backup Snapshots.
       properties:
         exportBucketId:
           type: string
           description: Unique 24-hexadecimal character string that identifies the
-            AWS Bucket.
+            Export Bucket.
           example: 32b6e34b3d91647abb20e7b8
           maxLength: 24
           minLength: 24
@@ -28701,13 +29175,13 @@ components:
           type: integer
           format: int32
           description: |-
-            Number that indicates the frequency interval for a set of snapshots. A value of `1` specifies the first instance of the corresponding `frequencyType`.
+            Number that indicates the frequency interval for a set of Snapshots. A value of `1` specifies the first instance of the corresponding `frequencyType`.
 
-            - In a yearly policy item, `1` indicates that the yearly snapshot occurs on the first day of January and `12` indicates the first day of December.
+            - In a yearly policy item, `1` indicates that the yearly Snapshot occurs on the first day of January and `12` indicates the first day of December.
 
-            - In a monthly policy item, `1` indicates that the monthly snapshot occurs on the first day of the month and `40` indicates the last day of the month.
+            - In a monthly policy item, `1` indicates that the monthly Snapshot occurs on the first day of the month and `40` indicates the last day of the month.
 
-            - In a weekly policy item, `1` indicates that the weekly snapshot occurs on Monday and `7` indicates Sunday.
+            - In a weekly policy item, `1` indicates that the weekly Snapshot occurs on Monday and `7` indicates Sunday.
 
             - In an hourly policy item, you can set the frequency interval to `1`, `2`, `4`, `6`, `8`, or `12`. For hourly policy items for NVMe clusters, MongoDB Cloud accepts only `12` as the frequency interval value.
 
@@ -28763,7 +29237,7 @@ components:
           readOnly: true
         retentionUnit:
           type: string
-          description: Unit of time in which MongoDB Cloud measures snapshot retention.
+          description: Unit of time in which MongoDB Cloud measures Snapshot retention.
           enum:
           - days
           - weeks
@@ -28773,7 +29247,7 @@ components:
           type: integer
           format: int32
           description: |-
-            Duration in days, weeks, months, or years that MongoDB Cloud retains the snapshot. For less frequent policy items, MongoDB Cloud requires that you specify a value greater than or equal to the value specified for more frequent policy items.
+            Duration in days, weeks, months, or years that MongoDB Cloud retains the Snapshot. For less frequent policy items, MongoDB Cloud requires that you specify a value greater than or equal to the value specified for more frequent policy items.
 
             For example: If the hourly policy item specifies a retention of two days, you must specify two days or greater for the retention of the weekly policy item.
       required:
@@ -28902,7 +29376,7 @@ components:
         exportBucketId:
           type: string
           description: Unique 24-hexadecimal character string that identifies the
-            AWS bucket to which MongoDB Cloud exports the Cloud Backup snapshot.
+            Export Bucket to export to.
           example: 32b6e34b3d91647abb20e7b8
           maxLength: 24
           minLength: 24
@@ -28976,7 +29450,7 @@ components:
         exportBucketId:
           type: string
           description: Unique 24-hexadecimal character string that identifies the
-            AWS bucket to which MongoDB Cloud exports the Cloud Backup snapshot.
+            Export Bucket to export to.
           example: 32b6e34b3d91647abb20e7b8
           maxLength: 24
           minLength: 24
@@ -28996,7 +29470,7 @@ components:
         snapshotId:
           type: string
           description: Unique 24-hexadecimal character string that identifies the
-            Cloud Backup snasphot to export.
+            Cloud Backup Snapshot to export.
           example: 32b6e34b3d91647abb20e7b8
           maxLength: 24
           minLength: 24
@@ -29480,7 +29954,7 @@ components:
         _id:
           type: string
           description: Unique 24-hexadecimal character string that identifies the
-            Amazon Web Services (AWS) Simple Storage Service (S3) export bucket.
+            Export Bucket.
           example: 32b6e34b3d91647abb20e7b8
           maxLength: 24
           minLength: 24
@@ -29488,12 +29962,15 @@ components:
           readOnly: true
         bucketName:
           type: string
-          description: Human-readable label that identifies the AWS bucket that the
-            role is authorized to access.
+          description: Human-readable label that identifies the AWS S3 Bucket or Azure
+            Storage Container that the role is authorized to export to.
+          example: export-bucket
+          maxLength: 63
+          minLength: 3
         cloudProvider:
           type: string
           description: Human-readable label that identifies the cloud provider that
-            stores this snapshot.
+            Snapshots will be exported to.
           enum:
           - AWS
           - AZURE
@@ -29518,6 +29995,10 @@ components:
           items:
             $ref: "#/components/schemas/Link"
           readOnly: true
+      required:
+      - bucketName
+      - cloudProvider
+      - iamRoleId
     DiskBackupSnapshotAzureExportBucket:
       type: object
       allOf:
@@ -29527,25 +30008,36 @@ components:
           roleId:
             type: string
             description: Unique 24-hexadecimal digit string that identifies the Azure
-              Service Principal that MongoDB Cloud uses to access the Azure Blob Storage.
+              Service Principal that MongoDB Cloud uses to access the Azure Blob Storage
+              Container.
             example: 32b6e34b3d91647abb20e7b8
             maxLength: 24
             minLength: 24
             pattern: "^([a-f0-9]{24})$"
           serviceUrl:
             type: string
-            description: Url that identifies the Azure Blob Storage Account.
+            description: URL that identifies the blob Endpoint of the Azure Blob Storage
+              Account.
+            example: https://examplestorageaccount.blob.core.windows.net
+            maxLength: 55
+            minLength: 33
           tenantId:
             type: string
-            description: UUID String that identifies the Azure Active Directory Tenant
-              ID.
+            description: UUID that identifies the Azure Active Directory Tenant ID.
+            example: 4297fc77-1592-4de8-a6d5-a8c32401df87
             maxLength: 36
-            minLength: 32
+            minLength: 36
             pattern: "^[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\\
               b-[0-9a-fA-F]{12}$"
+      required:
+      - bucketName
+      - cloudProvider
+      - roleId
+      - serviceUrl
+      - tenantId
     DiskBackupSnapshotExportBucket:
       type: object
-      description: Disk backup snapshot export bucket.
+      description: Disk backup snapshot Export Bucket.
       discriminator:
         mapping:
           AWS: "#/components/schemas/DiskBackupSnapshotAWSExportBucket"
@@ -29558,7 +30050,7 @@ components:
         _id:
           type: string
           description: Unique 24-hexadecimal character string that identifies the
-            Amazon Web Services (AWS) Simple Storage Service (S3) export bucket.
+            Export Bucket.
           example: 32b6e34b3d91647abb20e7b8
           maxLength: 24
           minLength: 24
@@ -29566,12 +30058,15 @@ components:
           readOnly: true
         bucketName:
           type: string
-          description: Human-readable label that identifies the AWS bucket that the
-            role is authorized to access.
+          description: Human-readable label that identifies the AWS S3 Bucket or Azure
+            Storage Container that the role is authorized to export to.
+          example: export-bucket
+          maxLength: 63
+          minLength: 3
         cloudProvider:
           type: string
           description: Human-readable label that identifies the cloud provider that
-            stores this snapshot.
+            Snapshots will be exported to.
           enum:
           - AWS
           - AZURE
@@ -29586,6 +30081,9 @@ components:
           items:
             $ref: "#/components/schemas/Link"
           readOnly: true
+      required:
+      - bucketName
+      - cloudProvider
     DiskBackupSnapshotRestoreJob:
       type: object
       properties:
@@ -29727,11 +30225,11 @@ components:
         autoExportEnabled:
           type: boolean
           description: Flag that indicates whether MongoDB Cloud automatically exports
-            cloud backup snapshots to the AWS bucket.
+            Cloud Backup Snapshots to the Export Bucket.
         clusterId:
           type: string
           description: Unique 24-hexadecimal digit string that identifies the cluster
-            with the snapshot you want to return.
+            with the Snapshot you want to return.
           example: 32b6e34b3d91647abb20e7b8
           maxLength: 24
           minLength: 24
@@ -29739,7 +30237,7 @@ components:
           readOnly: true
         clusterName:
           type: string
-          description: Human-readable label that identifies the cluster with the snapshot
+          description: Human-readable label that identifies the cluster with the Snapshot
             you want to return.
           maxLength: 64
           minLength: 1
@@ -29780,7 +30278,7 @@ components:
         nextSnapshot:
           type: string
           format: date-time
-          description: Date and time when MongoDB Cloud takes the next snapshot. This
+          description: Date and time when MongoDB Cloud takes the next Snapshot. This
             parameter expresses its value in the ISO 8601 timestamp format in UTC.
           readOnly: true
         policies:
@@ -29793,39 +30291,39 @@ components:
           type: integer
           format: int32
           description: Hour of day in Coordinated Universal Time (UTC) that represents
-            when MongoDB Cloud takes the snapshot.
+            when MongoDB Cloud takes the Snapshot.
         referenceMinuteOfHour:
           type: integer
           format: int32
           description: Minute of the **referenceHourOfDay** that represents when MongoDB
-            Cloud takes the snapshot.
+            Cloud takes the Snapshot.
         restoreWindowDays:
           type: integer
           format: int32
           description: "Number of previous days that you can restore back to with\
             \ Continuous Cloud Backup accuracy. You must specify a positive, non-zero\
-            \ integer. This parameter applies to continuous cloud backups only."
+            \ integer. This parameter applies to continuous Cloud Backups only."
         updateSnapshots:
           type: boolean
           description: Flag that indicates whether to apply the retention changes
-            in the updated backup policy to snapshots that MongoDB Cloud took previously.
+            in the updated backup policy to Snapshots that MongoDB Cloud took previously.
           writeOnly: true
         useOrgAndGroupNamesInExportPrefix:
           type: boolean
           description: Flag that indicates whether to use organization and project
             names instead of organization and project UUIDs in the path to the metadata
-            files that MongoDB Cloud uploads to your AWS bucket.
+            files that MongoDB Cloud uploads to your Export Bucket.
     DiskBackupSnapshotSchedule20250101:
       type: object
       properties:
         autoExportEnabled:
           type: boolean
           description: Flag that indicates whether MongoDB Cloud automatically exports
-            cloud backup snapshots to the AWS bucket.
+            Cloud Backup Snapshots to the Export Bucket.
         clusterId:
           type: string
           description: Unique 24-hexadecimal digit string that identifies the cluster
-            with the snapshot you want to return.
+            with the Snapshot you want to return.
           example: 32b6e34b3d91647abb20e7b8
           maxLength: 24
           minLength: 24
@@ -29833,7 +30331,7 @@ components:
           readOnly: true
         clusterName:
           type: string
-          description: Human-readable label that identifies the cluster with the snapshot
+          description: Human-readable label that identifies the cluster with the Snapshot
             you want to return.
           maxLength: 64
           minLength: 1
@@ -29874,7 +30372,7 @@ components:
         nextSnapshot:
           type: string
           format: date-time
-          description: Date and time when MongoDB Cloud takes the next snapshot. This
+          description: Date and time when MongoDB Cloud takes the next Snapshot. This
             parameter expresses its value in the ISO 8601 timestamp format in UTC.
           readOnly: true
         policies:
@@ -29887,28 +30385,28 @@ components:
           type: integer
           format: int32
           description: Hour of day in Coordinated Universal Time (UTC) that represents
-            when MongoDB Cloud takes the snapshot.
+            when MongoDB Cloud takes the Snapshot.
         referenceMinuteOfHour:
           type: integer
           format: int32
           description: Minute of the **referenceHourOfDay** that represents when MongoDB
-            Cloud takes the snapshot.
+            Cloud takes the Snapshot.
         restoreWindowDays:
           type: integer
           format: int32
           description: "Number of previous days that you can restore back to with\
             \ Continuous Cloud Backup accuracy. You must specify a positive, non-zero\
-            \ integer. This parameter applies to continuous cloud backups only."
+            \ integer. This parameter applies to continuous Cloud Backups only."
         updateSnapshots:
           type: boolean
           description: Flag that indicates whether to apply the retention changes
-            in the updated backup policy to snapshots that MongoDB Cloud took previously.
+            in the updated backup policy to Snapshots that MongoDB Cloud took previously.
           writeOnly: true
         useOrgAndGroupNamesInExportPrefix:
           type: boolean
           description: Flag that indicates whether to use organization and project
             names instead of organization and project UUIDs in the path to the metadata
-            files that MongoDB Cloud uploads to your AWS bucket.
+            files that MongoDB Cloud uploads to your Export Bucket.
     DiskGBAutoScaling:
       type: object
       description: Setting that enables disk auto-scaling.
@@ -30120,17 +30618,6 @@ components:
         eventType:
           type: string
           description: Enum representation of the event type.
-          readOnly: true
-        links:
-          type: array
-          description: "List of one or more Uniform Resource Locators (URLs) that\
-            \ point to API sub-resources, related API resources, or both. RFC 5988\
-            \ outlines these relationships."
-          externalDocs:
-            description: Web Linking Specification (RFC 5988)
-            url: https://datatracker.ietf.org/doc/html/rfc5988
-          items:
-            $ref: "#/components/schemas/Link"
           readOnly: true
       title: Event type details
     EventTypeForNdsGroup:
@@ -35125,14 +35612,6 @@ components:
           description: Version applied to this text index. MongoDB 3.2 and later use
             version `3`. Use this option to override the default version number. This
             option applies to the **text** index type only.
-        unique:
-          type: boolean
-          default: false
-          description: "Flag that indicates whether this index can accept insertion\
-            \ or update of documents when the index key value matches an existing\
-            \ index key value. Set `\"unique\" : true` to set this index as unique.\
-            \ You can't set a hashed index to be unique. This option applies to all\
-            \ index types. This option is unsupported for rolling indexes."
         weights:
           type: object
           additionalProperties:
@@ -41111,6 +41590,34 @@ components:
             completing this request.
           items:
             $ref: "#/components/schemas/MeasurementDiskPartition"
+          readOnly: true
+        totalCount:
+          type: integer
+          format: int32
+          description: Total number of documents available. MongoDB Cloud omits this
+            value if `includeCount` is set to `false`.
+          minimum: 0
+          readOnly: true
+    PaginatedEventTypeDetailsResponse:
+      type: object
+      properties:
+        links:
+          type: array
+          description: "List of one or more Uniform Resource Locators (URLs) that\
+            \ point to API sub-resources, related API resources, or both. RFC 5988\
+            \ outlines these relationships."
+          externalDocs:
+            description: Web Linking Specification (RFC 5988)
+            url: https://datatracker.ietf.org/doc/html/rfc5988
+          items:
+            $ref: "#/components/schemas/Link"
+          readOnly: true
+        results:
+          type: array
+          description: List of returned documents that MongoDB Cloud providers when
+            completing this request.
+          items:
+            $ref: "#/components/schemas/EventTypeDetails"
           readOnly: true
         totalCount:
           type: integer

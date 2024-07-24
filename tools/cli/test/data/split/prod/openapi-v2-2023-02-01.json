@@ -1,7 +1,7 @@
 {
   "openapi" : "3.0.1",
   "info" : {
-    "description" : "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-05-30+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).",
+    "description" : "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).",
     "license" : {
       "name" : "CC BY-NC-SA 3.0 US",
       "url" : "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -9,7 +9,7 @@
     "termsOfService" : "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title" : "MongoDB Atlas Administration API",
     "version" : "2.0",
-    "x-xgen-sha" : "e5635db742b9ad78707b2d34eda9f423a591a217"
+    "x-xgen-sha" : "006c96a768328e05d29eda7041739a8af7e1918b"
   },
   "servers" : [ {
     "url" : "https://cloud.mongodb.com"
@@ -181,13 +181,6 @@
             "description" : "OK"
           },
           "401" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiError"
-                }
-              }
-            },
             "description" : "Unauthorized."
           },
           "500" : {
@@ -300,10 +293,7 @@
             "content" : {
               "application/vnd.atlas.2023-01-01+json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/EventTypeDetails"
-                  }
+                  "$ref" : "#/components/schemas/PaginatedEventTypeDetailsResponse"
                 },
                 "x-xgen-version" : "2023-01-01"
               }
@@ -902,108 +892,11 @@
         } ],
         "summary" : "Return All Identity Providers in One Federation",
         "tags" : [ "Federated Authentication" ]
-      },
-      "post" : {
-        "description" : "Creates one identity provider within the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.\n\n**Note**: This resource only supports the creation of OIDC identity providers.",
-        "operationId" : "createIdentityProvider",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/federationSettingsId"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/vnd.atlas.2023-11-15+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/FederationOidcIdentityProviderUpdate"
-              }
-            }
-          },
-          "description" : "The identity provider that you want to create.",
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/FederationOidcIdentityProvider"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Create One Identity Provider",
-        "tags" : [ "Federated Authentication" ]
       }
     },
     "/api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}" : {
-      "delete" : {
-        "description" : "Deletes one identity provider in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations. \n\n**Note**: Requests to this resource will fail if the identity provider has any connected organizations. Before deleting an identity provider, disconnect all organizations and confirm that no organization in your account uses this identity provider. To learn more, see [Manage Organization Mapping for Federated Authentication](https://www.mongodb.com/docs/atlas/security/manage-org-mapping/).",
-        "operationId" : "deleteIdentityProvider",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/federationSettingsId"
-        }, {
-          "description" : "Unique 24-hexadecimal digit string that identifies the identity provider to connect.",
-          "in" : "path",
-          "name" : "identityProviderId",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "example" : "32b6e34b3d91647abb20e7b8"
-          }
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        } ],
-        "responses" : {
-          "204" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "No Response"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Delete One Identity Provider",
-        "tags" : [ "Federated Authentication" ]
-      },
       "get" : {
+        "deprecated" : true,
         "description" : "Returns one identity provider in the specified federation by the identity provider's id. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.",
         "operationId" : "getIdentityProvider",
         "parameters" : [ {
@@ -1027,14 +920,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/FederationSamlIdentityProvider"
                 },
-                "x-sunset" : "2025-01-01",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/FederationIdentityProvider"
-                },
-                "x-xgen-version" : "2023-11-15"
               }
             },
             "description" : "OK"
@@ -1059,9 +945,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return One Identity Provider by ID",
-        "tags" : [ "Federated Authentication" ]
+        "tags" : [ "Federated Authentication" ],
+        "x-sunset" : "2025-01-01"
       },
       "patch" : {
+        "deprecated" : true,
         "description" : "Updates one identity provider in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.\n\n**Note**: Changing authorization types and/or updating authorization claims can prevent current users and/or groups from accessing the database.",
         "operationId" : "updateIdentityProvider",
         "parameters" : [ {
@@ -1084,11 +972,6 @@
               "schema" : {
                 "$ref" : "#/components/schemas/FederationSamlIdentityProviderUpdate"
               }
-            },
-            "application/vnd.atlas.2023-11-15+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/FederationIdentityProviderUpdate"
-              }
             }
           },
           "description" : "The identity provider that you want to update.",
@@ -1101,14 +984,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/FederationSamlIdentityProvider"
                 },
-                "x-sunset" : "2025-01-01",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/FederationIdentityProvider"
-                },
-                "x-xgen-version" : "2023-11-15"
               }
             },
             "description" : "OK"
@@ -1130,54 +1006,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Update One Identity Provider",
-        "tags" : [ "Federated Authentication" ]
-      }
-    },
-    "/api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}/jwks" : {
-      "delete" : {
-        "description" : "Revokes the JWKS tokens from the requested OIDC identity provider. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations. \n\n**Note**: Revoking your JWKS tokens immediately refreshes your IdP public keys from all your Atlas clusters, invalidating previously signed access tokens and logging out all users. You may need to restart your MongoDB clients. All organizations connected to the identity provider will be affected. To learn more, see [Configure OIDC Authorization](https://www.mongodb.com/docs/atlas/security-oidc/#revoke-jwks).",
-        "operationId" : "revokeJwksFromIdentityProvider",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/federationSettingsId"
-        }, {
-          "description" : "Unique 24-hexadecimal digit string that identifies the identity provider to connect.",
-          "in" : "path",
-          "name" : "identityProviderId",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "example" : "32b6e34b3d91647abb20e7b8"
-          }
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        } ],
-        "responses" : {
-          "204" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "No Response"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Revoke the JWKS from One OIDC Identity Provider",
-        "tags" : [ "Federated Authentication" ]
+        "tags" : [ "Federated Authentication" ],
+        "x-sunset" : "2025-01-01"
       }
     },
     "/api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}/metadata.xml" : {
@@ -2330,6 +2160,7 @@
         "tags" : [ "Alerts" ]
       },
       "patch" : {
+        "deprecated" : true,
         "description" : "Confirms receipt of one existing alert. This alert applies to any component in one project. Acknowledging an alert prevents successive notifications. You receive an alert when a monitored component meets or exceeds a value you set until you acknowledge the alert. To use this resource, the requesting API Key must have the Organization Owner or Project Owner role.\n\nThis resource remains under revision and may change.",
         "operationId" : "acknowledgeAlert",
         "parameters" : [ {
@@ -2356,11 +2187,6 @@
               "schema" : {
                 "$ref" : "#/components/schemas/AlertView"
               }
-            },
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/AcknowledgeAlert"
-              }
             }
           },
           "description" : "Acknowledges or unacknowledges one alert.",
@@ -2373,14 +2199,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/AlertViewForNdsGroup"
                 },
-                "x-sunset" : "2025-05-30",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AlertViewForNdsGroup"
-                },
-                "x-xgen-version" : "2024-05-30"
               }
             },
             "description" : "OK"
@@ -2402,7 +2221,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Acknowledge One Alert from One Project",
-        "tags" : [ "Alerts" ]
+        "tags" : [ "Alerts" ],
+        "x-sunset" : "2025-05-30"
       }
     },
     "/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs" : {
@@ -2907,7 +2727,8 @@
     },
     "/api/atlas/v2/groups/{groupId}/backup/exportBuckets" : {
       "get" : {
-        "description" : "Returns all AWS S3 buckets and Azure Blob Storages associated with the specified project. To use this resource, the requesting API Key must have the Project Read Only role.",
+        "deprecated" : true,
+        "description" : "Returns all AWS S3 buckets and Azure Blob Storage Containers associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.",
         "operationId" : "listExportBuckets",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -2929,14 +2750,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/PaginatedBackupSnapshotExportBucketView"
                 },
-                "x-sunset" : "2025-05-30",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PaginatedBackupSnapshotExportBucketsView"
-                },
-                "x-xgen-version" : "2024-05-30"
               }
             },
             "description" : "OK"
@@ -2951,11 +2765,13 @@
         "security" : [ {
           "DigestAuth" : [ ]
         } ],
-        "summary" : "Return All AWS S3 Buckets and Azure Blob Storages Used for Cloud Backup Snapshot Exports",
-        "tags" : [ "Cloud Backups" ]
+        "summary" : "Return All AWS S3 Buckets and Azure Blob Storage Containers Used for Cloud Backup Snapshot Exports",
+        "tags" : [ "Cloud Backups" ],
+        "x-sunset" : "2025-05-30"
       },
       "post" : {
-        "description" : "Grants MongoDB Cloud access to the specified AWS S3 bucket or Azure Blob Storage. This enables this bucket to receive Atlas Cloud Backup snapshots. To use this resource, the requesting API Key must have the Project Owner role.",
+        "deprecated" : true,
+        "description" : "Grants MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container. This enables this Export Bucket to receive Atlas Cloud Backup Snapshots. To use this resource, the requesting API Key must have the Project Owner role.",
         "operationId" : "createExportBucket",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -2972,15 +2788,9 @@
               },
               "x-sunset" : "2025-05-30",
               "x-xgen-version" : "2023-01-01"
-            },
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DiskBackupSnapshotExportBucket"
-              },
-              "x-xgen-version" : "2024-05-30"
             }
           },
-          "description" : "Grants MongoDB Cloud access to the specified AWS S3 bucket or Azure Blob Storage.",
+          "description" : "Grants MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container.",
           "required" : true
         },
         "responses" : {
@@ -2990,14 +2800,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/DiskBackupSnapshotAWSExportBucket"
                 },
-                "x-sunset" : "2025-05-30",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/DiskBackupSnapshotExportBucket"
-                },
-                "x-xgen-version" : "2024-05-30"
               }
             },
             "description" : "OK"
@@ -3018,28 +2821,30 @@
         "security" : [ {
           "DigestAuth" : [ ]
         } ],
-        "summary" : "Grant Access to AWS S3 Bucket or Azure Blob Storage for Cloud Backup Snapshot Exports",
-        "tags" : [ "Cloud Backups" ]
+        "summary" : "Grant Access to AWS S3 Bucket or Azure Blob Storage Container for Cloud Backup Snapshot Exports",
+        "tags" : [ "Cloud Backups" ],
+        "x-sunset" : "2025-05-30"
       }
     },
     "/api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}" : {
       "delete" : {
-        "description" : "Revoke MongoDB Cloud access to the specified AWS S3 bucket. This prevents this bucket to receive Atlas Cloud Backup snapshots. Auto export must be disabled on all clusters in this project exporting to this bucket before revoking access. To use this resource, the requesting API Key must have the Project Owner role.",
+        "description" : "Revoke MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container. This prevents this Export Bucket from receiving Atlas Cloud Backup Snapshots. Auto export must be disabled on all clusters in this Project exporting to this Export Bucket before revoking access. To use this resource, the requesting API Key must have the Project Owner role.",
         "operationId" : "deleteExportBucket",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
         }, {
           "$ref" : "#/components/parameters/groupId"
         }, {
-          "description" : "Unique string that identifies the AWS S3 bucket to which you export your snapshots.",
+          "description" : "Unique string that identifies the AWS S3 Bucket or Azure Blob Storage Container to which you export your Snapshots.",
           "in" : "path",
           "name" : "exportBucketId",
           "required" : true,
           "schema" : {
             "type" : "string",
-            "maxLength" : 63,
-            "minLength" : 3,
-            "pattern" : "^((?!xn--)(?!.*-s3alias)[a-z0-9][a-z0-9-]{1,61}[a-z0-9])$"
+            "example" : "32b6e34b3d91647abb20e7b8",
+            "maxLength" : 24,
+            "minLength" : 24,
+            "pattern" : "^([a-f0-9]{24})$"
           }
         } ],
         "responses" : {
@@ -3070,26 +2875,28 @@
         "security" : [ {
           "DigestAuth" : [ ]
         } ],
-        "summary" : "Revoke Access to AWS S3 Bucket for Cloud Backup Snapshot Exports",
+        "summary" : "Revoke Access to AWS S3 Bucket or Azure Blob Storage Container for Cloud Backup Snapshot Exports",
         "tags" : [ "Cloud Backups" ]
       },
       "get" : {
-        "description" : "Returns one AWS S3 bucket or Azure Blob Storage associated with the specified project. To use this resource, the requesting API Key must have the Project Read Only role.",
+        "deprecated" : true,
+        "description" : "Returns one AWS S3 Bucket or Azure Blob Storage Container associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.",
         "operationId" : "getExportBucket",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
         }, {
           "$ref" : "#/components/parameters/groupId"
         }, {
-          "description" : "Unique string that identifies the AWS S3 bucket or Azure Blob Storage to which you export your snapshots.",
+          "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket.",
           "in" : "path",
           "name" : "exportBucketId",
           "required" : true,
           "schema" : {
             "type" : "string",
-            "maxLength" : 63,
-            "minLength" : 3,
-            "pattern" : "^((?!xn--)(?!.*-s3alias)[a-z0-9][a-z0-9-]{1,61}[a-z0-9])$"
+            "example" : "32b6e34b3d91647abb20e7b8",
+            "maxLength" : 24,
+            "minLength" : 24,
+            "pattern" : "^([a-f0-9]{24})$"
           }
         } ],
         "responses" : {
@@ -3099,14 +2906,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/DiskBackupSnapshotAWSExportBucket"
                 },
-                "x-sunset" : "2025-05-30",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/DiskBackupSnapshotExportBucket"
-                },
-                "x-xgen-version" : "2024-05-30"
               }
             },
             "description" : "OK"
@@ -3124,12 +2924,14 @@
         "security" : [ {
           "DigestAuth" : [ ]
         } ],
-        "summary" : "Return One AWS S3 Bucket or Azure Blob Storage Used for Cloud Backup Snapshot Exports",
-        "tags" : [ "Cloud Backups" ]
+        "summary" : "Return One AWS S3 Bucket or Azure Blob Storage Container Used for Cloud Backup Snapshot Exports",
+        "tags" : [ "Cloud Backups" ],
+        "x-sunset" : "2025-05-30"
       }
     },
     "/api/atlas/v2/groups/{groupId}/backupCompliancePolicy" : {
       "get" : {
+        "deprecated" : true,
         "description" : "Returns the Backup Compliance Policy settings with the specified project. To use this resource, the requesting API Key must have the Project Owner role.",
         "operationId" : "getDataProtectionSettings",
         "parameters" : [ {
@@ -3146,14 +2948,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/DataProtectionSettings"
                 },
-                "x-sunset" : "2024-10-01",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2023-10-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/DataProtectionSettings20231001"
-                },
-                "x-xgen-version" : "2023-10-01"
               }
             },
             "description" : "OK"
@@ -3172,9 +2967,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return the Backup Compliance Policy settings",
-        "tags" : [ "Cloud Backups" ]
+        "tags" : [ "Cloud Backups" ],
+        "x-sunset" : "2024-10-01"
       },
       "put" : {
+        "deprecated" : true,
         "description" : "Updates the Backup Compliance Policy settings for the specified project. To use this resource, the requesting API Key must have the Project Owner role.",
         "operationId" : "updateDataProtectionSettings",
         "parameters" : [ {
@@ -3200,12 +2997,6 @@
               },
               "x-sunset" : "2024-10-01",
               "x-xgen-version" : "2023-01-01"
-            },
-            "application/vnd.atlas.2023-10-01+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DataProtectionSettings20231001"
-              },
-              "x-xgen-version" : "2023-10-01"
             }
           },
           "description" : "The new Backup Compliance Policy settings.",
@@ -3218,14 +3009,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/DataProtectionSettings"
                 },
-                "x-sunset" : "2024-10-01",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2023-10-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/DataProtectionSettings20231001"
-                },
-                "x-xgen-version" : "2023-10-01"
               }
             },
             "description" : "OK"
@@ -3247,7 +3031,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Update or enable the Backup Compliance Policy settings",
-        "tags" : [ "Cloud Backups" ]
+        "tags" : [ "Cloud Backups" ],
+        "x-sunset" : "2024-10-01"
       }
     },
     "/api/atlas/v2/groups/{groupId}/cloudProviderAccess" : {
@@ -3511,7 +3296,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters" : {
       "get" : {
-        "description" : "Returns the details for all clusters in the specific project to which you have access. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not  available for serverless clusters.",
+        "description" : "Returns the details for all clusters in the specific project to which you have access. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not  available for serverless clusters. Deprecated versions: v2-{2023-01-01}",
         "operationId" : "listClusters",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -3537,18 +3322,10 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PaginatedLegacyClusterView"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/PaginatedAdvancedClusterDescriptionView"
                 },
-                "x-sunset" : "2026-01-01",
                 "x-xgen-version" : "2023-02-01"
               }
             },
@@ -3568,7 +3345,7 @@
         "tags" : [ "Clusters" ]
       },
       "post" : {
-        "description" : "Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters.",
+        "description" : "Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}",
         "operationId" : "createCluster",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -3579,11 +3356,6 @@
         } ],
         "requestBody" : {
           "content" : {
-            "application/vnd.atlas.2023-01-01+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/LegacyAtlasCluster"
-              }
-            },
             "application/vnd.atlas.2023-02-01+json" : {
               "schema" : {
                 "$ref" : "#/components/schemas/AdvancedClusterDescription"
@@ -3596,18 +3368,10 @@
         "responses" : {
           "201" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LegacyAtlasCluster"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/AdvancedClusterDescription"
                 },
-                "x-sunset" : "2026-01-01",
                 "x-xgen-version" : "2023-02-01"
               }
             },
@@ -3821,7 +3585,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}" : {
       "delete" : {
-        "description" : "Removes one cluster from the specified project. The cluster must have termination protection disabled in order to be deleted. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters.",
+        "description" : "Removes one cluster from the specified project. The cluster must have termination protection disabled in order to be deleted. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}",
         "operationId" : "deleteCluster",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -3851,10 +3615,6 @@
         "responses" : {
           "202" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "x-xgen-version" : "2023-02-01"
               }
@@ -3884,7 +3644,7 @@
         "tags" : [ "Clusters" ]
       },
       "get" : {
-        "description" : "Returns the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not available for serverless clusters.",
+        "description" : "Returns the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}",
         "operationId" : "getCluster",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -3907,18 +3667,10 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LegacyAtlasCluster"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/AdvancedClusterDescription"
                 },
-                "x-sunset" : "2026-01-01",
                 "x-xgen-version" : "2023-02-01"
               }
             },
@@ -3944,7 +3696,7 @@
         "tags" : [ "Clusters" ]
       },
       "patch" : {
-        "description" : "Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster's termination protection, the requesting API Key must have the Project Owner role. For all other updates, the requesting API Key must have the Project Cluster Manager role. You can't modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters.",
+        "description" : "Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster's termination protection, the requesting API Key must have the Project Owner role. For all other updates, the requesting API Key must have the Project Cluster Manager role. You can't modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}",
         "operationId" : "updateCluster",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -3966,11 +3718,6 @@
         } ],
         "requestBody" : {
           "content" : {
-            "application/vnd.atlas.2023-01-01+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/LegacyAtlasCluster"
-              }
-            },
             "application/vnd.atlas.2023-02-01+json" : {
               "schema" : {
                 "$ref" : "#/components/schemas/AdvancedClusterDescription"
@@ -3983,18 +3730,10 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LegacyAtlasCluster"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/AdvancedClusterDescription"
                 },
-                "x-sunset" : "2026-01-01",
                 "x-xgen-version" : "2023-02-01"
               }
             },
@@ -4077,7 +3816,7 @@
         "tags" : [ "Cloud Backups" ]
       },
       "post" : {
-        "description" : "Exports one backup snapshot for dedicated Atlas cluster using Cloud Backups to an AWS bucket. To use this resource, the requesting API Key must have the Project Atlas Admin role.",
+        "description" : "Exports one backup snapshot for dedicated Atlas cluster using Cloud Backups to an Export Bucket. To use this resource, the requesting API Key must have the Project Atlas Admin role.",
         "operationId" : "createBackupExportJob",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -4461,7 +4200,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/DiskBackupSnapshotSchedule"
                 },
-                "x-sunset" : "2026-01-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -4511,7 +4249,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/DiskBackupSnapshotSchedule"
                 },
-                "x-sunset" : "2026-01-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -4569,7 +4306,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/DiskBackupSnapshotSchedule"
                 },
-                "x-sunset" : "2026-01-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -5558,265 +5294,6 @@
         "tags" : [ "Legacy Backup" ]
       }
     },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collStats/pinned" : {
-      "get" : {
-        "description" : "Returns a list of given cluster's pinned namespaces, a set of namespaces manually selected by users to collect query latency metrics on.",
-        "operationId" : "getPinnedNamespaces",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "description" : "Human-readable label that identifies the cluster to retrieve pinned namespaces for.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PinnedNamespaces"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return Pinned Namespaces",
-        "tags" : [ "Collection Level Metrics" ]
-      },
-      "patch" : {
-        "description" : "Add provided list of namespaces to existing pinned namespaces list for collection-level latency metrics collection for the given Group and Cluster",
-        "operationId" : "pinNamespacesPatch",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "description" : "Human-readable label that identifies the cluster to pin namespaces to.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/vnd.atlas.2023-11-15+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/NamespacesRequest"
-              }
-            }
-          },
-          "description" : "List of namespace strings (combination of database and collection name) to pin for query latency metric collection.",
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PinnedNamespaces"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "OK"
-          },
-          "201" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PinnedNamespaces"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "Created"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Add Pinned Namespaces",
-        "tags" : [ "Collection Level Metrics" ]
-      },
-      "put" : {
-        "description" : "Pin provided list of namespaces for collection-level latency metrics collection for the given Group and Cluster. This initializes a pinned namespaces list or replaces any existing pinned namespaces list for the Group and Cluster.",
-        "operationId" : "pinNamespacesPut",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "description" : "Human-readable label that identifies the cluster to pin namespaces to.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/vnd.atlas.2023-11-15+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/NamespacesRequest"
-              }
-            }
-          },
-          "description" : "List of namespace strings (combination of database and collection name) to pin for query latency metric collection.",
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PinnedNamespaces"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "OK"
-          },
-          "201" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PinnedNamespaces"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "Created"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Pin Namespaces",
-        "tags" : [ "Collection Level Metrics" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collStats/unpin" : {
-      "patch" : {
-        "description" : "Unpin provided list of namespaces for collection-level latency metrics collection for the given Group and Cluster",
-        "operationId" : "unpinNamespaces",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "description" : "Human-readable label that identifies the cluster to unpin namespaces from.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/vnd.atlas.2023-11-15+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/NamespacesRequest"
-              }
-            }
-          },
-          "description" : "List of namespace strings (combination of database and collection name) to pin for query latency metric collection.",
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PinnedNamespaces"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Unpin namespaces",
-        "tags" : [ "Collection Level Metrics" ]
-      }
-    },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes" : {
       "post" : {
         "deprecated" : true,
@@ -5862,7 +5339,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/ClusterSearchIndex"
                 },
-                "x-sunset" : "2025-06-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -5885,7 +5361,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Create One Atlas Search Index",
-        "tags" : [ "Atlas Search" ]
+        "tags" : [ "Atlas Search" ],
+        "x-sunset" : "2025-06-01"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes/{databaseName}/{collectionName}" : {
@@ -5941,7 +5418,6 @@
                     "$ref" : "#/components/schemas/ClusterSearchIndex"
                   }
                 },
-                "x-sunset" : "2025-06-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -5958,7 +5434,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return All Atlas Search Indexes for One Collection",
-        "tags" : [ "Atlas Search" ]
+        "tags" : [ "Atlas Search" ],
+        "x-sunset" : "2025-06-01"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes/{indexId}" : {
@@ -6006,7 +5483,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/NoBody"
                 },
-                "x-sunset" : "2025-06-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -6026,7 +5502,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Remove One Atlas Search Index",
-        "tags" : [ "Atlas Search" ]
+        "tags" : [ "Atlas Search" ],
+        "x-sunset" : "2025-06-01"
       },
       "get" : {
         "deprecated" : true,
@@ -6072,7 +5549,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/ClusterSearchIndex"
                 },
-                "x-sunset" : "2025-06-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -6089,7 +5565,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return One Atlas Search Index",
-        "tags" : [ "Atlas Search" ]
+        "tags" : [ "Atlas Search" ],
+        "x-sunset" : "2025-06-01"
       },
       "patch" : {
         "deprecated" : true,
@@ -6146,7 +5623,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/ClusterSearchIndex"
                 },
-                "x-sunset" : "2025-06-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -6169,12 +5645,13 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Update One Atlas Search Index",
-        "tags" : [ "Atlas Search" ]
+        "tags" : [ "Atlas Search" ],
+        "x-sunset" : "2025-06-01"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites" : {
       "get" : {
-        "description" : "Returns one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Read Only role.",
+        "description" : "Returns one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}",
         "externalDocs" : {
           "description" : "Global Clusters",
           "url" : "https://www.mongodb.com/docs/atlas/global-clusters/"
@@ -6201,13 +5678,6 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GeoSharding"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GeoSharding"
@@ -6233,7 +5703,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/customZoneMapping" : {
       "delete" : {
-        "description" : "Removes all custom zone mappings for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. Removing the custom zone mappings restores the default mapping. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role.",
+        "description" : "Removes all custom zone mappings for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. Removing the custom zone mappings restores the default mapping. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}",
         "externalDocs" : {
           "description" : "Global Clusters",
           "url" : "https://www.mongodb.com/docs/atlas/global-clusters/"
@@ -6260,13 +5730,6 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GeoSharding"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GeoSharding"
@@ -6290,7 +5753,7 @@
         "tags" : [ "Global Clusters" ]
       },
       "post" : {
-        "description" : "Creates one custom zone mapping for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role.",
+        "description" : "Creates one custom zone mapping for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}",
         "externalDocs" : {
           "description" : "Global Clusters",
           "url" : "https://www.mongodb.com/docs/atlas/global-clusters/"
@@ -6316,11 +5779,6 @@
         } ],
         "requestBody" : {
           "content" : {
-            "application/vnd.atlas.2023-01-01+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CustomZoneMappings"
-              }
-            },
             "application/vnd.atlas.2023-02-01+json" : {
               "schema" : {
                 "$ref" : "#/components/schemas/CustomZoneMappings"
@@ -6333,13 +5791,6 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GeoSharding"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GeoSharding"
@@ -6368,7 +5819,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces" : {
       "delete" : {
-        "description" : "Removes one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. Deleting a managed namespace does not remove the associated collection or data. To use this resource, the requesting API Key must have the Project Data Access Admin role.",
+        "description" : "Removes one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. Deleting a managed namespace does not remove the associated collection or data. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-01-01}",
         "externalDocs" : {
           "description" : "Global Clusters",
           "url" : "https://www.mongodb.com/docs/atlas/global-clusters/"
@@ -6409,13 +5860,6 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GeoSharding"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GeoSharding"
@@ -6442,7 +5886,7 @@
         "tags" : [ "Global Clusters" ]
       },
       "post" : {
-        "description" : "Creates one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Data Access Admin role.",
+        "description" : "Creates one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-01-01}",
         "externalDocs" : {
           "description" : "Global Clusters",
           "url" : "https://www.mongodb.com/docs/atlas/global-clusters/"
@@ -6468,11 +5912,6 @@
         } ],
         "requestBody" : {
           "content" : {
-            "application/vnd.atlas.2023-01-01+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/ManagedNamespaces"
-              }
-            },
             "application/vnd.atlas.2023-02-01+json" : {
               "schema" : {
                 "$ref" : "#/components/schemas/ManagedNamespaceView"
@@ -6485,13 +5924,6 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GeoSharding"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GeoSharding"
@@ -7311,7 +6743,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/ClusterDescriptionProcessArgs"
                 },
-                "x-sunset" : "2026-01-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -7377,7 +6808,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/ClusterDescriptionProcessArgs"
                 },
-                "x-sunset" : "2026-01-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -7405,7 +6835,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries" : {
       "post" : {
-        "description" : "Starts a failover test for the specified cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. A failover test checks how MongoDB Cloud handles the failure of the cluster's primary node. During the test, MongoDB Cloud shuts down the primary node and elects a new primary. To use this resource, the requesting API Key must have the Project Cluster Manager role.",
+        "description" : "Starts a failover test for the specified cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. A failover test checks how MongoDB Cloud handles the failure of the cluster's primary node. During the test, MongoDB Cloud shuts down the primary node and elects a new primary. To use this resource, the requesting API Key must have the Project Cluster Manager role. Deprecated versions: v2-{2023-01-01}",
         "operationId" : "testFailover",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -7428,10 +6858,6 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+json" : {
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+json" : {
                 "x-xgen-version" : "2023-02-01"
               }
@@ -7646,6 +7072,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment" : {
       "delete" : {
+        "deprecated" : true,
         "description" : "Deletes the Search Nodes for the specified cluster.",
         "operationId" : "deleteAtlasSearchDeployment",
         "parameters" : [ {
@@ -7670,22 +7097,10 @@
           "200" : {
             "content" : {
               "application/vnd.atlas.2023-01-01+json" : {
-                "x-sunset" : "2026-03-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
             "description" : "OK"
-          },
-          "204" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NoBody"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "This endpoint does not return a response body."
           },
           "400" : {
             "$ref" : "#/components/responses/badRequest"
@@ -7704,9 +7119,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Delete Search Nodes",
-        "tags" : [ "Atlas Search" ]
+        "tags" : [ "Atlas Search" ],
+        "x-sunset" : "2026-03-01"
       },
       "get" : {
+        "deprecated" : true,
         "description" : "Return the Search Nodes for the specified cluster.",
         "operationId" : "getAtlasSearchDeployment",
         "parameters" : [ {
@@ -7734,14 +7151,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/ApiSearchDeploymentResponseView"
                 },
-                "x-sunset" : "2026-03-01",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiSearchDeploymentResponseView"
-                },
-                "x-xgen-version" : "2024-05-30"
               }
             },
             "description" : "OK"
@@ -7760,9 +7170,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return Search Nodes",
-        "tags" : [ "Atlas Search" ]
+        "tags" : [ "Atlas Search" ],
+        "x-sunset" : "2026-03-01"
       },
       "patch" : {
+        "deprecated" : true,
         "description" : "Updates the Search Nodes for the specified cluster.",
         "operationId" : "updateAtlasSearchDeployment",
         "parameters" : [ {
@@ -7789,11 +7201,6 @@
               "schema" : {
                 "$ref" : "#/components/schemas/ApiSearchDeploymentRequestView"
               }
-            },
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/ApiSearchDeploymentRequestView"
-              }
             }
           },
           "description" : "Updates the Search Nodes for the specified cluster.",
@@ -7806,14 +7213,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/ApiSearchDeploymentResponseView"
                 },
-                "x-sunset" : "2026-03-01",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiSearchDeploymentResponseView"
-                },
-                "x-xgen-version" : "2024-05-30"
               }
             },
             "description" : "OK"
@@ -7835,9 +7235,11 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Update Search Nodes",
-        "tags" : [ "Atlas Search" ]
+        "tags" : [ "Atlas Search" ],
+        "x-sunset" : "2026-03-01"
       },
       "post" : {
+        "deprecated" : true,
         "description" : "Creates Search Nodes for the specified cluster.",
         "operationId" : "createAtlasSearchDeployment",
         "parameters" : [ {
@@ -7864,11 +7266,6 @@
               "schema" : {
                 "$ref" : "#/components/schemas/ApiSearchDeploymentRequestView"
               }
-            },
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/ApiSearchDeploymentRequestView"
-              }
             }
           },
           "description" : "Creates Search Nodes for the specified cluster.",
@@ -7881,22 +7278,10 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/ApiSearchDeploymentResponseView"
                 },
-                "x-sunset" : "2026-03-01",
                 "x-xgen-version" : "2023-01-01"
               }
             },
             "description" : "OK"
-          },
-          "201" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiSearchDeploymentResponseView"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "Created"
           },
           "400" : {
             "$ref" : "#/components/responses/badRequest"
@@ -7915,691 +7300,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Create Search Nodes",
-        "tags" : [ "Atlas Search" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes" : {
-      "get" : {
-        "description" : "Returns all Atlas Search indexes on the specified cluster. Atlas Search indexes contain the indexed fields and the analyzers used to create the indexes. To use this resource, the requesting API Key must have the Project Data Access Read Write role.",
-        "externalDocs" : {
-          "description" : "Atlas Search Indexes",
-          "url" : "https://dochub.mongodb.org/core/index-definitions-fts"
-        },
-        "operationId" : "listAtlasSearchIndexesCluster",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "description" : "Name of the cluster that contains the collection with one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/SearchIndexResponse"
-                  }
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          },
-          "503" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiError"
-                }
-              }
-            },
-            "description" : "Service Unavailable."
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return All Atlas Search Indexes for One Cluster",
-        "tags" : [ "Atlas Search" ]
-      },
-      "post" : {
-        "description" : "Creates one Atlas Search index on the specified collection. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. Only clusters running MongoDB v4.2 or later can use Atlas Search. To use this resource, the requesting API Key must have the Project Data Access Admin role.",
-        "externalDocs" : {
-          "description" : "Atlas Search Indexes",
-          "url" : "https://dochub.mongodb.org/core/index-definitions-fts"
-        },
-        "operationId" : "createAtlasSearchIndex",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "description" : "Name of the cluster that contains the collection on which to create an Atlas Search index.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SearchIndexCreateRequest"
-              }
-            }
-          },
-          "description" : "Creates one Atlas Search index on the specified collection.",
-          "required" : true
-        },
-        "responses" : {
-          "201" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SearchIndexResponse"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "Created"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "409" : {
-            "$ref" : "#/components/responses/conflict"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Create One Atlas Search Index",
-        "tags" : [ "Atlas Search" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{databaseName}/{collectionName}" : {
-      "get" : {
-        "description" : "Returns all Atlas Search indexes on the specified collection. Atlas Search indexes contain the indexed fields and the analyzers used to create the indexes. To use this resource, the requesting API Key must have the Project Data Access Read Write role.",
-        "externalDocs" : {
-          "description" : "Atlas Search Indexes",
-          "url" : "https://dochub.mongodb.org/core/index-definitions-fts"
-        },
-        "operationId" : "listAtlasSearchIndexes",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "description" : "Name of the cluster that contains the collection with one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        }, {
-          "description" : "Name of the collection that contains one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "collectionName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Label that identifies the database that contains the collection with one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "databaseName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/SearchIndexResponse"
-                  }
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          },
-          "503" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiError"
-                }
-              }
-            },
-            "description" : "Service Unavailable."
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return All Atlas Search Indexes for One Collection",
-        "tags" : [ "Atlas Search" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{databaseName}/{collectionName}/{indexName}" : {
-      "delete" : {
-        "description" : "Removes one Atlas Search index that you identified with its database, collection, and name. To use this resource, the requesting API key must have the Project Data Access Admin role. This deletion is eventually consistent.",
-        "externalDocs" : {
-          "description" : "Atlas Search Indexes",
-          "url" : "https://dochub.mongodb.org/core/index-definitions-fts"
-        },
-        "operationId" : "deleteAtlasSearchIndexByName",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "description" : "Name of the cluster that contains the database and collection with one or more Application Search indexes.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        }, {
-          "description" : "Name of the collection that contains one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "collectionName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Label that identifies the database that contains the collection with one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "databaseName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Name of the Atlas Search index to delete.",
-          "in" : "path",
-          "name" : "indexName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "204" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NoBody"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "This endpoint does not return a response body."
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Remove One Atlas Search Index by Name",
-        "tags" : [ "Atlas Search" ]
-      },
-      "get" : {
-        "description" : "Returns one Atlas Search index in the specified project. You identify this index using its database, collection and name. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting API Key must have the Project Data Access Read Write role.",
-        "externalDocs" : {
-          "description" : "Atlas Search Indexes",
-          "url" : "https://dochub.mongodb.org/core/index-definitions-fts"
-        },
-        "operationId" : "getAtlasSearchIndexByName",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "description" : "Name of the cluster that contains the collection with one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        }, {
-          "description" : "Name of the collection that contains one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "collectionName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Label that identifies the database that contains the collection with one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "databaseName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Name of the Atlas Search index to return.",
-          "in" : "path",
-          "name" : "indexName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SearchIndexResponse"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return One Atlas Search Index by Name",
-        "tags" : [ "Atlas Search" ]
-      },
-      "patch" : {
-        "description" : "Updates one Atlas Search index that you identified with its database, collection name, and index name. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting API Key must have the Project Data Access Admin role.",
-        "externalDocs" : {
-          "description" : "Atlas Search Indexes",
-          "url" : "https://dochub.mongodb.org/core/index-definitions-fts"
-        },
-        "operationId" : "updateAtlasSearchIndexByName",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "description" : "Name of the cluster that contains the collection whose Atlas Search index you want to update.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        }, {
-          "description" : "Name of the collection that contains one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "collectionName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Label that identifies the database that contains the collection with one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "databaseName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Name of the Atlas Search index to update.",
-          "in" : "path",
-          "name" : "indexName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SearchIndexUpdateRequest"
-              }
-            }
-          },
-          "description" : "Details to update the Atlas Search index with.",
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SearchIndexResponse"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "409" : {
-            "$ref" : "#/components/responses/conflict"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Update One Atlas Search Index By Name",
-        "tags" : [ "Atlas Search" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{indexId}" : {
-      "delete" : {
-        "description" : "Removes one Atlas Search index that you identified with its unique ID. To use this resource, the requesting API key must have the Project Data Access Admin role. This deletion is eventually consistent.",
-        "externalDocs" : {
-          "description" : "Atlas Search Indexes",
-          "url" : "https://dochub.mongodb.org/core/index-definitions-fts"
-        },
-        "operationId" : "deleteAtlasSearchIndex",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "description" : "Name of the cluster that contains the database and collection with one or more Application Search indexes.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        }, {
-          "description" : "Unique 24-hexadecimal digit string that identifies the Atlas Search index. Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.",
-          "in" : "path",
-          "name" : "indexId",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 24,
-            "minLength" : 24,
-            "pattern" : "^([a-f0-9]{24})$"
-          }
-        } ],
-        "responses" : {
-          "204" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NoBody"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "This endpoint does not return a response body."
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Remove One Atlas Search Index by Id",
-        "tags" : [ "Atlas Search" ]
-      },
-      "get" : {
-        "description" : "Returns one Atlas Search index in the specified project. You identify this index using its unique ID. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting API Key must have the Project Data Access Read Write role.",
-        "externalDocs" : {
-          "description" : "Atlas Search Indexes",
-          "url" : "https://dochub.mongodb.org/core/index-definitions-fts"
-        },
-        "operationId" : "getAtlasSearchIndex",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "description" : "Name of the cluster that contains the collection with one or more Atlas Search indexes.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        }, {
-          "description" : "Unique 24-hexadecimal digit string that identifies the Application Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Application Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Application Search indexes.",
-          "in" : "path",
-          "name" : "indexId",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 24,
-            "minLength" : 24,
-            "pattern" : "^([a-f0-9]{24})$"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SearchIndexResponse"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          },
-          "503" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiError"
-                }
-              }
-            },
-            "description" : "Service Unavailable."
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return One Atlas Search Index by ID",
-        "tags" : [ "Atlas Search" ]
-      },
-      "patch" : {
-        "description" : "Updates one Atlas Search index that you identified with its unique ID. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting API Key must have the Project Data Access Admin role.",
-        "externalDocs" : {
-          "description" : "Atlas Search Indexes",
-          "url" : "https://dochub.mongodb.org/core/index-definitions-fts"
-        },
-        "operationId" : "updateAtlasSearchIndex",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "description" : "Name of the cluster that contains the collection whose Atlas Search index you want to update.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        }, {
-          "description" : "Unique 24-hexadecimal digit string that identifies the Atlas Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.",
-          "in" : "path",
-          "name" : "indexId",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 24,
-            "minLength" : 24,
-            "pattern" : "^([a-f0-9]{24})$"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SearchIndexUpdateRequest"
-              }
-            }
-          },
-          "description" : "Details to update on the Atlas Search index.",
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SearchIndexResponse"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "409" : {
-            "$ref" : "#/components/responses/conflict"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Update One Atlas Search Index By ID",
-        "tags" : [ "Atlas Search" ]
+        "tags" : [ "Atlas Search" ],
+        "x-sunset" : "2026-03-01"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/snapshotSchedule" : {
@@ -9011,156 +7713,9 @@
         "tags" : [ "Clusters" ]
       }
     },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/{clusterView}/collStats/namespaces" : {
-      "get" : {
-        "description" : "Return the subset of namespaces from the given cluster sorted by highest total execution time (descending) within the given time window.",
-        "operationId" : "getCollStatsLatencyNamespacesForCluster",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "description" : "Human-readable label that identifies the cluster to pin namespaces to.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        }, {
-          "description" : "Human-readable label that identifies the cluster topology to retrieve metrics for.",
-          "in" : "path",
-          "name" : "clusterView",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "enum" : [ "PRIMARY", "SECONDARY", "INDIVIDUAL_PROCESS" ]
-          }
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/start"
-        }, {
-          "$ref" : "#/components/parameters/end"
-        }, {
-          "$ref" : "#/components/parameters/period"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CollStatsRankedNamespacesView"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "Succeeded"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return Ranked Namespaces from a Cluster",
-        "tags" : [ "Collection Level Metrics" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/{clusterView}/{databaseName}/{collectionName}/collStats/measurements" : {
-      "get" : {
-        "description" : "Get a list of the Coll Stats Latency cluster-level measurements for the given namespace.",
-        "operationId" : "getCollStatsLatencyNamespaceClusterMeasurements",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "description" : "Human-readable label that identifies the cluster to retrieve metrics for.",
-          "in" : "path",
-          "name" : "clusterName",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "maxLength" : 64,
-            "minLength" : 1,
-            "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
-          }
-        }, {
-          "description" : "Human-readable label that identifies the cluster topology to retrieve metrics for.",
-          "in" : "path",
-          "name" : "clusterView",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "enum" : [ "PRIMARY", "SECONDARY", "INDIVIDUAL_PROCESS" ]
-          }
-        }, {
-          "$ref" : "#/components/parameters/databaseName"
-        }, {
-          "$ref" : "#/components/parameters/collectionName"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "description" : "List that contains the metrics that you want to retrieve for the associated data series. If you don't set this parameter, this resource returns data series for all Coll Stats Latency metrics.",
-          "explode" : true,
-          "in" : "query",
-          "name" : "metrics",
-          "schema" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string",
-              "description" : "Metric requested for the given cluster",
-              "enum" : [ "READS_OPS", "READS_LATENCY", "AVERAGE_READS_LATENCY", "READS_P50_VALUE", "READS_P95_VALUE", "READS_P99_VALUE", "WRITES_OPS", "WRITES_LATENCY", "AVERAGE_WRITES_LATENCY", "WRITES_P50_VALUE", "WRITES_P95_VALUE", "WRITES_P99_VALUE", "COMMANDS_OPS", "COMMANDS_LATENCY", "AVERAGE_COMMANDS_LATENCY", "COMMANDS_P50_VALUE", "COMMANDS_P95_VALUE", "COMMANDS_P99_VALUE", "TOTAL_OPS", "TOTAL_LATENCY", "AVERAGE_TOTAL_OPS_LATENCY", "TOTAL_OPS_P50_VALUE", "TOTAL_OPS_P95_VALUE", "TOTAL_OPS_P99_VALUE" ]
-            },
-            "uniqueItems" : true
-          },
-          "style" : "form"
-        }, {
-          "$ref" : "#/components/parameters/start"
-        }, {
-          "$ref" : "#/components/parameters/end"
-        }, {
-          "$ref" : "#/components/parameters/period"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MeasurementsCollStatsLatencyCluster"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "Succeeded"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return Cluster-Level Query Latency",
-        "tags" : [ "Collection Level Metrics" ]
-      }
-    },
     "/api/atlas/v2/groups/{groupId}/clusters/{hostName}/logs/{logName}.gz" : {
       "get" : {
-        "description" : "Returns a compressed (.gz) log file that contains a range of log messages for the specified host for the specified project. MongoDB updates process and audit logs from the cluster backend infrastructure every five minutes and contain log data from the previous five minutes. If you poll the API for log files, we recommend polling every five minutes. For example, if the logs are updated at 4:00 UTC and then you poll the API, the API returns log data from the interval between 3:55 UTC and 4:00 UTC. This feature isn't available for `M0` free clusters, `M2`, `M5`, or serverless clusters. To use this resource, the requesting API Key must have the Project Data Access Read Only or higher role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: \"Accept: application/vnd.atlas.YYYY-MM-DD+gzip\".",
+        "description" : "Returns a compressed (.gz) log file that contains a range of log messages for the specified host for the specified project. MongoDB updates process and audit logs from the cluster backend infrastructure every five minutes and contain log data from the previous five minutes. If you poll the API for log files, we recommend polling every five minutes. For example, if the logs are updated at 4:00 UTC and then you poll the API, the API returns log data from the interval between 3:55 UTC and 4:00 UTC. This feature isn't available for `M0` free clusters, `M2`, `M5`, or serverless clusters. To use this resource, the requesting API Key must have the Project Data Access Read Only or higher role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: \"Accept: application/vnd.atlas.YYYY-MM-DD+gzip\". Deprecated versions: v2-{2023-01-01}",
         "operationId" : "getHostLogs",
         "parameters" : [ {
           "$ref" : "#/components/parameters/envelope"
@@ -9210,15 +7765,6 @@
         "responses" : {
           "200" : {
             "content" : {
-              "application/vnd.atlas.2023-01-01+gzip" : {
-                "schema" : {
-                  "type" : "string",
-                  "format" : "binary",
-                  "description" : "Compressed (.gz) log file that contains a range of log messages for the specified host for the specified project"
-                },
-                "x-sunset" : "2025-06-01",
-                "x-xgen-version" : "2023-01-01"
-              },
               "application/vnd.atlas.2023-02-01+gzip" : {
                 "schema" : {
                   "type" : "string",
@@ -9254,47 +7800,6 @@
         } ],
         "summary" : "Download Logs for One Cluster Host in One Project",
         "tags" : [ "Monitoring and Logs" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/collStats/metrics" : {
-      "get" : {
-        "description" : "Returns all available Coll Stats Latency metric names and their respective units for the specified project at the time of request.",
-        "operationId" : "getCollStatsLatencyNamespaceMetrics",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NoBody"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "Succeeded"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return all metric names",
-        "tags" : [ "Collection Level Metrics" ]
       }
     },
     "/api/atlas/v2/groups/{groupId}/containers" : {
@@ -11995,7 +10500,6 @@
                     "$ref" : "#/components/schemas/GroupInvitation"
                   }
                 },
-                "x-sunset" : "2024-10-04",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -12012,7 +10516,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return All Project Invitations",
-        "tags" : [ "Projects" ]
+        "tags" : [ "Projects" ],
+        "x-sunset" : "2024-10-04"
       },
       "patch" : {
         "deprecated" : true,
@@ -12043,7 +10548,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/GroupInvitation"
                 },
-                "x-sunset" : "2024-10-04",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -12066,7 +10570,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Update One Project Invitation",
-        "tags" : [ "Projects" ]
+        "tags" : [ "Projects" ],
+        "x-sunset" : "2024-10-04"
       },
       "post" : {
         "deprecated" : true,
@@ -12097,7 +10602,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/GroupInvitation"
                 },
-                "x-sunset" : "2024-10-04",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -12114,7 +10618,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Invite One MongoDB Cloud User to Join One Project",
-        "tags" : [ "Projects" ]
+        "tags" : [ "Projects" ],
+        "x-sunset" : "2024-10-04"
       }
     },
     "/api/atlas/v2/groups/{groupId}/invites/{invitationId}" : {
@@ -12145,7 +10650,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/NoBody"
                 },
-                "x-sunset" : "2024-10-04",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -12162,7 +10666,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Cancel One Project Invitation",
-        "tags" : [ "Projects" ]
+        "tags" : [ "Projects" ],
+        "x-sunset" : "2024-10-04"
       },
       "get" : {
         "deprecated" : true,
@@ -12193,7 +10698,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/GroupInvitation"
                 },
-                "x-sunset" : "2024-10-04",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -12213,7 +10717,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Return One Project Invitation",
-        "tags" : [ "Projects" ]
+        "tags" : [ "Projects" ],
+        "x-sunset" : "2024-10-04"
       },
       "patch" : {
         "deprecated" : true,
@@ -12253,7 +10758,6 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/GroupInvitation"
                 },
-                "x-sunset" : "2024-10-04",
                 "x-xgen-version" : "2023-01-01"
               }
             },
@@ -12276,7 +10780,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Update One Project Invitation by Invitation ID",
-        "tags" : [ "Projects" ]
+        "tags" : [ "Projects" ],
+        "x-sunset" : "2024-10-04"
       }
     },
     "/api/atlas/v2/groups/{groupId}/ipAddresses" : {
@@ -12539,6 +11044,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/liveMigrations" : {
       "post" : {
+        "deprecated" : true,
         "description" : "Migrate one cluster that Cloud or Ops Manager manages to MongoDB Atlas.\n\n Please make sure to [validate](#tag/Cloud-Migration-Service/operation/validateMigration) your migration before initiating it.\n\n You can use this API endpoint for push live migrations only. Your API Key must have the Organization Owner role to successfully call this resource.\n\n **NOTE**: Migrating time-series collections is not yet supported on MongoDB 6.0 or higher. Migrations on MongoDB 6.0 or higher will skip any time-series collections on the source cluster.",
         "operationId" : "createPushMigration",
         "parameters" : [ {
@@ -12556,12 +11062,6 @@
               },
               "x-sunset" : "2025-05-30",
               "x-xgen-version" : "2023-01-01"
-            },
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/LiveMigrationRequest20240530"
-              },
-              "x-xgen-version" : "2024-05-30"
             }
           },
           "description" : "One migration to be created.",
@@ -12574,14 +11074,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/LiveMigrationResponse"
                 },
-                "x-sunset" : "2025-05-30",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LiveMigrationResponse"
-                },
-                "x-xgen-version" : "2024-05-30"
               }
             },
             "description" : "Created"
@@ -12606,11 +11099,13 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Migrate One Local Managed Cluster to MongoDB Atlas",
-        "tags" : [ "Cloud Migration Service" ]
+        "tags" : [ "Cloud Migration Service" ],
+        "x-sunset" : "2025-05-30"
       }
     },
     "/api/atlas/v2/groups/{groupId}/liveMigrations/validate" : {
       "post" : {
+        "deprecated" : true,
         "description" : "Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource.",
         "operationId" : "validateMigration",
         "parameters" : [ {
@@ -12628,12 +11123,6 @@
               },
               "x-sunset" : "2025-05-30",
               "x-xgen-version" : "2023-01-01"
-            },
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/LiveMigrationRequest20240530"
-              },
-              "x-xgen-version" : "2024-05-30"
             }
           },
           "description" : "One migration to be validated.",
@@ -12646,14 +11135,7 @@
                 "schema" : {
                   "$ref" : "#/components/schemas/LiveImportValidation"
                 },
-                "x-sunset" : "2025-05-30",
                 "x-xgen-version" : "2023-01-01"
-              },
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LiveImportValidation"
-                },
-                "x-xgen-version" : "2024-05-30"
               }
             },
             "description" : "OK"
@@ -12678,7 +11160,8 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Validate One Migration Request",
-        "tags" : [ "Cloud Migration Service" ]
+        "tags" : [ "Cloud Migration Service" ],
+        "x-sunset" : "2025-05-30"
       }
     },
     "/api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}" : {
@@ -15422,49 +13905,6 @@
         "tags" : [ "Monitoring and Logs" ]
       }
     },
-    "/api/atlas/v2/groups/{groupId}/processes/{processId}/collStats/namespaces" : {
-      "get" : {
-        "description" : "Return the subset of namespaces from the given process ranked by highest total execution time (descending) within the given time window.",
-        "operationId" : "getCollStatsLatencyNamespacesForHost",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/processId"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/start"
-        }, {
-          "$ref" : "#/components/parameters/end"
-        }, {
-          "$ref" : "#/components/parameters/period"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CollStatsRankedNamespacesView"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "Succeeded"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return Ranked Namespaces from a Host",
-        "tags" : [ "Collection Level Metrics" ]
-      }
-    },
     "/api/atlas/v2/groups/{groupId}/processes/{processId}/databases" : {
       "get" : {
         "description" : "Returns the list of databases running on the specified host for the specified project. `M0` free clusters, `M2`, `M5`, and serverless clusters have some [operational limits](https://www.mongodb.com/docs/atlas/reference/free-shared-limitations/#operational-limitations). The MongoDB Cloud process must be a `mongod`. To use this resource, the requesting API Key must have the Project Read Only role.",
@@ -16151,72 +14591,6 @@
         } ],
         "summary" : "Return Suggested Indexes",
         "tags" : [ "Performance Advisor" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/processes/{processId}/{databaseName}/{collectionName}/collStats/measurements" : {
-      "get" : {
-        "description" : "Get a list of the Coll Stats Latency process-level measurements for the given namespace",
-        "operationId" : "getCollStatsLatencyNamespaceHostMeasurements",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/processId"
-        }, {
-          "$ref" : "#/components/parameters/databaseName"
-        }, {
-          "$ref" : "#/components/parameters/collectionName"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "description" : "List that contains the metrics that you want to retrieve for the associated data series. If you don't set this parameter, this resource returns data series for all Coll Stats Latency metrics.",
-          "in" : "query",
-          "name" : "metrics",
-          "schema" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string",
-              "description" : "Metric requested for the given process",
-              "enum" : [ "READS_OPS", "READS_LATENCY", "AVERAGE_READS_LATENCY", "READS_P50_VALUE", "READS_P95_VALUE", "READS_P99_VALUE", "WRITES_OPS", "WRITES_LATENCY", "AVERAGE_WRITES_LATENCY", "WRITES_P50_VALUE", "WRITES_P95_VALUE", "WRITES_P99_VALUE", "COMMANDS_OPS", "COMMANDS_LATENCY", "AVERAGE_COMMANDS_LATENCY", "COMMANDS_P50_VALUE", "COMMANDS_P95_VALUE", "COMMANDS_P99_VALUE", "TOTAL_OPS", "TOTAL_LATENCY", "AVERAGE_TOTAL_OPS_LATENCY", "TOTAL_OPS_P50_VALUE", "TOTAL_OPS_P95_VALUE", "TOTAL_OPS_P99_VALUE" ]
-            },
-            "uniqueItems" : true
-          }
-        }, {
-          "$ref" : "#/components/parameters/start"
-        }, {
-          "$ref" : "#/components/parameters/end"
-        }, {
-          "$ref" : "#/components/parameters/period"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MeasurementsCollStatsLatencyHost"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "Succeeded"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Return Host-Level Query Latency",
-        "tags" : [ "Collection Level Metrics" ]
       }
     },
     "/api/atlas/v2/groups/{groupId}/pushBasedLogExport" : {
@@ -17925,242 +16299,6 @@
         }
       }
     },
-    "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor" : {
-      "post" : {
-        "description" : "Create one Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.",
-        "operationId" : "createStreamProcessor",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "description" : "Human-readable label that identifies the stream instance.",
-          "in" : "path",
-          "name" : "tenantName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/StreamsProcessor"
-              }
-            }
-          },
-          "description" : "Details to create an Atlas Streams Processor.",
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/StreamsProcessor"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/badRequest"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/unauthorized"
-          },
-          "409" : {
-            "$ref" : "#/components/responses/unauthorized"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Create One Stream Processor",
-        "tags" : [ "Streams" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}" : {
-      "delete" : {
-        "description" : "Delete a Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.",
-        "operationId" : "deleteStreamProcessor",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "description" : "Human-readable label that identifies the stream instance.",
-          "in" : "path",
-          "name" : "tenantName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Human-readable label that identifies the stream processor.",
-          "in" : "path",
-          "name" : "processorName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "204" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "This endpoint does not return a response body."
-          },
-          "401" : {
-            "$ref" : "#/components/responses/unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Delete One Stream Processor",
-        "tags" : [ "Streams" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:start" : {
-      "post" : {
-        "description" : "Start a Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.",
-        "operationId" : "startStreamProcessor",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "description" : "Human-readable label that identifies the stream instance.",
-          "in" : "path",
-          "name" : "tenantName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Human-readable label that identifies the stream processor.",
-          "in" : "path",
-          "name" : "processorName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NoBody"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Start One Stream Processor",
-        "tags" : [ "Streams" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:stop" : {
-      "post" : {
-        "description" : "Stop a Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.",
-        "operationId" : "stopStreamProcessor",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        }, {
-          "$ref" : "#/components/parameters/pretty"
-        }, {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "description" : "Human-readable label that identifies the stream instance.",
-          "in" : "path",
-          "name" : "tenantName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Human-readable label that identifies the stream processor.",
-          "in" : "path",
-          "name" : "processorName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/NoBody"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/unauthorized"
-          },
-          "403" : {
-            "$ref" : "#/components/responses/forbidden"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/notFound"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Stop One Stream Processor",
-        "tags" : [ "Streams" ]
-      }
-    },
     "/api/atlas/v2/groups/{groupId}/teams" : {
       "get" : {
         "description" : "Returns all teams to which the authenticated user has access in the project specified using its unique 24-hexadecimal digit identifier. All members of the team share the same project access. To use this resource, the requesting API Key must have the Project Read Only role.",
@@ -18830,52 +16968,6 @@
           "DigestAuth" : [ ]
         } ],
         "summary" : "Update Project Roles for One MongoDB Cloud User",
-        "tags" : [ "Projects" ]
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}:migrate" : {
-      "post" : {
-        "description" : "Migrates a project from its current organization to another organization. All project users and their roles will be copied to the same project in the destination organization. You must include an organization API key with the Organization Owner role for the destination organization to verify access to the destination organization when you authenticate with Programmatic API Keys. Otherwise, the requesting user must have the Organization Owner role in both organizations. To use this resource, the requesting API Key must have the Organization Owner role.",
-        "operationId" : "migrateProjectToAnotherOrg",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/groupId"
-        }, {
-          "$ref" : "#/components/parameters/envelope"
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/vnd.atlas.2024-05-30+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/GroupMigrationRequest"
-              }
-            }
-          },
-          "description" : "Migrates a project from its current organization to another organization.",
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2024-05-30+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Group"
-                },
-                "x-xgen-version" : "2024-05-30"
-              }
-            },
-            "description" : "OK"
-          },
-          "401" : {
-            "$ref" : "#/components/responses/unauthorized"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "security" : [ {
-          "DigestAuth" : [ ]
-        } ],
-        "summary" : "Migrate One Project to Another Organization",
         "tags" : [ "Projects" ]
       }
     },
@@ -21478,33 +19570,6 @@
         } ],
         "summary" : "Update Organization Roles for One MongoDB Cloud User",
         "tags" : [ "Organizations" ]
-      }
-    },
-    "/api/atlas/v2/unauth/controlPlaneIPAddresses" : {
-      "get" : {
-        "description" : "Returns all control plane IP addresses. Currently, inbound Atlas control plane IP addresses are not yet available. The inbound IP address list in your API response is empty. To manually retrieve a list of inbound Atlas control plane IP addresses, see [Required Inbound Access](https://www.mongodb.com/docs/atlas/setup-cluster-security/#std-label-atlas-required-inbound-access).",
-        "operationId" : "returnAllControlPlaneIPAddresses",
-        "parameters" : [ {
-          "$ref" : "#/components/parameters/envelope"
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/vnd.atlas.2023-11-15+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ControlPlaneIPAddresses"
-                },
-                "x-xgen-version" : "2023-11-15"
-              }
-            },
-            "description" : "OK"
-          },
-          "500" : {
-            "$ref" : "#/components/responses/internalServerError"
-          }
-        },
-        "summary" : "Return All Control Plane IP Addresses",
-        "tags" : [ "Root" ]
       }
     },
     "/api/atlas/v2/users" : {
@@ -24815,11 +22880,11 @@
       },
       "AutoExportPolicyView" : {
         "type" : "object",
-        "description" : "Policy for automatically exporting cloud backup snapshots.",
+        "description" : "Policy for automatically exporting Cloud Backup Snapshots.",
         "properties" : {
           "exportBucketId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the AWS Bucket.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -32383,7 +30448,7 @@
           "frequencyInterval" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Number that indicates the frequency interval for a set of snapshots. A value of `1` specifies the first instance of the corresponding `frequencyType`.\n\n- In a yearly policy item, `1` indicates that the yearly snapshot occurs on the first day of January and `12` indicates the first day of December.\n\n- In a monthly policy item, `1` indicates that the monthly snapshot occurs on the first day of the month and `40` indicates the last day of the month.\n\n- In a weekly policy item, `1` indicates that the weekly snapshot occurs on Monday and `7` indicates Sunday.\n\n- In an hourly policy item, you can set the frequency interval to `1`, `2`, `4`, `6`, `8`, or `12`. For hourly policy items for NVMe clusters, MongoDB Cloud accepts only `12` as the frequency interval value.\n\n MongoDB Cloud ignores this setting for non-hourly policy items in Backup Compliance Policy settings.",
+            "description" : "Number that indicates the frequency interval for a set of Snapshots. A value of `1` specifies the first instance of the corresponding `frequencyType`.\n\n- In a yearly policy item, `1` indicates that the yearly Snapshot occurs on the first day of January and `12` indicates the first day of December.\n\n- In a monthly policy item, `1` indicates that the monthly Snapshot occurs on the first day of the month and `40` indicates the last day of the month.\n\n- In a weekly policy item, `1` indicates that the weekly Snapshot occurs on Monday and `7` indicates Sunday.\n\n- In an hourly policy item, you can set the frequency interval to `1`, `2`, `4`, `6`, `8`, or `12`. For hourly policy items for NVMe clusters, MongoDB Cloud accepts only `12` as the frequency interval value.\n\n MongoDB Cloud ignores this setting for non-hourly policy items in Backup Compliance Policy settings.",
             "enum" : [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 40 ]
           },
           "frequencyType" : {
@@ -32401,13 +30466,13 @@
           },
           "retentionUnit" : {
             "type" : "string",
-            "description" : "Unit of time in which MongoDB Cloud measures snapshot retention.",
+            "description" : "Unit of time in which MongoDB Cloud measures Snapshot retention.",
             "enum" : [ "days", "weeks", "months", "years" ]
           },
           "retentionValue" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Duration in days, weeks, months, or years that MongoDB Cloud retains the snapshot. For less frequent policy items, MongoDB Cloud requires that you specify a value greater than or equal to the value specified for more frequent policy items.\n\nFor example: If the hourly policy item specifies a retention of two days, you must specify two days or greater for the retention of the weekly policy item."
+            "description" : "Duration in days, weeks, months, or years that MongoDB Cloud retains the Snapshot. For less frequent policy items, MongoDB Cloud requires that you specify a value greater than or equal to the value specified for more frequent policy items.\n\nFor example: If the hourly policy item specifies a retention of two days, you must specify two days or greater for the retention of the weekly policy item."
           }
         },
         "required" : [ "frequencyInterval", "frequencyType", "retentionUnit", "retentionValue" ]
@@ -32510,7 +30575,7 @@
           },
           "exportBucketId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the AWS bucket to which MongoDB Cloud exports the Cloud Backup snapshot.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket to export to.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -32582,7 +30647,7 @@
           },
           "exportBucketId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the AWS bucket to which MongoDB Cloud exports the Cloud Backup snapshot.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket to export to.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -32603,7 +30668,7 @@
           },
           "snapshotId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the Cloud Backup snasphot to export.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Cloud Backup Snapshot to export.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -33057,7 +31122,7 @@
         "properties" : {
           "_id" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the Amazon Web Services (AWS) Simple Storage Service (S3) export bucket.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -33066,11 +31131,14 @@
           },
           "bucketName" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the AWS bucket that the role is authorized to access."
+            "description" : "Human-readable label that identifies the AWS S3 Bucket or Azure Storage Container that the role is authorized to export to.",
+            "example" : "export-bucket",
+            "maxLength" : 63,
+            "minLength" : 3
           },
           "cloudProvider" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the cloud provider that stores this snapshot.",
+            "description" : "Human-readable label that identifies the cloud provider that Snapshots will be exported to.",
             "enum" : [ "AWS", "AZURE" ]
           },
           "iamRoleId" : {
@@ -33093,7 +31161,8 @@
             },
             "readOnly" : true
           }
-        }
+        },
+        "required" : [ "bucketName", "cloudProvider", "iamRoleId" ]
       },
       "DiskBackupSnapshotAzureExportBucket" : {
         "type" : "object",
@@ -33104,7 +31173,7 @@
           "properties" : {
             "roleId" : {
               "type" : "string",
-              "description" : "Unique 24-hexadecimal digit string that identifies the Azure Service Principal that MongoDB Cloud uses to access the Azure Blob Storage.",
+              "description" : "Unique 24-hexadecimal digit string that identifies the Azure Service Principal that MongoDB Cloud uses to access the Azure Blob Storage Container.",
               "example" : "32b6e34b3d91647abb20e7b8",
               "maxLength" : 24,
               "minLength" : 24,
@@ -33112,21 +31181,26 @@
             },
             "serviceUrl" : {
               "type" : "string",
-              "description" : "Url that identifies the Azure Blob Storage Account."
+              "description" : "URL that identifies the blob Endpoint of the Azure Blob Storage Account.",
+              "example" : "https://examplestorageaccount.blob.core.windows.net",
+              "maxLength" : 55,
+              "minLength" : 33
             },
             "tenantId" : {
               "type" : "string",
-              "description" : "UUID String that identifies the Azure Active Directory Tenant ID.",
+              "description" : "UUID that identifies the Azure Active Directory Tenant ID.",
+              "example" : "4297fc77-1592-4de8-a6d5-a8c32401df87",
               "maxLength" : 36,
-              "minLength" : 32,
+              "minLength" : 36,
               "pattern" : "^[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{12}$"
             }
           }
-        } ]
+        } ],
+        "required" : [ "bucketName", "cloudProvider", "roleId", "serviceUrl", "tenantId" ]
       },
       "DiskBackupSnapshotExportBucket" : {
         "type" : "object",
-        "description" : "Disk backup snapshot export bucket.",
+        "description" : "Disk backup snapshot Export Bucket.",
         "discriminator" : {
           "mapping" : {
             "AWS" : "#/components/schemas/DiskBackupSnapshotAWSExportBucket",
@@ -33142,7 +31216,7 @@
         "properties" : {
           "_id" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal character string that identifies the Amazon Web Services (AWS) Simple Storage Service (S3) export bucket.",
+            "description" : "Unique 24-hexadecimal character string that identifies the Export Bucket.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -33151,11 +31225,14 @@
           },
           "bucketName" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the AWS bucket that the role is authorized to access."
+            "description" : "Human-readable label that identifies the AWS S3 Bucket or Azure Storage Container that the role is authorized to export to.",
+            "example" : "export-bucket",
+            "maxLength" : 63,
+            "minLength" : 3
           },
           "cloudProvider" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the cloud provider that stores this snapshot.",
+            "description" : "Human-readable label that identifies the cloud provider that Snapshots will be exported to.",
             "enum" : [ "AWS", "AZURE" ]
           },
           "links" : {
@@ -33170,7 +31247,8 @@
             },
             "readOnly" : true
           }
-        }
+        },
+        "required" : [ "bucketName", "cloudProvider" ]
       },
       "DiskBackupSnapshotRestoreJob" : {
         "type" : "object",
@@ -33304,11 +31382,11 @@
         "properties" : {
           "autoExportEnabled" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether MongoDB Cloud automatically exports cloud backup snapshots to the AWS bucket."
+            "description" : "Flag that indicates whether MongoDB Cloud automatically exports Cloud Backup Snapshots to the Export Bucket."
           },
           "clusterId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal digit string that identifies the cluster with the snapshot you want to return.",
+            "description" : "Unique 24-hexadecimal digit string that identifies the cluster with the Snapshot you want to return.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -33317,7 +31395,7 @@
           },
           "clusterName" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the cluster with the snapshot you want to return.",
+            "description" : "Human-readable label that identifies the cluster with the Snapshot you want to return.",
             "maxLength" : 64,
             "minLength" : 1,
             "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
@@ -33363,7 +31441,7 @@
           "nextSnapshot" : {
             "type" : "string",
             "format" : "date-time",
-            "description" : "Date and time when MongoDB Cloud takes the next snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "description" : "Date and time when MongoDB Cloud takes the next Snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "readOnly" : true
           },
           "policies" : {
@@ -33377,26 +31455,26 @@
           "referenceHourOfDay" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Hour of day in Coordinated Universal Time (UTC) that represents when MongoDB Cloud takes the snapshot."
+            "description" : "Hour of day in Coordinated Universal Time (UTC) that represents when MongoDB Cloud takes the Snapshot."
           },
           "referenceMinuteOfHour" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Minute of the **referenceHourOfDay** that represents when MongoDB Cloud takes the snapshot."
+            "description" : "Minute of the **referenceHourOfDay** that represents when MongoDB Cloud takes the Snapshot."
           },
           "restoreWindowDays" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Number of previous days that you can restore back to with Continuous Cloud Backup accuracy. You must specify a positive, non-zero integer. This parameter applies to continuous cloud backups only."
+            "description" : "Number of previous days that you can restore back to with Continuous Cloud Backup accuracy. You must specify a positive, non-zero integer. This parameter applies to continuous Cloud Backups only."
           },
           "updateSnapshots" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether to apply the retention changes in the updated backup policy to snapshots that MongoDB Cloud took previously.",
+            "description" : "Flag that indicates whether to apply the retention changes in the updated backup policy to Snapshots that MongoDB Cloud took previously.",
             "writeOnly" : true
           },
           "useOrgAndGroupNamesInExportPrefix" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your AWS bucket."
+            "description" : "Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your Export Bucket."
           }
         }
       },
@@ -33405,11 +31483,11 @@
         "properties" : {
           "autoExportEnabled" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether MongoDB Cloud automatically exports cloud backup snapshots to the AWS bucket."
+            "description" : "Flag that indicates whether MongoDB Cloud automatically exports Cloud Backup Snapshots to the Export Bucket."
           },
           "clusterId" : {
             "type" : "string",
-            "description" : "Unique 24-hexadecimal digit string that identifies the cluster with the snapshot you want to return.",
+            "description" : "Unique 24-hexadecimal digit string that identifies the cluster with the Snapshot you want to return.",
             "example" : "32b6e34b3d91647abb20e7b8",
             "maxLength" : 24,
             "minLength" : 24,
@@ -33418,7 +31496,7 @@
           },
           "clusterName" : {
             "type" : "string",
-            "description" : "Human-readable label that identifies the cluster with the snapshot you want to return.",
+            "description" : "Human-readable label that identifies the cluster with the Snapshot you want to return.",
             "maxLength" : 64,
             "minLength" : 1,
             "pattern" : "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
@@ -33464,7 +31542,7 @@
           "nextSnapshot" : {
             "type" : "string",
             "format" : "date-time",
-            "description" : "Date and time when MongoDB Cloud takes the next snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "description" : "Date and time when MongoDB Cloud takes the next Snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "readOnly" : true
           },
           "policies" : {
@@ -33478,26 +31556,26 @@
           "referenceHourOfDay" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Hour of day in Coordinated Universal Time (UTC) that represents when MongoDB Cloud takes the snapshot."
+            "description" : "Hour of day in Coordinated Universal Time (UTC) that represents when MongoDB Cloud takes the Snapshot."
           },
           "referenceMinuteOfHour" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Minute of the **referenceHourOfDay** that represents when MongoDB Cloud takes the snapshot."
+            "description" : "Minute of the **referenceHourOfDay** that represents when MongoDB Cloud takes the Snapshot."
           },
           "restoreWindowDays" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Number of previous days that you can restore back to with Continuous Cloud Backup accuracy. You must specify a positive, non-zero integer. This parameter applies to continuous cloud backups only."
+            "description" : "Number of previous days that you can restore back to with Continuous Cloud Backup accuracy. You must specify a positive, non-zero integer. This parameter applies to continuous Cloud Backups only."
           },
           "updateSnapshots" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether to apply the retention changes in the updated backup policy to snapshots that MongoDB Cloud took previously.",
+            "description" : "Flag that indicates whether to apply the retention changes in the updated backup policy to Snapshots that MongoDB Cloud took previously.",
             "writeOnly" : true
           },
           "useOrgAndGroupNamesInExportPrefix" : {
             "type" : "boolean",
-            "description" : "Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your AWS bucket."
+            "description" : "Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your Export Bucket."
           }
         }
       },
@@ -33703,18 +31781,6 @@
           "eventType" : {
             "type" : "string",
             "description" : "Enum representation of the event type.",
-            "readOnly" : true
-          },
-          "links" : {
-            "type" : "array",
-            "description" : "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs" : {
-              "description" : "Web Linking Specification (RFC 5988)",
-              "url" : "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items" : {
-              "$ref" : "#/components/schemas/Link"
-            },
             "readOnly" : true
           }
         },
@@ -37708,11 +35774,6 @@
             "format" : "int32",
             "default" : 3,
             "description" : "Version applied to this text index. MongoDB 3.2 and later use version `3`. Use this option to override the default version number. This option applies to the **text** index type only."
-          },
-          "unique" : {
-            "type" : "boolean",
-            "default" : false,
-            "description" : "Flag that indicates whether this index can accept insertion or update of documents when the index key value matches an existing index key value. Set `\"unique\" : true` to set this index as unique. You can't set a hashed index to be unique. This option applies to all index types. This option is unsupported for rolling indexes."
           },
           "weights" : {
             "type" : "object",
@@ -42894,6 +40955,38 @@
             "description" : "List of returned documents that MongoDB Cloud providers when completing this request.",
             "items" : {
               "$ref" : "#/components/schemas/MeasurementDiskPartition"
+            },
+            "readOnly" : true
+          },
+          "totalCount" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.",
+            "minimum" : 0,
+            "readOnly" : true
+          }
+        }
+      },
+      "PaginatedEventTypeDetailsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "links" : {
+            "type" : "array",
+            "description" : "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs" : {
+              "description" : "Web Linking Specification (RFC 5988)",
+              "url" : "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            },
+            "readOnly" : true
+          },
+          "results" : {
+            "type" : "array",
+            "description" : "List of returned documents that MongoDB Cloud providers when completing this request.",
+            "items" : {
+              "$ref" : "#/components/schemas/EventTypeDetails"
             },
             "readOnly" : true
           },

@@ -27,6 +27,9 @@ versions=("2023-01-01" "2023-02-01" "2023-10-01" "2023-11-15" "2024-05-30" "2025
 
 for version in "${versions[@]}"; do
   for fmt in "${format[@]}"; do
+    if [ "$branch" == "prod" ] && [ "$version" == "2025-01-01" ]; then
+      continue
+    fi
     full_link=$link/openapi-v2-$version.$fmt
     echo "Downloading specs for version $version on link $full_link"
     curl -f --show-error  "$full_link" --output "$BASEDIR"/openapi-v2-"$version"."$fmt"
