@@ -19,6 +19,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestVersions(t *testing.T) {
@@ -91,9 +92,9 @@ func NewVersionedResponses(t *testing.T) *openapi3.T {
 
 func TestIsFutureVersion(t *testing.T) {
 	tests := []struct {
-		version string
+		version  string
 		isFuture bool
-		wantErr bool
+		wantErr  bool
 	}{
 		{"2022-12-31", false, false},
 		{"2023-01-01", false, false},
@@ -109,12 +110,11 @@ func TestIsFutureVersion(t *testing.T) {
 	for _, tt := range tests {
 		isFuture, err := IsFutureVersion(tt.version)
 		if tt.wantErr {
-			assert.Error(t, err)
+			require.Error(t, err)
 			continue
 		}
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, tt.isFuture, isFuture)
 	}
 }
-

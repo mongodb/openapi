@@ -15,13 +15,13 @@
 package usage
 
 const (
-	Base        = "Base OAS. The command will merge other OASes into it."
-	External    = "OASes that will be merged into the base OAS."
-	Output      = "File name where the command will store the output."
-	Format      = "Output format. Supported values are 'json' and 'yaml'."
-	Versions    = "Boolean flag that defines wether to split the OAS into multiple versions."
-	Spec        = "Path to the OAS file."
-	Environment = "Environment to consider when generating the versioned OAS."
-	GitSha      = "GitSHA to use as identifier (x-xgen-sha) of the generated specification."
+	Base                 = "Base OAS. The command will merge other OASes into it."
+	External             = "OASes that will be merged into the base OAS."
+	Output               = "File name where the command will store the output."
+	Format               = "Output format. Supported values are 'json' and 'yaml'."
+	Versions             = "Boolean flag that defines wether to split the OAS into multiple versions."
+	Spec                 = "Path to the OAS file."
+	Environment          = "Environment to consider when generating the versioned OAS."
+	GitSha               = "GitSHA to use as identifier (x-xgen-sha) of the generated specification."
 	IncludeFutureVersion = "Boolean flag that defines wether to include future API versions."
 )
