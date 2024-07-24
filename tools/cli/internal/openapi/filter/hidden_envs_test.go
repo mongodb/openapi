@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -579,34 +580,154 @@ func TestApplyOnPath(t *testing.T) {
 	}
 }
 
-func TestIsContentTypeHiddenForEnv(t *testing.T) {
+func TestRemoveResponseIfHiddenForEnv(t *testing.T) {
 	tests := []struct {
 		name      string
-		envs      string
 		targetEnv string
-		expected  bool
+		operation *openapi3.Operation
+		expected  *openapi3.Operation
 	}{
-		{"Hidden for target env", "prod", "prod", true},
-		{"Not hidden, no extension", "", "prod", false},
-		{"Hidden for different env", "dev", "prod", false},
+		{
+			name:      "Response Hidden",
+			targetEnv: "prod",
+			operation: &openapi3.Operation{
+				OperationID: "testOperation",
+				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
+					&openapi3.ResponseRef{
+						Value: &openapi3.Response{
+							Description: pointer.Get("A sample response"),
+							Extensions: map[string]interface{}{
+								hiddenEnvsExtension: map[string]interface{}{
+									"envs": "prod",
+								},
+							},
+							Content: map[string]*openapi3.MediaType{
+								"application/json": {
+									Schema: &openapi3.SchemaRef{
+										Value: &openapi3.Schema{},
+									},
+								},
+							},
+						},
+					})),
+			},
+			expected: &openapi3.Operation{
+				OperationID: "testOperation",
+				Responses:   openapi3.NewResponses(func(_ *openapi3.Responses) {}),
+			},
+		},
+		{
+			name:      "Response Hidden in content",
+			targetEnv: "prod",
+			operation: &openapi3.Operation{
+				OperationID: "testOperation",
+				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
+					&openapi3.ResponseRef{
+						Value: &openapi3.Response{
+							Description: pointer.Get("A sample response"),
+							Content: map[string]*openapi3.MediaType{
+								"application/json": {
+									Schema: &openapi3.SchemaRef{},
+									Extensions: map[string]interface{}{
+										hiddenEnvsExtension: map[string]interface{}{
+											"envs": "prod",
+										},
+									},
+								},
+								"application/2-json": {
+									Schema: &openapi3.SchemaRef{},
+									Extensions: map[string]interface{}{
+										hiddenEnvsExtension: map[string]interface{}{
+											"envs": "dev",
+										},
+									},
+								},
+							},
+						},
+					})),
+			},
+			expected: &openapi3.Operation{
+				OperationID: "testOperation",
+				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
+					&openapi3.ResponseRef{
+						Value: &openapi3.Response{
+							Description: pointer.Get("A sample response"),
+							Content: map[string]*openapi3.MediaType{
+								"application/2-json": {
+									Schema:     &openapi3.SchemaRef{},
+									Extensions: map[string]interface{}{},
+								},
+							},
+						},
+					})),
+			},
+		},
+		{
+			name:      "Response Hidden in content with different target env",
+			targetEnv: "prod",
+			operation: &openapi3.Operation{
+				OperationID: "testOperation",
+				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
+					&openapi3.ResponseRef{
+						Value: &openapi3.Response{
+							Description: pointer.Get("A sample response"),
+							Content: map[string]*openapi3.MediaType{
+								"application/json": {
+									Schema: &openapi3.SchemaRef{},
+									Extensions: map[string]interface{}{
+										hiddenEnvsExtension: map[string]interface{}{
+											"envs": "dev",
+										},
+									},
+								},
+								"application/2-json": {
+									Schema: &openapi3.SchemaRef{},
+									Extensions: map[string]interface{}{
+										hiddenEnvsExtension: map[string]interface{}{
+											"envs": "dev",
+										},
+									},
+								},
+							},
+						},
+					})),
+			},
+			expected: &openapi3.Operation{
+				OperationID: "testOperation",
+				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
+					&openapi3.ResponseRef{
+						Value: &openapi3.Response{
+							Description: pointer.Get("A sample response"),
+							Content: map[string]*openapi3.MediaType{
+								"application/json": {
+									Schema:     &openapi3.SchemaRef{},
+									Extensions: map[string]interface{}{},
+								},
+								"application/2-json": {
+									Schema:     &openapi3.SchemaRef{},
+									Extensions: map[string]interface{}{},
+								},
+							},
+						},
+					})),
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			contentType := &openapi3.MediaType{
-				Extensions: map[string]interface{}{
-					hiddenEnvsExtension: map[string]interface{}{
-						hiddenEnvsExtKey: tt.envs,
-					},
-				},
+			filter := HiddenEnvsFilter{
+				metadata: &Metadata{targetEnv: tt.targetEnv},
 			}
-			f := HiddenEnvsFilter{metadata: &Metadata{targetEnv: tt.targetEnv}}
-			result := isContentTypeHiddenForEnv(contentType, f.metadata.targetEnv)
-			assert.Equal(t, tt.expected, result)
+
+			filter.removeResponseIfHiddenForEnv(tt.operation)
+
+			if !reflect.DeepEqual(tt.expected, tt.operation) {
+				t.Errorf("expected %v, got %v", tt.expected, tt.operation)
+			}
 		})
 	}
 }
-
 func TestApply(t *testing.T) {
 	metadata := &Metadata{
 		targetEnv: "prod",
