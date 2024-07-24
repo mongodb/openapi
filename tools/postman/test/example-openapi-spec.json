@@ -1,0 +1,369 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-05-30+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).",
+    "license": {
+      "name": "CC BY-NC-SA 3.0 US",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
+    },
+    "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
+    "title": "MongoDB Atlas Administration API",
+    "version": "2.0",
+    "x-xgen-sha": "450f2b276442adec8ca18461fa6b4adc7f64bbcc"
+  },
+  "servers": [
+    {
+      "url": "https://cloud.mongodb.com"
+    }
+  ],
+  "tags": [
+    {
+      "description": "Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.",
+      "name": "Clusters"
+    }
+  ],
+  "paths": {
+    "/api/atlas/v2/clusters": {
+      "get": {
+        "description": "Returns the details for all clusters in all projects to which you have access. Clusters contain a group of hosts that maintain the same data set. The response does not include multi-cloud clusters. To use this resource, the requesting API Key can have any cluster-level role.",
+        "operationId": "listClustersForAllProjects",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2023-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedOrgGroupView"
+                },
+                "x-xgen-version": "2023-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [
+          {
+            "DigestAuth": []
+          }
+        ],
+        "summary": "Return All Authorized Clusters in All Projects",
+        "tags": [
+          "Clusters"
+        ]
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "includeCount": {
+        "description": "Flag that indicates whether the response returns the total number of items (**totalCount**) in the response.",
+        "in": "query",
+        "name": "includeCount",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "default": true,
+          "example": true
+        }
+      },
+      "itemsPerPage": {
+        "description": "Number of items that the response returns per page.",
+        "in": "query",
+        "name": "itemsPerPage",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 100,
+          "example": 100,
+          "maximum": 500,
+          "minimum": 1
+        }
+      },
+      "pageNum": {
+        "description": "Number of the page that displays the current set of the total objects that the response returns.",
+        "in": "query",
+        "name": "pageNum",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 1,
+          "example": 1,
+          "minimum": 1
+        }
+      }
+    },
+    "schemas": {
+      "PaginatedOrgGroupView": {
+        "type": "object",
+        "properties": {
+          "links": {
+            "type": "array",
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true
+          },
+          "results": {
+            "type": "array",
+            "description": "List of returned documents that MongoDB Cloud providers when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/OrgGroup"
+            },
+            "readOnly": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.",
+            "minimum": 0,
+            "readOnly": true
+          }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "Describes the specific conditions or reasons that cause each type of error."
+          },
+          "error": {
+            "type": "integer",
+            "format": "int32",
+            "description": "HTTP status code returned with this error.",
+            "externalDocs": {
+              "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status"
+            }
+          },
+          "errorCode": {
+            "type": "string",
+            "description": "Application error code returned with this error."
+          },
+          "parameters": {
+            "type": "array",
+            "description": "Parameters used to give more information about the error.",
+            "items": {
+              "type": "object"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "description": "Application error message returned with this error."
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string",
+            "description": "Uniform Resource Locator (URL) that points another API resource to which this response has some relationship. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
+            "example": "https://cloud.mongodb.com/api/atlas"
+          },
+          "rel": {
+            "type": "string",
+            "description": "Uniform Resource Locator (URL) that defines the semantic relationship between this resource and another API resource. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
+            "example": "self"
+          }
+        }
+      },
+      "OrgGroup": {
+        "type": "object",
+        "properties": {
+          "clusters": {
+            "type": "array",
+            "description": "Settings that describe the clusters in each project that the API key is authorized to view.",
+            "items": {
+              "$ref": "#/components/schemas/CloudCluster"
+            },
+            "readOnly": true
+          },
+          "groupId": {
+            "type": "string",
+            "description": "Unique 24-hexadecimal character string that identifies the project.",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true
+          },
+          "groupName": {
+            "type": "string",
+            "description": "Human-readable label that identifies the project.",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[\\p{L}\\p{N}\\-_.(),:&@+']{1,64}$"
+          },
+          "orgId": {
+            "type": "string",
+            "description": "Unique 24-hexadecimal character string that identifies the organization that contains the project.",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true
+          },
+          "orgName": {
+            "type": "string",
+            "description": "Human-readable label that identifies the organization that contains the project.",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[\\p{L}\\p{N}\\-_.(),:&@+']{1,64}$"
+          },
+          "planType": {
+            "type": "string",
+            "description": "Human-readable label that indicates the plan type.",
+            "readOnly": true
+          },
+          "tags": {
+            "type": "array",
+            "description": "List of human-readable labels that categorize the specified project. MongoDB Cloud returns an empty array.",
+            "items": {
+              "type": "string",
+              "readOnly": true
+            },
+            "readOnly": true
+          }
+        }
+      },
+      "CloudCluster": {
+        "type": "object",
+        "description": "Settings that describe the clusters in each project that the API key is authorized to view.",
+        "properties": {
+          "alertCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Whole number that indicates the quantity of alerts open on the cluster.",
+            "readOnly": true
+          },
+          "authEnabled": {
+            "type": "boolean",
+            "description": "Flag that indicates whether authentication is required to access the nodes in this cluster.",
+            "readOnly": true
+          },
+          "availability": {
+            "type": "string",
+            "description": "Term that expresses how many nodes of the cluster can be accessed when MongoDB Cloud receives this request. This parameter returns `available` when all nodes are accessible, `warning` only when some nodes in the cluster can be accessed, `unavailable` when the cluster can't be accessed, or `dead` when the cluster has been deactivated.",
+            "enum": [
+              "available",
+              "dead",
+              "unavailable",
+              "warning"
+            ],
+            "readOnly": true
+          },
+          "backupEnabled": {
+            "type": "boolean",
+            "description": "Flag that indicates whether the cluster can perform backups. If set to `true`, the cluster can perform backups. You must set this value to `true` for NVMe clusters. Backup uses Cloud Backups for dedicated clusters and Shared Cluster Backups for tenant clusters. If set to `false`, the cluster doesn't use MongoDB Cloud backups.",
+            "readOnly": true
+          },
+          "clusterId": {
+            "type": "string",
+            "description": "Unique 24-hexadecimal character string that identifies the cluster. Each ``clusterId`` is used only once across all MongoDB Cloud deployments.",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true
+          },
+          "dataSizeBytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total size of the data stored on each node in the cluster. The resource expresses this value in bytes.",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable label that identifies the cluster.",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+            "readOnly": true
+          },
+          "nodeCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Whole number that indicates the quantity of nodes that comprise the cluster.",
+            "readOnly": true
+          },
+          "sslEnabled": {
+            "type": "boolean",
+            "description": "Flag that indicates whether TLS authentication is required to access the nodes in this cluster.",
+            "readOnly": true
+          },
+          "type": {
+            "type": "string",
+            "description": "Human-readable label that indicates the cluster type.",
+            "enum": [
+              "REPLICA_SET",
+              "SHARDED_CLUSTER"
+            ],
+            "readOnly": true
+          },
+          "versions": {
+            "type": "array",
+            "description": "List that contains the versions of MongoDB that each node in the cluster runs.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "uniqueItems": true
+          }
+        },
+        "readOnly": true
+      }
+    },
+    "responses": {
+      "unauthorized": {
+        "content": {
+          "application/json": {
+            "example": {
+              "detail": "(This is just an example, the exception may not be related to this endpoint)",
+              "error": 401,
+              "errorCode": "NOT_ORG_GROUP_CREATOR",
+              "reason": "Unauthorized"
+            },
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Unauthorized."
+      },
+      "internalServerError": {
+        "content": {
+          "application/json": {
+            "example": {
+              "detail": "(This is just an example, the exception may not be related to this endpoint)",
+              "error": 500,
+              "errorCode": "UNEXPECTED_ERROR",
+              "reason": "Internal Server Error"
+            },
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

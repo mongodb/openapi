@@ -25,6 +25,11 @@ build: fetch_openapi convert_to_collection
 .PHONY: build_and_upload
 build_and_upload: build upload_collection
 
+.PHONY: unit_tests
+unit_tests:
+	npm install;
+	./node_modules/.bin/bats -x ./test/collection-converter-test.bats
+
 .PHONY: clean
 clean:
 	rm ./openapi/*; rm ./tmp/*
