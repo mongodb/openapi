@@ -18,12 +18,21 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 )
 
 // ExtractVersions extracts version strings from an OpenAPI specification.
-func ExtractVersions(oas *openapi3.T) []string {
-	versions := make(map[string]struct{})
+func ExtractVersions(oas *openapi3.T, env string) ([]string, error) {
+	// We need to remove the version that are hidden for the given environment
+	if err := filter.ApplyFiltersWithInit(oas, filter.NewMetadata(nil, env), func(oas *openapi3.T, metadata *filter.Metadata) []filter.Filter {
+		return []filter.Filter{
+			filter.InitHiddenEnvsFilter(oas, metadata),
+		}
+	}); err != nil {
+		return nil, nil
+	}
 
+	versions := make(map[string]struct{})
 	for _, pathItem := range oas.Paths.Map() {
 		if pathItem == nil {
 			continue
@@ -33,7 +42,7 @@ func ExtractVersions(oas *openapi3.T) []string {
 				continue
 			}
 			for _, response := range op.Responses.Map() {
-				if response.Value.Content == nil {
+				if response.Value == nil || response.Value.Content == nil {
 					continue
 				}
 				for contentType := range response.Value.Content {
@@ -45,8 +54,7 @@ func ExtractVersions(oas *openapi3.T) []string {
 			}
 		}
 	}
-
-	return mapKeysToSortedSlice(versions)
+	return mapKeysToSortedSlice(versions), nil
 }
 
 // mapKeysToSortedSlice converts map keys to a sorted slice.

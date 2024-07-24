@@ -607,34 +607,6 @@ func TestIsContentTypeHiddenForEnv(t *testing.T) {
 	}
 }
 
-func TestRemoveContentIfHiddenForEnv(t *testing.T) {
-	tests := []struct {
-		name        string
-		envs        string
-		targetEnv   string
-		shouldBeNil bool
-	}{
-		{"Remove if hidden for target env", "prod", "prod", true},
-		{"Do not remove if no extension", "", "prod", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			contentType := &openapi3.MediaType{
-				Schema: &openapi3.SchemaRef{},
-				Extensions: map[string]interface{}{
-					hiddenEnvsExtension: map[string]interface{}{
-						hiddenEnvsExtKey: tt.envs,
-					},
-				},
-			}
-			f := HiddenEnvsFilter{metadata: &Metadata{targetEnv: tt.targetEnv}}
-			f.removeContentIfHiddenForEnv(contentType)
-			assert.Equal(t, tt.shouldBeNil, contentType.Schema == nil)
-		})
-	}
-}
-
 func TestApply(t *testing.T) {
 	metadata := &Metadata{
 		targetEnv: "prod",

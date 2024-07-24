@@ -14,7 +14,9 @@
 package filter
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
@@ -74,8 +76,30 @@ func initFilters(oas *openapi3.T, metadata *Metadata) error {
 	return nil
 }
 
+func ApplyFiltersWithInit(doc *openapi3.T, metadata *Metadata, init func(oas *openapi3.T, metadata *Metadata) []Filter) error {
+	// make a copy of the oas to avoid modifying the original document when applying filters
+	oas, err := duplicateOas(doc)
+	if err != nil {
+		return err
+	}
+
+	filtersWithInit := init(oas, metadata)
+	for _, filter := range filtersWithInit {
+		if err := filter.Apply(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func ApplyFilters(doc *openapi3.T, metadata *Metadata) error {
-	if err := initFilters(doc, metadata); err != nil {
+	// make a copy of the oas to avoid modifying the original document when applying filters
+	oas, err := duplicateOas(doc)
+	if err != nil {
+		return err
+	}
+
+	if err := initFilters(oas, metadata); err != nil {
 		return err
 	}
 
@@ -85,4 +109,21 @@ func ApplyFilters(doc *openapi3.T, metadata *Metadata) error {
 		}
 	}
 	return nil
+}
+
+func duplicateOas(doc *openapi3.T) (*openapi3.T, error) {
+	// Marshal the original document to JSON
+	jsonData, err := json.Marshal(doc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal original OpenAPI specification: %w", err)
+	}
+
+	// Unmarshal the JSON data into a new OpenAPI document
+	duplicateDoc := &openapi3.T{}
+	err = json.Unmarshal(jsonData, duplicateDoc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal duplicated OpenAPI specification: %w", err)
+	}
+
+	return duplicateDoc, nil
 }

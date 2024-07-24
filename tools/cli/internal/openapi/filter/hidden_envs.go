@@ -30,6 +30,13 @@ type HiddenEnvsFilter struct {
 	metadata *Metadata
 }
 
+func InitHiddenEnvsFilter(oas *openapi3.T, metadata *Metadata) *HiddenEnvsFilter {
+	return &HiddenEnvsFilter{
+		oas:      oas,
+		metadata: metadata,
+	}
+}
+
 func (f *HiddenEnvsFilter) Apply() error {
 	// delete hidden paths first before processing
 	for pathName, pathItem := range f.oas.Paths.Map() {
@@ -91,8 +98,15 @@ func (f *HiddenEnvsFilter) removeRequestBodyIfHiddenForEnv(operation *openapi3.O
 		return
 	}
 
-	for _, contentType := range operation.RequestBody.Value.Content {
-		f.removeContentIfHiddenForEnv(contentType)
+	for k, contentType := range operation.RequestBody.Value.Content {
+		if isContentTypeHiddenForEnv := isContentTypeHiddenForEnv(contentType, f.metadata.targetEnv); isContentTypeHiddenForEnv {
+			log.Printf("Removing contentType: %q because is hidden for target env: %q", contentType.Schema.Ref, f.metadata.targetEnv)
+			// Remove ContentType if it is hidden for the target environment
+			delete(operation.RequestBody.Value.Content, k)
+		} else if contentType.Extensions != nil {
+			// Remove the Hidden extension from the final OAS
+			delete(contentType.Extensions, hiddenEnvsExtension)
+		}
 	}
 }
 
@@ -109,19 +123,17 @@ func (f *HiddenEnvsFilter) removeResponseIfHiddenForEnv(operation *openapi3.Oper
 		if response.Value == nil || response.Value.Content == nil {
 			continue
 		}
-		for _, contentType := range response.Value.Content {
-			f.removeContentIfHiddenForEnv(contentType)
-		}
-	}
-}
 
-func (f *HiddenEnvsFilter) removeContentIfHiddenForEnv(contentType *openapi3.MediaType) {
-	if isContentTypeHiddenForEnv := isContentTypeHiddenForEnv(contentType, f.metadata.targetEnv); isContentTypeHiddenForEnv {
-		log.Printf("Removing contentType: %q because is hidden for target env: %q", contentType.Schema.Ref, f.metadata.targetEnv)
-		contentType.Schema = nil // Remove ContentType if it is hidden for the target environment
-	} else if contentType.Extensions != nil {
-		// Remove the Hidden extension from the final OAS
-		delete(contentType.Extensions, hiddenEnvsExtension)
+		for k, contentType := range response.Value.Content {
+			if isContentTypeHiddenForEnv := isContentTypeHiddenForEnv(contentType, f.metadata.targetEnv); isContentTypeHiddenForEnv {
+				log.Printf("Removing contentType: %q because is hidden for target env: %q", contentType.Schema.Ref, f.metadata.targetEnv)
+				// Remove ContentType if it is hidden for the target environment
+				delete(response.Value.Content, k)
+			} else if contentType.Extensions != nil {
+				// Remove the Hidden extension from the final OAS
+				delete(contentType.Extensions, hiddenEnvsExtension)
+			}
+		}
 	}
 }
 

@@ -32,6 +32,7 @@ type Opts struct {
 	basePath   string
 	outputPath string
 	format     string
+	env        string
 }
 
 func (o *Opts) Run() error {
@@ -41,7 +42,11 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	versions := openapi.ExtractVersions(specInfo.Spec)
+	versions, err := openapi.ExtractVersions(specInfo.Spec, o.env)
+	if err != nil {
+		return err
+	}
+
 	if versions == nil {
 		return fmt.Errorf("no versions found in the OpenAPI specification")
 	}
@@ -118,6 +123,7 @@ func Builder() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
+	cmd.Flags().StringVar(&opts.env, flag.Environment, "dev", usage.Environment)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 	return cmd
