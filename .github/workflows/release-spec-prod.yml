@@ -24,8 +24,8 @@ jobs:
       - name: Build CLI
         working-directory: tools/cli
         run: make build
-      - name: Retrieve FOAS Metadata
-        working-directory: tools/cli
+      - name: Retrieve Specs
+        working-directory: tools/cli/bin
         env:
           AWS_DEFAULT_REGION: ${{vars.AWS_DEFAULT_REGION}}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
@@ -33,7 +33,16 @@ jobs:
           S3_BUCKET: ${{ vars.S3_BUCKET_PROD }}
         run: |
           aws s3 cp s3://"${S3_BUCKET}"/openapi/foas-metadata.json foas-metadata.json
-          cat foas-metadata.json | jq
+          < foas-metadata.json jq 
+          
+          < foasmetada.json jq -c '.services[]' | while read -r service; do
+            name=$(echo "${service}" | jq -r '.name')
+            sha=$(echo "${service}" | jq -r '.sha')
+
+            echo "Downloading the OpenAPI Spec for ${name} with sha ${sha}"
+            aws s3 cp s3://"${S3_BUCKET}"/openapi/oas/"${name}"/"${sha}".json "${name}".json
+          done
+          ls -al
 
   # Required validations will stop the release if they fail
   run-required-validations:
