@@ -7,8 +7,37 @@ permissions:
   contents: write
   pull-requests: write
 jobs:
+  generata-spec:
+    name: Generate the Federated OpenAPI Spec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          sparse-checkout: |
+            tools
+      - name: Install Go
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
+        with:
+          go-version-file: 'tools/cli/go.mod'
+          cache-dependency-path: "tools/cli/go.sum"
+      - name: Build CLI
+        working-directory: tools/cli
+        run: make build
+      - name: Retrieve FOAS Metadata
+        working-directory: tools/cli
+        env:
+          AWS_DEFAULT_REGION: ${{vars.AWS_DEFAULT_REGION}}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          S3_BUCKET: ${{ vars.S3_BUCKET_PROD }}
+        run: |
+          aws s3 cp s3://"${S3_BUCKET}"/openapi/foas-metadata.json foas-metadata.json
+          echo foas-metadata.json
+
   # Required validations will stop the release if they fail
   run-required-validations:
+    name: Run Required Validations
     uses: ./.github/workflows/required-spec-validations.yml
     secrets:
       api_bot_pat: ${{ secrets.API_BOT_PAT }}
@@ -16,11 +45,13 @@ jobs:
       spectral_version: ${{ vars.SPECTRAL_VERSION }}
   # Optional validations won't stop the release but only open a GH issue if they fail
   run-optional-validations:
+    name: Run Optional Validations
     uses: ./.github/workflows/optional-spec-validations.yml
     secrets:
       api_bot_pat: ${{ secrets.API_BOT_PAT }}
 
   release:
+      name: Release OpenAPI Spec
       runs-on: ubuntu-latest
       needs: [run-required-validations]
       steps:
@@ -30,6 +61,7 @@ jobs:
           uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
           with:
             go-version-file: 'tools/cli/go.mod'
+            cache-dependency-path: "tools/cli/go.sum"
         - name: Run foascli split command
           run: |
             pushd tools/cli
