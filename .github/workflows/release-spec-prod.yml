@@ -54,12 +54,14 @@ jobs:
             service_array+=("-e" "openapi-${service}.json")
           done < <(jq -r '.services[] | select(.name != "mms") | .name' foas-metadata.json)
           
-          echo "Running FOAS CLI merge command with the following services: ${service_array[@]}"
+          echo "Running FOAS CLI merge command with the following services: " "${service_array[@]}"
           ./foascli merge -b openapi-mms.json "${service_array[@]}" -o openapi-foas.json -f json
           ./foascli merge -b openapi-mms.json "${service_array[@]}" -o openapi-foas.yaml -f yaml
-
-          ls -al
-          
+      - name: Upload artifact
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
+        with:
+          name: foas
+          path: openapi-foas.*
 
   # Required validations will stop the release if they fail
   run-required-validations:
