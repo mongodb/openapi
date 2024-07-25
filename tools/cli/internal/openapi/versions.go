@@ -21,21 +21,20 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 )
 
-// ExtractVersions extracts version strings from an OpenAPI specification.
-func ExtractVersions(oas *openapi3.T, env string) ([]string, error) {
+func ExtractVersionsWithEnv(oas *openapi3.T, env string) ([]string, error) {
 	// We need to remove the version that are hidden for the given environment
-	doc, err := filter.ApplyFiltersWithInit(oas, filter.NewMetadata(nil, env), func(oas *openapi3.T, metadata *filter.Metadata) []filter.Filter {
-		return []filter.Filter{
-			filter.InitHiddenEnvsFilter(oas, metadata),
-		}
-	})
-
+	doc, err := filter.ApplyFilters(oas, filter.NewMetadata(nil, env), filter.FiltersToGetVersions)
 	if err != nil {
 		return nil, nil
 	}
 
+	return ExtractVersions(doc)
+}
+
+// ExtractVersions extracts version strings from an OpenAPI specification.
+func ExtractVersions(oas *openapi3.T) ([]string, error) {
 	versions := make(map[string]struct{})
-	for _, pathItem := range doc.Paths.Map() {
+	for _, pathItem := range oas.Paths.Map() {
 		if pathItem == nil {
 			continue
 		}

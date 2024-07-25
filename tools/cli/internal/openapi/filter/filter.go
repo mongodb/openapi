@@ -32,8 +32,6 @@ type Metadata struct {
 	targetEnv     string
 }
 
-var filters = []Filter{}
-
 func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metadata {
 	return &Metadata{
 		targetVersion: targetVersion,
@@ -46,68 +44,48 @@ func validateMetadata(metadata *Metadata) error {
 		return errors.New("metadata is nil")
 	}
 
-	if metadata.targetVersion == nil {
-		return errors.New("target version is nil")
-	}
-
 	return nil
 }
 
-func initFilters(oas *openapi3.T, metadata *Metadata) error {
-	if oas == nil {
-		return errors.New("openapi document is nil")
-	}
-
-	if err := validateMetadata(metadata); err != nil {
-		return err
-	}
-
-	// using an array to keep the order of filter execution
-	filters = append(
-		filters,
+func DefaultFilters(oas *openapi3.T, metadata *Metadata) []Filter {
+	return []Filter{
 		&SunsetFilter{oas: oas, metadata: metadata},
 		&VersioningFilter{oas: oas, metadata: metadata},
 		&InfoFilter{oas: oas, metadata: metadata},
 		&HiddenEnvsFilter{oas: oas, metadata: metadata},
 		&TagsFilter{oas: oas},
 		&OperationsFilter{oas: oas},
-	)
-
-	return nil
+	}
 }
 
-func ApplyFiltersWithInit(doc *openapi3.T, metadata *Metadata, init func(oas *openapi3.T, metadata *Metadata) []Filter) (*openapi3.T, error) {
+// FiltersToGetVersions returns a list of filters to apply to the OpenAPI document to get the versions.
+func FiltersToGetVersions(oas *openapi3.T, metadata *Metadata) []Filter {
+	return []Filter{
+		&HiddenEnvsFilter{oas: oas, metadata: metadata},
+	}
+}
+
+func ApplyFilters(doc *openapi3.T, metadata *Metadata, filters func(oas *openapi3.T, metadata *Metadata) []Filter) (*openapi3.T, error) {
+	if doc == nil {
+		return nil, errors.New("openapi document is nil")
+	}
+
+	if err := validateMetadata(metadata); err != nil {
+		return nil, err
+	}
+
 	// make a copy of the oas to avoid modifying the original document when applying filters
 	oas, err := duplicateOas(doc)
 	if err != nil {
 		return nil, err
 	}
 
-	filtersWithInit := init(oas, metadata)
-	for _, filter := range filtersWithInit {
+	for _, filter := range filters(oas, metadata) {
 		if err := filter.Apply(); err != nil {
 			return nil, err
 		}
 	}
-	return oas, nil
-}
 
-func ApplyFilters(doc *openapi3.T, metadata *Metadata) (*openapi3.T, error) {
-	// make a copy of the oas to avoid modifying the original document when applying filters
-	oas, err := duplicateOas(doc)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := initFilters(oas, metadata); err != nil {
-		return nil, err
-	}
-
-	for _, filter := range filters {
-		if err := filter.Apply(); err != nil {
-			return nil, err
-		}
-	}
 	return oas, nil
 }
 

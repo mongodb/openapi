@@ -44,7 +44,7 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	versions, err := openapi.ExtractVersions(specInfo.Spec, o.env)
+	versions, err := openapi.ExtractVersionsWithEnv(specInfo.Spec, o.env)
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err 
 		return nil, err
 	}
 
-	return filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, o.env))
+	return filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, o.env), filter.DefaultFilters)
 }
 
 func (o *Opts) saveVersionedOas(oas *openapi3.T, version string) error {

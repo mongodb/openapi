@@ -22,7 +22,7 @@ import (
 )
 
 func TestVersions(t *testing.T) {
-	versions, err := ExtractVersions(NewVersionedResponses(t), "prod")
+	versions, err := ExtractVersionsWithEnv(NewVersionedResponses(t), "prod")
 	require.NoError(t, err)
 	assert.Equal(t, []string{"2023-01-01", "2023-02-01"}, versions)
 }

@@ -30,13 +30,6 @@ type HiddenEnvsFilter struct {
 	metadata *Metadata
 }
 
-func InitHiddenEnvsFilter(oas *openapi3.T, metadata *Metadata) *HiddenEnvsFilter {
-	return &HiddenEnvsFilter{
-		oas:      oas,
-		metadata: metadata,
-	}
-}
-
 func (f *HiddenEnvsFilter) Apply() error {
 	// delete hidden paths first before processing
 	for pathName, pathItem := range f.oas.Paths.Map() {

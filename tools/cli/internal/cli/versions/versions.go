@@ -42,7 +42,13 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	versions, err := openapi.ExtractVersions(specInfo.Spec, o.env)
+	var versions []string
+	if o.env == "" {
+		versions, err = openapi.ExtractVersions(specInfo.Spec)
+	} else {
+		versions, err = openapi.ExtractVersionsWithEnv(specInfo.Spec, o.env)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -123,7 +129,7 @@ func Builder() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
-	cmd.Flags().StringVar(&opts.env, flag.Environment, "dev", usage.Environment)
+	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 	return cmd
