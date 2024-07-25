@@ -6,19 +6,30 @@ on:
         description: 'Version of Spectral to use'     
         type: string
         required: true
+      run-id:
+        description: 'Run ID of the workflow that triggered this workflow'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
+
 jobs:  
   required-validations:
       runs-on: ubuntu-latest
       steps:
         - name: Checkout repository
           uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        - name: Download artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: openapi-foas
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ inputs.run-id }}
         - name: Run Spectral
           env:
             SPECTRAL_VERSION: ${{ inputs.spectral_version }}
-          run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ./tools/cli/test/data/openapi-foas*.{yml,yaml} --ruleset=.spectral.yaml # we will update this to lint the FOAS in CLOUDP-263186
+          run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint openapi-foas.yaml --ruleset=.spectral.yaml # we will update this to lint the FOAS in CLOUDP-263186
         - name: Create Issue
           if: ${{ failure() }}
           uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
@@ -37,9 +48,15 @@ jobs:
             repository: 'mongodb/atlas-sdk-go'
             token: ${{ secrets.api_bot_pat }}
             path: 'atlas-sdk-go'
+        - name: Download artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: openapi-foas
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ inputs.run-id }}
         - name: Validate the FOAS can be used with the Go SDK
           run: |
-            cp -rf "./tools/cli/test/data/openapi-foas-dev.yaml" "atlas-sdk-go/openapi/atlas-sdk.yaml"
+            cp -rf "openapi-foas.yaml" "atlas-sdk-go/openapi/atlas-sdk.yaml"
             pushd atlas-sdk-go
             make -e openapi-pipeline
             popd
