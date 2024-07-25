@@ -42,3 +42,26 @@ func TestVersions(t *testing.T) {
 	assert.NotEmpty(t, b)
 	assert.Contains(t, string(b), "2023-02-01")
 }
+
+func TestVersionWithEnv(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:   "../../../test/data/base_spec.json",
+		outputPath: "foas.json",
+		fs:         fs,
+		env:        "staging",
+	}
+
+	if err := opts.Run(); err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+
+	b, err := afero.ReadFile(fs, opts.outputPath)
+	if err != nil {
+		t.Fatalf("ReadFile() unexpected error: %v", err)
+	}
+
+	// Check initial versions
+	assert.NotEmpty(t, b)
+	assert.Contains(t, string(b), "2023-02-01")
+}
