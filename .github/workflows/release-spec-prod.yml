@@ -36,11 +36,11 @@ jobs:
           < foas-metadata.json jq 
 
           jq -c '.services[]' foas-metadata.json | while read -r service; do
-            name=$(echo "${service}" | jq -c '.name')
-            sha=$(echo "${service}" | jq -c '.sha')
+            name=$(echo "${service}" | jq -c '.name' | tr -d '"')
+            sha=$(echo "${service}" | jq -c '.sha' | tr -d '"')
 
             echo "Downloading the OpenAPI Spec for ${name} with sha ${sha}"
-            aws s3api get-object --bucket "${S3_BUCKET}" --key "openapi/oas/${name}/${sha}.json" "${name}.json"
+            aws s3 cp "s3://${S3_BUCKET}/openapi/oas/${name}/${sha}.json" "${name}.json"
           done
 
           ls -al
