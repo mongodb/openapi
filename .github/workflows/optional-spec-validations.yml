@@ -1,14 +1,13 @@
 name: 'Optional Spec Validations'
 on:
   workflow_call:
-    inputs:
-      run-id:
-        description: 'Run ID of the workflow that triggered this workflow'
-        required: true
-        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
+
+permissions:
+  contents: write
+  issues: write
 
 jobs:  
   optional-validations:
@@ -21,7 +20,7 @@ jobs:
         with:
           name: openapi-foas
           github-token: ${{ secrets.api_bot_pat }}
-          run-id: ${{ inputs.run-id }}
+          run-id: ${{ github.run_id }}
       - name: Validate the FOAS can be used to generate Postman collection
         run: |
           cp -rf "openapi-foas.json" "./tools/postman/openapi/atlas-api.json"
@@ -35,4 +34,4 @@ jobs:
           labels: failed-release
           title: "(PROD) Optional Postman validation failed :scream_cat:"
           body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          token: ${{ secrets.api_bot_pat }}
+          token: ${{ secrets.GITHUB_TOKEN }}

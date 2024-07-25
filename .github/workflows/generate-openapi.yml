@@ -1,0 +1,78 @@
+name: 'Generate the Federated OpenAPI Spec'
+on:
+  workflow_call:
+    inputs:
+      aws_default_region:
+        description: 'AWS Default Region.'
+        required: true
+        type: string
+      aws_s3_bucket:
+        description: 'AWS S3 Bucket.'
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      api_bot_pat:
+        required: true
+      aws_access_key_id:
+        required: true
+      aws_secret_access_key:
+        required: true
+      
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  generata-spec:
+    name: Generate the Federated OpenAPI Spec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          sparse-checkout: |
+            tools
+      - name: Install Go
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
+        with:
+          go-version-file: 'tools/cli/go.mod'
+          cache-dependency-path: "tools/cli/go.sum"
+      - name: Build CLI
+        working-directory: tools/cli
+        run: make build
+      - name: Retrieve Specs
+        working-directory: tools/cli/bin
+        env:
+          AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
+          S3_BUCKET: ${{ inputs.aws_s3_bucket }}
+        run: |
+          aws s3 cp s3://"${S3_BUCKET}"/openapi/foas-metadata.json foas-metadata.json
+          < foas-metadata.json jq 
+          
+          jq -c '.services[]' foas-metadata.json | while read -r service; do
+            name=$(echo "${service}" | jq -c '.name' | tr -d '"')
+            sha=$(echo "${service}" | jq -c '.sha' | tr -d '"')
+
+            echo "Downloading the OpenAPI Spec for ${name} with sha ${sha}"
+            aws s3 cp "s3://${S3_BUCKET}/openapi/oas/${name}/${sha}.json" "openapi-${name}.json"
+          done
+      - name: Generate Federated Spec
+        working-directory: tools/cli/bin
+        run: |
+          # Loop through the filtered services and construct the flag
+          service_array=()
+          while IFS= read -r service; do
+            service_array+=("-e" "openapi-${service}.json")
+          done < <(jq -r '.services[] | select(.name != "mms") | .name' foas-metadata.json)
+          
+          echo "Running FOAS CLI merge command with the following services: " "${service_array[@]}"
+          ./foascli merge -b openapi-mms.json "${service_array[@]}" -o openapi-foas.json -f json
+          ./foascli merge -b openapi-mms.json "${service_array[@]}" -o openapi-foas.yaml -f yaml
+      - name: Upload artifact
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
+        with:
+          name: openapi-foas
+          path: tools/cli/bin/openapi-foas.*
