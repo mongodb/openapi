@@ -6,10 +6,6 @@ on:
         description: 'Version of Spectral to use'     
         type: string
         required: true
-      run-id:
-        description: 'Run ID of the workflow that triggered this workflow'
-        required: true
-        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -25,7 +21,7 @@ jobs:
           with:
             name: openapi-foas
             github-token: ${{ secrets.api_bot_pat }}
-            run-id: ${{ inputs.run-id }}
+            run-id: ${{ github.run_id }}
         - name: Run Spectral
           env:
             SPECTRAL_VERSION: ${{ inputs.spectral_version }}
@@ -53,7 +49,7 @@ jobs:
           with:
             name: openapi-foas
             github-token: ${{ secrets.api_bot_pat }}
-            run-id: ${{ inputs.run-id }}
+            run-id: ${{ github.run_id }}
         - name: Validate the FOAS can be used with the Go SDK
           run: |
             cp -rf "openapi-foas.yaml" "atlas-sdk-go/openapi/atlas-sdk.yaml"
