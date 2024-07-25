@@ -1,6 +1,11 @@
 name: 'Optional Spec Validations'
 on:
   workflow_call:
+    inputs:
+      run-id:
+        description: 'Run ID of the workflow that triggered this workflow'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -11,9 +16,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-foas
+          github-token: ${{ secrets.api_bot_pat }}
+          run-id: ${{ inputs.run-id }}
       - name: Validate the FOAS can be used to generate Postman collection
         run: |
-          cp -rf "./tools/cli/test/data/openapi-foas-dev.json" "./tools/postman/openapi/atlas-api.json"
+          cp -rf "openapi-foas.json" "./tools/postman/openapi/atlas-api.json"
           pushd tools/postman
           make convert_to_collection
           popd
