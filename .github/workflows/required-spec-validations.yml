@@ -6,6 +6,10 @@ on:
         description: 'Version of Spectral to use'     
         type: string
         required: true
+      env:
+        description: 'Environment to generate the OpenAPI Spec for.'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -23,7 +27,7 @@ jobs:
         - name: Download openapi-foas
           uses: actions/download-artifact@v4
           with:
-            name: openapi-foas
+            name: openapi-foas-${{ inputs.env }}
             github-token: ${{ secrets.api_bot_pat }}
             run-id: ${{ github.run_id }}
         - name: Run Spectral
@@ -52,7 +56,7 @@ jobs:
         - name: Download openapi-foas
           uses: actions/download-artifact@v4
           with:
-            name: openapi-foas
+            name: openapi-foas-${{ inputs.env }}
             github-token: ${{ secrets.api_bot_pat }}
             run-id: ${{ github.run_id }}
         - name: Validate the FOAS can be used with the Go SDK
