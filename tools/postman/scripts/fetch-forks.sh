@@ -44,11 +44,12 @@ for collection_id in $collection_ids; do
         forks=0
     fi
 
-
+    # Add the ID, Name, Forks for current collection to JSON file
     fork_data=$(jq -n --arg id "$collection_id" --arg name "$collection_name" --arg forks "$forks" \
                 '{id: $id, name: $name, forks: $forks}')
 
-    jq --argjson data "$fork_data" '.collections += [$data]' $FORKS_DATA_FILE > temp-$FORKS_DATA_FILE && mv temp-$FORKS_DATA_FILE $FORKS_DATA_FILE
+    jq --argjson data "$fork_data" '.collections += [$data]' $FORKS_DATA_FILE > temp-$FORKS_DATA_FILE
+    mv temp-$FORKS_DATA_FILE $FORKS_DATA_FILE
 
 done
 
