@@ -39,12 +39,12 @@ jq 'del(.collection.info._postman_id)' \
   intermediateCollectionDisableQueryParam.json > intermediateCollectionNoPostmanID.json
 
 echo "Updating name with version"
-jq --arg api_version $current_api_revision \
+jq --arg api_version "$current_api_revision" \
   '.collection.info.name = "MongoDB Atlas Administration API $api_version"' \
   intermediateCollectionNoPostmanID.json >  intermediateCollectionWithName.json
 
 echo "Updating baseUrl"
-jq --arg base_url $BASE_URL \
+jq --arg base_url "$BASE_URL" \
   '.collection.variable[0].value = "$base_url"' \
   intermediateCollectionWithName.json > intermediateCollectionWithBaseURL.json
 
