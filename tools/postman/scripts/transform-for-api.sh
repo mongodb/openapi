@@ -2,7 +2,7 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-source ../../.github/workflows/.secrets
+
 #########################################################
 # Prepare collection for Postman API
 # Environment variables:
