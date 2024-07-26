@@ -2,7 +2,7 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-
+source ../../.github/workflows/.secrets
 #########################################################
 # Prepare collection for Postman API
 # Environment variables:
@@ -40,12 +40,12 @@ jq 'del(.collection.info._postman_id)' \
 
 echo "Updating name with version"
 jq --arg api_version "$current_api_revision" \
-  '.collection.info.name = "MongoDB Atlas Administration API $api_version"' \
+  '.collection.info.name = ("MongoDB Atlas Administration API " + $api_version)' \
   intermediateCollectionNoPostmanID.json >  intermediateCollectionWithName.json
 
 echo "Updating baseUrl"
 jq --arg base_url "$BASE_URL" \
-  '.collection.variable[0].value = "$base_url"' \
+  '.collection.variable[0].value = $base_url' \
   intermediateCollectionWithName.json > intermediateCollectionWithBaseURL.json
 
 if [ "$USE_ENVIRONMENT_AUTH" = "false" ]; then
