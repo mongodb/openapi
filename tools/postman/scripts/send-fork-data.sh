@@ -23,14 +23,14 @@ message=""
 
 echo "Comparing fork data"
 for collection_id in $collection_ids; do
-    collection_name=$(jq -r --arg id $collection_id '.collections[] | select(.id==$id) | .name' $FORKS_DATA_FILE)
+    collection_name=$(jq -r --arg id "$collection_id" '.collections[] | select(.id==$id) | .name' "$FORKS_DATA_FILE")
 
-    current_forks=$(jq -r --arg id $collection_id '.collections[] | select(.id==$id) | .forks' $FORKS_DATA_FILE)
-    previous_forks=$(jq -r --arg id $collection_id '.collections[] | select(.id==$id) | .forks' $PREV_FORKS_DATA_FILE)
+    current_forks=$(jq -r --arg id "$collection_id" '.collections[] | select(.id==$id) | .forks' "$FORKS_DATA_FILE")
+    previous_forks=$(jq -r --arg id "$collection_id" '.collections[] | select(.id==$id) | .forks' "$PREV_FORKS_DATA_FILE")
     if [[ ! $previous_forks ]]; then
         previous_forks=0
     fi
-    difference=$(($current_forks - $previous_forks))
+    difference=$((current_forks - previous_forks))
 
     message+=$'\n\n'"$collection_name currently has a total of $current_forks forks. That is a difference of $difference from last week"
 done
