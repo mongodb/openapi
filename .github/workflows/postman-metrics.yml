@@ -1,0 +1,51 @@
+name: Compare and Send Postman Fork Data
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    secrets: # all secrets are passed explicitly in this workflow
+      SLACK_WEBHOOK_URL:
+        required: true
+
+jobs:
+  compare-and-cache:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Fetch from previous week from cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ./tools/postman/openapi/fork-data.json
+        key: fork-data-${{ github.run_id }}
+        restore-keys: |
+          fork-data-
+
+    - name: Save previous week's data to file
+      working-directory: ./tools/postman/openapi
+      run: |
+        if [ -f fork-data.json ]; then
+          cp fork-data.json previous-fork-data.json
+        else
+          echo '{"collections":[]}' > previous-fork-data.json
+        fi
+
+    - name: Fetch current fork data
+      working-directory: ./tools/postman
+      run: |
+        make fetch_forks 
+
+    - name: Compare data.json with previous week's data
+      working-directory: ./tools/postman
+      env: 
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: |
+        make compare_and_send_forks
+
+    - name: Update cache
+      uses: actions/cache/save@v4
+      with:
+        path: ./tools/postman/openapi/fork-data.json
+        key: fork-data-${{ github.run_id }}
