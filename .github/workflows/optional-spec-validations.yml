@@ -1,6 +1,11 @@
 name: 'Optional Spec Validations'
 on:
   workflow_call:
+    inputs:
+      spectral_version:
+        description: 'Version of Spectral to use'     
+        type: string
+        required: true
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -28,10 +33,13 @@ jobs:
           github-token: ${{ secrets.api_bot_pat }}
           run-id: ${{ github.run_id }}
       - name: Validate the FOAS can be used to generate Postman collection
+        env:
+          SPECTRAL_VERSION: ${{ inputs.spectral_version }}
         run: |
           cp -rf "openapi-foas.json" "./tools/postman/openapi/atlas-api.json"
           pushd tools/postman
           make convert_to_collection
+          npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ./tmp/collection.json --ruleset=./validation/spectral.yaml
           popd
       - name: Create Issue
         if: ${{ failure() }}
