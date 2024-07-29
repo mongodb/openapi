@@ -20,7 +20,7 @@ FORKS_DATA_FILE=${FORKS_DATA_FILE:-"fork-data.json"}
 pushd "${OPENAPI_FOLDER}"
 
 echo "Fetching list of current collections"
-curl --show-error --fail --silent -o "${COLLECTIONS_LIST_FILE}" \
+curl --show-error --retry 5 --fail --silent -o "${COLLECTIONS_LIST_FILE}" \
      --location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
      --header "X-API-Key: ${POSTMAN_API_KEY}"
 
@@ -32,7 +32,7 @@ for collection_id in $collection_ids; do
     collection_name=$(jq -r --arg id "$collection_id" '.collections[] | select(.id==$id).name' "$COLLECTIONS_LIST_FILE")
     
     echo "Fetching fork data for collection: $collection_name" 
-    response=$(curl --silent -w "%{http_code}" -o "current-collection.json" \
+    response=$(curl --silent --retry 5 -w "%{http_code}" -o "current-collection.json" \
         --location "https://api.getpostman.com/collections/${collection_id}/forks" \
         --header "X-API-Key: ${POSTMAN_API_KEY}")
     
