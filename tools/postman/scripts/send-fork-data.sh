@@ -38,7 +38,7 @@ done
 message_json=$(jq -n --arg message "$message" '{updates: $message}')
 
 echo "Sending update to Slack"
-curl --show-error --fail --silent \
+curl --show-error --retry 5 --fail --silent \
     --location "$SLACK_WEBHOOK_URL" \
     --header "Content-Type: application/json" \
     --data "$message_json"
