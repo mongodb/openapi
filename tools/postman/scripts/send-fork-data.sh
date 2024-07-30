@@ -32,7 +32,7 @@ for collection_id in $collection_ids; do
     fi
     difference=$((current_forks - previous_forks))
 
-    message+=$'\n\n'"$collection_name currently has a total of $current_forks forks. That is a difference of $difference from last week"
+    message+=$'\n\n'"$collection_name currently has a total of $current_forks forks. That is a difference of $difference from the last update"
 done
 
 message_json=$(jq -n --arg message "$message" '{updates: $message}')
