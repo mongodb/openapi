@@ -144,6 +144,18 @@ rules:
             - required: ["examples"]
             - required: ["schema"]
 
+  x-xgen-hidden-env-format:
+    description: "Ensure x-xgen-hidden-env extension has the correct format. https://go/openapi-hidden-extension"
+    severity: error
+    given: "$..x-xgen-hidden-env"                    # Match anywhere in the document
+    then:
+      - field: envs
+        function: truthy
+      - field: envs
+        function: pattern
+        functionOptions:
+          match: "^(dev|qa|stage|prod)(,(dev|qa|stage|prod))*$"
+
 overrides:
   - files: # load sample data has an issue with different path param names for different VERBS
       - "*.yaml#/paths/~1api~1atlas~1v1.0~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7BsampleDatasetId%7D"
