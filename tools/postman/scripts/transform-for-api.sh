@@ -10,7 +10,8 @@ set -o pipefail
 #   COLLECTION_TRANSFORMED_FILE_NAME - name of the transformed collection file
 #   OPENAPI_FOLDER - folder where openapi file is saved
 #   TMP_FOLDER - folder for temporary files during transformations
-#   USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
+#   TOGGLE_USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
+#   TOGGLE_INCLUDE_RESPONSES - bool for if responses should be removed or kept
 #   VERSIONS_FILE - name for the openapi versions file
 #   BASE_URL - the default base url the Postman Collection will use
 #########################################################
@@ -19,8 +20,10 @@ COLLECTION_FILE_NAME=${COLLECTION_FILE_NAME:-"collection.json"}
 COLLECTION_TRANSFORMED_FILE_NAME=${COLLECTION_TRANSFORMED_FILE_NAME:-"collection-transformed.json"}
 OPENAPI_FOLDER=${OPENAPI_FOLDER:-"../openapi"}
 TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
-USE_ENVIRONMENT_AUTH=${USE_ENVIRONMENT_AUTH:-true}
 VERSIONS_FILE=${VERSIONS_FILE:-"versions.json"}
+
+TOGGLE_USE_ENVIRONMENT_AUTH=${TOGGLE_USE_ENVIRONMENT_AUTH:-true}
+TOGGLE_INCLUDE_RESPONSES=${TOGGLE_INCLUDE_RESPONSES:-false}
 
 current_api_revision=$(jq -r '.versions."2.0" | .[-1]' < "${OPENAPI_FOLDER}/${VERSIONS_FILE}")
 
@@ -48,19 +51,28 @@ jq --arg base_url "$BASE_URL" \
   '.collection.variable[0].value = $base_url' \
   intermediateCollectionWithName.json > intermediateCollectionWithBaseURL.json
 
-if [ "$USE_ENVIRONMENT_AUTH" = "false" ]; then
+if [ "$TOGGLE_INCLUDE_RESPONSES" = "false" ]; then
+  echo "Removing reponses"
+  jq '.collection.item.[].item.[].response |= []' \
+    intermediateCollectionWithBaseURL.json > intermediateCollectionResponses.json
+else
+  cp intermediateCollectionWithBaseURL.json intermediateCollectionResponses.json
+fi
+
+if [ "$TOGGLE_USE_ENVIRONMENT_AUTH" = "false" ]; then
   echo "Adding auth variables"
   jq '.collection.variable += [{"key": "digestAuthUsername", "value": "<string>"},
   {"key": "digestAuthPassword", "value": "<string>"},
-  {"key": "realm", "value": "<string>"}]' intermediateCollectionWithBaseURL.json > "$COLLECTION_TRANSFORMED_FILE_NAME"
+  {"key": "realm", "value": "<string>"}]' intermediateCollectionResponses.json > "$COLLECTION_TRANSFORMED_FILE_NAME"
 else
-  cp intermediateCollectionWithBaseURL.json "$COLLECTION_TRANSFORMED_FILE_NAME"
+  cp intermediateCollectionResponses.json "$COLLECTION_TRANSFORMED_FILE_NAME"
 fi
 
 rm intermediateCollectionWrapped.json \
    intermediateCollectionDisableQueryParam.json \
    intermediateCollectionNoPostmanID.json \
    intermediateCollectionWithName.json \
+   intermediateCollectionResponses.json \
    intermediateCollectionWithBaseURL.json
 
 popd -0
