@@ -5,7 +5,11 @@ default: build
 
 .PHONY: fetch_openapi
 fetch_openapi:
-	./scripts/fetch.sh
+	./scripts/fetch-openapi.sh
+
+.PHONY: fetch_forks
+fetch_forks: 
+	./scripts/fetch-forks.sh
 
 .PHONY: convert_to_collection
 convert_to_collection:
