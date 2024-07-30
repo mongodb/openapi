@@ -9,7 +9,7 @@ permissions:
   issues: write
 
 jobs:
-  generata-spec:
+  generate-spec:
     name: Generate the OpenAPI Spec
     uses: ./.github/workflows/generate-openapi.yml
     secrets:
@@ -19,24 +19,29 @@ jobs:
     with:
       aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
       aws_s3_bucket: ${{ vars.S3_BUCKET_PROD}}
+      env: prod
 
   # Required validations will stop the release if they fail
   run-required-validations:
     name: Run Required Validations
-    needs: generata-spec
+    needs: generate-spec
     uses: ./.github/workflows/required-spec-validations.yml
     secrets:
       api_bot_pat: ${{ secrets.API_BOT_PAT }}
     with:
       spectral_version: ${{ vars.SPECTRAL_VERSION }}
+      env: prod
 
   # Optional validations won't stop the release but only open a GH issue if they fail
   run-optional-validations:
     name: Run Optional Validations
-    needs: generata-spec
+    needs: generate-spec
     uses: ./.github/workflows/optional-spec-validations.yml
     secrets:
       api_bot_pat: ${{ secrets.API_BOT_PAT }}
+    with:
+      spectral_version: ${{ vars.SPECTRAL_VERSION }}
+      env: prod
 
   release:
       name: Release OpenAPI Spec
@@ -71,7 +76,7 @@ jobs:
           uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
           with:
             labels: failed-release
-            title: "(PROD) Release: `foascli split` command failed :scream_cat:"
+            title: "(prod) Release: `foascli split` command failed :scream_cat:"
             body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
             token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -79,7 +84,7 @@ jobs:
           uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c
           with:
             token: ${{ secrets.GITHUB_TOKEN }}
-            title: "release: (PROD) Release OpenAPI Spec :rocket:"
+            title: "release: (prod) Release OpenAPI Spec :rocket:"
             commit-message: "release: (PROD) Release OpenAPI Spec :rocket:"
             delete-branch: true
             branch: api-bot-update
@@ -93,6 +98,6 @@ jobs:
           uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
           with:
             labels: failed-release
-            title: "(PROD) Release: `Create Pull Request` step failed :scream_cat:"
+            title: "(prod) Release: `Create Pull Request` step failed :scream_cat:"
             body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
             token: ${{ secrets.GITHUB_TOKEN }}
