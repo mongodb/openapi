@@ -1,0 +1,127 @@
+name: 'Release OpenAPI Spec for a given environment'
+on:
+  workflow_call:
+    inputs:
+      aws_default_region:
+        description: 'AWS Default Region.'
+        required: true
+        type: string
+      aws_s3_bucket:
+        description: 'AWS S3 Bucket.'
+        required: true
+        type: string
+      env:
+        description: 'Environment to generate the OpenAPI Spec for.'
+        required: true
+        type: string
+      spectral_version:
+        description: 'Version of Spectral to use.'
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      api_bot_pat:
+        required: true
+      aws_access_key_id:
+        required: true
+      aws_secret_access_key:
+        required: true
+      
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  generate-spec:
+    name: Generate the OpenAPI Spec
+    uses: ./.github/workflows/generate-openapi.yml
+    secrets:
+      api_bot_pat: ${{ secrets.api_bot_pat }}
+      aws_access_key_id: ${{ secrets.aws_access_key_id }}
+      aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+    with:
+      aws_default_region: ${{ inputs.aws_default_region}}
+      aws_s3_bucket: ${{ inputs.aws_s3_bucket}}
+      env: ${{ inputs.env }}
+
+  # Required validations will stop the release if they fail
+  run-required-validations:
+    name: Run Required Validations
+    needs: generate-spec
+    uses: ./.github/workflows/required-spec-validations.yml
+    secrets:
+      api_bot_pat: ${{ secrets.api_bot_pat }}
+    with:
+      spectral_version: ${{ inputs.spectral_version }}
+      env: ${{ inputs.env }}
+
+  # Optional validations won't stop the release but only open a GH issue if they fail
+  run-optional-validations:
+    name: Run Optional Validations
+    needs: generate-spec
+    uses: ./.github/workflows/optional-spec-validations.yml
+    secrets:
+      api_bot_pat: ${{ secrets.api_bot_pat }}
+    with:
+      env: ${{ inputs.env }}
+      spectral_version: ${{ vars.SPECTRAL_VERSION }}
+
+  release:
+      name: Release OpenAPI Spec
+      runs-on: ubuntu-latest
+      needs: [run-required-validations]
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+          with:
+            ref: ${{ inputs.env }}
+        - name: Download openapi-foas
+          uses: actions/download-artifact@v4
+          with:
+            name: openapi-foas-${{ inputs.env }}
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ github.run_id }}
+        - name: Install FOASCLI
+          run: |
+             wget https://github.com/mongodb/openapi/releases/download/v0.0.8/mongodb-foas-cli_0.0.8_linux_x86_64.tar.gz -O foascli.tar.gz
+             tar -xzvf foascli.tar.gz 
+             pushd mongodb-foas-cli_*
+             echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+             popd       
+        - name: Run foascli split command
+          env:
+            target_env: ${{ inputs.env }}
+          run: |
+            foascli split -s openapi-foas.json --env "${target_env}" -o ./openapi/v2/openapi.json
+            cp -rf "openapi-foas.json" "./openapi/v2.json"
+            
+            foascli split -s openapi-foas.yaml --env "${target_env}" -o ./openapi/v2/openapi.yaml
+            cp -rf "openapi-foas.yaml" "./openapi/v2.yaml"
+        - name: Create Issue
+          if: ${{ failure() }}
+          uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+          env:
+            target_env: ${{ inputs.env }}
+          with:
+            labels: failed-release
+            title: "(${{env.target_env}}) Release: `foascli split` command failed :scream_cat:"
+            body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            token: ${{ secrets.GITHUB_TOKEN }}
+        - name: Commit changes
+          uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842
+          env:
+            target_env: ${{ inputs.env }}
+          with:
+            commit_message: "(${{env.target_env}}) Release OpenAPI Spec :rocket:"
+            commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+            branch: ${{env.target_env}}
+            file_pattern: "openapi/*"
+        - name: Create Issue
+          if: ${{ failure() }}
+          uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+          env:
+            target_env: ${{ inputs.env }}
+          with:
+            labels: failed-release
+            title: "(${{env.target_env}}) Release: the Commit Changes step failed :scream_cat:"
+            body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            token: ${{ secrets.GITHUB_TOKEN }}

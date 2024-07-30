@@ -6,9 +6,14 @@ on:
         description: 'Version of Spectral to use'     
         type: string
         required: true
+      env:
+        description: 'Environment to generate the OpenAPI Spec for.'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
+
 
 permissions:
   contents: write
@@ -23,7 +28,7 @@ jobs:
       - name: Download openapi-foas
         uses: actions/download-artifact@v4
         with:
-          name: openapi-foas
+          name: openapi-foas-${{ inputs.env }}
           github-token: ${{ secrets.api_bot_pat }}
           run-id: ${{ github.run_id }}
       - name: Validate the FOAS can be used to generate Postman collection
@@ -38,8 +43,10 @@ jobs:
       - name: Create Issue
         if: ${{ failure() }}
         uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+        env:
+          target_env: ${{ inputs.env }}
         with:
           labels: failed-release
-          title: "(PROD) Optional Postman validation failed :scream_cat:"
+          title: "(${{env.target_env}}) Optional Postman validation failed :scream_cat:"
           body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           token: ${{ secrets.GITHUB_TOKEN }}

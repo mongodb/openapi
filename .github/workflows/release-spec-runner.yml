@@ -1,0 +1,47 @@
+name: 'Release Runner: Start the Release Process for DEV, QA, and STAGING'
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 * * * *' # Run every hour
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  release-spec-dev:
+    name: Release OpenAPI Spec for DEV
+    uses: ./.github/workflows/release-spec.yml
+    secrets:
+      api_bot_pat: ${{ secrets.API_BOT_PAT }}
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+    with:
+      aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
+      aws_s3_bucket: ${{ vars.S3_BUCKET_DEV}}
+      env: dev
+      spectral_version: ${{ vars.SPECTRAL_VERSION }}
+  release-spec-qa:
+    name: Release OpenAPI Spec for QA
+    uses: ./.github/workflows/release-spec.yml
+    secrets:
+        api_bot_pat: ${{ secrets.API_BOT_PAT }}
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_QA }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_QA }}
+    with:
+        aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
+        aws_s3_bucket: ${{ vars.S3_BUCKET_QA}}
+        env: qa
+        spectral_version: ${{ vars.SPECTRAL_VERSION }}
+  release-spec-staging:
+    name: Release OpenAPI Spec for STAGING
+    uses: ./.github/workflows/release-spec.yml
+    secrets:
+        api_bot_pat: ${{ secrets.API_BOT_PAT }}
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+    with:
+        aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
+        aws_s3_bucket: ${{ vars.S3_BUCKET_STAGING}}
+        env: staging
+        spectral_version: ${{ vars.SPECTRAL_VERSION }}
