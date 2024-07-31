@@ -27,13 +27,14 @@ import (
 )
 
 type Opts struct {
-	Merger        openapi.Merger
-	fs            afero.Fs
-	basePath      string
-	outputPath    string
-	format        string
-	gitSha        string
-	externalPaths []string
+	Merger              openapi.Merger
+	fs                  afero.Fs
+	excludePrivatePaths bool
+	basePath            string
+	outputPath          string
+	format              string
+	gitSha              string
+	externalPaths       []string
 }
 
 func (o *Opts) Run() error {
@@ -78,7 +79,7 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
 	}
 
-	m, err := openapi.NewOasDiff(o.basePath)
+	m, err := openapi.NewOasDiff(o.basePath, o.excludePrivatePaths)
 	o.Merger = m
 	return err
 }
@@ -105,6 +106,7 @@ func Builder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.Base)
 	cmd.Flags().StringArrayVarP(&opts.externalPaths, flag.External, flag.ExternalShort, nil, usage.External)
 	cmd.Flags().StringVar(&opts.gitSha, flag.GitSha, "", usage.GitSha)
+	cmd.Flags().BoolVarP(&opts.excludePrivatePaths, flag.ExcludePrivatePaths, flag.ExcludePrivatePathsShort, false, usage.ExcludePrivatePaths)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 
