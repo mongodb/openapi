@@ -23,7 +23,7 @@ TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
 VERSIONS_FILE=${VERSIONS_FILE:-"versions.json"}
 
 TOGGLE_USE_ENVIRONMENT_AUTH=${TOGGLE_USE_ENVIRONMENT_AUTH:-true}
-TOGGLE_INCLUDE_BODY=${TOGGLE_INCLUDE_BODY:-false}
+TOGGLE_INCLUDE_BODY=${TOGGLE_INCLUDE_BODY:-true}
 
 current_api_revision=$(jq -r '.versions."2.0" | .[-1]' < "${OPENAPI_FOLDER}/${VERSIONS_FILE}")
 
@@ -58,9 +58,12 @@ if [ "$TOGGLE_INCLUDE_BODY" = "false" ]; then
     intermediateCollectionWithBaseURL.json > intermediateCollectionRemovedResponseBody.json
   
   jq '.collection.item.[].item.[].request.body |= {}' \
-    intermediateCollectionRemovedResponseBody.json > intermediateCollectionPostBody.json
+    intermediateCollectionRemovedResponseBody.json > intermediateCollectionRemovedRequestBody.json
+  
+  jq '.collection.item.[].item.[].response.[].originalRequest.body |= {}' \
+    intermediateCollectionRemovedRequestBody.json > intermediateCollectionPostBody.json
 
-  rm intermediateCollectionRemovedResponseBody.json
+  rm intermediateCollectionRemovedResponseBody.json intermediateCollectionRemovedRequestBody.json
 else
   cp intermediateCollectionWithBaseURL.json intermediateCollectionPostBody.json
 fi
@@ -75,6 +78,7 @@ else
 fi
 
 # Clean up temporary files
+echo "Removing temporary files"
 rm intermediateCollectionWrapped.json \
    intermediateCollectionDisableQueryParam.json \
    intermediateCollectionNoPostmanID.json \
