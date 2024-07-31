@@ -11,7 +11,7 @@ set -o pipefail
 #   OPENAPI_FOLDER - folder where openapi file is saved
 #   TMP_FOLDER - folder for temporary files during transformations
 #   TOGGLE_USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
-#   TOGGLE_INCLUDE_RESPONSES - bool for if responses should be removed or kept
+#   TOGGLE_INCLUDE_BODY - bool for if generated bodies should be removed or kept
 #   VERSIONS_FILE - name for the openapi versions file
 #   BASE_URL - the default base url the Postman Collection will use
 #########################################################
@@ -23,7 +23,7 @@ TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
 VERSIONS_FILE=${VERSIONS_FILE:-"versions.json"}
 
 TOGGLE_USE_ENVIRONMENT_AUTH=${TOGGLE_USE_ENVIRONMENT_AUTH:-true}
-TOGGLE_INCLUDE_RESPONSES=${TOGGLE_INCLUDE_RESPONSES:-false}
+TOGGLE_INCLUDE_BODY=${TOGGLE_INCLUDE_BODY:-false}
 
 current_api_revision=$(jq -r '.versions."2.0" | .[-1]' < "${OPENAPI_FOLDER}/${VERSIONS_FILE}")
 
@@ -51,28 +51,35 @@ jq --arg base_url "$BASE_URL" \
   '.collection.variable[0].value = $base_url' \
   intermediateCollectionWithName.json > intermediateCollectionWithBaseURL.json
 
-if [ "$TOGGLE_INCLUDE_RESPONSES" = "false" ]; then
-  echo "Removing reponses"
-  jq '.collection.item.[].item.[].response |= []' \
-    intermediateCollectionWithBaseURL.json > intermediateCollectionResponses.json
+# Togglable features 
+if [ "$TOGGLE_INCLUDE_BODY" = "false" ]; then
+  echo "Removing generated bodies"
+  jq '.collection.item.[].item.[].response.[].body |= ""' \
+    intermediateCollectionWithBaseURL.json > intermediateCollectionRemovedResponseBody.json
+  
+  jq '.collection.item.[].item.[].request.body |= {}' \
+    intermediateCollectionRemovedResponseBody.json > intermediateCollectionPostBody.json
+
+  rm intermediateCollectionRemovedResponseBody.json
 else
-  cp intermediateCollectionWithBaseURL.json intermediateCollectionResponses.json
+  cp intermediateCollectionWithBaseURL.json intermediateCollectionPostBody.json
 fi
 
 if [ "$TOGGLE_USE_ENVIRONMENT_AUTH" = "false" ]; then
   echo "Adding auth variables"
   jq '.collection.variable += [{"key": "digestAuthUsername", "value": "<string>"},
   {"key": "digestAuthPassword", "value": "<string>"},
-  {"key": "realm", "value": "<string>"}]' intermediateCollectionResponses.json > "$COLLECTION_TRANSFORMED_FILE_NAME"
+  {"key": "realm", "value": "<string>"}]' intermediateCollectionPostBody.json > "$COLLECTION_TRANSFORMED_FILE_NAME"
 else
-  cp intermediateCollectionResponses.json "$COLLECTION_TRANSFORMED_FILE_NAME"
+  cp intermediateCollectionPostBody.json "$COLLECTION_TRANSFORMED_FILE_NAME"
 fi
 
+# Clean up temporary files
 rm intermediateCollectionWrapped.json \
    intermediateCollectionDisableQueryParam.json \
    intermediateCollectionNoPostmanID.json \
    intermediateCollectionWithName.json \
-   intermediateCollectionResponses.json \
+   intermediateCollectionPostBody.json \
    intermediateCollectionWithBaseURL.json
 
 popd -0
