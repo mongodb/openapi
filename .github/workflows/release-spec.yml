@@ -18,6 +18,10 @@ on:
         description: 'Version of Spectral to use.'
         required: true
         type: string
+      foascli_version:
+        description: 'Version of FOASCLI to use.'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -81,13 +85,16 @@ jobs:
             github-token: ${{ secrets.api_bot_pat }}
             run-id: ${{ github.run_id }}
         - name: Install FOASCLI
+          env:
+            foascli_version: ${{ inputs.foascli_version }}
           run: |
-             wget https://github.com/mongodb/openapi/releases/download/v0.0.8/mongodb-foas-cli_0.0.8_linux_x86_64.tar.gz -O foascli.tar.gz
+             wget https://github.com/mongodb/openapi/releases/download/v"${foascli_version}"/mongodb-foas-cli_"${foascli_version}"_linux_x86_64.tar.gz -O foascli.tar.gz
              tar -xzvf foascli.tar.gz 
              pushd mongodb-foas-cli_*
              echo "$(pwd)/bin" >> "${GITHUB_PATH}"
              popd       
         - name: Run foascli split command
+          id: split
           env:
             target_env: ${{ inputs.env }}
           run: |
@@ -97,7 +104,7 @@ jobs:
             foascli split -s openapi-foas.yaml --env "${target_env}" -o ./openapi/v2/openapi.yaml
             cp -rf "openapi-foas.yaml" "./openapi/v2.yaml"
         - name: Create Issue
-          if: ${{ failure() }}
+          if: ${{ failure() && steps.split.outcome == 'failure' }}
           uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
           env:
             target_env: ${{ inputs.env }}
@@ -107,6 +114,7 @@ jobs:
             body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
             token: ${{ secrets.GITHUB_TOKEN }}
         - name: Commit changes
+          id: commit
           uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842
           env:
             target_env: ${{ inputs.env }}
@@ -116,7 +124,7 @@ jobs:
             branch: ${{env.target_env}}
             file_pattern: "openapi/*"
         - name: Create Issue
-          if: ${{ failure() }}
+          if: ${{ failure() && steps.commit.outcome == 'failure' }}
           uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
           env:
             target_env: ${{ inputs.env }}
