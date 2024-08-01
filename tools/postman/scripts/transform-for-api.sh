@@ -51,14 +51,14 @@ jq --arg base_url "$BASE_URL" \
 echo "Adding links to docs"
 cp intermediateCollectionWithBaseURL.json intermediateCollectionWithLinks.json
 
-paths=$(jq 'path(.. | objects | select(has("summary"))) | @sh' ../"$OPENAPI_FOLDER"/"$OPENAPI_FILE_NAME") 
+paths=$(jq 'path(.. | objects | select(has("summary"))) | @sh' "$OLDPWD"/"$OPENAPI_FOLDER"/"$OPENAPI_FILE_NAME")
 declare -a paths_array="($paths)"
 
 for path in "${paths_array[@]}"; do
   declare -a single_path_array="($path)"
   path_json=$(jq -n '$ARGS.positional' --args "${single_path_array[@]}")
 
-  requestInfo=$(jq --argjson path "$path_json" 'getpath($path)' ../"$OPENAPI_FOLDER"/"$OPENAPI_FILE_NAME")
+  requestInfo=$(jq --argjson path "$path_json" 'getpath($path)' "$OLDPWD"/"$OPENAPI_FOLDER"/"$OPENAPI_FILE_NAME")
 
   title=$(echo "$requestInfo" | jq -r '.summary')
   operationId=$(echo "$requestInfo" | jq -r '.operationId')
