@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -o errexit
-set -o nounset
-set -o pipefail
+set -euo pipefail
 
 #########################################################
 # Fetch number of forks of each collection
