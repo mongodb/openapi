@@ -43,6 +43,6 @@ for collection_id in $collection_ids; do
     message+=$'\n\n'"$collection_name currently has a total of $current_forks forks. That is a difference of $difference from the last update"
 done
 
-jq -n --arg message "$message" '{updates: $message}' > $MESSAGE_FILE
+jq -n --arg message "$message" '{updates: $message}' > "$MESSAGE_FILE"
 
 popd -0
