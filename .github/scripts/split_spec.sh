@@ -2,8 +2,8 @@
 set -eou pipefail
 
 
-env_flag=${target_env}
-if [[ ${env_flag} == "staging"]]; then
+env_flag=${target_env:?}
+if [[ ${env_flag} == "staging" ]]; then
     env_flag="stage"
 fi
 
