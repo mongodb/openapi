@@ -8,6 +8,7 @@ set -o pipefail
 # Environment variables:
 #   COLLECTION_FILE_NAME - name of the postman collection file
 #   COLLECTION_TRANSFORMED_FILE_NAME - name of the transformed collection file
+#   OPENAPI_FILE_NAME - name of the openapi specification file
 #   OPENAPI_FOLDER - folder where openapi file is saved
 #   TMP_FOLDER - folder for temporary files during transformations
 #   USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
@@ -17,6 +18,7 @@ set -o pipefail
 
 COLLECTION_FILE_NAME=${COLLECTION_FILE_NAME:-"collection.json"}
 COLLECTION_TRANSFORMED_FILE_NAME=${COLLECTION_TRANSFORMED_FILE_NAME:-"collection-transformed.json"}
+OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"atlas-api.json"}
 OPENAPI_FOLDER=${OPENAPI_FOLDER:-"../openapi"}
 TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
 USE_ENVIRONMENT_AUTH=${USE_ENVIRONMENT_AUTH:-true}
@@ -48,19 +50,73 @@ jq --arg base_url "$BASE_URL" \
   '.collection.variable[0].value = $base_url' \
   intermediateCollectionWithName.json > intermediateCollectionWithBaseURL.json
 
+
+
+echo "Adding links to docs"
+# titles_array=()
+# while IFS= read -r title; do
+#   titles_array+=("$title")
+# done < <(jq -r '.collection.item.[].item.[].request.name' intermediateCollectionWithBaseURL.json)
+
+# cp intermediateCollectionWithBaseURL.json intermediateCollectionWithLinks.json
+# for title in "${titles_array[@]}"; do
+#   requestPath=$(jq -r --arg title "$title" 'last(path(.. | objects | select(.summary == $title)))' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME)
+
+#   requestInfo=$(jq -r --argjson path "$requestPath" 'getpath($path)' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME)
+
+#   operationId=$(echo $requestInfo | jq -r '.operationId')
+#   tag=$(echo $requestInfo | jq -r '.tags.[0]' | tr " " "-")
+#   url="https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/${tag}/operation/$operationId"
+#   echo "$url"
+#   jq --arg title "$title" --arg url "$url" \
+#     'first(.collection.item.[].item.[].request | objects |  select(.name == $title).description.content) += "\nFind out more at " + $url' \
+#     intermediateCollectionWithLinks.json > tmp.json && mv tmp.json intermediateCollectionWithLinks.json
+  
+#   exit
+# done
+jq 'last(path(.. | objects | select(has("summary"))))' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME | echo
+paths=$(jq 'path(.. | objects | select(has("summary"))) | @sh' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME) 
+
+declare -a arr="($paths)"
+cp intermediateCollectionWithBaseURL.json intermediateCollectionWithLinks.json
+for path in "${arr[@]}"; do
+  
+  echo "$path"  
+  # Remove single quotes
+  formatted_path="["$(echo "$path" | sed "s/'//g")"]"
+
+  echo "Path: $formatted_path"
+  jq --argjson path "$path" 'getpath($path)' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME | echo
+  read
+  # requestPath=$(jq -r --arg title "$title" 'last(path(.. | objects | select(.summary == $title)))' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME)
+
+  # requestInfo=$(jq -r --argjson path "$requestPath" 'getpath($path)' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME)
+
+  # operationId=$(echo $requestInfo | jq -r '.operationId')
+  # tag=$(echo $requestInfo | jq -r '.tags.[0]' | tr " " "-")
+  # url="https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/${tag}/operation/$operationId"
+  # echo "$url"
+  # jq --arg title "$title" --arg url "$url" \
+  #   'first(.collection.item.[].item.[].request | objects |  select(.name == $title).description.content) += "\nFind out more at " + $url' \
+  #   intermediateCollectionWithLinks.json > tmp.json && mv tmp.json intermediateCollectionWithLinks.json
+  
+  # exit
+done
+
 if [ "$USE_ENVIRONMENT_AUTH" = "false" ]; then
   echo "Adding auth variables"
   jq '.collection.variable += [{"key": "digestAuthUsername", "value": "<string>"},
   {"key": "digestAuthPassword", "value": "<string>"},
-  {"key": "realm", "value": "<string>"}]' intermediateCollectionWithBaseURL.json > "$COLLECTION_TRANSFORMED_FILE_NAME"
+  {"key": "realm", "value": "<string>"}]' intermediateCollectionWithLinks.json > "$COLLECTION_TRANSFORMED_FILE_NAME"
 else
-  cp intermediateCollectionWithBaseURL.json "$COLLECTION_TRANSFORMED_FILE_NAME"
+  cp intermediateCollectionWithLinks.json "$COLLECTION_TRANSFORMED_FILE_NAME"
 fi
 
 rm intermediateCollectionWrapped.json \
    intermediateCollectionDisableQueryParam.json \
    intermediateCollectionNoPostmanID.json \
    intermediateCollectionWithName.json \
-   intermediateCollectionWithBaseURL.json
+   intermediateCollectionWithBaseURL.json \
+   intermediateCollectionWithLinks.json
 
 popd -0
