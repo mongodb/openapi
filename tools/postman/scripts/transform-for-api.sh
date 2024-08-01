@@ -51,6 +51,7 @@ jq --arg base_url "$BASE_URL" \
 echo "Adding links to docs"
 cp intermediateCollectionWithBaseURL.json intermediateCollectionWithLinks.json
 
+# Store all paths to requests. The summary field is the same as the title in the collection
 paths=$(jq 'path(.. | objects | select(has("summary"))) | @sh' "$OLDPWD"/"$OPENAPI_FOLDER"/"$OPENAPI_FILE_NAME")
 declare -a paths_array="($paths)"
 
@@ -58,6 +59,7 @@ for path in "${paths_array[@]}"; do
   declare -a single_path_array="($path)"
   path_json=$(jq -n '$ARGS.positional' --args "${single_path_array[@]}")
 
+  # Use the path to get all the information about this request without searching
   requestInfo=$(jq --argjson path "$path_json" 'getpath($path)' "$OLDPWD"/"$OPENAPI_FOLDER"/"$OPENAPI_FILE_NAME")
 
   title=$(echo "$requestInfo" | jq -r '.summary')
@@ -66,6 +68,7 @@ for path in "${paths_array[@]}"; do
 
   url="https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/${tag}/operation/$operationId"
 
+  # Search the collection for the request with the matching name. Add the link to its description 
   jq --arg title "$title" --arg url "$url" \
     'first(.collection.item.[].item.[].request | objects |  select(.name == $title).description.content) += "\n\nFind out more at " + $url' \
     intermediateCollectionWithLinks.json > tmp.json && cp tmp.json intermediateCollectionWithLinks.json
