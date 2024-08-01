@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -o errexit
-set -o nounset
-set -o pipefail
+set -euo pipefail
 
 #########################################################
 # Prepare collection for Postman API
@@ -50,57 +48,28 @@ jq --arg base_url "$BASE_URL" \
   '.collection.variable[0].value = $base_url' \
   intermediateCollectionWithName.json > intermediateCollectionWithBaseURL.json
 
-
-
 echo "Adding links to docs"
-# titles_array=()
-# while IFS= read -r title; do
-#   titles_array+=("$title")
-# done < <(jq -r '.collection.item.[].item.[].request.name' intermediateCollectionWithBaseURL.json)
-
-# cp intermediateCollectionWithBaseURL.json intermediateCollectionWithLinks.json
-# for title in "${titles_array[@]}"; do
-#   requestPath=$(jq -r --arg title "$title" 'last(path(.. | objects | select(.summary == $title)))' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME)
-
-#   requestInfo=$(jq -r --argjson path "$requestPath" 'getpath($path)' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME)
-
-#   operationId=$(echo $requestInfo | jq -r '.operationId')
-#   tag=$(echo $requestInfo | jq -r '.tags.[0]' | tr " " "-")
-#   url="https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/${tag}/operation/$operationId"
-#   echo "$url"
-#   jq --arg title "$title" --arg url "$url" \
-#     'first(.collection.item.[].item.[].request | objects |  select(.name == $title).description.content) += "\nFind out more at " + $url' \
-#     intermediateCollectionWithLinks.json > tmp.json && mv tmp.json intermediateCollectionWithLinks.json
-  
-#   exit
-# done
-jq 'last(path(.. | objects | select(has("summary"))))' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME | echo
-paths=$(jq 'path(.. | objects | select(has("summary"))) | @sh' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME) 
-
-declare -a arr="($paths)"
 cp intermediateCollectionWithBaseURL.json intermediateCollectionWithLinks.json
-for path in "${arr[@]}"; do
-  
-  echo "$path"  
-  # Remove single quotes
-  formatted_path="["$(echo "$path" | sed "s/'//g")"]"
 
-  echo "Path: $formatted_path"
-  jq --argjson path "$path" 'getpath($path)' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME | echo
-  read
-  # requestPath=$(jq -r --arg title "$title" 'last(path(.. | objects | select(.summary == $title)))' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME)
+paths=$(jq 'path(.. | objects | select(has("summary"))) | @sh' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME) 
+declare -a paths_array="($paths)"
 
-  # requestInfo=$(jq -r --argjson path "$requestPath" 'getpath($path)' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME)
+for path in "${paths_array[@]}"; do
+  declare -a single_path_array="($path)"
+  path_json=$(jq -n '$ARGS.positional' --args "${single_path_array[@]}")
 
-  # operationId=$(echo $requestInfo | jq -r '.operationId')
-  # tag=$(echo $requestInfo | jq -r '.tags.[0]' | tr " " "-")
-  # url="https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/${tag}/operation/$operationId"
-  # echo "$url"
-  # jq --arg title "$title" --arg url "$url" \
-  #   'first(.collection.item.[].item.[].request | objects |  select(.name == $title).description.content) += "\nFind out more at " + $url' \
-  #   intermediateCollectionWithLinks.json > tmp.json && mv tmp.json intermediateCollectionWithLinks.json
-  
-  # exit
+  requestInfo=$(jq --argjson path "$path_json" 'getpath($path)' ../$OPENAPI_FOLDER/$OPENAPI_FILE_NAME)
+
+  title=$(echo $requestInfo | jq -r '.summary')
+  operationId=$(echo $requestInfo | jq -r '.operationId')
+  tag=$(echo $requestInfo | jq -r '.tags.[0]' | tr " " "-")
+
+  url="https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/${tag}/operation/$operationId"
+
+  jq --arg title "$title" --arg url "$url" \
+    'first(.collection.item.[].item.[].request | objects |  select(.name == $title).description.content) += "\n\nFind out more at " + $url' \
+    intermediateCollectionWithLinks.json > tmp.json && cp tmp.json intermediateCollectionWithLinks.json
+
 done
 
 if [ "$USE_ENVIRONMENT_AUTH" = "false" ]; then
