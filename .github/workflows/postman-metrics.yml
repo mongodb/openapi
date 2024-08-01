@@ -1,11 +1,10 @@
 name: Compare and Send Postman Fork Data
 
 on:
+  # Enabled by CLOUDP-262512
+  # schedule:
+  #   - cron: '0 10 ? * 1'
   workflow_dispatch:
-  workflow_call:
-    secrets: # all secrets are passed explicitly in this workflow
-      SLACK_WEBHOOK_URL:
-        required: true
 
 jobs:
   compare-and-send-forks:
@@ -15,7 +14,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Fetch previous week's data from cache
+    - name: Fetch previous run's data from cache
       uses: actions/cache/restore@v4
       with:
         path: ./tools/postman/openapi/fork-data.json
@@ -23,27 +22,27 @@ jobs:
         restore-keys: |
           fork-data-
 
-    - name: Save previous week's data to file
+    - name: Save previous run's data to file
       working-directory: ./tools/postman/openapi
       run: |
         if [ -f fork-data.json ]; then
-          cp fork-data.json previous-fork-data.json
-        else
-          echo '{"collections":[]}' > previous-fork-data.json
+          mv fork-data.json previous-fork-data.json
         fi
 
     - name: Fetch current fork data
       working-directory: ./tools/postman
-      run: |
-        make fetch_forks 
+      run: make fetch_forks 
 
-    - name: Compare data.json with previous week's data
+    - name: Compare data.json with previous run's data
       working-directory: ./tools/postman
+      run: make compare_forks
+
+    - name: Send fork data to Slack
+      workding-directory: ./tools/postman
       env: 
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      run: |
-        make compare_and_send_forks
-
+      run: make send_forks
+      
     - name: Save current fork totals to cache
       uses: actions/cache/save@v4
       with:
