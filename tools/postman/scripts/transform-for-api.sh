@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-source .env
+
 #########################################################
 # Prepare collection for Postman API
 # Environment variables:
