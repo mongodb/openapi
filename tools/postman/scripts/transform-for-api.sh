@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
+source .env
 #########################################################
 # Prepare collection for Postman API
 # Environment variables:
@@ -111,7 +111,7 @@ rm intermediateCollectionWrapped.json \
    intermediateCollectionNoPostmanID.json \
    intermediateCollectionWithName.json \
    intermediateCollectionWithBaseURL.json \
-   intermediateCollectionWithLinks.json
+   intermediateCollectionWithLinks.json \
    intermediateCollectionPostBody.json 
 
 popd -0
