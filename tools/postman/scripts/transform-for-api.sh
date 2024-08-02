@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-set -o errexit
-set -o nounset
-set -o pipefail
+set -euo pipefail
 
 #########################################################
 # Prepare collection for Postman API
 # Environment variables:
 #   COLLECTION_FILE_NAME - name of the postman collection file
 #   COLLECTION_TRANSFORMED_FILE_NAME - name of the transformed collection file
+#   OPENAPI_FILE_NAME - name of the openapi specification file
 #   OPENAPI_FOLDER - folder where openapi file is saved
 #   TMP_FOLDER - folder for temporary files during transformations
 #   TOGGLE_USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
@@ -18,6 +17,7 @@ set -o pipefail
 
 COLLECTION_FILE_NAME=${COLLECTION_FILE_NAME:-"collection.json"}
 COLLECTION_TRANSFORMED_FILE_NAME=${COLLECTION_TRANSFORMED_FILE_NAME:-"collection-transformed.json"}
+OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"atlas-api.json"}
 OPENAPI_FOLDER=${OPENAPI_FOLDER:-"../openapi"}
 TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
 VERSIONS_FILE=${VERSIONS_FILE:-"versions.json"}
@@ -51,11 +51,38 @@ jq --arg base_url "$BASE_URL" \
   '.collection.variable[0].value = $base_url' \
   intermediateCollectionWithName.json > intermediateCollectionWithBaseURL.json
 
+echo "Adding links to docs"
+cp intermediateCollectionWithBaseURL.json intermediateCollectionWithLinks.json
+
+# Store all paths to requests. The summary field is the same as the title in the collection
+paths=$(jq 'path(.. | objects | select(has("summary"))) | @sh' "$OLDPWD"/"$OPENAPI_FOLDER"/"$OPENAPI_FILE_NAME")
+declare -a paths_array="($paths)"
+
+for path in "${paths_array[@]}"; do
+  declare -a single_path_array="($path)"
+  path_json=$(jq -n '$ARGS.positional' --args "${single_path_array[@]}")
+
+  # Use the path to get all the information about this request without searching
+  requestInfo=$(jq --argjson path "$path_json" 'getpath($path)' "$OLDPWD"/"$OPENAPI_FOLDER"/"$OPENAPI_FILE_NAME")
+
+  title=$(echo "$requestInfo" | jq -r '.summary')
+  operationId=$(echo "$requestInfo" | jq -r '.operationId')
+  tag=$(echo "$requestInfo" | jq -r '.tags.[0]' | tr " " "-")
+
+  url="https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/${tag}/operation/$operationId"
+
+  # Search the collection for the request with the matching name. Add the link to its description 
+  jq --arg title "$title" --arg url "$url" \
+    'first(.collection.item.[].item.[].request |  select(.name == $title).description.content) += "\n\nFind out more at " + $url' \
+    intermediateCollectionWithLinks.json > tmp.json && cp tmp.json intermediateCollectionWithLinks.json
+
+done
+
 # Togglable features 
 if [ "$TOGGLE_INCLUDE_BODY" = "false" ]; then
   echo "Removing generated bodies"
   jq '.collection.item.[].item.[].response.[].body |= ""' \
-    intermediateCollectionWithBaseURL.json > intermediateCollectionRemovedResponseBody.json
+    intermediateCollectionWithLinks.json > intermediateCollectionRemovedResponseBody.json
   
   jq '.collection.item.[].item.[].request.body |= {}' \
     intermediateCollectionRemovedResponseBody.json > intermediateCollectionRemovedRequestBody.json
@@ -65,7 +92,7 @@ if [ "$TOGGLE_INCLUDE_BODY" = "false" ]; then
 
   rm intermediateCollectionRemovedResponseBody.json intermediateCollectionRemovedRequestBody.json
 else
-  cp intermediateCollectionWithBaseURL.json intermediateCollectionPostBody.json
+  cp intermediateCollectionWithLinks.json intermediateCollectionPostBody.json
 fi
 
 if [ "$TOGGLE_USE_ENVIRONMENT_AUTH" = "false" ]; then
@@ -83,7 +110,8 @@ rm intermediateCollectionWrapped.json \
    intermediateCollectionDisableQueryParam.json \
    intermediateCollectionNoPostmanID.json \
    intermediateCollectionWithName.json \
-   intermediateCollectionPostBody.json \
-   intermediateCollectionWithBaseURL.json
+   intermediateCollectionWithBaseURL.json \
+   intermediateCollectionWithLinks.json \
+   intermediateCollectionPostBody.json 
 
 popd -0
