@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eou pipefail
 
-foascli foascli versions -s v2.json --env "${target_env:?}" -o versions.json
+foascli versions -s v2.json --env "${target_env:?}" -o versions.json
 # Load versions from versions.json
 versions=()
 
