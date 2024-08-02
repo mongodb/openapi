@@ -70,7 +70,7 @@ for path in "${paths_array[@]}"; do
 
   # Search the collection for the request with the matching name. Add the link to its description 
   jq --arg title "$title" --arg url "$url" \
-    'first(.collection.item.[].item.[].request | objects |  select(.name == $title).description.content) += "\n\nFind out more at " + $url' \
+    'first(.collection.item.[].item.[].request |  select(.name == $title).description.content) += "\n\nFind out more at " + $url' \
     intermediateCollectionWithLinks.json > tmp.json && cp tmp.json intermediateCollectionWithLinks.json
 
 done
