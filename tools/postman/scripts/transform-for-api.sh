@@ -9,7 +9,8 @@ set -euo pipefail
 #   OPENAPI_FILE_NAME - name of the openapi specification file
 #   OPENAPI_FOLDER - folder where openapi file is saved
 #   TMP_FOLDER - folder for temporary files during transformations
-#   USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
+#   TOGGLE_USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
+#   TOGGLE_INCLUDE_BODY - bool for if generated bodies should be removed or kept
 #   VERSIONS_FILE - name for the openapi versions file
 #   BASE_URL - the default base url the Postman Collection will use
 #########################################################
@@ -19,8 +20,10 @@ COLLECTION_TRANSFORMED_FILE_NAME=${COLLECTION_TRANSFORMED_FILE_NAME:-"collection
 OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"atlas-api.json"}
 OPENAPI_FOLDER=${OPENAPI_FOLDER:-"../openapi"}
 TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
-USE_ENVIRONMENT_AUTH=${USE_ENVIRONMENT_AUTH:-true}
 VERSIONS_FILE=${VERSIONS_FILE:-"versions.json"}
+
+TOGGLE_USE_ENVIRONMENT_AUTH=${TOGGLE_USE_ENVIRONMENT_AUTH:-true}
+TOGGLE_INCLUDE_BODY=${TOGGLE_INCLUDE_BODY:-true}
 
 current_api_revision=$(jq -r '.versions."2.0" | .[-1]' < "${OPENAPI_FOLDER}/${VERSIONS_FILE}")
 
@@ -75,20 +78,40 @@ for path in "${paths_array[@]}"; do
 
 done
 
-if [ "$USE_ENVIRONMENT_AUTH" = "false" ]; then
+# Togglable features 
+if [ "$TOGGLE_INCLUDE_BODY" = "false" ]; then
+  echo "Removing generated bodies"
+  jq '.collection.item.[].item.[].response.[].body |= ""' \
+    intermediateCollectionWithLinks.json > intermediateCollectionRemovedResponseBody.json
+  
+  jq '.collection.item.[].item.[].request.body |= {}' \
+    intermediateCollectionRemovedResponseBody.json > intermediateCollectionRemovedRequestBody.json
+  
+  jq '.collection.item.[].item.[].response.[].originalRequest.body |= {}' \
+    intermediateCollectionRemovedRequestBody.json > intermediateCollectionPostBody.json
+
+  rm intermediateCollectionRemovedResponseBody.json intermediateCollectionRemovedRequestBody.json
+else
+  cp intermediateCollectionWithLinks.json intermediateCollectionPostBody.json
+fi
+
+if [ "$TOGGLE_USE_ENVIRONMENT_AUTH" = "false" ]; then
   echo "Adding auth variables"
   jq '.collection.variable += [{"key": "digestAuthUsername", "value": "<string>"},
   {"key": "digestAuthPassword", "value": "<string>"},
-  {"key": "realm", "value": "<string>"}]' intermediateCollectionWithLinks.json > "$COLLECTION_TRANSFORMED_FILE_NAME"
+  {"key": "realm", "value": "<string>"}]' intermediateCollectionPostBody.json > "$COLLECTION_TRANSFORMED_FILE_NAME"
 else
-  cp intermediateCollectionWithLinks.json "$COLLECTION_TRANSFORMED_FILE_NAME"
+  cp intermediateCollectionPostBody.json "$COLLECTION_TRANSFORMED_FILE_NAME"
 fi
 
+# Clean up temporary files
+echo "Removing temporary files"
 rm intermediateCollectionWrapped.json \
    intermediateCollectionDisableQueryParam.json \
    intermediateCollectionNoPostmanID.json \
    intermediateCollectionWithName.json \
    intermediateCollectionWithBaseURL.json \
    intermediateCollectionWithLinks.json
+   intermediateCollectionPostBody.json 
 
 popd -0

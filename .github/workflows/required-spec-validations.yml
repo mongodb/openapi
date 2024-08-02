@@ -30,12 +30,13 @@ jobs:
             name: openapi-foas-${{ inputs.env }}
             github-token: ${{ secrets.api_bot_pat }}
             run-id: ${{ github.run_id }}
-        - name: Run Spectral
+        - name: Run 
+          id: spectral-validation
           env:
             SPECTRAL_VERSION: ${{ inputs.spectral_version }}
           run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint openapi-foas.yaml --ruleset=.spectral.yaml # we will update this to lint the FOAS in CLOUDP-263186
         - name: Create Issue
-          if: ${{ failure() }}
+          if: ${{ failure() && steps.spectral-validation.outcome == 'failure' }}
           uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
           env:
             target_env: ${{ inputs.env }}
@@ -62,13 +63,14 @@ jobs:
             github-token: ${{ secrets.api_bot_pat }}
             run-id: ${{ github.run_id }}
         - name: Validate the FOAS can be used with the Go SDK
+          id: go-sdk-validation
           run: |
             cp -rf "openapi-foas.yaml" "atlas-sdk-go/openapi/atlas-sdk.yaml"
             pushd atlas-sdk-go
             make -e openapi-pipeline
             popd
         - name: Create Issue
-          if: ${{ failure() }}
+          if: ${{ failure() && steps.go-sdk-validation.outcome == 'failure' }}
           uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
           env:
             target_env: ${{ inputs.env }}

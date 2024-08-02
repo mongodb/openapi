@@ -15,12 +15,17 @@
 package openapi
 
 import (
+	"strings"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tufin/oasdiff/load"
 )
 
+const publicPathPrefix = "api/atlas/v2"
+
 type OpenAPI3 struct {
 	IsExternalRefsAllowed    bool
+	ExcludePrivatePaths      bool
 	CircularReferenceCounter int
 	Loader                   *openapi3.Loader
 }
@@ -29,6 +34,15 @@ func NewOpenAPI3() *OpenAPI3 {
 	return &OpenAPI3{
 		IsExternalRefsAllowed: true,
 		Loader:                openapi3.NewLoader(),
+		ExcludePrivatePaths:   false,
+	}
+}
+
+func NewOpenAPI3WithExcludePrivatePaths(excludePrivatePaths bool) *OpenAPI3 {
+	return &OpenAPI3{
+		IsExternalRefsAllowed: true,
+		Loader:                openapi3.NewLoader(),
+		ExcludePrivatePaths:   excludePrivatePaths,
 	}
 }
 
@@ -39,5 +53,17 @@ func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error
 		return nil, err
 	}
 
+	if o.ExcludePrivatePaths {
+		removePrivatePaths(spec.Spec)
+	}
 	return spec, nil
+}
+
+func removePrivatePaths(spec *openapi3.T) {
+	for path := range spec.Paths.Map() {
+		if strings.Contains(path, publicPathPrefix) {
+			continue
+		}
+		spec.Paths.Delete(path)
+	}
 }
