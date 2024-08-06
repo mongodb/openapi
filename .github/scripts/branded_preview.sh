@@ -41,3 +41,5 @@ cat << EOF > branded-preview.html
     </body>
 </html>
 EOF
+
+rm -f versions.json
