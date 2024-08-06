@@ -17,6 +17,8 @@ package flag
 const (
 	Base                     = "base"
 	BaseShort                = "b"
+	Revision                 = "revision"
+	RevisionShort            = "r"
 	External                 = "external"
 	ExternalShort            = "e"
 	Output                   = "output"
