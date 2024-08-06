@@ -1,7 +1,12 @@
 #!/bin/bash
 set -eou pipefail
 
-foascli versions -s v2.json --env "${target_env:?}" -o versions.json
+branch_name=${target_env:?}
+if [[ "$branch_name" == "prod" ]]; then
+    branch_name="main"
+fi
+
+foascli versions -s v2.json --env "${branch_name:?}" -o versions.json
 # Load versions from versions.json
 versions=()
 
@@ -11,14 +16,14 @@ while IFS= read -r version; do
 done < <(jq -r '.[]' versions.json)
 
 all_urls=(
-   "https://raw.githubusercontent.com/mongodb/openapi/${target_env:?}/openapi/v2.json"
-   "https://raw.githubusercontent.com/mongodb/openapi/${target_env:?}/openapi/v2.yaml"
+   "https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2.json"
+   "https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2.yaml"
 )
 
 # Fetch and append file URLs from each version
 for version in "${versions[@]}"; do
-    all_urls+=("https://raw.githubusercontent.com/mongodb/openapi/${target_env:?}/openapi/v2/openapi-${version}.json")
-    all_urls+=("https://raw.githubusercontent.com/mongodb/openapi/${target_env:?}/openapi/v2/openapi-${version}.yaml")
+    all_urls+=("https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2/openapi-${version}.json")
+    all_urls+=("https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2/openapi-${version}.yaml")
 done
 
 links=""
