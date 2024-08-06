@@ -24,4 +24,7 @@ const (
 	Environment         = "Environment to consider when generating the versioned OAS."
 	GitSha              = "GitSHA to use as identifier (x-xgen-sha) of the generated specification."
 	ExcludePrivatePaths = "Exclude private paths from the generated specification."
+	BaseFolder          = "Base folder where the command will store the output."
+	RevisionFolder      = "Folder where the command will store the output."
+	DryRun              = "Dry run mode. The command will not write any files."
 )

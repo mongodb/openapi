@@ -17,6 +17,8 @@ package flag
 const (
 	Base                     = "base"
 	BaseShort                = "b"
+	Revision                 = "revision"
+	RevisionShort            = "r"
 	External                 = "external"
 	ExternalShort            = "e"
 	Output                   = "output"
@@ -29,4 +31,6 @@ const (
 	GitSha                   = "sha"
 	ExcludePrivatePaths      = "exclude-private-paths"
 	ExcludePrivatePathsShort = "x"
+	DryRun                   = "dry-run"
+	DryRunShort              = "d"
 )
