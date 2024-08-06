@@ -31,4 +31,6 @@ const (
 	GitSha                   = "sha"
 	ExcludePrivatePaths      = "exclude-private-paths"
 	ExcludePrivatePathsShort = "x"
+	DryRun                   = "dry-run"
+	DryRunShort              = "d"
 )

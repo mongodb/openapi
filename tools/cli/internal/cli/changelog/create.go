@@ -25,6 +25,7 @@ type Opts struct {
 	fs           afero.Fs
 	basePath     string
 	revisionPath string
+	dryRun       bool
 }
 
 func (o *Opts) Run() error {
@@ -57,6 +58,7 @@ func CreateBuilder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.BaseFolder)
 	cmd.Flags().StringVarP(&opts.revisionPath, flag.Revision, flag.RevisionShort, "", usage.RevisionFolder)
+	cmd.Flags().BoolVarP(&opts.dryRun, flag.DryRun, flag.DryRunShort, false, usage.DryRun)
 
 	_ = cmd.MarkFlagRequired(flag.Base)
 	_ = cmd.MarkFlagRequired(flag.Revision)
