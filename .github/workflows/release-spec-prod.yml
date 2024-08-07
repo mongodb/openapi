@@ -58,12 +58,12 @@ jobs:
         - name: Download openapi-foas
           uses: actions/download-artifact@v4
           with:
-            name: openapi-foas
+            name: openapi-foas-prod
             github-token: ${{ secrets.api_bot_pat }}
             run-id: ${{ github.run_id }}
         - name: Build CLI
           working-directory: tools/cli
-          run: make build
+          run: make build && echo "$(pwd)/bin" >> "${GITHUB_PATH}"
         - name: Run foascli split command
           id: split
           env:
@@ -78,9 +78,10 @@ jobs:
             body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
             token: ${{ secrets.GITHUB_TOKEN }}
         - name: Create branded_preview.html 
+          working-directory: openapi
           env:
             target_env: "prod"
-          run: .github/scripts/branded_preview.sh
+          run: ../.github/scripts/branded_preview.sh
         - name: Create Pull Request
           uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c
           id: create-pr
