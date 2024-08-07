@@ -1,18 +1,10 @@
-package changelog
+package outputfilter
 
 import (
 	"regexp"
 )
 
-func transformEntries(entries []*Entry) []*Entry {
-	for _, entry := range entries {
-		transformMessagesInTextField(entry)
-	}
-
-	return entries
-}
-
-func transformMessagesInTextField(entry *Entry) *Entry {
+func transformMessage(entry *Entry) *Entry {
 	text := entry.Text
 	text = removeResponseStatusCodes(text)
 	text = setValueSet(text)
