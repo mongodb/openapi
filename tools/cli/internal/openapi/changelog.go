@@ -43,14 +43,14 @@ type Changelog struct {
 	ExceptionFilePath string
 }
 
-func (c *Changelog) Check() (*checker.Changes, error) {
-	diffResult, err := c.OasDiff.newDiffResult()
+func (s *Changelog) Check() (*checker.Changes, error) {
+	diffResult, err := s.OasDiff.newDiffResult()
 	if err != nil {
 		return nil, err
 	}
 
 	changes := checker.CheckBackwardCompatibilityUntilLevel(
-		c.Config,
+		s.Config,
 		diffResult.Report,
 		diffResult.SourceMap,
 		checker.INFO)

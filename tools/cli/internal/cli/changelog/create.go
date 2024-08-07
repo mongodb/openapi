@@ -43,8 +43,9 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	fmt.Print("Printing the basr v2.json spec normalized...\n")
-	base, err := json.MarshalIndent(*changelog.Base, "", "  ")
+	checks, err := changelog.Check()
+	fmt.Print("Printing the checks\n")
+	base, err := json.MarshalIndent(*checks, "", "  ")
 	if err != nil {
 		return err
 	}
