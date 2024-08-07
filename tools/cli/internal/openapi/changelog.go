@@ -22,7 +22,6 @@ import (
 const (
 	deprecationDaysStable = 365 //  min days required between deprecating a stable resource and removing it
 	deprecationDaysBeta   = 365 //  min days required between deprecating a beta resource and removing it
-	versionedMediaType    = `application/vnd\.atlas\.\d{4}-\d{2}-\d{2}\+(\w)`
 )
 
 var breakingChangesAdditionalCheckers = []string{
