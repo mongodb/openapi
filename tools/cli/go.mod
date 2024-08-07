@@ -33,6 +33,7 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/wI2L/jsondiff v0.6.0 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
+	github.com/yuin/goldmark v1.7.4 // indirect
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	golang.org/x/text v0.15.0 // indirect
 )

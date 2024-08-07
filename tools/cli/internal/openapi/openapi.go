@@ -19,7 +19,6 @@ import (
 	"log"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
 )
@@ -84,33 +83,12 @@ func NewOasDiff(base string, excludePrivatePaths bool) (*OasDiff, error) {
 	}, nil
 }
 
-func NewChangelog(base, revision, exceptionFilePath string) (*Changelog, error) {
-	baseSpec, err := CreateNormalizedOpenAPISpecFromPath(base)
-	if err != nil {
-		return nil, err
+func NewOasDiffWithSpecInfo(base, external *load.SpecInfo, config *diff.Config) *OasDiff {
+	return &OasDiff{
+		base:     base,
+		external: external,
+		config:   config,
 	}
-
-	revisionSpec, err := CreateNormalizedOpenAPISpecFromPath(revision)
-	if err != nil {
-		return nil, err
-	}
-
-	changelogConfig := checker.NewConfig(
-		checker.GetAllChecks()).WithOptionalChecks(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
-
-	return &Changelog{
-		Base:              baseSpec,
-		Revision:          revisionSpec,
-		ExceptionFilePath: exceptionFilePath,
-		Config:            changelogConfig,
-		OasDiff: &OasDiff{
-			base:     baseSpec,
-			external: revisionSpec,
-			config: &diff.Config{
-				IncludePathParams: true,
-			},
-		},
-	}, nil
 }
 
 func newSpec(spec *openapi3.T) *Spec {
