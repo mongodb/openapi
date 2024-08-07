@@ -15,20 +15,42 @@
 package changelog
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
 
 type Opts struct {
-	fs           afero.Fs
-	basePath     string
-	revisionPath string
-	dryRun       bool
+	fs              afero.Fs
+	basePath        string
+	revisionPath    string
+	exceptionsPaths string
+	dryRun          bool
 }
 
 func (o *Opts) Run() error {
+	changelog, err := openapi.NewChangelog(
+		fmt.Sprintf("%s/%s", o.basePath, "v2.json"),
+		fmt.Sprintf("%s/%s", o.revisionPath, "v2.json"),
+		o.exceptionsPaths)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Printing the basr v2.json spec normalized...\n")
+	base, err := json.MarshalIndent(*changelog.Base, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(base))
+
 	return nil
 }
 
@@ -58,6 +80,7 @@ func CreateBuilder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.BaseFolder)
 	cmd.Flags().StringVarP(&opts.revisionPath, flag.Revision, flag.RevisionShort, "", usage.RevisionFolder)
+	cmd.Flags().StringVarP(&opts.exceptionsPaths, flag.ExceptionFilePath, flag.ExceptionFilePathShort, "", usage.ExceptionFilePath)
 	cmd.Flags().BoolVarP(&opts.dryRun, flag.DryRun, flag.DryRunShort, false, usage.DryRun)
 
 	_ = cmd.MarkFlagRequired(flag.Base)
