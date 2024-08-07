@@ -15,6 +15,8 @@
 package openapi
 
 import (
+	"os"
+	"regexp"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -57,6 +59,35 @@ func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error
 		removePrivatePaths(spec.Spec)
 	}
 	return spec, nil
+}
+
+// CreateNormalizedOpenAPISpecFromPath reads the OpenAPI spec from the given path and normalizes it by replacing
+// versioned media types (e.g. application/vnd.atlas.2023-01-01) with standard media types (e.g. application/json)..
+func CreateNormalizedOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
+	sourceContent, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	spec, err := openapi3.NewLoader().LoadFromData([]byte(normalizeMediaType(sourceContent)))
+	if err != nil {
+		return nil, err
+	}
+	return &load.SpecInfo{
+		Spec: spec,
+	}, nil
+}
+
+// normalizeMediaType replaces versioned media types (e.g. application/vnd.atlas.2023-01-01) with standard media types (e.g. application/json).
+func normalizeMediaType(sourceFile []byte) string {
+	re := regexp.MustCompile(`application/vnd\.atlas\.\d{4}-\d{2}-\d{2}\+(\w)`)
+	return re.ReplaceAllStringFunc(string(sourceFile), func(match string) string {
+		submatches := re.FindStringSubmatch(match)
+		if len(submatches) > 1 {
+			return "application/" + submatches[1]
+		}
+		return match
+	})
 }
 
 func removePrivatePaths(spec *openapi3.T) {

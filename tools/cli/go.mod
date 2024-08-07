@@ -14,6 +14,7 @@ require (
 
 require (
 	cloud.google.com/go v0.115.0 // indirect
+	github.com/TwiN/go-color v1.4.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
@@ -32,5 +33,6 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/wI2L/jsondiff v0.6.0 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
+	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	golang.org/x/text v0.15.0 // indirect
 )
