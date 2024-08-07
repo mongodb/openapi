@@ -44,6 +44,10 @@ func (o *Opts) Run() error {
 	}
 
 	checks, err := changelog.Check()
+	if err != nil {
+		return err
+	}
+
 	fmt.Print("Printing the checks\n")
 	base, err := json.MarshalIndent(*checks, "", "  ")
 	if err != nil {
