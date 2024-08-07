@@ -14,10 +14,10 @@ type Entry struct {
 	ID          string `json:"id"`
 	Text        string `json:"text"`
 	Level       int    `json:"level"`
-	Operation   string `json:"operation"`
-	OperationID string `json:"operationId"`
-	Path        string `json:"path"`
-	Source      string `json:"source"`
+	Operation   string `json:"operation,omitempty"`
+	OperationID string `json:"operationId,omitempty"`
+	Path        string `json:"path,omitempty"`
+	Source      string `json:"source,omitempty"`
 	Section     string `json:"section"`
 }
 
