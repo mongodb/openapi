@@ -67,13 +67,13 @@ for path in "${paths_array[@]}"; do
 
   title=$(echo "$requestInfo" | jq -r '.summary')
   operationId=$(echo "$requestInfo" | jq -r '.operationId')
-  tag=$(echo "$requestInfo" | jq -r '.tags.[0]' | tr " " "-")
+  tag=$(echo "$requestInfo" | jq -r '.tags[0]' | tr " " "-")
 
   url="https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/${tag}/operation/$operationId"
 
   # Search the collection for the request with the matching name. Add the link to its description 
   jq --arg title "$title" --arg url "$url" \
-    'first(.collection.item.[].item.[].request |  select(.name == $title).description.content) += "\n\nFind out more at " + $url' \
+    'first(.collection.item[].item[].request |  select(.name == $title).description.content) += "\n\nFind out more at " + $url' \
     intermediateCollectionWithLinks.json > tmp.json && cp tmp.json intermediateCollectionWithLinks.json
 
 done
@@ -81,13 +81,13 @@ done
 # Togglable features 
 if [ "$TOGGLE_INCLUDE_BODY" = "false" ]; then
   echo "Removing generated bodies"
-  jq '.collection.item.[].item.[].response.[].body |= ""' \
+  jq '.collection.item[].item[].response[].body |= ""' \
     intermediateCollectionWithLinks.json > intermediateCollectionRemovedResponseBody.json
   
-  jq '.collection.item.[].item.[].request.body |= {}' \
+  jq '.collection.item[].item[].request.body |= {}' \
     intermediateCollectionRemovedResponseBody.json > intermediateCollectionRemovedRequestBody.json
   
-  jq '.collection.item.[].item.[].response.[].originalRequest.body |= {}' \
+  jq '.collection.item[].item[].response[].originalRequest.body |= {}' \
     intermediateCollectionRemovedRequestBody.json > intermediateCollectionPostBody.json
 
   rm intermediateCollectionRemovedResponseBody.json intermediateCollectionRemovedRequestBody.json
