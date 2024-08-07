@@ -43,7 +43,7 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	fmt.Print("Normalizing the v2.json spec...\n")
+	fmt.Print("Printing the basr v2.json spec normalized...\n")
 	base, err := json.MarshalIndent(*changelog.Base, "", "  ")
 	if err != nil {
 		return err
