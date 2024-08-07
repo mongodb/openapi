@@ -82,6 +82,7 @@ func CreateNormalizedOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
 
 	return &load.SpecInfo{
 		Spec: flattenAllOfSpec,
+		Url:  path,
 	}, nil
 }
 
