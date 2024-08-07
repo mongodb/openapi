@@ -20,8 +20,9 @@ import (
 )
 
 const (
-	deprecationDaysStable = 365 //  min days required between deprecating a stable resource and removing it
-	deprecationDaysBeta   = 365 //  min days required between deprecating a beta resource and removing it
+	deprecationDaysStable = 365  //  min days required between deprecating a stable resource and removing it
+	deprecationDaysBeta   = 365  //  min days required between deprecating a beta resource and removing it
+	lan                   = "en" // language for localized output
 )
 
 var breakingChangesAdditionalCheckers = []string{
@@ -38,5 +39,36 @@ type Changelog struct {
 	Base              *load.SpecInfo
 	Revision          *load.SpecInfo //  the new spec to compare against the base
 	Config            *checker.Config
+	OasDiff           *OasDiff
 	ExceptionFilePath string
+}
+
+func (c *Changelog) Check() (*checker.Changes, error) {
+	diffResult, err := c.OasDiff.newDiffResult()
+	if err != nil {
+		return nil, err
+	}
+	
+	changes := checker.CheckBackwardCompatibilityUntilLevel(
+		c.Config,
+		diffResult.Report,
+		diffResult.SourceMap,
+		checker.INFO)
+
+	return filterOutExceptions(&changes, c.ExceptionFilePath)
+}
+
+func filterOutExceptions(changes *checker.Changes, exceptionsPath string) (*checker.Changes, error) {
+	localizer := checker.NewLocalizer(lan)
+	changesWithoutExceptionsWarnings, err := checker.ProcessIgnoredBackwardCompatibilityErrors(checker.WARN, *changes, exceptionsPath, localizer)
+	if err != nil {
+		return nil, err
+	}
+
+	changesWithoutExceptions, err := checker.ProcessIgnoredBackwardCompatibilityErrors(checker.ERR, changesWithoutExceptionsWarnings, exceptionsPath, localizer)
+	if err != nil {
+		return nil, err
+	}
+
+	return &changesWithoutExceptions, nil
 }
