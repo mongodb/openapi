@@ -20,8 +20,9 @@ import (
 )
 
 const (
-	deprecationDaysStable = 365 //  min days required between deprecating a stable resource and removing it
-	deprecationDaysBeta   = 365 //  min days required between deprecating a beta resource and removing it
+	deprecationDaysStable = 365  //  min days required between deprecating a stable resource and removing it
+	deprecationDaysBeta   = 365  //  min days required between deprecating a beta resource and removing it
+	lan                   = "en" // language for localized output
 )
 
 var breakingChangesAdditionalCheckers = []string{
@@ -38,5 +39,21 @@ type Changelog struct {
 	Base              *load.SpecInfo
 	Revision          *load.SpecInfo //  the new spec to compare against the base
 	Config            *checker.Config
+	OasDiff           *OasDiff
 	ExceptionFilePath string
+}
+
+func (s *Changelog) Check() (*checker.Changes, error) {
+	diffResult, err := s.OasDiff.newDiffResult()
+	if err != nil {
+		return nil, err
+	}
+
+	changes := checker.CheckBackwardCompatibilityUntilLevel(
+		s.Config,
+		diffResult.Report,
+		diffResult.SourceMap,
+		checker.INFO)
+
+	return &changes, nil
 }

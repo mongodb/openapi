@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/tufin/oasdiff/flatten/allof"
 	"github.com/tufin/oasdiff/load"
 )
 
@@ -73,8 +74,14 @@ func CreateNormalizedOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	flattenAllOfSpec, err := allof.MergeSpec(spec)
+	if err != nil {
+		return nil, err
+	}
+
 	return &load.SpecInfo{
-		Spec: spec,
+		Spec: flattenAllOfSpec,
 	}, nil
 }
 
