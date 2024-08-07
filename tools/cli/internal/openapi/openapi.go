@@ -97,14 +97,14 @@ func NewChangelog(base, revision, exceptionFilePath string) (*Changelog, error) 
 
 	changelogConfig := checker.NewConfig(
 		checker.GetAllChecks()).WithOptionalChecks(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
-	
-		return &Changelog{
+
+	return &Changelog{
 		Base:              baseSpec,
 		Revision:          revisionSpec,
 		ExceptionFilePath: exceptionFilePath,
 		Config:            changelogConfig,
 		OasDiff: &OasDiff{
-			base:   baseSpec,
+			base:     baseSpec,
 			external: revisionSpec,
 			config: &diff.Config{
 				IncludePathParams: true,

@@ -48,27 +48,12 @@ func (c *Changelog) Check() (*checker.Changes, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	changes := checker.CheckBackwardCompatibilityUntilLevel(
 		c.Config,
 		diffResult.Report,
 		diffResult.SourceMap,
 		checker.INFO)
 
-	return filterOutExceptions(&changes, c.ExceptionFilePath)
-}
-
-func filterOutExceptions(changes *checker.Changes, exceptionsPath string) (*checker.Changes, error) {
-	localizer := checker.NewLocalizer(lan)
-	changesWithoutExceptionsWarnings, err := checker.ProcessIgnoredBackwardCompatibilityErrors(checker.WARN, *changes, exceptionsPath, localizer)
-	if err != nil {
-		return nil, err
-	}
-
-	changesWithoutExceptions, err := checker.ProcessIgnoredBackwardCompatibilityErrors(checker.ERR, changesWithoutExceptionsWarnings, exceptionsPath, localizer)
-	if err != nil {
-		return nil, err
-	}
-
-	return &changesWithoutExceptions, nil
+	return &changes, nil
 }
