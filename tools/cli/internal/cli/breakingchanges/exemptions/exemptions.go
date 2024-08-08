@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func ExemptionsBuilder() *cobra.Command {
+func Builder() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "exemptions",
 		Short: "Manage exemptions.",

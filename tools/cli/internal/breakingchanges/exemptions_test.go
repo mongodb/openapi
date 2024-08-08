@@ -30,7 +30,7 @@ func TestGenerateExemptionsFile(t *testing.T) {
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFile(exemptionsFolder, exemptionsPath, false)
+		err := GenerateExemptionsFile(outputPath, exemptionsPath, false)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)
@@ -43,17 +43,24 @@ func TestGenerateExemptionsFile(t *testing.T) {
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFile(exemptionsFolder, exemptionsPath, true)
+		err := GenerateExemptionsFile(outputPath, exemptionsPath, true)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)
 		require.NoError(t, err)
 
-		expectedContent := `API PATCH /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId} removed the 'replicaSet' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-API POST /api/atlas/v2/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed the 'replicaSet' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-API POST /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed the 'replicaSet' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-API POST /api/atlas/v1.5/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed the 'replicaSet' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-`
+		expectedContent := "API PATCH /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId} removed the" +
+			" 'replicaSet' enum value from the 'type' response property for the response status '200'" +
+			" [response-property-enum-value-removed].\n"
+		expectedContent += "API POST /api/atlas/v2/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed the" +
+			" 'replicaSet' enum value from the 'type' response property for the response status '200'" +
+			" [response-property-enum-value-removed].\n"
+		expectedContent += "API POST /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed the" +
+			" 'replicaSet' enum value from the 'type' response property for the response status '200'" +
+			" [response-property-enum-value-removed].\n"
+		expectedContent += "API POST /api/atlas/v1.5/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed the" +
+			" 'replicaSet' enum value from the 'type' response property for the response status '200'" +
+			" [response-property-enum-value-removed].\n"
 		assert.Equal(t, expectedContent, string(data))
 	})
 
@@ -62,20 +69,33 @@ API POST /api/atlas/v1.5/testGroups/{groupId}/clusters/{clusterName}/backup/snap
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFile(exemptionsFolder, exemptionsPath, false)
+		err := GenerateExemptionsFile(outputPath, exemptionsPath, false)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)
 		require.NoError(t, err)
+		expectedContent := "API PATCH /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId} removed " +
+			"the 'replicaSet' enum value from the 'type' response property for the response status '200' " +
+			"[response-property-enum-value-removed].\n"
+		expectedContent += "API POST /api/atlas/v2/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed " +
+			"the 'replicaSet' enum value from the 'type' response property for the response status '200' " +
+			"[response-property-enum-value-removed].\n"
+		expectedContent += "API POST /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed " +
+			"the 'replicaSet' enum value from the 'type' response property for the response status '200' " +
+			"[response-property-enum-value-removed].\n"
+		expectedContent += "API POST /api/atlas/v1.5/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed " +
+			"the 'replicaSet' enum value from the 'type' response property for the response status '200' " +
+			"[response-property-enum-value-removed].\n"
+		expectedContent += "API GET /api/atlas/v2/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedCluster/{snapshotId} removed " +
+			"the 'shardedCluster' enum value from the 'type' response property for the response status '200' " +
+			"[response-property-enum-value-removed].\n"
+		expectedContent += "API GET /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedCluster/{snapshotId} removed " +
+			"the 'shardedCluster' enum value from the 'type' response property for the response status '200' " +
+			"[response-property-enum-value-removed].\n"
+		expectedContent += "API GET /api/atlas/v1.5/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedCluster/{snapshotId} removed " +
+			"the 'shardedCluster' enum value from the 'type' response property for the response status '200' " +
+			"[response-property-enum-value-removed].\n"
 
-		expectedContent := `API PATCH /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId} removed the 'replicaSet' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-API POST /api/atlas/v2/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed the 'replicaSet' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-API POST /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed the 'replicaSet' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-API POST /api/atlas/v1.5/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots removed the 'replicaSet' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-API GET /api/atlas/v2/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedCluster/{snapshotId} removed the 'shardedCluster' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-API GET /api/atlas/v1.0/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedCluster/{snapshotId} removed the 'shardedCluster' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-API GET /api/atlas/v1.5/testGroups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedCluster/{snapshotId} removed the 'shardedCluster' enum value from the 'type' response property for the response status '200' [response-property-enum-value-removed].
-`
 		assert.Equal(t, expectedContent, string(data))
 	})
 
@@ -84,7 +104,7 @@ API GET /api/atlas/v1.5/testGroups/{groupId}/clusters/{clusterName}/backup/snaps
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFile(exemptionsFolder, exemptionsPath, false)
+		err := GenerateExemptionsFile(outputPath, exemptionsPath, false)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)

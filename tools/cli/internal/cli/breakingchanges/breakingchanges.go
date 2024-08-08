@@ -29,7 +29,7 @@ func Builder() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		exemptions.ParseBuilder(),
+		exemptions.Builder(),
 	)
 
 	return cmd

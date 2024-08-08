@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -34,8 +33,8 @@ type Exemption struct {
 func getDuplicatedV1Entries(exemption string) []string {
 	if strings.Contains(exemption, "api/atlas/v2") {
 		return []string{
-			strings.Replace(exemption, "api/atlas/v2", "api/atlas/v1.0", -1),
-			strings.Replace(exemption, "api/atlas/v2", "api/atlas/v1.5", -1),
+			strings.ReplaceAll(exemption, "api/atlas/v2", "api/atlas/v1.0"),
+			strings.ReplaceAll(exemption, "api/atlas/v2", "api/atlas/v1.5"),
 		}
 	}
 	return []string{}
@@ -58,43 +57,56 @@ func transformComponentEntry(breakingChangeDescription string) string {
 	return breakingChangeDescription
 }
 
-func GenerateExemptionsFile(sourceDir string, exemptionsPath string, ignoreExpiration bool) error {
-	var validExemptions []string
+func getValidExemptionsList(exemptionsPath string, ignoreExpiration bool) ([]Exemption, error) {
 	if exemptionsPath == "" {
-		return fmt.Errorf("could not find exemptions file path")
+		return nil, fmt.Errorf("could not find exemptions file path")
 	}
 
 	log.Printf("Generating exemptions from file in %s", exemptionsPath)
 	data, err := os.ReadFile(exemptionsPath)
 	if err != nil {
-		return fmt.Errorf("could not read exemptions file: %v", err)
+		return nil, fmt.Errorf("could not read exemptions file: %v", err)
 	}
 
 	var exemptions []Exemption
 	if err := yaml.Unmarshal(data, &exemptions); err != nil {
-		return fmt.Errorf("could not unmarshal exemptions: %v", err)
+		return nil, fmt.Errorf("could not unmarshal exemptions: %v", err)
 	}
 
+	var validExemptions []Exemption
 	for _, exemption := range exemptions {
-		exemptionLine := transformComponentEntry(exemption.BreakingChangeDescription)
 		if ignoreExpiration || isWithinExpirationDate(exemption) {
-			validExemptions = append(validExemptions, exemptionLine)
-			validExemptions = append(validExemptions, getDuplicatedV1Entries(exemptionLine)...)
+			validExemptions = append(validExemptions, exemption)
 		}
 	}
+	return validExemptions, nil
+}
 
-	outputPath := filepath.Join(sourceDir, "exemptions.txt")
+// GenerateExemptionsFile generates a file with the valid exemptions
+func GenerateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bool) error {
+	validExemptions, err := getValidExemptionsList(exemptionsPath, ignoreExpiration)
+	if err != nil {
+		return fmt.Errorf("could not get valid exemptions list: %v", err)
+	}
+
+	var transformedExemptions = []string{}
+	for _, validExemption := range validExemptions {
+		exemptionLine := transformComponentEntry(validExemption.BreakingChangeDescription)
+		transformedExemptions = append(transformedExemptions, exemptionLine)
+		transformedExemptions = append(transformedExemptions, getDuplicatedV1Entries(exemptionLine)...)
+	}
+
 	file, err := os.Create(outputPath)
 	if err != nil {
 		return fmt.Errorf("could not create exemptions file: %v", err)
 	}
 	defer file.Close()
 
-	for _, validExemption := range validExemptions {
-		if _, err := file.WriteString(fmt.Sprintf("%s\n", validExemption)); err != nil {
+	for _, exemption := range transformedExemptions {
+		if _, err := fmt.Fprintf(file, "%s\n", exemption); err != nil {
 			return fmt.Errorf("could not write to exemptions file: %v", err)
 		}
 	}
-
+	log.Printf("Exemptions file generated in %s\n", outputPath)
 	return nil
 }

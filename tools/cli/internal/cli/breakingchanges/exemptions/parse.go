@@ -15,10 +15,7 @@
 package exemptions
 
 import (
-	"encoding/json"
-	"fmt"
-
-	"github.com/mongodb/openapi/tools/cli/internal/changelog"
+	"github.com/mongodb/openapi/tools/cli/internal/breakingchanges"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/spf13/afero"
@@ -27,53 +24,36 @@ import (
 
 type Opts struct {
 	fs              afero.Fs
-	basePath        string
-	revisionPath    string
 	exemptionsPaths string
-	dryRun          bool
+	outputPath      string
 }
 
 func (o *Opts) Run() error {
-	metadata, err := changelog.NewMetadata(
-		fmt.Sprintf("%s/%s", o.basePath, "v2.json"),
-		fmt.Sprintf("%s/%s", o.revisionPath, "v2.json"),
-		o.exemptionsPaths)
-
+	err := breakingchanges.GenerateExemptionsFile(o.outputPath, o.exemptionsPaths, false)
 	if err != nil {
 		return err
-	}
-
-	checks, err := metadata.Check()
-	if err != nil {
-		return err
-	}
-
-	fmt.Print("Printing the checks\n")
-	for _, check := range checks {
-		base, err := json.MarshalIndent(*check, "", "  ")
-		if err != nil {
-			return err
-		}
-
-		fmt.Println(string(base))
 	}
 
 	return nil
 }
 
 func (o *Opts) PreRunE(_ []string) error {
+	_, err := o.fs.Stat(o.exemptionsPaths)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // Builder builds the merge command with the following signature:
-// breaking-changes exemptions parse -p file_path
+// breaking-changes exemptions parse -e file_path
 func ParseBuilder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
 	}
 
 	cmd := &cobra.Command{
-		Use:     "parse -p file_path",
+		Use:     "parse",
 		Aliases: []string{"parse"},
 		Short:   "Parse exemptions into oasdiff breaking changes format.",
 		Args:    cobra.NoArgs,
@@ -86,10 +66,9 @@ func ParseBuilder() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&opts.exemptionsPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
-	cmd.Flags().BoolVarP(&opts.dryRun, flag.DryRun, flag.DryRunShort, false, usage.DryRun)
+	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "exemptions.txt", usage.Output)
 
-	_ = cmd.MarkFlagRequired(flag.Base)
-	_ = cmd.MarkFlagRequired(flag.Revision)
+	_ = cmd.MarkFlagRequired(flag.ExemptionFilePath)
 
 	return cmd
 }
