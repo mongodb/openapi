@@ -179,7 +179,7 @@ func newSquashMap(operation string, entries []*Entry, expectedNumberOfValues, sq
 	return squashMap, nil
 }
 
-// extractExactValuesOrFailextracts a list of values enclosed in single quotes from a given text entry.
+// extractExactValuesOrFail extracts a list of values enclosed in single quotes from a given text entry.
 // If the number of extracted values doesn’t match the expected number (expectedNumberOfValues), it returns an error.
 func extractExactValuesOrFail(operation string, entry *Entry, expectedNumberOfValues int) ([]string, error) {
 	text := entry.Text
