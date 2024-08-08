@@ -1,7 +1,7 @@
 package outputfilter
 
-// SquashRequestFieldAdded squashes oasdiff entries with id "new-required-request-property"
-func SquashRequestFieldAdded(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashRequestFieldAdded squashes oasdiff entries with id "new-required-request-property"
+func squashRequestFieldAdded(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"new-required-request-property",
 		entriesGroupedByOperationID,
@@ -10,8 +10,8 @@ func SquashRequestFieldAdded(entriesGroupedByOperationID map[string][]*Entry) ([
 	)
 }
 
-// SquashRequestFieldRemoved squashes oasdiff entries with id "request-property-removed"
-func SquashRequestFieldRemoved(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashRequestFieldRemoved squashes oasdiff entries with id "request-property-removed"
+func squashRequestFieldRemoved(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"request-property-removed",
 		entriesGroupedByOperationID,
@@ -20,8 +20,8 @@ func SquashRequestFieldRemoved(entriesGroupedByOperationID map[string][]*Entry) 
 	)
 }
 
-// SquashResponseRequiredFieldAdded squashes oasdiff entries with id "response-required-property-added"
-func SquashResponseRequiredFieldAdded(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashResponseRequiredFieldAdded squashes oasdiff entries with id "response-required-property-added"
+func squashResponseRequiredFieldAdded(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"response-required-property-added",
 		entriesGroupedByOperationID,
@@ -30,8 +30,8 @@ func SquashResponseRequiredFieldAdded(entriesGroupedByOperationID map[string][]*
 	)
 }
 
-// SquashResponseRequiredFieldRemoved squashes oasdiff entries with id "response-required-property-removed"
-func SquashResponseRequiredFieldRemoved(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashResponseRequiredFieldRemoved squashes oasdiff entries with id "response-required-property-removed"
+func squashResponseRequiredFieldRemoved(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"response-required-property-removed",
 		entriesGroupedByOperationID,
@@ -40,8 +40,8 @@ func SquashResponseRequiredFieldRemoved(entriesGroupedByOperationID map[string][
 	)
 }
 
-// SquashResponseOptionalFieldAdded squashes oasdiff entries with id "response-optional-property-added"
-func SquashResponseOptionalFieldAdded(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashResponseOptionalFieldAdded squashes oasdiff entries with id "response-optional-property-added"
+func squashResponseOptionalFieldAdded(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"response-optional-property-added",
 		entriesGroupedByOperationID,
@@ -50,8 +50,8 @@ func SquashResponseOptionalFieldAdded(entriesGroupedByOperationID map[string][]*
 	)
 }
 
-// SquashResponseOptionalFieldRemoved squashes oasdiff entries with id "response-optional-property-removed"
-func SquashResponseOptionalFieldRemoved(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashResponseOptionalFieldRemoved squashes oasdiff entries with id "response-optional-property-removed"
+func squashResponseOptionalFieldRemoved(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"response-optional-property-removed",
 		entriesGroupedByOperationID,
@@ -60,8 +60,8 @@ func SquashResponseOptionalFieldRemoved(entriesGroupedByOperationID map[string][
 	)
 }
 
-// SquashResponseOptionalFieldBecomeReadonly squashes oasdiff entries with id "response-optional-property-became-read-only"
-func SquashResponseOptionalFieldBecomeReadonly(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashResponseOptionalFieldBecomeReadonly squashes oasdiff entries with id "response-optional-property-became-read-only"
+func squashResponseOptionalFieldBecomeReadonly(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"response-optional-property-became-read-only",
 		entriesGroupedByOperationID,
@@ -70,8 +70,8 @@ func SquashResponseOptionalFieldBecomeReadonly(entriesGroupedByOperationID map[s
 	)
 }
 
-// SquashResponseFieldBecameRequired squashes oasdiff entries with id "response-property-became-required"
-func SquashResponseFieldBecameRequired(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashResponseFieldBecameRequired squashes oasdiff entries with id "response-property-became-required"
+func squashResponseFieldBecameRequired(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"response-property-became-required",
 		entriesGroupedByOperationID,
@@ -80,8 +80,8 @@ func SquashResponseFieldBecameRequired(entriesGroupedByOperationID map[string][]
 	)
 }
 
-// SquashRequestFieldBecameRequired squashes oasdiff entries with id "request-property-became-required"
-func SquashRequestFieldBecameRequired(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashRequestFieldBecameRequired squashes oasdiff entries with id "request-property-became-required"
+func squashRequestFieldBecameRequired(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"request-property-became-required",
 		entriesGroupedByOperationID,
@@ -90,8 +90,8 @@ func SquashRequestFieldBecameRequired(entriesGroupedByOperationID map[string][]*
 	)
 }
 
-// SquashNewOptionalRequestProperty squashes oasdiff entries with id "new-optional-request-property"
-func SquashNewOptionalRequestProperty(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
+// squashNewOptionalRequestProperty squashes oasdiff entries with id "new-optional-request-property"
+func squashNewOptionalRequestProperty(entriesGroupedByOperationID map[string][]*Entry) ([]*Entry, error) {
 	return squashFieldChanged(
 		"new-optional-request-property",
 		entriesGroupedByOperationID,
