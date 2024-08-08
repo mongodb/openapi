@@ -21,12 +21,12 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 		{
 			name: "Single entry",
 			entries: []*Entry{
-				{ID: "1", OperationID: "op1"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 			},
 			want: map[string]map[string][]*Entry{
-				"1": {
+				"response-write-only-property-enum-value-added": {
 					"op1": []*Entry{
-						{ID: "1", OperationID: "op1"},
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 					},
 				},
 			},
@@ -34,16 +34,16 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 		{
 			name: "Multiple entries with same ID",
 			entries: []*Entry{
-				{ID: "1", OperationID: "op1"},
-				{ID: "1", OperationID: "op2"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op2"},
 			},
 			want: map[string]map[string][]*Entry{
-				"1": {
+				"response-write-only-property-enum-value-added": {
 					"op1": []*Entry{
-						{ID: "1", OperationID: "op1"},
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 					},
 					"op2": []*Entry{
-						{ID: "1", OperationID: "op2"},
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op2"},
 					},
 				},
 			},
@@ -52,14 +52,14 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 		{
 			name: "Multiple entries with same ID and OperationID",
 			entries: []*Entry{
-				{ID: "1", OperationID: "op1"},
-				{ID: "1", OperationID: "op1"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 			},
 			want: map[string]map[string][]*Entry{
-				"1": {
+				"response-write-only-property-enum-value-added": {
 					"op1": []*Entry{
-						{ID: "1", OperationID: "op1"},
-						{ID: "1", OperationID: "op1"},
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 					},
 				},
 			},
@@ -67,26 +67,26 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 		{
 			name: "Multiple entries with different IDs",
 			entries: []*Entry{
-				{ID: "1", OperationID: "op1"},
-				{ID: "2", OperationID: "op2"},
-				{ID: "1", OperationID: "op3"},
-				{ID: "2", OperationID: "op4"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
+				{ID: "request-write-only-property-enum-value-added", OperationID: "op2"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op3"},
+				{ID: "request-write-only-property-enum-value-added", OperationID: "op4"},
 			},
 			want: map[string]map[string][]*Entry{
-				"1": {
+				"response-write-only-property-enum-value-added": {
 					"op1": []*Entry{
-						{ID: "1", OperationID: "op1"},
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 					},
 					"op3": []*Entry{
-						{ID: "1", OperationID: "op3"},
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op3"},
 					},
 				},
-				"2": {
+				"request-write-only-property-enum-value-added": {
 					"op2": []*Entry{
-						{ID: "2", OperationID: "op2"},
+						{ID: "request-write-only-property-enum-value-added", OperationID: "op2"},
 					},
 					"op4": []*Entry{
-						{ID: "2", OperationID: "op4"},
+						{ID: "request-write-only-property-enum-value-added", OperationID: "op4"},
 					},
 				},
 			},
@@ -115,7 +115,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 		{
 			name:                   "No values",
 			operation:              "test",
-			entry:                  &Entry{ID: "1", OperationID: "op1", Text: "No values"},
+			entry:                  &Entry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "No values"},
 			expectedNumberOfValues: 0,
 			want:                   []string{},
 			wantErr:                require.NoError,
@@ -123,7 +123,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 		{
 			name:                   "Single value",
 			operation:              "test",
-			entry:                  &Entry{ID: "1", OperationID: "op1", Text: "Value: 'test'"},
+			entry:                  &Entry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test'"},
 			expectedNumberOfValues: 1,
 			want:                   []string{"test"},
 			wantErr:                require.NoError,
@@ -132,7 +132,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 			name:      "Multiple values",
 			operation: "test",
 			entry: &Entry{
-				ID:          "1",
+				ID:          "response-write-only-property-enum-value-added",
 				OperationID: "op1",
 				Text:        "added the new 'GROUP_USER_ADMIN' enum value to the request property '/items/roles/items/'"},
 			expectedNumberOfValues: 2,
@@ -142,7 +142,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 		{
 			name:                   "Incorrect number of values",
 			operation:              "test",
-			entry:                  &Entry{ID: "1", OperationID: "op1", Text: "Values: 'test1', 'test2'"},
+			entry:                  &Entry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Values: 'test1', 'test2'"},
 			expectedNumberOfValues: 3,
 			want:                   nil,
 			wantErr:                require.Error,
@@ -184,7 +184,7 @@ func TestNewSquashMap(t *testing.T) {
 			name:      "Single entry",
 			operation: "test",
 			entries: []*Entry{
-				{ID: "1", OperationID: "op1", Text: "Value: 'test'"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test'"},
 			},
 			expectedNumberOfValues: 1,
 			squashIdx:              0,
@@ -200,9 +200,9 @@ func TestNewSquashMap(t *testing.T) {
 			name:      "Multiple entries",
 			operation: "test",
 			entries: []*Entry{
-				{ID: "1", OperationID: "op1", Text: "Value: 'test1'"},
-				{ID: "1", OperationID: "op1", Text: "Value: 'test2'"},
-				{ID: "1", OperationID: "op1", Text: "Value: 'test3'"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test1'"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test2'"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test3'"},
 			},
 			expectedNumberOfValues: 1,
 			squashIdx:              0,
