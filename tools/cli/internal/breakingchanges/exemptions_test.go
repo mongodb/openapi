@@ -33,7 +33,7 @@ func TestGenerateExemptionsFileWithFs(t *testing.T) {
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFileWithFs(outputPath, exemptionsPath, false, fs)
+		err := CreateExemptionsFile(outputPath, exemptionsPath, false, fs)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)
@@ -46,7 +46,7 @@ func TestGenerateExemptionsFileWithFs(t *testing.T) {
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFileWithFs(outputPath, exemptionsPath, true, fs)
+		err := CreateExemptionsFile(outputPath, exemptionsPath, true, fs)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)
@@ -72,7 +72,7 @@ func TestGenerateExemptionsFileWithFs(t *testing.T) {
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFileWithFs(outputPath, exemptionsPath, false, fs)
+		err := CreateExemptionsFile(outputPath, exemptionsPath, false, fs)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)
@@ -107,7 +107,7 @@ func TestGenerateExemptionsFileWithFs(t *testing.T) {
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFileWithFs(outputPath, exemptionsPath, false, fs)
+		err := CreateExemptionsFile(outputPath, exemptionsPath, false, fs)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)

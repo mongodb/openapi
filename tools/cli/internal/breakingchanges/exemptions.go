@@ -87,12 +87,8 @@ func getValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afe
 	return validExemptions, nil
 }
 
-// GenerateExemptionsFile generates a file with the valid exemptions
-func GenerateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bool) error {
-	return GenerateExemptionsFileWithFs(outputPath, exemptionsPath, ignoreExpiration, afero.NewOsFs())
-}
-
-func GenerateExemptionsFileWithFs(outputPath, exemptionsPath string, ignoreExpiration bool, fs afero.Fs) error {
+// CreateExemptionsFile generates a file with the exemptions in the oasdiff breaking changes format.
+func CreateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bool, fs afero.Fs) error {
 	validExemptions, err := getValidExemptionsList(exemptionsPath, ignoreExpiration, fs)
 	if err != nil {
 		return fmt.Errorf("could not get valid exemptions list: %v", err)

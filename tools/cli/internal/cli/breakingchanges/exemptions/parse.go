@@ -32,7 +32,7 @@ type Opts struct {
 }
 
 func (o *Opts) Run() error {
-	err := breakingchanges.GenerateExemptionsFileWithFs(o.outputPath, o.exemptionsPaths, o.ignoreExpiration, o.fs)
+	err := breakingchanges.CreateExemptionsFile(o.outputPath, o.exemptionsPaths, o.ignoreExpiration, o.fs)
 	if err != nil {
 		return err
 	}
