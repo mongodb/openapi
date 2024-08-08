@@ -155,6 +155,21 @@ func TestSquash(t *testing.T) {
 			},
 			wantError: require.NoError,
 		},
+		{
+			name: "Test squashing entries with wrong description",
+			entries: []*Entry{
+				{
+					ID: "response-property-enum-value-added",
+					// 			# the field is not between apostrophes
+					Text:        "added the new GLOBAL_EVENT_ADMIN enum value to the 'items' response propert",
+					Operation:   "POST",
+					OperationID: "createConnectedOrgConfigs",
+					Path:        "/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs",
+				},
+			},
+			expectedEntries: []*Entry{},
+			wantError:       require.Error,
+		},
 	}
 
 	for _, tt := range tests {
