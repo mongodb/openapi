@@ -34,19 +34,21 @@ type OasDiff struct {
 }
 
 type OasDiffResult struct {
-	Report    *diff.Diff
-	SourceMap *diff.OperationsSourcesMap
+	Report       *diff.Diff
+	SourceMap    *diff.OperationsSourcesMap
+	SpecInfoPair *load.SpecInfoPair
 }
 
-func (o OasDiff) newDiffResult() (*OasDiffResult, error) {
+func (o OasDiff) NewDiffResult() (*OasDiffResult, error) {
 	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(o.config, o.base, o.external)
 	if err != nil {
 		return nil, err
 	}
 
 	return &OasDiffResult{
-		Report:    diffReport,
-		SourceMap: operationsSources,
+		Report:       diffReport,
+		SourceMap:    operationsSources,
+		SpecInfoPair: load.NewSpecInfoPair(o.base, o.external),
 	}, nil
 }
 

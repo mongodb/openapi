@@ -18,9 +18,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
-	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
@@ -34,7 +34,7 @@ type Opts struct {
 }
 
 func (o *Opts) Run() error {
-	changelog, err := openapi.NewChangelog(
+	metadata, err := changelog.NewMetadata(
 		fmt.Sprintf("%s/%s", o.basePath, "v2.json"),
 		fmt.Sprintf("%s/%s", o.revisionPath, "v2.json"),
 		o.exceptionsPaths)
@@ -43,18 +43,20 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	checks, err := changelog.Check()
+	checks, err := metadata.Check()
 	if err != nil {
 		return err
 	}
 
 	fmt.Print("Printing the checks\n")
-	base, err := json.MarshalIndent(*checks, "", "  ")
-	if err != nil {
-		return err
-	}
+	for _, check := range checks {
+		base, err := json.MarshalIndent(*check, "", "  ")
+		if err != nil {
+			return err
+		}
 
-	fmt.Println(string(base))
+		fmt.Println(string(base))
+	}
 
 	return nil
 }
