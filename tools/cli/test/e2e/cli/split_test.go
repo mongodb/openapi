@@ -96,6 +96,41 @@ func TestSplitVersions(t *testing.T) {
 		})
 	}
 }
+
+func TestSplitVersionsForOAS(t *testing.T) {
+	folder := "dev"
+	cliPath := NewBin(t)
+	base, err := filepath.Abs("../../data/split/" + folder + "/base-openapi-api-registry.json")
+	require.NoError(t, err)
+	cmd := exec.Command(cliPath,
+		"split",
+		"-s",
+		base,
+		"-o",
+		getOutputFolder(t, folder)+"/output.json",
+		"--env",
+		folder,
+	)
+
+	// copy mms file to ouput folder
+	cpCmd := exec.Command("cp", "../../data/split/"+folder+"/openapi-mms-extensions.json", getOutputFolder(t, folder)+"/output-mms.json")
+	var o, e bytes.Buffer
+	cpCmd.Stdout = &o
+	cpCmd.Stderr = &e
+	require.NoError(t, cpCmd.Run(), e.String())
+
+	cmd.Stdout = &o
+	cmd.Stderr = &e
+	require.NoError(t, cmd.Run(), e.String())
+
+	for _, version := range versions {
+		if folder == "prod" && version == "2025-01-01" {
+			continue
+		}
+		validateFiles(t, version, folder)
+	}
+}
+
 func getInputFolder(t *testing.T, specType, format, folder string) string {
 	t.Helper()
 	if specType == "not-filtered" {
