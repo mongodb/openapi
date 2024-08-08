@@ -44,7 +44,7 @@ func newSquashHandlers() map[string]func(map[string][]*Entry) ([]*Entry, error) 
 	}
 }
 
-// EntryMappings groups entries by ID and then by OperationID
+// EntryMappings groups entries by ID and then by OperationID and returns a Map[changeCode, Map[operationId, List[oasdiffEntry]]]
 func newEntriesMapPerIDAndOperationID(entries []*Entry) map[string]map[string][]*Entry {
 	result := make(map[string]map[string][]*Entry)
 
