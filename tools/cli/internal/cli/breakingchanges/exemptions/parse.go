@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package changelog
+package exemptions
 
 import (
 	"encoding/json"
@@ -29,7 +29,7 @@ type Opts struct {
 	fs              afero.Fs
 	basePath        string
 	revisionPath    string
-	exceptionsPaths string
+	exemptionsPaths string
 	dryRun          bool
 }
 
@@ -37,7 +37,7 @@ func (o *Opts) Run() error {
 	metadata, err := changelog.NewMetadata(
 		fmt.Sprintf("%s/%s", o.basePath, "v2.json"),
 		fmt.Sprintf("%s/%s", o.revisionPath, "v2.json"),
-		o.exceptionsPaths)
+		o.exemptionsPaths)
 
 	if err != nil {
 		return err
@@ -66,16 +66,16 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 // Builder builds the merge command with the following signature:
-// changelog create -b path_folder -r path_folder --dry-run
-func CreateBuilder() *cobra.Command {
+// breaking-changes exemptions parse -p file_path
+func ParseBuilder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
 	}
 
 	cmd := &cobra.Command{
-		Use:     "create -b path_folder -r path_folder --dry-run ...",
-		Aliases: []string{"generate"},
-		Short:   "Generate the changelog for the OpenAPI spec.",
+		Use:     "parse -p file_path",
+		Aliases: []string{"parse"},
+		Short:   "Parse exemptions into oasdiff breaking changes format.",
 		Args:    cobra.NoArgs,
 		PreRunE: func(_ *cobra.Command, args []string) error {
 			return opts.PreRunE(args)
@@ -85,9 +85,7 @@ func CreateBuilder() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.BaseFolder)
-	cmd.Flags().StringVarP(&opts.revisionPath, flag.Revision, flag.RevisionShort, "", usage.RevisionFolder)
-	cmd.Flags().StringVarP(&opts.exceptionsPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
+	cmd.Flags().StringVarP(&opts.exemptionsPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
 	cmd.Flags().BoolVarP(&opts.dryRun, flag.DryRun, flag.DryRunShort, false, usage.DryRun)
 
 	_ = cmd.MarkFlagRequired(flag.Base)

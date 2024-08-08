@@ -26,6 +26,6 @@ const (
 	ExcludePrivatePaths = "Exclude private paths from the generated specification."
 	BaseFolder          = "Base folder where the current changelog files are stored."
 	RevisionFolder      = "Folder where the revision files (new Oases) are stored."
-	ExceptionFilePath   = "Path to the file containing the exceptions to consider for the changelog."
+	ExemptionFilePath   = "Path to the file containing the exemptions file."
 	DryRun              = "Dry run mode. The command will not write any files."
 )

@@ -31,7 +31,7 @@ type Exemption struct {
 	HideFromChangelog         string `yaml:"hide_from_changelog"`
 }
 
-func _getDuplicatedV1Entries(exemption string) []string {
+func getDuplicatedV1Entries(exemption string) []string {
 	if strings.Contains(exemption, "api/atlas/v2") {
 		return []string{
 			strings.Replace(exemption, "api/atlas/v2", "api/atlas/v1.0", -1),
@@ -41,7 +41,7 @@ func _getDuplicatedV1Entries(exemption string) []string {
 	return []string{}
 }
 
-func _isWithinExpirationDate(exemption Exemption) bool {
+func isWithinExpirationDate(exemption Exemption) bool {
 	exemptUntil, err := time.Parse("2006-01-02", exemption.ExemptUntil)
 	if err != nil {
 		log.Printf("Error parsing date: %v", err)
@@ -51,7 +51,7 @@ func _isWithinExpirationDate(exemption Exemption) bool {
 	return exemptUntil.After(date) || exemptUntil.Equal(date)
 }
 
-func _transformComponentEntry(breakingChangeDescription string) string {
+func transformComponentEntry(breakingChangeDescription string) string {
 	if strings.Contains(breakingChangeDescription, "api-schema-removed") && !strings.Contains(breakingChangeDescription, "in components") {
 		return fmt.Sprintf("in components %s", breakingChangeDescription)
 	}
@@ -76,10 +76,10 @@ func GenerateExemptionsFile(sourceDir string, exemptionsPath string, ignoreExpir
 	}
 
 	for _, exemption := range exemptions {
-		exemptionLine := _transformComponentEntry(exemption.BreakingChangeDescription)
-		if ignoreExpiration || _isWithinExpirationDate(exemption) {
+		exemptionLine := transformComponentEntry(exemption.BreakingChangeDescription)
+		if ignoreExpiration || isWithinExpirationDate(exemption) {
 			validExemptions = append(validExemptions, exemptionLine)
-			validExemptions = append(validExemptions, _getDuplicatedV1Entries(exemptionLine)...)
+			validExemptions = append(validExemptions, getDuplicatedV1Entries(exemptionLine)...)
 		}
 	}
 
