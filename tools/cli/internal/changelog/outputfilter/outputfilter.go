@@ -40,13 +40,13 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 		return nil, err
 	}
 
-	return transformEntries(entries), nil
+	return transformEntries(entries)
 }
 
-func transformEntries(entries []*Entry) []*Entry {
+func transformEntries(entries []*Entry) ([]*Entry, error) {
 	for _, entry := range entries {
 		transformMessage(entry)
 	}
 
-	return entries
+	return squashEntries(entries)
 }
