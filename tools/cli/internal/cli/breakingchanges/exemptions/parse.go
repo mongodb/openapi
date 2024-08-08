@@ -15,6 +15,8 @@
 package exemptions
 
 import (
+	"fmt"
+
 	"github.com/mongodb/openapi/tools/cli/internal/breakingchanges"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
@@ -23,13 +25,14 @@ import (
 )
 
 type Opts struct {
-	fs              afero.Fs
-	exemptionsPaths string
-	outputPath      string
+	fs               afero.Fs
+	exemptionsPaths  string
+	outputPath       string
+	ignoreExpiration bool
 }
 
 func (o *Opts) Run() error {
-	err := breakingchanges.GenerateExemptionsFile(o.outputPath, o.exemptionsPaths, false)
+	err := breakingchanges.GenerateExemptionsFileWithFs(o.outputPath, o.exemptionsPaths, o.ignoreExpiration, o.fs)
 	if err != nil {
 		return err
 	}
@@ -38,6 +41,9 @@ func (o *Opts) Run() error {
 }
 
 func (o *Opts) PreRunE(_ []string) error {
+	if o.exemptionsPaths == "" {
+		return fmt.Errorf("valid exemptions file path is required")
+	}
 	_, err := o.fs.Stat(o.exemptionsPaths)
 	if err != nil {
 		return err
@@ -67,6 +73,7 @@ func ParseBuilder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.exemptionsPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "exemptions.txt", usage.Output)
+	cmd.Flags().BoolVar(&opts.ignoreExpiration, flag.IgnoreExpiration, false, usage.IgnoreExpiration)
 
 	_ = cmd.MarkFlagRequired(flag.ExemptionFilePath)
 

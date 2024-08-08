@@ -18,19 +18,22 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestGenerateExemptionsFile(t *testing.T) {
-	exemptionsFolder, err := filepath.Abs("../../test/exemptions")
+func TestGenerateExemptionsFileWithFs(t *testing.T) {
+	exemptionsFolder, err := filepath.Abs("../../test/data/exemptions")
 	require.NoError(t, err)
+	fs := afero.NewOsFs()
+
 	t.Run("test_generate_exemptions_expired_entries", func(t *testing.T) {
 		exemptionsPath := filepath.Join(exemptionsFolder, "test_exemptions_expired.yaml")
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFile(outputPath, exemptionsPath, false)
+		err := GenerateExemptionsFileWithFs(outputPath, exemptionsPath, false, fs)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)
@@ -43,7 +46,7 @@ func TestGenerateExemptionsFile(t *testing.T) {
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFile(outputPath, exemptionsPath, true)
+		err := GenerateExemptionsFileWithFs(outputPath, exemptionsPath, true, fs)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)
@@ -69,7 +72,7 @@ func TestGenerateExemptionsFile(t *testing.T) {
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFile(outputPath, exemptionsPath, false)
+		err := GenerateExemptionsFileWithFs(outputPath, exemptionsPath, false, fs)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)
@@ -104,7 +107,7 @@ func TestGenerateExemptionsFile(t *testing.T) {
 		outputPath := filepath.Join(exemptionsFolder, "exemptions.txt")
 		defer os.Remove(outputPath)
 
-		err := GenerateExemptionsFile(outputPath, exemptionsPath, false)
+		err := GenerateExemptionsFileWithFs(outputPath, exemptionsPath, false, fs)
 		require.NoError(t, err)
 
 		data, err := os.ReadFile(outputPath)

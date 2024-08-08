@@ -35,4 +35,5 @@ const (
 	DryRunShort              = "d"
 	ExemptionFilePath        = "exemption-file"
 	ExemptionFilePathShort   = "e"
+	IgnoreExpiration         = "ignore-expiration"
 )

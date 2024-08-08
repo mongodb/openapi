@@ -16,10 +16,10 @@ package breakingchanges
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"time"
 
+	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 )
 
@@ -57,13 +57,18 @@ func transformComponentEntry(breakingChangeDescription string) string {
 	return breakingChangeDescription
 }
 
-func getValidExemptionsList(exemptionsPath string, ignoreExpiration bool) ([]Exemption, error) {
+func getValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afero.Fs) ([]Exemption, error) {
 	if exemptionsPath == "" {
 		return nil, fmt.Errorf("could not find exemptions file path")
 	}
 
 	log.Printf("Generating exemptions from file in %s", exemptionsPath)
-	data, err := os.ReadFile(exemptionsPath)
+	exemptionsFile, err := fs.Open(exemptionsPath)
+	if err != nil {
+		return nil, fmt.Errorf("could not open exemptions file: %v", err)
+	}
+	defer exemptionsFile.Close()
+	data, err := afero.ReadAll(exemptionsFile)
 	if err != nil {
 		return nil, fmt.Errorf("could not read exemptions file: %v", err)
 	}
@@ -84,7 +89,11 @@ func getValidExemptionsList(exemptionsPath string, ignoreExpiration bool) ([]Exe
 
 // GenerateExemptionsFile generates a file with the valid exemptions
 func GenerateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bool) error {
-	validExemptions, err := getValidExemptionsList(exemptionsPath, ignoreExpiration)
+	return GenerateExemptionsFileWithFs(outputPath, exemptionsPath, ignoreExpiration, afero.NewOsFs())
+}
+
+func GenerateExemptionsFileWithFs(outputPath, exemptionsPath string, ignoreExpiration bool, fs afero.Fs) error {
+	validExemptions, err := getValidExemptionsList(exemptionsPath, ignoreExpiration, fs)
 	if err != nil {
 		return fmt.Errorf("could not get valid exemptions list: %v", err)
 	}
@@ -96,7 +105,7 @@ func GenerateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration 
 		transformedExemptions = append(transformedExemptions, getDuplicatedV1Entries(exemptionLine)...)
 	}
 
-	file, err := os.Create(outputPath)
+	file, err := fs.Create(outputPath)
 	if err != nil {
 		return fmt.Errorf("could not create exemptions file: %v", err)
 	}

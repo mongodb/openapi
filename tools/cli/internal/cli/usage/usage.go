@@ -28,4 +28,5 @@ const (
 	RevisionFolder      = "Folder where the revision files (new Oases) are stored."
 	ExemptionFilePath   = "Path to the file containing the exemptions file."
 	DryRun              = "Dry run mode. The command will not write any files."
+	IgnoreExpiration    = "Ignore expiration date of the exemptions and consider the valid."
 )
