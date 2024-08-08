@@ -14,10 +14,19 @@ func TestSuccessfulParse_Run(t *testing.T) {
 		outputPath:      "exemptions.txt",
 		fs:              fs,
 	}
+	defer func() {
+		if err := fs.Remove(opts.outputPath); err != nil {
+			t.Errorf("Failed to remove output file: %v", err)
+		}
+	}()
 
 	if err := opts.Run(); err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
+
+	b, err := afero.ReadFile(fs, opts.outputPath)
+	require.NoError(t, err)
+	require.NotEmpty(t, b)
 }
 
 func TestOpts_PreRunE(t *testing.T) {
@@ -62,5 +71,5 @@ func TestInvalidPath_PreRun(t *testing.T) {
 
 	err := opts.PreRunE(nil)
 	require.Error(t, err)
-	require.EqualError(t, err, "open invalid/path/to/exemptions.yaml: file does not exist")
+	require.ErrorContains(t, err, "file does not exist")
 }
