@@ -119,19 +119,19 @@ func squashEntriesByValues(
 			squashValues := squashData.valuesToSquash
 
 			text := templateText
-			for idx, v := range keyValues {
-				var sub string
+			for idx, value := range keyValues {
+				var valuesToAddToTemplate string
 				if idx == squashIdx {
 					squashList := []string{}
 					for sv := range squashValues {
 						squashList = append(squashList, sv)
 					}
 					sort.Strings(squashList)
-					sub = strings.Join(squashList, ", ")
+					valuesToAddToTemplate = strings.Join(squashList, ", ")
 				} else {
-					sub = v
+					valuesToAddToTemplate = value
 				}
-				text = identifierRegex.ReplaceAllString(text, fmt.Sprintf("``%v``", sub))
+				text = identifierRegex.ReplaceAllString(text, fmt.Sprintf("``%v``", valuesToAddToTemplate))
 			}
 
 			squashedEntry := templateEntry
