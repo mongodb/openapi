@@ -42,11 +42,11 @@ func (e *OperationConfigs) Sunset() string {
 	return ""
 }
 
-// newEndpointsConfigGivenBaseAndRevision parses the base and revision openapi specs
+// newOperationConfigs parses the base and revision openapi specs
 // and returns the mapping between API operationId and EndpointConfig.
-func newEndpointsConfigGivenBaseAndRevision(base, revision *load.SpecInfo) map[string]*OperationConfigs {
-	baseEndpointsConfigMap := newEndpointConfigGivenASpec(base)
-	revisionEndpointsConfigMap := newEndpointConfigGivenASpec(revision)
+func newOperationConfigs(base, revision *load.SpecInfo) map[string]*OperationConfigs {
+	baseEndpointsConfigMap := newOperationConfigFromSpec(base)
+	revisionEndpointsConfigMap := newOperationConfigFromSpec(revision)
 
 	combinedConfig := make(map[string]*OperationConfigs)
 
@@ -70,7 +70,7 @@ func newEndpointsConfigGivenBaseAndRevision(base, revision *load.SpecInfo) map[s
 	return combinedConfig
 }
 
-func newEndpointConfigGivenASpec(spec *load.SpecInfo) map[string]*OperationConfig {
+func newOperationConfigFromSpec(spec *load.SpecInfo) map[string]*OperationConfig {
 	endpointsConfigMap := make(map[string]*OperationConfig)
 	paths := spec.Spec.Paths
 	if paths == nil || paths.Len() == 0 {
@@ -106,7 +106,7 @@ func newEndpointConfig(pathName, operatioName string, operation *openapi3.Operat
 	}
 
 	manualChangelogEntries := make(map[string]string)
-	if value, ok := operation.Extensions["x-manual-changelog-entries"]; ok {
+	if value, ok := operation.Extensions["x-xgen-changelog"]; ok {
 		manualChangelogEntries = value.(map[string]string)
 	}
 
