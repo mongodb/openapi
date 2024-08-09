@@ -31122,7 +31122,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.2023-11-15+json" \
+          --header "Accept: application/vnd.atlas.2024-08-05+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -32626,11 +32626,10 @@ paths:
             tags:
                 - Alerts
         patch:
-            deprecated: true
             description: |-
                 Confirms receipt of one existing alert. This alert applies to any component in one project. Acknowledging an alert prevents successive notifications. You receive an alert when a monitored component meets or exceeds a value you set until you acknowledge the alert. To use this resource, the requesting API Key must have the Organization Owner or Project Owner role.
 
-                This resource remains under revision and may change.
+                This resource remains under revision and may change. Deprecated versions: v2-{2023-01-01}
             operationId: acknowledgeAlert
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -32647,18 +32646,18 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
-                            $ref: '#/components/schemas/AlertView'
+                            $ref: '#/components/schemas/AcknowledgeAlert'
                 description: Acknowledges or unacknowledges one alert.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/AlertViewForNdsGroup'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -32673,7 +32672,6 @@ paths:
             summary: Acknowledge One Alert from One Project
             tags:
                 - Alerts
-            x-sunset: "2025-05-30"
     /api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs:
         get:
             description: |-
@@ -33020,8 +33018,7 @@ paths:
                 - AWS Clusters DNS
     /api/atlas/v2/groups/{groupId}/backup/exportBuckets:
         get:
-            deprecated: true
-            description: Returns all AWS S3 buckets and Azure Blob Storage Containers associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: 'Returns all AWS S3 buckets and Azure Blob Storage Containers associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
             operationId: listExportBuckets
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -33033,10 +33030,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedBackupSnapshotExportBucketView'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/PaginatedBackupSnapshotExportBucketsView'
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -33047,10 +33044,8 @@ paths:
             summary: Return All AWS S3 Buckets and Azure Blob Storage Containers Used for Cloud Backup Snapshot Exports
             tags:
                 - Cloud Backups
-            x-sunset: "2025-05-30"
         post:
-            deprecated: true
-            description: Grants MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container. This enables this Export Bucket to receive Atlas Cloud Backup Snapshots. To use this resource, the requesting API Key must have the Project Owner role.
+            description: 'Grants MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container. This enables this Export Bucket to receive Atlas Cloud Backup Snapshots. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
             operationId: createExportBucket
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -33058,20 +33053,57 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
+                        examples:
+                            AWS:
+                                description: AWS
+                                value:
+                                    bucketName: export-bucket
+                                    cloudProvider: AWS
+                                    iamRoleId: 668c5f0ed436263134491592
+                            Azure:
+                                description: Azure
+                                value:
+                                    bucketName: export-container
+                                    cloudProvider: AZURE
+                                    roleId: 668c5f0ed436263134491592
+                                    serviceUrl: https://examplestorageaccount.blob.core.windows.net
+                                    tenantId: 4297fc77-1592-4de8-a6d5-a8c32401df87
                         schema:
-                            $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucket'
-                        x-sunset: "2025-05-30"
-                        x-xgen-version: "2023-01-01"
+                            $ref: '#/components/schemas/DiskBackupSnapshotExportBucket'
+                        x-xgen-version: "2024-05-30"
                 description: Grants MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
+                            examples:
+                                AWS:
+                                    description: AWS
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-bucket
+                                        cloudProvider: AWS
+                                        iamRoleId: 668c5f0ed436263134491592
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                Azure:
+                                    description: Azure
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-container
+                                        cloudProvider: AZURE
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                        roleId: 668c5f0ed436263134491592
+                                        serviceUrl: https://examplestorageaccount.blob.core.windows.net
+                                        tenantId: 4297fc77-1592-4de8-a6d5-a8c32401df87
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucket'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotExportBucket'
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -33086,7 +33118,6 @@ paths:
             summary: Grant Access to AWS S3 Bucket or Azure Blob Storage Container for Cloud Backup Snapshot Exports
             tags:
                 - Cloud Backups
-            x-sunset: "2025-05-30"
     /api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}:
         delete:
             description: Revoke MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container. This prevents this Export Bucket from receiving Atlas Cloud Backup Snapshots. Auto export must be disabled on all clusters in this Project exporting to this Export Bucket before revoking access. To use this resource, the requesting API Key must have the Project Owner role.
@@ -33126,8 +33157,7 @@ paths:
             tags:
                 - Cloud Backups
         get:
-            deprecated: true
-            description: Returns one AWS S3 Bucket or Azure Blob Storage Container associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: 'Returns one AWS S3 Bucket or Azure Blob Storage Container associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
             operationId: getExportBucket
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -33145,10 +33175,33 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
+                            examples:
+                                AWS:
+                                    description: AWS
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-bucket
+                                        cloudProvider: AWS
+                                        iamRoleId: 668c5f0ed436263134491592
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                Azure:
+                                    description: Azure
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-container
+                                        cloudProvider: AZURE
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                        roleId: 668c5f0ed436263134491592
+                                        serviceUrl: https://examplestorageaccount.blob.core.windows.net
+                                        tenantId: 4297fc77-1592-4de8-a6d5-a8c32401df87
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucket'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotExportBucket'
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -33161,7 +33214,6 @@ paths:
             summary: Return One AWS S3 Bucket or Azure Blob Storage Container Used for Cloud Backup Snapshot Exports
             tags:
                 - Cloud Backups
-            x-sunset: "2025-05-30"
     /api/atlas/v2/groups/{groupId}/backupCompliancePolicy:
         get:
             description: 'Returns the Backup Compliance Policy settings with the specified project. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
@@ -33415,8 +33467,7 @@ paths:
                 - Cloud Provider Access
     /api/atlas/v2/groups/{groupId}/clusters:
         get:
-            deprecated: true
-            description: 'Returns the details for all clusters in the specific project to which you have access. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not  available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
+            description: 'Returns the details for all clusters in the specific project to which you have access. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not  available for serverless clusters. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             operationId: listClusters
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -33434,10 +33485,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedAdvancedClusterDescriptionView'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/PaginatedClusterDescription20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -33448,10 +33499,8 @@ paths:
             summary: Return All Clusters in One Project
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
         post:
-            deprecated: true
-            description: 'Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
+            description: 'Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             operationId: createCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -33459,18 +33508,146 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2023-02-01+json:
+                    application/vnd.atlas.2024-08-05+json:
+                        examples:
+                            Cluster:
+                                description: Cluster
+                                value: |
+                                    {
+                                      "clusterType": "SHARDED",
+                                      "links": [],
+                                      "name": "myCluster",
+                                      "replicationSpecs": [
+                                        {
+                                          "regionConfigs": [
+                                            {
+                                              "analyticsAutoScaling": {
+                                                "autoIndexing": {
+                                                  "enabled": false
+                                                },
+                                                "compute": {
+                                                  "enabled": true,
+                                                  "maxInstanceSize": "M40",
+                                                  "minInstanceSize": "M30",
+                                                  "scaleDownEnabled": true
+                                                },
+                                                "diskGB": {
+                                                  "enabled": true
+                                                }
+                                              },
+                                              "analyticsSpecs": {
+                                                "instanceSize": "M30",
+                                                "nodeCount": 0,
+                                                "diskSizeGB": 10.0
+                                              },
+                                              "autoScaling": {
+                                                "autoIndexing": {
+                                                  "enabled": false
+                                                },
+                                                "compute": {
+                                                  "enabled": true,
+                                                  "maxInstanceSize": "M40",
+                                                  "minInstanceSize": "M30",
+                                                  "scaleDownEnabled": true
+                                                },
+                                                "diskGB": {
+                                                  "enabled": true
+                                                }
+                                              },
+                                              "electableSpecs": {
+                                                "instanceSize": "M30",
+                                                "nodeCount": 3,
+                                                "diskSizeGB": 10.0
+                                              },
+                                              "hiddenSecondarySpecs": {
+                                                "instanceSize": "M30",
+                                                "nodeCount": 0,
+                                                "diskSizeGB": 10.0
+                                              },
+                                              "priority": 7,
+                                              "providerName": "AWS",
+                                              "readOnlySpecs": {
+                                                "instanceSize": "M30",
+                                                "nodeCount": 0,
+                                                "diskSizeGB": 10.0
+                                              },
+                                              "regionName": "US_EAST_1"
+                                            }
+                                          ],
+                                          "zoneName": "Zone 1"
+                                        },
+                                        {
+                                            "regionConfigs": [
+                                              {
+                                                "analyticsAutoScaling": {
+                                                  "autoIndexing": {
+                                                    "enabled": false
+                                                  },
+                                                  "compute": {
+                                                    "enabled": true,
+                                                    "maxInstanceSize": "M20",
+                                                    "minInstanceSize": "M10",
+                                                    "scaleDownEnabled": true
+                                                  },
+                                                  "diskGB": {
+                                                    "enabled": true
+                                                  }
+                                                },
+                                                "analyticsSpecs": {
+                                                  "instanceSize": "M10",
+                                                  "nodeCount": 0,
+                                                  "diskSizeGB": 10.0
+                                                },
+                                                "autoScaling": {
+                                                  "autoIndexing": {
+                                                    "enabled": false
+                                                  },
+                                                  "compute": {
+                                                    "enabled": true,
+                                                    "maxInstanceSize": "M20",
+                                                    "minInstanceSize": "M10",
+                                                    "scaleDownEnabled": true
+                                                  },
+                                                  "diskGB": {
+                                                    "enabled": true
+                                                  }
+                                                },
+                                                "electableSpecs": {
+                                                  "instanceSize": "M10",
+                                                  "nodeCount": 3,
+                                                  "diskSizeGB": 10.0
+                                                },
+                                                "hiddenSecondarySpecs": {
+                                                  "instanceSize": "M10",
+                                                  "nodeCount": 0,
+                                                  "diskSizeGB": 10.0
+                                                },
+                                                "priority": 7,
+                                                "providerName": "AWS",
+                                                "readOnlySpecs": {
+                                                  "instanceSize": "M10",
+                                                  "nodeCount": 0,
+                                                  "diskSizeGB": 10.0
+                                                },
+                                                "regionName": "US_EAST_1"
+                                              }
+                                            ],
+                                            "zoneName": "Zone 1"
+                                          },
+                                      ]
+                                    }
                         schema:
-                            $ref: '#/components/schemas/AdvancedClusterDescription'
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-version: "2024-08-05"
                 description: Cluster to create in the specific project.
                 required: true
             responses:
                 "201":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/AdvancedClusterDescription'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-xgen-version: "2024-08-05"
                     description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -33489,7 +33666,6 @@ paths:
             summary: Create One Cluster from One Project
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:
         delete:
             description: 'Removes one cluster from the specified project. The cluster must have termination protection disabled in order to be deleted. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
@@ -33534,8 +33710,7 @@ paths:
             tags:
                 - Clusters
         get:
-            deprecated: true
-            description: 'Returns the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
+            description: 'Returns the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             operationId: getCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -33553,10 +33728,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/AdvancedClusterDescription'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -33571,10 +33746,8 @@ paths:
             summary: Return One Cluster from One Project
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
         patch:
-            deprecated: true
-            description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting API Key must have the Project Owner role. For all other updates, the requesting API Key must have the Project Cluster Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
+            description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting API Key must have the Project Owner role. For all other updates, the requesting API Key must have the Project Cluster Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             operationId: updateCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -33591,18 +33764,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-02-01+json:
+                    application/vnd.atlas.2024-08-05+json:
                         schema:
-                            $ref: '#/components/schemas/AdvancedClusterDescription'
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-version: "2024-08-05"
                 description: Cluster to update in the specified project.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/AdvancedClusterDescription'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -33619,7 +33793,6 @@ paths:
             summary: Modify One Cluster from One Project
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/{clusterView}/{databaseName}/{collectionName}/collStats/measurements:
         get:
             description: Get a list of the Coll Stats Latency cluster-level measurements for the given namespace.
@@ -34050,8 +34223,7 @@ paths:
                 - Cloud Backups
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/schedule:
         delete:
-            deprecated: true
-            description: Removes all cloud backup schedules for the specified cluster. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Atlas Admin role.
+            description: 'Removes all cloud backup schedules for the specified cluster. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Atlas Admin role. Deprecated versions: v2-{2023-01-01}'
             operationId: deleteAllBackupSchedules
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -34068,10 +34240,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -34084,10 +34256,8 @@ paths:
             summary: Remove All Cloud Backup Schedules
             tags:
                 - Cloud Backups
-            x-sunset: "2025-08-05"
         get:
-            deprecated: true
-            description: Returns the cloud backup schedule for the specified cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: 'Returns the cloud backup schedule for the specified cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
             operationId: getBackupSchedule
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -34105,10 +34275,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "404":
                     $ref: '#/components/responses/notFound'
@@ -34119,10 +34289,8 @@ paths:
             summary: Return One Cloud Backup Schedule
             tags:
                 - Cloud Backups
-            x-sunset: "2025-08-05"
         patch:
-            deprecated: true
-            description: Updates the cloud backup schedule for one cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Owner role.
+            description: 'Updates the cloud backup schedule for one cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
             operationId: updateBackupSchedule
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -34139,9 +34307,9 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-08-05+json:
                         schema:
-                            $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
+                            $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
                 description: |-
                     Updates the cloud backup schedule for one cluster within the specified project.
 
@@ -34150,10 +34318,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -34166,7 +34334,6 @@ paths:
             summary: Update Cloud Backup Schedule for One Cluster
             tags:
                 - Cloud Backups
-            x-sunset: "2025-08-05"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots:
         get:
             description: Returns all snapshots of one cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
@@ -35299,8 +35466,7 @@ paths:
             x-sunset: "2025-06-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites:
         get:
-            deprecated: true
-            description: 'Returns one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Returns one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -35321,10 +35487,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -35335,11 +35501,9 @@ paths:
             summary: Return One Managed Namespace in One Global Cluster
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/customZoneMapping:
         delete:
-            deprecated: true
-            description: 'Removes all custom zone mappings for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. Removing the custom zone mappings restores the default mapping. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Removes all custom zone mappings for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. Removing the custom zone mappings restores the default mapping. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -35360,10 +35524,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -35374,10 +35538,8 @@ paths:
             summary: Remove All Custom Zone Mappings from One Global Cluster
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
         post:
-            deprecated: true
-            description: 'Creates one custom zone mapping for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Creates one custom zone mapping for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -35397,18 +35559,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-02-01+json:
+                    application/vnd.atlas.2024-08-05+json:
                         schema:
                             $ref: '#/components/schemas/CustomZoneMappings'
+                        x-xgen-version: "2024-08-05"
                 description: Custom zone mapping to add to the specified global cluster.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -35421,11 +35584,9 @@ paths:
             summary: Add One Entry to One Custom Zone Mapping
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces:
         delete:
-            deprecated: true
-            description: 'Removes one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. Deleting a managed namespace does not remove the associated collection or data. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Removes one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. Deleting a managed namespace does not remove the associated collection or data. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -35456,10 +35617,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -35472,10 +35633,8 @@ paths:
             summary: Remove One Managed Namespace from One Global Cluster
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
         post:
-            deprecated: true
-            description: 'Creates one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Creates one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -35495,18 +35654,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-02-01+json:
+                    application/vnd.atlas.2024-08-05+json:
                         schema:
                             $ref: '#/components/schemas/ManagedNamespaces'
+                        x-xgen-version: "2024-08-05"
                 description: Managed namespace to create within the specified global cluster.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -35521,7 +35681,6 @@ paths:
             summary: Create One Managed Namespace in One Global Cluster
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index:
         post:
             description: Creates an index on the cluster identified by its name in a rolling manner. Creating the index in this way allows index builds on one replica set member as a standalone at a time, starting with the secondary members. Creating indexes in this way requires at least one replica set election. To use this resource, the requesting API Key must have the Project Data Access Admin role.
@@ -36069,8 +36228,7 @@ paths:
                 - Cluster Outage Simulation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs:
         get:
-            deprecated: true
-            description: Returns the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: 'Returns the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. This feature isn''t available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -36091,10 +36249,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -36107,10 +36265,8 @@ paths:
             summary: Return One Advanced Configuration Options for One Cluster
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
         patch:
-            deprecated: true
-            description: Updates the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. To use this resource, the requesting API Key must have the Project Cluster Manager role. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters.
+            description: 'Updates the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. To use this resource, the requesting API Key must have the Project Cluster Manager role. This feature isn''t available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters. Deprecated versions: v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -36130,19 +36286,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-08-05+json:
                         schema:
-                            $ref: '#/components/schemas/ClusterDescriptionProcessArgs'
-                        x-xgen-version: "2023-01-01"
+                            $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                        x-xgen-version: "2024-08-05"
                 description: Advanced configuration details to add for one cluster in the specified project.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -36157,7 +36313,6 @@ paths:
             summary: Update Advanced Configuration Options for One Cluster
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries:
         post:
             description: 'Starts a failover test for the specified cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. A failover test checks how MongoDB Cloud handles the failure of the cluster''s primary node. During the test, MongoDB Cloud shuts down the primary node and elects a new primary. To use this resource, the requesting API Key must have the Project Cluster Manager role. Deprecated versions: v2-{2023-01-01}'
@@ -36335,7 +36490,6 @@ paths:
                 - Legacy Backup
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment:
         delete:
-            deprecated: true
             description: Deletes the Search Nodes for the specified cluster.
             operationId: deleteAtlasSearchDeployment
             parameters:
@@ -36352,11 +36506,13 @@ paths:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
             responses:
-                "200":
+                "204":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
-                            x-xgen-version: "2023-01-01"
-                    description: OK
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "404":
@@ -36370,10 +36526,8 @@ paths:
             summary: Delete Search Nodes
             tags:
                 - Atlas Search
-            x-sunset: "2026-03-01"
         get:
-            deprecated: true
-            description: Return the Search Nodes for the specified cluster.
+            description: 'Return the Search Nodes for the specified cluster. Deprecated versions: v2-{2023-01-01}'
             operationId: getAtlasSearchDeployment
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -36391,10 +36545,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -36407,10 +36561,8 @@ paths:
             summary: Return Search Nodes
             tags:
                 - Atlas Search
-            x-sunset: "2026-03-01"
         patch:
-            deprecated: true
-            description: Updates the Search Nodes for the specified cluster.
+            description: 'Updates the Search Nodes for the specified cluster. Deprecated versions: v2-{2023-01-01}'
             operationId: updateAtlasSearchDeployment
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -36427,7 +36579,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
                             $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
                 description: Updates the Search Nodes for the specified cluster.
@@ -36435,10 +36587,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -36453,9 +36605,7 @@ paths:
             summary: Update Search Nodes
             tags:
                 - Atlas Search
-            x-sunset: "2026-03-01"
         post:
-            deprecated: true
             description: Creates Search Nodes for the specified cluster.
             operationId: createAtlasSearchDeployment
             parameters:
@@ -36473,19 +36623,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
                             $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
                 description: Creates Search Nodes for the specified cluster.
                 required: true
             responses:
-                "200":
+                "201":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
-                            x-xgen-version: "2023-01-01"
-                    description: OK
+                            x-xgen-version: "2024-05-30"
+                    description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "404":
@@ -36499,7 +36649,494 @@ paths:
             summary: Create Search Nodes
             tags:
                 - Atlas Search
-            x-sunset: "2026-03-01"
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes:
+        get:
+            description: Returns all Atlas Search indexes on the specified cluster. Atlas Search indexes contain the indexed fields and the analyzers used to create the indexes. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: listAtlasSearchIndexesCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/SearchIndexResponse'
+                                type: array
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                    description: Service Unavailable.
+            security:
+                - DigestAuth: []
+            summary: Return All Atlas Search Indexes for One Cluster
+            tags:
+                - Atlas Search
+        post:
+            description: Creates one Atlas Search index on the specified collection. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. Only clusters running MongoDB v4.2 or later can use Atlas Search. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: createAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection on which to create an Atlas Search index.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/SearchIndexCreateRequest'
+                description: Creates one Atlas Search index on the specified collection.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Create One Atlas Search Index
+            tags:
+                - Atlas Search
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{databaseName}/{collectionName}:
+        get:
+            description: Returns all Atlas Search indexes on the specified collection. Atlas Search indexes contain the indexed fields and the analyzers used to create the indexes. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: listAtlasSearchIndexes
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/SearchIndexResponse'
+                                type: array
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                    description: Service Unavailable.
+            security:
+                - DigestAuth: []
+            summary: Return All Atlas Search Indexes for One Collection
+            tags:
+                - Atlas Search
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{databaseName}/{collectionName}/{indexName}:
+        delete:
+            description: Removes one Atlas Search index that you identified with its database, collection, and name. To use this resource, the requesting API key must have the Project Data Access Admin role. This deletion is eventually consistent.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: deleteAtlasSearchIndexByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the database and collection with one or more Application Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Name of the Atlas Search index to delete.
+                  in: path
+                  name: indexName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Remove One Atlas Search Index by Name
+            tags:
+                - Atlas Search
+        get:
+            description: Returns one Atlas Search index in the specified project. You identify this index using its database, collection and name. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: getAtlasSearchIndexByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Name of the Atlas Search index to return.
+                  in: path
+                  name: indexName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Return One Atlas Search Index by Name
+            tags:
+                - Atlas Search
+        patch:
+            description: Updates one Atlas Search index that you identified with its database, collection name, and index name. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: updateAtlasSearchIndexByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection whose Atlas Search index you want to update.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Name of the Atlas Search index to update.
+                  in: path
+                  name: indexName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/SearchIndexUpdateRequest'
+                description: Details to update the Atlas Search index with.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Update One Atlas Search Index By Name
+            tags:
+                - Atlas Search
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{indexId}:
+        delete:
+            description: Removes one Atlas Search index that you identified with its unique ID. To use this resource, the requesting API key must have the Project Data Access Admin role. This deletion is eventually consistent.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: deleteAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the database and collection with one or more Application Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Atlas Search index. Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Remove One Atlas Search Index by Id
+            tags:
+                - Atlas Search
+        get:
+            description: Returns one Atlas Search index in the specified project. You identify this index using its unique ID. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: getAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Application Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Application Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Application Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                    description: Service Unavailable.
+            security:
+                - DigestAuth: []
+            summary: Return One Atlas Search Index by ID
+            tags:
+                - Atlas Search
+        patch:
+            description: Updates one Atlas Search index that you identified with its unique ID. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: updateAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection whose Atlas Search index you want to update.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Atlas Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/SearchIndexUpdateRequest'
+                description: Details to update on the Atlas Search index.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Update One Atlas Search Index By ID
+            tags:
+                - Atlas Search
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/snapshotSchedule:
         get:
             deprecated: true
@@ -39547,7 +40184,6 @@ paths:
                 - Projects
     /api/atlas/v2/groups/{groupId}/liveMigrations:
         post:
-            deprecated: true
             description: |-
                 Migrate one cluster that Cloud or Ops Manager manages to MongoDB Atlas.
 
@@ -39555,7 +40191,7 @@ paths:
 
                  You can use this API endpoint for push live migrations only. Your API Key must have the Organization Owner role to successfully call this resource.
 
-                 **NOTE**: Migrating time-series collections is not yet supported on MongoDB 6.0 or higher. Migrations on MongoDB 6.0 or higher will skip any time-series collections on the source cluster.
+                 **NOTE**: Migrating time-series collections is not yet supported on MongoDB 6.0 or higher. Migrations on MongoDB 6.0 or higher will skip any time-series collections on the source cluster. Deprecated versions: v2-{2023-01-01}
             operationId: createPushMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
@@ -39563,20 +40199,19 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
-                            $ref: '#/components/schemas/LiveMigrationRequest'
-                        x-sunset: "2025-05-30"
-                        x-xgen-version: "2023-01-01"
+                            $ref: '#/components/schemas/LiveMigrationRequest20240530'
+                        x-xgen-version: "2024-05-30"
                 description: One migration to be created.
                 required: true
             responses:
                 "201":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/LiveMigrationResponse'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -39593,7 +40228,6 @@ paths:
             summary: Migrate One Local Managed Cluster to MongoDB Atlas
             tags:
                 - Cloud Migration Service
-            x-sunset: "2025-05-30"
     /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}:
         get:
             description: Return details of one cluster migration job. Each push live migration job uses one migration host. Your API Key must have the Organization Member role to successfully call this resource.
@@ -39656,8 +40290,7 @@ paths:
                 - Cloud Migration Service
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate:
         post:
-            deprecated: true
-            description: Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource.
+            description: 'Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource. Deprecated versions: v2-{2023-01-01}'
             operationId: validateMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
@@ -39665,20 +40298,19 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
-                            $ref: '#/components/schemas/LiveMigrationRequest'
-                        x-sunset: "2025-05-30"
-                        x-xgen-version: "2023-01-01"
+                            $ref: '#/components/schemas/LiveMigrationRequest20240530'
+                        x-xgen-version: "2024-05-30"
                 description: One migration to be validated.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/LiveImportValidation'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -39695,7 +40327,6 @@ paths:
             summary: Validate One Migration Request
             tags:
                 - Cloud Migration Service
-            x-sunset: "2025-05-30"
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}:
         get:
             description: Return the status of one migration validation job. Your API Key must have the Organization Owner role to successfully call this resource.
@@ -43568,6 +44199,247 @@ paths:
                 - Streams
             x-xgen-changelog:
                 "2023-09-11": The MongoDB Atlas Streams Processing API is now exposed as part of private preview, but is subject to change until GA.
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor:
+        post:
+            description: Create one Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: createStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsProcessor'
+                description: Details to create an Atlas Streams Processor.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsProcessor'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "409":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Create One Stream Processor
+            tags:
+                - Streams
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:
+        delete:
+            description: Delete a Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: deleteStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Delete One Stream Processor
+            tags:
+                - Streams
+        get:
+            description: Get one Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: getStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsProcessorWithStats'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Get One Stream Processor
+            tags:
+                - Streams
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:start:
+        post:
+            description: Start a Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: startStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Start One Stream Processor
+            tags:
+                - Streams
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:stop:
+        post:
+            description: Stop a Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: stopStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Stop One Stream Processor
+            tags:
+                - Streams
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processors:
+        get:
+            description: Returns all Stream Processors within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: listStreamProcessors
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/includeCount'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiStreamsStreamProcessorWithStatsView'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Return All Stream Processors In The Stream Instance.
+            tags:
+                - Streams
     /api/atlas/v2/groups/{groupId}/teams:
         get:
             description: Returns all teams to which the authenticated user has access in the project specified using its unique 24-hexadecimal digit identifier. All members of the team share the same project access. To use this resource, the requesting API Key must have the Project Read Only role.
@@ -44033,6 +44905,37 @@ paths:
             security:
                 - DigestAuth: []
             summary: Update Project Roles for One MongoDB Cloud User
+            tags:
+                - Projects
+    /api/atlas/v2/groups/{groupId}:migrate:
+        post:
+            description: Migrates a project from its current organization to another organization. All project users and their roles will be copied to the same project in the destination organization. You must include an organization API key with the Organization Owner role for the destination organization to verify access to the destination organization when you authenticate with Programmatic API Keys. Otherwise, the requesting user must have the Organization Owner role in both organizations. To use this resource, the requesting API Key must have the Organization Owner role.
+            operationId: migrateProjectToAnotherOrg
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupMigrationRequest'
+                description: Migrates a project from its current organization to another organization.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/Group'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Migrate One Project to Another Organization
             tags:
                 - Projects
     /api/atlas/v2/groups/byName/{groupName}:
