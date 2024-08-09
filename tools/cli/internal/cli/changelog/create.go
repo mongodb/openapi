@@ -50,6 +50,20 @@ func (o *Opts) Run() error {
 
 	fmt.Print("Printing the checks\n")
 	for _, check := range checks {
+		base, jsonErr := json.MarshalIndent(*check, "", "  ")
+		if jsonErr != nil {
+			return jsonErr
+		}
+
+		fmt.Println(string(base))
+	}
+
+	currentChangelog, err := changelog.NewChangelogEntries(fmt.Sprintf("%s/%s", o.basePath, "changelog.json"))
+	if err != nil {
+		return err
+	}
+	fmt.Print("Printing current changelog\n")
+	for _, check := range currentChangelog {
 		base, err := json.MarshalIndent(*check, "", "  ")
 		if err != nil {
 			return err

@@ -23,7 +23,7 @@ import (
 
 const lan = "en" // language for localized output
 
-type Entry struct {
+type OasDiffEntry struct {
 	ID          string `json:"id"`
 	Text        string `json:"text"`
 	Level       int    `json:"level"`
@@ -34,7 +34,7 @@ type Entry struct {
 	Section     string `json:"section"`
 }
 
-func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair) ([]*Entry, error) {
+func NewOasDiffEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair) ([]*OasDiffEntry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
 	})
@@ -47,7 +47,7 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 		return nil, err
 	}
 
-	var entries []*Entry
+	var entries []*OasDiffEntry
 	err = json.Unmarshal(bytes, &entries)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 	return transformEntries(entries)
 }
 
-func transformEntries(entries []*Entry) ([]*Entry, error) {
+func transformEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
 	for _, entry := range entries {
 		transformMessage(entry)
 	}

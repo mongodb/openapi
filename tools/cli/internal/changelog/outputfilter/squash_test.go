@@ -10,22 +10,22 @@ import (
 func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 	testCases := []struct {
 		name    string
-		entries []*Entry
-		want    map[string]map[string][]*Entry
+		entries []*OasDiffEntry
+		want    map[string]map[string][]*OasDiffEntry
 	}{
 		{
 			name:    "Empty entries",
-			entries: []*Entry{},
-			want:    map[string]map[string][]*Entry{},
+			entries: []*OasDiffEntry{},
+			want:    map[string]map[string][]*OasDiffEntry{},
 		},
 		{
 			name: "Single entry",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 			},
-			want: map[string]map[string][]*Entry{
+			want: map[string]map[string][]*OasDiffEntry{
 				"response-write-only-property-enum-value-added": {
-					"op1": []*Entry{
+					"op1": []*OasDiffEntry{
 						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 					},
 				},
@@ -33,16 +33,16 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 		},
 		{
 			name: "Multiple entries with same ID",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op2"},
 			},
-			want: map[string]map[string][]*Entry{
+			want: map[string]map[string][]*OasDiffEntry{
 				"response-write-only-property-enum-value-added": {
-					"op1": []*Entry{
+					"op1": []*OasDiffEntry{
 						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 					},
-					"op2": []*Entry{
+					"op2": []*OasDiffEntry{
 						{ID: "response-write-only-property-enum-value-added", OperationID: "op2"},
 					},
 				},
@@ -51,13 +51,13 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 
 		{
 			name: "Multiple entries with same ID and OperationID",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 			},
-			want: map[string]map[string][]*Entry{
+			want: map[string]map[string][]*OasDiffEntry{
 				"response-write-only-property-enum-value-added": {
-					"op1": []*Entry{
+					"op1": []*OasDiffEntry{
 						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 					},
@@ -66,26 +66,26 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 		},
 		{
 			name: "Multiple entries with different IDs",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 				{ID: "request-write-only-property-enum-value-added", OperationID: "op2"},
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op3"},
 				{ID: "request-write-only-property-enum-value-added", OperationID: "op4"},
 			},
-			want: map[string]map[string][]*Entry{
+			want: map[string]map[string][]*OasDiffEntry{
 				"response-write-only-property-enum-value-added": {
-					"op1": []*Entry{
+					"op1": []*OasDiffEntry{
 						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
 					},
-					"op3": []*Entry{
+					"op3": []*OasDiffEntry{
 						{ID: "response-write-only-property-enum-value-added", OperationID: "op3"},
 					},
 				},
 				"request-write-only-property-enum-value-added": {
-					"op2": []*Entry{
+					"op2": []*OasDiffEntry{
 						{ID: "request-write-only-property-enum-value-added", OperationID: "op2"},
 					},
-					"op4": []*Entry{
+					"op4": []*OasDiffEntry{
 						{ID: "request-write-only-property-enum-value-added", OperationID: "op4"},
 					},
 				},
@@ -107,7 +107,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 	testCases := []struct {
 		name                   string
 		operation              string
-		entry                  *Entry
+		entry                  *OasDiffEntry
 		expectedNumberOfValues int
 		want                   []string
 		wantErr                require.ErrorAssertionFunc
@@ -115,7 +115,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 		{
 			name:                   "No values",
 			operation:              "test",
-			entry:                  &Entry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "No values"},
+			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "No values"},
 			expectedNumberOfValues: 0,
 			want:                   []string{},
 			wantErr:                require.NoError,
@@ -123,7 +123,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 		{
 			name:                   "Single value",
 			operation:              "test",
-			entry:                  &Entry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test'"},
+			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test'"},
 			expectedNumberOfValues: 1,
 			want:                   []string{"test"},
 			wantErr:                require.NoError,
@@ -131,7 +131,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 		{
 			name:      "Multiple values",
 			operation: "test",
-			entry: &Entry{
+			entry: &OasDiffEntry{
 				ID:          "response-write-only-property-enum-value-added",
 				OperationID: "op1",
 				Text:        "added the new 'GROUP_USER_ADMIN' enum value to the request property '/items/roles/items/'"},
@@ -142,7 +142,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 		{
 			name:                   "Incorrect number of values",
 			operation:              "test",
-			entry:                  &Entry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Values: 'test1', 'test2'"},
+			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Values: 'test1', 'test2'"},
 			expectedNumberOfValues: 3,
 			want:                   nil,
 			wantErr:                require.Error,
@@ -165,7 +165,7 @@ func TestNewSquashMap(t *testing.T) {
 	testCases := []struct {
 		name                   string
 		operation              string
-		entries                []*Entry
+		entries                []*OasDiffEntry
 		expectedNumberOfValues int
 		squashIdx              int
 		want                   map[string]squashedEntries
@@ -174,7 +174,7 @@ func TestNewSquashMap(t *testing.T) {
 		{
 			name:                   "Empty entries",
 			operation:              "test",
-			entries:                []*Entry{},
+			entries:                []*OasDiffEntry{},
 			expectedNumberOfValues: 0,
 			squashIdx:              0,
 			want:                   map[string]squashedEntries{},
@@ -183,7 +183,7 @@ func TestNewSquashMap(t *testing.T) {
 		{
 			name:      "Single entry",
 			operation: "test",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test'"},
 			},
 			expectedNumberOfValues: 1,
@@ -199,7 +199,7 @@ func TestNewSquashMap(t *testing.T) {
 		{
 			name:      "Multiple entries",
 			operation: "test",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test1'"},
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test2'"},
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test3'"},

@@ -10,13 +10,13 @@ import (
 func TestSquash(t *testing.T) {
 	tests := []struct {
 		name            string
-		entries         []*Entry
-		expectedEntries []*Entry
+		entries         []*OasDiffEntry
+		expectedEntries []*OasDiffEntry
 		wantError       require.ErrorAssertionFunc
 	}{
 		{
 			name: "Test squashing entries",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					Text:        "added the new 'DUBLIN_IRL' enum value to the '/items/dataProcessRegion/region' response write-only property",
@@ -179,7 +179,7 @@ func TestSquash(t *testing.T) {
 					Path:        "/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs",
 				},
 			},
-			expectedEntries: []*Entry{
+			expectedEntries: []*OasDiffEntry{
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					Text:        "added the new 'DUBLIN_IRL, TEST' enum values to the '/items/dataProcessRegion/region' response write-only property",
@@ -262,7 +262,7 @@ func TestSquash(t *testing.T) {
 		},
 		{
 			name: "Test squashing entries with wrong description",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{
 					ID: "response-property-enum-value-added",
 					// 			# the field is not between apostrophes
@@ -272,7 +272,7 @@ func TestSquash(t *testing.T) {
 					Path:        "/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs",
 				},
 			},
-			expectedEntries: []*Entry{},
+			expectedEntries: []*OasDiffEntry{},
 			wantError:       require.Error,
 		},
 	}
