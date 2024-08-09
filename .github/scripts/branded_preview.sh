@@ -1,12 +1,13 @@
 #!/bin/bash
 set -eou pipefail
 
+foascli versions -s v2.json --env "${target_env:?}" -o versions.json
+
 branch_name=${target_env:?}
 if [[ "$branch_name" == "prod" ]]; then
     branch_name="main"
 fi
 
-foascli versions -s v2.json --env "${branch_name:?}" -o versions.json
 # Load versions from versions.json
 versions=()
 
@@ -32,7 +33,7 @@ for url in "${all_urls[@]}"; do
     echo "$url"
     link="https://www.mongodb.com/docs/openapi/preview/?src=$url"
     echo "Branded preview: ${link}"
-    links="${links}<li><a href='$link' target=\"_blank\">${filename}</a></li>"
+    links="${links}<br /><li><a href='$link' target=\"_blank\">${filename}</a></li>"
 done
 
 cat << EOF > branded-preview.html
