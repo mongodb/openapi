@@ -166,6 +166,7 @@ func copyMMSFileToOutput(t *testing.T, folder string) {
 }
 
 func getVersions(t *testing.T, cliPath, base, folder string) []string {
+	t.Helper()
 	cmd := exec.Command(cliPath,
 		"versions",
 		"-s",
