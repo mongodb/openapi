@@ -113,7 +113,7 @@ func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
 		"-s",
 		base,
 		"-o",
-		getOutputFolder(t, folder)+"/output.json",
+		getOutputFolder(t, folder)+"/api-registry-output.json",
 		"--env",
 		folder,
 	)
@@ -130,7 +130,7 @@ func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
 		}
 
 		// validate the file exists
-		fileName := "output-" + version + ".json"
+		fileName := "api-registry-output-" + version + ".json"
 		path := getOutputFolder(t, folder) + "/" + fileName
 		require.FileExists(t, path)
 		// validate the file is a valid openapi spec
