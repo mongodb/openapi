@@ -128,7 +128,7 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
 						Sunset:                 "",
-						ManualChangelogEntries: map[string]string{},
+						ManualChangelogEntries: map[string]interface{}{},
 					},
 					Revision: nil,
 				},
@@ -139,7 +139,7 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "revision-tag",
 						Sunset:                 "",
-						ManualChangelogEntries: map[string]string{},
+						ManualChangelogEntries: map[string]interface{}{},
 					},
 				},
 			},
@@ -183,14 +183,14 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
 						Sunset:                 "2024-08-01",
-						ManualChangelogEntries: map[string]string{},
+						ManualChangelogEntries: map[string]interface{}{},
 					},
 					Revision: &OperationConfig{
 						Path:                   "/path",
 						HTTPMethod:             "GET",
 						Tag:                    "revision-tag",
 						Sunset:                 "2024-12-01",
-						ManualChangelogEntries: map[string]string{},
+						ManualChangelogEntries: map[string]interface{}{},
 					},
 				},
 			},
@@ -231,14 +231,14 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
 						Sunset:                 "2024-08-01",
-						ManualChangelogEntries: map[string]string{},
+						ManualChangelogEntries: map[string]interface{}{},
 					},
 					Revision: &OperationConfig{
 						Path:                   "/path",
 						HTTPMethod:             "GET",
 						Tag:                    "revision-tag",
 						Sunset:                 "", // Sunset not present in revision
-						ManualChangelogEntries: map[string]string{},
+						ManualChangelogEntries: map[string]interface{}{},
 					},
 				},
 			},
@@ -278,14 +278,120 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						Path:                   "/path",
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
-						ManualChangelogEntries: map[string]string{},
+						ManualChangelogEntries: map[string]interface{}{},
 					},
 					Revision: &OperationConfig{
 						Path:                   "/path",
 						HTTPMethod:             "GET",
 						Tag:                    "revision-tag",
 						Sunset:                 "2024-12-01",
-						ManualChangelogEntries: map[string]string{},
+						ManualChangelogEntries: map[string]interface{}{},
+					},
+				},
+			},
+		},
+		{
+			name: "Revision with x-xgen-changelog extension only",
+			baseSpec: &load.SpecInfo{
+				Spec: &openapi3.T{
+					Paths: openapi3.NewPaths(
+						openapi3.WithPath("/path", &openapi3.PathItem{
+							Get: &openapi3.Operation{
+								OperationID: "op1",
+								Tags:        []string{"base-tag"},
+							},
+						}),
+					),
+				},
+			},
+			revisionSpec: &load.SpecInfo{
+				Spec: &openapi3.T{
+					Paths: openapi3.NewPaths(
+						openapi3.WithPath("/path", &openapi3.PathItem{
+							Get: &openapi3.Operation{
+								OperationID: "op1",
+								Tags:        []string{"revision-tag"},
+								Extensions: map[string]interface{}{
+									"x-xgen-changelog": map[string]interface{}{
+										"2024-01-01": "Revision changelog entry.",
+									},
+								},
+							},
+						}),
+					),
+				},
+			},
+			expected: map[string]*OperationConfigs{
+				"op1": {
+					Base: &OperationConfig{
+						Path:                   "/path",
+						HTTPMethod:             "GET",
+						Tag:                    "base-tag",
+						Sunset:                 "",
+						ManualChangelogEntries: map[string]interface{}{},
+					},
+					Revision: &OperationConfig{
+						Path:       "/path",
+						HTTPMethod: "GET",
+						Tag:        "revision-tag",
+						Sunset:     "",
+						ManualChangelogEntries: map[string]interface{}{
+							"2024-01-01": "Revision changelog entry.",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Revision with multiple x-xgen-changelog extensions",
+			baseSpec: &load.SpecInfo{
+				Spec: &openapi3.T{
+					Paths: openapi3.NewPaths(
+						openapi3.WithPath("/path", &openapi3.PathItem{
+							Get: &openapi3.Operation{
+								OperationID: "op1",
+								Tags:        []string{"base-tag"},
+							},
+						}),
+					),
+				},
+			},
+			revisionSpec: &load.SpecInfo{
+				Spec: &openapi3.T{
+					Paths: openapi3.NewPaths(
+						openapi3.WithPath("/path", &openapi3.PathItem{
+							Get: &openapi3.Operation{
+								OperationID: "op1",
+								Tags:        []string{"revision-tag"},
+								Extensions: map[string]interface{}{
+									"x-xgen-changelog": map[string]interface{}{
+										"2024-01-01": "Revision changelog entry.",
+										"2024-01-02": "Revision changelog entry.",
+									},
+								},
+							},
+						}),
+					),
+				},
+			},
+			expected: map[string]*OperationConfigs{
+				"op1": {
+					Base: &OperationConfig{
+						Path:                   "/path",
+						HTTPMethod:             "GET",
+						Tag:                    "base-tag",
+						Sunset:                 "",
+						ManualChangelogEntries: map[string]interface{}{},
+					},
+					Revision: &OperationConfig{
+						Path:       "/path",
+						HTTPMethod: "GET",
+						Tag:        "revision-tag",
+						Sunset:     "",
+						ManualChangelogEntries: map[string]interface{}{
+							"2024-01-01": "Revision changelog entry.",
+							"2024-01-02": "Revision changelog entry.",
+						},
 					},
 				},
 			},
