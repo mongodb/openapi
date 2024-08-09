@@ -19,6 +19,7 @@ var versions = []string{
 	"2023-10-01",
 	"2023-11-15",
 	"2024-05-30",
+	"2024-08-05",
 	"2025-01-01",
 }
 
@@ -113,7 +114,7 @@ func TestSplitVersionsForOAS(t *testing.T) {
 	)
 
 	// copy mms file to ouput folder
-	cpCmd := exec.Command("cp", "../../data/split/"+folder+"/openapi-mms-extensions.json", getOutputFolder(t, folder)+"/output-mms.json")
+	cpCmd := exec.Command("cp", "../../data/split/"+folder+"/openapi-mms.json", getOutputFolder(t, folder)+"/output-mms.json")
 	var o, e bytes.Buffer
 	cpCmd.Stdout = &o
 	cpCmd.Stderr = &e
