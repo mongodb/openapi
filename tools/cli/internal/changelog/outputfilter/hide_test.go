@@ -1,35 +1,31 @@
 package outputfilter
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mongodb/openapi/tools/cli/internal/breakingchanges"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-// func TestMarkHiddenEntries(t *testing.T) {
-// 	entries := []*Entry{
-// 		{ID: "response-required-property-became-write-only"},
-// 		{ID: "some-other-id"},
-// 	}
+func TestMarkHiddenEntries(t *testing.T) {
+	entries := []*Entry{
+		{ID: "response-required-property-became-write-only"},
+		{ID: "some-other-id"},
+	}
 
-// 	exemptionsFilePath := "test_exemptions.json"
-// 	fs := afero.NewMemMapFs()
-// 	afero.WriteFile(fs, exemptionsFilePath, []byte(`[{"BreakingChangeDescription": "some description"}]`), 0644)
+	exemptionsFilePath := "test_exemptions.yaml"
+	fs := afero.NewMemMapFs()
+	err := afero.WriteFile(fs, exemptionsFilePath, []byte(getTestExemptionText()), 0o644)
+	require.NoError(t, err)
 
-// 	// Mock getExemptionsFromPath
-// 	getExemptionsFromPath = func(path string) ([]breakingchanges.Exemption, error) {
-// 		return []breakingchanges.Exemption{
-// 			{BreakingChangeDescription: "some description"},
-// 		}, nil
-// 	}
-
-// 	updatedEntries, err := MarkHiddenEntries(entries, exemptionsFilePath)
-// 	assert.NoError(t, err)
-// 	assert.True(t, updatedEntries[0].HideFromChangelog)
-// 	assert.False(t, updatedEntries[1].HideFromChangelog)
-// }
+	updatedEntries, err := MarkHiddenEntries(entries, exemptionsFilePath, fs)
+	require.NoError(t, err)
+	assert.True(t, updatedEntries[0].HideFromChangelog)
+	assert.False(t, updatedEntries[1].HideFromChangelog)
+}
 
 func TestHideByIDs(t *testing.T) {
 	entries := []*Entry{
@@ -40,7 +36,7 @@ func TestHideByIDs(t *testing.T) {
 	ids := []string{"response-required-property-became-write-only"}
 
 	updatedEntries, err := hideByIDs(entries, ids)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, updatedEntries[0].HideFromChangelog)
 	assert.False(t, updatedEntries[1].HideFromChangelog)
 }
@@ -55,7 +51,7 @@ func TestHideByExemptions(t *testing.T) {
 	}
 
 	updatedEntries, err := hideByExemptions(entries, exemptions)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, updatedEntries[0].HideFromChangelog)
 }
 
@@ -91,14 +87,23 @@ func TestFromEntry_NoSource(t *testing.T) {
 func TestGetExemptionsFromPath(t *testing.T) {
 	exemptionsFilePath := "test_exemptions.yaml"
 	fs := afero.NewMemMapFs()
-	afero.WriteFile(fs, exemptionsFilePath, []byte(`
-- "breaking_change_description": "POST /api/atlas/v2/groups/{groupId}/apiKeys/{apiUserId} removed the success response with the status '200' [response-success-status-removed]"
+
+	err := afero.WriteFile(fs, exemptionsFilePath, []byte(getTestExemptionText()), 0o644)
+	require.NoError(t, err)
+
+	exemptions, err := getExemptionsFromPath(exemptionsFilePath, fs)
+	require.NoError(t, err)
+	require.NotNil(t, exemptions)
+}
+
+func getTestExemptionText() string {
+	bcEntry := "POST /api/atlas/v2/groups/{groupId}/apiKeys/{apiUserId} removed the " +
+		"success response with the status '200' [response-success-status-removed]"
+	exemptionEntry := fmt.Sprintf(`
+- "breaking_change_description": %s
   "exempt_until": "2024-08-05"
   "reason": "Spec Correction"
   "hide_from_changelog": "true"
-`), 0644)
-
-	exemptions, err := getExemptionsFromPath(exemptionsFilePath, fs)
-	assert.NoError(t, err)
-	assert.NotNil(t, exemptions)
+`, bcEntry)
+	return exemptionEntry
 }

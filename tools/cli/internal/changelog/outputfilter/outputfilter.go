@@ -16,6 +16,7 @@ package outputfilter
 import (
 	"encoding/json"
 
+	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/formatters"
 	"github.com/tufin/oasdiff/load"
@@ -67,7 +68,8 @@ func transformEntries(entries []*Entry, exemptionsFilePath string) ([]*Entry, er
 		return nil, err
 	}
 
-	newEntries, err = MarkHiddenEntries(newEntries, exemptionsFilePath)
+	fs := afero.NewOsFs()
+	newEntries, err = MarkHiddenEntries(newEntries, exemptionsFilePath, fs)
 	if err != nil {
 		return nil, err
 	}

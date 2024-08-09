@@ -22,8 +22,7 @@ var hideIDs = []string{
 }
 
 // MarkHiddenEntries sets the HideFromChangelog flag to true
-func MarkHiddenEntries(entries []*Entry, exemptionsFilePath string) ([]*Entry, error) {
-	fs := afero.NewOsFs()
+func MarkHiddenEntries(entries []*Entry, exemptionsFilePath string, fs afero.Fs) ([]*Entry, error) {
 	exemptions, err := getExemptionsFromPath(exemptionsFilePath, fs)
 	if err != nil {
 		return nil, err
