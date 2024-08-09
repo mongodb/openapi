@@ -11,8 +11,10 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/diff"
 )
@@ -91,7 +93,7 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 				if slices.Contains(skipVersions, version) {
 					continue
 				}
-				if tc.env == "prod" && version == "2025-01-01" {
+				if tc.env == "prod" && !versionInFuture(t, version) {
 					continue
 				}
 				fmt.Printf("Validating version: %s\n", version)
@@ -101,6 +103,13 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 			}
 		})
 	}
+}
+
+func versionInFuture(t *testing.T, version string) bool {
+	t.Helper()
+	v, err := apiversion.New(apiversion.WithVersion(version))
+	require.NoError(t, err)
+	return v.Date().After(time.Now())
 }
 
 func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
