@@ -1,12 +1,13 @@
 #!/bin/bash
 set -eou pipefail
 
+foascli versions -s v2.json --env "${target_env:?}" -o versions.json
+
 branch_name=${target_env:?}
 if [[ "$branch_name" == "prod" ]]; then
     branch_name="main"
 fi
 
-foascli versions -s v2.json --env "${branch_name:?}" -o versions.json
 # Load versions from versions.json
 versions=()
 
