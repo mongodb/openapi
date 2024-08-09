@@ -138,7 +138,7 @@ func NewMetadataWithNormalizedSpecs(base, revision, exceptionFilePath string) (*
 		RunDate:           time.Now().Format("2006-01-02"),
 		Base:              baseSpec,
 		Revision:          revisionSpec,
-		ExceptionFilePath: exceptionFilePath,
+		ExemptionFilePath: exemptionFilePath,
 		Config:            changelogConfig,
 		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
 			IncludePathParams: true,
@@ -158,5 +158,5 @@ func (s *Metadata) Check() ([]*outputfilter.OasDiffEntry, error) {
 		diffResult.SourceMap,
 		checker.INFO)
 
-	return outputfilter.NewOasDiffEntries(changes, diffResult.SpecInfoPair)
+	return outputfilter.NewChangelogEntries(changes, diffResult.SpecInfoPair, s.ExemptionFilePath)
 }

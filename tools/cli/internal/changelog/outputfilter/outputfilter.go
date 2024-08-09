@@ -16,6 +16,7 @@ package outputfilter
 import (
 	"encoding/json"
 
+	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/formatters"
 	"github.com/tufin/oasdiff/load"
@@ -32,9 +33,10 @@ type OasDiffEntry struct {
 	Path        string `json:"path,omitempty"`
 	Source      string `json:"source,omitempty"`
 	Section     string `json:"section"`
+	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewOasDiffEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair) ([]*OasDiffEntry, error) {
+func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair) ([]*OasDiffEntry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
 	})
@@ -53,7 +55,7 @@ func NewOasDiffEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair
 		return nil, err
 	}
 
-	return transformEntries(entries)
+	return transformEntries(entries, exemptionsFilePath)
 }
 
 func transformEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
@@ -61,5 +63,16 @@ func transformEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
 		transformMessage(entry)
 	}
 
-	return squashEntries(entries)
+	newEntries, err := squashEntries(entries)
+	if err != nil {
+		return nil, err
+	}
+
+	fs := afero.NewOsFs()
+	newEntries, err = MarkHiddenEntries(newEntries, exemptionsFilePath, fs)
+	if err != nil {
+		return nil, err
+	}
+
+	return newEntries, nil
 }
