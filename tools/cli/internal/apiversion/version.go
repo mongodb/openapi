@@ -114,6 +114,10 @@ func (v *APIVersion) String() string {
 	return v.version
 }
 
+func (v *APIVersion) Date() time.Time {
+	return v.versionDate
+}
+
 // Parse extracts the version date from the content type.
 func Parse(contentType string) (string, error) {
 	matches := ContentPattern.FindStringSubmatch(contentType)

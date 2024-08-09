@@ -9,17 +9,17 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/diff"
 )
 
-var skipVersions = []string{
-	"2023-01-01",
-	"2023-02-01",
-}
+var skipVersions = []string{}
 
 func TestSplitVersionsFilteredOASes(t *testing.T) {
 	cliPath := NewBin(t)
@@ -69,14 +69,16 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			folder := tc.env
 			base := getInputPath(t, tc.specType, tc.format, folder)
+			outputPath := getOutputFolder(t, folder) + "/" + tc.specType + "-" + folder + "-" + "output." + tc.format
 			cmd := exec.Command(cliPath,
 				"split",
 				"-s",
 				base,
 				"-o",
-				getOutputFolder(t, folder)+"/output."+tc.format,
+				outputPath,
 				"--env",
 				tc.env,
 			)
@@ -91,14 +93,23 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 				if slices.Contains(skipVersions, version) {
 					continue
 				}
-				if tc.env == "prod" && version == "2025-01-01" {
+				if tc.env == "prod" && !versionInFuture(t, version) {
 					continue
 				}
 				fmt.Printf("Validating version: %s\n", version)
-				validateFiles(t, version, folder)
+				noExtensionOutputPath := strings.Replace(outputPath, "."+tc.format, "", 1)
+				versionedOutputPath := noExtensionOutputPath + "-" + version + "." + tc.format
+				ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version, folder), versionedOutputPath)
 			}
 		})
 	}
+}
+
+func versionInFuture(t *testing.T, version string) bool {
+	t.Helper()
+	v, err := apiversion.New(apiversion.WithVersion(version))
+	require.NoError(t, err)
+	return v.Date().After(time.Now())
 }
 
 func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
@@ -206,13 +217,6 @@ func getOutputFolder(t *testing.T, subFolder string) string {
 	require.NoError(t, os.MkdirAll(finalPath, os.ModePerm))
 	require.DirExists(t, finalPath)
 	return finalPath
-}
-
-func validateFiles(t *testing.T, version, folder string) {
-	t.Helper()
-	fileName := "output-" + version + ".json"
-	path := getOutputFolder(t, folder) + "/" + fileName
-	ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version, folder), path)
 }
 
 func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath string) {
