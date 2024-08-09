@@ -49,7 +49,7 @@ func validateMetadata(metadata *Metadata) error {
 
 func DefaultFilters(oas *openapi3.T, metadata *Metadata) []Filter {
 	return []Filter{
-		&SunsetFilter{oas: oas, metadata: metadata},
+		&ExtensionFilter{oas: oas, metadata: metadata},
 		&VersioningFilter{oas: oas, metadata: metadata},
 		&InfoFilter{oas: oas, metadata: metadata},
 		&HiddenEnvsFilter{oas: oas, metadata: metadata},
