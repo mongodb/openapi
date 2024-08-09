@@ -28,42 +28,42 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 		specType string
 		env      string
 	}{
-		// {
-		// 	name:     "Split filtered specs json dev",
-		// 	format:   "json",
-		// 	specType: "filtered",
-		// 	env:      "dev",
-		// },
-		// {
-		// 	name:     "Split filtered specs yaml dev",
-		// 	format:   "yaml",
-		// 	specType: "filtered",
-		// 	env:      "dev",
-		// },
-		// {
-		// 	name:     "Split not-filtered specs json dev",
-		// 	format:   "json",
-		// 	specType: "not-filtered",
-		// 	env:      "dev",
-		// },
+		{
+			name:     "Split filtered specs json dev",
+			format:   "json",
+			specType: "filtered",
+			env:      "dev",
+		},
+		{
+			name:     "Split filtered specs yaml dev",
+			format:   "yaml",
+			specType: "filtered",
+			env:      "dev",
+		},
+		{
+			name:     "Split not-filtered specs json dev",
+			format:   "json",
+			specType: "not-filtered",
+			env:      "dev",
+		},
 		{
 			name:     "Split not-filtered specs json prod",
 			format:   "json",
 			specType: "not-filtered",
 			env:      "prod",
 		},
-		// {
-		// 	name:     "Split not-filtered specs json prod",
-		// 	format:   "json",
-		// 	specType: "filtered",
-		// 	env:      "prod",
-		// },
-		// {
-		// 	name:     "Split not-filtered specs json prod yaml",
-		// 	format:   "yaml",
-		// 	specType: "filtered",
-		// 	env:      "prod",
-		// },
+		{
+			name:     "Split not-filtered specs json prod",
+			format:   "json",
+			specType: "filtered",
+			env:      "prod",
+		},
+		{
+			name:     "Split not-filtered specs json prod yaml",
+			format:   "yaml",
+			specType: "filtered",
+			env:      "prod",
+		},
 	}
 
 	for _, tc := range testCases {
