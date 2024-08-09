@@ -10,13 +10,13 @@ import (
 func TestSquashRequestFieldAdded(t *testing.T) {
 	tests := []struct {
 		name            string
-		entries         []*Entry
-		expectedEntries []*Entry
+		entries         []*OasDiffEntry
+		expectedEntries []*OasDiffEntry
 		wantError       require.ErrorAssertionFunc
 	}{
 		{
 			name: "Test squashing entries",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{
 					ID:          "new-optional-request-property",
 					Text:        "added the new optional request property 'defaultReadConcern'",
@@ -151,7 +151,7 @@ func TestSquashRequestFieldAdded(t *testing.T) {
 					Path:        "/api/atlas/v2/federationSettings/{federationSettingsId}/createIdentityProvider",
 				},
 			},
-			expectedEntries: []*Entry{
+			expectedEntries: []*OasDiffEntry{
 				{
 					ID:          "new-optional-request-property",
 					Text:        "added the new optional request properties 'defaultReadConcern, failIndexKeyTooLong'",
@@ -227,7 +227,7 @@ func TestSquashRequestFieldAdded(t *testing.T) {
 		},
 		{
 			name: "Test squashing entries with wrong description",
-			entries: []*Entry{
+			entries: []*OasDiffEntry{
 				{
 					ID: "new-required-request-property",
 					// 			# the field is not between apostrophes
@@ -237,7 +237,7 @@ func TestSquashRequestFieldAdded(t *testing.T) {
 					Path:        "/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs",
 				},
 			},
-			expectedEntries: []*Entry{},
+			expectedEntries: []*OasDiffEntry{},
 			wantError:       require.Error,
 		},
 	}

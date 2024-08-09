@@ -21,38 +21,38 @@ import (
 func TestTransformMessagesInTextField(t *testing.T) {
 	tests := []struct {
 		name     string
-		entry    *Entry
-		expected *Entry
+		entry    *OasDiffEntry
+		expected *OasDiffEntry
 	}{
 		{
 			name:     "Remove response status codes",
-			entry:    &Entry{Text: " property for the response status '200'"},
-			expected: &Entry{Text: " property"},
+			entry:    &OasDiffEntry{Text: " property for the response status '200'"},
+			expected: &OasDiffEntry{Text: " property"},
 		},
 		{
 			name:     "Set value removed",
-			entry:    &Entry{Text: "default value changed from 'some_value' to 'null'"},
-			expected: &Entry{Text: "default value was removed"},
+			entry:    &OasDiffEntry{Text: "default value changed from 'some_value' to 'null'"},
+			expected: &OasDiffEntry{Text: "default value was removed"},
 		},
 		{
 			name:     "Set value set",
-			entry:    &Entry{Text: "default value changed from 'null' to 'some_value'"},
-			expected: &Entry{Text: "default value was set to 'some_value'"},
+			entry:    &OasDiffEntry{Text: "default value changed from 'null' to 'some_value'"},
+			expected: &OasDiffEntry{Text: "default value was set to 'some_value'"},
 		},
 		{
 			name:     "Remove inline schema index",
-			entry:    &Entry{Text: "BaseSchema[123]: some text"},
-			expected: &Entry{Text: " some text"},
+			entry:    &OasDiffEntry{Text: "BaseSchema[123]: some text"},
+			expected: &OasDiffEntry{Text: " some text"},
 		},
 		{
 			name:     "Remove redundant oneOf/allOf",
-			entry:    &Entry{Text: "/oneOf/components/schemas/ViewName/"},
-			expected: &Entry{Text: ""},
+			entry:    &OasDiffEntry{Text: "/oneOf/components/schemas/ViewName/"},
+			expected: &OasDiffEntry{Text: ""},
 		},
 		{
 			name:     "Mixed transformations",
-			entry:    &Entry{Text: "default value changed from 'null' to 'some_value' BaseSchema[123]: /oneOf/components/schemas/ViewName/"},
-			expected: &Entry{Text: "default value was set to 'some_value'  "},
+			entry:    &OasDiffEntry{Text: "default value changed from 'null' to 'some_value' BaseSchema[123]: /oneOf/components/schemas/ViewName/"},
+			expected: &OasDiffEntry{Text: "default value was set to 'some_value'  "},
 		},
 	}
 

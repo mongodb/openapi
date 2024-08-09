@@ -68,7 +68,11 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
 }
 
 func NewOasDiff(base string, excludePrivatePaths bool) (*OasDiff, error) {
-	parser := NewOpenAPI3WithExcludePrivatePaths(excludePrivatePaths)
+	parser := NewOpenAPI3()
+	if excludePrivatePaths {
+		parser.WithExcludedPrivatePaths()
+	}
+
 	baseSpec, err := parser.CreateOpenAPISpecFromPath(base)
 	if err != nil {
 		return nil, err
