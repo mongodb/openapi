@@ -16,6 +16,7 @@ package outputfilter
 import (
 	"encoding/json"
 
+	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/formatters"
 	"github.com/tufin/oasdiff/load"
@@ -24,17 +25,18 @@ import (
 const lan = "en" // language for localized output
 
 type Entry struct {
-	ID          string `json:"id"`
-	Text        string `json:"text"`
-	Level       int    `json:"level"`
-	Operation   string `json:"operation,omitempty"`
-	OperationID string `json:"operationId,omitempty"`
-	Path        string `json:"path,omitempty"`
-	Source      string `json:"source,omitempty"`
-	Section     string `json:"section"`
+	ID                string `json:"id"`
+	Text              string `json:"text"`
+	Level             int    `json:"level"`
+	Operation         string `json:"operation,omitempty"`
+	OperationID       string `json:"operationId,omitempty"`
+	Path              string `json:"path,omitempty"`
+	Source            string `json:"source,omitempty"`
+	Section           string `json:"section"`
+	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair) ([]*Entry, error) {
+func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*Entry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
 	})
@@ -53,13 +55,24 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 		return nil, err
 	}
 
-	return transformEntries(entries)
+	return transformEntries(entries, exemptionsFilePath)
 }
 
-func transformEntries(entries []*Entry) ([]*Entry, error) {
+func transformEntries(entries []*Entry, exemptionsFilePath string) ([]*Entry, error) {
 	for _, entry := range entries {
 		transformMessage(entry)
 	}
 
-	return squashEntries(entries)
+	newEntries, err := squashEntries(entries)
+	if err != nil {
+		return nil, err
+	}
+
+	fs := afero.NewOsFs()
+	newEntries, err = MarkHiddenEntries(newEntries, exemptionsFilePath, fs)
+	if err != nil {
+		return nil, err
+	}
+
+	return newEntries, nil
 }
