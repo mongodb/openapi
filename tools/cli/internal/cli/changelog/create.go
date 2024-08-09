@@ -87,7 +87,7 @@ func CreateBuilder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.BaseFolder)
 	cmd.Flags().StringVarP(&opts.revisionPath, flag.Revision, flag.RevisionShort, "", usage.RevisionFolder)
-	cmd.Flags().StringVarP(&opts.exceptionsPaths, flag.ExceptionFilePath, flag.ExceptionFilePathShort, "", usage.ExceptionFilePath)
+	cmd.Flags().StringVarP(&opts.exceptionsPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
 	cmd.Flags().BoolVarP(&opts.dryRun, flag.DryRun, flag.DryRunShort, false, usage.DryRun)
 
 	_ = cmd.MarkFlagRequired(flag.Base)

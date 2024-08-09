@@ -33,6 +33,7 @@ const (
 	ExcludePrivatePathsShort = "x"
 	DryRun                   = "dry-run"
 	DryRunShort              = "d"
-	ExceptionFilePath        = "exception-file"
-	ExceptionFilePathShort   = "e"
+	ExemptionFilePath        = "exemption-file"
+	ExemptionFilePathShort   = "e"
+	IgnoreExpiration         = "ignore-expiration"
 )
