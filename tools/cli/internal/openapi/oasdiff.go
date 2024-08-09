@@ -33,6 +33,25 @@ type OasDiff struct {
 	parser   Parser
 }
 
+type OasDiffResult struct {
+	Report       *diff.Diff
+	SourceMap    *diff.OperationsSourcesMap
+	SpecInfoPair *load.SpecInfoPair
+}
+
+func (o OasDiff) NewDiffResult() (*OasDiffResult, error) {
+	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(o.config, o.base, o.external)
+	if err != nil {
+		return nil, err
+	}
+
+	return &OasDiffResult{
+		Report:       diffReport,
+		SourceMap:    operationsSources,
+		SpecInfoPair: load.NewSpecInfoPair(o.base, o.external),
+	}, nil
+}
+
 func (o OasDiff) mergeSpecIntoBase() (*load.SpecInfo, error) {
 	if o.external == nil || o.external.Spec == nil {
 		return o.base, nil

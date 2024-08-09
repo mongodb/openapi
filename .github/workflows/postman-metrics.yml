@@ -1,0 +1,53 @@
+name: Compare and Send Postman Fork Data
+
+on:
+  # Enabled by CLOUDP-262512
+  # schedule:
+  #   - cron: '0 10 ? * 1'
+  workflow_dispatch:
+
+jobs:
+  compare-and-send-forks:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Fetch previous run's data from cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ./tools/postman/openapi/fork-data.json
+        key: fork-data-${{ github.run_id }}
+        restore-keys: |
+          fork-data-
+
+    - name: Save previous run's data to file
+      working-directory: ./tools/postman/openapi
+      run: |
+        if [ -f fork-data.json ]; then
+          mv fork-data.json previous-fork-data.json
+        fi
+
+    - name: Fetch current fork data
+      working-directory: ./tools/postman
+      env:
+        POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+        WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
+      run: make fetch_forks 
+
+    - name: Compare data.json with previous run's data
+      working-directory: ./tools/postman
+      run: make compare_forks
+
+    - name: Send fork data to Slack
+      working-directory: ./tools/postman
+      env: 
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: make send_forks
+
+    - name: Save current fork totals to cache
+      uses: actions/cache/save@v4
+      with:
+        path: ./tools/postman/openapi/fork-data.json
+        key: fork-data-${{ github.run_id }}

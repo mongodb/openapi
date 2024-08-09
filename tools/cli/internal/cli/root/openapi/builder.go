@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/mongodb/openapi/tools/cli/internal/cli/breakingchanges"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/merge"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/split"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/versions"
@@ -55,6 +57,8 @@ func Builder() *cobra.Command {
 		merge.Builder(),
 		split.Builder(),
 		versions.Builder(),
+		changelog.Builder(),
+		breakingchanges.Builder(),
 	)
 	return rootCmd
 }

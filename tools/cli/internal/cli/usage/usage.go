@@ -15,12 +15,18 @@
 package usage
 
 const (
-	Base        = "Base OAS. The command will merge other OASes into it."
-	External    = "OASes that will be merged into the base OAS."
-	Output      = "File name where the command will store the output."
-	Format      = "Output format. Supported values are 'json' and 'yaml'."
-	Versions    = "Boolean flag that defines wether to split the OAS into multiple versions."
-	Spec        = "Path to the OAS file."
-	Environment = "Environment to consider when generating the versioned OAS."
-	GitSha      = "GitSHA to use as identifier (x-xgen-sha) of the generated specification."
+	Base                = "Base OAS. The command will merge other OASes into it."
+	External            = "OASes that will be merged into the base OAS."
+	Output              = "File name or path where the command will store the output."
+	Format              = "Output format. Supported values are 'json' and 'yaml'."
+	Versions            = "Boolean flag that defines wether to split the OAS into multiple versions."
+	Spec                = "Path to the OAS file."
+	Environment         = "Environment to consider when generating the versioned OAS."
+	GitSha              = "GitSHA to use as identifier (x-xgen-sha) of the generated specification."
+	ExcludePrivatePaths = "Exclude private paths from the generated specification."
+	BaseFolder          = "Base folder where the current changelog files are stored."
+	RevisionFolder      = "Folder where the revision files (new Oases) are stored."
+	ExemptionFilePath   = "Path to the file containing the exemptions file."
+	DryRun              = "Dry run mode. The command will not write any files."
+	IgnoreExpiration    = "Ignore expiration date of the exemptions and consider the valid."
 )
