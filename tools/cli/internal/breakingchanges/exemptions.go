@@ -27,7 +27,11 @@ type Exemption struct {
 	BreakingChangeDescription string `yaml:"breaking_change_description"`
 	ExemptUntil               string `yaml:"exempt_until"`
 	Reason                    string `yaml:"reason"`
-	HideFromChangelog         string `yaml:"hide_from_changelog"`
+	HideFromChangelog         string `yaml:"hide_from_changelog:omitempty"`
+}
+
+func (e *Exemption) isHidden() bool {
+	return e.HideFromChangelog == "true"
 }
 
 func getDuplicatedV1Entries(exemption string) []string {
@@ -114,4 +118,16 @@ func CreateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bo
 	}
 	log.Printf("Exemptions file generated in %s\n", outputPath)
 	return nil
+}
+
+// GetHiddenExemptions returns a list of exemptions that have 'HideFromChangelog' set to true.
+func GetHiddenExemptions(exemptions []Exemption) []Exemption {
+	// Get only exemptions that have 'HideFromChangelog' set to true
+	exemptionsMarkedHidden := []Exemption{}
+	for _, exemption := range exemptions {
+		if exemption.isHidden() {
+			exemptionsMarkedHidden = append(exemptionsMarkedHidden, exemption)
+		}
+	}
+	return exemptionsMarkedHidden
 }

@@ -24,14 +24,15 @@ import (
 const lan = "en" // language for localized output
 
 type Entry struct {
-	ID          string `json:"id"`
-	Text        string `json:"text"`
-	Level       int    `json:"level"`
-	Operation   string `json:"operation,omitempty"`
-	OperationID string `json:"operationId,omitempty"`
-	Path        string `json:"path,omitempty"`
-	Source      string `json:"source,omitempty"`
-	Section     string `json:"section"`
+	ID                string `json:"id"`
+	Text              string `json:"text"`
+	Level             int    `json:"level"`
+	Operation         string `json:"operation,omitempty"`
+	OperationID       string `json:"operationId,omitempty"`
+	Path              string `json:"path,omitempty"`
+	Source            string `json:"source,omitempty"`
+	Section           string `json:"section"`
+	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
 }
 
 func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair) ([]*Entry, error) {
@@ -61,5 +62,15 @@ func transformEntries(entries []*Entry) ([]*Entry, error) {
 		transformMessage(entry)
 	}
 
-	return squashEntries(entries)
+	newEntries, err := squashEntries(entries)
+	if err != nil {
+		return nil, err
+	}
+
+	newEntries, err = MarkHiddenEntries(newEntries)
+	if err != nil {
+		return nil, err
+	}
+
+	return newEntries, nil
 }
