@@ -11,24 +11,24 @@ import (
 )
 
 func TestParseCommand(t *testing.T) {
-	cliPath := NewBin(t) // Adjust this function to point to your CLI binary
+	cliPath := NewBin(t)
 	testCases := []struct {
 		name           string
 		exemptionsFile string
 		expectedOutput string
-		expectError    bool
+		expectError    require.ErrorAssertionFunc
 	}{
 		{
 			name:           "Valid exemptions file",
 			exemptionsFile: "valid_exemptions.yaml",
 			expectedOutput: "exemptions.txt",
-			expectError:    false,
+			expectError:    require.NoError,
 		},
 		{
 			name:           "Invalid exemptions file path",
 			exemptionsFile: "invalid_exemptions.yaml",
 			expectedOutput: "",
-			expectError:    true,
+			expectError:    require.Error,
 		},
 	}
 
@@ -46,23 +46,18 @@ func TestParseCommand(t *testing.T) {
 			)
 
 			var expectedOutput []byte
-			if !tc.expectError {
-				require.FileExists(t, outputFilePath)
+			if tc.expectedOutput != "" {
 				expectedOutput, err = os.ReadFile(outputFilePath)
 				require.NoError(t, err)
 			}
+
 			var o, e bytes.Buffer
 			cmd.Stdout = &o
 			cmd.Stderr = &e
 			err = cmd.Run()
 
-			if tc.expectError {
-				require.Error(t, err, e.String())
-			} else {
-				require.NoError(t, err, e.String())
-				require.FileExists(t, outputFilePath)
-
-				require.NoError(t, err)
+			tc.expectError(t, err)
+			if tc.expectedOutput != "" {
 				actualOutput, err := os.ReadFile(outputFilePath)
 				require.NoError(t, err)
 				require.Equal(t, string(expectedOutput), string(actualOutput))

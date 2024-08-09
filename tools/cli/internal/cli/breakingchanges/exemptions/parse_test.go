@@ -14,11 +14,6 @@ func TestSuccessfulParse_Run(t *testing.T) {
 		outputPath:      "exemptions.txt",
 		fs:              fs,
 	}
-	defer func() {
-		if err := fs.Remove(opts.outputPath); err != nil {
-			t.Errorf("Failed to remove output file: %v", err)
-		}
-	}()
 
 	if err := opts.Run(); err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
