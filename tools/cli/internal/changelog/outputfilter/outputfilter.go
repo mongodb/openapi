@@ -24,7 +24,7 @@ import (
 
 const lan = "en" // language for localized output
 
-type Entry struct {
+type OasDiffEntry struct {
 	ID                string `json:"id"`
 	Text              string `json:"text"`
 	Level             int    `json:"level"`
@@ -36,7 +36,7 @@ type Entry struct {
 	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*Entry, error) {
+func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
 	})
@@ -49,7 +49,7 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 		return nil, err
 	}
 
-	var entries []*Entry
+	var entries []*OasDiffEntry
 	err = json.Unmarshal(bytes, &entries)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 	return transformEntries(entries, exemptionsFilePath)
 }
 
-func transformEntries(entries []*Entry, exemptionsFilePath string) ([]*Entry, error) {
+func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	for _, entry := range entries {
 		transformMessage(entry)
 	}

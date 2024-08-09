@@ -17,7 +17,7 @@ import (
 	"regexp"
 )
 
-func transformMessage(entry *Entry) *Entry {
+func transformMessage(entry *OasDiffEntry) *OasDiffEntry {
 	text := entry.Text
 	text = removeResponseStatusCodes(text)
 	text = setValueSet(text)
