@@ -11,7 +11,7 @@ func TestSuccessfulParse_Run(t *testing.T) {
 	fs := afero.NewOsFs()
 	opts := &Opts{
 		exemptionsPaths: "../../../../test/data/exemptions/valid_exemptions.yaml",
-		outputPath:      "exemptions.txt",
+		outputPath:      "../../../../test/data/exemptions/exemptions.txt",
 		fs:              fs,
 	}
 
