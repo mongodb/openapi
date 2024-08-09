@@ -82,5 +82,5 @@ func (s *Metadata) Check() ([]*outputfilter.Entry, error) {
 		diffResult.SourceMap,
 		checker.INFO)
 
-	return outputfilter.NewChangelogEntries(changes, diffResult.SpecInfoPair)
+	return outputfilter.NewChangelogEntries(changes, diffResult.SpecInfoPair, s.ExemptionFilePath)
 }
