@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/mongodb/openapi/tools/cli/internal/breakingchanges"
+	"github.com/spf13/afero"
 )
 
 var hideIDs = []string{
@@ -21,8 +22,13 @@ var hideIDs = []string{
 }
 
 // MarkHiddenEntries sets the HideFromChangelog flag to true
-func MarkHiddenEntries(entries []*Entry) ([]*Entry, error) {
-	entries, err := hideByExemptions(entries, []breakingchanges.Exemption{})
+func MarkHiddenEntries(entries []*Entry, exemptionsFilePath string) ([]*Entry, error) {
+	exemptions, err := getExemptionsFromPath(exemptionsFilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	entries, err = hideByExemptions(entries, exemptions)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +72,7 @@ func hideByExemptions(entries []*Entry, exemptions []breakingchanges.Exemption) 
 			}
 
 			// Transform entry into a dummy exemption to compare descriptions
-			dummyExemption := FromEntry(entry, exemption.HideFromChangelog)
+			dummyExemption := fromEntry(entry, exemption.HideFromChangelog)
 			if !strings.Contains(exemption.BreakingChangeDescription, dummyExemption.BreakingChangeDescription) {
 				continue
 			}
@@ -80,7 +86,7 @@ func hideByExemptions(entries []*Entry, exemptions []breakingchanges.Exemption) 
 	return entries, nil
 }
 
-func FromEntry(entry *Entry, hideFromChangelog string) *breakingchanges.Exemption {
+func fromEntry(entry *Entry, hideFromChangelog string) *breakingchanges.Exemption {
 	description := entry.Operation + " " + entry.Path + " " + entry.Text + " [" + entry.ID + "]"
 	if entry.Source == "" {
 		description = entry.Text + " [" + entry.ID + "]"
@@ -92,4 +98,18 @@ func FromEntry(entry *Entry, hideFromChangelog string) *breakingchanges.Exemptio
 		Reason:                    "",
 		HideFromChangelog:         hideFromChangelog,
 	}
+}
+
+func getExemptionsFromPath(exemptionsFilePath string) ([]breakingchanges.Exemption, error) {
+	if exemptionsFilePath == "" {
+		return nil, nil
+	}
+
+	fs := afero.NewOsFs()
+	exemptions, err := breakingchanges.GetValidExemptionsList(exemptionsFilePath, true, fs)
+	if err != nil {
+		return nil, err
+	}
+
+	return exemptions, nil
 }

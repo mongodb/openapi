@@ -42,10 +42,10 @@ type Metadata struct {
 	Revision          *load.SpecInfo //  the new spec to compare against the base
 	Config            *checker.Config
 	OasDiff           *openapi.OasDiff
-	ExceptionFilePath string
+	ExemptionFilePath string
 }
 
-func NewMetadata(base, revision, exceptionFilePath string) (*Metadata, error) {
+func NewMetadata(base, revision, exemptionFilePath string) (*Metadata, error) {
 	baseSpec, err := openapi.CreateNormalizedOpenAPISpecFromPath(base)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func NewMetadata(base, revision, exceptionFilePath string) (*Metadata, error) {
 	return &Metadata{
 		Base:              baseSpec,
 		Revision:          revisionSpec,
-		ExceptionFilePath: exceptionFilePath,
+		ExemptionFilePath: exemptionFilePath,
 		Config:            changelogConfig,
 		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
 			IncludePathParams: true,

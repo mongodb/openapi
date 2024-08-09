@@ -61,7 +61,8 @@ func transformComponentEntry(breakingChangeDescription string) string {
 	return breakingChangeDescription
 }
 
-func getValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afero.Fs) ([]Exemption, error) {
+// GetValidExemptionsList returns a list of exemptions. If ignoreExpiration is set to true, it will return all exemptions.
+func GetValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afero.Fs) ([]Exemption, error) {
 	if exemptionsPath == "" {
 		return nil, fmt.Errorf("could not find exemptions file path")
 	}
@@ -93,7 +94,7 @@ func getValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afe
 
 // CreateExemptionsFile generates a file with the exemptions in the oasdiff breaking changes format.
 func CreateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bool, fs afero.Fs) error {
-	validExemptions, err := getValidExemptionsList(exemptionsPath, ignoreExpiration, fs)
+	validExemptions, err := GetValidExemptionsList(exemptionsPath, ignoreExpiration, fs)
 	if err != nil {
 		return fmt.Errorf("could not get valid exemptions list: %v", err)
 	}

@@ -35,7 +35,7 @@ type Entry struct {
 	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair) ([]*Entry, error) {
+func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*Entry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
 	})
@@ -54,10 +54,10 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 		return nil, err
 	}
 
-	return transformEntries(entries)
+	return transformEntries(entries, exemptionsFilePath)
 }
 
-func transformEntries(entries []*Entry) ([]*Entry, error) {
+func transformEntries(entries []*Entry, exemptionsFilePath string) ([]*Entry, error) {
 	for _, entry := range entries {
 		transformMessage(entry)
 	}
@@ -67,7 +67,7 @@ func transformEntries(entries []*Entry) ([]*Entry, error) {
 		return nil, err
 	}
 
-	newEntries, err = MarkHiddenEntries(newEntries)
+	newEntries, err = MarkHiddenEntries(newEntries, exemptionsFilePath)
 	if err != nil {
 		return nil, err
 	}
