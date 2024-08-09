@@ -27,7 +27,7 @@ type ExtensionFilter struct {
 }
 
 const sunsetExtension = "x-sunset"
-const xGenExtension = "x-gen-version"
+const xGenExtension = "x-xgen-version"
 const format = "2006-01-02T15:04:05Z07:00"
 
 func (f *ExtensionFilter) Apply() error {
@@ -35,11 +35,14 @@ func (f *ExtensionFilter) Apply() error {
 		if pathItem == nil {
 			continue
 		}
+		updateExtensionToDateString(pathItem.Extensions)
 
 		for _, operation := range pathItem.Operations() {
 			if operation == nil {
 				continue
 			}
+
+			updateExtensionToDateString(operation.Extensions)
 
 			latestVersionMatch, err := apiversion.FindLatestContentVersionMatched(operation, f.metadata.targetVersion)
 			if err != nil {
@@ -47,7 +50,19 @@ func (f *ExtensionFilter) Apply() error {
 			}
 
 			for _, response := range operation.Responses.Map() {
-				if response.Value == nil || response.Value.Content == nil {
+				if response == nil {
+					continue
+				}
+
+				updateExtensionToDateString(response.Extensions)
+
+				if response.Value == nil {
+					continue
+				}
+
+				updateExtensionToDateString(response.Value.Extensions)
+
+				if response.Value.Content == nil {
 					continue
 				}
 
@@ -66,29 +81,30 @@ func (f *ExtensionFilter) Apply() error {
 	return nil
 }
 
+func updateExtensionToDateString(extensions map[string]any) {
+	if extensions == nil {
+		return
+	}
+
+	for key, value := range extensions {
+		if key != sunsetExtension && key != xGenExtension {
+			continue
+		}
+		date, err := time.Parse(format, value.(string))
+		if err != nil {
+			continue
+		}
+		extensions[key] = date.Format("2006-01-02")
+	}
+}
+
 func (f *ExtensionFilter) updateToDateString(content openapi3.Content) {
 	for _, mediaType := range content {
 		if mediaType.Extensions == nil {
 			continue
 		}
 
-		// check if it has sunset extension
-		if sunset, ok := mediaType.Extensions[sunsetExtension]; ok {
-			date, err := time.Parse(format, sunset.(string))
-			if err != nil {
-				continue
-			}
-			mediaType.Extensions[sunsetExtension] = date.Format("2006-01-02")
-		}
-
-		// check if it has x-gen-version extension
-		if genVersion, ok := mediaType.Extensions[xGenExtension]; ok {
-			date, err := time.Parse(format, genVersion.(string))
-			if err != nil {
-				continue
-			}
-			mediaType.Extensions[xGenExtension] = date.Format("2006-01-02")
-		}
+		updateExtensionToDateString(mediaType.Extensions)
 	}
 }
 

@@ -17,10 +17,7 @@ import (
 	"github.com/tufin/oasdiff/diff"
 )
 
-var skipVersions = []string{
-	"2023-01-01",
-	"2023-02-01",
-}
+var skipVersions = []string{}
 
 func TestSplitVersionsFilteredOASes(t *testing.T) {
 	cliPath := NewBin(t)
@@ -70,7 +67,7 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 			folder := tc.env
 			base := getInputPath(t, tc.specType, tc.format, folder)
 			outputPath := getOutputFolder(t, folder) + "/" + tc.specType + "-" + folder + "-" + "output." + tc.format
