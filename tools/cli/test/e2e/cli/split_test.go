@@ -100,7 +100,7 @@ func TestSplitVersions(t *testing.T) {
 func TestSplitVersionsForOAS(t *testing.T) {
 	folder := "dev"
 	cliPath := NewBin(t)
-	base, err := filepath.Abs("../../data/split/" + folder + "/base-openapi-api-registry.json")
+	base, err := filepath.Abs("../../data/split/" + folder + "/openapi-api-registry.json")
 	require.NoError(t, err)
 	cmd := exec.Command(cliPath,
 		"split",
@@ -134,7 +134,7 @@ func TestSplitVersionsForOAS(t *testing.T) {
 func getInputFolder(t *testing.T, specType, format, folder string) string {
 	t.Helper()
 	if specType == "not-filtered" {
-		cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-mms-extensions.json")
+		cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-mms.json")
 		require.NoError(t, err)
 		return cliPath
 	}
