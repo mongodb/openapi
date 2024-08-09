@@ -225,6 +225,21 @@ func TestSquashRequestFieldAdded(t *testing.T) {
 			},
 			wantError: require.NoError,
 		},
+		{
+			name: "Test squashing entries with wrong description",
+			entries: []*Entry{
+				{
+					ID: "new-required-request-property",
+					// 			# the field is not between apostrophes
+					Text:        "added the new required request property containerId",
+					Operation:   "POST",
+					OperationID: "createConnectedOrgConfigs",
+					Path:        "/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs",
+				},
+			},
+			expectedEntries: []*Entry{},
+			wantError:       require.Error,
+		},
 	}
 
 	for _, tt := range tests {

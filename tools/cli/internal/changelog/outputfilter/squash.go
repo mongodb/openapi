@@ -20,17 +20,27 @@ type SquashHandler interface {
 
 func newSquashHandlers() map[string]func(map[string][]*Entry) ([]*Entry, error) {
 	return map[string]func(map[string][]*Entry) ([]*Entry, error){
+		// enum changes
+		"response-property-enum-value-added":            squashResponsePropertyEnumValueAdded,
+		"response-property-enum-value-removed":          squashResponsePropertyEnumValueRemoved,
+		"response-mediatype-enum-value-removed":         squashResponseMediatypeEnumValueRemoved,
+		"response-write-only-property-enum-value-added": squashResponseWriteOnlyPropertyEnumValueAdded,
+		"request-body-enum-value-removed":               squashRequestBodyEnumValueRemoved,
+		"request-parameter-enum-value-added":            squashRequestParameterEnumValueAdded,
+		"request-parameter-enum-value-removed":          squashRequestParameterEnumValueRemoved,
+		"request-property-enum-value-added":             squashRequestPropertyEnumValueAdded,
+		"request-property-enum-value-removed":           squashRequestPropertyEnumValueRemoved,
 		// field changes
-		"response-required-property-added":            SquashResponseRequiredFieldAdded,
-		"response-required-property-removed":          SquashResponseRequiredFieldRemoved,
-		"response-optional-property-added":            SquashResponseOptionalFieldAdded,
-		"response-optional-property-removed":          SquashResponseOptionalFieldRemoved,
-		"response-property-became-required":           SquashResponseFieldBecameRequired,
-		"request-property-became-required":            SquashRequestFieldBecameRequired,
-		"new-required-request-property":               SquashRequestFieldAdded,
-		"request-property-removed":                    SquashRequestFieldRemoved,
-		"new-optional-request-property":               SquashNewOptionalRequestProperty,
-		"response-optional-property-became-read-only": SquashResponseOptionalFieldBecomeReadonly,
+		"response-required-property-added":            squashResponseRequiredFieldAdded,
+		"response-required-property-removed":          squashResponseRequiredFieldRemoved,
+		"response-optional-property-added":            squashResponseOptionalFieldAdded,
+		"response-optional-property-removed":          squashResponseOptionalFieldRemoved,
+		"response-property-became-required":           squashResponseFieldBecameRequired,
+		"request-property-became-required":            squashRequestFieldBecameRequired,
+		"new-required-request-property":               squashRequestFieldAdded,
+		"request-property-removed":                    squashRequestFieldRemoved,
+		"new-optional-request-property":               squashNewOptionalRequestProperty,
+		"response-optional-property-became-read-only": squashResponseOptionalFieldBecomeReadonly,
 	}
 }
 
@@ -131,7 +141,7 @@ func squashEntriesByValues(
 				} else {
 					valuesToAddToTemplate = value
 				}
-				text = identifierRegex.ReplaceAllString(text, fmt.Sprintf("``%v``", valuesToAddToTemplate))
+				text = replaceOnlyFirstOccurrence(text, valuesToAddToTemplate)
 			}
 
 			squashedEntry := templateEntry
@@ -148,6 +158,19 @@ func squashEntriesByValues(
 		}
 	}
 	return result, nil
+}
+
+func replaceOnlyFirstOccurrence(template, valuesToAddToTemplate string) string {
+	// Variable to track if a replacement has been made
+	replacementMade := false
+
+	return identifierRegex.ReplaceAllStringFunc(template, func(match string) string {
+		if !replacementMade {
+			replacementMade = true
+			return fmt.Sprintf("``%v``", valuesToAddToTemplate)
+		}
+		return match
+	})
 }
 
 func newSquashMap(operation string, entries []*Entry, expectedNumberOfValues, squashIdx int) (map[string]squashedEntries, error) {
