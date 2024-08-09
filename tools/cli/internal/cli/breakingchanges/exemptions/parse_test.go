@@ -11,14 +11,9 @@ func TestSuccessfulParse_Run(t *testing.T) {
 	fs := afero.NewOsFs()
 	opts := &Opts{
 		exemptionsPaths: "../../../../test/data/exemptions/valid_exemptions.yaml",
-		outputPath:      "exemptions.txt",
+		outputPath:      "../../../../test/data/exemptions/exemptions.txt",
 		fs:              fs,
 	}
-	defer func() {
-		if err := fs.Remove(opts.outputPath); err != nil {
-			t.Errorf("Failed to remove output file: %v", err)
-		}
-	}()
 
 	if err := opts.Run(); err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)

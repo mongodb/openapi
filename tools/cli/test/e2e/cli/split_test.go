@@ -59,7 +59,7 @@ func TestSplitVersions(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			folder := tc.env
-			base := getInputFolder(t, tc.specType, tc.format, folder)
+			base := getInputPath(t, tc.specType, tc.format, folder)
 			cmd := exec.Command(cliPath,
 				"split",
 				"-s",
@@ -84,7 +84,7 @@ func TestSplitVersions(t *testing.T) {
 		})
 	}
 }
-func getInputFolder(t *testing.T, specType, format, folder string) string {
+func getInputPath(t *testing.T, specType, format, folder string) string {
 	t.Helper()
 	if specType == "not-filtered" {
 		cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-mms-extensions.json")
