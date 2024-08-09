@@ -15,19 +15,22 @@ package filter
 
 import (
 	"log"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-type SunsetFilter struct {
+type ExtensionFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
 }
 
 const sunsetExtension = "x-sunset"
+const xGenExtension = "x-gen-version"
+const format = "2006-01-02T15:04:05Z07:00"
 
-func (f *SunsetFilter) Apply() error {
+func (f *ExtensionFilter) Apply() error {
 	for _, pathItem := range f.oas.Paths.Map() {
 		if pathItem == nil {
 			continue
@@ -48,16 +51,50 @@ func (f *SunsetFilter) Apply() error {
 					continue
 				}
 
-				f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, response)
+				f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, response.Value.Content)
+				f.updateToDateString(response.Value.Content)
 			}
+
+			request := operation.RequestBody
+			if request == nil || request.Value == nil || request.Value.Content == nil {
+				continue
+			}
+			f.updateToDateString(request.Value.Content)
+			f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, request.Value.Content)
 		}
 	}
 	return nil
 }
 
+func (f *ExtensionFilter) updateToDateString(content openapi3.Content) {
+	for _, mediaType := range content {
+		if mediaType.Extensions == nil {
+			continue
+		}
+
+		// check if it has sunset extension
+		if sunset, ok := mediaType.Extensions[sunsetExtension]; ok {
+			date, err := time.Parse(format, sunset.(string))
+			if err != nil {
+				continue
+			}
+			mediaType.Extensions[sunsetExtension] = date.Format("2006-01-02")
+		}
+
+		// check if it has x-gen-version extension
+		if genVersion, ok := mediaType.Extensions[xGenExtension]; ok {
+			date, err := time.Parse(format, genVersion.(string))
+			if err != nil {
+				continue
+			}
+			mediaType.Extensions[xGenExtension] = date.Format("2006-01-02")
+		}
+	}
+}
+
 // deleteSunsetIfDeprecatedByHiddenVersions deletes the sunset extension if the latest matched version is deprecated by hidden versions
-func (f *SunsetFilter) deleteSunsetIfDeprecatedByHiddenVersions(latestMatchedVersion *apiversion.APIVersion, response *openapi3.ResponseRef) {
-	versions, versionToContentType := getVersionsInContentType(response.Value.Content)
+func (f *ExtensionFilter) deleteSunsetIfDeprecatedByHiddenVersions(latestMatchedVersion *apiversion.APIVersion, content openapi3.Content) {
+	versions, versionToContentType := getVersionsInContentType(content)
 
 	deprecatedByHiddenVersions := make([]*apiversion.APIVersion, 0)
 	deprecatedByVersions := make([]*apiversion.APIVersion, 0)

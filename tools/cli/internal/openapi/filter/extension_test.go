@@ -50,7 +50,7 @@ func TestXSunsetFilter_removeSunset(t *testing.T) {
 			require.NoError(t, err)
 			oas := tt.oas
 
-			filter := &SunsetFilter{
+			filter := &ExtensionFilter{
 				oas:      oas,
 				metadata: &Metadata{targetVersion: version, targetEnv: "dev"},
 			}
@@ -92,7 +92,8 @@ func getOasSunset() *openapi3.T {
 						},
 					},
 					Extensions: map[string]interface{}{
-						"x-sunset": "2024-05-30",
+						"x-sunset":    "2024-05-30T00:00:00Z",
+						xGenExtension: "2023-01-01",
 					},
 				},
 				"application/vnd.atlas.2024-02-30+json": {
@@ -102,13 +103,17 @@ func getOasSunset() *openapi3.T {
 						},
 					},
 					Extensions: map[string]interface{}{
-						"x-sunset": "2024-04-10",
+						"x-sunset":    "2024-04-10",
+						xGenExtension: "2024-02-30",
 					},
 				},
 				"application/vnd.atlas.2025-01-01+json": {
 					Schema: &openapi3.SchemaRef{
 						Value: &openapi3.Schema{
 							Description: "description",
+						},
+						Extensions: map[string]interface{}{
+							"x-sunset": "2025-01-01T00:00:00Z",
 						},
 					},
 					Extensions: map[string]interface{}{
@@ -124,7 +129,8 @@ func getOasSunset() *openapi3.T {
 						},
 					},
 					Extensions: map[string]interface{}{
-						"x-sunset": "2025-01-10",
+						"x-sunset":    "2025-01-01T00:00:00Z",
+						xGenExtension: "2024-05-30",
 					},
 				},
 			},

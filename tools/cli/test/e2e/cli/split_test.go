@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -69,14 +70,16 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			// t.Parallel()
 			folder := tc.env
 			base := getInputPath(t, tc.specType, tc.format, folder)
+			outputPath := getOutputFolder(t, folder) + "/" + tc.specType + "-" + folder + "-" + "output." + tc.format
 			cmd := exec.Command(cliPath,
 				"split",
 				"-s",
 				base,
 				"-o",
-				getOutputFolder(t, folder)+"/output."+tc.format,
+				outputPath,
 				"--env",
 				tc.env,
 			)
@@ -95,7 +98,9 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 					continue
 				}
 				fmt.Printf("Validating version: %s\n", version)
-				validateFiles(t, version, folder)
+				noExtensionOutputPath := strings.Replace(outputPath, "."+tc.format, "", 1)
+				versionedOutputPath := noExtensionOutputPath + "-" + version + "." + tc.format
+				ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version, folder), versionedOutputPath)
 			}
 		})
 	}
@@ -205,13 +210,6 @@ func getOutputFolder(t *testing.T, subFolder string) string {
 	require.NoError(t, os.MkdirAll(finalPath, os.ModePerm))
 	require.DirExists(t, finalPath)
 	return finalPath
-}
-
-func validateFiles(t *testing.T, version, folder string) {
-	t.Helper()
-	fileName := "output-" + version + ".json"
-	path := getOutputFolder(t, folder) + "/" + fileName
-	ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version, folder), path)
 }
 
 func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath string) {
