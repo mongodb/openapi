@@ -27,7 +27,11 @@ type Exemption struct {
 	BreakingChangeDescription string `yaml:"breaking_change_description"`
 	ExemptUntil               string `yaml:"exempt_until"`
 	Reason                    string `yaml:"reason"`
-	HideFromChangelog         string `yaml:"hide_from_changelog"`
+	HideFromChangelog         string `yaml:"hide_from_changelog:omitempty"`
+}
+
+func (e *Exemption) isHidden() bool {
+	return e.HideFromChangelog == "true"
 }
 
 func getDuplicatedV1Entries(exemption string) []string {
@@ -57,7 +61,8 @@ func transformComponentEntry(breakingChangeDescription string) string {
 	return breakingChangeDescription
 }
 
-func getValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afero.Fs) ([]Exemption, error) {
+// GetValidExemptionsList returns a list of exemptions. If ignoreExpiration is set to true, it will return all exemptions.
+func GetValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afero.Fs) ([]Exemption, error) {
 	if exemptionsPath == "" {
 		return nil, fmt.Errorf("could not find exemptions file path")
 	}
@@ -89,7 +94,7 @@ func getValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afe
 
 // CreateExemptionsFile generates a file with the exemptions in the oasdiff breaking changes format.
 func CreateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bool, fs afero.Fs) error {
-	validExemptions, err := getValidExemptionsList(exemptionsPath, ignoreExpiration, fs)
+	validExemptions, err := GetValidExemptionsList(exemptionsPath, ignoreExpiration, fs)
 	if err != nil {
 		return fmt.Errorf("could not get valid exemptions list: %v", err)
 	}
@@ -114,4 +119,16 @@ func CreateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bo
 	}
 	log.Printf("Exemptions file generated in %s\n", outputPath)
 	return nil
+}
+
+// GetHiddenExemptions returns a list of exemptions that have 'HideFromChangelog' set to true.
+func GetHiddenExemptions(exemptions []Exemption) []Exemption {
+	// Get only exemptions that have 'HideFromChangelog' set to true
+	exemptionsMarkedHidden := []Exemption{}
+	for _, exemption := range exemptions {
+		if exemption.isHidden() {
+			exemptionsMarkedHidden = append(exemptionsMarkedHidden, exemption)
+		}
+	}
+	return exemptionsMarkedHidden
 }
