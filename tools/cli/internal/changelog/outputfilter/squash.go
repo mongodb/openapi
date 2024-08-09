@@ -160,6 +160,12 @@ func squashEntriesByValues(
 	return result, nil
 }
 
+// replaceOnlyFirstOccurrence replaces only the first occurrence of the identifierRegex
+// in the template with the valuesToAddToTemplate.
+// Why do we need to replace only the first occurrence?
+// OasDiffEntry.Text may have messages with multiple values enclosed in single quotes such as
+// "added the new 'DUBLIN_IRL' enum value to the '/items/dataProcessRegion/region' response property".
+// In this scenario, calling ReplaceAllStringFunc will also replace '/items/dataProcessRegion/region' which is not intended.
 func replaceOnlyFirstOccurrence(template, valuesToAddToTemplate string) string {
 	// Variable to track if a replacement has been made
 	replacementMade := false
