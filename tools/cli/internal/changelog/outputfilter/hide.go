@@ -23,7 +23,8 @@ var hideIDs = []string{
 
 // MarkHiddenEntries sets the HideFromChangelog flag to true
 func MarkHiddenEntries(entries []*Entry, exemptionsFilePath string) ([]*Entry, error) {
-	exemptions, err := getExemptionsFromPath(exemptionsFilePath)
+	fs := afero.NewOsFs()
+	exemptions, err := getExemptionsFromPath(exemptionsFilePath, fs)
 	if err != nil {
 		return nil, err
 	}
@@ -100,12 +101,7 @@ func fromEntry(entry *Entry, hideFromChangelog string) *breakingchanges.Exemptio
 	}
 }
 
-func getExemptionsFromPath(exemptionsFilePath string) ([]breakingchanges.Exemption, error) {
-	if exemptionsFilePath == "" {
-		return nil, nil
-	}
-
-	fs := afero.NewOsFs()
+func getExemptionsFromPath(exemptionsFilePath string, fs afero.Fs) ([]breakingchanges.Exemption, error) {
 	exemptions, err := breakingchanges.GetValidExemptionsList(exemptionsFilePath, true, fs)
 	if err != nil {
 		return nil, err
