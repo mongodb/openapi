@@ -33,7 +33,7 @@ for url in "${all_urls[@]}"; do
     echo "$url"
     link="https://www.mongodb.com/docs/openapi/preview/?src=$url"
     echo "Branded preview: ${link}"
-    links="${links}<br /><li><a href='$link' target=\"_blank\">${filename}</a></li>"
+    links="${links}<li><a href='$link' target=\"_blank\">${filename}</a></li>"
 done
 
 cat << EOF > branded-preview.html
