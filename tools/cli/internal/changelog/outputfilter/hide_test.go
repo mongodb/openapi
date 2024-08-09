@@ -11,7 +11,7 @@ import (
 )
 
 func TestMarkHiddenEntries(t *testing.T) {
-	entries := []*Entry{
+	entries := []*OasDiffEntry{
 		{ID: "response-required-property-became-write-only"},
 		{ID: "some-other-id"},
 	}
@@ -28,7 +28,7 @@ func TestMarkHiddenEntries(t *testing.T) {
 }
 
 func TestHideByIDs(t *testing.T) {
-	entries := []*Entry{
+	entries := []*OasDiffEntry{
 		{ID: "response-required-property-became-write-only"},
 		{ID: "some-other-id"},
 	}
@@ -42,7 +42,7 @@ func TestHideByIDs(t *testing.T) {
 }
 
 func TestHideByExemptions(t *testing.T) {
-	entries := []*Entry{
+	entries := []*OasDiffEntry{
 		{ID: "some-id", Path: "/some/path", Operation: "GET", Text: "some text"},
 	}
 
@@ -56,7 +56,7 @@ func TestHideByExemptions(t *testing.T) {
 }
 
 func TestFromEntry(t *testing.T) {
-	entry := &Entry{
+	entry := &OasDiffEntry{
 		ID:        "some-id",
 		Path:      "/some/path",
 		Operation: "GET",
@@ -71,7 +71,7 @@ func TestFromEntry(t *testing.T) {
 }
 
 func TestFromEntry_NoSource(t *testing.T) {
-	entry := &Entry{
+	entry := &OasDiffEntry{
 		ID:        "api-schema-removed",
 		Path:      "",
 		Operation: "",

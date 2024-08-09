@@ -25,18 +25,18 @@ import (
 const lan = "en" // language for localized output
 
 type OasDiffEntry struct {
-	ID          string `json:"id"`
-	Text        string `json:"text"`
-	Level       int    `json:"level"`
-	Operation   string `json:"operation,omitempty"`
-	OperationID string `json:"operationId,omitempty"`
-	Path        string `json:"path,omitempty"`
-	Source      string `json:"source,omitempty"`
-	Section     string `json:"section"`
+	ID                string `json:"id"`
+	Text              string `json:"text"`
+	Level             int    `json:"level"`
+	Operation         string `json:"operation,omitempty"`
+	OperationID       string `json:"operationId,omitempty"`
+	Path              string `json:"path,omitempty"`
+	Source            string `json:"source,omitempty"`
+	Section           string `json:"section"`
 	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair) ([]*OasDiffEntry, error) {
+func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
 	})
@@ -58,7 +58,7 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 	return transformEntries(entries, exemptionsFilePath)
 }
 
-func transformEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
+func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	for _, entry := range entries {
 		transformMessage(entry)
 	}

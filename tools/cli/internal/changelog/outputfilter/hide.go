@@ -22,7 +22,7 @@ var hideIDs = []string{
 }
 
 // MarkHiddenEntries sets the HideFromChangelog flag to true
-func MarkHiddenEntries(entries []*Entry, exemptionsFilePath string, fs afero.Fs) ([]*Entry, error) {
+func MarkHiddenEntries(entries []*OasDiffEntry, exemptionsFilePath string, fs afero.Fs) ([]*OasDiffEntry, error) {
 	exemptions, err := getExemptionsFromPath(exemptionsFilePath, fs)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func MarkHiddenEntries(entries []*Entry, exemptionsFilePath string, fs afero.Fs)
 }
 
 // hideByIDs removes entries with the specified IDs from the list of entries
-func hideByIDs(entries []*Entry, ids []string) ([]*Entry, error) {
+func hideByIDs(entries []*OasDiffEntry, ids []string) ([]*OasDiffEntry, error) {
 	if len(ids) == 0 {
 		return entries, nil
 	}
@@ -53,7 +53,7 @@ func hideByIDs(entries []*Entry, ids []string) ([]*Entry, error) {
 }
 
 // hideByExemptions hides entries based on the exemptions
-func hideByExemptions(entries []*Entry, exemptions []breakingchanges.Exemption) ([]*Entry, error) {
+func hideByExemptions(entries []*OasDiffEntry, exemptions []breakingchanges.Exemption) ([]*OasDiffEntry, error) {
 	exemptionsMarkedHidden := breakingchanges.GetHiddenExemptions(exemptions)
 	hiddenEntries := 0
 	for _, entry := range entries {
@@ -86,7 +86,7 @@ func hideByExemptions(entries []*Entry, exemptions []breakingchanges.Exemption) 
 	return entries, nil
 }
 
-func fromEntry(entry *Entry, hideFromChangelog string) *breakingchanges.Exemption {
+func fromEntry(entry *OasDiffEntry, hideFromChangelog string) *breakingchanges.Exemption {
 	description := entry.Operation + " " + entry.Path + " " + entry.Text + " [" + entry.ID + "]"
 	if entry.Source == "" {
 		description = entry.Text + " [" + entry.ID + "]"

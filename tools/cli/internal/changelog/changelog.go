@@ -47,7 +47,7 @@ type Metadata struct {
 	Config            *checker.Config
 	OasDiff           *openapi.OasDiff
 	RunDate           string
-	ExceptionFilePath string
+	ExemptionFilePath string
 }
 
 type Entry struct {
@@ -79,7 +79,7 @@ type Change struct {
 	BackwardCompatible bool   `json:"backwardCompatible"`
 }
 
-func NewMetadata(base, revision, exceptionFilePath string) (*Metadata, error) {
+func NewMetadata(base, revision, exemptionFilePath string) (*Metadata, error) {
 	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
 	baseSpec, err := loader.CreateOpenAPISpecFromPath(base)
 	if err != nil {
@@ -98,7 +98,7 @@ func NewMetadata(base, revision, exceptionFilePath string) (*Metadata, error) {
 		RunDate:           time.Now().Format("2006-01-02"),
 		Base:              baseSpec,
 		Revision:          revisionSpec,
-		ExceptionFilePath: exceptionFilePath,
+		ExemptionFilePath: exemptionFilePath,
 		Config:            changelogConfig,
 		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
 			IncludePathParams: true,
@@ -120,7 +120,7 @@ func NewChangelogEntries(path string) ([]*Entry, error) {
 	return entries, nil
 }
 
-func NewMetadataWithNormalizedSpecs(base, revision, exceptionFilePath string) (*Metadata, error) {
+func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath string) (*Metadata, error) {
 	baseSpec, err := openapi.CreateNormalizedOpenAPISpecFromPath(base)
 	if err != nil {
 		return nil, err
