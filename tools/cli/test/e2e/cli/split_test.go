@@ -11,6 +11,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/diff"
 )
@@ -127,7 +128,18 @@ func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
 		if folder == "prod" && version == "2025-01-01" {
 			continue
 		}
-		validateFiles(t, version, folder)
+
+		// validate the file exists
+		fileName := "output-" + version + ".json"
+		path := getOutputFolder(t, folder) + "/" + fileName
+		require.FileExists(t, path)
+		// validate the file is a valid openapi spec
+		loader := openapi3.NewLoader()
+		loader.IsExternalRefsAllowed = true
+		oas, err := loader.LoadFromFile(path)
+		require.NoError(t, err)
+		require.NotNil(t, oas)
+		require.NoError(t, oas.Validate(loader.Context))
 	}
 }
 
