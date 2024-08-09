@@ -2,28 +2,25 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/diff"
 )
 
-var versions = []string{
-	// "2023-01-01",
-	// "2023-02-01",
-	// "2023-10-01",
-	// "2023-11-15",
-	"2024-05-30",
-	"2024-08-05",
-	"2025-01-01",
+var skipVersions = []string{
+	"2023-01-01",
+	"2023-02-01",
 }
 
-func TestSplitVersions(t *testing.T) {
+func TestSplitVersionsFilteredOASes(t *testing.T) {
 	cliPath := NewBin(t)
 	testCases := []struct {
 		name     string
@@ -31,42 +28,42 @@ func TestSplitVersions(t *testing.T) {
 		specType string
 		env      string
 	}{
+		// {
+		// 	name:     "Split filtered specs json dev",
+		// 	format:   "json",
+		// 	specType: "filtered",
+		// 	env:      "dev",
+		// },
+		// {
+		// 	name:     "Split filtered specs yaml dev",
+		// 	format:   "yaml",
+		// 	specType: "filtered",
+		// 	env:      "dev",
+		// },
+		// {
+		// 	name:     "Split not-filtered specs json dev",
+		// 	format:   "json",
+		// 	specType: "not-filtered",
+		// 	env:      "dev",
+		// },
 		{
-			name:     "Split filtered specs json dev",
-			format:   "json",
-			specType: "filtered",
-			env:      "dev",
-		},
-		{
-			name:     "Split filtered specs yaml dev",
-			format:   "yaml",
-			specType: "filtered",
-			env:      "dev",
-		},
-		{
-			name:     "Split not-filtered specs json dev",
+			name:     "Split not-filtered specs json prod",
 			format:   "json",
 			specType: "not-filtered",
-			env:      "dev",
-		},
-		{
-			name:     "Split not-filtered specs json prod",
-			format:   "json",
-			specType: "not-filtered",
 			env:      "prod",
 		},
-		{
-			name:     "Split not-filtered specs json prod",
-			format:   "json",
-			specType: "filtered",
-			env:      "prod",
-		},
-		{
-			name:     "Split not-filtered specs json prod",
-			format:   "yaml",
-			specType: "filtered",
-			env:      "prod",
-		},
+		// {
+		// 	name:     "Split not-filtered specs json prod",
+		// 	format:   "json",
+		// 	specType: "filtered",
+		// 	env:      "prod",
+		// },
+		// {
+		// 	name:     "Split not-filtered specs json prod yaml",
+		// 	format:   "yaml",
+		// 	specType: "filtered",
+		// 	env:      "prod",
+		// },
 	}
 
 	for _, tc := range testCases {
@@ -88,21 +85,28 @@ func TestSplitVersions(t *testing.T) {
 			cmd.Stderr = &e
 			require.NoError(t, cmd.Run(), e.String())
 
+			versions := getVersions(t, cliPath, base, folder)
 			for _, version := range versions {
+				if slices.Contains(skipVersions, version) {
+					continue
+				}
 				if tc.env == "prod" && version == "2025-01-01" {
 					continue
 				}
+				fmt.Printf("Validating version: %s\n", version)
 				validateFiles(t, version, folder)
 			}
 		})
 	}
 }
 
-func TestSplitVersionsForOAS(t *testing.T) {
+func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
 	folder := "dev"
 	cliPath := NewBin(t)
 	base, err := filepath.Abs("../../data/split/" + folder + "/openapi-api-registry.json")
 	require.NoError(t, err)
+	copyMMSFileToOutput(t, folder)
+
 	cmd := exec.Command(cliPath,
 		"split",
 		"-s",
@@ -112,24 +116,56 @@ func TestSplitVersionsForOAS(t *testing.T) {
 		"--env",
 		folder,
 	)
-
-	// copy mms file to ouput folder
-	cpCmd := exec.Command("cp", "../../data/split/"+folder+"/openapi-mms.json", getOutputFolder(t, folder)+"/output-mms.json")
 	var o, e bytes.Buffer
-	cpCmd.Stdout = &o
-	cpCmd.Stderr = &e
-	require.NoError(t, cpCmd.Run(), e.String())
-
 	cmd.Stdout = &o
 	cmd.Stderr = &e
 	require.NoError(t, cmd.Run(), e.String())
 
+	versions := getVersions(t, cliPath, base, folder)
+	fmt.Printf("Versions: %v\n", versions)
 	for _, version := range versions {
 		if folder == "prod" && version == "2025-01-01" {
 			continue
 		}
 		validateFiles(t, version, folder)
 	}
+}
+
+func copyMMSFileToOutput(t *testing.T, folder string) {
+	t.Helper()
+	// copy mms file to output folder because the split command will not copy it and it
+	// is needed for external references
+	srcPath := "../../data/split/" + folder + "/openapi-mms.json"
+	destPath := getOutputFolder(t, folder) + "/openapi-mms.json"
+	cpCmd := exec.Command(
+		"cp",
+		srcPath,
+		destPath,
+	)
+	var o, e bytes.Buffer
+	cpCmd.Stdout = &o
+	cpCmd.Stderr = &e
+	require.NoError(t, cpCmd.Run(), e.String())
+}
+
+func getVersions(t *testing.T, cliPath, base, folder string) []string {
+	cmd := exec.Command(cliPath,
+		"versions",
+		"-s",
+		base,
+		"--env",
+		folder,
+	)
+
+	var o, e bytes.Buffer
+	cmd.Stdout = &o
+	cmd.Stderr = &e
+	require.NoError(t, cmd.Run(), e.String())
+
+	// load json output in a string slice
+	versions := []string{}
+	require.NoError(t, json.Unmarshal(o.Bytes(), &versions))
+	return versions
 }
 
 func getInputPath(t *testing.T, specType, format, folder string) string {

@@ -46,6 +46,10 @@ echo "Downloading api-registry oas"
 full_link=$link/openapi-api-registry.json
 curl -f --show-error "$full_link" --output "$BASEDIR"/openapi-api-registry.json
 
+echo "Downloading openapi-mms oas"
+full_link=$link/openapi-mms.json
+curl -f --show-error "$full_link" --output "$BASEDIR"/openapi-mms.json
+
 # Find the commit sha version and write to a readme file
 commit_sha=$(echo "$full_link" | awk -F'mms/' '{print $2}' | awk -F'/' '{print $1}')
 readme_file="$BASEDIR/README.md"
