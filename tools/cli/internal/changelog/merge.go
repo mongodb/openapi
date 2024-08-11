@@ -61,15 +61,16 @@ func (m *Metadata) mergeChangelog(
 		return nil, err
 	}
 
-	entry := m.newEntryAtRunDate(changelog)
+	index, entry := m.newEntryAtRunDate(changelog)
+	if index != -1 {
+		// If the entry already exists, remove it from the changelog
+		changelog = append(changelog[:index], changelog[index+1:]...)
+	}
+
 	depreactedChanges := m.newDeprecatedByNewerVersionChanges(changes, conf)
 	mergedDeprecatedPathsChanges, err := newMergedChanges(depreactedChanges, changeTypeDeprecated, m.Base.Version, entry.Paths, conf)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(mergedDeprecatedPathsChanges) > 0 {
-		entry.Paths = append(entry.Paths, mergedDeprecatedPathsChanges...)
 	}
 
 	revisionChanges := m.newRevisionChanges(changes)
@@ -78,8 +79,11 @@ func (m *Metadata) mergeChangelog(
 		return nil, err
 	}
 
-	if len(mergedRevisionPathsChanges) > 0 {
-		entry.Paths = append(entry.Paths, mergedRevisionPathsChanges...)
+	if len(mergedDeprecatedPathsChanges) > 0 || len(mergedRevisionPathsChanges) > 0 {
+		paths := make([]*Path, 0)
+		paths = append(paths, mergedDeprecatedPathsChanges...)
+		paths = append(paths, mergedRevisionPathsChanges...)
+		entry.Paths = paths
 	}
 
 	changelog = append(changelog, entry)
@@ -127,10 +131,16 @@ func sortChangelog(changelog []*Entry) []*Entry {
 func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 	changeType, version string, changelogPath []*Path,
 	operationConfig map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
-	mergedPaths := make([]*Path, 0)
+	if len(changes) == 0 {
+		return []*Path{}, nil
+	}
 
 	for _, change := range changes {
-		pathEntry := newPathEntry(changelogPath, change.Path, change.Operation)
+		index, pathEntry := newPathEntry(changelogPath, change.Path, change.Operation)
+		if index != -1 {
+			// If the path entry already exists, remove it from the changelog
+			changelogPath = append(changelogPath[:index], changelogPath[index+1:]...)
+		}
 		operationdID := change.OperationID
 
 		conf, ok := operationConfig[operationdID]
@@ -155,10 +165,10 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 		pathEntryVersion.Changes = append(pathEntryVersion.Changes, versionChange)
 		pathEntry.Versions = append(pathEntry.Versions, pathEntryVersion)
 
-		mergedPaths = append(mergedPaths, pathEntry)
+		changelogPath = append(changelogPath, pathEntry)
 	}
 
-	return mergedPaths, nil
+	return changelogPath, nil
 }
 
 var priorityGivenChangeType = func(changeType string) int {
@@ -246,14 +256,14 @@ func newEntryVersion(versions []*Version, specVersion string) *Version {
 	}
 }
 
-func newPathEntry(paths []*Path, path, operation string) *Path {
-	for _, p := range paths {
+func newPathEntry(paths []*Path, path, operation string) (int, *Path) {
+	for i, p := range paths {
 		if p.URI == path && p.HTTPMethod == operation {
-			return p
+			return i, p
 		}
 	}
 
-	return &Path{
+	return -1, &Path{
 		URI:        path,
 		HTTPMethod: operation,
 		Versions:   make([]*Version, 0),
@@ -275,28 +285,23 @@ func (m *Metadata) newRevisionChanges(changes []*outputfilter.OasDiffEntry) []*o
 	return out
 }
 
-func (m *Metadata) newEntryAtRunDate(changelog []*Entry) *Entry {
-	entry := retrieveEntryAtDate(changelog, m.RunDate)
-	if entry != nil {
-		return entry
+func (m *Metadata) newEntryAtRunDate(changelog []*Entry) (int, *Entry) {
+	if i, entry := retrieveEntryAtDate(changelog, m.RunDate); entry != nil {
+		return i, entry
 	}
 
-	newEntry := &Entry{
+	return -1, &Entry{
 		Date: m.RunDate,
 	}
-
-	// Add new entry to the beginning of the changelog
-	changelog = append([]*Entry{newEntry}, changelog...)
-	return changelog[0]
 }
 
-func retrieveEntryAtDate(changelog []*Entry, date string) *Entry {
-	for _, entry := range changelog {
+func retrieveEntryAtDate(changelog []*Entry, date string) (int, *Entry) {
+	for i, entry := range changelog {
 		if entry.Date == date {
-			return entry
+			return i, entry
 		}
 	}
-	return nil
+	return -1, nil
 }
 
 func duplicateChangelog(changelog []*Entry) ([]*Entry, error) {
