@@ -59,11 +59,18 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 }
 
 func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {
+	newEntries := make([]*OasDiffEntry, 0)
 	for _, entry := range entries {
+		// only changes linked to endpoints are currently considered.
+		// For example, oasdiff might also return entries where components were removed.
+		if entry.Path == "" {
+			continue
+		}
 		transformMessage(entry)
+		newEntries = append(newEntries, entry)
 	}
 
-	newEntries, err := squashEntries(entries)
+	newEntries, err := squashEntries(newEntries)
 	if err != nil {
 		return nil, err
 	}
