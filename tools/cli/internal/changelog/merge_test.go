@@ -199,7 +199,7 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	assert.True(t, secondVersionEntry.Changes[0].BackwardCompatible)
 }
 
-func TestMergeChangelogAdd2Endpoints(t *testing.T) {
+func TestMergeChangelogAddTwoEndpoints(t *testing.T) {
 	originalChangelog, err := NewChangelogEntries("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
@@ -328,4 +328,123 @@ func TestNewChangeType(t *testing.T) {
 		result := newChangeType(tc.currentChangeType, tc.newChangeType, tc.changeCode)
 		assert.Equal(t, tc.expectedResult, result, "newChangeType should return the expected result")
 	}
+}
+func TestSortChangelog(t *testing.T) {
+	changelog := []*Entry{
+		{
+			Date: "2023-06-14",
+			Paths: []*Path{
+				{
+					URI:         "/api/atlas/v2/groups/{groupId}/streams",
+					HTTPMethod:  "GET",
+					OperationID: "listStreamInstances",
+					Versions: []*Version{
+						{
+							Version:        "2023-02-01",
+							StabilityLevel: "stable",
+							ChangeType:     "update",
+							Changes:        nil,
+						},
+					},
+				},
+				{
+					URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+					HTTPMethod:  "POST",
+					OperationID: "createCluster",
+					Versions: []*Version{
+						{
+							Version:        "2023-02-02",
+							StabilityLevel: "stable",
+							ChangeType:     "release",
+							Changes:        nil,
+						},
+						{
+							Version:        "2023-02-01",
+							StabilityLevel: "stable",
+							ChangeType:     "update",
+							Changes:        nil,
+						},
+					},
+				},
+			},
+		},
+		{
+			Date: "2023-06-15",
+			Paths: []*Path{
+				{
+					URI:         "/api/atlas/v2/groups/{groupId}/streams",
+					HTTPMethod:  "GET",
+					OperationID: "listStreamInstances",
+					Versions: []*Version{
+						{
+							Version:        "2023-02-01",
+							StabilityLevel: "stable",
+							ChangeType:     "update",
+							Changes:        nil,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	expectedChangelog := []*Entry{
+		{
+			Date: "2023-06-15",
+			Paths: []*Path{
+				{
+					URI:         "/api/atlas/v2/groups/{groupId}/streams",
+					HTTPMethod:  "GET",
+					OperationID: "listStreamInstances",
+					Versions: []*Version{
+						{
+							Version:        "2023-02-01",
+							StabilityLevel: "stable",
+							ChangeType:     "update",
+							Changes:        nil,
+						},
+					},
+				},
+			},
+		},
+		{
+			Date: "2023-06-14",
+			Paths: []*Path{
+				{
+					URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+					HTTPMethod:  "POST",
+					OperationID: "createCluster",
+					Versions: []*Version{
+						{
+							Version:        "2023-02-02",
+							StabilityLevel: "stable",
+							ChangeType:     "release",
+							Changes:        nil,
+						},
+						{
+							Version:        "2023-02-01",
+							StabilityLevel: "stable",
+							ChangeType:     "update",
+							Changes:        nil,
+						},
+					},
+				},
+				{
+					URI:         "/api/atlas/v2/groups/{groupId}/streams",
+					HTTPMethod:  "GET",
+					OperationID: "listStreamInstances",
+					Versions: []*Version{
+						{
+							Version:        "2023-02-01",
+							StabilityLevel: "stable",
+							ChangeType:     "update",
+							Changes:        nil,
+						},
+					},
+				},
+			},
+		},
+	}
+	// sortChangelog should sort the changelog by date DESC, path + httpMethod ASC, version DESC
+	assert.Equal(t, expectedChangelog, sortChangelog(changelog))
 }
