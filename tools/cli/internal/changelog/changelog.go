@@ -19,7 +19,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
@@ -29,6 +28,7 @@ import (
 const (
 	deprecationDaysStable = 365 //  min days required between deprecating a stable resource and removing it
 	deprecationDaysBeta   = 365 //  min days required between deprecating a beta resource and removing it
+	stabilityLevelStable  = "stable"
 )
 
 var breakingChangesAdditionalCheckers = []string{
@@ -46,6 +46,7 @@ type Metadata struct {
 	Revision          *load.SpecInfo //  the new spec to compare against the base
 	Config            *checker.Config
 	OasDiff           *openapi.OasDiff
+	BaseChangelog     []*Entry //  the base changelog entries
 	RunDate           string
 	ExemptionFilePath string
 }
@@ -77,9 +78,10 @@ type Change struct {
 	Description        string `json:"change"`
 	Code               string `json:"changeCode"`
 	BackwardCompatible bool   `json:"backwardCompatible"`
+	HideFromChangelog  bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewMetadata(base, revision, exemptionFilePath string) (*Metadata, error) {
+func NewMetadata(base, revision, exemptionFilePath string, baseChangelog []*Entry) (*Metadata, error) {
 	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
 	baseSpec, err := loader.CreateOpenAPISpecFromPath(base)
 	if err != nil {
@@ -100,6 +102,7 @@ func NewMetadata(base, revision, exemptionFilePath string) (*Metadata, error) {
 		Revision:          revisionSpec,
 		ExemptionFilePath: exemptionFilePath,
 		Config:            changelogConfig,
+		BaseChangelog:     baseChangelog,
 		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
 			IncludePathParams: true,
 		}),
@@ -109,18 +112,18 @@ func NewMetadata(base, revision, exemptionFilePath string) (*Metadata, error) {
 func NewChangelogEntries(path string) ([]*Entry, error) {
 	contents, err := os.ReadFile(path)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	var entries []*Entry
 	if err := json.Unmarshal(contents, &entries); err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	return entries, nil
 }
 
-func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath string) (*Metadata, error) {
+func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath string, baseChangelog []*Entry) (*Metadata, error) {
 	baseSpec, err := openapi.CreateNormalizedOpenAPISpecFromPath(base)
 	if err != nil {
 		return nil, err
@@ -140,23 +143,9 @@ func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath string) (*
 		Revision:          revisionSpec,
 		ExemptionFilePath: exemptionFilePath,
 		Config:            changelogConfig,
+		BaseChangelog:     baseChangelog,
 		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
 			IncludePathParams: true,
 		}),
 	}, nil
-}
-
-func (s *Metadata) Check() ([]*outputfilter.OasDiffEntry, error) {
-	diffResult, err := s.OasDiff.NewDiffResult()
-	if err != nil {
-		return nil, err
-	}
-
-	changes := checker.CheckBackwardCompatibilityUntilLevel(
-		s.Config,
-		diffResult.Report,
-		diffResult.SourceMap,
-		checker.INFO)
-
-	return outputfilter.NewChangelogEntries(changes, diffResult.SpecInfoPair, s.ExemptionFilePath)
 }

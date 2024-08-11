@@ -400,7 +400,7 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := newOperationConfigs(tt.baseSpec, tt.revisionSpec)
+			result := NewOperationConfigs(tt.baseSpec, tt.revisionSpec)
 			if !reflect.DeepEqual(tt.expected, result) {
 				t.Errorf("expected %v, got %v", tt.expected, result)
 			}

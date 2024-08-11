@@ -34,16 +34,31 @@ type Opts struct {
 }
 
 func (o *Opts) Run() error {
+	baseChangelog, err := changelog.NewChangelogEntries(fmt.Sprintf("%s/%s", o.basePath, "changelog.json"))
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Printing current changelog\n")
+	for _, check := range baseChangelog {
+		base, jsonErr := json.MarshalIndent(*check, "", "  ")
+		if jsonErr != nil {
+			return jsonErr
+		}
+
+		fmt.Println(string(base))
+	}
+
 	metadata, err := changelog.NewMetadata(
 		fmt.Sprintf("%s/%s", o.basePath, "v2.json"),
 		fmt.Sprintf("%s/%s", o.revisionPath, "v2.json"),
-		o.exceptionsPaths)
+		o.exceptionsPaths, baseChangelog)
 
 	if err != nil {
 		return err
 	}
 
-	checks, err := metadata.Check()
+	checks, err := metadata.MergeChangelog()
 	if err != nil {
 		return err
 	}
@@ -53,20 +68,6 @@ func (o *Opts) Run() error {
 		base, jsonErr := json.MarshalIndent(*check, "", "  ")
 		if jsonErr != nil {
 			return jsonErr
-		}
-
-		fmt.Println(string(base))
-	}
-
-	currentChangelog, err := changelog.NewChangelogEntries(fmt.Sprintf("%s/%s", o.basePath, "changelog.json"))
-	if err != nil {
-		return err
-	}
-	fmt.Print("Printing current changelog\n")
-	for _, check := range currentChangelog {
-		base, err := json.MarshalIndent(*check, "", "  ")
-		if err != nil {
-			return err
 		}
 
 		fmt.Println(string(base))
