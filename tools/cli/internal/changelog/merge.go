@@ -256,6 +256,8 @@ func newEntryVersion(versions []*Version, specVersion string) *Version {
 	}
 }
 
+// newPathEntry returns the index and the path entry if it already exists in the changelog
+// otherwise it returns -1 and a new path entry
 func newPathEntry(paths []*Path, path, operation string) (int, *Path) {
 	for i, p := range paths {
 		if p.URI == path && p.HTTPMethod == operation {

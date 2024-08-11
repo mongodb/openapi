@@ -10,6 +10,12 @@ import (
 	"github.com/tufin/oasdiff/load"
 )
 
+// @To do: Add tests for the following scenarios once the sunset logic is migrated:
+// - test_merge_changelog_2_versions_with_deprecations
+// - test_merge_changelog_yaml_compare
+// - test_remove_hidden_entries_date_removed
+// - test_remove_hidden_entries_entries_removed
+
 func TestMergeChangelogOneChange(t *testing.T) {
 	baseChangelog, err := NewChangelogEntries("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
@@ -191,4 +197,135 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	assert.Equal(t, changeTypeUpdate, secondVersionEntry.ChangeType)
 	assert.Equal(t, "request-property-added", secondVersionEntry.Changes[0].Code)
 	assert.True(t, secondVersionEntry.Changes[0].BackwardCompatible)
+}
+
+func TestMergeChangelogAdd2Endpoints(t *testing.T) {
+	originalChangelog, err := NewChangelogEntries("../../test/data/changelog/changelog.json")
+	require.NoError(t, err)
+
+	lastChangelogRunDate := originalChangelog[0].Date
+
+	version := "2023-02-01"
+	runDate := "2023-06-15"
+
+	changes := []*outputfilter.OasDiffEntry{
+		{
+			ID:          "endpoint-added",
+			Text:        "endpoint added",
+			Level:       1,
+			Operation:   "GET",
+			OperationID: "getStreamInstance",
+			Path:        "/api/atlas/v2/groups/{groupId}/streams/{tenantName}",
+		},
+		{
+			ID:          "endpoint-added",
+			Text:        "endpoint added",
+			Level:       1,
+			Operation:   "GET",
+			OperationID: "listStreamInstances",
+			Path:        "/api/atlas/v2/groups/{groupId}/streams",
+		},
+	}
+
+	endpointsConfig := map[string]*outputfilter.OperationConfigs{
+		"listStreamInstances": {
+			Base: nil,
+			Revision: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/streams",
+				HTTPMethod:             "GET",
+				Tag:                    "Streams",
+				Sunset:                 "",
+				ManualChangelogEntries: make(map[string]interface{}),
+			},
+		},
+		"getStreamInstance": {
+			Base: nil,
+			Revision: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/streams/{tenantName}",
+				HTTPMethod:             "GET",
+				Tag:                    "Streams",
+				Sunset:                 "",
+				ManualChangelogEntries: make(map[string]interface{}),
+			},
+		},
+	}
+
+	changelogMetadata := &Metadata{
+		Base: &load.SpecInfo{
+			Version: version,
+		},
+		Revision: &load.SpecInfo{
+			Version: version,
+		},
+		BaseChangelog: originalChangelog,
+		RunDate:       runDate,
+	}
+
+	// act
+	changelog, err := changelogMetadata.mergeChangelog(
+		changeTypeUpdate,
+		changes,
+		endpointsConfig,
+	)
+	require.NoError(t, err)
+
+	// assert
+	assert.Equal(t, changelog[0].Date, runDate, "merged changelog should have entries for the run date")
+	assert.Equal(t, changelog[1].Date, lastChangelogRunDate, fmt.Sprintf("merged changelog should have entries for the %s", lastChangelogRunDate))
+
+	latestChangelogEntry := changelog[0]
+	newPaths := latestChangelogEntry.Paths
+	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/streams", newPaths[0].URI)
+	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/streams/{tenantName}", newPaths[1].URI)
+
+	// for new endpoints, the change type is overwritten to changeTypeRelease)
+	assert.Equal(t, changeTypeRelease, newPaths[0].Versions[0].ChangeType)
+	assert.Equal(t, changeTypeRelease, newPaths[1].Versions[0].ChangeType)
+}
+
+func TestNewChangeType(t *testing.T) {
+	type testCase struct {
+		currentChangeType string
+		newChangeType     string
+		changeCode        string
+		expectedResult    string
+	}
+
+	testCases := []testCase{
+		{
+			currentChangeType: changeTypeUpdate,
+			newChangeType:     changeTypeDeprecated,
+			changeCode:        "endpoint-deprecated",
+			expectedResult:    changeTypeUpdate,
+		},
+		{
+			currentChangeType: changeTypeRelease,
+			newChangeType:     changeTypeUpdate,
+			changeCode:        "endpoint-added",
+			expectedResult:    changeTypeRelease,
+		},
+		{
+			currentChangeType: changeTypeRemove,
+			newChangeType:     changeTypeUpdate,
+			changeCode:        "endpoint-added",
+			expectedResult:    changeTypeRemove,
+		},
+		{
+			currentChangeType: changeTypeRemove,
+			newChangeType:     changeTypeUpdate,
+			changeCode:        "unknown-change-code",
+			expectedResult:    changeTypeRemove,
+		},
+		{
+			currentChangeType: changeTypeDeprecated,
+			newChangeType:     "test",
+			changeCode:        "unknown-change-code",
+			expectedResult:    changeTypeDeprecated,
+		},
+	}
+
+	for _, tc := range testCases {
+		result := newChangeType(tc.currentChangeType, tc.newChangeType, tc.changeCode)
+		assert.Equal(t, tc.expectedResult, result, "newChangeType should return the expected result")
+	}
 }
