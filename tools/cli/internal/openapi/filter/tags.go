@@ -19,7 +19,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// TagsFilter removes tags that are not used in the operations.
+// Filter: TagsFilter removes tags that are not used in the operations.
 type TagsFilter struct {
 	oas *openapi3.T
 }
