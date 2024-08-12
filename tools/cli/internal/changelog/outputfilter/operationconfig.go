@@ -42,9 +42,9 @@ func (e *OperationConfigs) Sunset() string {
 	return ""
 }
 
-// newOperationConfigs parses the base and revision openapi specs
+// NewOperationConfigs parses the base and revision openapi specs
 // and returns the mapping between API operationId and EndpointConfig.
-func newOperationConfigs(base, revision *load.SpecInfo) map[string]*OperationConfigs {
+func NewOperationConfigs(base, revision *load.SpecInfo) map[string]*OperationConfigs {
 	baseEndpointsConfigMap := newOperationConfigFromSpec(base)
 	revisionEndpointsConfigMap := newOperationConfigFromSpec(revision)
 

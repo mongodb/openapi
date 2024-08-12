@@ -36,6 +36,13 @@ type OasDiffEntry struct {
 	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
 }
 
+func (o *OasDiffEntry) LevelWithDefault() int {
+	if o.Level != 0 {
+		return o.Level
+	}
+	return int(checker.INFO)
+}
+
 func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
@@ -59,11 +66,18 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 }
 
 func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {
+	newEntries := make([]*OasDiffEntry, 0)
 	for _, entry := range entries {
+		// only changes linked to endpoints are currently considered.
+		// For example, oasdiff might also return entries where components were removed.
+		if entry.Path == "" {
+			continue
+		}
 		transformMessage(entry)
+		newEntries = append(newEntries, entry)
 	}
 
-	newEntries, err := squashEntries(entries)
+	newEntries, err := squashEntries(newEntries)
 	if err != nil {
 		return nil, err
 	}
