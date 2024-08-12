@@ -19,5 +19,5 @@ echo " - Filtering per version, so that only the endpoints that are available in
 echo "## What filters are available?"
 
 echo "### List of filters"
-grep -n '// Filter:' internal/openapi/filter/*.go | grep "is a filter" | sort -u -k2 | sed -n "s/\([^0-9]*\):\([0-9]*\):\/\/ Filter: \(.*\)/[\3](\.\.\/\1?plain=1#L\2)  /p" | sort
+grep -n '// Filter:' internal/openapi/filter/*.go | sort -u -k2 | sed -n "s/\([^0-9]*\):\([0-9]*\):\/\/ Filter: \(.*\)/[\3](\.\.\/\1?plain=1#L\2)  /p" | sort
 

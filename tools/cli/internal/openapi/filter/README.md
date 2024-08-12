@@ -12,4 +12,5 @@ The Atlas Admin API OpenAPI specifications are used not only to document REST en
 [HiddenEnvsFilter is a filter that removes paths, operations,](../internal/openapi/filter/hidden_envs.go?plain=1#L28)  
 [InfoFilter is a filter that modifies the Info object in the OpenAPI spec.](../internal/openapi/filter/info.go?plain=1#L23)  
 [OperationsFilter is a filter that removes the x-xgen-owner-team extension from operations](../internal/openapi/filter/operations.go?plain=1#L20)  
+[TagsFilter removes tags that are not used in the operations.](../internal/openapi/filter/tags.go?plain=1#L22)  
 [VersioningFilter is a filter that modifies the OpenAPI spec by removing operations and responses](../internal/openapi/filter/versioning.go?plain=1#L24)  

@@ -3,9 +3,10 @@
 set -euxo pipefail
 
 # Update the filters documentation
-
 ./scripts/doc_filters.sh > internal/openapi/filter/README.md
 
 go fmt ./...
 
-git add "internal/openapi/filter/README.md"
+if [ -n "$(git status --porcelain internal/openapi/filter/README.md)" ]; then
+    git add "internal/openapi/filter/README.md"
+fi
