@@ -1,3 +1,17 @@
+// Copyright 2024 MongoDB Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package changelog
 
 import (
@@ -35,8 +49,74 @@ func newChangeTypeOverrides() map[string]string {
 	}
 }
 
-// MergeChangelog merges the base changelog with the new changes from a Base and Revision OpenAPI specs
-func (m *Metadata) MergeChangelog() ([]*Entry, error) {
+// NewChangelogFromDataEntries merges the base changelog with the new changes from manual entries and sunset endpoints
+func (m *Metadata) NewChangelogFromDataEntries() ([]*Entry, error) {
+	conf := outputfilter.NewOperationConfigs(nil, m.Revision)
+	if err := m.newChangelogFromSunsetEndpoints(conf); err != nil {
+		return nil, err
+	}
+
+	if err := m.newChangelogFromManualEntries(conf); err != nil {
+		return nil, err
+	}
+
+	return m.BaseChangelog, nil
+}
+
+func (m *Metadata) newChangelogFromSunsetEndpoints(conf map[string]*outputfilter.OperationConfigs) error {
+	sunsetChanges, err := m.newOasDiffEntriesFromSunsetEndpoints(conf, m.Revision.Version)
+	if err != nil {
+		return err
+	}
+
+	runDate := m.RunDate
+	for _, change := range sunsetChanges {
+		m.RunDate = func() string {
+			if change.Date == "" {
+				return runDate
+			}
+			return change.Date
+		}()
+
+		changelog, err := m.mergeChangelog(changeTypeRemove, []*outputfilter.OasDiffEntry{change}, conf)
+		if err != nil {
+			return err
+		}
+
+		m.BaseChangelog = changelog
+	}
+
+	return nil
+}
+
+func (m *Metadata) newChangelogFromManualEntries(conf map[string]*outputfilter.OperationConfigs) error {
+	manualChanges, err := m.newOasDiffEntriesWithManualEntries(conf, m.Revision.Version)
+	if err != nil {
+		return err
+	}
+
+	runDate := m.RunDate
+	for _, change := range manualChanges {
+		m.RunDate = func() string {
+			if change.Date == "" {
+				return runDate
+			}
+			return change.Date
+		}()
+
+		changelog, err := m.mergeChangelog(changeTypeUpdate, []*outputfilter.OasDiffEntry{change}, conf)
+		if err != nil {
+			return err
+		}
+
+		m.BaseChangelog = changelog
+	}
+
+	return nil
+}
+
+// NewChangelogFromOasDiff merges the base changelog with the new changes from a Base and Revision OpenAPI specs
+func (m *Metadata) NewChangelogFromOasDiff() ([]*Entry, error) {
 	changes, err := m.newOasDiffEntries()
 	if err != nil {
 		return nil, err

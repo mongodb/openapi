@@ -17,6 +17,7 @@ package changelog
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
@@ -49,16 +50,18 @@ func (o *Opts) Run() error {
 		fmt.Println(string(base))
 	}
 
+	previousRunDate := time.Now().AddDate(0, -1, -1).Format("2006-01-02")
 	metadata, err := changelog.NewMetadata(
 		fmt.Sprintf("%s/%s", o.basePath, "v2.json"),
 		fmt.Sprintf("%s/%s", o.revisionPath, "v2.json"),
+		previousRunDate,
 		o.exceptionsPaths, baseChangelog)
 
 	if err != nil {
 		return err
 	}
 
-	checks, err := metadata.MergeChangelog()
+	checks, err := metadata.NewChangelogFromOasDiff()
 	if err != nil {
 		return err
 	}

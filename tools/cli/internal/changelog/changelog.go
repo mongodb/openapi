@@ -48,6 +48,7 @@ type Metadata struct {
 	OasDiff           *openapi.OasDiff
 	BaseChangelog     []*Entry //  the base changelog entries
 	RunDate           string
+	PreviousRunDate   string
 	ExemptionFilePath string
 }
 
@@ -81,7 +82,8 @@ type Change struct {
 	HideFromChangelog  bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewMetadata(base, revision, exemptionFilePath string, baseChangelog []*Entry) (*Metadata, error) {
+func NewMetadata(base, revision, exemptionFilePath, previourRunDate string,
+	baseChangelog []*Entry) (*Metadata, error) {
 	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
 	baseSpec, err := loader.CreateOpenAPISpecFromPath(base)
 	if err != nil {
@@ -98,6 +100,7 @@ func NewMetadata(base, revision, exemptionFilePath string, baseChangelog []*Entr
 
 	return &Metadata{
 		RunDate:           time.Now().Format("2006-01-02"),
+		PreviousRunDate:   previourRunDate,
 		Base:              baseSpec,
 		Revision:          revisionSpec,
 		ExemptionFilePath: exemptionFilePath,
@@ -123,7 +126,8 @@ func NewChangelogEntries(path string) ([]*Entry, error) {
 	return entries, nil
 }
 
-func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath string, baseChangelog []*Entry) (*Metadata, error) {
+func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath, previourRunDate string,
+	baseChangelog []*Entry) (*Metadata, error) {
 	baseSpec, err := openapi.CreateNormalizedOpenAPISpecFromPath(base)
 	if err != nil {
 		return nil, err
@@ -139,6 +143,7 @@ func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath string, ba
 
 	return &Metadata{
 		RunDate:           time.Now().Format("2006-01-02"),
+		PreviousRunDate:   previourRunDate,
 		Base:              baseSpec,
 		Revision:          revisionSpec,
 		ExemptionFilePath: exemptionFilePath,
@@ -148,4 +153,31 @@ func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath string, ba
 			IncludePathParams: true,
 		}),
 	}, nil
+}
+
+// findChangelogEntry finds the changelog entries for the given date and operationID, versions and changeCode.
+func findChangelogEntry(changelog []*Entry, date, operationID, version, changeCode string) *Change {
+	for _, entry := range changelog {
+		if entry.Date == date {
+			for _, path := range entry.Paths {
+				if path.OperationID != operationID {
+					continue
+				}
+
+				for _, v := range path.Versions {
+					if v.Version != version {
+						continue
+					}
+
+					for _, change := range v.Changes {
+						if change.Code == changeCode {
+							return change
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return nil
 }
