@@ -53,13 +53,8 @@ func (m *Metadata) MergeChangelog() ([]*Entry, error) {
 // mergeChangelog merges the base changelog with the new changes
 // Logic:
 // 1. If the entry already exists in the changelog for the Run Date, use that entry or create it (newEntryAtRunDate)
-// 2. Get only the deprecated by newer version changes (newDeprecatedByNewerVersionChanges)
-// 3. Run newMergedChanges for deprecated changes
-// 4. Get only the revision changes (newRevisionChanges)
-// 5. Run newMergedChanges for revision changes
-// 6. If there are any changes, append them to the entry
-// 7. Append the entry to the changelog
-// 8. Sort the changelog by date DESC, path + httpMethod ASC, version DESC
+// 2. Get the paths from the changes and add them to the entry
+// 3. Sort the changelog by date DESC, path + httpMethod ASC, version DESC
 func (m *Metadata) mergeChangelog(
 	changeType string,
 	changes []*outputfilter.OasDiffEntry,
@@ -70,53 +65,59 @@ func (m *Metadata) mergeChangelog(
 	}
 
 	entry := m.newEntryAtRunDate(&changelog)
-	depreactedChanges := m.newDeprecatedByNewerVersionChanges(changes, conf)
-	mergedDeprecatedPathsChanges, err := newMergedChanges(depreactedChanges, changeTypeDeprecated, m.Base.Version, entry.Paths, conf)
+	entry.Paths, err = m.newPathsFromChanges(changes, changeType, entry, conf)
 	if err != nil {
 		return nil, err
-	}
-
-	revisionChanges := m.newRevisionChanges(changes)
-	mergedRevisionPathsChanges, err := newMergedChanges(revisionChanges, changeType, m.Revision.Version, entry.Paths, conf)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(mergedDeprecatedPathsChanges) > 0 || len(mergedRevisionPathsChanges) > 0 {
-		paths := make([]*Path, 0)
-		paths = append(paths, mergedDeprecatedPathsChanges...)
-		paths = append(paths, mergedRevisionPathsChanges...)
-		entry.Paths = paths
 	}
 
 	return sortChangelog(changelog), nil
 }
 
-func (m *Metadata) newPathsFromChanges(changes []*outputfilter.OasDiffEntry, changeType string, entry *Entry, conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
+// newPathsFromChanges creates new paths from changes
+// Logic:
+// 1. Get the deprecated paths from the changes
+// 2. Get the updated paths with the deprecated changes from newPathsFromDeprecatedChanges
+// 3. Get the revision paths from the changes
+// 4. Get the updated paths with the revision changes from newPathsFromRevisionChanges
+func (m *Metadata) newPathsFromChanges(
+	changes []*outputfilter.OasDiffEntry,
+	changeType string, entry *Entry,
+	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	paths := make([]*Path, 0)
 	deprecatedPaths, err := m.newPathsFromDeprecatedChanges(changes, entry, conf)
 	if err != nil {
 		return nil, err
 	}
 
-	paths = append(paths, deprecatedPaths...)
+	if len(deprecatedPaths) > 0 {
+		paths = append(paths, deprecatedPaths...)
+	}
+
 	revisionPaths, err := m.newPathsFromRevisionChanges(changes, changeType, entry, conf)
 	if err != nil {
 		return nil, err
 	}
 
-	paths = append(paths, revisionPaths...)
+	if len(revisionPaths) > 0 {
+		paths = append(paths, revisionPaths...)
+	}
 	return paths, nil
 }
 
 // newPathsFromRevisionChanges creates new paths from revision changes
-func (m *Metadata) newPathsFromRevisionChanges(changes []*outputfilter.OasDiffEntry, changeType string, entry *Entry, conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
+func (m *Metadata) newPathsFromRevisionChanges(
+	changes []*outputfilter.OasDiffEntry,
+	changeType string, entry *Entry,
+	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	revisionChanges := m.newRevisionChanges(changes)
 	return newMergedChanges(revisionChanges, changeType, m.Revision.Version, entry.Paths, conf)
 }
 
 // newPathsFromDeprecatedChanges creates new paths from deprecated changes
-func (m *Metadata) newPathsFromDeprecatedChanges(changes []*outputfilter.OasDiffEntry, entry *Entry, conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
+func (m *Metadata) newPathsFromDeprecatedChanges(
+	changes []*outputfilter.OasDiffEntry,
+	entry *Entry,
+	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	depreactedChanges := m.newDeprecatedByNewerVersionChanges(changes, conf)
 	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.Base.Version, entry.Paths, conf)
 }
