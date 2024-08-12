@@ -82,7 +82,7 @@ type Change struct {
 	HideFromChangelog  bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewMetadata(base, revision, exemptionFilePath, previourRunDate string, 
+func NewMetadata(base, revision, exemptionFilePath, previourRunDate string,
 	baseChangelog []*Entry) (*Metadata, error) {
 	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
 	baseSpec, err := loader.CreateOpenAPISpecFromPath(base)
@@ -100,7 +100,7 @@ func NewMetadata(base, revision, exemptionFilePath, previourRunDate string,
 
 	return &Metadata{
 		RunDate:           time.Now().Format("2006-01-02"),
-		PreviousRunDate:  previourRunDate,
+		PreviousRunDate:   previourRunDate,
 		Base:              baseSpec,
 		Revision:          revisionSpec,
 		ExemptionFilePath: exemptionFilePath,
@@ -126,7 +126,7 @@ func NewChangelogEntries(path string) ([]*Entry, error) {
 	return entries, nil
 }
 
-func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath, previourRunDate string, 
+func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath, previourRunDate string,
 	baseChangelog []*Entry) (*Metadata, error) {
 	baseSpec, err := openapi.CreateNormalizedOpenAPISpecFromPath(base)
 	if err != nil {
@@ -143,7 +143,7 @@ func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath, previourR
 
 	return &Metadata{
 		RunDate:           time.Now().Format("2006-01-02"),
-		PreviousRunDate: previourRunDate,
+		PreviousRunDate:   previourRunDate,
 		Base:              baseSpec,
 		Revision:          revisionSpec,
 		ExemptionFilePath: exemptionFilePath,
@@ -154,7 +154,6 @@ func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath, previourR
 		}),
 	}, nil
 }
-
 
 // findChangelogEntry finds the changelog entries for the given date and operationID, versions and changeCode.
 func findChangelogEntry(changelog []*Entry, date, operationID, version, changeCode string) *Change {
@@ -174,7 +173,7 @@ func findChangelogEntry(changelog []*Entry, date, operationID, version, changeCo
 						if change.Code == changeCode {
 							return change
 						}
-					}	
+					}
 				}
 			}
 		}

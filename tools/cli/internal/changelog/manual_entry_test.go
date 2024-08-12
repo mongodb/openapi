@@ -66,9 +66,9 @@ func TestDetectManualEntriesAndMergeChangelog(t *testing.T) {
 				Tag:        "Multi-Cloud Clusters",
 				Sunset:     "",
 				ManualChangelogEntries: map[string]interface{}{
-					previousRunDate: "change info 1",      // Already in the changelog
-					runDate:         "change info 2",      // Should be added to the changelog
-					theDayAfterRunDate: "change info 3",   // Should not be added to the changelog
+					previousRunDate:    "change info 1", // Already in the changelog
+					runDate:            "change info 2", // Should be added to the changelog
+					theDayAfterRunDate: "change info 3", // Should not be added to the changelog
 				},
 			},
 		},
@@ -99,7 +99,7 @@ func TestDetectManualEntriesAndMergeChangelog(t *testing.T) {
 	}
 
 	// Act
-	changes, err := changelogMetadata.detectManualEntriesAndMergeChangelog(endpointsConfig, version)
+	changes, err := changelogMetadata.newOasDiffEntriesWithManualEntries(endpointsConfig, version)
 
 	// Assert
 	require.NoError(t, err)

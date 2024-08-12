@@ -30,7 +30,7 @@ const endpointRemovedCode = "endpoint-removed"
 // previous changelog run date and current date (inclusive), and that not already included in the changelog.
 // Returns a list of sunset endpoints with the same format as oasdiff results.
 func (m *Metadata) newOasDiffEntriesFromSunsetEndpoints(
-	confs map[string]*outputfilter.OperationConfigs, 
+	confs map[string]*outputfilter.OperationConfigs,
 	version string) ([]*outputfilter.OasDiffEntry, error) {
 	changes := make([]*outputfilter.OasDiffEntry, 0)
 	for operationID, config := range confs {
@@ -39,7 +39,7 @@ func (m *Metadata) newOasDiffEntriesFromSunsetEndpoints(
 			return nil, err
 		}
 
-		if  ! markedForRemoval{
+		if !markedForRemoval {
 			continue
 		}
 
@@ -61,8 +61,6 @@ func (m *Metadata) newOasDiffEntriesFromSunsetEndpoints(
 	return changes, nil
 }
 
-
-
 // isResourceVersionMarkedForRemoval checks if a resource sunset is marked for removal between previousRunDate and runDate.
 func isResourceVersionMarkedForRemoval(config *outputfilter.OperationConfigs, previousRunDate, runDate string) (bool, error) {
 	if config == nil || config.Revision == nil {
@@ -78,9 +76,9 @@ func isResourceVersionMarkedForRemoval(config *outputfilter.OperationConfigs, pr
 
 func isEntryDateBetween(entryDateString, startDateString, endDateString string) (bool, error) {
 	startDate, err := newDateFromString(startDateString)
-    if err != nil {
-        return false, err
-    }
+	if err != nil {
+		return false, err
+	}
 	endDate, err := newDateFromString(endDateString)
 	if err != nil {
 		return false, err
@@ -91,10 +89,9 @@ func isEntryDateBetween(entryDateString, startDateString, endDateString string) 
 		return false, err
 	}
 
-	return  (entryDate.After(startDate) || entryDate.Equal(startDate)) && 
-	(entryDate.Before(endDate)|| entryDate.Equal(endDate)), nil
+	return (entryDate.After(startDate) || entryDate.Equal(startDate)) &&
+		(entryDate.Before(endDate) || entryDate.Equal(endDate)), nil
 }
-
 
 func newDateFromString(dateString string) (time.Time, error) {
 	return time.Parse("2006-01-02", dateString)

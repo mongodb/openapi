@@ -121,13 +121,13 @@ func TestNewOasDiffEntriesFromSunsetEndpoints(t *testing.T) {
 
 	expectedChanges := []*outputfilter.OasDiffEntry{
 		{
-			Date: 	  runDate,
-			ID: 		"endpoint-removed",
-			Level: 		3,
-			Operation:  "GET",
+			Date:        runDate,
+			ID:          "endpoint-removed",
+			Level:       3,
+			Operation:   "GET",
 			OperationID: "listStreamInstances",
-			Path: 	  "/api/atlas/v2/groups/{id}/streams",
-			Text: 	  "endpoint removed",
+			Path:        "/api/atlas/v2/groups/{id}/streams",
+			Text:        "endpoint removed",
 		},
 	}
 

@@ -52,7 +52,6 @@ func (m *Metadata) newOasDiffEntriesWithManualEntries(confs map[string]*outputfi
 				OperationID: operationID,
 				Path:        config.Revision.Path,
 			})
-
 		}
 	}
 

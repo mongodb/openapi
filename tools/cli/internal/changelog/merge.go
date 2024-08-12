@@ -55,7 +55,7 @@ func (m *Metadata) NewChangelogFromDataEntries() ([]*Entry, error) {
 	if err := m.newChangelogFromSunsetEndpoints(conf); err != nil {
 		return nil, err
 	}
-	
+
 	if err := m.newChangelogFromManualEntries(conf); err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (m *Metadata) NewChangelogFromDataEntries() ([]*Entry, error) {
 func (m *Metadata) newChangelogFromSunsetEndpoints(conf map[string]*outputfilter.OperationConfigs) error {
 	sunsetChanges, err := m.newOasDiffEntriesFromSunsetEndpoints(conf, m.Revision.Version)
 	if err != nil {
-		return  err
+		return err
 	}
 
 	runDate := m.RunDate
@@ -80,7 +80,7 @@ func (m *Metadata) newChangelogFromSunsetEndpoints(conf map[string]*outputfilter
 
 		changelog, err := m.mergeChangelog(changeTypeRemove, []*outputfilter.OasDiffEntry{change}, conf)
 		if err != nil {
-			return  err
+			return err
 		}
 
 		m.BaseChangelog = changelog
@@ -92,7 +92,7 @@ func (m *Metadata) newChangelogFromSunsetEndpoints(conf map[string]*outputfilter
 func (m *Metadata) newChangelogFromManualEntries(conf map[string]*outputfilter.OperationConfigs) error {
 	manualChanges, err := m.newOasDiffEntriesWithManualEntries(conf, m.Revision.Version)
 	if err != nil {
-		return  err
+		return err
 	}
 
 	runDate := m.RunDate
@@ -112,9 +112,8 @@ func (m *Metadata) newChangelogFromManualEntries(conf map[string]*outputfilter.O
 		m.BaseChangelog = changelog
 	}
 
-	return  nil
+	return nil
 }
-
 
 // NewChangelogFromOasDiff merges the base changelog with the new changes from a Base and Revision OpenAPI specs
 func (m *Metadata) NewChangelogFromOasDiff() ([]*Entry, error) {
