@@ -26,6 +26,7 @@ const lan = "en" // language for localized output
 
 type OasDiffEntry struct {
 	ID                string `json:"id"`
+	Date              string `json:"date"`
 	Text              string `json:"text"`
 	Level             int    `json:"level"`
 	Operation         string `json:"operation,omitempty"`
