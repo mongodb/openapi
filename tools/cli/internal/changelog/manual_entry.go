@@ -15,94 +15,64 @@
 package changelog
 
 import (
-	"testing"
+	"fmt"
+	"log"
+	"strings"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/tufin/oasdiff/load"
+	"github.com/tufin/oasdiff/checker"
 )
 
-func TestDetectManualEntriesAndMergeChangelog(t *testing.T) {
-	previousRunDate := "2023-07-10"
-	runDate := "2023-07-12"
-	version := "2023-02-01"
-	theDayAfterRunDate := "2023-07-13"
+const manualChangelogEntry = "manual-changelog-entry"
 
-	changelog := []*Entry{
-		{
-			Date: previousRunDate,
-			Paths: []*Path{
-				{
-					URI:         "/api/atlas/v2/groups/{groupId}/clusters",
-					HTTPMethod:  "POST",
-					OperationID: "createCluster",
-					Tag:         "Multi-Cloud Clusters",
-					Versions: []*Version{
-						{
-							Version:        version,
-							StabilityLevel: "stable",
-							ChangeType:     "update",
-							Changes: []*Change{
-								{
-									Description:        "change info 1",
-									Code:               "manual-changelog-entry",
-									BackwardCompatible: true,
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+func (m *Metadata) newOasDiffEntriesWithManualEntries(confs map[string]*outputfilter.OperationConfigs,
+	version string) ([]*outputfilter.OasDiffEntry, error) {
+	changes := make([]*outputfilter.OasDiffEntry, 0)
+
+	for operationID, config := range confs {
+		if config == nil || config.Revision == nil {
+			continue
+		}
+
+		for entryDate, entryText := range config.Revision.ManualChangelogEntries {
+			if value, err := isEntryDateBetween(entryDate, m.PreviousRunDate, m.RunDate); err != nil || !value {
+				continue
+			}
+
+			if findChangelogEntry(m.BaseChangelog, entryDate, operationID, version, manualChangelogEntry) != nil {
+				continue
+			}
+
+			changes = append(changes, &outputfilter.OasDiffEntry{
+				Date:        entryDate,
+				ID:          manualChangelogEntry,
+				Text:        entryText.(string),
+				Level:       int(checker.INFO),
+				Operation:   config.Revision.HTTPMethod,
+				OperationID: operationID,
+				Path:        config.Revision.Path,
+			})
+
+		}
 	}
 
-	endpointsConfig := map[string]*outputfilter.OperationConfigs{
-		"createCluster": {
-			Base: nil,
-			Revision: &outputfilter.OperationConfig{
-				Path:       "/api/atlas/v2/groups/{groupId}/clusters",
-				HTTPMethod: "POST",
-				Tag:        "Multi-Cloud Clusters",
-				Sunset:     "",
-				ManualChangelogEntries: map[string]interface{}{
-					previousRunDate: "change info 1",      // Already in the changelog
-					runDate:         "change info 2",      // Should be added to the changelog
-					theDayAfterRunDate: "change info 3",   // Should not be added to the changelog
-				},
-			},
-		},
+	printManualChangesLogs(changes, version, m.PreviousRunDate, m.RunDate)
+	return changes, nil
+}
+
+func printManualChangesLogs(changes []*outputfilter.OasDiffEntry, version, previousRunDate, runDate string) {
+	if len(changes) == 0 {
+		log.Printf("No manual changelog entries for v%s removal between [%s, %s]\n", version, previousRunDate, runDate)
+		return
 	}
 
-	expectedChanges := []*outputfilter.OasDiffEntry{
-		{
-			Date:        runDate,
-			ID:          "manual-changelog-entry",
-			Level:       1,
-			Operation:   "POST",
-			OperationID: "createCluster",
-			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
-			Text:        "change info 2",
-		},
-	}
-
-	changelogMetadata := &Metadata{
-		Base: &load.SpecInfo{
-			Version: version,
-		},
-		Revision: &load.SpecInfo{
-			Version: version,
-		},
-		BaseChangelog:   changelog,
-		RunDate:         runDate,
-		PreviousRunDate: previousRunDate,
-	}
-
-	// Act
-	changes, err := changelogMetadata.detectManualEntriesAndMergeChangelog(endpointsConfig, version)
-
-	// Assert
-	require.NoError(t, err)
-	require.NotNil(t, changes)
-	assert.Equal(t, expectedChanges, changes)
+	log.Printf("Detected %d manual changelog entries for v%s between [%s, %s]\n  - %s",
+		len(changes), version, previousRunDate, runDate,
+		strings.Join(func() []string {
+			var result []string
+			for _, c := range changes {
+				result = append(result, fmt.Sprintf("%s %s %s", c.OperationID, c.Operation, c.Path))
+			}
+			return result
+		}(), "\n  - "))
 }
