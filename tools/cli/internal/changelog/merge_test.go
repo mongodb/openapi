@@ -183,7 +183,7 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	changelog, err = changelogMetadataSecondVersion.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
 	require.NoError(t, err)
 
-	assert.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
+	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
 	assert.Equal(t, changelog[0].Date, runDate, "merged changelog should have entries for the run date")
 	assert.Equal(t, changelog[1].Date, lastChangelogRunDate, fmt.Sprintf("merged changelog should have entries for the %s", lastChangelogRunDate))
 
@@ -196,17 +196,17 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	assert.Equal(t, "Multi-Cloud Clusters", paths[0].Tag)
 
 	versions := paths[0].Versions
-	assert.Len(t, versions, 2, "latest changelog entry includes both versions and the versions are ordered DES")
+	require.Len(t, versions, 2, "latest changelog entry includes both versions and the versions are ordered DES")
 
 	firstVersionEntry := versions[0]
-	assert.Len(t, firstVersionEntry.Changes, 1)
+	require.Len(t, firstVersionEntry.Changes, 1)
 	assert.Equal(t, firstVersionEntry.Version, secondVersion)
 	assert.Equal(t, changeTypeRelease, firstVersionEntry.ChangeType)
 	assert.Equal(t, "request-property-removed", firstVersionEntry.Changes[0].Code)
 	assert.False(t, firstVersionEntry.Changes[0].BackwardCompatible)
 
 	secondVersionEntry := versions[1]
-	assert.Len(t, secondVersionEntry.Changes, 1)
+	require.Len(t, secondVersionEntry.Changes, 1)
 	assert.Equal(t, secondVersionEntry.Version, firstVersion)
 	assert.Equal(t, changeTypeUpdate, secondVersionEntry.ChangeType)
 	assert.Equal(t, "request-property-added", secondVersionEntry.Changes[0].Code)
@@ -310,7 +310,7 @@ func TestNewChangeType(t *testing.T) {
 			currentChangeType: changeTypeUpdate,
 			newChangeType:     changeTypeDeprecated,
 			changeCode:        "endpoint-deprecated",
-			expectedResult:    changeTypeUpdate,
+			expectedResult:    changeTypeDeprecated,
 		},
 		{
 			currentChangeType: changeTypeRelease,
@@ -340,7 +340,7 @@ func TestNewChangeType(t *testing.T) {
 
 	for _, tc := range testCases {
 		result := newChangeType(tc.currentChangeType, tc.newChangeType, tc.changeCode)
-		assert.Equal(t, tc.expectedResult, result, "newChangeType should return the expected result")
+		assert.Equal(t, tc.expectedResult, result)
 	}
 }
 func TestSortChangelog(t *testing.T) {
@@ -461,4 +461,129 @@ func TestSortChangelog(t *testing.T) {
 	}
 	// sortChangelog should sort the changelog by date DESC, path + httpMethod ASC, version DESC
 	assert.Equal(t, expectedChangelog, sortChangelog(changelog))
+}
+
+func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
+	// arrange
+	baseChangelog, err := NewChangelogEntries("../../test/data/changelog/changelog.json")
+	require.NoError(t, err)
+
+	lastChangelogRunDate := baseChangelog[0].Date
+
+	firstVersion := "2023-02-01"
+	secondVersion := "2023-02-02"
+	changeTypeFirstVersion := changeTypeUpdate
+	changeTypeSecondVersion := changeTypeRelease
+
+	runDate := "2023-06-15"
+	sunset := "2024-02-02"
+	endpointsConfig := map[string]*outputfilter.OperationConfigs{
+		"createCluster": {
+			Base: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "POST",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 sunset,
+				ManualChangelogEntries: make(map[string]interface{}),
+			},
+			Revision: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "POST",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 "",
+				ManualChangelogEntries: make(map[string]interface{}),
+			},
+		},
+	}
+
+	changesFirstVersion := []*outputfilter.OasDiffEntry{
+		{
+			ID:          "request-property-added",
+			Text:        "added 'replicationSpecs.regionConfigs' request property",
+			Level:       1,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+	}
+
+	changesSecondVersion := []*outputfilter.OasDiffEntry{
+		{
+			ID:          "endpoint-reactivated",
+			Text:        "endpoint reactivated",
+			Level:       1,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+		{
+			ID:          "request-property-removed",
+			Text:        "removed the request properties: 'mongoURIWithOptions', 'providerBackupEnabled'",
+			Level:       3,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+	}
+
+	changelogMetadataFirstVersion := &Metadata{
+		Base: &load.SpecInfo{
+			Version: firstVersion,
+		},
+		Revision: &load.SpecInfo{
+			Version: firstVersion,
+		},
+		BaseChangelog: baseChangelog,
+		RunDate:       runDate,
+	}
+
+	changelog, err := changelogMetadataFirstVersion.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
+	require.NoError(t, err)
+
+	changelogMetadataSecondVersion := &Metadata{
+		Base: &load.SpecInfo{
+			Version: firstVersion,
+		},
+		Revision: &load.SpecInfo{
+			Version: secondVersion,
+		},
+		BaseChangelog: changelog,
+		RunDate:       runDate,
+	}
+
+	changelog, err = changelogMetadataSecondVersion.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
+	require.NoError(t, err)
+
+	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
+	assert.Equal(t, changelog[0].Date, runDate)
+	assert.Equal(t, changelog[1].Date, lastChangelogRunDate)
+
+	paths := changelog[0].Paths
+	require.Len(t, paths, 1)
+
+	assert.Equal(t, paths[0].URI, changesSecondVersion[0].Path)
+	assert.Equal(t, paths[0].HTTPMethod, changesSecondVersion[0].Operation)
+	assert.Equal(t, paths[0].OperationID, changesSecondVersion[0].OperationID)
+	assert.Equal(t, "Multi-Cloud Clusters", paths[0].Tag)
+
+	versions := paths[0].Versions
+	require.Len(t, versions, 2)
+
+	firstVersionEntry := versions[1]
+	require.Len(t, firstVersionEntry.Changes, 2)
+	assert.Equal(t, firstVersion, firstVersionEntry.Version)
+	assert.Equal(t, changeTypeDeprecated, firstVersionEntry.ChangeType)
+
+	assert.Equal(t, "request-property-added", firstVersionEntry.Changes[0].Code)
+	assert.True(t, firstVersionEntry.Changes[0].BackwardCompatible)
+	assert.Equal(t, "endpoint-deprecated", firstVersionEntry.Changes[1].Code)
+	assert.True(t, firstVersionEntry.Changes[1].BackwardCompatible)
+
+	secondVersionEntry := versions[0]
+	require.Len(t, secondVersionEntry.Changes, 1)
+	assert.Equal(t, secondVersionEntry.Version, secondVersion)
+	assert.Equal(t, changeTypeRelease, secondVersionEntry.ChangeType)
+
+	assert.Equal(t, "request-property-removed", secondVersionEntry.Changes[0].Code)
+	assert.False(t, secondVersionEntry.Changes[0].BackwardCompatible)
 }
