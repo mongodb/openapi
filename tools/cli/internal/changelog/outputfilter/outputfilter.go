@@ -36,6 +36,13 @@ type OasDiffEntry struct {
 	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
 }
 
+func (o *OasDiffEntry) LevelWithDefault() int {
+	if o.Level != 0 {
+		return o.Level
+	}
+	return int(checker.INFO)
+}
+
 func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,

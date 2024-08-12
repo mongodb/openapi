@@ -18,9 +18,6 @@ const (
 	changeTypeUpdate        = "update"
 	changeTypeDeprecated    = "deprecate"
 	changeTypeRemove        = "remove"
-	ChangeLevelErr          = 3
-	ChangeLevelWarn         = 2
-	ChangeLevelInfo         = 1
 )
 
 func newChangeTypePriority() map[string]int {
@@ -38,6 +35,7 @@ func newChangeTypeOverrides() map[string]string {
 	}
 }
 
+// MergeChangelog merges the base changelog with the new changes from a Base and Revision OpenAPI specs
 func (m *Metadata) MergeChangelog() ([]*Entry, error) {
 	changes, err := m.newOasDiffEntries()
 	if err != nil {
@@ -52,6 +50,16 @@ func (m *Metadata) MergeChangelog() ([]*Entry, error) {
 	return m.mergeChangelog(changeTypeUpdate, changes, conf)
 }
 
+// mergeChangelog merges the base changelog with the new changes
+// Logic:
+// 1. If the entry already exists in the changelog for the Run Date, use that entry or create it (newEntryAtRunDate)
+// 2. Get only the deprecated by newer version changes (newDeprecatedByNewerVersionChanges)
+// 3. Run newMergedChanges for deprecated changes
+// 4. Get only the revision changes (newRevisionChanges)
+// 5. Run newMergedChanges for revision changes
+// 6. If there are any changes, append them to the entry
+// 7. Append the entry to the changelog
+// 8. Sort the changelog by date DESC, path + httpMethod ASC, version DESC
 func (m *Metadata) mergeChangelog(
 	changeType string,
 	changes []*outputfilter.OasDiffEntry,
@@ -61,12 +69,7 @@ func (m *Metadata) mergeChangelog(
 		return nil, err
 	}
 
-	index, entry := m.newEntryAtRunDate(changelog)
-	if index != -1 {
-		// If the entry already exists, remove it from the changelog
-		changelog = append(changelog[:index], changelog[index+1:]...)
-	}
-
+	entry := m.newEntryAtRunDate(&changelog)
 	depreactedChanges := m.newDeprecatedByNewerVersionChanges(changes, conf)
 	mergedDeprecatedPathsChanges, err := newMergedChanges(depreactedChanges, changeTypeDeprecated, m.Base.Version, entry.Paths, conf)
 	if err != nil {
@@ -86,8 +89,36 @@ func (m *Metadata) mergeChangelog(
 		entry.Paths = paths
 	}
 
-	changelog = append(changelog, entry)
 	return sortChangelog(changelog), nil
+}
+
+func (m *Metadata) newPathsFromChanges(changes []*outputfilter.OasDiffEntry, changeType string, entry *Entry, conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
+	paths := make([]*Path, 0)
+	deprecatedPaths, err := m.newPathsFromDeprecatedChanges(changes, entry, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	paths = append(paths, deprecatedPaths...)
+	revisionPaths, err := m.newPathsFromRevisionChanges(changes, changeType, entry, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	paths = append(paths, revisionPaths...)
+	return paths, nil
+}
+
+// newPathsFromRevisionChanges creates new paths from revision changes
+func (m *Metadata) newPathsFromRevisionChanges(changes []*outputfilter.OasDiffEntry, changeType string, entry *Entry, conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
+	revisionChanges := m.newRevisionChanges(changes)
+	return newMergedChanges(revisionChanges, changeType, m.Revision.Version, entry.Paths, conf)
+}
+
+// newPathsFromDeprecatedChanges creates new paths from deprecated changes
+func (m *Metadata) newPathsFromDeprecatedChanges(changes []*outputfilter.OasDiffEntry, entry *Entry, conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
+	depreactedChanges := m.newDeprecatedByNewerVersionChanges(changes, conf)
+	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.Base.Version, entry.Paths, conf)
 }
 
 func (m *Metadata) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
@@ -158,7 +189,7 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 		versionChange := &Change{
 			Description:        change.Text,
 			Code:               change.ID,
-			BackwardCompatible: change.Level < ChangeLevelErr,
+			BackwardCompatible: change.LevelWithDefault() < int(checker.ERR),
 			HideFromChangelog:  change.HideFromChangelog,
 		}
 
@@ -287,23 +318,24 @@ func (m *Metadata) newRevisionChanges(changes []*outputfilter.OasDiffEntry) []*o
 	return out
 }
 
-func (m *Metadata) newEntryAtRunDate(changelog []*Entry) (int, *Entry) {
-	if i, entry := retrieveEntryAtDate(changelog, m.RunDate); entry != nil {
-		return i, entry
+func (m *Metadata) newEntryAtRunDate(changelog *[]*Entry) *Entry {
+	if entry := retrieveEntryAtDate(changelog, m.RunDate); entry != nil {
+		return entry
 	}
 
-	return -1, &Entry{
-		Date: m.RunDate,
-	}
+	// If the entry does not exist, create a new entry with the current Run Date
+	// and append it at the first position to the changelog
+	*changelog = append([]*Entry{{Date: m.RunDate}}, *changelog...)
+	return (*changelog)[0] // Return a pointer to the first element of the changelog
 }
 
-func retrieveEntryAtDate(changelog []*Entry, date string) (int, *Entry) {
-	for i, entry := range changelog {
+func retrieveEntryAtDate(changelog *[]*Entry, date string) *Entry {
+	for _, entry := range *changelog {
 		if entry.Date == date {
-			return i, entry
+			return entry
 		}
 	}
-	return -1, nil
+	return nil
 }
 
 func duplicateChangelog(changelog []*Entry) ([]*Entry, error) {
