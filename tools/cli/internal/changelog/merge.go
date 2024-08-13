@@ -128,7 +128,7 @@ func (m *Changelog) newEntryFromOasDiff() ([]*Entry, error) {
 	}
 
 	log.Printf("Found %d changes between %s and %s", len(changes), m.Base.Url, m.Revision.Url)
-	log.Printf("Changes: %s", newBytesFromStruct(changes))
+	log.Printf("Changes: %s", newStringFromStruct(changes))
 
 	conf := outputfilter.NewOperationConfigs(m.Base, m.Revision)
 

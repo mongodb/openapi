@@ -101,13 +101,13 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Base Metadata: %s", string(newBytesFromStruct(baseMetadata)))
+	log.Printf("Base Metadata: %s", newStringFromStruct(baseMetadata))
 
 	revisionMetadata, err := newMetadataFromFile(fmt.Sprintf("%s/%s", revisionPath, "metadata.json"))
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Revision Metadata: %s", string(newBytesFromStruct(revisionMetadata)))
+	log.Printf("Revision Metadata: %s", newStringFromStruct(revisionMetadata))
 
 	revisionMetadata.RunDate = time.Now().Format("2006-01-02")
 
@@ -355,13 +355,13 @@ func findChangelogEntry(changelog []*Entry, date, operationID, version, changeCo
 	return nil
 }
 
-func newBytesFromStruct(data interface{}) []byte {
+func newStringFromStruct(data interface{}) string {
 	bytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		return nil
+		return ""
 	}
 
-	return bytes
+	return string(bytes)
 }
 
 // newNotHiddenEntries returns the entries that are not hidden from the changelog.
