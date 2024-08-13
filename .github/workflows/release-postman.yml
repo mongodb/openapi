@@ -4,6 +4,8 @@ on:
   # schedule:
   #   - cron: '0 10 ? * *'
   workflow_dispatch:
+permissions:
+  issues: write
 
 jobs:
   release-postman:
@@ -33,9 +35,19 @@ jobs:
 
       - name: Convert the OpenAPI Specification into Collection
         if: steps.check-cache.outputs.cache-hit != 'true'
+        id: convert
         working-directory: ./tools/postman
         run: |
           make convert_to_collection
+
+      - name: Create Issue
+        if: ${{ failure() && steps.convert.outcome == 'failure' }}
+        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+        with:
+          labels: failed-release
+          title: "Postman Release: `make convert_to_collection` command failed :scream_cat:"
+          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Collection to Postman
         if: steps.check-cache.outputs.cache-hit != 'true'
