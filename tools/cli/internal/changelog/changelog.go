@@ -97,13 +97,13 @@ type Change struct {
 // The returned entries includes all the changes between the base and revision specs included the one
 // marked as hidden.
 func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
-	baseMetadata, err := newMetadataFromFile(fmt.Sprintf("%s/%s", basePath, "metadata.json"))
+	baseMetadata, err := newMetadataFromFile(basePath)
 	if err != nil {
 		return nil, err
 	}
 	log.Printf("Base Metadata: %s", newStringFromStruct(baseMetadata))
 
-	revisionMetadata, err := newMetadataFromFile(fmt.Sprintf("%s/%s", revisionPath, "metadata.json"))
+	revisionMetadata, err := newMetadataFromFile(revisionPath)
 	if err != nil {
 		return nil, err
 	}
@@ -222,6 +222,7 @@ func newChangelog(baseMetadata, revisionMetadata *Metadata, baseChangelog []*Ent
 		BaseMetadata:     baseMetadata,
 		RevisionMetadata: revisionMetadata,
 		Config:           changelogConfig,
+		ExemptionFilePath: fmt.Sprintf("%s/%s", revisionMetadata.Path, "exemptions.yaml"),
 		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
 			IncludePathParams: true,
 		}),
@@ -243,14 +244,14 @@ func newEntriesFromPath(path string) ([]*Entry, error) {
 }
 
 func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec, revisionSpec *load.SpecInfo, err error) {
-	if baseMetadata.ActiveVersion != baseMetadata.SpecRevision {
+	if baseMetadata.ActiveVersion != revisionMetadata.ActiveVersion {
 		log.Printf("Base spec revision %s is different from the active version %s", baseMetadata.SpecRevision, baseMetadata.ActiveVersion)
 		log.Println("Normalizing the specs: replace versioned media-types with corresponding standard media-types")
-		baseSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/%s", baseMetadata.Path, baseMetadata.ActiveVersion))
+		baseSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", baseMetadata.Path, baseMetadata.ActiveVersion))
 		if err != nil {
 			return nil, nil, err
 		}
-		revisionSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/%s", revisionMetadata.Path, revisionMetadata.ActiveVersion))
+		revisionSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", revisionMetadata.Path, revisionMetadata.ActiveVersion))
 		if err != nil {
 			return nil, nil, err
 		}
@@ -261,12 +262,12 @@ func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec
 	}
 
 	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
-	baseSpec, err = loader.CreateOpenAPISpecFromPath(fmt.Sprintf("%s/%s", baseMetadata.Path, baseMetadata.ActiveVersion))
+	baseSpec, err = loader.CreateOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", baseMetadata.Path, baseMetadata.ActiveVersion))
 	if err != nil {
 		return nil, nil, err
 	}
 
-	revisionSpec, err = loader.CreateOpenAPISpecFromPath(fmt.Sprintf("%s/%s", revisionMetadata.Path, revisionMetadata.ActiveVersion))
+	revisionSpec, err = loader.CreateOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", revisionMetadata.Path, revisionMetadata.ActiveVersion))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -279,7 +280,7 @@ func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec
 
 // newMetadataFromFile
 func newMetadataFromFile(path string) (*Metadata, error) {
-	metadataContent, err := os.ReadFile(path)
+	metadataContent, err := os.ReadFile(fmt.Sprintf("%s/%s", path, "metadata.json"))
 	if err != nil {
 		return nil, err
 	}
@@ -289,6 +290,7 @@ func newMetadataFromFile(path string) (*Metadata, error) {
 		return nil, err
 	}
 
+	metadata.Path = path
 	return metadata, nil
 }
 

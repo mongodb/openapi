@@ -217,6 +217,7 @@ func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
 		diffResult.SourceMap,
 		checker.INFO)
 
+	log.Printf("Found '%d' oasdiff changes between %s and %s", len(changes), m.Base.Url, m.Revision.Url)
 	return outputfilter.NewChangelogEntries(changes, diffResult.SpecInfoPair, m.ExemptionFilePath)
 }
 
