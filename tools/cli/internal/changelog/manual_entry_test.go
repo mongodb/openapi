@@ -20,7 +20,6 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/tufin/oasdiff/load"
 )
 
 func TestDetectManualEntriesAndMergeChangelog(t *testing.T) {
@@ -29,7 +28,7 @@ func TestDetectManualEntriesAndMergeChangelog(t *testing.T) {
 	version := "2023-02-01"
 	theDayAfterRunDate := "2023-07-13"
 
-	changelog := []*Entry{
+	baseChangelog := []*Entry{
 		{
 			Date: previousRunDate,
 			Paths: []*Path{
@@ -86,20 +85,21 @@ func TestDetectManualEntriesAndMergeChangelog(t *testing.T) {
 		},
 	}
 
-	changelogMetadata := &Metadata{
-		Base: &load.SpecInfo{
-			Version: version,
+	changelog := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       previousRunDate,
+			ActiveVersion: version,
 		},
-		Revision: &load.SpecInfo{
-			Version: version,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: version,
 		},
-		BaseChangelog:   changelog,
-		RunDate:         runDate,
-		PreviousRunDate: previousRunDate,
+		RunDate:       runDate,
+		BaseChangelog: baseChangelog,
 	}
 
 	// Act
-	changes, err := changelogMetadata.newOasDiffEntriesWithManualEntries(endpointsConfig, version)
+	changes, err := changelog.newOasDiffEntriesWithManualEntries(endpointsConfig, version)
 
 	// Assert
 	require.NoError(t, err)

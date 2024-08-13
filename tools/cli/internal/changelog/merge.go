@@ -17,6 +17,7 @@ package changelog
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"sort"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
@@ -50,7 +51,7 @@ func newChangeTypeOverrides() map[string]string {
 }
 
 // NewChangelogFromDataEntries merges the base changelog with the new changes from manual entries and sunset endpoints
-func (m *Metadata) NewChangelogFromDataEntries() ([]*Entry, error) {
+func (m *Changelog) NewChangelogFromDataEntries() ([]*Entry, error) {
 	conf := outputfilter.NewOperationConfigs(nil, m.Revision)
 	if err := m.newChangelogFromSunsetEndpoints(conf); err != nil {
 		return nil, err
@@ -63,7 +64,7 @@ func (m *Metadata) NewChangelogFromDataEntries() ([]*Entry, error) {
 	return m.BaseChangelog, nil
 }
 
-func (m *Metadata) newChangelogFromSunsetEndpoints(conf map[string]*outputfilter.OperationConfigs) error {
+func (m *Changelog) newChangelogFromSunsetEndpoints(conf map[string]*outputfilter.OperationConfigs) error {
 	sunsetChanges, err := m.newOasDiffEntriesFromSunsetEndpoints(conf, m.Revision.Version)
 	if err != nil {
 		return err
@@ -89,7 +90,7 @@ func (m *Metadata) newChangelogFromSunsetEndpoints(conf map[string]*outputfilter
 	return nil
 }
 
-func (m *Metadata) newChangelogFromManualEntries(conf map[string]*outputfilter.OperationConfigs) error {
+func (m *Changelog) newChangelogFromManualEntries(conf map[string]*outputfilter.OperationConfigs) error {
 	manualChanges, err := m.newOasDiffEntriesWithManualEntries(conf, m.Revision.Version)
 	if err != nil {
 		return err
@@ -116,7 +117,7 @@ func (m *Metadata) newChangelogFromManualEntries(conf map[string]*outputfilter.O
 }
 
 // NewChangelogFromOasDiff merges the base changelog with the new changes from a Base and Revision OpenAPI specs
-func (m *Metadata) NewChangelogFromOasDiff() ([]*Entry, error) {
+func (m *Changelog) NewChangelogFromOasDiff() ([]*Entry, error) {
 	changes, err := m.newOasDiffEntries()
 	if err != nil {
 		return nil, err
@@ -126,8 +127,17 @@ func (m *Metadata) NewChangelogFromOasDiff() ([]*Entry, error) {
 		return m.BaseChangelog, nil
 	}
 
+	log.Printf("Found %d changes between %s and %s", len(changes), m.Base.Url, m.Revision.Url)
+	log.Printf("Changes: %s", newBytesFromStruct(changes))
+
 	conf := outputfilter.NewOperationConfigs(m.Base, m.Revision)
-	return m.mergeChangelog(changeTypeUpdate, changes, conf)
+
+	changeType := changeTypeUpdate
+	if m.BaseMetadata.ActiveVersion != m.RevisionMetadata.ActiveVersion {
+		changeType = changeTypeRelease
+	}
+
+	return m.mergeChangelog(changeType, changes, conf)
 }
 
 // mergeChangelog merges the base changelog with the new changes
@@ -135,7 +145,7 @@ func (m *Metadata) NewChangelogFromOasDiff() ([]*Entry, error) {
 // 1. If the entry already exists in the changelog for the Run Date, use that entry or create it (newEntryAtRunDate)
 // 2. Get the paths from the changes and add them to the entry
 // 3. Sort the changelog by date DESC, path + httpMethod ASC, version DESC
-func (m *Metadata) mergeChangelog(
+func (m *Changelog) mergeChangelog(
 	changeType string,
 	changes []*outputfilter.OasDiffEntry,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Entry, error) {
@@ -159,42 +169,51 @@ func (m *Metadata) mergeChangelog(
 // 2. Get the updated paths with the deprecated changes from newPathsFromDeprecatedChanges
 // 3. Get the revision paths from the changes
 // 4. Get the updated paths with the revision changes from newPathsFromRevisionChanges
-func (m *Metadata) newPathsFromChanges(
+func (m *Changelog) newPathsFromChanges(
 	changes []*outputfilter.OasDiffEntry,
 	changeType string, entry *Entry,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
-	deprecatedPaths, err := m.newPathsFromDeprecatedChanges(changes, &entry.Paths, conf)
+	paths := make([]*Path, 0)
+	deprecatedPaths, err := m.newPathsFromDeprecatedChanges(changes, entry, conf)
 	if err != nil {
 		return nil, err
 	}
 
-	paths, err := m.newPathsFromRevisionChanges(changes, changeType, &deprecatedPaths, conf)
+	if len(deprecatedPaths) > 0 {
+		paths = append(paths, deprecatedPaths...)
+	}
+
+	revisionPaths, err := m.newPathsFromRevisionChanges(changes, changeType, entry, conf)
 	if err != nil {
 		return nil, err
 	}
 
+	if len(revisionPaths) > 0 {
+		paths = append(paths, revisionPaths...)
+	}
 	return paths, nil
 }
 
 // newPathsFromRevisionChanges creates new paths from revision changes
-func (m *Metadata) newPathsFromRevisionChanges(
+func (m *Changelog) newPathsFromRevisionChanges(
 	changes []*outputfilter.OasDiffEntry,
-	changeType string, changelogPath *[]*Path,
+	changeType string, entry *Entry,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	revisionChanges := m.newRevisionChanges(changes)
-	return newMergedChanges(revisionChanges, changeType, m.Revision.Version, changelogPath, conf)
+	return newMergedChanges(revisionChanges, changeType, m.RevisionMetadata.ActiveVersion, &entry.Paths, conf)
 }
 
 // newPathsFromDeprecatedChanges creates new paths from deprecated changes
-func (m *Metadata) newPathsFromDeprecatedChanges(
+func (m *Changelog) newPathsFromDeprecatedChanges(
 	changes []*outputfilter.OasDiffEntry,
-	changelogPath *[]*Path,
+	entry *Entry,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	depreactedChanges := m.newDeprecatedByNewerVersionChanges(changes, conf)
-	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.Base.Version, changelogPath, conf)
+	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.BaseMetadata.ActiveVersion, &entry.Paths, conf)
 }
 
-func (m *Metadata) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
+func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
+	// CLOUDP-267267: @Todo need to add the logic to hide from exceptions
 	diffResult, err := m.OasDiff.NewDiffResult()
 	if err != nil {
 		return nil, err
@@ -236,7 +255,7 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 	changeType, version string, changelogPath *[]*Path,
 	operationConfig map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	if len(changes) == 0 {
-		return *changelogPath, nil
+		return []*Path{}, nil
 	}
 
 	for _, change := range changes {
@@ -251,7 +270,7 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 		pathEntry.OperationID = operationdID
 		pathEntry.Tag = conf.Tag()
 
-		pathEntryVersion := newEntryVersion(&pathEntry.Versions, version)
+		pathEntryVersion := newEntryVersion(pathEntry.Versions, version)
 		pathEntryVersion.StabilityLevel = stabilityLevelStable
 		pathEntryVersion.ChangeType = newChangeType(pathEntryVersion.ChangeType, changeType, change.ID)
 
@@ -263,6 +282,7 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 		}
 
 		pathEntryVersion.Changes = append(pathEntryVersion.Changes, versionChange)
+		pathEntry.Versions = append(pathEntry.Versions, pathEntryVersion)
 	}
 
 	return *changelogPath, nil
@@ -275,12 +295,12 @@ var priorityGivenChangeType = func(changeType string) int {
 	return notSetPriority
 }
 
-func (m *Metadata) newDeprecatedByNewerVersionChanges(
+func (m *Changelog) newDeprecatedByNewerVersionChanges(
 	changes []*outputfilter.OasDiffEntry,
 	operationConfig map[string]*outputfilter.OperationConfigs) []*outputfilter.OasDiffEntry {
 	// deprecation by newer version occurs only when
 	// base_version is different than revision_version
-	if m.Base.Version == m.Revision.Version {
+	if m.BaseMetadata.ActiveVersion == m.RevisionMetadata.ActiveVersion {
 		return nil
 	}
 
@@ -298,8 +318,7 @@ func (m *Metadata) newDeprecatedByNewerVersionChanges(
 			continue
 		}
 
-		newChanges = append(newChanges,
-			newDeprecatedChangeEntry(change, m.Base.Version, m.Revision.Version, operationConfig))
+		newChanges = append(newChanges, newDeprecatedChangeEntry(change, m.BaseMetadata.ActiveVersion, m.RevisionMetadata.ActiveVersion, operationConfig))
 	}
 
 	return newChanges
@@ -324,12 +343,7 @@ func newDeprecatedChangeEntry(
 		Text: fmt.Sprintf(
 			"New resource added {%s}. Resource version {%s} and marked for removal on %s",
 			revisionVersion, baseVersionSunset, baseVersion),
-		Level:             change.Level,
-		Path:              change.Path,
-		HideFromChangelog: change.HideFromChangelog,
-		Date:              change.Date,
-		Source:            change.Source,
-		Section:           change.Section,
+		Level: change.Level,
 	}
 }
 
@@ -347,18 +361,16 @@ func newChangeType(currentChangeType, newChangeType, changeCode string) string {
 	return currentChangeType
 }
 
-func newEntryVersion(versions *[]*Version, specVersion string) *Version {
-	for _, version := range *versions {
+func newEntryVersion(versions []*Version, specVersion string) *Version {
+	for _, version := range versions {
 		if version.Version == specVersion {
 			return version
 		}
 	}
 
-	newVersion := []*Version{{
+	return &Version{
 		Version: specVersion,
-	}}
-	*versions = append(newVersion, *versions...)
-	return (*versions)[0]
+	}
 }
 
 // newPathEntry returns the index and the path entry if it already exists in the changelog
@@ -379,8 +391,8 @@ func newPathEntry(paths *[]*Path, path, operation string) *Path {
 	return (*paths)[0]
 }
 
-func (m *Metadata) newRevisionChanges(changes []*outputfilter.OasDiffEntry) []*outputfilter.OasDiffEntry {
-	if m.Base.Version == m.Revision.Version {
+func (m *Changelog) newRevisionChanges(changes []*outputfilter.OasDiffEntry) []*outputfilter.OasDiffEntry {
+	if m.BaseMetadata.ActiveVersion == m.RevisionMetadata.ActiveVersion {
 		return changes
 	}
 
@@ -394,7 +406,7 @@ func (m *Metadata) newRevisionChanges(changes []*outputfilter.OasDiffEntry) []*o
 	return out
 }
 
-func (m *Metadata) newEntryAtRunDate(changelog *[]*Entry) *Entry {
+func (m *Changelog) newEntryAtRunDate(changelog *[]*Entry) *Entry {
 	if entry := retrieveEntryAtDate(changelog, m.RunDate); entry != nil {
 		return entry
 	}

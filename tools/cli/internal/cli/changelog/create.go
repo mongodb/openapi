@@ -17,7 +17,6 @@ package changelog
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
@@ -35,39 +34,14 @@ type Opts struct {
 }
 
 func (o *Opts) Run() error {
-	baseChangelog, err := changelog.NewChangelogEntries(fmt.Sprintf("%s/%s", o.basePath, "changelog.json"))
-	if err != nil {
-		return err
-	}
-
-	fmt.Print("Printing current changelog\n")
-	for _, check := range baseChangelog {
-		base, jsonErr := json.MarshalIndent(*check, "", "  ")
-		if jsonErr != nil {
-			return jsonErr
-		}
-
-		fmt.Println(string(base))
-	}
-
-	previousRunDate := time.Now().AddDate(0, -1, -1).Format("2006-01-02")
-	metadata, err := changelog.NewMetadata(
-		fmt.Sprintf("%s/%s", o.basePath, "v2.json"),
-		fmt.Sprintf("%s/%s", o.revisionPath, "v2.json"),
-		previousRunDate,
-		o.exceptionsPaths, baseChangelog)
+	entries, err := changelog.NewEntries(o.basePath, o.revisionPath)
 
 	if err != nil {
 		return err
 	}
 
-	checks, err := metadata.NewChangelogFromOasDiff()
-	if err != nil {
-		return err
-	}
-
-	fmt.Print("Printing the checks\n")
-	for _, check := range checks {
+	fmt.Print("Printing the entries\n")
+	for _, check := range entries {
 		base, jsonErr := json.MarshalIndent(*check, "", "  ")
 		if jsonErr != nil {
 			return jsonErr

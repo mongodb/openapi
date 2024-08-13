@@ -20,7 +20,6 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/tufin/oasdiff/load"
 )
 
 func TestNewOasDiffEntriesFromSunsetEndpoints(t *testing.T) {
@@ -28,7 +27,7 @@ func TestNewOasDiffEntriesFromSunsetEndpoints(t *testing.T) {
 	runDate := "2023-07-12"
 	previousVersion := "2023-01-01"
 	version := "2023-02-01"
-	changelog := []*Entry{
+	baseChangelog := []*Entry{
 		{
 			Date: previousRunDate,
 			Paths: []*Path{
@@ -131,19 +130,20 @@ func TestNewOasDiffEntriesFromSunsetEndpoints(t *testing.T) {
 		},
 	}
 
-	changelogMetadata := &Metadata{
-		Base: &load.SpecInfo{
-			Version: version,
+	changelog := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       previousRunDate,
+			ActiveVersion: version,
 		},
-		Revision: &load.SpecInfo{
-			Version: version,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: version,
 		},
-		BaseChangelog:   changelog,
-		RunDate:         runDate,
-		PreviousRunDate: previousRunDate,
+		RunDate:       runDate,
+		BaseChangelog: baseChangelog,
 	}
 
-	changes, err := changelogMetadata.newOasDiffEntriesFromSunsetEndpoints(endpointsConfig, version)
+	changes, err := changelog.newOasDiffEntriesFromSunsetEndpoints(endpointsConfig, version)
 
 	require.NoError(t, err)
 	require.NotNil(t, changes)
