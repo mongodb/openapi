@@ -55,21 +55,6 @@ type Changelog struct {
 	RunDate           string
 }
 
-// type Metadata struct {
-// 	Base              *load.SpecInfo //  the base spec to compare against the revision
-// 	Revision          *load.SpecInfo //  the new spec to compare against the base
-// 	Config            *checker.Config
-// 	OasDiff           *openapi.OasDiff
-// 	BaseChangelog     []*Entry //  the base changelog entries
-// 	RunDate           string
-// 	PreviousRunDate   string
-// 	ExemptionFilePath string
-// 	BaseVersions      []string //  list of api versions supported when generating the base changelog
-// 	RevisionVersions  []string // list of api versions supported at runDate
-// 	BasePath 		string
-// 	RevisionPath string
-// }
-
 type Metadata struct {
 	Path          string
 	ActiveVersion string
