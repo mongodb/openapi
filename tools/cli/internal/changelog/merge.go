@@ -50,24 +50,24 @@ func newChangeTypeOverrides() map[string]string {
 	}
 }
 
-// NewChangelogFromDataEntries merges the base changelog with the new changes from manual entries and sunset endpoints
-func (m *Changelog) NewChangelogFromDataEntries() ([]*Entry, error) {
+// NewEntriesFromSunsetAndManualEntry merges the base changelog with the new changes from manual entries and sunset endpoints
+func (m *Changelog) NewEntriesFromSunsetAndManualEntry() ([]*Entry, error) {
 	conf := outputfilter.NewOperationConfigs(nil, m.Revision)
-	if err := m.newChangelogFromSunsetEndpoints(conf); err != nil {
+	if _, err := m.newEntriesFromSunsetEndpoints(conf); err != nil {
 		return nil, err
 	}
 
-	if err := m.newChangelogFromManualEntries(conf); err != nil {
+	if _, err := m.newManualEntries(conf); err != nil {
 		return nil, err
 	}
 
 	return m.BaseChangelog, nil
 }
 
-func (m *Changelog) newChangelogFromSunsetEndpoints(conf map[string]*outputfilter.OperationConfigs) error {
-	sunsetChanges, err := m.newOasDiffEntriesFromSunsetEndpoints(conf, m.Revision.Version)
+func (m *Changelog) newEntriesFromSunsetEndpoints(conf map[string]*outputfilter.OperationConfigs) ([]*Entry, error) {
+	sunsetChanges, err := m.newOasDiffEntriesFromSunsetEndpoints(conf, m.RevisionMetadata.ActiveVersion)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	runDate := m.RunDate
@@ -81,19 +81,19 @@ func (m *Changelog) newChangelogFromSunsetEndpoints(conf map[string]*outputfilte
 
 		changelog, err := m.mergeChangelog(changeTypeRemove, []*outputfilter.OasDiffEntry{change}, conf)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		m.BaseChangelog = changelog
 	}
 
-	return nil
+	return m.BaseChangelog, nil
 }
 
-func (m *Changelog) newChangelogFromManualEntries(conf map[string]*outputfilter.OperationConfigs) error {
-	manualChanges, err := m.newOasDiffEntriesWithManualEntries(conf, m.Revision.Version)
+func (m *Changelog) newManualEntries(conf map[string]*outputfilter.OperationConfigs) ([]*Entry, error) {
+	manualChanges, err := m.newOasDiffEntriesWithManualEntries(conf, m.RevisionMetadata.ActiveVersion)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	runDate := m.RunDate
@@ -107,17 +107,17 @@ func (m *Changelog) newChangelogFromManualEntries(conf map[string]*outputfilter.
 
 		changelog, err := m.mergeChangelog(changeTypeUpdate, []*outputfilter.OasDiffEntry{change}, conf)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		m.BaseChangelog = changelog
 	}
 
-	return nil
+	return m.BaseChangelog, nil
 }
 
-// NewChangelogFromOasDiff merges the base changelog with the new changes from a Base and Revision OpenAPI specs
-func (m *Changelog) NewChangelogFromOasDiff() ([]*Entry, error) {
+// newEntryFromOasDiff merges the base changelog with the new changes from a Base and Revision OpenAPI specs
+func (m *Changelog) newEntryFromOasDiff() ([]*Entry, error) {
 	changes, err := m.newOasDiffEntries()
 	if err != nil {
 		return nil, err

@@ -108,6 +108,9 @@ type Change struct {
 	HideFromChangelog  bool   `json:"hideFromChangelog,omitempty"`
 }
 
+// NewEntries generates the changelog entries between the base and revision specs.
+// The returned entries includes all the changes between the base and revision specs included the one
+// marked as hidden.
 func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 	baseMetadata, err := newMetadataFromFile(fmt.Sprintf("%s/%s", basePath, "metadata.json"))
 	if err != nil {
@@ -157,7 +160,7 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 		return nil, err
 	}
 
-	changelogEntries, err := changelog.NewChangelogFromOasDiff()
+	changelogEntries, err := changelog.newEntryFromOasDiff()
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +178,7 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 			return nil, err
 		}
 
-		changelogEntries, err = changelog.NewChangelogFromOasDiff()
+		changelogEntries, err = changelog.newEntryFromOasDiff()
 		if err != nil {
 			return nil, err
 		}
@@ -188,7 +191,7 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 			return nil, err
 		}
 
-		changelogEntries, err = changelog.NewChangelogFromDataEntries()
+		changelogEntries, err = changelog.NewEntriesFromSunsetAndManualEntry()
 		if err != nil {
 			return nil, err
 		}
@@ -197,6 +200,9 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 	return changelogEntries, nil
 }
 
+// NewEntriesWithoutHidden generates the changelog entries between the base and revision specs.
+// The returned entries includes the changes between the base and revision specs that are not
+// marked as hidden.
 func NewEntriesWithoutHidden(basePath, revisionPath string) ([]*Entry, error) {
 	entries, err := NewEntries(basePath, revisionPath)
 	if err != nil {
