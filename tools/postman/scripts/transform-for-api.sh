@@ -41,10 +41,13 @@ echo "Removing _postman_id"
 jq 'del(.collection.info._postman_id)' \
   intermediateCollectionDisableQueryParam.json > intermediateCollectionNoPostmanID.json
 
+echo "Removing circular references"
+sed 's/\\"value\\": \\"<Circular reference to #[^>"]* detected>\\"//g' intermediateCollectionNoPostmanID.json > intermediateCollectionNoCircular.json
+
 echo "Updating name with version"
 jq --arg api_version "$current_api_revision" \
   '.collection.info.name = ("MongoDB Atlas Administration API " + $api_version)' \
-  intermediateCollectionNoPostmanID.json >  intermediateCollectionWithName.json
+  intermediateCollectionNoCircular.json >  intermediateCollectionWithName.json
 
 echo "Updating baseUrl"
 jq --arg base_url "$BASE_URL" \
@@ -74,7 +77,7 @@ for path in "${paths_array[@]}"; do
   # Search the collection for the request with the matching name. Add the link to its description 
   jq --arg title "$title" --arg url "$url" \
     'first(.collection.item[].item[].request |  select(.name == $title).description.content) += "\n\nFind out more at " + $url' \
-    intermediateCollectionWithLinks.json > tmp.json && cp tmp.json intermediateCollectionWithLinks.json
+    intermediateCollectionWithLinks.json > tmp.json && mv tmp.json intermediateCollectionWithLinks.json
 
 done
 
@@ -109,6 +112,7 @@ echo "Removing temporary files"
 rm intermediateCollectionWrapped.json \
    intermediateCollectionDisableQueryParam.json \
    intermediateCollectionNoPostmanID.json \
+   intermediateCollectionNoCircular.json \
    intermediateCollectionWithName.json \
    intermediateCollectionWithBaseURL.json \
    intermediateCollectionWithLinks.json \
