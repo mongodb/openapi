@@ -215,13 +215,13 @@ func newChangelog(baseMetadata, revisionMetadata *Metadata, baseChangelog []*Ent
 		checker.GetAllChecks()).WithOptionalChecks(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
 
 	return &Changelog{
-		BaseChangelog:    baseChangelog,
-		RunDate:          revisionMetadata.RunDate,
-		Base:             baseSpec,
-		Revision:         revisionSpec,
-		BaseMetadata:     baseMetadata,
-		RevisionMetadata: revisionMetadata,
-		Config:           changelogConfig,
+		BaseChangelog:     baseChangelog,
+		RunDate:           revisionMetadata.RunDate,
+		Base:              baseSpec,
+		Revision:          revisionSpec,
+		BaseMetadata:      baseMetadata,
+		RevisionMetadata:  revisionMetadata,
+		Config:            changelogConfig,
 		ExemptionFilePath: fmt.Sprintf("%s/%s", revisionMetadata.Path, "exemptions.yaml"),
 		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
 			IncludePathParams: true,
@@ -251,7 +251,8 @@ func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec
 		if err != nil {
 			return nil, nil, err
 		}
-		revisionSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", revisionMetadata.Path, revisionMetadata.ActiveVersion))
+		revisionSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json",
+			revisionMetadata.Path, revisionMetadata.ActiveVersion))
 		if err != nil {
 			return nil, nil, err
 		}
