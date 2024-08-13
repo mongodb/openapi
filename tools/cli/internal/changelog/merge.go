@@ -173,43 +173,35 @@ func (m *Changelog) newPathsFromChanges(
 	changes []*outputfilter.OasDiffEntry,
 	changeType string, entry *Entry,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
-	paths := make([]*Path, 0)
-	deprecatedPaths, err := m.newPathsFromDeprecatedChanges(changes, entry, conf)
+	deprecatedPaths, err := m.newPathsFromDeprecatedChanges(changes, &entry.Paths, conf)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(deprecatedPaths) > 0 {
-		paths = append(paths, deprecatedPaths...)
-	}
-
-	revisionPaths, err := m.newPathsFromRevisionChanges(changes, changeType, entry, conf)
+	paths, err := m.newPathsFromRevisionChanges(changes, changeType, &deprecatedPaths, conf)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(revisionPaths) > 0 {
-		paths = append(paths, revisionPaths...)
-	}
 	return paths, nil
 }
 
 // newPathsFromRevisionChanges creates new paths from revision changes
 func (m *Changelog) newPathsFromRevisionChanges(
 	changes []*outputfilter.OasDiffEntry,
-	changeType string, entry *Entry,
+	changeType string, changelogPath *[]*Path,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	revisionChanges := m.newRevisionChanges(changes)
-	return newMergedChanges(revisionChanges, changeType, m.RevisionMetadata.ActiveVersion, &entry.Paths, conf)
+	return newMergedChanges(revisionChanges, changeType, m.Revision.Version, changelogPath, conf)
 }
 
 // newPathsFromDeprecatedChanges creates new paths from deprecated changes
 func (m *Changelog) newPathsFromDeprecatedChanges(
 	changes []*outputfilter.OasDiffEntry,
-	entry *Entry,
+	changelogPath *[]*Path,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	depreactedChanges := m.newDeprecatedByNewerVersionChanges(changes, conf)
-	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.BaseMetadata.ActiveVersion, &entry.Paths, conf)
+	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.Base.Version, changelogPath, conf)
 }
 
 func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
@@ -255,7 +247,7 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 	changeType, version string, changelogPath *[]*Path,
 	operationConfig map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	if len(changes) == 0 {
-		return []*Path{}, nil
+		return *changelogPath, nil
 	}
 
 	for _, change := range changes {
@@ -270,7 +262,7 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 		pathEntry.OperationID = operationdID
 		pathEntry.Tag = conf.Tag()
 
-		pathEntryVersion := newEntryVersion(pathEntry.Versions, version)
+		pathEntryVersion := newEntryVersion(&pathEntry.Versions, version)
 		pathEntryVersion.StabilityLevel = stabilityLevelStable
 		pathEntryVersion.ChangeType = newChangeType(pathEntryVersion.ChangeType, changeType, change.ID)
 
@@ -282,7 +274,6 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 		}
 
 		pathEntryVersion.Changes = append(pathEntryVersion.Changes, versionChange)
-		pathEntry.Versions = append(pathEntry.Versions, pathEntryVersion)
 	}
 
 	return *changelogPath, nil
@@ -343,7 +334,12 @@ func newDeprecatedChangeEntry(
 		Text: fmt.Sprintf(
 			"New resource added {%s}. Resource version {%s} and marked for removal on %s",
 			revisionVersion, baseVersionSunset, baseVersion),
-		Level: change.Level,
+		Level:             change.Level,
+		Path:              change.Path,
+		HideFromChangelog: change.HideFromChangelog,
+		Date:              change.Date,
+		Source:            change.Source,
+		Section:           change.Section,
 	}
 }
 
@@ -361,16 +357,18 @@ func newChangeType(currentChangeType, newChangeType, changeCode string) string {
 	return currentChangeType
 }
 
-func newEntryVersion(versions []*Version, specVersion string) *Version {
-	for _, version := range versions {
+func newEntryVersion(versions *[]*Version, specVersion string) *Version {
+	for _, version := range *versions {
 		if version.Version == specVersion {
 			return version
 		}
 	}
 
-	return &Version{
+	newVersion := []*Version{{
 		Version: specVersion,
-	}
+	}}
+	*versions = append(newVersion, *versions...)
+	return (*versions)[0]
 }
 
 // newPathEntry returns the index and the path entry if it already exists in the changelog
