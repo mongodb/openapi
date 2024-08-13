@@ -16,6 +16,8 @@ package changelog
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -41,15 +43,24 @@ var breakingChangesAdditionalCheckers = []string{
 	"api-schema-removed",
 }
 
-type Metadata struct {
+type Changelog struct {
+	BaseMetadata      *Metadata
+	RevisionMetadata  *Metadata
 	Base              *load.SpecInfo //  the base spec to compare against the revision
 	Revision          *load.SpecInfo //  the new spec to compare against the base
+	BaseChangelog     []*Entry
 	Config            *checker.Config
 	OasDiff           *openapi.OasDiff
-	BaseChangelog     []*Entry //  the base changelog entries
-	RunDate           string
-	PreviousRunDate   string
 	ExemptionFilePath string
+	RunDate           string
+}
+
+type Metadata struct {
+	Path          string
+	ActiveVersion string
+	RunDate       string   `json:"runDate"`
+	SpecRevision  string   `json:"specRevision"`
+	Versions      []string `json:"versions"`
 }
 
 type Entry struct {
@@ -82,15 +93,120 @@ type Change struct {
 	HideFromChangelog  bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewMetadata(base, revision, exemptionFilePath, previourRunDate string,
-	baseChangelog []*Entry) (*Metadata, error) {
-	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
-	baseSpec, err := loader.CreateOpenAPISpecFromPath(base)
+// NewEntries generates the changelog entries between the base and revision specs.
+// The returned entries includes all the changes between the base and revision specs included the one
+// marked as hidden.
+func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
+	baseMetadata, err := newMetadataFromFile(basePath)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Base Metadata: %s", newStringFromStruct(baseMetadata))
+
+	revisionMetadata, err := newMetadataFromFile(revisionPath)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Revision Metadata: %s", newStringFromStruct(revisionMetadata))
+
+	revisionMetadata.RunDate = time.Now().Format("2006-01-02")
+
+	baseActiveVersionOnPreviousRunDate, err := latestVersionActiveOnDate(baseMetadata.RunDate, baseMetadata.Versions)
 	if err != nil {
 		return nil, err
 	}
 
-	revisionSpec, err := loader.CreateOpenAPISpecFromPath(revision)
+	revisionActiveVersionOnPreviousRunDate, err := latestVersionActiveOnDate(baseMetadata.RunDate, revisionMetadata.Versions)
+	if err != nil {
+		return nil, err
+	}
+
+	baseActiveVersionOnRunDate, err := latestVersionActiveOnDate(revisionMetadata.RunDate, baseMetadata.Versions)
+	if err != nil {
+		return nil, err
+	}
+
+	revisionActiveVersionOnRunDate, err := latestVersionActiveOnDate(revisionMetadata.RunDate, revisionMetadata.Versions)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf(`Base specs (from when last changelog was generated): current active version as of today %s, 
+	active version when last changelog was generated %s`, baseActiveVersionOnRunDate, baseActiveVersionOnPreviousRunDate)
+
+	log.Printf(`Revision specs (new specs): current active version as of today %s, 
+	active version when last changelog was generated %s`, revisionActiveVersionOnRunDate, revisionActiveVersionOnPreviousRunDate)
+
+	baseMetadata.ActiveVersion = baseActiveVersionOnPreviousRunDate
+	revisionMetadata.ActiveVersion = revisionActiveVersionOnPreviousRunDate
+
+	changelog, err := newChangelog(baseMetadata, revisionMetadata, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	changelogEntries, err := changelog.newEntryFromOasDiff()
+	if err != nil {
+		return nil, err
+	}
+
+	changelog.BaseChangelog = changelogEntries
+	if revisionActiveVersionOnRunDate != baseActiveVersionOnPreviousRunDate {
+		// new version was released or become active since last changelog run
+		// compare "baseActiveVersionOnPreviousRunDate" with "revisionActiveVersionOnRunDate"
+		// (using latest specs, since above, we're comparing
+		// baseActiveVersionOnPreviousRunDate with revisionActiveVersionOnPreviousRunDate)
+		baseMetadata.ActiveVersion = baseActiveVersionOnRunDate
+		revisionMetadata.ActiveVersion = revisionActiveVersionOnRunDate
+		changelog, err = newChangelog(baseMetadata, revisionMetadata, changelogEntries)
+		if err != nil {
+			return nil, err
+		}
+
+		changelogEntries, err = changelog.newEntryFromOasDiff()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, version := range changelog.RevisionMetadata.Versions {
+		changelog.RevisionMetadata.ActiveVersion = version
+		changelog, err = newChangelog(baseMetadata, revisionMetadata, changelogEntries)
+		if err != nil {
+			return nil, err
+		}
+
+		changelogEntries, err = changelog.NewEntriesFromSunsetAndManualEntry()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return changelogEntries, nil
+}
+
+// NewEntriesWithoutHidden generates the changelog entries between the base and revision specs.
+// The returned entries includes the changes between the base and revision specs that are not
+// marked as hidden.
+func NewEntriesWithoutHidden(basePath, revisionPath string) ([]*Entry, error) {
+	entries, err := NewEntries(basePath, revisionPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return newNotHiddenEntries(entries), nil
+}
+
+func newChangelog(baseMetadata, revisionMetadata *Metadata, baseChangelog []*Entry) (*Changelog, error) {
+	var err error
+	if baseChangelog == nil {
+		baseChangelog, err = newEntriesFromPath(fmt.Sprintf("%s/%s", baseMetadata.Path, "changelog.json"))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	baseSpec, revisionSpec, err := newBaseAndRevisionSpecs(baseMetadata, revisionMetadata)
 	if err != nil {
 		return nil, err
 	}
@@ -98,21 +214,22 @@ func NewMetadata(base, revision, exemptionFilePath, previourRunDate string,
 	changelogConfig := checker.NewConfig(
 		checker.GetAllChecks()).WithOptionalChecks(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
 
-	return &Metadata{
-		RunDate:           time.Now().Format("2006-01-02"),
-		PreviousRunDate:   previourRunDate,
+	return &Changelog{
+		BaseChangelog:     baseChangelog,
+		RunDate:           revisionMetadata.RunDate,
 		Base:              baseSpec,
 		Revision:          revisionSpec,
-		ExemptionFilePath: exemptionFilePath,
+		BaseMetadata:      baseMetadata,
+		RevisionMetadata:  revisionMetadata,
 		Config:            changelogConfig,
-		BaseChangelog:     baseChangelog,
+		ExemptionFilePath: fmt.Sprintf("%s/%s", revisionMetadata.Path, "exemptions.yaml"),
 		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
 			IncludePathParams: true,
 		}),
 	}, nil
 }
 
-func NewChangelogEntries(path string) ([]*Entry, error) {
+func newEntriesFromPath(path string) ([]*Entry, error) {
 	contents, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -126,33 +243,92 @@ func NewChangelogEntries(path string) ([]*Entry, error) {
 	return entries, nil
 }
 
-func NewMetadataWithNormalizedSpecs(base, revision, exemptionFilePath, previourRunDate string,
-	baseChangelog []*Entry) (*Metadata, error) {
-	baseSpec, err := openapi.CreateNormalizedOpenAPISpecFromPath(base)
+func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec, revisionSpec *load.SpecInfo, err error) {
+	if baseMetadata.ActiveVersion != revisionMetadata.ActiveVersion {
+		log.Printf("Base spec revision %s is different from the active version %s", baseMetadata.SpecRevision, baseMetadata.ActiveVersion)
+		log.Println("Normalizing the specs: replace versioned media-types with corresponding standard media-types")
+		baseSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", baseMetadata.Path, baseMetadata.ActiveVersion))
+		if err != nil {
+			return nil, nil, err
+		}
+		revisionSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json",
+			revisionMetadata.Path, revisionMetadata.ActiveVersion))
+		if err != nil {
+			return nil, nil, err
+		}
+		baseSpec.Version = baseMetadata.ActiveVersion
+		revisionSpec.Version = revisionMetadata.ActiveVersion
+
+		return baseSpec, revisionSpec, nil
+	}
+
+	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
+	baseSpec, err = loader.CreateOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", baseMetadata.Path, baseMetadata.ActiveVersion))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	revisionSpec, err = loader.CreateOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", revisionMetadata.Path, revisionMetadata.ActiveVersion))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	baseSpec.Version = baseMetadata.ActiveVersion
+	revisionSpec.Version = revisionMetadata.ActiveVersion
+
+	return baseSpec, revisionSpec, nil
+}
+
+// newMetadataFromFile
+func newMetadataFromFile(path string) (*Metadata, error) {
+	metadataContent, err := os.ReadFile(fmt.Sprintf("%s/%s", path, "metadata.json"))
 	if err != nil {
 		return nil, err
 	}
 
-	revisionSpec, err := openapi.CreateNormalizedOpenAPISpecFromPath(revision)
-	if err != nil {
+	var metadata *Metadata
+	if err := json.Unmarshal(metadataContent, &metadata); err != nil {
 		return nil, err
 	}
 
-	changelogConfig := checker.NewConfig(
-		checker.GetAllChecks()).WithOptionalChecks(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
+	metadata.Path = path
+	return metadata, nil
+}
 
-	return &Metadata{
-		RunDate:           time.Now().Format("2006-01-02"),
-		PreviousRunDate:   previourRunDate,
-		Base:              baseSpec,
-		Revision:          revisionSpec,
-		ExemptionFilePath: exemptionFilePath,
-		Config:            changelogConfig,
-		BaseChangelog:     baseChangelog,
-		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
-			IncludePathParams: true,
-		}),
-	}, nil
+// latestVersionActiveOnDate returns before current UTC date.
+func latestVersionActiveOnDate(date string, versions []string) (string, error) {
+	dateTime, err := newDateFromString(date)
+	if err != nil {
+		return "", err
+	}
+
+	activeVersions := []time.Time{}
+	for _, version := range versions {
+		versionTime, err := newDateFromString(version)
+		if err != nil {
+			return "", err
+		}
+
+		if versionTime.Before(dateTime) || versionTime.Equal(dateTime) {
+			activeVersions = append(activeVersions, versionTime)
+		}
+	}
+
+	return latestVersion(activeVersions), nil
+}
+
+func latestVersion(dates []time.Time) string {
+	if len(dates) == 0 {
+		return ""
+	}
+
+	latest := dates[0]
+	for _, date := range dates {
+		if d := date.After(latest); d {
+			latest = date
+		}
+	}
+	return latest.Format("2006-01-02")
 }
 
 // findChangelogEntry finds the changelog entries for the given date and operationID, versions and changeCode.
@@ -180,4 +356,73 @@ func findChangelogEntry(changelog []*Entry, date, operationID, version, changeCo
 	}
 
 	return nil
+}
+
+func newStringFromStruct(data interface{}) string {
+	bytes, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return ""
+	}
+
+	return string(bytes)
+}
+
+// newNotHiddenEntries returns the entries that are not hidden from the changelog.
+// Logic:
+// Gets the last changelog date entry at index 0 and:
+// 1. Remove all entries with hideFromChangelog
+// 2. Remove all empty versions
+// 3. Remove all empty paths
+// 4. Shift changelog entry if it turns out empty
+func newNotHiddenEntries(changelog []*Entry) []*Entry {
+	if len(changelog) == 0 {
+		return changelog
+	}
+
+	// Get changes only for the last date, which is what was recently merged
+	changes := changelog[0]
+
+	// Remove hidden changes
+	for _, path := range changes.Paths {
+		for _, version := range path.Versions {
+			version.Changes = newNotHiddenChanges(version.Changes)
+		}
+	}
+
+	// Remove empty versions
+	for _, path := range changes.Paths {
+		versions := []*Version{}
+		for _, version := range path.Versions {
+			if len(version.Changes) > 0 {
+				versions = append(versions, version)
+			}
+		}
+		path.Versions = versions
+	}
+
+	// Remove empty paths
+	paths := []*Path{}
+	for _, path := range changes.Paths {
+		if len(path.Versions) > 0 {
+			paths = append(paths, path)
+		}
+	}
+
+	if len(paths) == 0 {
+		return changelog[1:]
+	}
+
+	changelog[0].Paths = paths
+	return changelog
+}
+
+func newNotHiddenChanges(changes []*Change) []*Change {
+	var notHiddenChanges []*Change
+	for _, change := range changes {
+		if !change.HideFromChangelog {
+			notHiddenChanges = append(notHiddenChanges, change)
+		}
+	}
+
+	return notHiddenChanges
 }

@@ -25,7 +25,7 @@ import (
 
 const manualChangelogEntry = "manual-changelog-entry"
 
-func (m *Metadata) newOasDiffEntriesWithManualEntries(confs map[string]*outputfilter.OperationConfigs,
+func (m *Changelog) newOasDiffEntriesWithManualEntries(confs map[string]*outputfilter.OperationConfigs,
 	version string) ([]*outputfilter.OasDiffEntry, error) {
 	changes := make([]*outputfilter.OasDiffEntry, 0)
 
@@ -35,7 +35,7 @@ func (m *Metadata) newOasDiffEntriesWithManualEntries(confs map[string]*outputfi
 		}
 
 		for entryDate, entryText := range config.Revision.ManualChangelogEntries {
-			if value, err := isEntryDateBetween(entryDate, m.PreviousRunDate, m.RunDate); err != nil || !value {
+			if value, err := isEntryDateBetween(entryDate, m.BaseMetadata.RunDate, m.RevisionMetadata.RunDate); err != nil || !value {
 				continue
 			}
 
@@ -55,7 +55,7 @@ func (m *Metadata) newOasDiffEntriesWithManualEntries(confs map[string]*outputfi
 		}
 	}
 
-	printManualChangesLogs(changes, version, m.PreviousRunDate, m.RunDate)
+	printManualChangesLogs(changes, version, m.BaseMetadata.RunDate, m.RevisionMetadata.RunDate)
 	return changes, nil
 }
 

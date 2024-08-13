@@ -29,12 +29,12 @@ const endpointRemovedCode = "endpoint-removed"
 // newOasDiffEntriesFromSunsetEndpoints searches for resource versions marked for removal between
 // previous changelog run date and current date (inclusive), and that not already included in the changelog.
 // Returns a list of sunset endpoints with the same format as oasdiff results.
-func (m *Metadata) newOasDiffEntriesFromSunsetEndpoints(
+func (m *Changelog) newOasDiffEntriesFromSunsetEndpoints(
 	confs map[string]*outputfilter.OperationConfigs,
 	version string) ([]*outputfilter.OasDiffEntry, error) {
 	changes := make([]*outputfilter.OasDiffEntry, 0)
 	for operationID, config := range confs {
-		markedForRemoval, err := isResourceVersionMarkedForRemoval(config, m.PreviousRunDate, m.RunDate)
+		markedForRemoval, err := isResourceVersionMarkedForRemoval(config, m.BaseMetadata.RunDate, m.RevisionMetadata.RunDate)
 		if err != nil {
 			return nil, err
 		}
@@ -57,7 +57,7 @@ func (m *Metadata) newOasDiffEntriesFromSunsetEndpoints(
 		}
 	}
 
-	printSunsetLogChanges(changes, version, m.PreviousRunDate, m.RunDate)
+	printSunsetLogChanges(changes, version, m.BaseMetadata.RunDate, m.RevisionMetadata.RunDate)
 	return changes, nil
 }
 

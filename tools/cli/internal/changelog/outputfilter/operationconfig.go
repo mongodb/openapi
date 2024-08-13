@@ -72,6 +72,10 @@ func NewOperationConfigs(base, revision *load.SpecInfo) map[string]*OperationCon
 
 func newOperationConfigFromSpec(spec *load.SpecInfo) map[string]*OperationConfig {
 	endpointsConfigMap := make(map[string]*OperationConfig)
+	if spec == nil || spec.Spec == nil {
+		return nil
+	}
+
 	paths := spec.Spec.Paths
 	if paths == nil || paths.Len() == 0 {
 		return nil

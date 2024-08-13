@@ -21,7 +21,6 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/tufin/oasdiff/load"
 )
 
 // @To do: Add tests for the following scenarios once the sunset logic is migrated:
@@ -31,7 +30,7 @@ import (
 // - test_remove_hidden_entries_entries_removed
 
 func TestMergeChangelogOneChange(t *testing.T) {
-	baseChangelog, err := NewChangelogEntries("../../test/data/changelog/changelog.json")
+	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	lastChangelogRunDate := baseChangelog[0].Date
@@ -68,19 +67,22 @@ func TestMergeChangelogOneChange(t *testing.T) {
 
 	version := "2023-02-01"
 	runDate := "2023-06-15"
-	changelogMetadata := &Metadata{
-		Base: &load.SpecInfo{
-			Version: version,
+
+	changelogStruct := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: version,
 		},
-		Revision: &load.SpecInfo{
-			Version: version,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: version,
 		},
-		BaseChangelog: baseChangelog,
 		RunDate:       runDate,
+		BaseChangelog: baseChangelog,
 	}
 
 	// act
-	changelog, err := changelogMetadata.mergeChangelog(changeType, changes, endpointsConfig)
+	changelog, err := changelogStruct.mergeChangelog(changeType, changes, endpointsConfig)
 	require.NoError(t, err)
 
 	assert.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
@@ -103,7 +105,7 @@ func TestMergeChangelogOneChange(t *testing.T) {
 
 func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	// arrange
-	baseChangelog, err := NewChangelogEntries("../../test/data/changelog/changelog.json")
+	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	lastChangelogRunDate := baseChangelog[0].Date
@@ -153,34 +155,39 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	firstVersion := "2023-02-01"
 	changeTypeFirstVersion := changeTypeUpdate
 
-	changelogMetadataFirstVersion := &Metadata{
-		Base: &load.SpecInfo{
-			Version: firstVersion,
+	changelogStruct := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
 		},
-		Revision: &load.SpecInfo{
-			Version: firstVersion,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
 		},
-		BaseChangelog: baseChangelog,
 		RunDate:       runDate,
+		BaseChangelog: baseChangelog,
 	}
 
-	changelog, err := changelogMetadataFirstVersion.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
+	changelog, err := changelogStruct.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
 	require.NoError(t, err)
 
 	secondVersion := "2023-02-02"
 	changeTypeSecondVersion := changeTypeRelease
-	changelogMetadataSecondVersion := &Metadata{
-		Base: &load.SpecInfo{
-			Version: firstVersion,
+
+	changelogStruct = &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
 		},
-		Revision: &load.SpecInfo{
-			Version: secondVersion,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: secondVersion,
 		},
-		BaseChangelog: changelog,
 		RunDate:       runDate,
+		BaseChangelog: changelog,
 	}
 
-	changelog, err = changelogMetadataSecondVersion.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
+	changelog, err = changelogStruct.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
 	require.NoError(t, err)
 
 	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
@@ -214,7 +221,7 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 }
 
 func TestMergeChangelogAddTwoEndpoints(t *testing.T) {
-	originalChangelog, err := NewChangelogEntries("../../test/data/changelog/changelog.json")
+	originalChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	lastChangelogRunDate := originalChangelog[0].Date
@@ -264,19 +271,21 @@ func TestMergeChangelogAddTwoEndpoints(t *testing.T) {
 		},
 	}
 
-	changelogMetadata := &Metadata{
-		Base: &load.SpecInfo{
-			Version: version,
+	changelogStruct := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: version,
 		},
-		Revision: &load.SpecInfo{
-			Version: version,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: version,
 		},
-		BaseChangelog: originalChangelog,
 		RunDate:       runDate,
+		BaseChangelog: originalChangelog,
 	}
 
 	// act
-	changelog, err := changelogMetadata.mergeChangelog(
+	changelog, err := changelogStruct.mergeChangelog(
 		changeTypeUpdate,
 		changes,
 		endpointsConfig,
@@ -465,7 +474,7 @@ func TestSortChangelog(t *testing.T) {
 
 func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 	// arrange
-	baseChangelog, err := NewChangelogEntries("../../test/data/changelog/changelog.json")
+	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	lastChangelogRunDate := baseChangelog[0].Date
@@ -526,32 +535,36 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 		},
 	}
 
-	changelogMetadataFirstVersion := &Metadata{
-		Base: &load.SpecInfo{
-			Version: firstVersion,
+	changelogStruct := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
 		},
-		Revision: &load.SpecInfo{
-			Version: firstVersion,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
 		},
-		BaseChangelog: baseChangelog,
 		RunDate:       runDate,
+		BaseChangelog: baseChangelog,
 	}
 
-	changelog, err := changelogMetadataFirstVersion.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
+	changelog, err := changelogStruct.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
 	require.NoError(t, err)
 
-	changelogMetadataSecondVersion := &Metadata{
-		Base: &load.SpecInfo{
-			Version: firstVersion,
+	changelogStruct = &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
 		},
-		Revision: &load.SpecInfo{
-			Version: secondVersion,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: secondVersion,
 		},
-		BaseChangelog: changelog,
 		RunDate:       runDate,
+		BaseChangelog: changelog,
 	}
 
-	changelog, err = changelogMetadataSecondVersion.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
+	changelog, err = changelogStruct.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
 	require.NoError(t, err)
 
 	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
