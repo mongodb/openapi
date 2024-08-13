@@ -192,7 +192,7 @@ func (m *Changelog) newPathsFromRevisionChanges(
 	changeType string, changelogPath *[]*Path,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	revisionChanges := m.newRevisionChanges(changes)
-	return newMergedChanges(revisionChanges, changeType, m.Revision.Version, changelogPath, conf)
+	return newMergedChanges(revisionChanges, changeType, m.RevisionMetadata.ActiveVersion, changelogPath, conf)
 }
 
 // newPathsFromDeprecatedChanges creates new paths from deprecated changes
@@ -201,7 +201,7 @@ func (m *Changelog) newPathsFromDeprecatedChanges(
 	changelogPath *[]*Path,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
 	depreactedChanges := m.newDeprecatedByNewerVersionChanges(changes, conf)
-	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.Base.Version, changelogPath, conf)
+	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.BaseMetadata.ActiveVersion, changelogPath, conf)
 }
 
 func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {

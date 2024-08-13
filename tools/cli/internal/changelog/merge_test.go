@@ -474,7 +474,7 @@ func TestSortChangelog(t *testing.T) {
 
 func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 	// arrange
-	baseChangelog, err := NewChangelogEntries("../../test/data/changelog/changelog.json")
+	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	lastChangelogRunDate := baseChangelog[0].Date
@@ -535,32 +535,36 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 		},
 	}
 
-	changelogMetadataFirstVersion := &Metadata{
-		Base: &load.SpecInfo{
-			Version: firstVersion,
+	changelogStruct := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
 		},
-		Revision: &load.SpecInfo{
-			Version: firstVersion,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
 		},
-		BaseChangelog: baseChangelog,
 		RunDate:       runDate,
+		BaseChangelog: baseChangelog,
 	}
 
-	changelog, err := changelogMetadataFirstVersion.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
+	changelog, err := changelogStruct.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
 	require.NoError(t, err)
 
-	changelogMetadataSecondVersion := &Metadata{
-		Base: &load.SpecInfo{
-			Version: firstVersion,
+	changelogStruct = &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
 		},
-		Revision: &load.SpecInfo{
-			Version: secondVersion,
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: secondVersion,
 		},
-		BaseChangelog: changelog,
 		RunDate:       runDate,
+		BaseChangelog: changelog,
 	}
 
-	changelog, err = changelogMetadataSecondVersion.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
+	changelog, err = changelogStruct.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
 	require.NoError(t, err)
 
 	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
