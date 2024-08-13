@@ -149,7 +149,7 @@ func (m *Changelog) mergeChangelog(
 	changeType string,
 	changes []*outputfilter.OasDiffEntry,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Entry, error) {
-	changelog, err := duplicateChangelog(m.BaseChangelog)
+	changelog, err := duplicateEntries(m.BaseChangelog)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +200,7 @@ func (m *Changelog) newPathsFromDeprecatedChanges(
 	changes []*outputfilter.OasDiffEntry,
 	changelogPath *[]*Path,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
-	depreactedChanges := m.newDeprecatedByNewerVersionChanges(changes, conf)
+	depreactedChanges := m.newDeprecatedByNewerVersionOasDiffEntries(changes, conf)
 	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.BaseMetadata.ActiveVersion, changelogPath, conf)
 }
 
@@ -243,6 +243,7 @@ func sortChangelog(changelog []*Entry) []*Entry {
 	return changelog
 }
 
+// newMergedChanges merges the OasDiff changes into the changelog []paths
 func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 	changeType, version string, changelogPath *[]*Path,
 	operationConfig map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
@@ -286,7 +287,7 @@ var priorityGivenChangeType = func(changeType string) int {
 	return notSetPriority
 }
 
-func (m *Changelog) newDeprecatedByNewerVersionChanges(
+func (m *Changelog) newDeprecatedByNewerVersionOasDiffEntries(
 	changes []*outputfilter.OasDiffEntry,
 	operationConfig map[string]*outputfilter.OperationConfigs) []*outputfilter.OasDiffEntry {
 	// deprecation by newer version occurs only when
@@ -424,7 +425,7 @@ func retrieveEntryAtDate(changelog *[]*Entry, date string) *Entry {
 	return nil
 }
 
-func duplicateChangelog(changelog []*Entry) ([]*Entry, error) {
+func duplicateEntries(changelog []*Entry) ([]*Entry, error) {
 	// Marshal the original document to JSON
 	contents, err := json.Marshal(changelog)
 	if err != nil {
