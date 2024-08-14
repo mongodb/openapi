@@ -15,8 +15,8 @@
 package changelog
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
@@ -25,36 +25,47 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	changelogFileName    = "changelog"
+	changelogAllFileName = "changelog-all"
+)
+
 type Opts struct {
 	fs              afero.Fs
 	basePath        string
 	revisionPath    string
 	exceptionsPaths string
+	outputPath      string
 	dryRun          bool
 }
 
 func (o *Opts) Run() error {
 	entries, err := changelog.NewEntries(o.basePath, o.revisionPath)
-
 	if err != nil {
 		return err
 	}
 
-	fmt.Print("Printing the entries\n")
-	for _, check := range entries {
-		base, jsonErr := json.MarshalIndent(*check, "", "  ")
-		if jsonErr != nil {
-			return jsonErr
-		}
+	hiddenEntries := changelog.NewNotHiddenEntries(entries)
 
-		fmt.Println(string(base))
+	if o.dryRun {
+		log.Printf("Detected dry-run mode. No changes will be saved.\n")
+		return nil
 	}
 
-	return nil
+	err = changelog.SaveChangelog(o.newOutputFilePath(changelogFileName), entries, o.fs)
+	if err != nil {
+		return err
+	}
+
+	return changelog.SaveChangelog(o.newOutputFilePath(changelogAllFileName), hiddenEntries, o.fs)
 }
 
-func (o *Opts) PreRunE(_ []string) error {
-	return nil
+func (o *Opts) newOutputFilePath(fileName string) string {
+	if o.outputPath != "" {
+		return fmt.Sprintf("%s/%s", o.outputPath, fileName)
+	}
+
+	return fileName
 }
 
 // Builder builds the merge command with the following signature:
@@ -69,9 +80,6 @@ func CreateBuilder() *cobra.Command {
 		Aliases: []string{"generate"},
 		Short:   "Generate the changelog for the OpenAPI spec.",
 		Args:    cobra.NoArgs,
-		PreRunE: func(_ *cobra.Command, args []string) error {
-			return opts.PreRunE(args)
-		},
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return opts.Run()
 		},
@@ -81,6 +89,7 @@ func CreateBuilder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.revisionPath, flag.Revision, flag.RevisionShort, "", usage.RevisionFolder)
 	cmd.Flags().StringVarP(&opts.exceptionsPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
 	cmd.Flags().BoolVarP(&opts.dryRun, flag.DryRun, flag.DryRunShort, false, usage.DryRun)
+	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 
 	_ = cmd.MarkFlagRequired(flag.Base)
 	_ = cmd.MarkFlagRequired(flag.Revision)

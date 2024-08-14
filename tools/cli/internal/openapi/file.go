@@ -46,7 +46,7 @@ func SaveSpec(path string, oas *Spec, format string, fs afero.Fs) error {
 }
 
 func NewArrayBytesFromOAS(oas *Spec, path, format string) ([]byte, error) {
-	data, err := serializeToJSON(oas)
+	data, err := SerializeToJSON(oas)
 	if err != nil {
 		return nil, err
 	}
@@ -55,27 +55,27 @@ func NewArrayBytesFromOAS(oas *Spec, path, format string) ([]byte, error) {
 		return data, nil
 	}
 
-	return serializeToYAML(data)
+	return SerializeToYAML(data)
 }
 
-func serializeToJSON(oas *Spec) ([]byte, error) {
+func SerializeToJSON[T any](data T) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(false)
 	enc.SetIndent("", "  ")
-	err := enc.Encode(*oas)
+	err := enc.Encode(data)
 	if err != nil {
 		return nil, err
 	}
 
 	// enc.SetEscapeHTML(false) doesn't seem to work for Spec. Replace characters <>& manually.
-	data := bytes.ReplaceAll(buf.Bytes(), []byte(`\u003c`), []byte("<"))
-	data = bytes.ReplaceAll(data, []byte(`\u003e`), []byte(">"))
-	data = bytes.ReplaceAll(data, []byte(`\u0026`), []byte("&"))
-	return data, nil
+	out := bytes.ReplaceAll(buf.Bytes(), []byte(`\u003c`), []byte("<"))
+	out = bytes.ReplaceAll(out, []byte(`\u003e`), []byte(">"))
+	out = bytes.ReplaceAll(out, []byte(`\u0026`), []byte("&"))
+	return out, nil
 }
 
-func serializeToYAML(data []byte) ([]byte, error) {
+func SerializeToYAML(data []byte) ([]byte, error) {
 	var jsonData interface{}
 	if err := json.Unmarshal(data, &jsonData); err != nil {
 		return nil, err
