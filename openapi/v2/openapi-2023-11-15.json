@@ -167,6 +167,14 @@
       "name": "Serverless Private Endpoints"
     },
     {
+      "description": "Endpoints for managing Service Accounts and secrets. Service Accounts are used for programmatic access to the Atlas Admin API through the OAuth 2.0 Client Credentials flow. This feature is available as a Preview feature.",
+      "externalDocs": {
+        "description": "Get Started with the Atlas Administration API",
+        "url": "https://www.mongodb.com/docs/atlas/configure-api-access/"
+      },
+      "name": "Service Accounts"
+    },
+    {
       "description": "Returns and adds restore jobs for shared-tier database deployments.",
       "name": "Shared-Tier Restore Jobs"
     },
@@ -19699,7 +19707,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts": {
       "get": {
-        "description": "Returns list of Service Accounts for a project with service account details.",
+        "description": "Returns all Service Accounts for the specified Project.",
         "operationId": "listProjectServiceAccounts",
         "parameters": [
           {
@@ -19745,13 +19753,13 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Return All project Service Accounts",
+        "summary": "List All Project Service Accounts",
         "tags": [
-          "Groups"
+          "Service Accounts"
         ]
       },
       "post": {
-        "description": "Creates and assigns the specified Service Account to the specified Project.",
+        "description": "Creates one Service Account for the specified Project. The Service Account will automatically be added as an Organization Member to the Organization that the specified Project is a part of.",
         "operationId": "createProjectServiceAccount",
         "parameters": [
           {
@@ -19773,7 +19781,7 @@
               "x-xgen-version": "2023-10-01"
             }
           },
-          "description": "Details to create service account and add to the specified project.",
+          "description": "Details of the new Service Account.",
           "required": true
         },
         "responses": {
@@ -19803,23 +19811,25 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Create and Assign one Service Account to one project",
+        "summary": "Create and Assign one Service Account to one Project",
         "tags": [
-          "Groups"
+          "Service Accounts"
         ]
       }
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts/{serviceAccountId}": {
       "delete": {
-        "description": "Removes one Service Account from the specified project.",
+        "description": "Removes the specified Service Account from the specified project. The Service Account will still be a part of the Organization it was created in, and the credentials will remain active until expired or manually revoked.",
         "operationId": "deleteProjectServiceAccount",
         "parameters": [
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
@@ -19861,24 +19871,26 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Unassign One Service Account from One Project.",
+        "summary": "Unassign One Service Account from One Project",
         "tags": [
-          "Groups"
+          "Service Accounts"
         ]
       },
       "get": {
-        "description": "Get project Service Account Details.",
+        "description": "Returns one Service Account in the specified Project.",
         "operationId": "getProjectServiceAccount",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
           },
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
@@ -19916,21 +19928,23 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Service Account Fetching",
+        "summary": "Get one Project Service Account",
         "tags": [
-          "Groups"
+          "Service Accounts"
         ]
       },
       "patch": {
-        "description": "Update Service Account in Project.",
+        "description": "Updates one Service Account in the specified Project.",
         "operationId": "updateProjectServiceAccount",
         "parameters": [
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
@@ -19952,7 +19966,7 @@
               }
             }
           },
-          "description": "Details to update service account in the specified Project.",
+          "description": "The new details for the Service Account.",
           "required": true
         },
         "responses": {
@@ -19985,21 +19999,23 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Service Account Update in Project",
+        "summary": "Update one Project Service Account",
         "tags": [
-          "Groups"
+          "Service Accounts"
         ]
       },
       "post": {
-        "description": "Assigns the specified organization Service Account to the specified project.",
+        "description": "Assigns the specified Service Account to the specified Project.",
         "operationId": "addProjectServiceAccount",
         "parameters": [
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
@@ -20025,7 +20041,7 @@
               "x-xgen-version": "2023-10-01"
             }
           },
-          "description": "Service Account Roles to be assigned to the specified project.",
+          "description": "The Project permissions for the Service Account in the specified Project.",
           "required": true
         },
         "responses": {
@@ -20057,7 +20073,7 @@
         ],
         "summary": "Assign One Service Account to One Project",
         "tags": [
-          "Groups"
+          "Service Accounts"
         ]
       }
     },
@@ -23879,7 +23895,7 @@
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts": {
       "get": {
-        "description": "Returns list of Service Accounts with service account details.",
+        "description": "Returns all Service Accounts for the specified Organization.",
         "operationId": "listServiceAccounts",
         "parameters": [
           {
@@ -23925,13 +23941,13 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Return All Service Accounts",
+        "summary": "List All Organization Service Accounts",
         "tags": [
-          "Organizations"
+          "Service Accounts"
         ]
       },
       "post": {
-        "description": "Create Service Account containing client id and client secrets.",
+        "description": "Creates one Service Account for the specified Organization.",
         "operationId": "createServiceAccount",
         "parameters": [
           {
@@ -23952,7 +23968,7 @@
               }
             }
           },
-          "description": "Details to create service account in the specified organization.",
+          "description": "Details of the new Service Account.",
           "required": true
         },
         "responses": {
@@ -23982,23 +23998,25 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Service Account Creation",
+        "summary": "Create one Organization Service Account",
         "tags": [
-          "Organizations"
+          "Service Accounts"
         ]
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{serviceAccountId}": {
       "delete": {
-        "description": "Delete Service Account.",
+        "description": "Deletes the specified Service Account.",
         "operationId": "deleteServiceAccount",
         "parameters": [
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
@@ -24036,24 +24054,26 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Service Account Deletion.",
+        "summary": "Delete one Organization Service Account",
         "tags": [
-          "Organizations"
+          "Service Accounts"
         ]
       },
       "get": {
-        "description": "Get Service Account Details.",
+        "description": "Returns the specified Service Account.",
         "operationId": "getServiceAccount",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
           },
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
@@ -24091,21 +24111,23 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Service Account Fetching",
+        "summary": "Get one Organization Service Account",
         "tags": [
-          "Organizations"
+          "Service Accounts"
         ]
       },
       "patch": {
-        "description": "Update Service Account.",
+        "description": "Updates the specified Service Account in the specified Organization.",
         "operationId": "updateServiceAccount",
         "parameters": [
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
@@ -24127,7 +24149,7 @@
               }
             }
           },
-          "description": "Details to update service account in the specified organization.",
+          "description": "The new details for the Service Account.",
           "required": true
         },
         "responses": {
@@ -24160,26 +24182,28 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Service Account Update",
+        "summary": "Update one Organization Service Account",
         "tags": [
-          "Organizations"
+          "Service Accounts"
         ]
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{serviceAccountId}/groups": {
       "get": {
-        "description": "Returns list of Service Account projects.",
+        "description": "Returns a list of all projects the specified Service Account is a part of.",
         "operationId": "listServiceAccountProjects",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
           },
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
@@ -24223,26 +24247,28 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Return All Service Account projects",
+        "summary": "Return All Service Account Project assignments",
         "tags": [
-          "Organizations"
+          "Service Accounts"
         ]
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{serviceAccountId}/secrets": {
       "post": {
-        "description": "Create Service Account secret.",
+        "description": "Create a secret for the specified Service Account.",
         "operationId": "createServiceAccountSecret",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
           },
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
@@ -24261,7 +24287,7 @@
               }
             }
           },
-          "description": "Details to create secret in the specified service account.",
+          "description": "Details for the new secret.",
           "required": true
         },
         "responses": {
@@ -24291,28 +24317,30 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Service Account Secret Creation",
+        "summary": "Create one Organization Service Account Secret",
         "tags": [
-          "Organizations"
+          "Service Accounts"
         ]
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{serviceAccountId}/secrets/{secretId}": {
       "delete": {
-        "description": "Delete Service Account Secret.",
+        "description": "Deletes the specified Service Account secret.",
         "operationId": "deleteServiceAccountSecret",
         "parameters": [
           {
-            "description": "Id of the service account.",
+            "description": "Unique identifier for the service account.",
             "in": "path",
             "name": "serviceAccountId",
             "required": true,
             "schema": {
+              "example": "mdb_sa_id_667066535bc75b03c37b3038",
+              "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
               "type": "string"
             }
           },
           {
-            "description": "Id of the secret.",
+            "description": "Unique 24-hexadecimal digit string that identifies the secret.",
             "in": "path",
             "name": "secretId",
             "required": true,
@@ -24354,9 +24382,9 @@
             "DigestAuth": []
           }
         ],
-        "summary": "Service Account Secret Deletion.",
+        "summary": "Delete a Organization Service Account Secret",
         "tags": [
-          "Organizations"
+          "Service Accounts"
         ]
       }
     },
@@ -45143,27 +45171,27 @@
       "GroupServiceAccount": {
         "properties": {
           "createdAt": {
-            "description": "Service account creation time.",
+            "description": "The date that the Service Account was created on.",
             "format": "date-time",
             "type": "string"
           },
           "description": {
-            "description": "Description of the service account.",
+            "description": "Human readable description for the Service Account.",
             "type": "string"
           },
           "id": {
-            "description": "ID for the service account.",
+            "description": "The Client ID of the Service Account.",
             "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
             "type": "string"
           },
           "name": {
-            "description": "Name for service account.",
+            "description": "Human-readable name for the Service Account.",
             "type": "string"
           },
           "roles": {
-            "description": "Roles assigned to the Service Account group.",
+            "description": "A list of Project roles associated with the Service Account.",
             "items": {
-              "description": "Project roles associated with the service account.",
+              "description": "Project roles available for Service Accounts.",
               "enum": [
                 "GROUP_OWNER",
                 "GROUP_READ_ONLY",
@@ -45180,7 +45208,7 @@
             "uniqueItems": true
           },
           "secrets": {
-            "description": "List of secrets.",
+            "description": "A list of secrets associated with the specified Service Account.",
             "items": {
               "$ref": "#/components/schemas/ServiceAccountSecret"
             },
@@ -45193,23 +45221,23 @@
       "GroupServiceAccountRequest": {
         "properties": {
           "description": {
-            "description": "Human readable description for the service account.",
+            "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "name": {
-            "description": "Human-readable name for the service account. The name is modifiable and does not have to be unique.",
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "roles": {
-            "description": "Project roles associated with the service account.",
+            "description": "A list of project-level roles for the Service Account.",
             "items": {
-              "description": "Project roles associated with the service account.",
+              "description": "Project roles available for Service Accounts.",
               "enum": [
                 "GROUP_OWNER",
                 "GROUP_READ_ONLY",
@@ -45225,7 +45253,7 @@
             "type": "array"
           },
           "secretExpiresAfterHours": {
-            "description": "Secret expiration time.",
+            "description": "The expiration time of the new Service Account secret. The expiration is provided in hours.",
             "format": "int32",
             "type": "integer"
           }
@@ -45240,9 +45268,9 @@
       "GroupServiceAccountRoleAssignment": {
         "properties": {
           "roles": {
-            "description": "Group access roles.",
+            "description": "The Project permissions for the Service Account in the specified Project.",
             "items": {
-              "description": "Project roles associated with the service account.",
+              "description": "Project roles available for Service Accounts.",
               "enum": [
                 "GROUP_OWNER",
                 "GROUP_READ_ONLY",
@@ -45264,23 +45292,23 @@
       "GroupServiceAccountUpdateRequest": {
         "properties": {
           "description": {
-            "description": "Human readable description for the service account.",
+            "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "name": {
-            "description": "Human-readable name for the service account. The name is modifiable and does not have to be unique.",
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "roles": {
-            "description": "Project roles associated with the service account.",
+            "description": "A list of Project roles associated with the Service Account.",
             "items": {
-              "description": "Project roles associated with the service account.",
+              "description": "Project roles available for Service Accounts.",
               "enum": [
                 "GROUP_OWNER",
                 "GROUP_READ_ONLY",
@@ -51809,27 +51837,27 @@
       "OrgServiceAccount": {
         "properties": {
           "createdAt": {
-            "description": "Service account creation time.",
+            "description": "The date that the Service Account was created on.",
             "format": "date-time",
             "type": "string"
           },
           "description": {
-            "description": "Description of the service account.",
+            "description": "Human readable description for the Service Account.",
             "type": "string"
           },
           "id": {
-            "description": "ID for the service account.",
+            "description": "The Client ID of the Service Account.",
             "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
             "type": "string"
           },
           "name": {
-            "description": "Name for service account.",
+            "description": "Human-readable name for the Service Account.",
             "type": "string"
           },
           "roles": {
-            "description": "Organization roles assigned to the Service Account.",
+            "description": "A list of Organization roles associated with the Service Account.",
             "items": {
-              "description": "Organization roles associated with the service account.",
+              "description": "Organization roles available for Service Accounts.",
               "enum": [
                 "ORG_MEMBER",
                 "ORG_READ_ONLY",
@@ -51844,7 +51872,7 @@
             "uniqueItems": true
           },
           "secrets": {
-            "description": "List of secrets.",
+            "description": "A list of secrets associated with the specified Service Account.",
             "items": {
               "$ref": "#/components/schemas/ServiceAccountSecret"
             },
@@ -51857,23 +51885,23 @@
       "OrgServiceAccountRequest": {
         "properties": {
           "description": {
-            "description": "Human readable description for the service account.",
+            "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "name": {
-            "description": "Human-readable name for the service account. The name is modifiable and does not have to be unique.",
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "roles": {
-            "description": "Organization roles associated with the service account.",
+            "description": "A list of organization-level roles for the Service Account.",
             "items": {
-              "description": "Organization roles associated with the service account.",
+              "description": "Organization roles available for Service Accounts.",
               "enum": [
                 "ORG_MEMBER",
                 "ORG_READ_ONLY",
@@ -51887,7 +51915,7 @@
             "type": "array"
           },
           "secretExpiresAfterHours": {
-            "description": "Secret expiration time.",
+            "description": "The expiration time of the new Service Account secret. The expiration is provided in hours.",
             "format": "int32",
             "type": "integer"
           }
@@ -51902,23 +51930,23 @@
       "OrgServiceAccountUpdateRequest": {
         "properties": {
           "description": {
-            "description": "Human readable description for the service account.",
+            "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "name": {
-            "description": "Human-readable name for the service account. The name is modifiable and does not have to be unique.",
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "roles": {
-            "description": "Organization roles associated with the Service account.",
+            "description": "A list of organization-level roles for the Service Account.",
             "items": {
-              "description": "Organization roles associated with the service account.",
+              "description": "Organization roles available for Service Accounts.",
               "enum": [
                 "ORG_MEMBER",
                 "ORG_READ_ONLY",
@@ -53504,7 +53532,7 @@
         "type": "object"
       },
       "PaginatedGroupServiceAccounts": {
-        "description": "List of Service Accounts",
+        "description": "A list of Project Service Accounts.",
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -53729,7 +53757,7 @@
         "type": "object"
       },
       "PaginatedOrgServiceAccounts": {
-        "description": "List of Service Accounts",
+        "description": "A list of Organization Service Accounts.",
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -53987,7 +54015,7 @@
         "type": "object"
       },
       "PaginatedServiceAccountGroup": {
-        "description": "List of Service Account projects.",
+        "description": "A list of projects associated with the Service Account.",
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -57978,7 +58006,7 @@
       "ServiceAccountGroup": {
         "properties": {
           "groupId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "description": "Unique 24-hexadecimal digit string that identifies your project. **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.",
             "example": "32b6e34b3d91647abb20e7b8",
             "maxLength": 24,
             "minLength": 24,
@@ -58208,38 +58236,38 @@
       "ServiceAccountSecret": {
         "properties": {
           "createdAt": {
-            "description": "Timestamp representing creation time.",
+            "description": "The date that the secret was created on.",
             "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
           "expiresAt": {
-            "description": "Timestamp representing secret expiration time.",
+            "description": "The date for the expiration of the secret.",
             "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
           "id": {
-            "description": "Unique 24-hexadecimal character string that identifies the secret.",
+            "description": "Unique 24-hexadecimal digit string that identifies the secret.",
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
             "readOnly": true,
             "type": "string"
           },
           "lastUsedAt": {
-            "description": "Timestamp representing last secret usage.",
+            "description": "The last time the secret was used.",
             "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
           "maskedSecretValue": {
-            "description": "Service Account secret with masked values of the first 20 characters.",
+            "description": "The masked Service Account secret.",
             "example": "mdb_ic_sk_...12ce",
             "readOnly": true,
             "type": "string"
           },
           "secret": {
-            "description": "Secret for the service account. It will be returned only the first time after service account creation.",
+            "description": "The secret for the Service Account. It will be returned only the first time after creation.",
             "pattern": "^mdb_sa_sk_[0-9a-zA-Z_-]{40}$",
             "readOnly": true,
             "type": "string"
@@ -58255,7 +58283,7 @@
       "ServiceAccountSecretRequest": {
         "properties": {
           "secretExpiresAfterHours": {
-            "description": "Number of hours representing validity duration for secret.",
+            "description": "The expiration time of the new Service Account secret. The expiration is provided in hours.",
             "format": "int32",
             "type": "integer"
           }
