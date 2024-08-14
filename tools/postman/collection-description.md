@@ -7,7 +7,7 @@ This collection is an introduction to the [MongoDB Atlas Administration API](htt
 To test out the MongoDB Atlas Admin API collection, start by [creating a free MongoDB Atlas cluster](https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/).  
 Once you have a cluster, you can [fork this collection](https://learning.postman.com/docs/collaborating-in-postman/using-version-control/forking-elements/\#create-a-fork) into your own workspace in order to manage your MongoDB Atlas resources. Make sure to also fork the MongoDB Atlas Administration API Environment at the same time.
 
-Once you have your cluster up and running, follow [this guide](https://www.mongodb.com/docs/atlas/configure-api-access/) to find your public and private API keys. Set each of these values as secrets in the Postman Vault: 
+Once you have your cluster up and running, follow [this guide](https://www.mongodb.com/docs/atlas/configure-api-access/) to find your public and private API keys. Set each of these values as secrets in the [Postman Vault](https://learning.postman.com/docs/sending-requests/postman-vault/postman-vault-secrets/): 
 
 - public API key as the value for a key named \`mongodb-public-api-key\`  
 - private API key as the value for a key named  \`mongodb-private-api-key\`
