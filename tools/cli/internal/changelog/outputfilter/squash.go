@@ -215,7 +215,7 @@ func squashEntriesByValues(
 				if idx == squashIdx {
 					squashList := []string{}
 					for sv := range squashValues {
-						squashList = append(squashList, sv) 
+						squashList = append(squashList, sv)
 					}
 					sort.Strings(squashList)
 					valuesToAddToTemplate = strings.Join(squashList, ", ")
