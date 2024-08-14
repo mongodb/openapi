@@ -34,25 +34,17 @@ type Opts struct {
 }
 
 func (o *Opts) Run() error {
-	metadata, err := changelog.NewMetadata(
-		fmt.Sprintf("%s/%s", o.basePath, "v2.json"),
-		fmt.Sprintf("%s/%s", o.revisionPath, "v2.json"),
-		o.exceptionsPaths)
+	entries, err := changelog.NewEntries(o.basePath, o.revisionPath)
 
 	if err != nil {
 		return err
 	}
 
-	checks, err := metadata.Check()
-	if err != nil {
-		return err
-	}
-
-	fmt.Print("Printing the checks\n")
-	for _, check := range checks {
-		base, err := json.MarshalIndent(*check, "", "  ")
-		if err != nil {
-			return err
+	fmt.Print("Printing the entries\n")
+	for _, check := range entries {
+		base, jsonErr := json.MarshalIndent(*check, "", "  ")
+		if jsonErr != nil {
+			return jsonErr
 		}
 
 		fmt.Println(string(base))

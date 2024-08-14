@@ -12,6 +12,7 @@ set -euo pipefail
 #   TOGGLE_USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
 #   TOGGLE_INCLUDE_BODY - bool for if generated bodies should be removed or kept
 #   VERSIONS_FILE - name for the openapi versions file
+#   DESCRIPTION_FILE - name for the markdown description file
 #   BASE_URL - the default base url the Postman Collection will use
 #########################################################
 
@@ -20,7 +21,9 @@ COLLECTION_TRANSFORMED_FILE_NAME=${COLLECTION_TRANSFORMED_FILE_NAME:-"collection
 OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"atlas-api.json"}
 OPENAPI_FOLDER=${OPENAPI_FOLDER:-"../openapi"}
 TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
+
 VERSIONS_FILE=${VERSIONS_FILE:-"versions.json"}
+DESCRIPTION_FILE=${DESCRIPTION_FILE:-"../collection-description.md"}
 
 TOGGLE_USE_ENVIRONMENT_AUTH=${TOGGLE_USE_ENVIRONMENT_AUTH:-true}
 TOGGLE_INCLUDE_BODY=${TOGGLE_INCLUDE_BODY:-true}
@@ -41,15 +44,24 @@ echo "Removing _postman_id"
 jq 'del(.collection.info._postman_id)' \
   intermediateCollectionDisableQueryParam.json > intermediateCollectionNoPostmanID.json
 
+echo "Removing circular references"
+sed 's/\\"value\\": \\"<Circular reference to #[^>"]* detected>\\"//g' intermediateCollectionNoPostmanID.json > intermediateCollectionNoCircular.json
+
 echo "Updating name with version"
 jq --arg api_version "$current_api_revision" \
   '.collection.info.name = ("MongoDB Atlas Administration API " + $api_version)' \
-  intermediateCollectionNoPostmanID.json >  intermediateCollectionWithName.json
+  intermediateCollectionNoCircular.json >  intermediateCollectionWithName.json
+
+echo "Adding Collection description"
+description=$(<"$DESCRIPTION_FILE")
+jq --arg desc "$description" \
+  '.collection.info.description.content = $desc' \
+  intermediateCollectionWithName.json >  intermediateCollectionWithDescription.json
 
 echo "Updating baseUrl"
 jq --arg base_url "$BASE_URL" \
   '.collection.variable[0].value = $base_url' \
-  intermediateCollectionWithName.json > intermediateCollectionWithBaseURL.json
+  intermediateCollectionWithDescription.json > intermediateCollectionWithBaseURL.json
 
 echo "Adding links to docs"
 cp intermediateCollectionWithBaseURL.json intermediateCollectionWithLinks.json
@@ -74,7 +86,7 @@ for path in "${paths_array[@]}"; do
   # Search the collection for the request with the matching name. Add the link to its description 
   jq --arg title "$title" --arg url "$url" \
     'first(.collection.item[].item[].request |  select(.name == $title).description.content) += "\n\nFind out more at " + $url' \
-    intermediateCollectionWithLinks.json > tmp.json && cp tmp.json intermediateCollectionWithLinks.json
+    intermediateCollectionWithLinks.json > tmp.json && mv tmp.json intermediateCollectionWithLinks.json
 
 done
 
@@ -109,7 +121,9 @@ echo "Removing temporary files"
 rm intermediateCollectionWrapped.json \
    intermediateCollectionDisableQueryParam.json \
    intermediateCollectionNoPostmanID.json \
+   intermediateCollectionNoCircular.json \
    intermediateCollectionWithName.json \
+   intermediateCollectionWithDescription.json \
    intermediateCollectionWithBaseURL.json \
    intermediateCollectionWithLinks.json \
    intermediateCollectionPostBody.json 

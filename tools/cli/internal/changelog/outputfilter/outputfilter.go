@@ -16,6 +16,7 @@ package outputfilter
 import (
 	"encoding/json"
 
+	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/formatters"
 	"github.com/tufin/oasdiff/load"
@@ -23,18 +24,27 @@ import (
 
 const lan = "en" // language for localized output
 
-type Entry struct {
-	ID          string `json:"id"`
-	Text        string `json:"text"`
-	Level       int    `json:"level"`
-	Operation   string `json:"operation,omitempty"`
-	OperationID string `json:"operationId,omitempty"`
-	Path        string `json:"path,omitempty"`
-	Source      string `json:"source,omitempty"`
-	Section     string `json:"section"`
+type OasDiffEntry struct {
+	ID                string `json:"id"`
+	Date              string `json:"date"`
+	Text              string `json:"text"`
+	Level             int    `json:"level"`
+	Operation         string `json:"operation,omitempty"`
+	OperationID       string `json:"operationId,omitempty"`
+	Path              string `json:"path,omitempty"`
+	Source            string `json:"source,omitempty"`
+	Section           string `json:"section"`
+	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
 }
 
-func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair) ([]*Entry, error) {
+func (o *OasDiffEntry) LevelWithDefault() int {
+	if o.Level != 0 {
+		return o.Level
+	}
+	return int(checker.INFO)
+}
+
+func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
 	})
@@ -47,19 +57,37 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 		return nil, err
 	}
 
-	var entries []*Entry
+	var entries []*OasDiffEntry
 	err = json.Unmarshal(bytes, &entries)
 	if err != nil {
 		return nil, err
 	}
 
-	return transformEntries(entries)
+	return transformEntries(entries, exemptionsFilePath)
 }
 
-func transformEntries(entries []*Entry) ([]*Entry, error) {
+func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {
+	newEntries := make([]*OasDiffEntry, 0)
 	for _, entry := range entries {
+		// only changes linked to endpoints are currently considered.
+		// For example, oasdiff might also return entries where components were removed.
+		if entry.Path == "" {
+			continue
+		}
 		transformMessage(entry)
+		newEntries = append(newEntries, entry)
 	}
 
-	return squashEntries(entries)
+	newEntries, err := squashEntries(newEntries)
+	if err != nil {
+		return nil, err
+	}
+
+	fs := afero.NewOsFs()
+	newEntries, err = MarkHiddenEntries(newEntries, exemptionsFilePath, fs)
+	if err != nil {
+		return nil, err
+	}
+
+	return newEntries, nil
 }

@@ -2,27 +2,26 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
+	"strings"
 	"testing"
+	"time"
 
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/diff"
 )
 
-var versions = []string{
-	// "2023-01-01",
-	// "2023-02-01",
-	"2023-10-01",
-	"2023-11-15",
-	"2024-05-30",
-	"2025-01-01",
-}
+var skipVersions = []string{}
 
-func TestSplitVersions(t *testing.T) {
+func TestSplitVersionsFilteredOASes(t *testing.T) {
 	cliPath := NewBin(t)
 	testCases := []struct {
 		name     string
@@ -54,18 +53,32 @@ func TestSplitVersions(t *testing.T) {
 			specType: "not-filtered",
 			env:      "prod",
 		},
+		{
+			name:     "Split not-filtered specs json prod",
+			format:   "json",
+			specType: "filtered",
+			env:      "prod",
+		},
+		{
+			name:     "Split not-filtered specs json prod yaml",
+			format:   "yaml",
+			specType: "filtered",
+			env:      "prod",
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			folder := tc.env
-			base := getInputFolder(t, tc.specType, tc.format, folder)
+			base := getInputPath(t, tc.specType, tc.format, folder)
+			outputPath := getOutputFolder(t, folder) + "/" + tc.specType + "-" + folder + "-" + "output." + tc.format
 			cmd := exec.Command(cliPath,
 				"split",
 				"-s",
 				base,
 				"-o",
-				getOutputFolder(t, folder)+"/output."+tc.format,
+				outputPath,
 				"--env",
 				tc.env,
 			)
@@ -75,19 +88,114 @@ func TestSplitVersions(t *testing.T) {
 			cmd.Stderr = &e
 			require.NoError(t, cmd.Run(), e.String())
 
+			versions := getVersions(t, cliPath, base, folder)
 			for _, version := range versions {
-				if tc.env == "prod" && version == "2025-01-01" {
+				if slices.Contains(skipVersions, version) {
 					continue
 				}
-				validateFiles(t, version, folder)
+				if tc.env == "prod" && !versionInFuture(t, version) {
+					continue
+				}
+				fmt.Printf("Validating version: %s\n", version)
+				noExtensionOutputPath := strings.Replace(outputPath, "."+tc.format, "", 1)
+				versionedOutputPath := noExtensionOutputPath + "-" + version + "." + tc.format
+				ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version, folder), versionedOutputPath)
 			}
 		})
 	}
 }
-func getInputFolder(t *testing.T, specType, format, folder string) string {
+
+func versionInFuture(t *testing.T, version string) bool {
+	t.Helper()
+	v, err := apiversion.New(apiversion.WithVersion(version))
+	require.NoError(t, err)
+	return v.Date().After(time.Now())
+}
+
+func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
+	folder := "dev"
+	cliPath := NewBin(t)
+	base, err := filepath.Abs("../../data/split/" + folder + "/openapi-api-registry.json")
+	require.NoError(t, err)
+	copyMMSFileToOutput(t, folder)
+
+	cmd := exec.Command(cliPath,
+		"split",
+		"-s",
+		base,
+		"-o",
+		getOutputFolder(t, folder)+"/api-registry-output.json",
+		"--env",
+		folder,
+	)
+	var o, e bytes.Buffer
+	cmd.Stdout = &o
+	cmd.Stderr = &e
+	require.NoError(t, cmd.Run(), e.String())
+
+	versions := getVersions(t, cliPath, base, folder)
+	fmt.Printf("Versions: %v\n", versions)
+	for _, version := range versions {
+		if folder == "prod" && version == "2025-01-01" {
+			continue
+		}
+
+		// validate the file exists
+		fileName := "api-registry-output-" + version + ".json"
+		path := getOutputFolder(t, folder) + "/" + fileName
+		require.FileExists(t, path)
+		// validate the file is a valid openapi spec
+		loader := openapi3.NewLoader()
+		loader.IsExternalRefsAllowed = true
+		oas, err := loader.LoadFromFile(path)
+		require.NoError(t, err)
+		require.NotNil(t, oas)
+		require.NoError(t, oas.Validate(loader.Context))
+	}
+}
+
+func copyMMSFileToOutput(t *testing.T, folder string) {
+	t.Helper()
+	// copy mms file to output folder because the split command will not copy it and it
+	// is needed for external references
+	srcPath := "../../data/split/" + folder + "/openapi-mms.json"
+	destPath := getOutputFolder(t, folder) + "/openapi-mms.json"
+	cpCmd := exec.Command(
+		"cp",
+		srcPath,
+		destPath,
+	)
+	var o, e bytes.Buffer
+	cpCmd.Stdout = &o
+	cpCmd.Stderr = &e
+	require.NoError(t, cpCmd.Run(), e.String())
+}
+
+func getVersions(t *testing.T, cliPath, base, folder string) []string {
+	t.Helper()
+	cmd := exec.Command(cliPath,
+		"versions",
+		"-s",
+		base,
+		"--env",
+		folder,
+	)
+
+	var o, e bytes.Buffer
+	cmd.Stdout = &o
+	cmd.Stderr = &e
+	require.NoError(t, cmd.Run(), e.String())
+
+	// load json output in a string slice
+	versions := []string{}
+	require.NoError(t, json.Unmarshal(o.Bytes(), &versions))
+	return versions
+}
+
+func getInputPath(t *testing.T, specType, format, folder string) string {
 	t.Helper()
 	if specType == "not-filtered" {
-		cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-mms-extensions.json")
+		cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-mms.json")
 		require.NoError(t, err)
 		return cliPath
 	}
@@ -109,13 +217,6 @@ func getOutputFolder(t *testing.T, subFolder string) string {
 	require.NoError(t, os.MkdirAll(finalPath, os.ModePerm))
 	require.DirExists(t, finalPath)
 	return finalPath
-}
-
-func validateFiles(t *testing.T, version, folder string) {
-	t.Helper()
-	fileName := "output-" + version + ".json"
-	path := getOutputFolder(t, folder) + "/" + fileName
-	ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version, folder), path)
 }
 
 func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath string) {

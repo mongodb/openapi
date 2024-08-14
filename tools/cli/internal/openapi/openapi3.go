@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/tufin/oasdiff/flatten/allof"
 	"github.com/tufin/oasdiff/load"
 )
 
@@ -41,12 +40,9 @@ func NewOpenAPI3() *OpenAPI3 {
 	}
 }
 
-func NewOpenAPI3WithExcludePrivatePaths(excludePrivatePaths bool) *OpenAPI3 {
-	return &OpenAPI3{
-		IsExternalRefsAllowed: true,
-		Loader:                openapi3.NewLoader(),
-		ExcludePrivatePaths:   excludePrivatePaths,
-	}
+func (o *OpenAPI3) WithExcludedPrivatePaths() *OpenAPI3 {
+	o.ExcludePrivatePaths = true
+	return o
 }
 
 func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
@@ -75,13 +71,8 @@ func CreateNormalizedOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
 		return nil, err
 	}
 
-	flattenAllOfSpec, err := allof.MergeSpec(spec)
-	if err != nil {
-		return nil, err
-	}
-
 	return &load.SpecInfo{
-		Spec: flattenAllOfSpec,
+		Spec: spec,
 		Url:  path,
 	}, nil
 }

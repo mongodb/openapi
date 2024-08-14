@@ -23,7 +23,7 @@ else
 fi
 
 format=("yaml" "json")
-versions=("2023-01-01" "2023-02-01" "2023-10-01" "2023-11-15" "2024-05-30" "2025-01-01")
+versions=("2023-01-01" "2023-02-01" "2023-10-01" "2023-11-15" "2024-05-30" "2024-08-05" "2025-01-01")
 
 for version in "${versions[@]}"; do
   for fmt in "${format[@]}"; do
@@ -41,6 +41,14 @@ for fmt in "${format[@]}"; do
   echo "Downloading specs for version v2-all on link $full_link"
   curl -f --show-error "$full_link" --output "$BASEDIR"/openapi-v2."$fmt"
 done
+
+echo "Downloading api-registry oas"
+full_link=$link/openapi-api-registry.json
+curl -f --show-error "$full_link" --output "$BASEDIR"/openapi-api-registry.json
+
+echo "Downloading openapi-mms oas"
+full_link=$link/openapi-mms.json
+curl -f --show-error "$full_link" --output "$BASEDIR"/openapi-mms.json
 
 # Find the commit sha version and write to a readme file
 commit_sha=$(echo "$full_link" | awk -F'mms/' '{print $2}' | awk -F'/' '{print $1}')
