@@ -161,7 +161,7 @@ func squashEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
 }
 func sortEntriesByDescription(entries []*OasDiffEntry) []*OasDiffEntry {
 	sort.Slice(entries, func(i, j int) bool {
-		return entries[i].Text > entries[j].Text
+		return entries[i].Text < entries[j].Text
 	})
 
 	return entries
