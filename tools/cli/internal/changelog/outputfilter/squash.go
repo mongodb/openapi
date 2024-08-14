@@ -18,29 +18,94 @@ type SquashHandler interface {
 	Squash(entriesGroupedByOperationID map[string][]*OasDiffEntry) []*OasDiffEntry
 }
 
-func newSquashHandlers() map[string]func(map[string][]*OasDiffEntry) ([]*OasDiffEntry, error) {
-	return map[string]func(map[string][]*OasDiffEntry) ([]*OasDiffEntry, error){
+type handler struct {
+	id       string
+	squasher func(map[string][]*OasDiffEntry) ([]*OasDiffEntry, error)
+}
+
+func newSquashHandlers() []handler {
+	return []handler{
 		// enum changes
-		"response-property-enum-value-added":            squashResponsePropertyEnumValueAdded,
-		"response-property-enum-value-removed":          squashResponsePropertyEnumValueRemoved,
-		"response-mediatype-enum-value-removed":         squashResponseMediatypeEnumValueRemoved,
-		"response-write-only-property-enum-value-added": squashResponseWriteOnlyPropertyEnumValueAdded,
-		"request-body-enum-value-removed":               squashRequestBodyEnumValueRemoved,
-		"request-parameter-enum-value-added":            squashRequestParameterEnumValueAdded,
-		"request-parameter-enum-value-removed":          squashRequestParameterEnumValueRemoved,
-		"request-property-enum-value-added":             squashRequestPropertyEnumValueAdded,
-		"request-property-enum-value-removed":           squashRequestPropertyEnumValueRemoved,
+		{
+			id:       "response-property-enum-value-added",
+			squasher: squashResponsePropertyEnumValueAdded,
+		},
+		{
+			id:       "response-property-enum-value-removed",
+			squasher: squashResponsePropertyEnumValueRemoved,
+		},
+		{
+			id:       "response-mediatype-enum-value-removed",
+			squasher: squashResponseMediatypeEnumValueRemoved,
+		},
+		{
+			id:       "response-write-only-property-enum-value-added",
+			squasher: squashResponseWriteOnlyPropertyEnumValueAdded,
+		},
+		{
+			id:       "request-body-enum-value-removed",
+			squasher: squashRequestBodyEnumValueRemoved,
+		},
+		{
+			id:       "request-parameter-enum-value-added",
+			squasher: squashRequestParameterEnumValueAdded,
+		},
+		{
+			id:       "request-parameter-enum-value-removed",
+			squasher: squashRequestParameterEnumValueRemoved,
+		},
+		{
+			id:       "request-property-enum-value-added",
+			squasher: squashRequestPropertyEnumValueAdded,
+		},
+		{
+			id:       "request-property-enum-value-removed",
+			squasher: squashRequestPropertyEnumValueRemoved,
+		},
 		// field changes
-		"response-required-property-added":            squashResponseRequiredFieldAdded,
-		"response-required-property-removed":          squashResponseRequiredFieldRemoved,
-		"response-optional-property-added":            squashResponseOptionalFieldAdded,
-		"response-optional-property-removed":          squashResponseOptionalFieldRemoved,
-		"response-property-became-required":           squashResponseFieldBecameRequired,
-		"request-property-became-required":            squashRequestFieldBecameRequired,
-		"new-required-request-property":               squashRequestFieldAdded,
-		"request-property-removed":                    squashRequestFieldRemoved,
-		"new-optional-request-property":               squashNewOptionalRequestProperty,
-		"response-optional-property-became-read-only": squashResponseOptionalFieldBecomeReadonly,
+		{
+			id:       "response-required-property-added",
+			squasher: squashResponseRequiredFieldAdded,
+		},
+		{
+			id:       "response-required-property-removed",
+			squasher: squashResponseRequiredFieldRemoved,
+		},
+		{
+			id:       "response-optional-property-added",
+			squasher: squashResponseOptionalFieldAdded,
+		},
+		{
+			id:       "response-optional-property-removed",
+			squasher: squashResponseOptionalFieldRemoved,
+		},
+		{
+			id:       "response-property-became-required",
+			squasher: squashResponseFieldBecameRequired,
+		},
+		{
+			id:       "request-property-became-required",
+			squasher: squashRequestFieldBecameRequired,
+		},
+		{
+			id:       "new-required-request-property",
+			squasher: squashRequestFieldAdded,
+		},
+
+		{
+			id:       "request-property-removed",
+			squasher: squashRequestFieldRemoved,
+		},
+
+		{
+			id:       "new-optional-request-property",
+			squasher: squashNewOptionalRequestProperty,
+		},
+
+		{
+			id:       "response-optional-property-became-read-only",
+			squasher: squashResponseOptionalFieldBecomeReadonly,
+		},
 	}
 }
 
@@ -72,27 +137,43 @@ func squashEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
 	for _, entry := range entries {
 		// if no squash handlers implemented for entry's code,
 		// just append the entry to the result
-		if _, ok := squashHandlers[entry.ID]; !ok {
+		if _, ok := findHandler(entry.ID); !ok {
 			squashedEntries = append(squashedEntries, entry)
 			continue
 		}
 	}
 
-	for id, handler := range squashHandlers {
-		entryMapPerOperationID, ok := entriesMap[id]
+	for _, handler := range squashHandlers {
+		entryMapPerOperationID, ok := entriesMap[handler.id]
 		if !ok {
 			continue
 		}
 
-		entries, err := handler(entryMapPerOperationID)
+		entries, err := handler.squasher(entryMapPerOperationID)
 		if err != nil {
 			return nil, err
 		}
 
-		squashedEntries = append(squashedEntries, entries...)
+		squashedEntries = append(squashedEntries, sortEntriesByDescription(entries)...)
 	}
 
 	return squashedEntries, nil
+}
+func sortEntriesByDescription(entries []*OasDiffEntry) []*OasDiffEntry {
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Text > entries[j].Text
+	})
+
+	return entries
+}
+
+func findHandler(id string) (*handler, bool) {
+	for _, h := range newSquashHandlers() {
+		if h.id == id {
+			return &h, true
+		}
+	}
+	return nil, false
 }
 
 type squashedEntries struct {
@@ -134,7 +215,7 @@ func squashEntriesByValues(
 				if idx == squashIdx {
 					squashList := []string{}
 					for sv := range squashValues {
-						squashList = append(squashList, sv)
+						squashList = append(squashList, sv) // to update with squashlist...
 					}
 					sort.Strings(squashList)
 					valuesToAddToTemplate = strings.Join(squashList, ", ")
@@ -144,7 +225,18 @@ func squashEntriesByValues(
 				text = replaceOnlyFirstOccurrence(text, valuesToAddToTemplate)
 			}
 
-			squashedEntry := templateEntry
+			squashedEntry := &OasDiffEntry{
+				ID:                templateEntry.ID,
+				OperationID:       templateEntry.OperationID,
+				Date:              templateEntry.Date,
+				Level:             templateEntry.Level,
+				Operation:         templateEntry.Operation,
+				Path:              templateEntry.Path,
+				Source:            templateEntry.Source,
+				HideFromChangelog: templateEntry.HideFromChangelog,
+				Section:           templateEntry.Section,
+			}
+
 			squashedEntry.Text = strings.ReplaceAll(
 				strings.ReplaceAll(
 					text,
