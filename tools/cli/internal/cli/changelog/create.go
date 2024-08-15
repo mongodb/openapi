@@ -21,13 +21,17 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
 
 const (
-	changelogFileName    = "changelog"
-	changelogAllFileName = "changelog-all"
+	changelogFileName          = "changelog"
+	changelogAllFileName       = "changelog-all"
+	changelogAllFolderName     = "internal"
+	versionChangelogFolderName = "version-diff"
+	metadataFileName           = "metadata.json"
 )
 
 type Opts struct {
@@ -45,19 +49,59 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	hiddenEntries := changelog.NewNotHiddenEntries(entries)
+	notHiddenEntries := changelog.NewNotHiddenEntries(entries)
+	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath)
+	if err != nil {
+		return err
+	}
 
 	if o.dryRun {
 		log.Printf("Detected dry-run mode. No changes will be saved.\n")
 		return nil
 	}
 
-	err = changelog.SaveChangelog(o.newOutputFilePath(changelogFileName), entries, o.fs)
-	if err != nil {
+	if errSaveFile := openapi.SaveToFile(o.newOutputFilePath(changelogFileName), "", notHiddenEntries, o.fs); errSaveFile != nil {
+		return errSaveFile
+	}
+
+	if err := o.fs.MkdirAll(fmt.Sprintf("%s/%s", o.outputPath, changelogAllFolderName), 0o755); err != nil {
 		return err
 	}
 
-	return changelog.SaveChangelog(o.newOutputFilePath(changelogAllFileName), hiddenEntries, o.fs)
+	if errSaveFile := openapi.SaveToFile(
+		o.newOutputFilePath(fmt.Sprintf("%s/%s", changelogAllFolderName, changelogAllFileName)), "", entries, o.fs); errSaveFile != nil {
+		return errSaveFile
+	}
+
+	if err := o.fs.MkdirAll(fmt.Sprintf("%s/%s", o.outputPath, versionChangelogFolderName), 0o755); err != nil {
+		return err
+	}
+
+	for _, entry := range versionedEntries {
+		if errSaveFile := openapi.SaveToFile(
+			o.newOutputFilePath(fmt.Sprintf("%s/%s_%s", versionChangelogFolderName, entry.FromVersion, entry.ToVersion)),
+			openapi.JSON, entry.Paths, o.fs); errSaveFile != nil {
+			return errSaveFile
+		}
+	}
+
+	return nil
+}
+
+func (o *Opts) validations() error {
+	if _, err := o.fs.Stat(fmt.Sprintf("%s/%s", o.basePath, metadataFileName)); err != nil {
+		return err
+	}
+
+	if _, err := o.fs.Stat(fmt.Sprintf("%s/%s", o.revisionPath, metadataFileName)); err != nil {
+		return err
+	}
+
+	if _, err := o.fs.Stat(o.exceptionsPaths); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (o *Opts) newOutputFilePath(fileName string) string {
@@ -80,6 +124,9 @@ func CreateBuilder() *cobra.Command {
 		Aliases: []string{"generate"},
 		Short:   "Generate the changelog for the OpenAPI spec.",
 		Args:    cobra.NoArgs,
+		PreRunE: func(_ *cobra.Command, _ []string) error {
+			return opts.validations()
+		},
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return opts.Run()
 		},
