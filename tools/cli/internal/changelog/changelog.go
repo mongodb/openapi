@@ -202,6 +202,7 @@ func NewEntriesWithoutHidden(basePath, revisionPath string) ([]*Entry, error) {
 	return NewNotHiddenEntries(entries), nil
 }
 
+// NewEntriesBetweenRevisionVersions generates the changelog entries between the revision versions.
 func NewEntriesBetweenRevisionVersions(revisionPath string) ([]*Entry, error) {
 	revisionMetadata, err := newMetadataFromFile(revisionPath)
 	if err != nil {
@@ -275,7 +276,7 @@ func newVersionEntries(entries []*Entry) []*Entry {
 	return versionEntries
 }
 
-// newVersionEntries returns the input paths with a new format that includes only the input version.
+// newVersionedPaths returns the input paths with a new format that includes only the input version.
 // For the version changelog, only version for for "to_version" are relevant (what has changed between "to" and "from" version),
 // while the changes for "from_version" should contain only deprecation entries.
 func newVersionedPaths(paths []*Path, version string) []*Path {
