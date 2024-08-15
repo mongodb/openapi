@@ -16,6 +16,7 @@ package openapi
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"strings"
 
@@ -31,18 +32,51 @@ const (
 	DotJSON = ".json"
 )
 
-func SaveSpec(path string, oas *Spec, format string, fs afero.Fs) error {
-	data, err := NewArrayBytesFromOAS(oas, path, format)
+// SaveToFile saves the content to a file in the specified format.
+// If format is empty, it saves the content in both JSON and YAML formats.
+// Note:
+// - SaveToFile expects the path to be a file path, not a directory path.
+func SaveToFile[T any](path, format string, content T, fs afero.Fs) error {
+	data, err := SerializeToJSON(content)
 	if err != nil {
 		return err
 	}
 
-	if err := afero.WriteFile(fs, path, data, 0o600); err != nil {
+	if err := fs.MkdirAll(path, 0o755); err != nil {
 		return err
 	}
 
-	log.Printf("\nVersioned spec was saved in '%s'.\n\n", path)
+	if format == JSON || format == "" {
+		jsonPath := newPathWithExtension(path, JSON)
+		if errJSON := afero.WriteFile(fs, jsonPath, data, 0o600); errJSON != nil {
+			return errJSON
+		}
+		log.Printf("\nFile was saved in '%s'.\n\n", jsonPath)
+	}
+
+	if format == YAML || format == "" {
+		dataYAML, err := SerializeToYAML(data)
+		if err != nil {
+			return err
+		}
+
+		path = newPathWithExtension(path, YAML)
+		if err := afero.WriteFile(fs, path, dataYAML, 0o600); err != nil {
+			return err
+		}
+
+		log.Printf("\nnFile was saved in '%s'.\n\n", path)
+	}
+
 	return nil
+}
+
+func newPathWithExtension(path, extension string) string {
+	if strings.Contains(path, DotJSON) || strings.Contains(path, DotYAML) {
+		return path
+	}
+
+	return fmt.Sprintf("%s.%s", path, extension)
 }
 
 func NewArrayBytesFromOAS(oas *Spec, path, format string) ([]byte, error) {
@@ -90,5 +124,5 @@ func SerializeToYAML(data []byte) ([]byte, error) {
 }
 
 func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
-	return SaveSpec(path, newSpec(oas), format, fs)
+	return SaveToFile(path, format, newSpec(oas), fs)
 }

@@ -59,7 +59,7 @@ func (o *Opts) Run() error {
 		return nil
 	}
 
-	return openapi.SaveSpec(o.outputPath, federated, o.format, o.fs)
+	return openapi.SaveToFile(o.outputPath, o.format, federated, o.fs)
 }
 
 func (o *Opts) PreRunE(_ []string) error {
@@ -108,7 +108,7 @@ func Builder() *cobra.Command {
 	cmd.Flags().StringVar(&opts.gitSha, flag.GitSha, "", usage.GitSha)
 	cmd.Flags().BoolVarP(&opts.excludePrivatePaths, flag.ExcludePrivatePaths, flag.ExcludePrivatePathsShort, false, usage.ExcludePrivatePaths)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
-	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
+	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.JSON, usage.Format)
 
 	_ = cmd.MarkFlagRequired(flag.Base)
 	_ = cmd.MarkFlagRequired(flag.External)

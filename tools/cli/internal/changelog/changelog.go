@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
-	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
@@ -65,8 +64,10 @@ type Metadata struct {
 }
 
 type Entry struct {
-	Date  string  `json:"date"`
-	Paths []*Path `json:"paths"`
+	Date        string  `json:"date"`
+	Paths       []*Path `json:"paths"`
+	FromVersion string
+	ToVersion   string
 }
 
 type Path struct {
@@ -77,7 +78,7 @@ type Path struct {
 	Tag            string     `json:"tag"`
 	StabilityLevel string     `json:"stabilityLevel,omitempty"`
 	ChangeType     string     `json:"changeType,omitempty"`
-	Changes        []Change   `json:"changes,omitempty"`
+	Changes        []*Change  `json:"changes,omitempty"`
 }
 
 type Version struct {
@@ -201,6 +202,110 @@ func NewEntriesWithoutHidden(basePath, revisionPath string) ([]*Entry, error) {
 	return NewNotHiddenEntries(entries), nil
 }
 
+func NewEntriesBetweenRevisionVersions(revisionPath string) ([]*Entry, error) {
+	revisionMetadata, err := newMetadataFromFile(revisionPath)
+	if err != nil {
+		return nil, err
+	}
+
+	entries := []*Entry{}
+	for idx, fromVersion := range revisionMetadata.Versions {
+		for _, toVersion := range revisionMetadata.Versions[idx+1:] {
+			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion)
+			if err != nil {
+				return nil, err
+			}
+			entries = append(entries, entry)
+		}
+	}
+
+	return newVersionEntries(entries), nil
+}
+
+func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion string) (*Entry, error) {
+	baseMetadata := &Metadata{
+		Path:          metadata.Path,
+		ActiveVersion: fromVersion,
+		RunDate:       time.Now().Format("2006-01-02"),
+		SpecRevision:  metadata.SpecRevision,
+		Versions:      metadata.Versions,
+	}
+
+	revisionMetadata := &Metadata{
+		Path:          metadata.Path,
+		ActiveVersion: toVersion,
+		RunDate:       time.Now().Format("2006-01-02"),
+		SpecRevision:  metadata.SpecRevision,
+		Versions:      metadata.Versions,
+	}
+
+	changelog, err := newChangelog(baseMetadata, revisionMetadata, []*Entry{})
+	if err != nil {
+		return nil, err
+	}
+
+	entries, err := changelog.newEntryFromOasDiff()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(entries) == 0 {
+		log.Printf("No changes found between %s and %s versions.", fromVersion, toVersion)
+		return nil, nil
+	}
+
+	out := entries[0]
+	out.FromVersion = fromVersion
+	out.ToVersion = toVersion
+	log.Printf("Generating diff between %s and %s versions, updated paths: %d.", fromVersion, toVersion, len(out.Paths))
+
+	return out, nil
+}
+
+func newVersionEntries(entries []*Entry) []*Entry {
+	versionEntries := []*Entry{}
+	for _, entry := range entries {
+		versionEntries = append(versionEntries, &Entry{
+			Date:        entry.Date,
+			Paths:       newVersionedPaths(entry.Paths, entry.ToVersion),
+			ToVersion:   entry.ToVersion,
+			FromVersion: entry.FromVersion,
+		})
+	}
+	return versionEntries
+}
+
+// newVersionEntries returns the input paths with a new format that includes only the input version.
+// For the version changelog, only version for for "to_version" are relevant (what has changed between "to" and "from" version),
+// while the changes for "from_version" should contain only deprecation entries.
+func newVersionedPaths(paths []*Path, version string) []*Path {
+	versionedPaths := []*Path{}
+	for _, path := range paths {
+		for _, v := range path.Versions {
+			if v.Version != version {
+				continue
+			}
+
+			if len(v.Changes) == 0 {
+				continue
+			}
+
+			versionedPaths = append(versionedPaths,
+				&Path{
+					URI:            path.URI,
+					HTTPMethod:     path.HTTPMethod,
+					OperationID:    path.OperationID,
+					Tag:            path.Tag,
+					StabilityLevel: path.StabilityLevel,
+					ChangeType:     path.ChangeType,
+					Changes:        v.Changes,
+				})
+		}
+	}
+
+	return versionedPaths
+}
+
 func newChangelog(baseMetadata, revisionMetadata *Metadata, baseChangelog []*Entry) (*Changelog, error) {
 	var err error
 	if baseChangelog == nil {
@@ -288,7 +393,7 @@ func newOpeAPISpecFromPathAndVersion(path, version string) (*load.SpecInfo, erro
 	return loader.CreateOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", path, version))
 }
 
-// newMetadataFromFile
+// newMetadataFromFile reads the metadata file from the given path and returns the metadata struct.
 func newMetadataFromFile(path string) (*Metadata, error) {
 	metadataContent, err := os.ReadFile(fmt.Sprintf("%s/%s", path, "metadata.json"))
 	if err != nil {
@@ -434,32 +539,4 @@ func newNotHiddenChanges(changes []*Change) []*Change {
 	}
 
 	return notHiddenChanges
-}
-
-func SaveChangelog(path string, changelog []*Entry, fs afero.Fs) error {
-	data, err := openapi.SerializeToJSON(changelog)
-	if err != nil {
-		return err
-	}
-
-	jsonPath := fmt.Sprintf("%s.json", path)
-	if errJSON := afero.WriteFile(fs, jsonPath, data, 0o600); errJSON != nil {
-		return errJSON
-	}
-
-	log.Printf("\nChangelog was saved in '%s'.\n\n", jsonPath)
-
-	dataYAML, err := openapi.SerializeToYAML(data)
-	if err != nil {
-		return err
-	}
-
-	path = fmt.Sprintf("%s.yaml", path)
-	if err := afero.WriteFile(fs, path, dataYAML, 0o600); err != nil {
-		return err
-	}
-
-	log.Printf("\nChangelog was saved in '%s'.\n\n", path)
-
-	return nil
 }
