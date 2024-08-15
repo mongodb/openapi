@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
@@ -71,19 +72,19 @@ type Entry struct {
 type Path struct {
 	URI            string     `json:"path"`
 	HTTPMethod     string     `json:"httpMethod"`
-	StabilityLevel string     `json:"stabilityLevel"`
-	ChangeType     string     `json:"changeType"`
+	Versions       []*Version `json:"versions,omitempty"`
 	OperationID    string     `json:"operationId"`
 	Tag            string     `json:"tag"`
-	Versions       []*Version `json:"versions,omitempty"`
+	StabilityLevel string     `json:"stabilityLevel,omitempty"`
+	ChangeType     string     `json:"changeType,omitempty"`
 	Changes        []Change   `json:"changes,omitempty"`
 }
 
 type Version struct {
 	Version        string    `json:"version"`
+	Changes        []*Change `json:"changes"`
 	StabilityLevel string    `json:"stabilityLevel"`
 	ChangeType     string    `json:"changeType"`
-	Changes        []*Change `json:"changes"`
 }
 
 type Change struct {
@@ -171,7 +172,8 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 
 	for _, version := range changelog.RevisionMetadata.Versions {
 		changelog.RevisionMetadata.ActiveVersion = version
-		changelog, err = newChangelog(baseMetadata, revisionMetadata, changelogEntries)
+		changelog.BaseMetadata.ActiveVersion = version
+		changelog.Revision, err = newOpeAPISpecFromPathAndVersion(changelog.RevisionMetadata.Path, version)
 		if err != nil {
 			return nil, err
 		}
@@ -180,6 +182,8 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		changelog.BaseChangelog = changelogEntries
 	}
 
 	return changelogEntries, nil
@@ -194,7 +198,7 @@ func NewEntriesWithoutHidden(basePath, revisionPath string) ([]*Entry, error) {
 		return nil, err
 	}
 
-	return newNotHiddenEntries(entries), nil
+	return NewNotHiddenEntries(entries), nil
 }
 
 func newChangelog(baseMetadata, revisionMetadata *Metadata, baseChangelog []*Entry) (*Changelog, error) {
@@ -277,6 +281,11 @@ func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec
 	revisionSpec.Version = revisionMetadata.ActiveVersion
 
 	return baseSpec, revisionSpec, nil
+}
+
+func newOpeAPISpecFromPathAndVersion(path, version string) (*load.SpecInfo, error) {
+	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
+	return loader.CreateOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", path, version))
 }
 
 // newMetadataFromFile
@@ -367,14 +376,14 @@ func newStringFromStruct(data interface{}) string {
 	return string(bytes)
 }
 
-// newNotHiddenEntries returns the entries that are not hidden from the changelog.
+// NewNotHiddenEntries returns the entries that are not hidden from the changelog.
 // Logic:
 // Gets the last changelog date entry at index 0 and:
 // 1. Remove all entries with hideFromChangelog
 // 2. Remove all empty versions
 // 3. Remove all empty paths
 // 4. Shift changelog entry if it turns out empty
-func newNotHiddenEntries(changelog []*Entry) []*Entry {
+func NewNotHiddenEntries(changelog []*Entry) []*Entry {
 	if len(changelog) == 0 {
 		return changelog
 	}
@@ -425,4 +434,32 @@ func newNotHiddenChanges(changes []*Change) []*Change {
 	}
 
 	return notHiddenChanges
+}
+
+func SaveChangelog(path string, changelog []*Entry, fs afero.Fs) error {
+	data, err := openapi.SerializeToJSON(changelog)
+	if err != nil {
+		return err
+	}
+
+	jsonPath := fmt.Sprintf("%s.json", path)
+	if errJSON := afero.WriteFile(fs, jsonPath, data, 0o600); errJSON != nil {
+		return errJSON
+	}
+
+	log.Printf("\nChangelog was saved in '%s'.\n\n", jsonPath)
+
+	dataYAML, err := openapi.SerializeToYAML(data)
+	if err != nil {
+		return err
+	}
+
+	path = fmt.Sprintf("%s.yaml", path)
+	if err := afero.WriteFile(fs, path, dataYAML, 0o600); err != nil {
+		return err
+	}
+
+	log.Printf("\nChangelog was saved in '%s'.\n\n", path)
+
+	return nil
 }
