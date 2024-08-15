@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
