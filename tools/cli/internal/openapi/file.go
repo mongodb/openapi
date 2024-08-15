@@ -37,10 +37,6 @@ const (
 // Note:
 // - SaveToFile expects the path to be a file path, not a directory path.
 func SaveToFile[T any](path, format string, content T, fs afero.Fs) error {
-	if _, err := fs.Stat(path); err != nil {
-		return err
-	}
-
 	data, err := SerializeToJSON(content)
 	if err != nil {
 		return err
