@@ -34,8 +34,6 @@ const (
 
 // SaveToFile saves the content to a file in the specified format.
 // If format is empty, it saves the content in both JSON and YAML formats.
-// Note:
-// - SaveToFile expects the path to be a file path, not a directory path.
 func SaveToFile[T any](path, format string, content T, fs afero.Fs) error {
 	data, err := SerializeToJSON(content)
 	if err != nil {
