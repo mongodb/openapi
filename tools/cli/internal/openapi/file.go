@@ -42,10 +42,6 @@ func SaveToFile[T any](path, format string, content T, fs afero.Fs) error {
 		return err
 	}
 
-	if err := fs.MkdirAll(path, 0o755); err != nil {
-		return err
-	}
-
 	if format == JSON || format == "" {
 		jsonPath := newPathWithExtension(path, JSON)
 		if errJSON := afero.WriteFile(fs, jsonPath, data, 0o600); errJSON != nil {
