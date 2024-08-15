@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
@@ -98,7 +99,7 @@ type Change struct {
 // NewEntries generates the changelog entries between the base and revision specs.
 // The returned entries includes all the changes between the base and revision specs included the one
 // marked as hidden.
-func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
+func NewEntries(basePath, revisionPath, exemptionFilePath string, fs afero.Fs) ([]*Entry, error) {
 	baseMetadata, err := newMetadataFromFile(basePath)
 	if err != nil {
 		return nil, err
@@ -147,7 +148,7 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 		return nil, err
 	}
 
-	changelogEntries, err := changelog.newEntryFromOasDiff()
+	changelogEntries, err := changelog.newEntryFromOasDiff(exemptionFilePath, fs)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +166,7 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 			return nil, err
 		}
 
-		changelogEntries, err = changelog.newEntryFromOasDiff()
+		changelogEntries, err = changelog.newEntryFromOasDiff(exemptionFilePath, fs)
 		if err != nil {
 			return nil, err
 		}
@@ -193,8 +194,8 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 // NewEntriesWithoutHidden generates the changelog entries between the base and revision specs.
 // The returned entries includes the changes between the base and revision specs that are not
 // marked as hidden.
-func NewEntriesWithoutHidden(basePath, revisionPath string) ([]*Entry, error) {
-	entries, err := NewEntries(basePath, revisionPath)
+func NewEntriesWithoutHidden(basePath, revisionPath, exemptionFilePath string, fs afero.Afero) ([]*Entry, error) {
+	entries, err := NewEntries(basePath, revisionPath, exemptionFilePath, fs)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +204,7 @@ func NewEntriesWithoutHidden(basePath, revisionPath string) ([]*Entry, error) {
 }
 
 // NewEntriesBetweenRevisionVersions generates the changelog entries between the revision versions.
-func NewEntriesBetweenRevisionVersions(revisionPath string) ([]*Entry, error) {
+func NewEntriesBetweenRevisionVersions(revisionPath, exemptionFilePath string, fs afero.Fs) ([]*Entry, error) {
 	revisionMetadata, err := newMetadataFromFile(revisionPath)
 	if err != nil {
 		return nil, err
@@ -212,7 +213,7 @@ func NewEntriesBetweenRevisionVersions(revisionPath string) ([]*Entry, error) {
 	entries := []*Entry{}
 	for idx, fromVersion := range revisionMetadata.Versions {
 		for _, toVersion := range revisionMetadata.Versions[idx+1:] {
-			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion)
+			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion, exemptionFilePath, fs)
 			if err != nil {
 				return nil, err
 			}
@@ -223,7 +224,7 @@ func NewEntriesBetweenRevisionVersions(revisionPath string) ([]*Entry, error) {
 	return newVersionEntries(entries), nil
 }
 
-func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion string) (*Entry, error) {
+func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion, exemptionFilePath string, fs afero.Fs) (*Entry, error) {
 	baseMetadata := &Metadata{
 		Path:          metadata.Path,
 		ActiveVersion: fromVersion,
@@ -245,7 +246,7 @@ func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion string)
 		return nil, err
 	}
 
-	entries, err := changelog.newEntryFromOasDiff()
+	entries, err := changelog.newEntryFromOasDiff(exemptionFilePath, fs)
 	if err != nil {
 		return nil, err
 	}

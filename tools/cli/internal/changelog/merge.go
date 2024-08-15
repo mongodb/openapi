@@ -21,6 +21,7 @@ import (
 	"sort"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
+	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 )
 
@@ -117,7 +118,7 @@ func (m *Changelog) newManualEntries(conf map[string]*outputfilter.OperationConf
 }
 
 // newEntryFromOasDiff merges the base changelog with the new changes from a Base and Revision OpenAPI specs
-func (m *Changelog) newEntryFromOasDiff() ([]*Entry, error) {
+func (m *Changelog) newEntryFromOasDiff(exemptionFilePath string, fs afero.Fs) ([]*Entry, error) {
 	changes, err := m.newOasDiffEntries()
 	if err != nil {
 		return nil, err
@@ -137,7 +138,12 @@ func (m *Changelog) newEntryFromOasDiff() ([]*Entry, error) {
 		changeType = changeTypeRelease
 	}
 
-	return m.mergeChangelog(changeType, changes, conf)
+	changesWithoutHiddenEntries, err := outputfilter.MarkHiddenEntries(changes, exemptionFilePath, fs)
+	if err != nil {
+		return nil, err
+	}
+
+	return m.mergeChangelog(changeType, changesWithoutHiddenEntries, conf)
 }
 
 // mergeChangelog merges the base changelog with the new changes
