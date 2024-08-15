@@ -124,6 +124,9 @@ func CreateBuilder() *cobra.Command {
 		Aliases: []string{"generate"},
 		Short:   "Generate the changelog for the OpenAPI spec.",
 		Args:    cobra.NoArgs,
+		PreRunE: func(_ *cobra.Command, _ []string) error {
+			return opts.validations()
+		},
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := opts.validations(); err != nil {
 				return err
