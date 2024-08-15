@@ -356,7 +356,7 @@ func newEntriesFromPath(path string) ([]*Entry, error) {
 
 func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec, revisionSpec *load.SpecInfo, err error) {
 	if baseMetadata.ActiveVersion != revisionMetadata.ActiveVersion {
-		log.Printf("Base spec revision %s is different from the active version %s", baseMetadata.SpecRevision, baseMetadata.ActiveVersion)
+		log.Printf("Base spec version %s is different from the active version %s", baseMetadata.ActiveVersion, revisionMetadata.ActiveVersion)
 		log.Println("Normalizing the specs: replace versioned media-types with corresponding standard media-types")
 		baseSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", baseMetadata.Path, baseMetadata.ActiveVersion))
 		if err != nil {
