@@ -29,6 +29,7 @@ import (
 const (
 	changelogFileName          = "changelog"
 	changelogAllFileName       = "changelog-all"
+	changelogAllFolderName     = "internal"
 	versionChangelogFolderName = "version-diff"
 	metadataFileName           = "metadata.json"
 )
@@ -49,33 +50,38 @@ func (o *Opts) Run() error {
 	}
 
 	notHiddenEntries := changelog.NewNotHiddenEntries(entries)
+	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath)
+	if err != nil {
+		return err
+	}
 
 	if o.dryRun {
 		log.Printf("Detected dry-run mode. No changes will be saved.\n")
 		return nil
 	}
 
-	err = openapi.SaveToFile(o.newOutputFilePath(changelogFileName), "", notHiddenEntries, o.fs)
-	if err != nil {
+	if errSaveFile := openapi.SaveToFile(o.newOutputFilePath(changelogFileName), "", notHiddenEntries, o.fs); errSaveFile != nil {
+		return errSaveFile
+	}
+
+	if err := o.fs.MkdirAll(fmt.Sprintf("%s/%s", o.outputPath, changelogAllFolderName), 0o755); err != nil {
 		return err
 	}
 
-	err = openapi.SaveToFile(o.newOutputFilePath(changelogAllFileName), "", entries, o.fs)
-	if err != nil {
+	if errSaveFile := openapi.SaveToFile(
+		o.newOutputFilePath(fmt.Sprintf("%s/%s", changelogAllFolderName, changelogAllFileName)), "", entries, o.fs); errSaveFile != nil {
+		return errSaveFile
+	}
+
+	if err := o.fs.MkdirAll(fmt.Sprintf("%s/%s", o.outputPath, versionChangelogFolderName), 0o755); err != nil {
 		return err
 	}
 
-	entries, err = changelog.NewEntriesBetweenRevisionVersions(o.revisionPath)
-	if err != nil {
-		return err
-	}
-
-	for _, entry := range entries {
-		err = openapi.SaveToFile(
+	for _, entry := range versionedEntries {
+		if errSaveFile := openapi.SaveToFile(
 			o.newOutputFilePath(fmt.Sprintf("%s/%s_%s", versionChangelogFolderName, entry.FromVersion, entry.ToVersion)),
-			openapi.JSON, entry.Paths, o.fs)
-		if err != nil {
-			return err
+			openapi.JSON, entry.Paths, o.fs); errSaveFile != nil {
+			return errSaveFile
 		}
 	}
 
