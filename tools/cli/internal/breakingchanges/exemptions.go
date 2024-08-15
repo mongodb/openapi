@@ -27,7 +27,7 @@ type Exemption struct {
 	BreakingChangeDescription string `yaml:"breaking_change_description"`
 	ExemptUntil               string `yaml:"exempt_until"`
 	Reason                    string `yaml:"reason"`
-	HideFromChangelog         string `yaml:"hide_from_changelog:omitempty"`
+	HideFromChangelog         string `yaml:"hide_from_changelog,omitempty"`
 }
 
 func (e *Exemption) isHidden() bool {
