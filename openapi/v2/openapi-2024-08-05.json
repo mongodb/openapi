@@ -25161,6 +25161,80 @@
         ]
       }
     },
+    "/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/lineItems/:search": {
+      "get": {
+        "description": "Query the lineItems of the specified invoice and return the result JSON. A unique 24-hexadecimal digit string identifies the invoice.",
+        "operationId": "queryLineItemsFromSingleInvoice",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the invoice submitted to the specified organization. Charges typically post the next day.",
+            "in": "path",
+            "name": "invoiceId",
+            "required": true,
+            "schema": {
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2024-08-05+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiPublicUsageDetailsQueryRequest"
+              }
+            }
+          },
+          "description": "Filter parameters for the lineItems query. Send a request with an empty JSON body to retrieve all line items for a given invoiceID without applying any filters.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2024-08-05+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedPublicApiUsageDetailsLineItemView"
+                },
+                "x-xgen-version": "2024-08-05"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [
+          {
+            "DigestAuth": []
+          }
+        ],
+        "summary": "Query lineItems of the specified invoiceId",
+        "tags": [
+          "Invoices"
+        ]
+      }
+    },
     "/api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects": {
       "get": {
         "description": "Return all projects that you can migrate to the specified organization.",
