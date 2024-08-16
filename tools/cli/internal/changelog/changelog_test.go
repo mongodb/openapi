@@ -228,6 +228,112 @@ func TestNewNotHiddenEntries(t *testing.T) {
 			},
 			expected: []*Entry{},
 		},
+		{
+			name: "OneDateFullyHiddenGetsRemoved",
+			changelog: []*Entry{
+				{
+					Date: "2023-06-15",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/streams",
+							HTTPMethod:  "GET",
+							OperationID: "listStreamInstances",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes: []*Change{
+										{
+											Code:               "request-property-added",
+											Description:        "added 'replicationSpecs.regionConfigs' request property",
+											BackwardCompatible: true,
+											HideFromChangelog:  true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				{
+					Date: "2023-06-14",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+							HTTPMethod:  "POST",
+							OperationID: "createCluster",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes:        nil,
+								},
+							},
+						},
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/streams",
+							HTTPMethod:  "GET",
+							OperationID: "listStreamInstances",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes: []*Change{
+										{
+											Code:               "request-property-removed",
+											Description:        "added 'replicationSpecs.regionConfigs' request property",
+											BackwardCompatible: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: []*Entry{
+				{
+					Date: "2023-06-14",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+							HTTPMethod:  "POST",
+							OperationID: "createCluster",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes:        nil,
+								},
+							},
+						},
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/streams",
+							HTTPMethod:  "GET",
+							OperationID: "listStreamInstances",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes: []*Change{
+										{
+											Code:               "request-property-removed",
+											Description:        "added 'replicationSpecs.regionConfigs' request property",
+											BackwardCompatible: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
