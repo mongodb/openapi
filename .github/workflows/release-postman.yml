@@ -48,10 +48,27 @@ jobs:
           body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Transform Postman Collection 
+        if: steps.check-cache.outputs.cache-hit != 'true'
+        id: transform
+        env:
+          BASE_URL: ${{ vars.ATLAS_PROD_BASE_URL }}
+        working-directory: ./tools/postman
+        run: |
+          make transform_collection
+
+      - name: Create Issue
+        if: ${{ failure() && steps.transform.outcome == 'failure' }}
+        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+        with:
+          labels: failed-release
+          title: "Postman Release: `make transform_collection` command failed :scream_cat:"
+          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload Collection to Postman
         if: steps.check-cache.outputs.cache-hit != 'true'
         env:
-          BASE_URL: ${{ vars.ATLAS_PROD_BASE_URL }}
           POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
           WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
         working-directory: ./tools/postman

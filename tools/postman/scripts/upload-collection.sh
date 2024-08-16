@@ -36,7 +36,7 @@ collection_exists=$(jq '.collections | any(.name=="'"${current_collection_name}"
 if [  "$collection_exists" = "false" ]; then
   # Create new collection
   echo "Creating new remote collection ${current_collection_name}"
-  curl --show-error --fail --retry 5 --retry-connrefused --silent \
+  curl --show-error --fail --retry 5 --retry-connrefused --retry-on-http-error 400 --silent \
        --location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
        --header "Content-Type: application/json" \
        --header "X-API-Key: ${POSTMAN_API_KEY}" \
@@ -46,7 +46,7 @@ else
   # Find collection ID and update collection
   echo "Updating remote collection ${current_collection_name}"
   collection_id=$(jq -r '.collections | map(select(.name=="'"${current_collection_name}"'").id)[0]' "${COLLECTIONS_LIST_FILE}")
-  curl --show-error --fail --retry 5 --retry-connrefused --silent --request PUT \
+  curl --show-error --fail --retry 5 --retry-connrefused --retry-on-http-error 400 --silent --request PUT \
        --location "https://api.getpostman.com/collections/${collection_id}" \
        --header "Content-Type: application/json" \
        --header "X-API-Key: ${POSTMAN_API_KEY}" \
