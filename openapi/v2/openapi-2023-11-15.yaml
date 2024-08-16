@@ -23446,6 +23446,30 @@ components:
                     readOnly: true
                     type: integer
             type: object
+        PaginatedServiceAccountIPAccessEntryView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud providers when completing this request.
+                    items:
+                        $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
         PaginatedSnapshotView:
             properties:
                 links:
@@ -26809,6 +26833,38 @@ components:
                 - id
             title: ServiceAccount Events
             type: object
+        ServiceAccountIPAccessListEntry:
+            properties:
+                cidrBlock:
+                    description: Range of network addresses in the access list for the Service Account. This parameter requires the range to be expressed in Classless Inter-Domain Routing (CIDR) notation of Internet Protocol version 4 or version 6 addresses. You can set a value for this parameter or **ipAddress**, but not for both in the same request.
+                    example: 203.0.113.0/24
+                    pattern: ^((([0-9]{1,3}\.){3}[0-9]{1,3})|(:{0,2}([0-9a-f]{1,4}:){0,7}[0-9a-f]{1,4}[:]{0,2}))((%2[fF]|/)[0-9]{1,3})+$
+                    type: string
+                createdAt:
+                    description: Date MongoDB Cloud added the entry was added to the Access List.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                ipAddress:
+                    description: Network address in the access list for the Service Account. This parameter requires the address to be expressed as one Internet Protocol version 4 or version 6 address. You can set a value for this parameter or **cidrBlock**, but not for both in the same request.
+                    example: 203.0.113.10
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    type: string
+                lastUsedAddress:
+                    description: Network address that issued the most recent request to the API. This parameter requires the address to be expressed as one Internet Protocol version 4 or version 6 address. The resource returns this parameter after this IP address makes at least one request.
+                    readOnly: true
+                    type: string
+                lastUsedAt:
+                    description: Date when MongoDB Cloud received the most recent request that originated from this Internet Protocol version 4 or version 6 address. The resource returns this parameter when at least one request originates from this IP address. MongoDB Cloud updates this parameter each time a client accesses the permitted resource, with a delay of up to 5 minutes.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                requestCount:
+                    description: The number of requests that has originated from this network address.
+                    format: int32
+                    readOnly: true
+                    type: integer
+            type: object
         ServiceAccountOrgEvents:
             description: Service Account event identifies different activities around user api keys.
             properties:
@@ -27817,6 +27873,23 @@ components:
             allOf:
                 - $ref: '#/components/schemas/StreamsConnection'
             type: object
+        StreamsSampleConnections:
+            description: Sample connections to add to SPI.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                solar:
+                    default: false
+                    description: Flag that indicates whether to add a 'sample_stream_solar' connection.
+                    type: boolean
+            type: object
         StreamsTenant:
             properties:
                 _id:
@@ -27863,6 +27936,8 @@ components:
                 name:
                     description: Human-readable label that identifies the stream instance.
                     type: string
+                sampleConnections:
+                    $ref: '#/components/schemas/StreamsSampleConnections'
                 streamConfig:
                     $ref: '#/components/schemas/StreamConfig'
             type: object
@@ -28524,6 +28599,8 @@ components:
             required:
                 - snapshotId
                 - targetDeploymentItemName
+            type: object
+        TenantWithSampleConnections:
             type: object
         TextSearchHostStatusDetail:
             properties:
@@ -43719,6 +43796,134 @@ paths:
             security:
                 - DigestAuth: []
             summary: Update one Project Service Account
+            tags:
+                - Service Accounts
+    /api/atlas/v2/groups/{groupId}/serviceAccounts/{serviceAccountId}/accessList:
+        get:
+            description: Returns all access list entries that you configured for the specified Service Account for the project.
+            operationId: listProjectServiceAccountAccessList
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique identifier for the service account.
+                  in: path
+                  name: serviceAccountId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-10-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedServiceAccountIPAccessEntryView'
+                            x-xgen-version: "2023-10-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Return All Access List entries for one Project Service Account
+            tags:
+                - Service Accounts
+        post:
+            description: Add Access List Entries for the specified Service Account for the project. Resources require all API requests to originate from IP addresses on the API access list.
+            operationId: createProjectServiceAccountAccessList
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique identifier for the service account.
+                  in: path
+                  name: serviceAccountId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-10-01+json:
+                        schema:
+                            items:
+                                $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
+                            type: array
+                        x-xgen-version: "2023-10-01"
+                description: A list of access list entries to add to the access list of the specified Service Account for the project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-10-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedServiceAccountIPAccessEntryView'
+                            x-xgen-version: "2023-10-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Add Access List entries for one Project Service Account
+            tags:
+                - Service Accounts
+    /api/atlas/v2/groups/{groupId}/serviceAccounts/{serviceAccountId}/accessList/{ipAddress}:
+        delete:
+            description: Removes the specified access list entry from the specified Service Account for the project. You can't remove the requesting IP address from the access list.
+            operationId: deleteProjectServiceAccountAccessListEntry
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique identifier for the service account.
+                  in: path
+                  name: serviceAccountId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - description: One IP address or multiple IP addresses represented as one CIDR block. When specifying a CIDR block with a subnet mask, such as 192.0.2.0/24, use the URL-encoded value %2F for the forward slash /.
+                  in: path
+                  name: ipAddress
+                  required: true
+                  schema:
+                    example: 192.0.2.0%2F24
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){7}[0-9a-f]{1,4}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){1,6}\:(%2[fF][0-9]{1,3})?$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-10-01+json:
+                            x-xgen-version: "2023-10-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Remove One Access List entry from one Project Service Account
             tags:
                 - Service Accounts
     /api/atlas/v2/groups/{groupId}/settings:
