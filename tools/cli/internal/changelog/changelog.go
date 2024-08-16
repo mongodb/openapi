@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
-	"github.com/spf13/afero"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
@@ -57,18 +56,18 @@ type Changelog struct {
 }
 
 type Metadata struct {
-	Path          string
-	ActiveVersion string
+	Path          string   `json:"path,omitempty"`
+	ActiveVersion string   `json:"activeVersion,omitempty"`
 	RunDate       string   `json:"runDate"`
-	SpecRevision  string   `json:"specRevision"`
+	SpecRevision  string   `json:"specRevision,omitempty"`
 	Versions      []string `json:"versions"`
 }
 
 type Entry struct {
 	Date        string  `json:"date"`
 	Paths       []*Path `json:"paths"`
-	FromVersion string
-	ToVersion   string
+	FromVersion string  `json:"fromVersion,omitempty"`
+	ToVersion   string  `json:"toVersion,omitempty"`
 }
 
 type Path struct {
@@ -99,7 +98,7 @@ type Change struct {
 // NewEntries generates the changelog entries between the base and revision specs.
 // The returned entries includes all the changes between the base and revision specs included the one
 // marked as hidden.
-func NewEntries(basePath, revisionPath, exemptionFilePath string, fs afero.Fs) ([]*Entry, error) {
+func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 	baseMetadata, err := newMetadataFromFile(basePath)
 	if err != nil {
 		return nil, err
@@ -148,7 +147,7 @@ func NewEntries(basePath, revisionPath, exemptionFilePath string, fs afero.Fs) (
 		return nil, err
 	}
 
-	changelogEntries, err := changelog.newEntryFromOasDiff(exemptionFilePath, fs)
+	changelogEntries, err := changelog.newEntryFromOasDiff()
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +165,7 @@ func NewEntries(basePath, revisionPath, exemptionFilePath string, fs afero.Fs) (
 			return nil, err
 		}
 
-		changelogEntries, err = changelog.newEntryFromOasDiff(exemptionFilePath, fs)
+		changelogEntries, err = changelog.newEntryFromOasDiff()
 		if err != nil {
 			return nil, err
 		}
@@ -194,17 +193,17 @@ func NewEntries(basePath, revisionPath, exemptionFilePath string, fs afero.Fs) (
 // NewEntriesWithoutHidden generates the changelog entries between the base and revision specs.
 // The returned entries includes the changes between the base and revision specs that are not
 // marked as hidden.
-func NewEntriesWithoutHidden(basePath, revisionPath, exemptionFilePath string, fs afero.Afero) ([]*Entry, error) {
-	entries, err := NewEntries(basePath, revisionPath, exemptionFilePath, fs)
+func NewEntriesWithoutHidden(basePath, revisionPath string) ([]*Entry, error) {
+	entries, err := NewEntries(basePath, revisionPath)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewNotHiddenEntries(entries), nil
+	return NewNotHiddenEntries(entries)
 }
 
 // NewEntriesBetweenRevisionVersions generates the changelog entries between the revision versions.
-func NewEntriesBetweenRevisionVersions(revisionPath, exemptionFilePath string, fs afero.Fs) ([]*Entry, error) {
+func NewEntriesBetweenRevisionVersions(revisionPath string) ([]*Entry, error) {
 	revisionMetadata, err := newMetadataFromFile(revisionPath)
 	if err != nil {
 		return nil, err
@@ -213,7 +212,7 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exemptionFilePath string, f
 	entries := []*Entry{}
 	for idx, fromVersion := range revisionMetadata.Versions {
 		for _, toVersion := range revisionMetadata.Versions[idx+1:] {
-			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion, exemptionFilePath, fs)
+			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion)
 			if err != nil {
 				return nil, err
 			}
@@ -224,7 +223,7 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exemptionFilePath string, f
 	return newVersionEntries(entries), nil
 }
 
-func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion, exemptionFilePath string, fs afero.Fs) (*Entry, error) {
+func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion string) (*Entry, error) {
 	baseMetadata := &Metadata{
 		Path:          metadata.Path,
 		ActiveVersion: fromVersion,
@@ -246,7 +245,7 @@ func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion, exempt
 		return nil, err
 	}
 
-	entries, err := changelog.newEntryFromOasDiff(exemptionFilePath, fs)
+	entries, err := changelog.newEntryFromOasDiff()
 	if err != nil {
 		return nil, err
 	}
@@ -490,9 +489,14 @@ func newStringFromStruct(data interface{}) string {
 // 2. Remove all empty versions
 // 3. Remove all empty paths
 // 4. Shift changelog entry if it turns out empty
-func NewNotHiddenEntries(changelog []*Entry) []*Entry {
+func NewNotHiddenEntries(changelog []*Entry) ([]*Entry, error) {
 	if len(changelog) == 0 {
-		return changelog
+		return changelog, nil
+	}
+
+	changelog, err := duplicateEntries(changelog)
+	if err != nil {
+		return nil, err
 	}
 
 	// Get changes only for the last date, which is what was recently merged
@@ -525,11 +529,11 @@ func NewNotHiddenEntries(changelog []*Entry) []*Entry {
 	}
 
 	if len(paths) == 0 {
-		return changelog[1:]
+		return changelog[1:], nil
 	}
 
 	changelog[0].Paths = paths
-	return changelog
+	return changelog, nil
 }
 
 func newNotHiddenChanges(changes []*Change) []*Change {

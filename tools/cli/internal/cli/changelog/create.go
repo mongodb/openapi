@@ -44,13 +44,17 @@ type Opts struct {
 }
 
 func (o *Opts) Run() error {
-	entries, err := changelog.NewEntries(o.basePath, o.revisionPath, o.exceptionsPaths, o.fs)
+	entries, err := changelog.NewEntries(o.basePath, o.revisionPath)
 	if err != nil {
 		return err
 	}
 
-	notHiddenEntries := changelog.NewNotHiddenEntries(entries)
-	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath, o.exceptionsPaths, o.fs)
+	notHiddenEntries, err := changelog.NewNotHiddenEntries(entries)
+	if err != nil {
+		return err
+	}
+
+	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath)
 	if err != nil {
 		return err
 	}
@@ -60,12 +64,12 @@ func (o *Opts) Run() error {
 		return nil
 	}
 
-	if errSaveFile := openapi.SaveToFile(o.newOutputFilePath(changelogFileName), "", notHiddenEntries, o.fs); errSaveFile != nil {
-		return errSaveFile
-	}
-
 	if err := o.fs.MkdirAll(fmt.Sprintf("%s/%s", o.outputPath, changelogAllFolderName), 0o755); err != nil {
 		return err
+	}
+
+	if errSaveFile := openapi.SaveToFile(o.newOutputFilePath(changelogFileName), "", notHiddenEntries, o.fs); errSaveFile != nil {
+		return errSaveFile
 	}
 
 	if errSaveFile := openapi.SaveToFile(
