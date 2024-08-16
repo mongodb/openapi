@@ -238,6 +238,367 @@ func TestNewNotHiddenEntries(t *testing.T) {
 	}
 }
 
+func TestMultipleHiddenEntries(t *testing.T) {
+	tests := []struct {
+		name      string
+		changelog []*Entry
+		expected  []*Entry
+	}{
+		{
+			name: "OneDateFullyHiddenGetsRemoved",
+			changelog: []*Entry{
+				{
+					Date: "2023-06-15",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/streams",
+							HTTPMethod:  "GET",
+							OperationID: "listStreamInstances",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes: []*Change{
+										{
+											Code:               "request-property-added",
+											Description:        "added 'replicationSpecs.regionConfigs' request property",
+											BackwardCompatible: true,
+											HideFromChangelog:  true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				{
+					Date: "2023-06-14",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+							HTTPMethod:  "POST",
+							OperationID: "createCluster",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes:        nil,
+								},
+							},
+						},
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/streams",
+							HTTPMethod:  "GET",
+							OperationID: "listStreamInstances",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes: []*Change{
+										{
+											Code:               "request-property-removed",
+											Description:        "added 'replicationSpecs.regionConfigs' request property",
+											BackwardCompatible: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: []*Entry{
+				{
+					Date: "2023-06-14",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+							HTTPMethod:  "POST",
+							OperationID: "createCluster",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes:        nil,
+								},
+							},
+						},
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/streams",
+							HTTPMethod:  "GET",
+							OperationID: "listStreamInstances",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "update",
+									Changes: []*Change{
+										{
+											Code:               "request-property-removed",
+											Description:        "added 'replicationSpecs.regionConfigs' request property",
+											BackwardCompatible: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "MultipleDatesFullyHiddenGetsRemoved",
+			changelog: []*Entry{
+				{
+					Date: "2023-02-01",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+							HTTPMethod:  "GET",
+							OperationID: "listClusters",
+							Tag:         "Multi-Cloud Clusters",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "release",
+									Changes: []*Change{
+										{
+											Code:               "response-optional-property-removed",
+											Description:        "removed the optional properties from the response:  'results.items.replicationSpecs.regionsConfig'",
+											BackwardCompatible: true,
+										},
+										{
+											Code:               "response-optional-property-added",
+											Description:        "added response property 'results.items.replicationSpecs.regionConfigs'",
+											BackwardCompatible: true,
+										},
+									},
+								},
+								{
+									Version:        "2023-01-01",
+									StabilityLevel: "stable",
+									ChangeType:     "deprecate",
+									Changes: []*Change{
+										{
+											Code:               "resource-version-deprecated",
+											Description:        "new resource added 2023-02-01. Resource version 2023-01-01 deprecated and marked for removal on 2025-06-01",
+											BackwardCompatible: true,
+										},
+									},
+								},
+							},
+						},
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
+							HTTPMethod:  "GET",
+							OperationID: "getCluster",
+							Tag:         "Multi-Cloud Clusters",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "release",
+									Changes: []*Change{
+										{
+											Code:               "response-optional-property-removed",
+											Description:        "removed the optional properties from the response: 'srvAddress',  'autoScaling'",
+											BackwardCompatible: true,
+										},
+										{
+											Code:               "response-optional-property-added",
+											Description:        "added response property 'replicationSpecs.regionConfigs'",
+											BackwardCompatible: true,
+											HideFromChangelog:  true,
+										},
+									},
+								},
+								{
+									Version:        "2023-01-01",
+									StabilityLevel: "stable",
+									ChangeType:     "deprecate",
+									Changes: []*Change{
+										{
+											Code:               "resource-version-deprecated",
+											Description:        "new resource added 2023-02-01. Resource version 2023-01-01 deprecated and marked for removal on 2025-06-01",
+											BackwardCompatible: true,
+										},
+									},
+								},
+							},
+						},
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
+							HTTPMethod:  "PATCH",
+							OperationID: "updateCluster",
+							Tag:         "Multi-Cloud Clusters",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "release",
+									Changes: []*Change{
+										{
+											Code:               "request-property-removed",
+											Description:        "removed the request properties: 'mongoURIWithOptions', 'replicationSpecs.regionsConfig'",
+											BackwardCompatible: false,
+										},
+										{
+											Code:               "request-property-added",
+											Description:        "added 'replicationSpecs.regionConfigs' request property",
+											BackwardCompatible: true,
+											HideFromChangelog:  true,
+										},
+										{
+											Code:               "response-optional-property-removed",
+											Description:        "removed the optional properties from the response: 'srvAddress',  'autoScaling'",
+											BackwardCompatible: true,
+										},
+										{
+											Code:               "response-optional-property-added",
+											Description:        "added response property 'replicationSpecs.regionConfigs'",
+											BackwardCompatible: true,
+										},
+									},
+								},
+								{
+									Version:        "2023-01-01",
+									StabilityLevel: "stable",
+									ChangeType:     "deprecate",
+									Changes: []*Change{
+										{
+											Code:               "resource-version-deprecated",
+											Description:        "new resource added 2023-02-01. Resource version 2023-01-01 deprecated and marked for removal on 2025-06-01",
+											BackwardCompatible: true,
+											HideFromChangelog:  true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: []*Entry{
+				{
+					Date: "2023-02-01",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+							HTTPMethod:  "GET",
+							OperationID: "listClusters",
+							Tag:         "Multi-Cloud Clusters",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "release",
+									Changes: []*Change{
+										{
+											Code:               "response-optional-property-removed",
+											Description:        "removed the optional properties from the response:  'results.items.replicationSpecs.regionsConfig'",
+											BackwardCompatible: true,
+										},
+										{
+											Code:               "response-optional-property-added",
+											Description:        "added response property 'results.items.replicationSpecs.regionConfigs'",
+											BackwardCompatible: true,
+										},
+									},
+								},
+								{
+									Version:        "2023-01-01",
+									StabilityLevel: "stable",
+									ChangeType:     "deprecate",
+									Changes: []*Change{
+										{
+											Code:               "resource-version-deprecated",
+											Description:        "new resource added 2023-02-01. Resource version 2023-01-01 deprecated and marked for removal on 2025-06-01",
+											BackwardCompatible: true,
+										},
+									},
+								},
+							},
+						},
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
+							HTTPMethod:  "GET",
+							OperationID: "getCluster",
+							Tag:         "Multi-Cloud Clusters",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "release",
+									Changes: []*Change{
+										{
+											Code:               "response-optional-property-removed",
+											Description:        "removed the optional properties from the response: 'srvAddress',  'autoScaling'",
+											BackwardCompatible: true,
+										},
+									},
+								},
+								{
+									Version:        "2023-01-01",
+									StabilityLevel: "stable",
+									ChangeType:     "deprecate",
+									Changes: []*Change{
+										{
+											Code:               "resource-version-deprecated",
+											Description:        "new resource added 2023-02-01. Resource version 2023-01-01 deprecated and marked for removal on 2025-06-01",
+											BackwardCompatible: true,
+										},
+									},
+								},
+							},
+						},
+						{
+							URI:         "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
+							HTTPMethod:  "PATCH",
+							OperationID: "updateCluster",
+							Tag:         "Multi-Cloud Clusters",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "release",
+									Changes: []*Change{
+										{
+											Code:               "request-property-removed",
+											Description:        "removed the request properties: 'mongoURIWithOptions', 'replicationSpecs.regionsConfig'",
+											BackwardCompatible: false,
+										},
+										{
+											Code:               "response-optional-property-removed",
+											Description:        "removed the optional properties from the response: 'srvAddress',  'autoScaling'",
+											BackwardCompatible: true,
+										},
+										{
+											Code:               "response-optional-property-added",
+											Description:        "added response property 'replicationSpecs.regionConfigs'",
+											BackwardCompatible: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := NewNotHiddenEntries(tt.changelog)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
+}
+
 func TestFindChangelogEntry(t *testing.T) {
 	tests := []struct {
 		name            string
