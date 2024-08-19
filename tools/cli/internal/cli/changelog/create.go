@@ -132,9 +132,6 @@ func CreateBuilder() *cobra.Command {
 			return opts.validations()
 		},
 		RunE: func(_ *cobra.Command, _ []string) error {
-			if err := opts.validations(); err != nil {
-				return err
-			}
 			return opts.Run()
 		},
 	}
