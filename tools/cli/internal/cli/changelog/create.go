@@ -44,7 +44,7 @@ type Opts struct {
 }
 
 func (o *Opts) Run() error {
-	entries, err := changelog.NewEntries(o.basePath, o.revisionPath)
+	entries, err := changelog.NewEntries(o.basePath, o.revisionPath, o.exceptionsPaths)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath)
+	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath, o.exceptionsPaths)
 	if err != nil {
 		return err
 	}

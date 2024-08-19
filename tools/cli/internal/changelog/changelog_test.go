@@ -302,7 +302,7 @@ func TestMultipleHiddenEntries(t *testing.T) {
 									Changes: []*Change{
 										{
 											Code:               "request-property-removed",
-											Description:        "added 'replicationSpecs.regionConfigs' request property",
+											Description:        "removed 'replicationSpecs.regionConfigs' request property",
 											BackwardCompatible: true,
 										},
 									},
@@ -341,7 +341,7 @@ func TestMultipleHiddenEntries(t *testing.T) {
 									Changes: []*Change{
 										{
 											Code:               "request-property-removed",
-											Description:        "added 'replicationSpecs.regionConfigs' request property",
+											Description:        "removed 'replicationSpecs.regionConfigs' request property",
 											BackwardCompatible: true,
 										},
 									},
