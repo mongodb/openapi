@@ -67,6 +67,12 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 }
 
 func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {
+	fs := afero.NewOsFs()
+	entries, err := MarkHiddenEntries(entries, exemptionsFilePath, fs)
+	if err != nil {
+		return nil, err
+	}
+
 	newEntries := make([]*OasDiffEntry, 0)
 	for _, entry := range entries {
 		// only changes linked to endpoints are currently considered.
@@ -78,13 +84,7 @@ func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*Oa
 		newEntries = append(newEntries, entry)
 	}
 
-	newEntries, err := squashEntries(newEntries)
-	if err != nil {
-		return nil, err
-	}
-
-	fs := afero.NewOsFs()
-	newEntries, err = MarkHiddenEntries(newEntries, exemptionsFilePath, fs)
+	newEntries, err = squashEntries(newEntries)
 	if err != nil {
 		return nil, err
 	}

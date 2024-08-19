@@ -5,8 +5,60 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/load"
 )
+
+func TestOpenApiSpecMethods(t *testing.T) {
+	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
+	spec, err := loader.CreateOpenAPISpecFromPath("../../../test/data/changelog/test_spec.json")
+	require.NoError(t, err)
+
+	expectedConfig := map[string]*OperationConfig{
+		"createCluster": {
+			Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+			HTTPMethod:             "POST",
+			Tag:                    "Multi-Cloud Clusters",
+			Sunset:                 "2025-06-01",
+			ManualChangelogEntries: map[string]interface{}{},
+		},
+		"deleteCluster": {
+			Path:                   "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
+			HTTPMethod:             "DELETE",
+			Tag:                    "Multi-Cloud Clusters",
+			Sunset:                 "2025-06-01",
+			ManualChangelogEntries: map[string]interface{}{},
+		},
+		"getCluster": {
+			Path:       "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
+			HTTPMethod: "GET",
+			Tag:        "Multi-Cloud Clusters",
+			Sunset:     "2025-06-01",
+			ManualChangelogEntries: map[string]interface{}{
+				"2023-07-07": "July 7th changelog entry",
+				"2023-08-08": "August announcement for /api/atlas/v2/clusters",
+			},
+		},
+		"listClusters": {
+			Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+			HTTPMethod:             "GET",
+			Tag:                    "Multi-Cloud Clusters",
+			Sunset:                 "2025-06-01",
+			ManualChangelogEntries: map[string]interface{}{},
+		},
+		"updateCluster": {
+			Path:                   "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
+			HTTPMethod:             "PATCH",
+			Tag:                    "Multi-Cloud Clusters",
+			Sunset:                 "2025-06-01",
+			ManualChangelogEntries: map[string]interface{}{},
+		},
+	}
+
+	operationConfigs := newOperationConfigFromSpec(spec)
+	require.True(t, reflect.DeepEqual(expectedConfig, operationConfigs))
+}
 
 func TestOperationConfigs_Tag(t *testing.T) {
 	tests := []struct {

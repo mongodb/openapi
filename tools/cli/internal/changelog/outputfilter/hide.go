@@ -32,6 +32,7 @@ func MarkHiddenEntries(entries []*OasDiffEntry, exemptionsFilePath string, fs af
 	if err != nil {
 		return nil, err
 	}
+
 	return hideByIDs(entries, hideIDs)
 }
 

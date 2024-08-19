@@ -56,18 +56,18 @@ type Changelog struct {
 }
 
 type Metadata struct {
-	Path          string
-	ActiveVersion string
+	Path          string   `json:"path,omitempty"`
+	ActiveVersion string   `json:"activeVersion,omitempty"`
 	RunDate       string   `json:"runDate"`
-	SpecRevision  string   `json:"specRevision"`
+	SpecRevision  string   `json:"specRevision,omitempty"`
 	Versions      []string `json:"versions"`
 }
 
 type Entry struct {
 	Date        string  `json:"date"`
 	Paths       []*Path `json:"paths"`
-	FromVersion string
-	ToVersion   string
+	FromVersion string  `json:"fromVersion,omitempty"`
+	ToVersion   string  `json:"toVersion,omitempty"`
 }
 
 type Path struct {
@@ -98,7 +98,7 @@ type Change struct {
 // NewEntries generates the changelog entries between the base and revision specs.
 // The returned entries includes all the changes between the base and revision specs included the one
 // marked as hidden.
-func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
+func NewEntries(basePath, revisionPath, exceptionFilePath string) ([]*Entry, error) {
 	baseMetadata, err := newMetadataFromFile(basePath)
 	if err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 	baseMetadata.ActiveVersion = baseActiveVersionOnPreviousRunDate
 	revisionMetadata.ActiveVersion = revisionActiveVersionOnPreviousRunDate
 
-	changelog, err := newChangelog(baseMetadata, revisionMetadata, nil)
+	changelog, err := newChangelog(baseMetadata, revisionMetadata, exceptionFilePath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 		// baseActiveVersionOnPreviousRunDate with revisionActiveVersionOnPreviousRunDate)
 		baseMetadata.ActiveVersion = baseActiveVersionOnRunDate
 		revisionMetadata.ActiveVersion = revisionActiveVersionOnRunDate
-		changelog, err = newChangelog(baseMetadata, revisionMetadata, changelogEntries)
+		changelog, err = newChangelog(baseMetadata, revisionMetadata, exceptionFilePath, changelogEntries)
 		if err != nil {
 			return nil, err
 		}
@@ -193,17 +193,17 @@ func NewEntries(basePath, revisionPath string) ([]*Entry, error) {
 // NewEntriesWithoutHidden generates the changelog entries between the base and revision specs.
 // The returned entries includes the changes between the base and revision specs that are not
 // marked as hidden.
-func NewEntriesWithoutHidden(basePath, revisionPath string) ([]*Entry, error) {
-	entries, err := NewEntries(basePath, revisionPath)
+func NewEntriesWithoutHidden(basePath, revisionPath, exceptionFilePath string) ([]*Entry, error) {
+	entries, err := NewEntries(basePath, revisionPath, exceptionFilePath)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewNotHiddenEntries(entries), nil
+	return NewNotHiddenEntries(entries)
 }
 
 // NewEntriesBetweenRevisionVersions generates the changelog entries between the revision versions.
-func NewEntriesBetweenRevisionVersions(revisionPath string) ([]*Entry, error) {
+func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) ([]*Entry, error) {
 	revisionMetadata, err := newMetadataFromFile(revisionPath)
 	if err != nil {
 		return nil, err
@@ -212,7 +212,7 @@ func NewEntriesBetweenRevisionVersions(revisionPath string) ([]*Entry, error) {
 	entries := []*Entry{}
 	for idx, fromVersion := range revisionMetadata.Versions {
 		for _, toVersion := range revisionMetadata.Versions[idx+1:] {
-			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion)
+			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion, exceptionFilePath)
 			if err != nil {
 				return nil, err
 			}
@@ -223,7 +223,7 @@ func NewEntriesBetweenRevisionVersions(revisionPath string) ([]*Entry, error) {
 	return newVersionEntries(entries), nil
 }
 
-func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion string) (*Entry, error) {
+func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion, exceptionFilePath string) (*Entry, error) {
 	baseMetadata := &Metadata{
 		Path:          metadata.Path,
 		ActiveVersion: fromVersion,
@@ -240,7 +240,7 @@ func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion string)
 		Versions:      metadata.Versions,
 	}
 
-	changelog, err := newChangelog(baseMetadata, revisionMetadata, []*Entry{})
+	changelog, err := newChangelog(baseMetadata, revisionMetadata, exceptionFilePath, []*Entry{})
 	if err != nil {
 		return nil, err
 	}
@@ -307,7 +307,7 @@ func newVersionedPaths(paths []*Path, version string) []*Path {
 	return versionedPaths
 }
 
-func newChangelog(baseMetadata, revisionMetadata *Metadata, baseChangelog []*Entry) (*Changelog, error) {
+func newChangelog(baseMetadata, revisionMetadata *Metadata, exceptionFilePath string, baseChangelog []*Entry) (*Changelog, error) {
 	var err error
 	if baseChangelog == nil {
 		baseChangelog, err = newEntriesFromPath(fmt.Sprintf("%s/%s", baseMetadata.Path, "changelog.json"))
@@ -332,7 +332,7 @@ func newChangelog(baseMetadata, revisionMetadata *Metadata, baseChangelog []*Ent
 		BaseMetadata:      baseMetadata,
 		RevisionMetadata:  revisionMetadata,
 		Config:            changelogConfig,
-		ExemptionFilePath: fmt.Sprintf("%s/%s", revisionMetadata.Path, "exemptions.yaml"),
+		ExemptionFilePath: exceptionFilePath,
 		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
 			IncludePathParams: true,
 		}),
@@ -355,7 +355,7 @@ func newEntriesFromPath(path string) ([]*Entry, error) {
 
 func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec, revisionSpec *load.SpecInfo, err error) {
 	if baseMetadata.ActiveVersion != revisionMetadata.ActiveVersion {
-		log.Printf("Base spec revision %s is different from the active version %s", baseMetadata.SpecRevision, baseMetadata.ActiveVersion)
+		log.Printf("Base spec version %s is different from the active version %s", baseMetadata.ActiveVersion, revisionMetadata.ActiveVersion)
 		log.Println("Normalizing the specs: replace versioned media-types with corresponding standard media-types")
 		baseSpec, err = openapi.CreateNormalizedOpenAPISpecFromPath(fmt.Sprintf("%s/openapi-%s.json", baseMetadata.Path, baseMetadata.ActiveVersion))
 		if err != nil {
@@ -489,9 +489,14 @@ func newStringFromStruct(data interface{}) string {
 // 2. Remove all empty versions
 // 3. Remove all empty paths
 // 4. Shift changelog entry if it turns out empty
-func NewNotHiddenEntries(changelog []*Entry) []*Entry {
+func NewNotHiddenEntries(changelog []*Entry) ([]*Entry, error) {
 	if len(changelog) == 0 {
-		return changelog
+		return changelog, nil
+	}
+
+	changelog, err := duplicateEntries(changelog)
+	if err != nil {
+		return nil, err
 	}
 
 	// Get changes only for the last date, which is what was recently merged
@@ -524,11 +529,11 @@ func NewNotHiddenEntries(changelog []*Entry) []*Entry {
 	}
 
 	if len(paths) == 0 {
-		return changelog[1:]
+		return changelog[1:], nil
 	}
 
 	changelog[0].Paths = paths
-	return changelog
+	return changelog, nil
 }
 
 func newNotHiddenChanges(changes []*Change) []*Change {
