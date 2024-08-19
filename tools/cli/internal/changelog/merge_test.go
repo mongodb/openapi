@@ -26,8 +26,6 @@ import (
 // @To do: Add tests for the following scenarios once the sunset logic is migrated:
 // - test_merge_changelog_2_versions_with_deprecations
 // - test_merge_changelog_yaml_compare
-// - test_remove_hidden_entries_date_removed
-// - test_remove_hidden_entries_entries_removed
 
 func TestMergeChangelogOneChange(t *testing.T) {
 	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
