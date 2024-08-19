@@ -237,12 +237,6 @@ func sortChangelog(changelog []*Entry) []*Entry {
 			sort.Slice(pathEntry.Versions, func(i, j int) bool {
 				return pathEntry.Versions[i].Version > pathEntry.Versions[j].Version
 			})
-
-			// for _, versionEntry := range pathEntry.Versions {
-			// 	sort.Slice(versionEntry.Changes, func(i, j int) bool {
-			// 		return versionEntry.Changes[i].Description > versionEntry.Changes[j].Description
-			// 	})
-			// }
 		}
 	}
 
