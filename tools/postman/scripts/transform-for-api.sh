@@ -15,7 +15,7 @@ set -euo pipefail
 #   DESCRIPTION_FILE - name for the markdown description file
 #   BASE_URL - the default base url the Postman Collection will use
 #########################################################
-source .env
+
 COLLECTION_FILE_NAME=${COLLECTION_FILE_NAME:-"collection.json"}
 COLLECTION_TRANSFORMED_FILE_NAME=${COLLECTION_TRANSFORMED_FILE_NAME:-"collection-transformed.json"}
 OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"atlas-api.json"}
