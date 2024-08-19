@@ -598,3 +598,125 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 	assert.Equal(t, "request-property-removed", secondVersionEntry.Changes[0].Code)
 	assert.False(t, secondVersionEntry.Changes[0].BackwardCompatible)
 }
+
+func TestMergeChangelogWithDeprecations(t *testing.T) {
+	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
+	require.NoError(t, err)
+
+	firstVersion := "2023-02-01"
+	secondVersion := "2023-02-02"
+	changeTypeFirstVersion := changeTypeUpdate
+	changeTypeSecondVersion := changeTypeRelease
+
+	runDate := "2023-06-15"
+	sunset := "2024-02-02"
+	endpointsConfig := map[string]*outputfilter.OperationConfigs{
+		"createCluster": {
+			Base: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "POST",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 sunset,
+				ManualChangelogEntries: nil,
+			},
+			Revision: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "POST",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 "",
+				ManualChangelogEntries: nil,
+			},
+		},
+	}
+
+	changesFirstVersion := []*outputfilter.OasDiffEntry{
+		{
+			ID:          "request-property-added",
+			Text:        "added 'replicationSpecs.regionConfigs' request property",
+			Level:       1,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+	}
+
+	changesSecondVersion := []*outputfilter.OasDiffEntry{
+		{
+			ID:          "endpoint-reactivated",
+			Text:        "endpoint reactivated",
+			Level:       1,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+		{
+			ID:          "request-property-removed",
+			Text:        "removed the request properties: 'mongoURIWithOptions', 'providerBackupEnabled'",
+			Level:       3,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+	}
+
+	changelogStruct := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
+		},
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
+		},
+		RunDate:       runDate,
+		BaseChangelog: baseChangelog,
+	}
+
+	changelog, err := changelogStruct.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
+	require.NoError(t, err)
+
+	changelogStruct = &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
+		},
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: secondVersion,
+		},
+		RunDate:       runDate,
+		BaseChangelog: changelog,
+	}
+
+	changelog, err = changelogStruct.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
+	require.NoError(t, err)
+
+	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
+
+	latestChangelogEntry := changelog[0]
+	require.Equal(t, runDate, latestChangelogEntry.Date)
+
+	paths := latestChangelogEntry.Paths
+	require.Len(t, paths, 1)
+	assert.Equal(t, changesSecondVersion[0].Path, paths[0].URI)
+	assert.Equal(t, changesSecondVersion[0].OperationID, paths[0].OperationID)
+	assert.Equal(t, changesSecondVersion[0].Operation, paths[0].HTTPMethod)
+	assert.Equal(t, "Multi-Cloud Clusters", paths[0].Tag)
+
+	versions := paths[0].Versions
+	require.Len(t, versions, 2)
+
+	firstVersionEntry := versions[1]
+	require.Len(t, firstVersionEntry.Changes, 2)
+	assert.Equal(t, "request-property-added", firstVersionEntry.Changes[0].Code)
+	assert.True(t, firstVersionEntry.Changes[0].BackwardCompatible)
+
+	assert.Equal(t, "endpoint-deprecated", firstVersionEntry.Changes[1].Code)
+	assert.True(t, firstVersionEntry.Changes[1].BackwardCompatible)
+	assert.Contains(t, firstVersionEntry.Changes[1].Description, fmt.Sprintf("deprecated and marked for removal on %s", sunset))
+
+	secondVersionEntry := versions[0]
+	require.Len(t, secondVersionEntry.Changes, 1)
+	assert.Equal(t, "request-property-removed", secondVersionEntry.Changes[0].Code)
+	assert.False(t, secondVersionEntry.Changes[0].BackwardCompatible)
+}

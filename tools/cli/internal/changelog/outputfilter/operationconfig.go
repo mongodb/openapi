@@ -31,7 +31,7 @@ func (e *OperationConfigs) Tag() string {
 }
 
 func (e *OperationConfigs) Sunset() string {
-	if e.Revision != nil {
+	if e.Revision != nil && e.Revision.Sunset != "" {
 		return e.Revision.Sunset
 	}
 
