@@ -10,7 +10,7 @@ set -euo pipefail
 #   TMP_FOLDER - folder for temporary files during transformations
 #########################################################
 
-OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"v2.json"}
+OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"atlas-api.json"}
 COLLECTION_FILE_NAME=${COLLECTION_FILE_NAME:-"collection.json"}
 OPENAPI_FOLDER=${OPENAPI_FOLDER:-"../openapi"}
 TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
