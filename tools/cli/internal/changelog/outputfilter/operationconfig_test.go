@@ -12,7 +12,7 @@ import (
 
 func TestOpenApiSpecMethods(t *testing.T) {
 	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
-	spec, err := loader.CreateOpenAPISpecFromPath("../../../test/data/changelog/test_spec.json")
+	spec, err := loader.CreateOpenAPISpecFromPath("../../../test/data/changelog/manual_generated_test_spec.json")
 	require.NoError(t, err)
 
 	expectedConfig := map[string]*OperationConfig{

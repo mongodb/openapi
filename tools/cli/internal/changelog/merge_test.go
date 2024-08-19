@@ -23,10 +23,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// @To do: Add tests for the following scenarios once the sunset logic is migrated:
-// - test_merge_changelog_2_versions_with_deprecations
-// - test_merge_changelog_yaml_compare
-
 func TestMergeChangelogOneChange(t *testing.T) {
 	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
@@ -597,4 +593,434 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 
 	assert.Equal(t, "request-property-removed", secondVersionEntry.Changes[0].Code)
 	assert.False(t, secondVersionEntry.Changes[0].BackwardCompatible)
+}
+
+func TestMergeChangelogWithDeprecations(t *testing.T) {
+	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
+	require.NoError(t, err)
+
+	firstVersion := "2023-02-01"
+	secondVersion := "2023-02-02"
+	changeTypeFirstVersion := changeTypeUpdate
+	changeTypeSecondVersion := changeTypeRelease
+
+	runDate := "2023-06-15"
+	sunset := "2024-02-02"
+	endpointsConfig := map[string]*outputfilter.OperationConfigs{
+		"createCluster": {
+			Base: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "POST",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 sunset,
+				ManualChangelogEntries: nil,
+			},
+			Revision: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "POST",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 "",
+				ManualChangelogEntries: nil,
+			},
+		},
+	}
+
+	changesFirstVersion := []*outputfilter.OasDiffEntry{
+		{
+			ID:          "request-property-added",
+			Text:        "added 'replicationSpecs.regionConfigs' request property",
+			Level:       1,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+	}
+
+	changesSecondVersion := []*outputfilter.OasDiffEntry{
+		{
+			ID:          "endpoint-reactivated",
+			Text:        "endpoint reactivated",
+			Level:       1,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+		{
+			ID:          "request-property-removed",
+			Text:        "removed the request properties: 'mongoURIWithOptions', 'providerBackupEnabled'",
+			Level:       3,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+	}
+
+	changelogStruct := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
+		},
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
+		},
+		RunDate:       runDate,
+		BaseChangelog: baseChangelog,
+	}
+
+	changelog, err := changelogStruct.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
+	require.NoError(t, err)
+
+	changelogStruct = &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
+		},
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: secondVersion,
+		},
+		RunDate:       runDate,
+		BaseChangelog: changelog,
+	}
+
+	changelog, err = changelogStruct.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
+	require.NoError(t, err)
+
+	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
+
+	latestChangelogEntry := changelog[0]
+	require.Equal(t, runDate, latestChangelogEntry.Date)
+
+	paths := latestChangelogEntry.Paths
+	require.Len(t, paths, 1)
+	assert.Equal(t, changesSecondVersion[0].Path, paths[0].URI)
+	assert.Equal(t, changesSecondVersion[0].OperationID, paths[0].OperationID)
+	assert.Equal(t, changesSecondVersion[0].Operation, paths[0].HTTPMethod)
+	assert.Equal(t, "Multi-Cloud Clusters", paths[0].Tag)
+
+	versions := paths[0].Versions
+	require.Len(t, versions, 2)
+
+	firstVersionEntry := versions[1]
+	require.Len(t, firstVersionEntry.Changes, 2)
+	assert.Equal(t, "request-property-added", firstVersionEntry.Changes[0].Code)
+	assert.True(t, firstVersionEntry.Changes[0].BackwardCompatible)
+
+	assert.Equal(t, "endpoint-deprecated", firstVersionEntry.Changes[1].Code)
+	assert.True(t, firstVersionEntry.Changes[1].BackwardCompatible)
+	assert.Contains(t, firstVersionEntry.Changes[1].Description, fmt.Sprintf("deprecated and marked for removal on %s", sunset))
+
+	secondVersionEntry := versions[0]
+	require.Len(t, secondVersionEntry.Changes, 1)
+	assert.Equal(t, "request-property-removed", secondVersionEntry.Changes[0].Code)
+	assert.False(t, secondVersionEntry.Changes[0].BackwardCompatible)
+}
+
+func TestMergeChangelogCompare(t *testing.T) {
+	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
+	require.NoError(t, err)
+
+	firstVersion := "2023-01-01"
+	secondVersion := "2023-02-02"
+	changeTypeFirstVersion := changeTypeUpdate
+	changeTypeSecondVersion := changeTypeRelease
+
+	runDate := "2023-06-15"
+	endpointsConfig := map[string]*outputfilter.OperationConfigs{
+		"createCluster": {
+			Base: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "POST",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 "2024-02-02",
+				ManualChangelogEntries: nil,
+			},
+			Revision: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "POST",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 "2024-02-02",
+				ManualChangelogEntries: nil,
+			},
+		},
+		"getClusters": {
+			Base: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "GET",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 "2024-02-02",
+				ManualChangelogEntries: nil,
+			},
+			Revision: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:             "GET",
+				Tag:                    "Multi-Cloud Clusters",
+				Sunset:                 "2024-02-02",
+				ManualChangelogEntries: nil,
+			},
+		},
+		"listStreamInstances": {
+			Base: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/streams",
+				HTTPMethod:             "GET",
+				Tag:                    "Streams",
+				Sunset:                 "",
+				ManualChangelogEntries: nil,
+			},
+			Revision: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/streams",
+				HTTPMethod:             "GET",
+				Tag:                    "Streams",
+				Sunset:                 "",
+				ManualChangelogEntries: nil,
+			},
+		},
+		"getStreamInstance": {
+			Base: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/streams/{tenantName}",
+				HTTPMethod:             "GET",
+				Tag:                    "Streams",
+				Sunset:                 "",
+				ManualChangelogEntries: nil,
+			},
+			Revision: &outputfilter.OperationConfig{
+				Path:                   "/api/atlas/v2/groups/{groupId}/streams/{tenantName}",
+				HTTPMethod:             "GET",
+				Tag:                    "Streams",
+				Sunset:                 "",
+				ManualChangelogEntries: nil,
+			},
+		},
+	}
+
+	changesFirstVersion := []*outputfilter.OasDiffEntry{
+		{
+			ID:          "request-property-added",
+			Text:        "added 'replicationSpecs.regionConfigs' request property",
+			Level:       1,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+		{
+			ID:          "response-optional-property-added",
+			Text:        "added 'replicationSpecs.regionConfigs' response property",
+			Level:       1,
+			Operation:   "GET",
+			OperationID: "getClusters",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+	}
+
+	changesSecondVersion := []*outputfilter.OasDiffEntry{
+		{
+			ID:          "endpoint-added",
+			Text:        "endpoint added",
+			Level:       1,
+			Operation:   "GET",
+			OperationID: "listStreamInstances",
+			Path:        "/api/atlas/v2/groups/{groupId}/streams",
+		},
+		{
+			ID:          "endpoint-added",
+			Text:        "endpoint added",
+			Level:       1,
+			Operation:   "GET",
+			OperationID: "getStreamInstance",
+			Path:        "/api/atlas/v2/groups/{groupId}/streams/{tenantName}",
+		},
+		{
+			ID:          "endpoint-reactivated",
+			Text:        "endpoint reactivated",
+			Level:       1,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+		{
+			ID:          "endpoint-reactivated",
+			Text:        "endpoint reactivated",
+			Level:       1,
+			Operation:   "GET",
+			OperationID: "getClusters",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+		{
+			ID:          "request-property-removed",
+			Text:        "removed the request properties: 'mongoURIWithOptions', 'providerBackupEnabled'",
+			Level:       3,
+			Operation:   "POST",
+			OperationID: "createCluster",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+		{
+			ID:          "response-property-removed",
+			Text:        "removed 'replicationSpecs.regionConfigs' response property",
+			Level:       3,
+			Operation:   "GET",
+			OperationID: "getClusters",
+			Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+		},
+	}
+
+	expectedChangelogEntryForRunDate := &Entry{
+		Date: "2023-06-15",
+		Paths: []*Path{
+			{
+				URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:  "GET",
+				OperationID: "getClusters",
+				Tag:         "Multi-Cloud Clusters",
+				Versions: []*Version{
+					{
+						Version:        "2023-02-02",
+						StabilityLevel: "stable",
+						ChangeType:     "release",
+						Changes: []*Change{
+							{
+								Description:        "removed 'replicationSpecs.regionConfigs' response property",
+								Code:               "response-property-removed",
+								BackwardCompatible: false,
+							},
+						},
+					},
+					{
+						Version:        "2023-01-01",
+						StabilityLevel: "stable",
+						ChangeType:     "deprecate",
+						Changes: []*Change{
+							{
+								Description:        "added 'replicationSpecs.regionConfigs' response property",
+								Code:               "response-optional-property-added",
+								BackwardCompatible: true,
+							},
+							{
+								Description:        "New resource added 2023-02-02. Resource version 2023-01-01 deprecated and marked for removal on 2024-02-02",
+								Code:               "endpoint-deprecated",
+								BackwardCompatible: true,
+							},
+						},
+					},
+				},
+			},
+			{
+				URI:         "/api/atlas/v2/groups/{groupId}/clusters",
+				HTTPMethod:  "POST",
+				OperationID: "createCluster",
+				Tag:         "Multi-Cloud Clusters",
+				Versions: []*Version{
+					{
+						Version:        "2023-02-02",
+						StabilityLevel: "stable",
+						ChangeType:     "release",
+						Changes: []*Change{
+							{
+								Description:        "removed the request properties: 'mongoURIWithOptions', 'providerBackupEnabled'",
+								Code:               "request-property-removed",
+								BackwardCompatible: false,
+							},
+						},
+					},
+					{
+						Version:        "2023-01-01",
+						StabilityLevel: "stable",
+						ChangeType:     "deprecate",
+						Changes: []*Change{
+							{
+								Description:        "added 'replicationSpecs.regionConfigs' request property",
+								Code:               "request-property-added",
+								BackwardCompatible: true,
+							},
+							{
+								Description:        "New resource added 2023-02-02. Resource version 2023-01-01 deprecated and marked for removal on 2024-02-02",
+								Code:               "endpoint-deprecated",
+								BackwardCompatible: true,
+							},
+						},
+					},
+				},
+			},
+			{
+				URI:         "/api/atlas/v2/groups/{groupId}/streams",
+				HTTPMethod:  "GET",
+				OperationID: "listStreamInstances",
+				Tag:         "Streams",
+				Versions: []*Version{
+					{
+						Version:        "2023-02-02",
+						StabilityLevel: "stable",
+						ChangeType:     "release",
+						Changes: []*Change{
+							{
+								Description:        "endpoint added",
+								Code:               "endpoint-added",
+								BackwardCompatible: true,
+							},
+						},
+					},
+				},
+			},
+			{
+				URI:         "/api/atlas/v2/groups/{groupId}/streams/{tenantName}",
+				HTTPMethod:  "GET",
+				OperationID: "getStreamInstance",
+				Tag:         "Streams",
+				Versions: []*Version{
+					{
+						Version:        "2023-02-02",
+						StabilityLevel: "stable",
+						ChangeType:     "release",
+						Changes: []*Change{
+							{
+								Description:        "endpoint added",
+								Code:               "endpoint-added",
+								BackwardCompatible: true,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	changelogStruct := &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
+		},
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
+		},
+		RunDate:       runDate,
+		BaseChangelog: baseChangelog,
+	}
+
+	changelog, err := changelogStruct.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
+	require.NoError(t, err)
+
+	changelogStruct = &Changelog{
+		BaseMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: firstVersion,
+		},
+		RevisionMetadata: &Metadata{
+			RunDate:       runDate,
+			ActiveVersion: secondVersion,
+		},
+		RunDate:       runDate,
+		BaseChangelog: changelog,
+	}
+
+	changelog, err = changelogStruct.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
+	require.NoError(t, err)
+
+	require.Len(t, changelog, 2)
+
+	changeloEntryToCompare := changelog[0]
+	assert.Equal(t, expectedChangelogEntryForRunDate.Date, changeloEntryToCompare.Date)
+
+	require.Len(t, changeloEntryToCompare.Paths, len(expectedChangelogEntryForRunDate.Paths))
+	assert.ElementsMatch(t, expectedChangelogEntryForRunDate.Paths, changeloEntryToCompare.Paths)
 }
