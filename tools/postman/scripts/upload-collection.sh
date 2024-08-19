@@ -46,7 +46,7 @@ else
   # Find collection ID and update collection
   echo "Updating remote collection ${current_collection_name}"
   collection_id=$(jq -r '.collections | map(select(.name=="'"${current_collection_name}"'").id)[0]' "${COLLECTIONS_LIST_FILE}")
-  curl --show-error --fail --retry 5 -retry-all-errors --silent --request PUT \
+  curl --show-error --fail --retry 5 --retry-all-errors --silent --request PUT \
        --location "https://api.getpostman.com/collections/${collection_id}" \
        --header "Content-Type: application/json" \
        --header "X-API-Key: ${POSTMAN_API_KEY}" \
