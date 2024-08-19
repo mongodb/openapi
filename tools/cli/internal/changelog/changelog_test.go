@@ -595,7 +595,8 @@ func TestMultipleHiddenEntries(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := NewNotHiddenEntries(tt.changelog)
+			actual, err := NewNotHiddenEntries(tt.changelog)
+			require.NoError(t, err)
 			assert.Equal(t, tt.expected, actual)
 		})
 	}
