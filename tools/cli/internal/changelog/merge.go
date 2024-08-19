@@ -333,7 +333,7 @@ func newDeprecatedChangeEntry(
 		Operation:   change.Operation,
 		OperationID: change.OperationID,
 		Text: fmt.Sprintf(
-			"New resource added {%s}. Resource version {%s} deprecated and marked for removal on %s",
+			"New resource added %s. Resource version %s deprecated and marked for removal on %s",
 			revisionVersion, baseVersion, baseVersionSunset),
 		Level:             change.Level,
 		Path:              change.Path,
