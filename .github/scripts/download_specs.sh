@@ -10,5 +10,9 @@ jq -c '.services[]' foas-metadata.json | while read -r service; do
 
     echo "Downloading the OpenAPI Spec for ${name} with sha ${sha}"
     aws s3 cp "s3://${S3_BUCKET}/openapi/oas/${name}/${sha}.json" "openapi-${name}.json"
+
+    if [[ "${name}" == "mms" ]]; then
+        echo "FOAS_SHA=${sha}" >> "${GITHUB_ENV:?}"
+    fi
 done
 
