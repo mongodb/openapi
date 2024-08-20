@@ -1,5 +1,6 @@
 export OPENAPI_FOLDER=./openapi
 export TMP_FOLDER=./tmp
+export FULL_OPENAPI_FOLDER=../../openapi/v2/
 
 default: build
 

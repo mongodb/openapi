@@ -1,39 +1,28 @@
 name: Postman Release
 on:
-  schedule:
-    - cron: '0 10 ? * *'
+  pull_request:
+    branches: 
+      - main
+    types:
+      - closed
   workflow_dispatch:
 permissions:
   issues: write
 
 jobs:
   release-postman:
+    if: ${{ github.head_ref == 'api-bot-update' && github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      ## Will be removed after CLOUDP-263207
-      - name: Fetch Collection
+      - name: Fetch OpenAPI Specification
         working-directory: ./tools/postman
         run: |
           make fetch_openapi
 
-      - name: Compute checksum for current OpenAPI Specification
-        working-directory: ./tools/postman/openapi
-        run: |
-          checksum=$(sha256sum atlas-api.json | cut -d ' ' -f 1)
-          echo "checksum=$checksum" >> "$GITHUB_ENV"
-
-      - name: Check if checksum is saved in the cache
-        id: check-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ./tools/postman/openapi/openapi-checksum.txt
-          key: postman-openapi-${{ env.checksum }}
-
       - name: Convert the OpenAPI Specification into Collection
-        if: steps.check-cache.outputs.cache-hit != 'true'
         id: convert
         working-directory: ./tools/postman
         run: |
@@ -49,7 +38,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Transform Postman Collection 
-        if: steps.check-cache.outputs.cache-hit != 'true'
         id: transform
         env:
           BASE_URL: ${{ vars.ATLAS_PROD_BASE_URL }}
@@ -67,23 +55,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Collection to Postman
-        if: steps.check-cache.outputs.cache-hit != 'true'
         env:
           POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
           WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
         working-directory: ./tools/postman
         run: |
           make upload_collection
-
-      - name: Save new checksum to file
-        if: steps.check-cache.outputs.cache-hit != 'true'
-        working-directory: ./tools/postman/openapi
-        run: |
-          echo "${{ env.checksum }}" > openapi-checksum.txt
-
-      - name: Cache new checksum file
-        if: steps.check-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: ./tools/postman/openapi/openapi-checksum.txt
-          key: postman-openapi-${{ env.checksum }}

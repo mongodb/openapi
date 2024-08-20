@@ -11,7 +11,7 @@ set -euo pipefail
 #   TMP_FOLDER - folder for temporary files during transformations
 #   TOGGLE_USE_ENVIRONMENT_AUTH - bool for if auth variables are stored at the environment or collection level
 #   TOGGLE_INCLUDE_BODY - bool for if generated bodies should be removed or kept
-#   VERSIONS_FILE - name for the openapi versions file
+#   VERSION_FILE_NAME - name of the file where the current version is stored
 #   DESCRIPTION_FILE - name for the markdown description file
 #   BASE_URL - the default base url the Postman Collection will use
 #########################################################
@@ -21,14 +21,14 @@ COLLECTION_TRANSFORMED_FILE_NAME=${COLLECTION_TRANSFORMED_FILE_NAME:-"collection
 OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"atlas-api.json"}
 OPENAPI_FOLDER=${OPENAPI_FOLDER:-"../openapi"}
 TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
+VERSION_FILE_NAME=${VERSION_FILE_NAME:-"version.txt"}
 
-VERSIONS_FILE=${VERSIONS_FILE:-"versions.json"}
 DESCRIPTION_FILE=${DESCRIPTION_FILE:-"../collection-description.md"}
 
 TOGGLE_USE_ENVIRONMENT_AUTH=${TOGGLE_USE_ENVIRONMENT_AUTH:-true}
 TOGGLE_INCLUDE_BODY=${TOGGLE_INCLUDE_BODY:-true}
 
-current_api_revision=$(jq -r '.versions."2.0" | .[-1]' < "${OPENAPI_FOLDER}/${VERSIONS_FILE}")
+current_api_revision=$(<"$OPENAPI_FOLDER/$VERSION_FILE_NAME")
 
 pushd "${TMP_FOLDER}"
 
