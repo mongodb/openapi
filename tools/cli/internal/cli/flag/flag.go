@@ -36,4 +36,8 @@ const (
 	ExemptionFilePath        = "exemption-file"
 	ExemptionFilePathShort   = "e"
 	IgnoreExpiration         = "ignore-expiration"
+	RunDate                  = "run-date"
+	RunDateShort             = "d"
+	Versions                 = "versions"
+	VersionsShort            = "v"
 )

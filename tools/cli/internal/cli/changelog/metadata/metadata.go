@@ -12,26 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package changelog
+package metadata
 
 import (
-	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog/metadata"
 	"github.com/spf13/cobra"
 )
 
 func Builder() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "changelog",
-		Short: "Manage the API Changelog for the OpenAPI spec.",
+		Use:   "metadata",
+		Short: "Manage the API Changelog Metadata.",
 		Annotations: map[string]string{
 			"toc": "true",
 		},
 	}
 
-	cmd.AddCommand(
-		CreateBuilder(),
-		metadata.Builder(),
-	)
+	cmd.AddCommand(CreateBuilder())
 
 	return cmd
 }
