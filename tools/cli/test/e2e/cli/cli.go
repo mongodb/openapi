@@ -31,6 +31,34 @@ func NewBaseSpecPath(t *testing.T) string {
 	return cliPath
 }
 
+func NewChangelogBasePathNewAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/new-version/base")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewChangelogRevisionPathNewAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/new-version/revision")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewChangelogExepmtionFilePathNewAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/new-version/exemptions.yaml")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewChangelogOutputPathNewAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/new-version/output")
+	require.NoError(t, err)
+	return cliPath
+}
+
 func NewAPIRegistrySpecPath(t *testing.T) string {
 	t.Helper()
 	cliPath, err := filepath.Abs("../../data/apiregistry_spec.json")
