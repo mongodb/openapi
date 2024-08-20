@@ -33,28 +33,56 @@ func NewBaseSpecPath(t *testing.T) string {
 
 func NewChangelogBasePathNewAPIVersion(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/changelog/new-version/base")
+	cliPath, err := filepath.Abs("../../data/changelog/new-api-version/base")
 	require.NoError(t, err)
 	return cliPath
 }
 
 func NewChangelogRevisionPathNewAPIVersion(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/changelog/new-version/revision")
+	cliPath, err := filepath.Abs("../../data/changelog/new-api-version/revision")
 	require.NoError(t, err)
 	return cliPath
 }
 
 func NewChangelogExepmtionFilePathNewAPIVersion(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/changelog/new-version/exemptions.yaml")
+	cliPath, err := filepath.Abs("../../data/changelog/new-api-version/exemptions.yaml")
 	require.NoError(t, err)
 	return cliPath
 }
 
 func NewChangelogOutputPathNewAPIVersion(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/changelog/new-version/output")
+	cliPath, err := filepath.Abs("../../data/changelog/new-api-version/output")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewChangelogBasePathSameAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/same-api-version/base")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewChangelogRevisionPathSameAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/same-api-version/revision")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewChangelogExepmtionFilePathSameAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/same-api-version/exemptions.yaml")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewChangelogOutputPathSameAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/same-api-version/output")
 	require.NoError(t, err)
 	return cliPath
 }
