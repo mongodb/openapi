@@ -56,11 +56,12 @@ type Changelog struct {
 }
 
 type Metadata struct {
-	Path          string   `json:"path,omitempty"`
-	ActiveVersion string   `json:"activeVersion,omitempty"`
-	RunDate       string   `json:"runDate"`
-	SpecRevision  string   `json:"specRevision,omitempty"`
-	Versions      []string `json:"versions"`
+	Path              string   `json:"path,omitempty"`
+	ActiveVersion     string   `json:"activeVersion,omitempty"`
+	RunDate           string   `json:"runDate"`
+	SpecRevision      string   `json:"specRevision,omitempty"`
+	SpecRevisionShort string   `json:"specRevisionShort,omitempty"`
+	Versions          []string `json:"versions"`
 }
 
 type Entry struct {
