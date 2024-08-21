@@ -204,7 +204,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "b5d410a3e8af4c18c0b59c3ac77cf84d19001d1c"
+    "x-xgen-sha": "37d7230805ce1bf75fbc9639202bf7017a77fd3e"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -18649,6 +18649,7 @@
                   "OPCOUNTER_REPL_UPDATE",
                   "OPCOUNTER_UPDATE",
                   "OPERATIONS_SCAN_AND_ORDER",
+                  "OPERATIONS_QUERIES_KILLED",
                   "OPLOG_MASTER_LAG_TIME_DIFF",
                   "OPLOG_MASTER_TIME",
                   "OPLOG_RATE_GB_PER_HOUR",
@@ -18691,7 +18692,8 @@
                   "SYSTEM_NORMALIZED_CPU_STEAL",
                   "SYSTEM_NORMALIZED_CPU_USER",
                   "TICKETS_AVAILABLE_READS",
-                  "TICKETS_AVAILABLE_WRITE"
+                  "TICKETS_AVAILABLE_WRITE",
+                  "OPERATION_THROTTLING_REJECTED_OPERATIONS"
                 ],
                 "type": "string"
               },
@@ -24390,6 +24392,80 @@
         ]
       }
     },
+    "/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/lineItems/:search": {
+      "get": {
+        "description": "Query the lineItems of the specified invoice and return the result JSON. A unique 24-hexadecimal digit string identifies the invoice.",
+        "operationId": "queryLineItemsFromSingleInvoice",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the invoice submitted to the specified organization. Charges typically post the next day.",
+            "in": "path",
+            "name": "invoiceId",
+            "required": true,
+            "schema": {
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2024-08-05+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiPublicUsageDetailsQueryRequest"
+              }
+            }
+          },
+          "description": "Filter parameters for the lineItems query. Send a request with an empty JSON body to retrieve all line items for a given invoiceID without applying any filters.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2024-08-05+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedPublicApiUsageDetailsLineItemView"
+                },
+                "x-xgen-version": "2024-08-05"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [
+          {
+            "DigestAuth": []
+          }
+        ],
+        "summary": "Query lineItems of the specified invoiceId",
+        "tags": [
+          "Invoices"
+        ]
+      }
+    },
     "/api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects": {
       "get": {
         "description": "Return all projects that you can migrate to the specified organization.",
@@ -26374,7 +26450,7 @@
         "description": "Hardware specifications for nodes deployed in the region.",
         "properties": {
           "diskIOPS": {
-            "description": "Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware.\n\n Change this parameter only if you:\n\n- set `\"replicationSpecs[n].regionConfigs[m].providerName\" to \"AWS\"`.\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize\" to \"M30\"` or greater (not including `Mxx_NVME` tiers).\n\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.ebsVolumeType\" to \"PROVISIONED\"`.\n\nThe maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.\nThis parameter defaults to the cluster tier's standard IOPS value.\nChanging this value impacts cluster cost.\nMongoDB Cloud enforces minimum ratios of storage capacity to system memory for given cluster tiers. This keeps cluster performance consistent with large datasets.\n\n- Instance sizes `M10` to `M40` have a ratio of disk capacity to system memory of 60:1.\n- Instance sizes greater than `M40` have a ratio of 120:1.",
+            "description": "Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware.\n\n Change this parameter if you:\n\n- set `\"replicationSpecs[n].regionConfigs[m].providerName\" to \"AWS\"`.\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize\" to \"M30\"` or greater (not including `Mxx_NVME` tiers).\n\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.ebsVolumeType\" to \"PROVISIONED\"`.\n\nThe maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.\nThis parameter defaults to the cluster tier's standard IOPS value.\nChanging this value impacts cluster cost.\nMongoDB Cloud enforces minimum ratios of storage capacity to system memory for given cluster tiers. This keeps cluster performance consistent with large datasets.\n\n- Instance sizes `M10` to `M40` have a ratio of disk capacity to system memory of 60:1.\n- Instance sizes greater than `M40` have a ratio of 120:1.",
             "format": "int32",
             "type": "integer"
           },
@@ -26432,7 +26508,7 @@
         "description": "Hardware specifications for nodes deployed in the region.",
         "properties": {
           "diskIOPS": {
-            "description": "Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware.\n\n You can set different IOPS values on different shards when provisioned IOPS are supported.\n\n Change this parameter only if you:\n\n- set `\"replicationSpecs[n].regionConfigs[m].providerName\" to \"AWS\"`.\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize\" to \"M30\"` or greater (not including `Mxx_NVME` tiers).\n\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.ebsVolumeType\" to \"PROVISIONED\"`.\n\nThe maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.\nThis parameter defaults to the cluster tier's standard IOPS value.\nChanging this value impacts cluster cost.\nMongoDB Cloud enforces minimum ratios of storage capacity to system memory for given cluster tiers. This keeps cluster performance consistent with large datasets.\n\n- Instance sizes `M10` to `M40` have a ratio of disk capacity to system memory of 60:1.\n- Instance sizes greater than `M40` have a ratio of 120:1.",
+            "description": "Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware.\n\n You can set different IOPS values on different shards when provisioned IOPS are supported.\n\n Change this parameter if you:\n\n- set `\"replicationSpecs[n].regionConfigs[m].providerName\" to \"AWS\"`.\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize\" to \"M30\"` or greater (not including `Mxx_NVME` tiers).\n\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.ebsVolumeType\" to \"PROVISIONED\"`.\n\nThe maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.\nThis parameter defaults to the cluster tier's standard IOPS value.\nChanging this value impacts cluster cost.\nMongoDB Cloud enforces minimum ratios of storage capacity to system memory for given cluster tiers. This keeps cluster performance consistent with large datasets.\n\n- Instance sizes `M10` to `M40` have a ratio of disk capacity to system memory of 60:1.\n- Instance sizes greater than `M40` have a ratio of 120:1.",
             "format": "int32",
             "type": "integer"
           },
@@ -28562,6 +28638,32 @@
         },
         "type": "object"
       },
+      "ApiPublicUsageDetailsQueryRequest": {
+        "description": "Request body for an Invoice Usage Details query with filtering, pagination, and sort.",
+        "properties": {
+          "filters": {
+            "$ref": "#/components/schemas/UsageDetailsFilterRequest"
+          },
+          "sortField": {
+            "description": "Specify the field used to specify how to sort query results. Default to bill date.",
+            "enum": [
+              "USAGE_DATES",
+              "BILL_DATES",
+              "TOTAL_PRICE_CENTS"
+            ],
+            "type": "string"
+          },
+          "sortOrder": {
+            "description": "Specify the sort order (ascending / descending) used to specify how to sort query results. Defaults to descending.",
+            "enum": [
+              "ASCENDING",
+              "DESCENDING"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ApiSearchDeploymentRequestView": {
         "properties": {
           "specs": {
@@ -30314,6 +30416,15 @@
       },
       "AzureHardwareSpec": {
         "properties": {
+          "diskIOPS": {
+            "description": "Target throughput desired for storage attached to your Azure-provisioned cluster. Change this parameter if you:\n\n- set `\"replicationSpecs[n].regionConfigs[m].providerName\" : \"Azure\"`.\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize\" : \"M40\"` or greater not including `Mxx_NVME` tiers.\n\nThe maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.\nThis parameter defaults to the cluster tier's standard IOPS value.\nChanging this value impacts cluster cost.",
+            "externalDocs": {
+              "description": "Programmatic API Keys",
+              "url": "https://www.mongodb.com/docs/atlas/customize-storage/#extend-iops-on-azure"
+            },
+            "format": "int32",
+            "type": "integer"
+          },
           "instanceSize": {
             "description": "Hardware specification for the instance sizes in this region. Each instance size has a default storage and memory capacity. The instance size you select applies to all the data-bearing hosts of the node type.",
             "enum": [
@@ -30353,6 +30464,15 @@
       },
       "AzureHardwareSpec20240805": {
         "properties": {
+          "diskIOPS": {
+            "description": "Target throughput desired for storage attached to your Azure-provisioned cluster. Change this parameter if you:\n\n- set `\"replicationSpecs[n].regionConfigs[m].providerName\" : \"Azure\"`.\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize\" : \"M40\"` or greater not including `Mxx_NVME` tiers.\n\nThe maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.\nThis parameter defaults to the cluster tier's standard IOPS value.\nChanging this value impacts cluster cost.",
+            "externalDocs": {
+              "description": "Programmatic API Keys",
+              "url": "https://www.mongodb.com/docs/atlas/customize-storage/#extend-iops-on-azure"
+            },
+            "format": "int32",
+            "type": "integer"
+          },
           "diskSizeGB": {
             "description": "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier.",
             "format": "double",
@@ -30564,7 +30684,8 @@
               "INITIATING",
               "PENDING_ACCEPTANCE",
               "ACTIVE",
-              "FAILED"
+              "FAILED",
+              "PENDING_RECREATION"
             ],
             "readOnly": true,
             "type": "string"
@@ -33257,7 +33378,7 @@
           {
             "properties": {
               "_id": {
-                "description": "Unique 24-hexadecimal digit string that identifies the Azure Service Principal in Atlas.",
+                "description": "Unique 24-hexadecimal digit string that identifies the role.",
                 "example": "32b6e34b3d91647abb20e7b8",
                 "maxLength": 24,
                 "minLength": 24,
@@ -33482,14 +33603,6 @@
           },
           "propertyName": "providerName"
         },
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/CloudProviderAccessAWSIAMRole"
-          },
-          {
-            "$ref": "#/components/schemas/CloudProviderAccessAzureServicePrincipal"
-          }
-        ],
         "properties": {
           "providerName": {
             "description": "Human-readable label that identifies the cloud provider of the role.",
@@ -33511,6 +33624,13 @@
             "description": "List that contains the Amazon Web Services (AWS) IAM roles registered and authorized with MongoDB Cloud.",
             "items": {
               "$ref": "#/components/schemas/CloudProviderAccessAWSIAMRole"
+            },
+            "type": "array"
+          },
+          "azureServicePrincipals": {
+            "description": "List that contains the Azure Service Principals registered with MongoDB Cloud.",
+            "items": {
+              "$ref": "#/components/schemas/CloudProviderAccessAzureServicePrincipal"
             },
             "type": "array"
           }
@@ -36045,7 +36165,8 @@
         "discriminator": {
           "mapping": {
             "AWS": "#/components/schemas/AWSCreateDataProcessRegionView",
-            "AZURE": "#/components/schemas/AzureCreateDataProcessRegionView"
+            "AZURE": "#/components/schemas/AzureCreateDataProcessRegionView",
+            "GCP": "#/components/schemas/GCPCreateDataProcessRegionView"
           },
           "propertyName": "cloudProvider"
         },
@@ -38002,7 +38123,8 @@
         "discriminator": {
           "mapping": {
             "AWS": "#/components/schemas/AWSDataProcessRegionView",
-            "AZURE": "#/components/schemas/AzureDataProcessRegionView"
+            "AZURE": "#/components/schemas/AzureDataProcessRegionView",
+            "GCP": "#/components/schemas/GCPDataProcessRegionView"
           },
           "propertyName": "cloudProvider"
         },
@@ -38011,7 +38133,8 @@
             "description": "Human-readable label that identifies the Cloud service provider where you store your archived data.",
             "enum": [
               "AWS",
-              "AZURE"
+              "AZURE",
+              "GCP"
             ],
             "readOnly": true,
             "type": "string"
@@ -39424,6 +39547,15 @@
                   "PROACTIVE_OPERATION_EVENT_LOGGED"
                 ],
                 "title": "Proactive Operation Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "SEARCH_DEPLOYMENT_CREATED",
+                  "SEARCH_DEPLOYMENT_UPDATED",
+                  "SEARCH_DEPLOYMENT_DELETED"
+                ],
+                "title": "Search Deployment Audit Types",
                 "type": "string"
               },
               {
@@ -41380,7 +41512,8 @@
               "INITIATING",
               "PENDING_ACCEPTANCE",
               "ACTIVE",
-              "FAILED"
+              "FAILED",
+              "PENDING_RECREATION"
             ],
             "readOnly": true,
             "type": "string"
@@ -41439,31 +41572,6 @@
             "$ref": "#/components/schemas/GoogleCloudKMS"
           }
         },
-        "type": "object"
-      },
-      "EncryptionAtRestPrivateEndpointRequest": {
-        "description": "Create or delete private endpoints from the specified regions list.",
-        "properties": {
-          "cloudProvider": {
-            "description": "Cloud service provider name.",
-            "enum": [
-              "AZURE"
-            ],
-            "type": "string"
-          },
-          "regions": {
-            "description": "List of regions.",
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "uniqueItems": true
-          }
-        },
-        "required": [
-          "cloudProvider"
-        ],
-        "title": "Encryption At Rest Private Endpoints setup.",
         "type": "object"
       },
       "EncryptionKeyAlertConfigViewForNdsGroup": {
@@ -41999,6 +42107,7 @@
               "CLUSTER_IMPORT_CANCELLED",
               "CLUSTER_IMPORT_EXPIRED",
               "CLUSTER_IMPORT_CUTOVER",
+              "CLUSTER_IMPORT_COMPLETED",
               "CLUSTER_IMPORT_RESTART_REQUESTED",
               "PROJECT_LIVE_IMPORT_OVERRIDES_ADDED",
               "PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED",
@@ -42327,6 +42436,15 @@
               "TOO_MANY_ELECTIONS"
             ],
             "title": "ReplicaSet Event Types",
+            "type": "string"
+          },
+          {
+            "enum": [
+              "SEARCH_DEPLOYMENT_CREATED",
+              "SEARCH_DEPLOYMENT_UPDATED",
+              "SEARCH_DEPLOYMENT_DELETED"
+            ],
+            "title": "Search Deployment Audit Types",
             "type": "string"
           },
           {
@@ -42821,6 +42939,9 @@
             "$ref": "#/components/schemas/ForNdsGroup"
           },
           {
+            "$ref": "#/components/schemas/SearchDeploymentAuditView"
+          },
+          {
             "$ref": "#/components/schemas/TeamEventViewForNdsGroup"
           },
           {
@@ -42940,13 +43061,13 @@
         "description": "State of the export job for the collections on the replica set only.",
         "properties": {
           "exportedCollections": {
-            "description": "Number of collections on the replica set that MongoDB Cloud exported.",
+            "description": "Count of collections whose documents were exported to the Export Bucket.",
             "format": "int32",
             "readOnly": true,
             "type": "integer"
           },
           "totalCollections": {
-            "description": "Total number of collections on the replica set to export.",
+            "description": "Total count of collections whose documents will be exported to the Export Bucket.",
             "format": "int32",
             "readOnly": true,
             "type": "integer"
@@ -44332,6 +44453,49 @@
         },
         "type": "object"
       },
+      "GCPCreateDataProcessRegionView": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CreateDataProcessRegionView"
+          },
+          {
+            "properties": {
+              "region": {
+                "description": "Human-readable label that identifies the geographic location of the region where you wish to store your archived data.",
+                "enum": [
+                  "CENTRAL_US",
+                  "WESTERN_EUROPE"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "type": "object"
+      },
+      "GCPDataProcessRegionView": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DataProcessRegionView"
+          },
+          {
+            "properties": {
+              "region": {
+                "description": "Human-readable label that identifies the geographic location of the region where you store your archived data.",
+                "enum": [
+                  "CENTRAL_US",
+                  "WESTERN_EUROPE"
+                ],
+                "readOnly": true,
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "type": "object"
+      },
       "GCPEndpointService": {
         "description": "Group of Private Endpoint Service settings.",
         "properties": {
@@ -45333,27 +45497,27 @@
       "GroupServiceAccount": {
         "properties": {
           "createdAt": {
-            "description": "Service account creation time.",
+            "description": "The date that the Service Account was created on.",
             "format": "date-time",
             "type": "string"
           },
           "description": {
-            "description": "Description of the service account.",
+            "description": "Human readable description for the Service Account.",
             "type": "string"
           },
           "id": {
-            "description": "ID for the service account.",
+            "description": "The Client ID of the Service Account.",
             "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
             "type": "string"
           },
           "name": {
-            "description": "Name for service account.",
+            "description": "Human-readable name for the Service Account.",
             "type": "string"
           },
           "roles": {
-            "description": "Roles assigned to the Service Account group.",
+            "description": "A list of Project roles associated with the Service Account.",
             "items": {
-              "description": "Project roles associated with the service account.",
+              "description": "Project roles available for Service Accounts.",
               "enum": [
                 "GROUP_OWNER",
                 "GROUP_READ_ONLY",
@@ -45370,7 +45534,7 @@
             "uniqueItems": true
           },
           "secrets": {
-            "description": "List of secrets.",
+            "description": "A list of secrets associated with the specified Service Account.",
             "items": {
               "$ref": "#/components/schemas/ServiceAccountSecret"
             },
@@ -45383,23 +45547,23 @@
       "GroupServiceAccountRequest": {
         "properties": {
           "description": {
-            "description": "Human readable description for the service account.",
+            "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "name": {
-            "description": "Human-readable name for the service account. The name is modifiable and does not have to be unique.",
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "roles": {
-            "description": "Project roles associated with the service account.",
+            "description": "A list of project-level roles for the Service Account.",
             "items": {
-              "description": "Project roles associated with the service account.",
+              "description": "Project roles available for Service Accounts.",
               "enum": [
                 "GROUP_OWNER",
                 "GROUP_READ_ONLY",
@@ -45415,7 +45579,7 @@
             "type": "array"
           },
           "secretExpiresAfterHours": {
-            "description": "Secret expiration time.",
+            "description": "The expiration time of the new Service Account secret. The expiration is provided in hours.",
             "format": "int32",
             "type": "integer"
           }
@@ -45427,50 +45591,26 @@
         ],
         "type": "object"
       },
-      "GroupServiceAccountRoleAssignment": {
-        "properties": {
-          "roles": {
-            "description": "Group access roles.",
-            "items": {
-              "description": "Project roles associated with the service account.",
-              "enum": [
-                "GROUP_OWNER",
-                "GROUP_READ_ONLY",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_STREAM_PROCESSING_OWNER"
-              ],
-              "type": "string"
-            },
-            "type": "array",
-            "uniqueItems": true
-          }
-        },
-        "type": "object"
-      },
       "GroupServiceAccountUpdateRequest": {
         "properties": {
           "description": {
-            "description": "Human readable description for the service account.",
+            "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "name": {
-            "description": "Human-readable name for the service account. The name is modifiable and does not have to be unique.",
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "roles": {
-            "description": "Project roles associated with the service account.",
+            "description": "A list of Project roles associated with the Service Account.",
             "items": {
-              "description": "Project roles associated with the service account.",
+              "description": "Project roles available for Service Accounts.",
               "enum": [
                 "GROUP_OWNER",
                 "GROUP_READ_ONLY",
@@ -46179,7 +46319,9 @@
             "OPCOUNTER_REPL_INSERT": "#/components/schemas/RawMetricAlertView",
             "OPCOUNTER_REPL_UPDATE": "#/components/schemas/RawMetricAlertView",
             "OPCOUNTER_UPDATE": "#/components/schemas/RawMetricAlertView",
+            "OPERATIONS_QUERIES_KILLED": "#/components/schemas/RawMetricAlertView",
             "OPERATIONS_SCAN_AND_ORDER": "#/components/schemas/RawMetricAlertView",
+            "OPERATION_THROTTLING_REJECTED_OPERATIONS": "#/components/schemas/RawMetricAlertView",
             "OPLOG_MASTER_LAG_TIME_DIFF": "#/components/schemas/TimeMetricAlertView",
             "OPLOG_MASTER_TIME": "#/components/schemas/TimeMetricAlertView",
             "OPLOG_MASTER_TIME_ESTIMATED_TTL": "#/components/schemas/TimeMetricAlertView",
@@ -46571,7 +46713,9 @@
             "OPCOUNTER_REPL_INSERT": "#/components/schemas/RawMetricEventView",
             "OPCOUNTER_REPL_UPDATE": "#/components/schemas/RawMetricEventView",
             "OPCOUNTER_UPDATE": "#/components/schemas/RawMetricEventView",
+            "OPERATIONS_QUERIES_KILLED": "#/components/schemas/RawMetricEventView",
             "OPERATIONS_SCAN_AND_ORDER": "#/components/schemas/RawMetricEventView",
+            "OPERATION_THROTTLING_REJECTED_OPERATIONS": "#/components/schemas/RawMetricEventView",
             "OPLOG_MASTER_LAG_TIME_DIFF": "#/components/schemas/TimeMetricEventView",
             "OPLOG_MASTER_TIME": "#/components/schemas/TimeMetricEventView",
             "OPLOG_MASTER_TIME_ESTIMATED_TTL": "#/components/schemas/TimeMetricEventView",
@@ -46884,7 +47028,9 @@
             "OPCOUNTER_REPL_INSERT": "#/components/schemas/RawMetricThresholdView",
             "OPCOUNTER_REPL_UPDATE": "#/components/schemas/RawMetricThresholdView",
             "OPCOUNTER_UPDATE": "#/components/schemas/RawMetricThresholdView",
+            "OPERATIONS_QUERIES_KILLED": "#/components/schemas/RawMetricThresholdView",
             "OPERATIONS_SCAN_AND_ORDER": "#/components/schemas/RawMetricThresholdView",
+            "OPERATION_THROTTLING_REJECTED_OPERATIONS": "#/components/schemas/RawMetricThresholdView",
             "OPLOG_MASTER_LAG_TIME_DIFF": "#/components/schemas/TimeMetricThresholdView",
             "OPLOG_MASTER_TIME": "#/components/schemas/TimeMetricThresholdView",
             "OPLOG_MASTER_TIME_ESTIMATED_TTL": "#/components/schemas/TimeMetricThresholdView",
@@ -50008,6 +50154,7 @@
           "CLUSTER_IMPORT_CANCELLED",
           "CLUSTER_IMPORT_EXPIRED",
           "CLUSTER_IMPORT_CUTOVER",
+          "CLUSTER_IMPORT_COMPLETED",
           "CLUSTER_IMPORT_RESTART_REQUESTED",
           "PROJECT_LIVE_IMPORT_OVERRIDES_ADDED",
           "PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED",
@@ -52021,27 +52168,27 @@
       "OrgServiceAccount": {
         "properties": {
           "createdAt": {
-            "description": "Service account creation time.",
+            "description": "The date that the Service Account was created on.",
             "format": "date-time",
             "type": "string"
           },
           "description": {
-            "description": "Description of the service account.",
+            "description": "Human readable description for the Service Account.",
             "type": "string"
           },
           "id": {
-            "description": "ID for the service account.",
+            "description": "The Client ID of the Service Account.",
             "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
             "type": "string"
           },
           "name": {
-            "description": "Name for service account.",
+            "description": "Human-readable name for the Service Account.",
             "type": "string"
           },
           "roles": {
-            "description": "Organization roles assigned to the Service Account.",
+            "description": "A list of Organization roles associated with the Service Account.",
             "items": {
-              "description": "Organization roles associated with the service account.",
+              "description": "Organization roles available for Service Accounts.",
               "enum": [
                 "ORG_MEMBER",
                 "ORG_READ_ONLY",
@@ -52056,7 +52203,7 @@
             "uniqueItems": true
           },
           "secrets": {
-            "description": "List of secrets.",
+            "description": "A list of secrets associated with the specified Service Account.",
             "items": {
               "$ref": "#/components/schemas/ServiceAccountSecret"
             },
@@ -52069,23 +52216,23 @@
       "OrgServiceAccountRequest": {
         "properties": {
           "description": {
-            "description": "Human readable description for the service account.",
+            "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "name": {
-            "description": "Human-readable name for the service account. The name is modifiable and does not have to be unique.",
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "roles": {
-            "description": "Organization roles associated with the service account.",
+            "description": "A list of organization-level roles for the Service Account.",
             "items": {
-              "description": "Organization roles associated with the service account.",
+              "description": "Organization roles available for Service Accounts.",
               "enum": [
                 "ORG_MEMBER",
                 "ORG_READ_ONLY",
@@ -52099,7 +52246,7 @@
             "type": "array"
           },
           "secretExpiresAfterHours": {
-            "description": "Secret expiration time.",
+            "description": "The expiration time of the new Service Account secret. The expiration is provided in hours.",
             "format": "int32",
             "type": "integer"
           }
@@ -52114,23 +52261,23 @@
       "OrgServiceAccountUpdateRequest": {
         "properties": {
           "description": {
-            "description": "Human readable description for the service account.",
+            "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "name": {
-            "description": "Human-readable name for the service account. The name is modifiable and does not have to be unique.",
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
           "roles": {
-            "description": "Organization roles associated with the Service account.",
+            "description": "A list of organization-level roles for the Service Account.",
             "items": {
-              "description": "Organization roles associated with the service account.",
+              "description": "Organization roles available for Service Accounts.",
               "enum": [
                 "ORG_MEMBER",
                 "ORG_READ_ONLY",
@@ -53716,7 +53863,7 @@
         "type": "object"
       },
       "PaginatedGroupServiceAccounts": {
-        "description": "List of Service Accounts",
+        "description": "A list of Project Service Accounts.",
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -53941,7 +54088,7 @@
         "type": "object"
       },
       "PaginatedOrgServiceAccounts": {
-        "description": "List of Service Accounts",
+        "description": "A list of Organization Service Accounts.",
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -54069,6 +54216,38 @@
         },
         "type": "object"
       },
+      "PaginatedPublicApiUsageDetailsLineItemView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud providers when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/PublicApiUsageDetailsLineItemView"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PaginatedRestoreJobView": {
         "properties": {
           "links": {
@@ -54167,7 +54346,7 @@
         "type": "object"
       },
       "PaginatedServiceAccountGroup": {
-        "description": "List of Service Account projects.",
+        "description": "A list of projects associated with the Service Account.",
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -54185,6 +54364,38 @@
             "description": "List of returned documents that MongoDB Cloud providers when completing this request.",
             "items": {
               "$ref": "#/components/schemas/ServiceAccountGroup"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PaginatedServiceAccountIPAccessEntryView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud providers when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
             },
             "readOnly": true,
             "type": "array"
@@ -55063,6 +55274,49 @@
           },
           "dnsName": {
             "description": "DNS name to use to reach the proxy/s.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PublicApiUsageDetailsLineItemView": {
+        "properties": {
+          "billDate": {
+            "description": "Billing date of the line item.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "clusterName": {
+            "description": "Cluster associated with the line item.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the line item, which can include SKU name and other identifying information.",
+            "type": "string"
+          },
+          "groupId": {
+            "description": "Group id associated with the line item.",
+            "type": "string"
+          },
+          "quantity": {
+            "description": "Quantity of line item in units associated with SKU.",
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          },
+          "totalPriceCents": {
+            "description": "Price * quantity in applicable units, expressed as an integral number of cents.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "unitPriceDollars": {
+            "description": "Price in units associated with the SKU for the line item.",
+            "format": "double",
+            "type": "number"
+          },
+          "usageDate": {
+            "description": "Usage date of the line item.",
+            "format": "date-time",
             "type": "string"
           }
         },
@@ -56456,6 +56710,124 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "SearchDeploymentAuditTypeView": {
+        "description": "Unique identifier of event type.",
+        "enum": [
+          "SEARCH_DEPLOYMENT_CREATED",
+          "SEARCH_DEPLOYMENT_UPDATED",
+          "SEARCH_DEPLOYMENT_DELETED"
+        ],
+        "example": "SEARCH_DEPLOYMENT_CREATED",
+        "title": "Search Deployment Audit Types",
+        "type": "string"
+      },
+      "SearchDeploymentAuditView": {
+        "description": "Indicates activities on decoupled search nodes.",
+        "properties": {
+          "apiKeyId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the [API Key](https://dochub.mongodb.org/core/atlas-create-prog-api-key) that triggered the event. If this resource returns this parameter, it doesn't return the **userId** parameter.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "created": {
+            "description": "Date and time when this event occurred. This parameter expresses its value in the <a href=\"https://en.wikipedia.org/wiki/ISO_8601\" target=\"_blank\" rel=\"noopener noreferrer\">ISO 8601</a> timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "eventTypeName": {
+            "$ref": "#/components/schemas/SearchDeploymentAuditTypeView"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The **eventId** identifies the specific event.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies the event.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "isGlobalAdmin": {
+            "default": false,
+            "description": "Flag that indicates whether a MongoDB employee triggered the specified event.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "orgId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the organization to which these events apply.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "publicKey": {
+            "description": "Public part of the [API Key](https://dochub.mongodb.org/core/atlas-create-prog-api-key) that triggered the event. If this resource returns this parameter, it doesn't return the **username** parameter.",
+            "format": "email",
+            "readOnly": true,
+            "type": "string"
+          },
+          "raw": {
+            "$ref": "#/components/schemas/raw"
+          },
+          "remoteAddress": {
+            "description": "IPv4 or IPv6 address from which the user triggered this event.",
+            "example": "216.172.40.186",
+            "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "userId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "username": {
+            "description": "Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.",
+            "example": "test.user@mongodb.com",
+            "format": "email",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "created",
+          "eventTypeName",
+          "id"
+        ],
+        "title": "Search Deployment Audits",
         "type": "object"
       },
       "SearchHostStatusDetail": {
@@ -57997,7 +58369,7 @@
       "ServiceAccountGroup": {
         "properties": {
           "groupId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "description": "Unique 24-hexadecimal digit string that identifies your project. **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.",
             "example": "32b6e34b3d91647abb20e7b8",
             "maxLength": 24,
             "minLength": 24,
@@ -58116,6 +58488,46 @@
         "title": "ServiceAccount Events",
         "type": "object"
       },
+      "ServiceAccountIPAccessListEntry": {
+        "properties": {
+          "cidrBlock": {
+            "description": "Range of network addresses in the access list for the Service Account. This parameter requires the range to be expressed in Classless Inter-Domain Routing (CIDR) notation of Internet Protocol version 4 or version 6 addresses. You can set a value for this parameter or **ipAddress**, but not for both in the same request.",
+            "example": "203.0.113.0/24",
+            "pattern": "^((([0-9]{1,3}\\.){3}[0-9]{1,3})|(:{0,2}([0-9a-f]{1,4}:){0,7}[0-9a-f]{1,4}[:]{0,2}))((%2[fF]|/)[0-9]{1,3})+$",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date MongoDB Cloud added the entry was added to the Access List.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "ipAddress": {
+            "description": "Network address in the access list for the Service Account. This parameter requires the address to be expressed as one Internet Protocol version 4 or version 6 address. You can set a value for this parameter or **cidrBlock**, but not for both in the same request.",
+            "example": "203.0.113.10",
+            "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
+            "type": "string"
+          },
+          "lastUsedAddress": {
+            "description": "Network address that issued the most recent request to the API. This parameter requires the address to be expressed as one Internet Protocol version 4 or version 6 address. The resource returns this parameter after this IP address makes at least one request.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "lastUsedAt": {
+            "description": "Date when MongoDB Cloud received the most recent request that originated from this Internet Protocol version 4 or version 6 address. The resource returns this parameter when at least one request originates from this IP address. MongoDB Cloud updates this parameter each time a client accesses the permitted resource, with a delay of up to 5 minutes.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "requestCount": {
+            "description": "The number of requests that has originated from this network address.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "ServiceAccountOrgEvents": {
         "description": "Service Account event identifies different activities around user api keys.",
         "properties": {
@@ -58227,39 +58639,39 @@
       "ServiceAccountSecret": {
         "properties": {
           "createdAt": {
-            "description": "Timestamp representing creation time.",
+            "description": "The date that the secret was created on.",
             "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
           "expiresAt": {
-            "description": "Timestamp representing secret expiration time.",
+            "description": "The date for the expiration of the secret.",
             "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
           "id": {
-            "description": "Unique 24-hexadecimal character string that identifies the secret.",
+            "description": "Unique 24-hexadecimal digit string that identifies the secret.",
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
             "readOnly": true,
             "type": "string"
           },
           "lastUsedAt": {
-            "description": "Timestamp representing last secret usage.",
+            "description": "The last time the secret was used.",
             "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
           "maskedSecretValue": {
-            "description": "Service Account secret with masked values of the first 20 characters.",
-            "example": "mdb_ic_sk_xxxxxxxx-xxxx-xxxx-xxxxxxxx12ce",
+            "description": "The masked Service Account secret.",
+            "example": "mdb_ic_sk_...12ce",
             "readOnly": true,
             "type": "string"
           },
           "secret": {
-            "description": "Secret for the service account. It will be returned only the first time after service account creation.",
-            "pattern": "^mdb_sa_sk_[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{12}$",
+            "description": "The secret for the Service Account. It will be returned only the first time after creation.",
+            "pattern": "^mdb_sa_sk_[0-9a-zA-Z_-]{40}$",
             "readOnly": true,
             "type": "string"
           }
@@ -58274,7 +58686,7 @@
       "ServiceAccountSecretRequest": {
         "properties": {
           "secretExpiresAfterHours": {
-            "description": "Number of hours representing validity duration for secret.",
+            "description": "The expiration time of the new Service Account secret. The expiration is provided in hours.",
             "format": "int32",
             "type": "integer"
           }
@@ -61974,6 +62386,97 @@
             },
             "type": "array",
             "uniqueItems": true
+          }
+        },
+        "type": "object"
+      },
+      "UsageDetailsFilterRequest": {
+        "description": "Request body which contains various fields to filter line items as part of certain Invoice Usage Details queries.",
+        "properties": {
+          "billEndDate": {
+            "description": "The inclusive billing start date for usage details filter.",
+            "example": "2023-02-01",
+            "format": "date",
+            "type": "string"
+          },
+          "billStartDate": {
+            "description": "The inclusive billing start date for usage details filter.",
+            "example": "2023-02-01",
+            "format": "date",
+            "type": "string"
+          },
+          "clusterIds": {
+            "description": "The list of unique cluster ids to be included in the Usage Details filter.",
+            "example": [
+              "650d11400000000000000000",
+              "650dd6200000000000000000"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "groupIds": {
+            "description": "The list of groups to be included in the Usage Details filter.",
+            "example": [
+              "650d11400000000000000000",
+              "650dd6200000000000000000"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "includeZeroCentLineItems": {
+            "description": "Whether zero cent line items should be included.",
+            "type": "boolean"
+          },
+          "skuServices": {
+            "description": "The list of projects to be included in the Cost Explorer Query.",
+            "example": [
+              "Atlas",
+              "Clusters",
+              "Storage"
+            ],
+            "items": {
+              "enum": [
+                "Atlas",
+                "Clusters",
+                "Storage",
+                "Serverless Instances",
+                "Backup",
+                "Data Transfer",
+                "BI Connector",
+                "Premium Features",
+                "Atlas Data Federation",
+                "Atlas Stream Processing",
+                "App Services",
+                "Charts",
+                "Cloud Manager",
+                "Cloud Manager Standard/Premium",
+                "Legacy Backup",
+                "Flex Consulting",
+                "Support",
+                "Credits"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "usageEndDate": {
+            "description": "The inclusive billing start date for usage details filter.",
+            "example": "2023-02-01",
+            "format": "date",
+            "type": "string"
+          },
+          "usageStartDate": {
+            "description": "The inclusive usage start date for usage details filter.",
+            "example": "2023-02-01",
+            "format": "date",
+            "type": "string"
           }
         },
         "type": "object"
