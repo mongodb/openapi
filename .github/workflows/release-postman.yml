@@ -1,6 +1,20 @@
 name: Postman Release
 on:
   workflow_call:
+    inputs:
+      spectral_version:
+        description: 'Version of Spectral to use.'
+        required: true
+        type: string
+      atlas_prod_base_url:
+        description: 'Base URL of Atlas.'
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      postman_api_key:
+        required: true
+      workspace_id:
+        required: true
   workflow_dispatch:
 permissions:
   issues: write
@@ -35,7 +49,7 @@ jobs:
       - name: Transform Postman Collection 
         id: transform
         env:
-          BASE_URL: ${{ vars.ATLAS_PROD_BASE_URL }}
+          BASE_URL: ${{ inputs.atlas_prod_base_url }}
         working-directory: ./tools/postman
         run: |
           make transform_collection

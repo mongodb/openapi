@@ -26,6 +26,10 @@ on:
         description: 'Version of FOASCLI to use.'
         required: true
         type: string
+      atlas_prod_base_url:
+        description: 'Base URL of Atlas.'
+        required: false
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -33,7 +37,11 @@ on:
         required: true
       aws_secret_access_key:
         required: true
-      
+      postman_api_key:
+        required: false
+      workspace_id:
+        required: false
+
 permissions:
   contents: write
   issues: write
@@ -152,4 +160,8 @@ jobs:
         - name: Release Postman
           if: ${{ inputs.env == 'Prod' && steps.commit.outputs.changes_detected == 'true' }}
           uses: ./.github/workflows/release-postman.yml
-
+          secrets:
+            postman_api_key: ${{ secrets.postman_api_key }}
+            workspace_id: ${{ secrets.workspace_id }}
+          with:
+            spectral_version: ${{ inputs.spectral_version }}
