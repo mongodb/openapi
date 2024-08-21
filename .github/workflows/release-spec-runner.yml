@@ -1,4 +1,4 @@
-name: 'Release Runner: Start the Release Process for DEV, QA, and STAGING'
+name: 'Release Runner: Start the Release Process for DEV, QA, STAGING and PROD'
 on:
   workflow_dispatch: {}
   schedule:
@@ -20,6 +20,7 @@ jobs:
       aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
       aws_s3_bucket: ${{ vars.S3_BUCKET_DEV}}
       env: dev
+      branch: dev
       spectral_version: ${{ vars.SPECTRAL_VERSION }}
       foascli_version: ${{ vars.FOASCLI_VERSION }}
   release-spec-qa:
@@ -33,6 +34,7 @@ jobs:
         aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
         aws_s3_bucket: ${{ vars.S3_BUCKET_QA}}
         env: qa
+        branch: qa
         spectral_version: ${{ vars.SPECTRAL_VERSION }}
         foascli_version: ${{ vars.FOASCLI_VERSION }}
   release-spec-staging:
@@ -45,6 +47,21 @@ jobs:
     with:
         aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
         aws_s3_bucket: ${{ vars.S3_BUCKET_STAGING}}
-        env: staging
+        env: stage
+        branch: staging
+        spectral_version: ${{ vars.SPECTRAL_VERSION }}
+        foascli_version: ${{ vars.FOASCLI_VERSION }}
+  release-spec-prod:
+    name: Release OpenAPI Spec for PROD
+    uses: ./.github/workflows/release-spec.yml
+    secrets:
+        api_bot_pat: ${{ secrets.API_BOT_PAT }}
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+    with:
+        aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
+        aws_s3_bucket: ${{ vars.S3_BUCKET_PROD}}
+        env: prod
+        branch: main
         spectral_version: ${{ vars.SPECTRAL_VERSION }}
         foascli_version: ${{ vars.FOASCLI_VERSION }}

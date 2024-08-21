@@ -14,6 +14,10 @@ on:
         description: 'Environment to generate the OpenAPI Spec for.'
         required: true
         type: string
+      branch:
+        description: 'Branch to release the OpenAPI Spec to.'
+        required: true
+        type: string
       spectral_version:
         description: 'Version of Spectral to use.'
         required: true
@@ -77,7 +81,17 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
           with:
-            ref: ${{ inputs.env }}
+            ref: ${{ inputs.branch }}
+        - name: Upload current Specs and Changelog files
+          uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
+          with:
+            name: base-${{ inputs.env }}
+            retention-days: 1
+            path: |
+              openapi/v2/openapi*.json
+              changelog/changelog.json
+              changelog/internal/changelog-all.json
+              changelog/internal/metadata.json   
         - name: Download openapi-foas
           uses: actions/download-artifact@v4
           with:
@@ -117,7 +131,7 @@ jobs:
           id: commit
           uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842
           env:
-            target_env: ${{ inputs.env }}
+            target_env: ${{ inputs.branch }}
           with:
             commit_message: "(${{env.target_env}}) Release OpenAPI Spec :rocket:"
             commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
