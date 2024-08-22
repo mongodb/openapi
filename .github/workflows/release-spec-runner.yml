@@ -1,6 +1,11 @@
 name: 'Release Runner: Start the Release Process for DEV, QA, STAGING and PROD'
 on:
-  workflow_dispatch: {}
+  workflow_dispatch: 
+    inputs:
+      env_to_release:
+        description: 'List of environments. Example: dev,qa'
+        default: 'dev,qa,staging,prod'
+        required: false
   schedule:
     - cron: '0 * * * *' # Run every hour
 permissions:
@@ -31,6 +36,9 @@ jobs:
   release-spec-dev:
     name: Release OpenAPI Spec for DEV
     needs: release-preparation
+    if: >-
+      !cancelled()
+      && contains(inputs.env_to_release, 'dev')
     uses: ./.github/workflows/release-spec.yml
     secrets:
       api_bot_pat: ${{ secrets.API_BOT_PAT }}
@@ -46,6 +54,9 @@ jobs:
   release-spec-qa:
     name: Release OpenAPI Spec for QA
     needs: release-preparation
+    if: >-
+      !cancelled()
+      && contains(inputs.env_to_release, 'qa')
     uses: ./.github/workflows/release-spec.yml
     secrets:
         api_bot_pat: ${{ secrets.API_BOT_PAT }}
@@ -61,6 +72,9 @@ jobs:
   release-spec-staging:
     name: Release OpenAPI Spec for STAGING
     needs: release-preparation
+    if: >-
+      !cancelled()
+      && contains(inputs.env_to_release, 'staging')
     uses: ./.github/workflows/release-spec.yml
     secrets:
         api_bot_pat: ${{ secrets.API_BOT_PAT }}
@@ -76,6 +90,9 @@ jobs:
   release-spec-prod:
     name: Release OpenAPI Spec for PROD
     needs: release-preparation
+    if: >-
+      !cancelled()
+      && contains(inputs.env_to_release, 'prod')
     uses: ./.github/workflows/release-spec.yml
     secrets:
         api_bot_pat: ${{ secrets.API_BOT_PAT }}
