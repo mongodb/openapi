@@ -50,7 +50,7 @@ func (o *Opts) Run() error {
 		return nil
 	}
 
-	return openapi.SaveToFile(o.outputPath, openapi.JSON, metadataBytes, o.fs)
+	return openapi.SaveToFile(o.outputPath, openapi.JSON, *o.newMetadata(), o.fs)
 }
 
 func (o *Opts) newMetadata() *changelog.Metadata {
