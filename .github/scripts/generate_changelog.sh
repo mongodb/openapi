@@ -2,6 +2,11 @@
 set -eou pipefail
 
 echo "Step 1: Preparing revision folder...."
+
+# The revision folder includes"
+# 1) OpenAPI spec files that are currently in the repository are copied to the revision folder
+# 2) changelog Metadata file that is generated via foascli
+# 3) exemptions.yaml file that is downloaded from S3 
 mkdir changelog/revision
 cp openapi/v2/openapi-*.json changelog/revision/
 
@@ -17,6 +22,11 @@ aws s3 cp "s3://${S3_BUCKET}/openapi/mms_exemptions.yaml" "changelog/revision/ex
 echo "Step 1: Preparing revision folder - Done"
 
 echo "Step 2: Preparing base folder...."
+# The base folder includes"
+# 1) OpenAPI spec files that are downloaded from GH artifact in previous GH action step (release-spec.yml)
+# 2) Changelog files that are downloaded from GH artifact in previous GH action step (release-spec.yml)
+
+# Here we need to move the files downloaded from GH artifact to the structure expected by foascli changelog command
 mv changelog/base/openapi/v2/* changelog/base/
 mv changelog/base/changelog/changelog.json changelog/base/
 mv changelog/base/changelog/internal/* changelog/base/
