@@ -58,6 +58,7 @@ jobs:
       aws_default_region: ${{ inputs.aws_default_region}}
       aws_s3_bucket: ${{ inputs.aws_s3_bucket}}
       env: ${{ inputs.env }}
+      foascli_version: ${{ inputs.foascli_version }}
 
   # Required validations will stop the release if they fail
   run-required-validations:
@@ -109,6 +110,16 @@ jobs:
             name: openapi-foas-${{ inputs.env }}
             github-token: ${{ secrets.api_bot_pat }}
             run-id: ${{ github.run_id }}
+        - name: Download release scripts
+          uses: actions/download-artifact@v4
+          with:
+            name: release-scripts
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ github.run_id }}
+            path: release-scripts
+        - name: Add permissions to execute scripts
+          run: |
+            chmod +x release-scripts/*.sh
         - name: Install FOASCLI
           env:
             foascli_version: ${{ inputs.foascli_version }}
@@ -122,7 +133,7 @@ jobs:
           id: split
           env:
             target_env: ${{ inputs.env }}
-          run: .github/scripts/split_spec.sh
+          run: ./release-scripts/split_spec.sh
         - name: Create Issue
           if: ${{ failure() && steps.split.outcome == 'failure' }}
           uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
@@ -137,7 +148,7 @@ jobs:
           working-directory: openapi 
           env:
               target_env: ${{ inputs.env }}
-          run: ../.github/scripts/branded_preview.sh
+          run: ../release-scripts/branded_preview.sh
         - name: Commit changes
           id: commit
           uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842
@@ -170,3 +181,18 @@ jobs:
         workspace_id: ${{ secrets.workspace_id }}
       with:
         atlas_prod_base_url: ${{ inputs.atlas_prod_base_url}}
+
+  release-changelog:
+    name: Release OpenAPI Spec for PROD
+    needs: release
+    uses: ./.github/workflows/release-changelog.yml
+    secrets:
+        api_bot_pat: ${{ secrets.api_bot_pat }}
+        aws_access_key_id: ${{ secrets.aws_access_key_id }}
+        aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+    with:
+        aws_default_region: ${{ inputs.aws_default_region}}
+        aws_s3_bucket: ${{ inputs.aws_s3_bucket}}
+        env: ${{ inputs.env }}
+        branch: ${{ inputs.branch }}
+        foascli_version: ${{ inputs.foascli_version }}

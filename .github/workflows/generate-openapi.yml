@@ -14,6 +14,10 @@ on:
         description: 'Environment to generate the OpenAPI Spec for.'
         required: true
         type: string
+      foascli_version:
+        description: 'Version of FOASCLI to use.'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -38,21 +42,32 @@ jobs:
           sparse-checkout: |
             tools
             .github/scripts
-      - name: Install Go
-        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
+      - name: Install FOASCLI
+        env:
+          foascli_version: ${{ inputs.foascli_version }}
+        run: |
+          wget https://github.com/mongodb/openapi/releases/download/v"${foascli_version}"/mongodb-foas-cli_"${foascli_version}"_linux_x86_64.tar.gz -O foascli.tar.gz
+          tar -xzvf foascli.tar.gz 
+          pushd mongodb-foas-cli_*
+          echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+          popd  
+      - name: Download release scripts
+        uses: actions/download-artifact@v4
         with:
-          go-version-file: 'tools/cli/go.mod'
-          cache-dependency-path: "tools/cli/go.sum"
-      - name: Build CLI
-        working-directory: tools/cli
-        run: make build && echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+          name: release-scripts
+          github-token: ${{ secrets.api_bot_pat }}
+          run-id: ${{ github.run_id }}
+          path: release-scripts
+      - name: Add permissions to execute scripts
+        run: |
+          chmod +x release-scripts/*.sh  
       - name: Retrieve Specs
         env:
           AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
           AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
           S3_BUCKET: ${{ inputs.aws_s3_bucket }}
-        run: .github/scripts/download_specs.sh
+        run: ./release-scripts/download_specs.sh
       - name: Generate Federated Spec
         run: .github/scripts/generate_federated_spec.sh
       - name: Upload artifact

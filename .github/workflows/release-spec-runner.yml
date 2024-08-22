@@ -9,8 +9,28 @@ permissions:
   issues: write
 
 jobs:
+  release-preparation:
+    name: Release Preparation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: main
+          token: ${{secrets.api_bot_pat}}
+          sparse-checkout: |
+            .github
+      # We upload the scripts in .github/scripts/* (defined only in main) so that they can be downloaded and reused 
+      # when releasing in all the branches.
+      - name: Upload release scripts 
+        uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
+        with:
+          name: release-scripts
+          retention-days: 1
+          path: .github/scripts/* 
   release-spec-dev:
     name: Release OpenAPI Spec for DEV
+    needs: release-preparation
     uses: ./.github/workflows/release-spec.yml
     secrets:
       api_bot_pat: ${{ secrets.API_BOT_PAT }}
@@ -25,6 +45,7 @@ jobs:
       foascli_version: ${{ vars.FOASCLI_VERSION }}
   release-spec-qa:
     name: Release OpenAPI Spec for QA
+    needs: release-preparation
     uses: ./.github/workflows/release-spec.yml
     secrets:
         api_bot_pat: ${{ secrets.API_BOT_PAT }}
@@ -39,6 +60,7 @@ jobs:
         foascli_version: ${{ vars.FOASCLI_VERSION }}
   release-spec-staging:
     name: Release OpenAPI Spec for STAGING
+    needs: release-preparation
     uses: ./.github/workflows/release-spec.yml
     secrets:
         api_bot_pat: ${{ secrets.API_BOT_PAT }}
@@ -53,6 +75,7 @@ jobs:
         foascli_version: ${{ vars.FOASCLI_VERSION }}
   release-spec-prod:
     name: Release OpenAPI Spec for PROD
+    needs: release-preparation
     uses: ./.github/workflows/release-spec.yml
     secrets:
         api_bot_pat: ${{ secrets.API_BOT_PAT }}

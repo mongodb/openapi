@@ -1,0 +1,97 @@
+name: 'Release API Changelog for a given environment'
+on:
+  workflow_call:
+    inputs:
+      aws_default_region:
+        description: 'AWS Default Region.'
+        required: true
+        type: string
+      aws_s3_bucket:
+        description: 'AWS S3 Bucket.'
+        required: true
+        type: string
+      env:
+        description: 'Environment to generate the OpenAPI Spec for.'
+        required: true
+        type: string
+      branch:
+        description: 'Branch to release the OpenAPI Spec to.'
+        required: true
+        type: string
+      foascli_version:
+        description: 'Version of FOASCLI to use.'
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      api_bot_pat:
+        required: true
+      aws_access_key_id:
+        required: true
+      aws_secret_access_key:
+        required: true
+      
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  release:
+      name: Release Changelog
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+          with:
+            ref: ${{ inputs.branch }}
+            token: ${{secrets.api_bot_pat}}
+        - name: Install FOASCLI
+          env:
+            foascli_version: ${{ inputs.foascli_version }}
+          run: |
+             wget https://github.com/mongodb/openapi/releases/download/v"${foascli_version}"/mongodb-foas-cli_"${foascli_version}"_linux_x86_64.tar.gz -O foascli.tar.gz
+             tar -xzvf foascli.tar.gz 
+             pushd mongodb-foas-cli_*
+             echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+             popd   
+        - name: Download base folder
+          uses: actions/download-artifact@v4
+          with:
+            name: base-${{ inputs.env }}
+            path: changelog/base
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ github.run_id }}
+        - name: Download metadata files
+          uses: actions/download-artifact@v4
+          with:
+            name: openapi-foas-${{ inputs.env }}
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ github.run_id }}
+        - name: Download release scripts
+          uses: actions/download-artifact@v4
+          with:
+            name: release-scripts
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ github.run_id }}
+            path: release-scripts
+        - name: Add permissions to execute scripts
+          run: |
+            chmod +x release-scripts/*.sh
+        - name: Generate Changelog
+          env:
+            AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
+            AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
+            S3_BUCKET: ${{ inputs.aws_s3_bucket }}
+          run: ./release-scripts/generate_changelog.sh
+        - name: Commit changes
+          id: commit
+          uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842
+          env:
+            target_env: ${{ inputs.env }}
+            target_branch: ${{ inputs.branch }}
+          with:
+            commit_message: "(${{env.target_env}}) Release API Changelog :rocket:"
+            commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+            branch: ${{env.target_branch}}
+            file_pattern: "changelog/*"
+
