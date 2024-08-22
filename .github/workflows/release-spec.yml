@@ -134,16 +134,6 @@ jobs:
           env:
             target_env: ${{ inputs.env }}
           run: ./release-scripts/split_spec.sh
-        - name: Create Issue
-          if: ${{ failure() && steps.split.outcome == 'failure' }}
-          uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-          env:
-            target_env: ${{ inputs.env }}
-          with:
-            labels: failed-release
-            title: "(${{env.target_env}}) Release: `foascli split` command failed :scream_cat:"
-            body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            token: ${{ secrets.GITHUB_TOKEN }}
         - name: Create branded_preview.html
           working-directory: openapi 
           env:
@@ -161,13 +151,13 @@ jobs:
             branch: ${{env.target_branch}}
             file_pattern: "openapi/*"
         - name: Create Issue
-          if: ${{ failure() && steps.commit.outcome == 'failure' }}
+          if: ${{ failure() }}
           uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
           env:
             target_env: ${{ inputs.env }}
           with:
             labels: failed-release
-            title: "(${{env.target_env}}) Release: the Commit Changes step failed :scream_cat:"
+            title: "(${{env.target_env}}) The OpenAPI Release has failed. :scream_cat:"
             body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
             token: ${{ secrets.GITHUB_TOKEN }}
   
