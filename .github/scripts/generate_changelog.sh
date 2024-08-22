@@ -45,9 +45,4 @@ mv changelog/revision/metadata.json changelog/internal
 
 echo "Step 3: Generating changelog files - Done"
 
-echo "Step4: Cleaning up - removing base and revision folder"
-rm -rf changelog/base
-rm -rf changelog/revision
-echo "Step4: Cleaning up - removing base and revision folder - Done"
-
 tree
