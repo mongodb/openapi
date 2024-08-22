@@ -1,17 +1,22 @@
 name: Postman Release
 on:
-  pull_request:
-    branches: 
-      - main
-    types:
-      - closed
+  workflow_call:
+    inputs:
+      atlas_prod_base_url:
+        description: 'Base URL of Atlas.'
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      postman_api_key:
+        required: true
+      workspace_id:
+        required: true
   workflow_dispatch:
 permissions:
   issues: write
 
 jobs:
   release-postman:
-    if: ${{ github.head_ref == 'api-bot-update' && github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,7 +45,7 @@ jobs:
       - name: Transform Postman Collection 
         id: transform
         env:
-          BASE_URL: ${{ vars.ATLAS_PROD_BASE_URL }}
+          BASE_URL: ${{ inputs.atlas_prod_base_url }}
         working-directory: ./tools/postman
         run: |
           make transform_collection
@@ -56,8 +61,8 @@ jobs:
 
       - name: Upload Collection to Postman
         env:
-          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
-          WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
+          POSTMAN_API_KEY: ${{ secrets.postman_api_key }}
+          WORKSPACE_ID: ${{ secrets.workspace_id }}
         working-directory: ./tools/postman
         run: |
           make upload_collection

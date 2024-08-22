@@ -13,3 +13,5 @@ Once you have your cluster up and running, follow [this guide](https://www.mongo
 - private API key as the value for a key named  \`mongodb-private-api-key\`
 
 You can now explore the various endpoints. For each endpoint, edit the query and path variables such as group ID and organization ID. For some requests, like POST requests, editing the body of the request is also required. 
+
+For more details, you can follow along with the [Configuring Atlas in Postman With the Atlas Administration API](https://www.mongodb.com/developer/products/atlas/admin-api-postman/) blog.

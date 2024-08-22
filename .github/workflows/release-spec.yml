@@ -26,6 +26,10 @@ on:
         description: 'Version of FOASCLI to use.'
         required: true
         type: string
+      atlas_prod_base_url:
+        description: 'Base URL of Atlas.'
+        required: false
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -33,7 +37,11 @@ on:
         required: true
       aws_secret_access_key:
         required: true
-      
+      postman_api_key:
+        required: false
+      workspace_id:
+        required: false
+
 permissions:
   contents: write
   issues: write
@@ -77,6 +85,8 @@ jobs:
       name: Release OpenAPI Spec
       runs-on: ubuntu-latest
       needs: [run-required-validations]
+      outputs:
+        changes_detected: ${{ steps.commit.outputs.changes_detected }}
       steps:
         - name: Checkout repository
           uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -149,3 +159,14 @@ jobs:
             title: "(${{env.target_env}}) Release: the Commit Changes step failed :scream_cat:"
             body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
             token: ${{ secrets.GITHUB_TOKEN }}
+  
+  release-postman:
+      name: Release Postman
+      needs: [release]
+      if: ${{ inputs.env == 'prod' && needs.release.outputs.changes_detected == 'true' }}
+      uses: ./.github/workflows/release-postman.yml
+      secrets:
+        postman_api_key: ${{ secrets.postman_api_key }}
+        workspace_id: ${{ secrets.workspace_id }}
+      with:
+        atlas_prod_base_url: ${{ inputs.atlas_prod_base_url}}
