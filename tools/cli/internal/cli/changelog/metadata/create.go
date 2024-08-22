@@ -40,17 +40,18 @@ func (o *Opts) Run() error {
 		o.runDate = time.Now().Format("2006-01-02")
 	}
 
-	metadataBytes, err := json.MarshalIndent(*o.newMetadata(), "", "  ")
-	if err != nil {
-		return err
-	}
-
+	metadata := *o.newMetadata()
 	if o.outputPath == "" {
+		metadataBytes, err := json.MarshalIndent(metadata, "", "  ")
+		if err != nil {
+			return err
+		}
+
 		fmt.Println(string(metadataBytes))
 		return nil
 	}
 
-	return openapi.SaveToFile(o.outputPath, openapi.JSON, metadataBytes, o.fs)
+	return openapi.SaveToFile(o.outputPath, openapi.JSON, metadata, o.fs)
 }
 
 func (o *Opts) newMetadata() *changelog.Metadata {
