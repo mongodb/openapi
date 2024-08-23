@@ -7,7 +7,7 @@ echo "Step 1: Preparing revision folder...."
 # 1) OpenAPI spec files that are currently in the repository are copied to the revision folder
 # 2) changelog Metadata file that is generated via foascli
 # 3) exemptions.yaml file that is downloaded from S3 
-mkdir changelog/revision
+mkdir -p changelog/revision
 cp openapi/v2/openapi-*.json changelog/revision/
 
 echo "Generating revision metadata file"
