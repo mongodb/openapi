@@ -192,7 +192,7 @@
     }
   ],
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -200,7 +200,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "b803cf93b71591a363d6ede74e2eed30d13d300c"
+    "x-xgen-sha": "4e333e3d96b55464124f16a836bb15d7c0249127"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -26643,6 +26643,24 @@
         },
         "type": "object"
       },
+      "ApiPrivateDownloadDeliveryUrl": {
+        "description": "One Uniform Resource Locator (URL) that points to the compressed snapshot files for manual download and the corresponding private endpoint.",
+        "properties": {
+          "deliveryUrl": {
+            "description": "One Uniform Resource Locator that points to the compressed snapshot files for manual download.",
+            "type": "string"
+          },
+          "endpointId": {
+            "description": "Unique 22-character alphanumeric string that identifies the private endpoint.",
+            "example": "vpce-3bf78b0ddee411ba1",
+            "maxLength": 22,
+            "minLength": 22,
+            "pattern": "^vpce-[0-9a-f]{17}$",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ApiPublicUsageDetailsQueryRequest": {
         "description": "Request body for an Invoice Usage Details query with filtering, pagination, and sort.",
         "properties": {
@@ -27662,6 +27680,130 @@
         "required": [
           "name"
         ],
+        "type": "object"
+      },
+      "AtlasResourcePolicyAuditForOrg": {
+        "description": "Atlas resource policy audits indicate org level changes to resource policies",
+        "properties": {
+          "apiKeyId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the [API Key](https://dochub.mongodb.org/core/atlas-create-prog-api-key) that triggered the event. If this resource returns this parameter, it doesn't return the **userId** parameter.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "created": {
+            "description": "Date and time when this event occurred. This parameter expresses its value in the <a href=\"https://en.wikipedia.org/wiki/ISO_8601\" target=\"_blank\" rel=\"noopener noreferrer\">ISO 8601</a> timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "eventTypeName": {
+            "description": "Unique identifier of event type.",
+            "enum": [
+              "RESOURCE_POLICY_CREATED",
+              "RESOURCE_POLICY_MODIFIED",
+              "RESOURCE_POLICY_DELETED"
+            ],
+            "example": "RESOURCE_POLICY_CREATED",
+            "title": "Atlas Resource Policy Audit Types",
+            "type": "string"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The **eventId** identifies the specific event.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies the event.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "isGlobalAdmin": {
+            "default": false,
+            "description": "Flag that indicates whether a MongoDB employee triggered the specified event.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "orgId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the organization to which these events apply.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "publicKey": {
+            "description": "Public part of the [API Key](https://dochub.mongodb.org/core/atlas-create-prog-api-key) that triggered the event. If this resource returns this parameter, it doesn't return the **username** parameter.",
+            "format": "email",
+            "readOnly": true,
+            "type": "string"
+          },
+          "raw": {
+            "$ref": "#/components/schemas/raw"
+          },
+          "remoteAddress": {
+            "description": "IPv4 or IPv6 address from which the user triggered this event.",
+            "example": "216.172.40.186",
+            "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "resourcePolicyId": {
+            "description": "Unique 24-hexadecimal character string that identifies the resource policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "userId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "username": {
+            "description": "Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.",
+            "example": "test.user@mongodb.com",
+            "format": "email",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "created",
+          "eventTypeName",
+          "id"
+        ],
+        "title": "Atlas Resource Policy Audits",
         "type": "object"
       },
       "AtlasSearchAnalyzer": {
@@ -38603,7 +38745,7 @@
           "deliveryUrl": {
             "description": "One or more Uniform Resource Locators (URLs) that point to the compressed snapshot files for manual download. MongoDB Cloud returns this parameter when `\"deliveryType\" : \"download\"`.",
             "items": {
-              "description": "One Uniform Resource Locator that point to the compressed snapshot files for manual download.",
+              "description": "One Uniform Resource Locator that points to the compressed snapshot files for manual download.",
               "type": "string"
             },
             "readOnly": true,
@@ -38915,9 +39057,17 @@
       "DiskBackupRestoreMember": {
         "properties": {
           "downloadUrl": {
-            "description": "One Uniform Resource Locator that point to the compressed snapshot files for manual download. MongoDB Cloud returns this parameter when `\"deliveryType\" : \"download\"`.",
+            "description": "One Uniform Resource Locator that points to the compressed snapshot files for manual download. MongoDB Cloud returns this parameter when `\"deliveryType\" : \"download\"`.",
             "readOnly": true,
             "type": "string"
+          },
+          "privateDownloadDeliveryUrls": {
+            "description": "One or more Uniform Resource Locators (URLs) that point to the compressed snapshot files for manual download and the corresponding private endpoint(s). MongoDB Cloud returns this parameter when `\"deliveryType\" : \"download\"` and the download can be performed privately.",
+            "items": {
+              "$ref": "#/components/schemas/ApiPrivateDownloadDeliveryUrl"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "replicaSetName": {
             "description": "Human-readable label that identifies the replica set on the sharded cluster.",
@@ -39416,7 +39566,7 @@
           "deliveryUrl": {
             "description": "One or more Uniform Resource Locators (URLs) that point to the compressed snapshot files for manual download. MongoDB Cloud returns this parameter when `\"deliveryType\" : \"download\"`.",
             "items": {
-              "description": "One Uniform Resource Locator that point to the compressed snapshot files for manual download.",
+              "description": "One Uniform Resource Locator that points to the compressed snapshot files for manual download.",
               "type": "string"
             },
             "readOnly": true,
@@ -39486,6 +39636,14 @@
             "format": "int32",
             "minimum": 1199145600,
             "type": "integer"
+          },
+          "privateDownloadDeliveryUrls": {
+            "description": "One or more Uniform Resource Locators (URLs) that point to the compressed snapshot files for manual download and the corresponding private endpoint(s). MongoDB Cloud returns this parameter when `\"deliveryType\" : \"download\"` and the download can be performed privately.",
+            "items": {
+              "$ref": "#/components/schemas/ApiPrivateDownloadDeliveryUrl"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "snapshotId": {
             "description": "Unique 24-hexadecimal character string that identifies the snapshot.",
@@ -41208,6 +41366,15 @@
             ],
             "title": "Resource Event Types",
             "type": "string"
+          },
+          {
+            "enum": [
+              "RESOURCE_POLICY_CREATED",
+              "RESOURCE_POLICY_MODIFIED",
+              "RESOURCE_POLICY_DELETED"
+            ],
+            "title": "Atlas Resource Policy Audit Types",
+            "type": "string"
           }
         ],
         "type": "object"
@@ -41323,6 +41490,9 @@
           },
           {
             "$ref": "#/components/schemas/ResourceEventViewForOrg"
+          },
+          {
+            "$ref": "#/components/schemas/AtlasResourcePolicyAuditForOrg"
           }
         ],
         "type": "object"
@@ -56168,7 +56338,7 @@
           "deliveryUrl": {
             "description": "One or more Uniform Resource Locators (URLs) that point to the compressed snapshot files for manual download. MongoDB Cloud returns this parameter when `\"deliveryType\" : \"download\"`.",
             "items": {
-              "description": "One Uniform Resource Locator that point to the compressed snapshot files for manual download.",
+              "description": "One Uniform Resource Locator that points to the compressed snapshot files for manual download.",
               "type": "string"
             },
             "readOnly": true,
