@@ -1,7 +1,6 @@
 # Postman Collections from OpenAPI
 
-This folder contains the code required to generate the MongoDB Atlas Postman collections from the MongoDB OpenAPI
-Specification
+This folder contains the code required to generate the MongoDB Atlas Postman collections from the MongoDB OpenAPI Specification. All scripts can be run locally if the environment variables for POSTMAN_API_KEY, WORKSPACE_ID, BASE_URL, and SLACK_WEBHOOK_URL are set
 
 ## Purpose of the project
 
@@ -16,42 +15,35 @@ API.
 
 ## Postman folder structure
 
-- `openapi` - Where the OpenAPI and working files are stored
+- `openapi` - Where the OpenAPI Spec, version information, and fork files are stored
+- `tmp` - Where the Postman Collection is generated and the temporary working files are stored
 - `scripts` - Where the Bash scripts are stored
+- `validation` - Where the files for spectral validation of the generated collection is stored
 
 ## Postman Collection Generation Workflow
 
 ```mermaid
 flowchart TD
-    A[Fetch the OpenAPI Specification] --> B{Has the OpenAPI\n file changed}
-    B --> |Yes| C[Apply OpenAPI\ntransformations]
-    B --> |No| G[Wait 24 hours]
-    C --> D[Convert to\nPostman Collection]
-    D --> E[Apply JSON\ntransformations]
-    E --> F[Upload Collection\nto Postman]
-    F --> G[Wait 24 hours]
-    G --> A[Fetch the OpenAPI\nSpecification]
+    A[Fetch the OpenAPI Specification] --> B{Apply OpenAPI\nTransformations}
+    B --> C[Convert to\nPostman Collection]
+    C --> D[Apply JSON\ntransformations]
+    D --> E[Upload Collection\nto Postman]
 
     style A width:160px,height:60px,text-align:center;
     style B width:160px,height:60px,text-align:center;
     style C width:160px,height:60px,text-align:center;
     style D width:160px,height:60px,text-align:center;
     style E width:160px,height:60px,text-align:center;
-    style F width:160px,height:60px,text-align:center;
-    style G width:160px,height:60px,text-align:center;
 ```
 
-1. **Fetch the OpenAPI Specification**: Periodically Fetch for the Changes in the Public OpenAPI file.
+1. **Fetch the OpenAPI Specification**: Fetch the most recent version of the OpenAPI file.
 
-2. **Has the OpenAPI file changed**: Checking for that the OpenAPI file has changed stops redundant updates to the
-   Collection.
-
-3. **Apply OpenAPI transformations**: Apply transformations such as removing regex to prepare openapi file for
+2. **Apply OpenAPI transformations**: Apply transformations such as removing regex to prepare openapi file for
    conversion.
 
-4. **Convert to Postman Collection**: Use openapi-to-postmanv2 to convert to a Postman Collection.
+3. **Convert to Postman Collection**: Use openapi-to-postmanv2 to convert to a Postman Collection.
 
-5. **Apply JSON transformations**: Apply transformations such as changing title, adding fields, and preparing Collection
+4. **Apply JSON transformations**: Apply transformations such as changing title, adding links, adding documentation, and preparing Collection
    for upload.
 
-6. **Upload Collection to Postman**: Use the Postman API to upload the Collection to Postman.
+5. **Upload Collection to Postman**: Use the Postman API to upload the Collection to Postman.
