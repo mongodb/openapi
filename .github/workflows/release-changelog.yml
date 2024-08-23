@@ -58,7 +58,6 @@ jobs:
            fi
         - name: Install FOASCLI
           id: install-foascli
-          if: steps.check_last_run.outputs.skip_release == 'false'
           env:
             foascli_version: ${{ inputs.foascli_version }}
           run: |
@@ -68,7 +67,6 @@ jobs:
              echo "$(pwd)/bin" >> "${GITHUB_PATH}"
              popd   
         - name: Download base folder
-          if: steps.check_last_run.outputs.skip_release == 'false'
           uses: actions/download-artifact@v4
           with:
             name: base-${{ inputs.env }}
@@ -76,14 +74,12 @@ jobs:
             github-token: ${{ secrets.api_bot_pat }}
             run-id: ${{ github.run_id }}
         - name: Download metadata files
-          if: steps.check_last_run.outputs.skip_release == 'false'
           uses: actions/download-artifact@v4
           with:
             name: openapi-foas-${{ inputs.env }}
             github-token: ${{ secrets.api_bot_pat }}
             run-id: ${{ github.run_id }}
         - name: Download release scripts
-          if: steps.check_last_run.outputs.skip_release == 'false'
           uses: actions/download-artifact@v4
           with:
             name: release-scripts
@@ -91,11 +87,9 @@ jobs:
             run-id: ${{ github.run_id }}
             path: release-scripts
         - name: Add permissions to execute scripts
-          if: steps.check_last_run.outputs.skip_release == 'false'
           run: |
             chmod +x release-scripts/*.sh
         - name: Generate Changelog
-          if: steps.check_last_run.outputs.skip_release == 'false'
           env:
             AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
             AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
@@ -103,7 +97,6 @@ jobs:
             S3_BUCKET: ${{ inputs.aws_s3_bucket }}
           run: ./release-scripts/generate_changelog.sh
         - name: Upload revision and base folders for debugging
-          if: steps.check_last_run.outputs.skip_release == 'false'
           uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
           with:
             name: base-revision-${{ inputs.env }}
@@ -112,13 +105,11 @@ jobs:
               changelog/base
               changelog/revision
         - name: Clean up base and revision folders
-          if: steps.check_last_run.outputs.skip_release == 'false'
           run: |
             rm -rf changelog/base
             rm -rf changelog/revision
         - name: Commit changes
           id: commit
-          if: steps.check_last_run.outputs.skip_release == 'false'
           uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842
           env:
             target_env: ${{ inputs.env }}
@@ -128,13 +119,13 @@ jobs:
             commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
             branch: ${{env.target_branch}}
             file_pattern: "changelog/*"
-        - name: Create Issue
-          if: ${{ failure() }}
-          uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-          env:
-            target_env: ${{ inputs.env }}
-          with:
-            labels: failed-release
-            title: "(${{env.target_env}}) The API Changelog Release has failed. :scream_cat:"
-            body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            token: ${{ secrets.GITHUB_TOKEN }}
+        # - name: Create Issue To enable in CLOUDP-269500
+        #   if: ${{ failure() }}
+        #   uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+        #   env:
+        #     target_env: ${{ inputs.env }}
+        #   with:
+        #     labels: failed-release
+        #     title: "(${{env.target_env}}) The API Changelog Release has failed. :scream_cat:"
+        #     body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        #     token: ${{ secrets.GITHUB_TOKEN }}
