@@ -24,7 +24,7 @@ API.
 
 ```mermaid
 flowchart TD
-    A[Fetch the OpenAPI Specification] --> B{Apply OpenAPI\nTransformations}
+    A[Fetch the OpenAPI\nSpecification] --> B[Apply OpenAPI\nTransformations]
     B --> C[Convert to\nPostman Collection]
     C --> D[Apply JSON\ntransformations]
     D --> E[Upload Collection\nto Postman]
