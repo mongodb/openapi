@@ -216,7 +216,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "daf5b17a14f9dcaf48769fbb2b01bcd8b691a0a5"
+    "x-xgen-sha": "25cb79494a360a940069c755592f4e65d7a88c2a"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -27420,6 +27420,72 @@
         "tags": [
           "Organizations"
         ]
+      },
+      "post": {
+        "description": "Invites one new or existing MongoDB Cloud user to join the organization. The invitation to join the organization will be sent to the username provided and must be accepted within 30 days. To use this resource, the requesting API Key must have the Organization Owner role.\n\n**Note**: If the user does not have an existing MongoDB Cloud account, they will be prompted to finish setting up an account upon accepting the invitation. If the user already has an account, they will still receive an invitation to access the organization.",
+        "operationId": "createOrganizationUser",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-01-01+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgUserRequest"
+              }
+            }
+          },
+          "description": "Represents the MongoDB Cloud user to be created within the organization.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgUserResponse"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [
+          {
+            "DigestAuth": []
+          }
+        ],
+        "summary": "Create One MongoDB Cloud User in One Organization",
+        "tags": [
+          "MongoDB Cloud Users"
+        ]
       }
     },
     "/api/atlas/v2/orgs/{orgId}/users/{userId}": {
@@ -42175,7 +42241,8 @@
                   "AGENT_VERSION_UNFIXED",
                   "FIXED_VERSION_UPDATED",
                   "FIXED_AGENT_VERSION_UPDATED",
-                  "CLUSTER_FCV_DOWNGRADED"
+                  "CLUSTER_FCV_DOWNGRADED",
+                  "CLUSTER_BINARY_VERSION_DOWNGRADED"
                 ],
                 "title": "Version Audit Types",
                 "type": "string"
@@ -45138,7 +45205,8 @@
               "AGENT_VERSION_UNFIXED",
               "FIXED_VERSION_UPDATED",
               "FIXED_AGENT_VERSION_UPDATED",
-              "CLUSTER_FCV_DOWNGRADED"
+              "CLUSTER_FCV_DOWNGRADED",
+              "CLUSTER_BINARY_VERSION_DOWNGRADED"
             ],
             "title": "Version Audit Types",
             "type": "string"
@@ -55021,6 +55089,37 @@
             "type": "array"
           }
         },
+        "type": "object"
+      },
+      "OrgUserRequest": {
+        "properties": {
+          "roles": {
+            "$ref": "#/components/schemas/OrgUserRolesRequest"
+          },
+          "teamIds": {
+            "description": "List of unique 24-hexadecimal digit strings that identifies the teams to which this MongoDB Cloud user belongs.",
+            "items": {
+              "example": "32b6e34b3d91647abb20e7b8",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true,
+            "writeOnly": true
+          },
+          "username": {
+            "description": "Email address that represents the username of the MongoDB Cloud user.",
+            "format": "email",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "roles",
+          "username"
+        ],
         "type": "object"
       },
       "OrgUserResponse": {
