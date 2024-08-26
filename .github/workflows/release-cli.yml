@@ -72,61 +72,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  notify: 
-    runs-on: ubuntu-latest
+  failure-handler: 
+    name: Failure Handler
     needs: [ release ]
     if: ${{ always() && contains(needs.*.result, 'failure') }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-        with:
-          token: ${{secrets.api_bot_pat}}
-          sparse-checkout: |
-            .github/ISSUE_TEMPLATE/GH_ACTION_ISSUE_TEMPLATE.md
-            .github/scripts/create_jira_ticket.sh
-
-      - name: Check if an issue already exists 
-        id: check-issue
-        env: 
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TARGET_ENV: "prod"
-          RELEASE_NAME: "FOASCLI"
-          REPO: ${{ github.repository }}
-        run: |
-          query="(${TARGET_ENV}}) The ${RELEASE_NAME} Release has failed."
-          number_issue=$(gh search issues "${query}" --repo "${REPO}" --state open --label failed-release --json title | jq length)
-          
-          echo "found-issue=false" >> "${GITHUB_OUTPUT}"
-          if [ "${number_issue}" -gt 0 ]; then
-            echo "An issue already exists. Stopping execution."
-            echo "found-issue=true" >> "${GITHUB_OUTPUT}"
-          fi
-      - name: Create Issue # Create an issue in the repo if the release fails
-        if: ${{ steps.check-issue.outputs.found-issue == 'false' }}
-        id: create-issue
-        uses: JasonEtco/create-an-issue@1b14a70e4d8dc185e5cc76d3bec9eab20257b2c5
-        env:
-          TARGET_ENV: "prod"
-          RELEASE_NAME: "FOASCLI"
-          GITHUB_RUN_ID: ${{ github.run_id }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          update_existing: false
-        with:
-          filename: .github/ISSUE_TEMPLATE/GH_ACTION_ISSUE_TEMPLATE.md
-      - name: Create JIRA Ticket
-        if: ${{ steps.create-issue.outputs.number != null }}
-        id: create-jira-ticket
-        env:
-          TARGET_ENV: "prod"
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          ISSUE_ID: ${{ steps.create-issue.outputs.number }}
-        run: .github/scripts/create_jira_ticket.sh
-      - name: Add comment to GH Issue
-        if: ${{ steps.create-issue.outputs.number != null }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JIRA_TICKET_ID: ${{ steps.create-jira-ticket.outputs.jira-ticket-id }}
-          ISSUE_URL: ${{ steps.create-issue.outputs.url }}
-        run: |
-          gh issue comment ${{ env.ISSUE_URL }} -b "The ticket [${{env.JIRA_TICKET_ID}}](https://jira.mongodb.org/browse/${{env.JIRA_TICKET_ID}}) was created for internal tracking."
-
+    uses: ./.github/workflows/issue.yml
+    with:
+      env: "prod"
+      release_name: "FOASCLI"
+    secrets:
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
