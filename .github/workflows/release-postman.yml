@@ -33,15 +33,6 @@ jobs:
         run: |
           make convert_to_collection
 
-      - name: Create Issue
-        if: ${{ failure() && steps.convert.outcome == 'failure' }}
-        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-        with:
-          labels: failed-release
-          title: "Postman Release: `make convert_to_collection` command failed :scream_cat:"
-          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Transform Postman Collection 
         id: transform
         env:
@@ -49,15 +40,6 @@ jobs:
         working-directory: ./tools/postman
         run: |
           make transform_collection
-
-      - name: Create Issue
-        if: ${{ failure() && steps.transform.outcome == 'failure' }}
-        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-        with:
-          labels: failed-release
-          title: "Postman Release: `make transform_collection` command failed :scream_cat:"
-          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Collection to Postman
         env:
