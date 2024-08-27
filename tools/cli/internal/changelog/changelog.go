@@ -311,7 +311,7 @@ func newVersionedPaths(paths []*Path, version string) []*Path {
 func newChangelog(baseMetadata, revisionMetadata *Metadata, exceptionFilePath string, baseChangelog []*Entry) (*Changelog, error) {
 	var err error
 	if baseChangelog == nil {
-		baseChangelog, err = newEntriesFromPath(fmt.Sprintf("%s/%s", baseMetadata.Path, "changelog.json"))
+		baseChangelog, err = NewEntriesFromPath(fmt.Sprintf("%s/%s", baseMetadata.Path, "changelog.json"))
 		if err != nil {
 			return nil, err
 		}
@@ -340,7 +340,7 @@ func newChangelog(baseMetadata, revisionMetadata *Metadata, exceptionFilePath st
 	}, nil
 }
 
-func newEntriesFromPath(path string) ([]*Entry, error) {
+func NewEntriesFromPath(path string) ([]*Entry, error) {
 	contents, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
