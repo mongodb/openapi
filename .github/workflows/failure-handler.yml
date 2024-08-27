@@ -39,7 +39,7 @@ jobs:
               run: |
                 query="(${TARGET_ENV}}) The ${RELEASE_NAME} Release has failed."
                 number_issue=$(gh search issues "${query}" --repo "${REPO}" --state open --label failed-release --json title | jq length)
-                
+                echo "number_issue=${number_issue}"
                 echo "found-issue=false" >> "${GITHUB_OUTPUT}"
                 if [ "${number_issue}" -gt 0 ]; then
                     echo "An issue already exists. Stopping execution."
@@ -55,7 +55,7 @@ jobs:
                 GITHUB_RUN_ID: ${{ github.run_id }}
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 update_existing: false
-                with:
+              with:
                 filename: .github/ISSUE_TEMPLATE/GH_ACTION_ISSUE_TEMPLATE.md
             - name: Create JIRA Ticket
               if: ${{ steps.create-issue.outputs.number != null }}
