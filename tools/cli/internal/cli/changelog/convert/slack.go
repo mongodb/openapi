@@ -70,13 +70,7 @@ func (o *SlackOpts) Run() error {
 	return nil
 }
 
-func (o *SlackOpts) generateMessage(entries []*changelog.Entry) *Message {
-	message := &Message{
-		Channel:  o.channelID,
-		ThreadTS: o.messageID,
-		Parse:    parseFull,
-	}
-
+func (o *SlackOpts) generateMessage(entries []*changelog.Entry) []*Message {
 	attachments := make([]*Attachment, 0)
 	for _, entry := range entries {
 		for _, path := range entry.Paths {
@@ -86,8 +80,45 @@ func (o *SlackOpts) generateMessage(entries []*changelog.Entry) *Message {
 		}
 	}
 
-	message.Attachments = orderAttachments(attachments)
-	return message
+	return newMessagesFromAttachments(orderAttachments(attachments), o.channelID, o.messageID)
+}
+
+// newMessagesFromAttachments creates a slice of messages from the attachments.
+// Slack API has a limit of 100 attachments per message, so we need to split the attachments into multiple messages.
+func newMessagesFromAttachments(attachments []*Attachment, channelID, messageID string) []*Message {
+	batchSize := 100
+	numAttachments := len(attachments)
+	if numAttachments <= batchSize {
+		return []*Message{
+			{
+				Channel:     channelID,
+				ThreadTS:    messageID,
+				Parse:       parseFull,
+				Attachments: attachments,
+			},
+		}
+	}
+
+	numBatches := numAttachments / batchSize
+	messages := make([]*Message, 0)
+	for i := 0; i < numBatches; i++ {
+		start := i * batchSize
+		end := (i + 1) * batchSize
+		if end > numAttachments {
+			end = numAttachments
+		}
+
+		batchAttachments := attachments[start:end]
+		message := &Message{
+			Channel:     channelID,
+			ThreadTS:    messageID,
+			Parse:       parseFull,
+			Attachments: batchAttachments,
+		}
+		messages = append(messages, message)
+	}
+
+	return messages
 }
 
 // orderAttachments orders the attachments by backward compatibility.
