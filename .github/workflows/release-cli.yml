@@ -37,15 +37,6 @@ jobs:
           commit_sha: ${{ steps.get-sha.outputs.sha }}
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg_passphrase: ${{ secrets.PASSPHRASE }}
-      - name: Create Issue
-        if: ${{ failure() }}
-        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          labels: failed-release
-          title: "Releasing foascli v${{ inputs.version_number }} failed at the tag creation step :scream_cat:"
-          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   run-tests:
     needs: [ create-tag ]
@@ -80,12 +71,14 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create Issue
-        if: ${{ failure() }}
-        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          labels: failed-release
-          title: "Releasing foascli ${{ inputs.version_number }} failed at the goreleaser step :scream_cat:"
-          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  failure-handler: 
+    name: Failure Handler
+    needs: [ release ]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    uses: ./.github/workflows/failure-handler.yml
+    with:
+      env: "prod"
+      release_name: "FOASCLI"
+    secrets:
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
