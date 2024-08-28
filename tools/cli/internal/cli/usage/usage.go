@@ -31,5 +31,8 @@ const (
 	ExemptionFilePath   = "Path to the file containing the exemptions file."
 	DryRun              = "Dry run mode. The command will not write any files."
 	IgnoreExpiration    = "Ignore expiration date of the exemptions and consider the valid."
-	RunDate             = "Date when the changelog was generated. (Format: YYYY-MM-DD)"
+	RunDate             = "Date when the changelog was generated. (Format: YYYY-MM-DD)."
+	Path                = "Path to the changelog file."
+	MessageID           = "Message ID of the slack message. This ID is used to add the message as slack thread."
+	SlackChannelID      = "Slack Channel ID."
 )

@@ -24,7 +24,7 @@ import (
 )
 
 func TestMergeChangelogOneChange(t *testing.T) {
-	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
+	baseChangelog, err := NewEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	lastChangelogRunDate := baseChangelog[0].Date
@@ -99,7 +99,7 @@ func TestMergeChangelogOneChange(t *testing.T) {
 
 func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	// arrange
-	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
+	baseChangelog, err := NewEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	lastChangelogRunDate := baseChangelog[0].Date
@@ -215,7 +215,7 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 }
 
 func TestMergeChangelogAddTwoEndpoints(t *testing.T) {
-	originalChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
+	originalChangelog, err := NewEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	lastChangelogRunDate := originalChangelog[0].Date
@@ -468,7 +468,7 @@ func TestSortChangelog(t *testing.T) {
 
 func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 	// arrange
-	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
+	baseChangelog, err := NewEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	lastChangelogRunDate := baseChangelog[0].Date
@@ -596,7 +596,7 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 }
 
 func TestMergeChangelogWithDeprecations(t *testing.T) {
-	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
+	baseChangelog, err := NewEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	firstVersion := "2023-02-01"
@@ -718,7 +718,7 @@ func TestMergeChangelogWithDeprecations(t *testing.T) {
 }
 
 func TestMergeChangelogCompare(t *testing.T) {
-	baseChangelog, err := newEntriesFromPath("../../test/data/changelog/changelog.json")
+	baseChangelog, err := NewEntriesFromPath("../../test/data/changelog/changelog.json")
 	require.NoError(t, err)
 
 	firstVersion := "2023-01-01"
