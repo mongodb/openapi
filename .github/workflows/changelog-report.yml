@@ -1,0 +1,119 @@
+name: 'Send Changelog Report To Slack Channel'
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'Start date for the changelog report. Example: 2024-01-01'
+        required: true
+      end_date:
+        description: 'End date for the changelog report. Example: 2024-01-10'
+        required: true
+  schedule:
+    - cron: '0 9 * * 1'  # Run every Monday at 09:00 UTC
+
+jobs:
+  send-changelog-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (dev branch)
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: dev
+          sparse-checkout: 
+            changelog/
+      - name: Install FOASCLI
+        env:
+          foascli_version: ${{ vars.FOASCLI_VERSION }}
+        run: |
+            wget https://github.com/mongodb/openapi/releases/download/v"${foascli_version}"/mongodb-foas-cli_"${foascli_version}"_linux_x86_64.tar.gz -O foascli.tar.gz
+            tar -xzvf foascli.tar.gz 
+            pushd mongodb-foas-cli_*
+            echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+            popd  
+      - name: Get Start and End Dates
+        id: get-dates
+        env: 
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
+        run: |
+          start_date="${START_DATE}"
+          if [[ -z "${START_DATE}" ]]; then
+            echo "Start date not provided"
+            start_date=$(date -j -v-7d "+%Y-%m-%d")
+            echo "Using 7 days ago as start date: ${start_date}"
+          fi
+
+          end_date="${END_DATE}"
+          if [[ -z "${END_DATE}" ]]; then
+            echo "End date not provided"
+            end_date=$(date -j -v-1d "+%Y-%m-%d")
+            echo "Using yesterday as end date: ${end_date}"
+          fi
+          
+          echo start_date="${start_date}" >> "${GITHUB_OUTPUT}"
+          echo end_date="${end_date}" >> "${GITHUB_OUTPUT}"
+      - name: Get Changelog Entries
+        env:
+          START_DATE: ${{ steps.get-dates.outputs.start_date }}
+          END_DATE: ${{ steps.get-dates.outputs.end_date }}
+        run: |
+          changelog_entries=$(jq --arg start_date "${START_DATE}" --arg end_date "${END_DATE}" ' map(select(.date >= $start_date and .date <= $end_date))' changelog/internal/changelog-all.json)
+          echo "${changelog_entries}" > entries.json
+      - name: Upload entries for debugging
+        uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
+        with:
+            name: changelog_entries_in_range
+            retention-days: 1
+            path: |
+              entries.json
+      - name: Send Initial Slack Message
+        id: send-initial-slack-message
+        env:
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
+          START_DATE: ${{ steps.get-dates.outputs.start_date }}
+          END_DATE: ${{ steps.get-dates.outputs.end_date }}
+        run: |
+            if < entries.json jq -e 'length == 0' > /dev/null; then
+              echo "No changelog entries found"
+              exit 0
+            fi
+
+            compatible_changes=$(jq '[.. | objects | select(has("backwardCompatible") and .backwardCompatible == true)] | length' entries.json)
+            echo "compatible_changes=${compatible_changes}"
+
+            breaking_changes=$(jq '[.. | objects | select(has("backwardCompatible") and .backwardCompatible == false)] | length' entries.json)
+            echo "breaking_changes=${breaking_changes}"
+
+            if [[ "${compatible_changes}" -eq 0 && "${breaking_changes}" -eq 0 ]]; then
+              echo "No changelog entries found"
+              exit 0
+            fi
+            
+            message_id=$(curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
+            -H 'Content-type: application/json' \
+            --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":":aileaft: List of API changes (*cloud-dev*) from *'"${START_DATE}"'* to *'"${END_DATE}"'*.\n\n*Summary*:\n\n:large_green_circle: Backward Compatible Changes: *'"${compatible_changes}"'*\n:red_circle: Breaking Changes: *'"${breaking_changes}"'*","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
+            
+            echo "message_id=${message_id}"
+            echo "message_id=${message_id}" >> "${GITHUB_OUTPUT}"
+
+            sleep 2 # wait for 2 second to avoid slack rate limit
+      - name: Send Changelog Entries as Slack Thread
+        id: send-changelog-entries
+        env:
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
+          MESSAGE_ID: ${{ steps.send-initial-slack-message.outputs.message_id }}
+        run: |
+          messages=$(foascli changelog convert slack --path entries.json --msg-id "${MESSAGE_ID}" -c "${SLACK_CHANNEL_ID}")
+          
+          # Loop over each element in the JSON array
+          for i in $(echo "${messages}" | jq -r 'range(0; length)'); do
+              message=$(echo "${messages}" | jq -r ".[$i]")
+              curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
+              -H 'Content-type: application/json' \
+              --data "${message}" https://slack.com/api/chat.postMessage
+          
+              sleep 2 # wait for 2 second to avoid slack rate limit
+          done
