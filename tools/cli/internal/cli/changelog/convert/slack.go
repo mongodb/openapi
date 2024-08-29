@@ -141,15 +141,17 @@ func newAttachmentFromVersion(path *changelog.Path, version *changelog.Version) 
 
 func newAttachmentFromChange(version, method, path string, change *changelog.Change) *Attachment {
 	return &Attachment{
-		Text:           newAttachmentText(version, method, path, change.Code, change.Description, strconv.FormatBool(change.BackwardCompatible)),
+		Text:           newAttachmentText(version, method, path, change.Code, change.Description, strconv.FormatBool(change.BackwardCompatible), 
+			strconv.FormatBool(change.HideFromChangelog)),
 		Color:          newColorFromBackwardCompatible(change.BackwardCompatible),
 		AttachmentType: attachmentTypeDefault,
 	}
 }
 
-func newAttachmentText(version, method, path, changeCode, change, backwardCompatible string) string {
-	return fmt.Sprintf("\n• *Version*: `%s`\n• *Path*: `%s %s`\n• *Change Code*: `%s`\n• *Change*: `%s`\n• *Backward Compatible*: `%s`",
-		version, method, path, changeCode, change, backwardCompatible)
+func newAttachmentText(version, method, path, changeCode, change, backwardCompatible, hiddenFromChangelog string) string {
+	return fmt.Sprintf(
+		"\n• *Version*: `%s`\n• *Path*: `%s %s`\n• *Backward Compatible*: `%s`\n• *Hidden from Changelog*: `%s`\n• *Change Code*: `%s`\n• *Change*: `%s`",
+		version, method, path, backwardCompatible, hiddenFromChangelog, changeCode, change)
 }
 
 func newColorFromBackwardCompatible(backwardCompatible bool) string {
