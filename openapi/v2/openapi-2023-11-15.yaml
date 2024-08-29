@@ -31567,7 +31567,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 6ff107b2e1c053a926389ef69e88f7a7aa5e8c1d
+    x-xgen-sha: 2f842f22a67228bde95f4a60a8046ac8a862a288
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -38928,6 +38928,166 @@ paths:
             security:
                 - DigestAuth: []
             summary: Update Configuration for Encryption at Rest using Customer-Managed Keys for One Project
+            tags:
+                - Encryption at Rest using Customer Key Management
+    /api/atlas/v2/groups/{groupId}/encryptionAtRest/{cloudProvider}/privateEndpoints:
+        get:
+            description: Returns the private endpoints of the specified cloud provider for encryption at rest using customer key management.
+            operationId: getEncryptionAtRestPrivateEndpointsForCloudProvider
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - description: Human-readable label that identifies the cloud provider for the private endpoints to return.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    enum:
+                        - AZURE
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasEARPrivateEndpointView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Return Private Endpoints of a Cloud Provider for Encryption at Rest Using Customer Key Management for One Project
+            tags:
+                - Encryption at Rest using Customer Key Management
+        post:
+            description: Creates a private endpoint in the specified region for encryption at rest using customer key management.
+            operationId: createEncryptionAtRestPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cloud provider for the private endpoint to create.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    enum:
+                        - AZURE
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/EARPrivateEndpoint'
+                description: Creates a private endpoint in the specified region.
+                required: true
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/EARPrivateEndpoint'
+                            x-xgen-version: "2023-01-01"
+                    description: Accepted
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Create One Private Endpoint in a Specified Region for Encryption at Rest Using Customer Key Management
+            tags:
+                - Encryption at Rest using Customer Key Management
+    /api/atlas/v2/groups/{groupId}/encryptionAtRest/{cloudProvider}/privateEndpoints/{endpointId}:
+        delete:
+            description: Deletes one private endpoint, identified by its ID, for encryption at rest using Customer Key Management.
+            operationId: requestEncryptionAtRestPrivateEndpointDeletion
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cloud provider of the private endpoint to delete.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    enum:
+                        - AZURE
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint to delete.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Delete Private Endpoint for Encryption at Rest Using Customer Key Management
+            tags:
+                - Encryption at Rest using Customer Key Management
+        get:
+            description: Returns one private endpoint, identified by its ID, for encryption at rest using Customer Key Management.
+            operationId: getEncryptionAtRestPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cloud provider of the private endpoint.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    enum:
+                        - AZURE
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/EARPrivateEndpoint'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Return One Private Endpoint for Encryption at Rest Using Customer Key Management
             tags:
                 - Encryption at Rest using Customer Key Management
     /api/atlas/v2/groups/{groupId}/events:
