@@ -31,6 +31,7 @@ const (
 	notBackwardCompatibleColor = "#b51818"
 	parseFull                  = "full"
 	attachmentTypeDefault      = "default"
+	batchSize                  = 100
 )
 
 // Message represents the overall structure of the SLACK message JSON.
@@ -80,13 +81,12 @@ func (o *SlackOpts) generateMessage(entries []*changelog.Entry) []*Message {
 		}
 	}
 
-	return newMessagesFromAttachments(orderAttachments(attachments), o.channelID, o.messageID)
+	return newMessagesFromAttachments(orderAttachments(attachments), o.channelID, o.messageID, batchSize)
 }
 
 // newMessagesFromAttachments creates a slice of messages from the attachments.
 // Slack API has a limit of 100 attachments per message, so we need to split the attachments into multiple messages.
-func newMessagesFromAttachments(attachments []*Attachment, channelID, messageID string) []*Message {
-	batchSize := 100
+func newMessagesFromAttachments(attachments []*Attachment, channelID, messageID string, batchSize int) []*Message {
 	numAttachments := len(attachments)
 	if numAttachments <= batchSize {
 		return []*Message{
@@ -99,7 +99,7 @@ func newMessagesFromAttachments(attachments []*Attachment, channelID, messageID 
 		}
 	}
 
-	numBatches := numAttachments / batchSize
+	numBatches := (numAttachments + batchSize - 1) / batchSize
 	messages := make([]*Message, 0)
 	for i := 0; i < numBatches; i++ {
 		start := i * batchSize
@@ -141,15 +141,17 @@ func newAttachmentFromVersion(path *changelog.Path, version *changelog.Version) 
 
 func newAttachmentFromChange(version, method, path string, change *changelog.Change) *Attachment {
 	return &Attachment{
-		Text:           newAttachmentText(version, method, path, change.Code, change.Description, strconv.FormatBool(change.BackwardCompatible)),
+		Text: newAttachmentText(version, method, path, change.Code, change.Description, strconv.FormatBool(change.BackwardCompatible),
+			strconv.FormatBool(change.HideFromChangelog)),
 		Color:          newColorFromBackwardCompatible(change.BackwardCompatible),
 		AttachmentType: attachmentTypeDefault,
 	}
 }
 
-func newAttachmentText(version, method, path, changeCode, change, backwardCompatible string) string {
-	return fmt.Sprintf("\n• *Version*: `%s`\n• *Path*: `%s %s`\n• *Change Code*: `%s`\n• *Change*: `%s`\n• *Backward Compatible*: `%s`",
-		version, method, path, changeCode, change, backwardCompatible)
+func newAttachmentText(version, method, path, changeCode, change, backwardCompatible, hiddenFromChangelog string) string {
+	return fmt.Sprintf(
+		"\n• *Version*: `%s`\n• *Path*: `%s %s`\n• *Backward Compatible*: `%s`\n• *Hidden from Changelog*: `%s`\n• *Change Code*: `%s`\n• *Change*: `%s`",
+		version, method, path, backwardCompatible, hiddenFromChangelog, changeCode, change)
 }
 
 func newColorFromBackwardCompatible(backwardCompatible bool) string {
