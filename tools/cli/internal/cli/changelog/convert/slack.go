@@ -31,6 +31,7 @@ const (
 	notBackwardCompatibleColor = "#b51818"
 	parseFull                  = "full"
 	attachmentTypeDefault      = "default"
+	batchSize                  = 100
 )
 
 // Message represents the overall structure of the SLACK message JSON.
@@ -80,13 +81,12 @@ func (o *SlackOpts) generateMessage(entries []*changelog.Entry) []*Message {
 		}
 	}
 
-	return newMessagesFromAttachments(orderAttachments(attachments), o.channelID, o.messageID)
+	return newMessagesFromAttachments(orderAttachments(attachments), o.channelID, o.messageID, batchSize)
 }
 
 // newMessagesFromAttachments creates a slice of messages from the attachments.
 // Slack API has a limit of 100 attachments per message, so we need to split the attachments into multiple messages.
-func newMessagesFromAttachments(attachments []*Attachment, channelID, messageID string) []*Message {
-	batchSize := 100
+func newMessagesFromAttachments(attachments []*Attachment, channelID, messageID string, batchSize int) []*Message {
 	numAttachments := len(attachments)
 	if numAttachments <= batchSize {
 		return []*Message{
@@ -99,7 +99,7 @@ func newMessagesFromAttachments(attachments []*Attachment, channelID, messageID 
 		}
 	}
 
-	numBatches := numAttachments / batchSize
+	numBatches := (numAttachments + batchSize - 1) / batchSize
 	messages := make([]*Message, 0)
 	for i := 0; i < numBatches; i++ {
 		start := i * batchSize

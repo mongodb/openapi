@@ -63,7 +63,125 @@ func TestNewAttachmentText(t *testing.T) {
 		})
 	}
 }
+func TestNewMessagesFromAttachments(t *testing.T) {
+	tests := []struct {
+		name        string
+		attachments []*Attachment
+		channelID   string
+		messageID   string
+		batchSize   int
+		expected    []*Message
+	}{
+		{
+			name: "Single Batch",
+			attachments: []*Attachment{
+				{
+					Text:           "Attachment 1",
+					Color:          "#47a249",
+					AttachmentType: "default",
+				},
+				{
+					Text:           "Attachment 2",
+					Color:          "#b51818",
+					AttachmentType: "default",
+				},
+			},
+			channelID: "channel1",
+			messageID: "message1",
+			batchSize: 100,
+			expected: []*Message{
+				{
+					Channel:  "channel1",
+					ThreadTS: "message1",
+					Parse:    parseFull,
+					Attachments: []*Attachment{
+						{
+							Text:           "Attachment 1",
+							Color:          "#47a249",
+							AttachmentType: "default",
+						},
+						{
+							Text:           "Attachment 2",
+							Color:          "#b51818",
+							AttachmentType: "default",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Multiple Batches",
+			attachments: []*Attachment{
+				{
+					Text:           "Attachment 1",
+					Color:          "#47a249",
+					AttachmentType: "default",
+				},
+				{
+					Text:           "Attachment 2",
+					Color:          "#b51818",
+					AttachmentType: "default",
+				},
+				{
+					Text:           "Attachment 3",
+					Color:          "#47a249",
+					AttachmentType: "default",
+				},
+				{
+					Text:           "Attachment 4",
+					Color:          "#b51818",
+					AttachmentType: "default",
+				},
+			},
+			channelID: "channel2",
+			messageID: "message2",
+			batchSize: 2,
+			expected: []*Message{
+				{
+					Channel:  "channel2",
+					ThreadTS: "message2",
+					Parse:    parseFull,
+					Attachments: []*Attachment{
+						{
+							Text:           "Attachment 1",
+							Color:          "#47a249",
+							AttachmentType: "default",
+						},
+						{
+							Text:           "Attachment 2",
+							Color:          "#b51818",
+							AttachmentType: "default",
+						},
+					},
+				},
+				{
+					Channel:  "channel2",
+					ThreadTS: "message2",
+					Parse:    parseFull,
+					Attachments: []*Attachment{
+						{
+							Text:           "Attachment 3",
+							Color:          "#47a249",
+							AttachmentType: "default",
+						},
+						{
+							Text:           "Attachment 4",
+							Color:          "#b51818",
+							AttachmentType: "default",
+						},
+					},
+				},
+			},
+		},
+	}
 
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := newMessagesFromAttachments(tt.attachments, tt.channelID, tt.messageID, tt.batchSize)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
+}
 func TestNewColorFromBackwardCompatible(t *testing.T) {
 	tests := []struct {
 		name               string
