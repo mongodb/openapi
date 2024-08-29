@@ -133,25 +133,25 @@ func orderAttachments(attachments []*Attachment) []*Attachment {
 func newAttachmentFromVersion(path *changelog.Path, version *changelog.Version) []*Attachment {
 	attachments := make([]*Attachment, 0)
 	for _, change := range version.Changes {
-		attachments = append(attachments, newAttachmentFromChange(version.Version, path.HTTPMethod, path.URI, change))
+		attachments = append(attachments, newAttachmentFromChange(version.Version, path.HTTPMethod, path.URI, path.ChangeType, change))
 	}
 
 	return attachments
 }
 
-func newAttachmentFromChange(version, method, path string, change *changelog.Change) *Attachment {
+func newAttachmentFromChange(version, method, path, changeType string, change *changelog.Change) *Attachment {
 	return &Attachment{
-		Text: newAttachmentText(version, method, path, change.Code, change.Description, strconv.FormatBool(change.BackwardCompatible),
+		Text: newAttachmentText(version, method, path, changeType, change.Code, change.Description,
 			strconv.FormatBool(change.HideFromChangelog)),
 		Color:          newColorFromBackwardCompatible(change.BackwardCompatible),
 		AttachmentType: attachmentTypeDefault,
 	}
 }
 
-func newAttachmentText(version, method, path, changeCode, change, backwardCompatible, hiddenFromChangelog string) string {
+func newAttachmentText(version, method, path, changeType, changeCode, change, hiddenFromChangelog string) string {
 	return fmt.Sprintf(
-		"\n• *Version*: `%s`\n• *Path*: `%s %s`\n• *Hidden from Changelog*: `%s`\n• *Change Code*: `%s`\n• *Change*: `%s`\n• *Backward Compatible*: `%s`",
-		version, method, path, hiddenFromChangelog, changeCode, change, backwardCompatible)
+		"\n• *Version*: `%s` | *Hidden from Changelog*: `%s`\n• *Path*: `%s %s`\n• *Change Type*: `%s` | *Change Code*: `%s`\n• *Change*: `%s`",
+		version, hiddenFromChangelog, method, path, changeType, changeCode, change)
 }
 
 func newColorFromBackwardCompatible(backwardCompatible bool) string {
