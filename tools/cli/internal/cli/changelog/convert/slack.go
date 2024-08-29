@@ -150,8 +150,8 @@ func newAttachmentFromChange(version, method, path string, change *changelog.Cha
 
 func newAttachmentText(version, method, path, changeCode, change, backwardCompatible, hiddenFromChangelog string) string {
 	return fmt.Sprintf(
-		"\n• *Version*: `%s`\n• *Path*: `%s %s`\n• *Backward Compatible*: `%s`\n• *Hidden from Changelog*: `%s`\n• *Change Code*: `%s`\n• *Change*: `%s`",
-		version, method, path, backwardCompatible, hiddenFromChangelog, changeCode, change)
+		"\n• *Version*: `%s`\n• *Path*: `%s %s`\n• *Hidden from Changelog*: `%s`\n• *Change Code*: `%s`\n• *Change*: `%s`\n• *Backward Compatible*: `%s`",
+		version, method, path, hiddenFromChangelog, changeCode, change, backwardCompatible)
 }
 
 func newColorFromBackwardCompatible(backwardCompatible bool) string {
