@@ -41,7 +41,7 @@ func TestNewAttachmentText(t *testing.T) {
 			change:              "added the new DUBLIN_IRL, FRANKFURT_DEU, LONDON_GBR enum values",
 			backwardCompatible:  "true",
 			hiddenFromChangelog: "false",
-			expected:            "\n• *Version*: `2024-08-05`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/clusters`\n• *Backward Compatible*: `true`\n• *Hidden from Changelog*: `false`\n• *Change Code*: `response-property-enum-value-added`\n• *Change*: `added the new DUBLIN_IRL, FRANKFURT_DEU, LONDON_GBR enum values`", //nolint:lll //Test string
+			expected:            "\n• *Version*: `2024-08-05`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/clusters`\n• *Hidden from Changelog*: `false`\n• *Change Code*: `response-property-enum-value-added`\n• *Change*: `added the new DUBLIN_IRL, FRANKFURT_DEU, LONDON_GBR enum values`\n• *Backward Compatible*: `true`", //nolint:lll //Test string
 		},
 		{
 			name:                "Non-Backward Compatible Change",
@@ -52,7 +52,7 @@ func TestNewAttachmentText(t *testing.T) {
 			change:              "added the new optional request property replicaSetScalingStrategy",
 			hiddenFromChangelog: "true",
 			backwardCompatible:  "false",
-			expected:            "\n• *Version*: `2024-08-05`\n• *Path*: `POST /api/atlas/v2/groups/{groupId}/clusters`\n• *Backward Compatible*: `false`\n• *Hidden from Changelog*: `true`\n• *Change Code*: `new-optional-request-property`\n• *Change*: `added the new optional request property replicaSetScalingStrategy`", //nolint:lll //Test string
+			expected:            "\n• *Version*: `2024-08-05`\n• *Path*: `POST /api/atlas/v2/groups/{groupId}/clusters`\n• *Hidden from Changelog*: `true`\n• *Change Code*: `new-optional-request-property`\n• *Change*: `added the new optional request property replicaSetScalingStrategy`\n• *Backward Compatible*: `false`", //nolint:lll //Test string
 		},
 	}
 
