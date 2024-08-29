@@ -141,7 +141,7 @@ func newAttachmentFromVersion(path *changelog.Path, version *changelog.Version) 
 
 func newAttachmentFromChange(version, method, path string, change *changelog.Change) *Attachment {
 	return &Attachment{
-		Text:           newAttachmentText(version, method, path, change.Code, change.Description, strconv.FormatBool(change.BackwardCompatible), 
+		Text: newAttachmentText(version, method, path, change.Code, change.Description, strconv.FormatBool(change.BackwardCompatible),
 			strconv.FormatBool(change.HideFromChangelog)),
 		Color:          newColorFromBackwardCompatible(change.BackwardCompatible),
 		AttachmentType: attachmentTypeDefault,
