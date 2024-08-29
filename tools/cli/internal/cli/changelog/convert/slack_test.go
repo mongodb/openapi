@@ -28,7 +28,7 @@ func TestNewAttachmentText(t *testing.T) {
 		path                string
 		changeCode          string
 		change              string
-		backwardCompatible  string
+		changeType          string
 		hiddenFromChangelog string
 		expected            string
 	}{
@@ -39,9 +39,9 @@ func TestNewAttachmentText(t *testing.T) {
 			path:                "/api/atlas/v2/groups/{groupId}/clusters",
 			changeCode:          "response-property-enum-value-added",
 			change:              "added the new DUBLIN_IRL, FRANKFURT_DEU, LONDON_GBR enum values",
-			backwardCompatible:  "true",
+			changeType:          "UPDATE",
 			hiddenFromChangelog: "false",
-			expected:            "\n• *Version*: `2024-08-05`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/clusters`\n• *Hidden from Changelog*: `false`\n• *Change Code*: `response-property-enum-value-added`\n• *Change*: `added the new DUBLIN_IRL, FRANKFURT_DEU, LONDON_GBR enum values`\n• *Backward Compatible*: `true`", //nolint:lll //Test string
+			expected:            "\n• *Version*: `2024-08-05` | *Hidden from Changelog*: `false`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/clusters`\n• *Change Type*: `UPDATE` | *Change Code*: `response-property-enum-value-added`\n• *Change*: `added the new DUBLIN_IRL, FRANKFURT_DEU, LONDON_GBR enum values`", //nolint:lll //Test string
 		},
 		{
 			name:                "Non-Backward Compatible Change",
@@ -51,14 +51,14 @@ func TestNewAttachmentText(t *testing.T) {
 			changeCode:          "new-optional-request-property",
 			change:              "added the new optional request property replicaSetScalingStrategy",
 			hiddenFromChangelog: "true",
-			backwardCompatible:  "false",
-			expected:            "\n• *Version*: `2024-08-05`\n• *Path*: `POST /api/atlas/v2/groups/{groupId}/clusters`\n• *Hidden from Changelog*: `true`\n• *Change Code*: `new-optional-request-property`\n• *Change*: `added the new optional request property replicaSetScalingStrategy`\n• *Backward Compatible*: `false`", //nolint:lll //Test string
+			changeType:          "RELEASE",
+			expected:            "\n• *Version*: `2024-08-05` | *Hidden from Changelog*: `true`\n• *Path*: `POST /api/atlas/v2/groups/{groupId}/clusters`\n• *Change Type*: `RELEASE` | *Change Code*: `new-optional-request-property`\n• *Change*: `added the new optional request property replicaSetScalingStrategy`", //nolint:lll //Test string
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := newAttachmentText(tt.version, tt.method, tt.path, tt.changeCode, tt.change, tt.backwardCompatible, tt.hiddenFromChangelog)
+			actual := newAttachmentText(tt.version, tt.method, tt.path, tt.changeType, tt.changeCode, tt.change, tt.hiddenFromChangelog)
 			assert.Equal(t, tt.expected, actual)
 		})
 	}
