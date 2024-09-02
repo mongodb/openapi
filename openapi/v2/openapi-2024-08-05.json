@@ -216,7 +216,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "2d4b05d12f268f643b69904118d394af33488965"
+    "x-xgen-sha": "88b291200244d07a9bffdfb5c73def451ecef819"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -29934,6 +29934,263 @@
         "title": "mappings",
         "type": "object"
       },
+      "ApiAtlasInvalidPolicyErrorDetailView": {
+        "properties": {
+          "detail": {
+            "description": "A string that provides a detailed description of a validation error.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasInvalidPolicyView": {
+        "properties": {
+          "body": {
+            "description": "A string that defines the permissions for the policy. The syntax used is the Cedar Policy language.",
+            "example": "  forbid (\n    principal,\n    action == cloud::Action::\"cluster.createEdit\",\n    resource\n  ) when {\n   context.cluster.regions.contains(cloud::region::\"aws:us-east-1\")\n  };\n",
+            "readOnly": true,
+            "type": "string"
+          },
+          "errors": {
+            "description": "List of validation errors.",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasInvalidPolicyErrorDetailView"
+            },
+            "readOnly": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasInvalidResourcePolicyCreateErrorView": {
+        "properties": {
+          "errorType": {
+            "description": "Human-readable label that displays the type of an error.",
+            "enum": [
+              "POLICY_PARSING_ERROR",
+              "POLICY_HAS_FAILED_VALIDATIONS",
+              "POLICY_HAS_INVALID_PRINCIPAL",
+              "POLICY_HAS_BODY_EXCEEDING_MAX_SIZE"
+            ],
+            "type": "string"
+          },
+          "invalidPolicies": {
+            "description": "List of invalid policies containing details of their validation errors.",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasInvalidPolicyView"
+            },
+            "readOnly": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasNonCompliantResourceView": {
+        "properties": {
+          "orgId": {
+            "description": "Unique 24-hexadecimal character string that identifies the organization the resource belongs to.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "resourceId": {
+            "description": "Unique 24-hexadecimal character string that identifies the non-compliant resource.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "resourcePoliciesCausingNonCompliance": {
+            "description": "List of resource policies causing the resource to be considered non-compliant.",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasResourcePolicyMetadataView"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "resourceType": {
+            "description": "Human-readable label that displays the type of a resource.",
+            "enum": [
+              "PROJECT",
+              "CLUSTER"
+            ],
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasPolicyCreateView": {
+        "properties": {
+          "body": {
+            "description": "A string that defines the permissions for the policy. The syntax used is the Cedar Policy language.",
+            "example": "  forbid (\n    principal,\n    action == cloud::Action::\"cluster.createEdit\",\n    resource\n  ) when {\n   context.cluster.regions.contains(cloud::region::\"aws:us-east-1\")\n  };\n",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasPolicyMetadataView": {
+        "properties": {
+          "policyId": {
+            "description": "Unique 24-hexadecimal character string that identifies the policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasPolicyView": {
+        "properties": {
+          "body": {
+            "description": "A string that defines the permissions for the policy. The syntax used is the Cedar Policy language.",
+            "example": "  forbid (\n    principal,\n    action == cloud::Action::\"cluster.createEdit\",\n    resource\n  ) when {\n   context.cluster.regions.contains(cloud::region::\"aws:us-east-1\")\n  };\n",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal character string that identifies the policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasResourcePolicyCreateView": {
+        "properties": {
+          "name": {
+            "description": "Human-readable label that describes the atlas resource policy.",
+            "type": "string"
+          },
+          "policies": {
+            "description": "List of policies that make up the atlas resource policy.",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasPolicyCreateView"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasResourcePolicyEditView": {
+        "properties": {
+          "name": {
+            "description": "Human-readable label that describes the atlas resource policy.",
+            "type": "string"
+          },
+          "policies": {
+            "description": "List of policies that make up the atlas resource policy.",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasPolicyCreateView"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasResourcePolicyMetadataView": {
+        "properties": {
+          "policiesCausingNonCompliance": {
+            "description": "List of policies that are in conflict with the current state of the resource.",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasPolicyMetadataView"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "resourcePolicyId": {
+            "description": "Unique 24-hexadecimal character string that identifies the atlas resource policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "resourcePolicyName": {
+            "description": "Human-readable label that describes the atlas resource policy.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasResourcePolicyView": {
+        "properties": {
+          "createdByUser": {
+            "$ref": "#/components/schemas/ApiAtlasUserMetadataView"
+          },
+          "createdDate": {
+            "description": "Date and time in UTC when the atlas resource policy was created.",
+            "example": "2022-01-01T00:00:00Z",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal character string that identifies the atlas resource policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "lastUpdatedByUser": {
+            "$ref": "#/components/schemas/ApiAtlasUserMetadataView"
+          },
+          "lastUpdatedDate": {
+            "description": "Date and time in UTC when the atlas resource policy was last updated.",
+            "example": "2022-01-01T00:00:00Z",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable label that describes the atlas resource policy.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "orgId": {
+            "description": "Unique 24-hexadecimal character string that identifies the organization the atlas resource policy belongs to.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "policies": {
+            "description": "List of policies that make up the atlas resource policy.",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasPolicyView"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "version": {
+            "description": "A string that identifies the version of the atlas resource policy.",
+            "example": "v1",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ApiAtlasSnapshotScheduleView": {
         "properties": {
           "clusterCheckpointIntervalMin": {
@@ -30079,6 +30336,27 @@
           "snapshotRetentionDays",
           "weeklySnapshotRetentionWeeks"
         ],
+        "type": "object"
+      },
+      "ApiAtlasUserMetadataView": {
+        "description": "The user that last updated the atlas resource policy.",
+        "properties": {
+          "id": {
+            "description": "Unique 24-hexadecimal character string that identifies a user.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable label that describes a user.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "readOnly": true,
         "type": "object"
       },
       "ApiBSONTimestampView": {
