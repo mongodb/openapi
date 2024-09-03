@@ -29,6 +29,7 @@ import (
 const (
 	backwardCompatibleColor    = "#47a249"
 	notBackwardCompatibleColor = "#b51818"
+	specCorrectionColor        = "#ffa500"
 	parseFull                  = "full"
 	attachmentTypeDefault      = "default"
 	batchSize                  = 100
@@ -122,10 +123,21 @@ func newMessagesFromAttachments(attachments []*Attachment, channelID, messageID 
 }
 
 // orderAttachments orders the attachments by backward compatibility.
-// The attachments that are not backward compatible are shown first.
+// The attachments that are not backward compatible are shown first, then the spec corrections, and finally the backward compatible changes.
 func orderAttachments(attachments []*Attachment) []*Attachment {
 	sort.Slice(attachments, func(i, j int) bool {
-		return attachments[i].Color == notBackwardCompatibleColor && attachments[j].Color != notBackwardCompatibleColor
+		if attachments[i].Color == attachments[j].Color {
+			return false
+		}
+
+		if attachments[i].Color == notBackwardCompatibleColor {
+			return true
+		}
+		if attachments[i].Color == specCorrectionColor && attachments[j].Color == backwardCompatibleColor {
+			return true
+		}
+
+		return false
 	})
 	return attachments
 }
@@ -143,7 +155,7 @@ func newAttachmentFromChange(version, method, path, changeType string, change *c
 	return &Attachment{
 		Text: newAttachmentText(version, method, path, changeType, change.Code, change.Description,
 			strconv.FormatBool(change.HideFromChangelog)),
-		Color:          newColorFromBackwardCompatible(change.BackwardCompatible),
+		Color:          newColorFromBackwardCompatible(change.BackwardCompatible, change.HideFromChangelog),
 		AttachmentType: attachmentTypeDefault,
 	}
 }
@@ -154,7 +166,11 @@ func newAttachmentText(version, method, path, changeType, changeCode, change, hi
 		version, hiddenFromChangelog, method, path, changeType, changeCode, change)
 }
 
-func newColorFromBackwardCompatible(backwardCompatible bool) string {
+func newColorFromBackwardCompatible(backwardCompatible, hideFromChangelog bool) string {
+	if hideFromChangelog {
+		return specCorrectionColor
+	}
+
 	if backwardCompatible {
 		return backwardCompatibleColor
 	}
