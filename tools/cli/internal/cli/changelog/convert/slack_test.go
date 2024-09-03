@@ -216,3 +216,65 @@ func TestNewColorFromBackwardCompatible(t *testing.T) {
 		})
 	}
 }
+
+func TestOrderAttachments(t *testing.T) {
+	tests := []struct {
+		name        string
+		attachments []*Attachment
+		expected    []*Attachment
+	}{
+		{
+			name: "Mixed Attachments",
+			attachments: []*Attachment{
+				{Text: "Attachment 1", Color: backwardCompatibleColor},
+				{Text: "Attachment 2", Color: notBackwardCompatibleColor},
+				{Text: "Attachment 3", Color: specCorrectionColor},
+			},
+			expected: []*Attachment{
+				{Text: "Attachment 2", Color: notBackwardCompatibleColor},
+				{Text: "Attachment 3", Color: specCorrectionColor},
+				{Text: "Attachment 1", Color: backwardCompatibleColor},
+			},
+		},
+		{
+			name: "All Backward Compatible",
+			attachments: []*Attachment{
+				{Text: "Attachment 1", Color: backwardCompatibleColor},
+				{Text: "Attachment 2", Color: backwardCompatibleColor},
+			},
+			expected: []*Attachment{
+				{Text: "Attachment 1", Color: backwardCompatibleColor},
+				{Text: "Attachment 2", Color: backwardCompatibleColor},
+			},
+		},
+		{
+			name: "All Not Backward Compatible",
+			attachments: []*Attachment{
+				{Text: "Attachment 1", Color: notBackwardCompatibleColor},
+				{Text: "Attachment 2", Color: notBackwardCompatibleColor},
+			},
+			expected: []*Attachment{
+				{Text: "Attachment 1", Color: notBackwardCompatibleColor},
+				{Text: "Attachment 2", Color: notBackwardCompatibleColor},
+			},
+		},
+		{
+			name: "All Spec Corrections",
+			attachments: []*Attachment{
+				{Text: "Attachment 1", Color: specCorrectionColor},
+				{Text: "Attachment 2", Color: specCorrectionColor},
+			},
+			expected: []*Attachment{
+				{Text: "Attachment 1", Color: specCorrectionColor},
+				{Text: "Attachment 2", Color: specCorrectionColor},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := orderAttachments(tt.attachments)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
+}
