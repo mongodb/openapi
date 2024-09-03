@@ -186,23 +186,32 @@ func TestNewColorFromBackwardCompatible(t *testing.T) {
 	tests := []struct {
 		name               string
 		backwardCompatible bool
+		hideFromChangelog  bool
 		expectedColor      string
 	}{
 		{
 			name:               "Backward Compatible True",
 			backwardCompatible: true,
-			expectedColor:      "#47a249",
+			hideFromChangelog:  false,
+			expectedColor:      backwardCompatibleColor,
 		},
 		{
 			name:               "Backward Compatible False",
 			backwardCompatible: false,
-			expectedColor:      "#b51818",
+			hideFromChangelog:  false,
+			expectedColor:      notBackwardCompatibleColor,
+		},
+		{
+			name:               "Hide from Changelog True",
+			backwardCompatible: true,
+			hideFromChangelog:  true,
+			expectedColor:      specCorrectionColor,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := newColorFromBackwardCompatible(tt.backwardCompatible)
+			actual := newColorFromBackwardCompatible(tt.backwardCompatible, tt.hideFromChangelog)
 			assert.Equal(t, tt.expectedColor, actual)
 		})
 	}

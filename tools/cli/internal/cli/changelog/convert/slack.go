@@ -29,6 +29,7 @@ import (
 const (
 	backwardCompatibleColor    = "#47a249"
 	notBackwardCompatibleColor = "#b51818"
+	specCorrectionColor        = "#ffa500"
 	parseFull                  = "full"
 	attachmentTypeDefault      = "default"
 	batchSize                  = 100
@@ -143,7 +144,7 @@ func newAttachmentFromChange(version, method, path, changeType string, change *c
 	return &Attachment{
 		Text: newAttachmentText(version, method, path, changeType, change.Code, change.Description,
 			strconv.FormatBool(change.HideFromChangelog)),
-		Color:          newColorFromBackwardCompatible(change.BackwardCompatible),
+		Color:          newColorFromBackwardCompatible(change.BackwardCompatible, change.HideFromChangelog),
 		AttachmentType: attachmentTypeDefault,
 	}
 }
@@ -154,7 +155,11 @@ func newAttachmentText(version, method, path, changeType, changeCode, change, hi
 		version, hiddenFromChangelog, method, path, changeType, changeCode, change)
 }
 
-func newColorFromBackwardCompatible(backwardCompatible bool) string {
+func newColorFromBackwardCompatible(backwardCompatible, hideFromChangelog bool) string {
+	if hideFromChangelog {
+		return specCorrectionColor
+	}
+
 	if backwardCompatible {
 		return backwardCompatibleColor
 	}
