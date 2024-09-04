@@ -6,6 +6,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+      inputs:
+        spectral_version:
+          description: 'Version of Spectral to use'     
+          type: string
+          required: true
 
 jobs:
   spectral-lint:
@@ -13,19 +19,12 @@ jobs:
     
     steps:
       # Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
-      # Set up Node.js (if you are using the npm-installed version)
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16' # or any other version that fits your project
+      - name: Run 
+        id: spectral-validation
+        env:
+          SPECTRAL_VERSION: ${{ inputs.spectral_version }}
+        run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint openapi/v2.yaml --ruleset=spectral/.spectral.yaml # we will update this to lint the FOAS in CLOUDP-263186
 
-      # Install dependencies (Spectral)
-      - name: Install dependencies
-        run: npm install
-
-      # Run Spectral lint on your OpenAPI files
-      - name: Run Spectral Lint
-        run: npx spectral lint openapi/v2.yaml
