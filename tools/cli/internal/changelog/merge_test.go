@@ -79,9 +79,9 @@ func TestMergeChangelogOneChange(t *testing.T) {
 	changelog, err := changelogStruct.mergeChangelog(changeType, changes, endpointsConfig)
 	require.NoError(t, err)
 
-	assert.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
+	assert.Len(t, changelog, 2, "merged changelog should have 2 entries, got %d", len(changelog))
 	assert.Equal(t, changelog[0].Date, runDate, "merged changelog should have entries for the run date")
-	assert.Equal(t, changelog[1].Date, lastChangelogRunDate, fmt.Sprintf("merged changelog should have entries for the %s", lastChangelogRunDate))
+	assert.Equal(t, changelog[1].Date, lastChangelogRunDate, "merged changelog should have entries for the %s", lastChangelogRunDate)
 
 	paths := changelog[0].Paths
 	assert.Len(t, paths, 1, "latest changelog entry should refer to only one endpoint")
@@ -184,9 +184,9 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	changelog, err = changelogStruct.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
 	require.NoError(t, err)
 
-	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
+	require.Len(t, changelog, 2, "merged changelog should have 2 entries, got %d", len(changelog))
 	assert.Equal(t, changelog[0].Date, runDate, "merged changelog should have entries for the run date")
-	assert.Equal(t, changelog[1].Date, lastChangelogRunDate, fmt.Sprintf("merged changelog should have entries for the %s", lastChangelogRunDate))
+	assert.Equal(t, changelog[1].Date, lastChangelogRunDate, "merged changelog should have entries for the %s", lastChangelogRunDate)
 
 	paths := changelog[0].Paths
 	assert.Len(t, paths, 1, "latest changelog entry should refer to only one endpoint")
@@ -288,7 +288,7 @@ func TestMergeChangelogAddTwoEndpoints(t *testing.T) {
 
 	// assert
 	assert.Equal(t, changelog[0].Date, runDate, "merged changelog should have entries for the run date")
-	assert.Equal(t, changelog[1].Date, lastChangelogRunDate, fmt.Sprintf("merged changelog should have entries for the %s", lastChangelogRunDate))
+	assert.Equal(t, changelog[1].Date, lastChangelogRunDate, "merged changelog should have entries for the %s", lastChangelogRunDate)
 
 	latestChangelogEntry := changelog[0]
 	newPaths := latestChangelogEntry.Paths
@@ -561,7 +561,7 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 	changelog, err = changelogStruct.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
 	require.NoError(t, err)
 
-	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
+	require.Len(t, changelog, 2, "merged changelog should have 2 entries, got %d", len(changelog))
 	assert.Equal(t, changelog[0].Date, runDate)
 	assert.Equal(t, changelog[1].Date, lastChangelogRunDate)
 
@@ -687,7 +687,7 @@ func TestMergeChangelogWithDeprecations(t *testing.T) {
 	changelog, err = changelogStruct.mergeChangelog(changeTypeSecondVersion, changesSecondVersion, endpointsConfig)
 	require.NoError(t, err)
 
-	require.Len(t, changelog, 2, fmt.Sprintf("merged changelog should have 2 entries, got %d", len(changelog)))
+	require.Len(t, changelog, 2, "merged changelog should have 2 entries, got %d", len(changelog))
 
 	latestChangelogEntry := changelog[0]
 	require.Equal(t, runDate, latestChangelogEntry.Date)
