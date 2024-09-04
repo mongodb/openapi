@@ -1,6 +1,6 @@
 # A Self-Documenting Makefile: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 
-SPECTRAL_VERSION=6.11.1
+SPECTRAL_VERSION=${SPECTRAL_VERSION:-6.11.1}
 
 .PHONY: deps
 deps:  ## Download go module dependencies
