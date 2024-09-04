@@ -6,35 +6,22 @@ set -euo pipefail
 # Environment variables:
 #   OPENAPI_FILE_NAME - openapi file name to use
 #   OPENAPI_FOLDER - folder for saving openapi file
-#   API_BASE_URL - base URL where the spec is hosted
-#   S3_BUCKET - S3 bucket where the spec is hosted
-#   VERSIONS_FILE - openapi versions file name to use
+#   FULL_OPENAPI_FOLDER - folder where openapi files are stored
+#   VERSION_FILE_NAME - name of the file where the current version is stored
 #########################################################
 
 OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"atlas-api.json"}
+FULL_OPENAPI_FOLDER=${FULL_OPENAPI_FOLDER:-"../../../openapi/v2/"}
 OPENAPI_FOLDER=${OPENAPI_FOLDER:-"../openapi"}
-API_BASE_URL=${API_BASE_URL:-"https://cloud.mongodb.com"}
-S3_BUCKET=${S3_BUCKET:-"mongodb-mms-prod-build-server"}
-VERSIONS_FILE=${VERSIONS_FILE:-"versions.json"}
+VERSION_FILE_NAME=${VERSION_FILE_NAME:-"version.txt"}
 
-versions_url="${API_BASE_URL}/api/openapi/versions"
+# Get the latest file by sorting lexicographically and store the full filename
+echo "Fetching latest version of the OpenAPI Spec"
+latest_openapi_filename=$(find "$FULL_OPENAPI_FOLDER"/openapi-????-??-??.json 2>/dev/null | sort -r | head -n 1)
 
-pushd "${OPENAPI_FOLDER}"
+# Extract the version from the filename 
+latest_version=$(basename "$latest_openapi_filename" .json | cut -d '-' -f2-)
+echo "Latest version is $latest_version"
+echo "$latest_version" > "$OPENAPI_FOLDER"/"$VERSION_FILE_NAME"
 
-echo "Fetching versions from $versions_url"
-curl --show-error --fail --silent -o "${VERSIONS_FILE}" \
-     -H "Accept: application/json" "${versions_url}"
-
-## Dynamic Versioned API Version
-CURRENT_API_REVISION=$(jq -r '.versions."2.0" | .[-1]' < "./${VERSIONS_FILE}")
-
-echo "Fetching OpenAPI release sha"
-sha=$(curl --show-error --fail --silent -H "Accept: text/plain" "${API_BASE_URL}/api/private/unauth/version")
-
-echo "Fetching OAS file for ${sha}"
-openapi_url="https://${S3_BUCKET}.s3.amazonaws.com/openapi/${sha}-v2-${CURRENT_API_REVISION}.json"
-
-echo "Fetching api from $openapi_url to $OPENAPI_FILE_NAME"
-curl --show-error --fail --silent -o "$OPENAPI_FILE_NAME" "$openapi_url"
-
-popd -0 
+cp  "$latest_openapi_filename" "$OPENAPI_FOLDER"/"$OPENAPI_FILE_NAME"

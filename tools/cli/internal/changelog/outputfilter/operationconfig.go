@@ -31,7 +31,7 @@ func (e *OperationConfigs) Tag() string {
 }
 
 func (e *OperationConfigs) Sunset() string {
-	if e.Revision != nil {
+	if e.Revision != nil && e.Revision.Sunset != "" {
 		return e.Revision.Sunset
 	}
 
@@ -42,9 +42,9 @@ func (e *OperationConfigs) Sunset() string {
 	return ""
 }
 
-// newOperationConfigs parses the base and revision openapi specs
+// NewOperationConfigs parses the base and revision openapi specs
 // and returns the mapping between API operationId and EndpointConfig.
-func newOperationConfigs(base, revision *load.SpecInfo) map[string]*OperationConfigs {
+func NewOperationConfigs(base, revision *load.SpecInfo) map[string]*OperationConfigs {
 	baseEndpointsConfigMap := newOperationConfigFromSpec(base)
 	revisionEndpointsConfigMap := newOperationConfigFromSpec(revision)
 
@@ -72,6 +72,10 @@ func newOperationConfigs(base, revision *load.SpecInfo) map[string]*OperationCon
 
 func newOperationConfigFromSpec(spec *load.SpecInfo) map[string]*OperationConfig {
 	endpointsConfigMap := make(map[string]*OperationConfig)
+	if spec == nil || spec.Spec == nil {
+		return nil
+	}
+
 	paths := spec.Spec.Paths
 	if paths == nil || paths.Len() == 0 {
 		return nil

@@ -15,14 +15,23 @@
 package changelog
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+)
+
+const (
+	changelogFileName          = "changelog"
+	changelogAllFileName       = "changelog-all"
+	changelogAllFolderName     = "internal"
+	versionChangelogFolderName = "version-diff"
+	metadataFileName           = "metadata.json"
 )
 
 type Opts struct {
@@ -30,53 +39,81 @@ type Opts struct {
 	basePath        string
 	revisionPath    string
 	exceptionsPaths string
+	outputPath      string
 	dryRun          bool
 }
 
 func (o *Opts) Run() error {
-	metadata, err := changelog.NewMetadata(
-		fmt.Sprintf("%s/%s", o.basePath, "v2.json"),
-		fmt.Sprintf("%s/%s", o.revisionPath, "v2.json"),
-		o.exceptionsPaths)
-
+	entries, err := changelog.NewEntries(o.basePath, o.revisionPath, o.exceptionsPaths)
 	if err != nil {
 		return err
 	}
 
-	checks, err := metadata.Check()
+	notHiddenEntries, err := changelog.NewNotHiddenEntries(entries)
 	if err != nil {
 		return err
 	}
 
-	fmt.Print("Printing the checks\n")
-	for _, check := range checks {
-		base, jsonErr := json.MarshalIndent(*check, "", "  ")
-		if jsonErr != nil {
-			return jsonErr
+	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath, o.exceptionsPaths)
+	if err != nil {
+		return err
+	}
+
+	if o.dryRun {
+		log.Printf("Detected dry-run mode. No changes will be saved.\n")
+		return nil
+	}
+
+	if err := o.fs.MkdirAll(fmt.Sprintf("%s/%s", o.outputPath, changelogAllFolderName), 0o755); err != nil {
+		return err
+	}
+
+	if errSaveFile := openapi.SaveToFile(o.newOutputFilePath(changelogFileName), "", notHiddenEntries, o.fs); errSaveFile != nil {
+		return errSaveFile
+	}
+
+	if errSaveFile := openapi.SaveToFile(
+		o.newOutputFilePath(fmt.Sprintf("%s/%s", changelogAllFolderName, changelogAllFileName)), "", entries, o.fs); errSaveFile != nil {
+		return errSaveFile
+	}
+
+	if err := o.fs.MkdirAll(fmt.Sprintf("%s/%s", o.outputPath, versionChangelogFolderName), 0o755); err != nil {
+		return err
+	}
+
+	for _, entry := range versionedEntries {
+		if errSaveFile := openapi.SaveToFile(
+			o.newOutputFilePath(fmt.Sprintf("%s/%s_%s", versionChangelogFolderName, entry.FromVersion, entry.ToVersion)),
+			openapi.JSON, entry.Paths, o.fs); errSaveFile != nil {
+			return errSaveFile
 		}
-
-		fmt.Println(string(base))
-	}
-
-	currentChangelog, err := changelog.NewChangelogEntries(fmt.Sprintf("%s/%s", o.basePath, "changelog.json"))
-	if err != nil {
-		return err
-	}
-	fmt.Print("Printing current changelog\n")
-	for _, check := range currentChangelog {
-		base, err := json.MarshalIndent(*check, "", "  ")
-		if err != nil {
-			return err
-		}
-
-		fmt.Println(string(base))
 	}
 
 	return nil
 }
 
-func (o *Opts) PreRunE(_ []string) error {
+func (o *Opts) validations() error {
+	if _, err := o.fs.Stat(fmt.Sprintf("%s/%s", o.basePath, metadataFileName)); err != nil {
+		return err
+	}
+
+	if _, err := o.fs.Stat(fmt.Sprintf("%s/%s", o.revisionPath, metadataFileName)); err != nil {
+		return err
+	}
+
+	if _, err := o.fs.Stat(o.exceptionsPaths); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func (o *Opts) newOutputFilePath(fileName string) string {
+	if o.outputPath != "" {
+		return fmt.Sprintf("%s/%s", o.outputPath, fileName)
+	}
+
+	return fileName
 }
 
 // Builder builds the merge command with the following signature:
@@ -91,8 +128,8 @@ func CreateBuilder() *cobra.Command {
 		Aliases: []string{"generate"},
 		Short:   "Generate the changelog for the OpenAPI spec.",
 		Args:    cobra.NoArgs,
-		PreRunE: func(_ *cobra.Command, args []string) error {
-			return opts.PreRunE(args)
+		PreRunE: func(_ *cobra.Command, _ []string) error {
+			return opts.validations()
 		},
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return opts.Run()
@@ -103,6 +140,7 @@ func CreateBuilder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.revisionPath, flag.Revision, flag.RevisionShort, "", usage.RevisionFolder)
 	cmd.Flags().StringVarP(&opts.exceptionsPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
 	cmd.Flags().BoolVarP(&opts.dryRun, flag.DryRun, flag.DryRunShort, false, usage.DryRun)
+	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 
 	_ = cmd.MarkFlagRequired(flag.Base)
 	_ = cmd.MarkFlagRequired(flag.Revision)

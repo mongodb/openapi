@@ -155,6 +155,34 @@ rules:
         function: pattern
         functionOptions:
           match: "^(dev|qa|stage|prod)(,(dev|qa|stage|prod))*$"
+  
+  soa-migration-extension:
+    description: "Ensure the x-xgen-soa-migration extension is valid."
+    message: "The x-xgen-soa-migration extension must include 'service_name', 'allow_diff', and 'source_service' should only be present when 'allow_diff' is true."
+    formats: ["oas3"]
+    given: "$.paths[*][*].x-xgen-soa-migration"
+    severity: error
+    then:
+      - field: service_name
+        function: truthy
+        message: "'service_name' must be provided."
+      - field: allow_diff
+        function: pattern
+        functionOptions:
+          match: "^(true|false)$"
+        message: "'allow_diff' must be true or false."
+      - function: falsy
+        field: source_service
+        message: "'source_service' should not exist when 'allow_diff' is false."
+        when:
+          field: allow_diff
+          pattern: "^false$"
+      - function: truthy
+        field: source_service
+        message: "'source_service' must be provided when 'allow_diff' is true."
+        when:
+          field: allow_diff
+          pattern: "^true$"
 
 overrides:
   - files: # load sample data has an issue with different path param names for different VERBS

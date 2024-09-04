@@ -15,6 +15,8 @@
 package changelog
 
 import (
+	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog/convert"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog/metadata"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +29,11 @@ func Builder() *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(CreateBuilder())
+	cmd.AddCommand(
+		CreateBuilder(),
+		metadata.Builder(),
+		convert.Builder(),
+	)
 
 	return cmd
 }

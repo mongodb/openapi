@@ -22,6 +22,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/tufin/oasdiff/diff"
+	"github.com/tufin/oasdiff/flatten/allof"
 	"github.com/tufin/oasdiff/load"
 )
 
@@ -40,7 +41,29 @@ type OasDiffResult struct {
 }
 
 func (o OasDiff) NewDiffResult() (*OasDiffResult, error) {
-	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(o.config, o.base, o.external)
+	flattenBaseSpec, err := allof.MergeSpec(o.base.Spec)
+	if err != nil {
+		return nil, err
+	}
+
+	baseSpecInfo := &load.SpecInfo{
+		Spec:    flattenBaseSpec,
+		Url:     o.base.Url,
+		Version: o.base.GetVersion(),
+	}
+
+	flattenExternalSpec, err := allof.MergeSpec(o.external.Spec)
+	if err != nil {
+		return nil, err
+	}
+
+	externalSpecInfo := &load.SpecInfo{
+		Spec:    flattenExternalSpec,
+		Url:     o.external.Url,
+		Version: o.external.GetVersion(),
+	}
+
+	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(o.config, baseSpecInfo, externalSpecInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +71,7 @@ func (o OasDiff) NewDiffResult() (*OasDiffResult, error) {
 	return &OasDiffResult{
 		Report:       diffReport,
 		SourceMap:    operationsSources,
-		SpecInfoPair: load.NewSpecInfoPair(o.base, o.external),
+		SpecInfoPair: load.NewSpecInfoPair(baseSpecInfo, externalSpecInfo),
 	}, nil
 }
 

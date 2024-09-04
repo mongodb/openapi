@@ -26,6 +26,7 @@ const lan = "en" // language for localized output
 
 type OasDiffEntry struct {
 	ID                string `json:"id"`
+	Date              string `json:"date"`
 	Text              string `json:"text"`
 	Level             int    `json:"level"`
 	Operation         string `json:"operation,omitempty"`
@@ -34,6 +35,13 @@ type OasDiffEntry struct {
 	Source            string `json:"source,omitempty"`
 	Section           string `json:"section"`
 	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
+}
+
+func (o *OasDiffEntry) LevelWithDefault() int {
+	if o.Level != 0 {
+		return o.Level
+	}
+	return int(checker.INFO)
 }
 
 func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*OasDiffEntry, error) {
@@ -59,17 +67,24 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 }
 
 func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {
-	for _, entry := range entries {
-		transformMessage(entry)
-	}
-
-	newEntries, err := squashEntries(entries)
+	fs := afero.NewOsFs()
+	entries, err := MarkHiddenEntries(entries, exemptionsFilePath, fs)
 	if err != nil {
 		return nil, err
 	}
 
-	fs := afero.NewOsFs()
-	newEntries, err = MarkHiddenEntries(newEntries, exemptionsFilePath, fs)
+	newEntries := make([]*OasDiffEntry, 0)
+	for _, entry := range entries {
+		// only changes linked to endpoints are currently considered.
+		// For example, oasdiff might also return entries where components were removed.
+		if entry.Path == "" {
+			continue
+		}
+		transformMessage(entry)
+		newEntries = append(newEntries, entry)
+	}
+
+	newEntries, err = squashEntries(newEntries)
 	if err != nil {
 		return nil, err
 	}

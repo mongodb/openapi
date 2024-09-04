@@ -1,50 +1,119 @@
-name: 'Release Runner: Start the Release Process for DEV, QA, and STAGING'
+name: 'Release Runner: Start the Release Process for DEV, QA, STAGING and PROD'
 on:
-  workflow_dispatch: {}
+  workflow_dispatch: 
+    inputs:
+      env_to_release:
+        description: 'List of environments to release the OpenAPI Spec to.'
+        type: choice
+        options:
+          - dev
+          - qa
+          - staging
+          - prod
+          - dev,qa,staging,prod
+          - dev,qa,staging
+          - dev,qa
+        default: 'dev'
+        required: false
   schedule:
-    - cron: '0 * * * *' # Run every hour
+   - cron: '0 * * * 1-5' # Run every hour from Monday to Friday
 permissions:
   contents: write
   pull-requests: write
   issues: write
 
 jobs:
+  release-preparation:
+    name: Release Preparation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: main
+          token: ${{secrets.api_bot_pat}}
+          sparse-checkout: |
+            .github
+      # We upload the scripts in .github/scripts/* (defined only in main) so that they can be downloaded and reused 
+      # when releasing in all the branches.
+      - name: Upload release scripts 
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
+        with:
+          name: release-scripts
+          retention-days: 1
+          path: .github/scripts/* 
   release-spec-dev:
     name: Release OpenAPI Spec for DEV
+    needs: release-preparation
+    if: >-
+       github.event_name == 'schedule' || contains(inputs.env_to_release, 'dev')
     uses: ./.github/workflows/release-spec.yml
     secrets:
       api_bot_pat: ${{ secrets.API_BOT_PAT }}
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
     with:
       aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
       aws_s3_bucket: ${{ vars.S3_BUCKET_DEV}}
       env: dev
+      branch: dev
       spectral_version: ${{ vars.SPECTRAL_VERSION }}
       foascli_version: ${{ vars.FOASCLI_VERSION }}
   release-spec-qa:
     name: Release OpenAPI Spec for QA
+    needs: release-preparation
+    if: >-
+        github.event_name == 'schedule' || contains(inputs.env_to_release, 'qa')
     uses: ./.github/workflows/release-spec.yml
     secrets:
         api_bot_pat: ${{ secrets.API_BOT_PAT }}
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_QA }}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_QA }}
+        jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
     with:
         aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
         aws_s3_bucket: ${{ vars.S3_BUCKET_QA}}
         env: qa
+        branch: qa
         spectral_version: ${{ vars.SPECTRAL_VERSION }}
         foascli_version: ${{ vars.FOASCLI_VERSION }}
   release-spec-staging:
     name: Release OpenAPI Spec for STAGING
+    needs: release-preparation
+    if: >-
+        github.event_name == 'schedule' || contains(inputs.env_to_release, 'staging')
     uses: ./.github/workflows/release-spec.yml
     secrets:
         api_bot_pat: ${{ secrets.API_BOT_PAT }}
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+        jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
     with:
         aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
         aws_s3_bucket: ${{ vars.S3_BUCKET_STAGING}}
-        env: staging
+        env: stage
+        branch: staging
         spectral_version: ${{ vars.SPECTRAL_VERSION }}
         foascli_version: ${{ vars.FOASCLI_VERSION }}
+  release-spec-prod:
+    name: Release OpenAPI Spec for PROD
+    needs: release-preparation
+    if: >-
+        github.event_name == 'schedule' || contains(inputs.env_to_release, 'prod')
+    uses: ./.github/workflows/release-spec.yml
+    secrets:
+        api_bot_pat: ${{ secrets.API_BOT_PAT }}
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+        postman_api_key: ${{ secrets.POSTMAN_API_KEY }}
+        workspace_id: ${{ secrets.WORKSPACE_ID }}
+        jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+    with:
+        aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
+        aws_s3_bucket: ${{ vars.S3_BUCKET_PROD}}
+        env: prod
+        branch: main
+        spectral_version: ${{ vars.SPECTRAL_VERSION }}
+        foascli_version: ${{ vars.FOASCLI_VERSION }}
+        atlas_prod_base_url: ${{ vars.ATLAS_PROD_BASE_URL }}

@@ -558,7 +558,7 @@ components:
                     description: |-
                         Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware.
 
-                         Change this parameter only if you:
+                         Change this parameter if you:
 
                         - set `"replicationSpecs[n].regionConfigs[m].providerName" to "AWS"`.
                         - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize" to "M30"` or greater (not including `Mxx_NVME` tiers).
@@ -626,7 +626,7 @@ components:
 
                          You can set different IOPS values on different shards when provisioned IOPS are supported.
 
-                         Change this parameter only if you:
+                         Change this parameter if you:
 
                         - set `"replicationSpecs[n].regionConfigs[m].providerName" to "AWS"`.
                         - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize" to "M30"` or greater (not including `Mxx_NVME` tiers).
@@ -1016,6 +1016,15 @@ components:
                         description: Encryption at Rest using Customer Key Management
                         url: https://www.mongodb.com/docs/atlas/security-kms-encryption/
                     type: string
+                featureCompatibilityVersion:
+                    description: Feature compatibility version of the cluster.
+                    readOnly: true
+                    type: string
+                featureCompatibilityVersionExpirationDate:
+                    description: Feature compatibility version expiration date.
+                    format: date-time
+                    readOnly: true
+                    type: string
                 globalClusterSelfManagedSharding:
                     description: |-
                         Set this field to configure the Sharding Management Mode when creating a new Global Cluster.
@@ -1094,6 +1103,24 @@ components:
                         description: Continuous Cloud Backups
                         url: https://docs.atlas.mongodb.com/backup/cloud-backup/overview/
                     type: boolean
+                replicaSetScalingStrategy:
+                    default: WORKLOAD_TYPE
+                    description: |-
+                        Set this field to configure the replica set scaling mode for your cluster.
+
+                        By default, Atlas scales under WORKLOAD_TYPE. This mode allows Atlas to scale your analytics nodes in parallel to your operational nodes.
+
+                        When configured as SEQUENTIAL, Atlas scales all nodes sequentially. This mode is intended for steady-state workloads and applications performing latency-sensitive secondary reads.
+
+                        When configured as NODE_TYPE, Atlas scales your electable nodes in parallel with your read-only and analytics nodes. This mode is intended for large, dynamic workloads requiring frequent and timely cluster tier scaling. This is the fastest scaling strategy, but it might impact latency of workloads when performing extensive secondary reads.
+                    enum:
+                        - SEQUENTIAL
+                        - WORKLOAD_TYPE
+                        - NODE_TYPE
+                    externalDocs:
+                        description: Modify the Replica Set Scaling Mode
+                        url: https://dochub.mongodb.org/core/scale-nodes
+                    type: string
                 replicationSpecs:
                     description: List of settings that configure your cluster regions. For Global Clusters, each object in the array represents a zone where your clusters nodes deploy. For non-Global sharded clusters and replica sets, this array has one object representing where your clusters nodes deploy.
                     items:
@@ -2276,6 +2303,25 @@ components:
                     readOnly: true
                     type: string
             type: object
+        ApiPublicUsageDetailsQueryRequest:
+            description: Request body for an Invoice Usage Details query with filtering, pagination, and sort.
+            properties:
+                filters:
+                    $ref: '#/components/schemas/UsageDetailsFilterRequest'
+                sortField:
+                    description: Specify the field used to specify how to sort query results. Default to bill date.
+                    enum:
+                        - USAGE_DATES
+                        - BILL_DATES
+                        - TOTAL_PRICE_CENTS
+                    type: string
+                sortOrder:
+                    description: Specify the sort order (ascending / descending) used to specify how to sort query results. Defaults to descending.
+                    enum:
+                        - ASCENDING
+                        - DESCENDING
+                    type: string
+            type: object
         ApiSearchDeploymentRequestView:
             properties:
                 specs:
@@ -2361,7 +2407,17 @@ components:
         ApiStreamsAWSRegionView:
             description: Atlas Streams AWS Regions.
             enum:
+                - SYDNEY_AUS
+                - MUMBAI_IND
+                - FRANKFURT_DEU
+                - DUBLIN_IRL
+                - LONDON_GBR
                 - VIRGINIA_USA
+                - OREGON_USA
+                - SAOPAULO_BRA
+                - MONTREAL_CAN
+                - TOKYO_JPN
+                - SINGAPORE_SGP
             type: string
         ApiUserEventTypeViewForNdsGroup:
             description: Unique identifier of event type.
@@ -3752,6 +3808,21 @@ components:
             type: object
         AzureHardwareSpec:
             properties:
+                diskIOPS:
+                    description: |-
+                        Target throughput desired for storage attached to your Azure-provisioned cluster. Change this parameter if you:
+
+                        - set `"replicationSpecs[n].regionConfigs[m].providerName" : "Azure"`.
+                        - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize" : "M40"` or greater not including `Mxx_NVME` tiers.
+
+                        The maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.
+                        This parameter defaults to the cluster tier's standard IOPS value.
+                        Changing this value impacts cluster cost.
+                    externalDocs:
+                        description: Programmatic API Keys
+                        url: https://www.mongodb.com/docs/atlas/customize-storage/#extend-iops-on-azure
+                    format: int32
+                    type: integer
                 instanceSize:
                     description: Hardware specification for the instance sizes in this region. Each instance size has a default storage and memory capacity. The instance size you select applies to all the data-bearing hosts of the node type.
                     enum:
@@ -3786,6 +3857,21 @@ components:
             type: object
         AzureHardwareSpec20240805:
             properties:
+                diskIOPS:
+                    description: |-
+                        Target throughput desired for storage attached to your Azure-provisioned cluster. Change this parameter if you:
+
+                        - set `"replicationSpecs[n].regionConfigs[m].providerName" : "Azure"`.
+                        - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize" : "M40"` or greater not including `Mxx_NVME` tiers.
+
+                        The maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.
+                        This parameter defaults to the cluster tier's standard IOPS value.
+                        Changing this value impacts cluster cost.
+                    externalDocs:
+                        description: Programmatic API Keys
+                        url: https://www.mongodb.com/docs/atlas/customize-storage/#extend-iops-on-azure
+                    format: int32
+                    type: integer
                 diskSizeGB:
                     description: "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier."
                     format: double
@@ -3966,6 +4052,8 @@ components:
                         - PENDING_ACCEPTANCE
                         - ACTIVE
                         - FAILED
+                        - PENDING_RECREATION
+                        - DELETING
                     readOnly: true
                     type: string
             title: Azure Key Vault EAR Private Endpoint
@@ -6195,23 +6283,23 @@ components:
                         description: Google Compute Regions.
                         enum:
                             - EASTERN_US
-                            - GOV_EASTERN_US
+                            - EASTERN_US_AW
                             - US_EAST_4
-                            - GOV_US_EAST_4
+                            - US_EAST_4_AW
                             - US_EAST_5
-                            - GOV_US_EAST_5
+                            - US_EAST_5_AW
                             - US_WEST_2
-                            - GOV_US_WEST_2
+                            - US_WEST_2_AW
                             - US_WEST_3
-                            - GOV_US_WEST_3
+                            - US_WEST_3_AW
                             - US_WEST_4
-                            - GOV_US_WEST_4
+                            - US_WEST_4_AW
                             - US_SOUTH_1
-                            - GOV_US_SOUTH_1
+                            - US_SOUTH_1_AW
                             - CENTRAL_US
-                            - GOV_CENTRAL_US
+                            - CENTRAL_US_AW
                             - WESTERN_US
-                            - GOV_WESTERN_US
+                            - WESTERN_US_AW
                             - NORTH_AMERICA_NORTHEAST_1
                             - NORTH_AMERICA_NORTHEAST_2
                             - SOUTH_AMERICA_EAST_1
@@ -6311,7 +6399,7 @@ components:
                 - $ref: '#/components/schemas/CloudProviderAccessRole'
                 - properties:
                     _id:
-                        description: Unique 24-hexadecimal digit string that identifies the Azure Service Principal in Atlas.
+                        description: Unique 24-hexadecimal digit string that identifies the role.
                         example: 32b6e34b3d91647abb20e7b8
                         maxLength: 24
                         minLength: 24
@@ -6471,9 +6559,6 @@ components:
                     AWS: '#/components/schemas/CloudProviderAccessAWSIAMRole'
                     AZURE: '#/components/schemas/CloudProviderAccessAzureServicePrincipal'
                 propertyName: providerName
-            oneOf:
-                - $ref: '#/components/schemas/CloudProviderAccessAWSIAMRole'
-                - $ref: '#/components/schemas/CloudProviderAccessAzureServicePrincipal'
             properties:
                 providerName:
                     description: Human-readable label that identifies the cloud provider of the role.
@@ -6490,6 +6575,11 @@ components:
                     description: List that contains the Amazon Web Services (AWS) IAM roles registered and authorized with MongoDB Cloud.
                     items:
                         $ref: '#/components/schemas/CloudProviderAccessAWSIAMRole'
+                    type: array
+                azureServicePrincipals:
+                    description: List that contains the Azure Service Principals registered with MongoDB Cloud.
+                    items:
+                        $ref: '#/components/schemas/CloudProviderAccessAzureServicePrincipal'
                     type: array
             type: object
         CloudProviderAzureAutoScaling:
@@ -6704,23 +6794,23 @@ components:
                         - description: Google Compute Regions.
                           enum:
                             - EASTERN_US
-                            - GOV_EASTERN_US
+                            - EASTERN_US_AW
                             - US_EAST_4
-                            - GOV_US_EAST_4
+                            - US_EAST_4_AW
                             - US_EAST_5
-                            - GOV_US_EAST_5
+                            - US_EAST_5_AW
                             - US_WEST_2
-                            - GOV_US_WEST_2
+                            - US_WEST_2_AW
                             - US_WEST_3
-                            - GOV_US_WEST_3
+                            - US_WEST_3_AW
                             - US_WEST_4
-                            - GOV_US_WEST_4
+                            - US_WEST_4_AW
                             - US_SOUTH_1
-                            - GOV_US_SOUTH_1
+                            - US_SOUTH_1_AW
                             - CENTRAL_US
-                            - GOV_CENTRAL_US
+                            - CENTRAL_US_AW
                             - WESTERN_US
-                            - GOV_WESTERN_US
+                            - WESTERN_US_AW
                             - NORTH_AMERICA_NORTHEAST_1
                             - NORTH_AMERICA_NORTHEAST_2
                             - SOUTH_AMERICA_EAST_1
@@ -6887,23 +6977,23 @@ components:
                         - description: Google Compute Regions.
                           enum:
                             - EASTERN_US
-                            - GOV_EASTERN_US
+                            - EASTERN_US_AW
                             - US_EAST_4
-                            - GOV_US_EAST_4
+                            - US_EAST_4_AW
                             - US_EAST_5
-                            - GOV_US_EAST_5
+                            - US_EAST_5_AW
                             - US_WEST_2
-                            - GOV_US_WEST_2
+                            - US_WEST_2_AW
                             - US_WEST_3
-                            - GOV_US_WEST_3
+                            - US_WEST_3_AW
                             - US_WEST_4
-                            - GOV_US_WEST_4
+                            - US_WEST_4_AW
                             - US_SOUTH_1
-                            - GOV_US_SOUTH_1
+                            - US_SOUTH_1_AW
                             - CENTRAL_US
-                            - GOV_CENTRAL_US
+                            - CENTRAL_US_AW
                             - WESTERN_US
-                            - GOV_WESTERN_US
+                            - WESTERN_US_AW
                             - NORTH_AMERICA_NORTHEAST_1
                             - NORTH_AMERICA_NORTHEAST_2
                             - SOUTH_AMERICA_EAST_1
@@ -7314,6 +7404,15 @@ components:
                         description: Encryption at Rest using Customer Key Management
                         url: https://www.mongodb.com/docs/atlas/security-kms-encryption/
                     type: string
+                featureCompatibilityVersion:
+                    description: Feature compatibility version of the cluster.
+                    readOnly: true
+                    type: string
+                featureCompatibilityVersionExpirationDate:
+                    description: Feature compatibility version expiration date.
+                    format: date-time
+                    readOnly: true
+                    type: string
                 globalClusterSelfManagedSharding:
                     description: |-
                         Set this field to configure the Sharding Management Mode when creating a new Global Cluster.
@@ -7392,6 +7491,24 @@ components:
                         description: Continuous Cloud Backups
                         url: https://docs.atlas.mongodb.com/backup/cloud-backup/overview/
                     type: boolean
+                replicaSetScalingStrategy:
+                    default: WORKLOAD_TYPE
+                    description: |-
+                        Set this field to configure the replica set scaling mode for your cluster.
+
+                        By default, Atlas scales under WORKLOAD_TYPE. This mode allows Atlas to scale your analytics nodes in parallel to your operational nodes.
+
+                        When configured as SEQUENTIAL, Atlas scales all nodes sequentially. This mode is intended for steady-state workloads and applications performing latency-sensitive secondary reads.
+
+                        When configured as NODE_TYPE, Atlas scales your electable nodes in parallel with your read-only and analytics nodes. This mode is intended for large, dynamic workloads requiring frequent and timely cluster tier scaling. This is the fastest scaling strategy, but it might impact latency of workloads when performing extensive secondary reads.
+                    enum:
+                        - SEQUENTIAL
+                        - WORKLOAD_TYPE
+                        - NODE_TYPE
+                    externalDocs:
+                        description: Modify the Replica Set Scaling Mode
+                        url: https://dochub.mongodb.org/core/scale-nodes
+                    type: string
                 replicationSpecs:
                     description: List of settings that configure your cluster regions. This array has one object per shard representing node configurations in each shard. For replica sets there is only one object representing node configurations.
                     items:
@@ -7489,6 +7606,13 @@ components:
             type: object
         ClusterDescriptionProcessArgs:
             properties:
+                changeStreamOptionsPreAndPostImagesExpireAfterSeconds:
+                    description: The minimum pre- and post-image retention time in seconds.
+                    externalDocs:
+                        description: 'This option corresponds to the ``changeStreamOptions.preAndPostImages.expireAfterSeconds`` cluster parameter. This setting controls the retention policy of change stream pre- and post-images. Pre- and post-images are the versions of a document before and after document modification, respectively. ``expireAfterSeconds`` controls how long MongoDB retains pre- and post-images. When set to -1 (off), MongoDB uses the default retention policy: pre- and post-images are retained until the corresponding change stream events are removed from the oplog. To set the minimum pre- and post-image retention time, specify an integer value greater than zero. Setting this too low could increase the risk of interrupting Realm sync or triggers processing. The default value is -1 (off).'
+                        url: https://www.mongodb.com/docs/upcoming/reference/cluster-parameters/changeStreamOptions/#mongodb-parameter-param.changeStreamOptions.preAndPostImages.expireAfterSeconds
+                    format: int32
+                    type: integer
                 chunkMigrationConcurrency:
                     description: Number of threads on the source shard and the receiving shard for chunk migration. The number of threads should not exceed the half the total number of CPU cores in the sharded cluster.
                     externalDocs:
@@ -7596,6 +7720,13 @@ components:
             type: object
         ClusterDescriptionProcessArgs20240805:
             properties:
+                changeStreamOptionsPreAndPostImagesExpireAfterSeconds:
+                    description: The minimum pre- and post-image retention time in seconds.
+                    externalDocs:
+                        description: 'This option corresponds to the ``changeStreamOptions.preAndPostImages.expireAfterSeconds`` cluster parameter. This setting controls the retention policy of change stream pre- and post-images. Pre- and post-images are the versions of a document before and after document modification, respectively. ``expireAfterSeconds`` controls how long MongoDB retains pre- and post-images. When set to -1 (off), MongoDB uses the default retention policy: pre- and post-images are retained until the corresponding change stream events are removed from the oplog. To set the minimum pre- and post-image retention time, specify an integer value greater than zero. Setting this too low could increase the risk of interrupting Realm sync or triggers processing. The default value is -1 (off).'
+                        url: https://www.mongodb.com/docs/upcoming/reference/cluster-parameters/changeStreamOptions/#mongodb-parameter-param.changeStreamOptions.preAndPostImages.expireAfterSeconds
+                    format: int32
+                    type: integer
                 chunkMigrationConcurrency:
                     description: Number of threads on the source shard and the receiving shard for chunk migration. The number of threads should not exceed the half the total number of CPU cores in the sharded cluster.
                     externalDocs:
@@ -8603,6 +8734,7 @@ components:
                 mapping:
                     AWS: '#/components/schemas/AWSCreateDataProcessRegionView'
                     AZURE: '#/components/schemas/AzureCreateDataProcessRegionView'
+                    GCP: '#/components/schemas/GCPCreateDataProcessRegionView'
                 propertyName: cloudProvider
             properties:
                 cloudProvider:
@@ -10136,6 +10268,7 @@ components:
                 mapping:
                     AWS: '#/components/schemas/AWSDataProcessRegionView'
                     AZURE: '#/components/schemas/AzureDataProcessRegionView'
+                    GCP: '#/components/schemas/GCPDataProcessRegionView'
                 propertyName: cloudProvider
             properties:
                 cloudProvider:
@@ -10143,6 +10276,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     readOnly: true
                     type: string
             readOnly: true
@@ -11260,6 +11394,12 @@ components:
                           title: Proactive Operation Event Types
                           type: string
                         - enum:
+                            - SEARCH_DEPLOYMENT_CREATED
+                            - SEARCH_DEPLOYMENT_UPDATED
+                            - SEARCH_DEPLOYMENT_DELETED
+                          title: Search Deployment Audit Types
+                          type: string
+                        - enum:
                             - SERVERLESS_DEPLOYMENT_CREATED
                             - SERVERLESS_DEPLOYMENT_DELETED
                             - SERVERLESS_DEPLOYMENT_UPDATED
@@ -11315,6 +11455,8 @@ components:
                             - FIXED_VERSION_UPDATED
                             - FIXED_AGENT_VERSION_UPDATED
                             - CLUSTER_FCV_DOWNGRADED
+                            - CLUSTER_BINARY_VERSION_DOWNGRADED
+                            - CLUSTER_BINARY_VERSION_UPGRADED
                           title: Version Audit Types
                           type: string
                     type: object
@@ -12824,6 +12966,8 @@ components:
                         - PENDING_ACCEPTANCE
                         - ACTIVE
                         - FAILED
+                        - PENDING_RECREATION
+                        - DELETING
                     readOnly: true
                     type: string
             title: Encryption At Rest Private Endpoint
@@ -12876,24 +13020,6 @@ components:
                     $ref: '#/components/schemas/AzureKeyVault'
                 googleCloudKms:
                     $ref: '#/components/schemas/GoogleCloudKMS'
-            type: object
-        EncryptionAtRestPrivateEndpointRequest:
-            description: Create or delete private endpoints from the specified regions list.
-            properties:
-                cloudProvider:
-                    description: Cloud service provider name.
-                    enum:
-                        - AZURE
-                    type: string
-                regions:
-                    description: List of regions.
-                    items:
-                        type: string
-                    type: array
-                    uniqueItems: true
-            required:
-                - cloudProvider
-            title: Encryption At Rest Private Endpoints setup.
             type: object
         EncryptionKeyAlertConfigViewForNdsGroup:
             description: Encryption key alert configuration allows to select thresholds  which trigger alerts and how users are notified.
@@ -13313,6 +13439,7 @@ components:
                     - CLUSTER_IMPORT_CANCELLED
                     - CLUSTER_IMPORT_EXPIRED
                     - CLUSTER_IMPORT_CUTOVER
+                    - CLUSTER_IMPORT_COMPLETED
                     - CLUSTER_IMPORT_RESTART_REQUESTED
                     - PROJECT_LIVE_IMPORT_OVERRIDES_ADDED
                     - PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED
@@ -13603,6 +13730,12 @@ components:
                   title: ReplicaSet Event Types
                   type: string
                 - enum:
+                    - SEARCH_DEPLOYMENT_CREATED
+                    - SEARCH_DEPLOYMENT_UPDATED
+                    - SEARCH_DEPLOYMENT_DELETED
+                  title: Search Deployment Audit Types
+                  type: string
+                - enum:
                     - SERVERLESS_DEPLOYMENT_CREATED
                     - SERVERLESS_DEPLOYMENT_DELETED
                     - SERVERLESS_DEPLOYMENT_UPDATED
@@ -13675,6 +13808,8 @@ components:
                     - FIXED_VERSION_UPDATED
                     - FIXED_AGENT_VERSION_UPDATED
                     - CLUSTER_FCV_DOWNGRADED
+                    - CLUSTER_BINARY_VERSION_DOWNGRADED
+                    - CLUSTER_BINARY_VERSION_UPGRADED
                   title: Version Audit Types
                   type: string
                 - enum:
@@ -13972,6 +14107,7 @@ components:
                 - $ref: '#/components/schemas/NDSServerlessInstanceAuditView'
                 - $ref: '#/components/schemas/NDSTenantEndpointAuditView'
                 - $ref: '#/components/schemas/ForNdsGroup'
+                - $ref: '#/components/schemas/SearchDeploymentAuditView'
                 - $ref: '#/components/schemas/TeamEventViewForNdsGroup'
                 - $ref: '#/components/schemas/UserEventViewForNdsGroup'
                 - $ref: '#/components/schemas/ResourceEventViewForNdsGroup'
@@ -14039,12 +14175,12 @@ components:
             description: State of the export job for the collections on the replica set only.
             properties:
                 exportedCollections:
-                    description: Number of collections on the replica set that MongoDB Cloud exported.
+                    description: Count of collections whose documents were exported to the Export Bucket.
                     format: int32
                     readOnly: true
                     type: integer
                 totalCollections:
-                    description: Total number of collections on the replica set to export.
+                    description: Total count of collections whose documents will be exported to the Export Bucket.
                     format: int32
                     readOnly: true
                     type: integer
@@ -15136,6 +15272,31 @@ components:
                     readOnly: true
                     type: string
             type: object
+        GCPCreateDataProcessRegionView:
+            allOf:
+                - $ref: '#/components/schemas/CreateDataProcessRegionView'
+                - properties:
+                    region:
+                        description: Human-readable label that identifies the geographic location of the region where you wish to store your archived data.
+                        enum:
+                            - CENTRAL_US
+                            - WESTERN_EUROPE
+                        type: string
+                  type: object
+            type: object
+        GCPDataProcessRegionView:
+            allOf:
+                - $ref: '#/components/schemas/DataProcessRegionView'
+                - properties:
+                    region:
+                        description: Human-readable label that identifies the geographic location of the region where you store your archived data.
+                        enum:
+                            - CENTRAL_US
+                            - WESTERN_EUROPE
+                        readOnly: true
+                        type: string
+                  type: object
+            type: object
         GCPEndpointService:
             description: Group of Private Endpoint Service settings.
             properties:
@@ -15964,23 +16125,23 @@ components:
         GroupServiceAccount:
             properties:
                 createdAt:
-                    description: Service account creation time.
+                    description: The date that the Service Account was created on.
                     format: date-time
                     type: string
                 description:
-                    description: Description of the service account.
+                    description: Human readable description for the Service Account.
                     type: string
                 id:
-                    description: ID for the service account.
+                    description: The Client ID of the Service Account.
                     pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
                     type: string
                 name:
-                    description: Name for service account.
+                    description: Human-readable name for the Service Account.
                     type: string
                 roles:
-                    description: Roles assigned to the Service Account group.
+                    description: A list of Project roles associated with the Service Account.
                     items:
-                        description: Project roles associated with the service account.
+                        description: Project roles available for Service Accounts.
                         enum:
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
@@ -15994,7 +16155,7 @@ components:
                     type: array
                     uniqueItems: true
                 secrets:
-                    description: List of secrets.
+                    description: A list of secrets associated with the specified Service Account.
                     items:
                         $ref: '#/components/schemas/ServiceAccountSecret'
                     type: array
@@ -16003,21 +16164,21 @@ components:
         GroupServiceAccountRequest:
             properties:
                 description:
-                    description: Human readable description for the service account.
+                    description: Human readable description for the Service Account.
                     maxLength: 250
                     minLength: 1
                     pattern: ^[\p{L}\p{N}\-_.,' ]*$
                     type: string
                 name:
-                    description: Human-readable name for the service account. The name is modifiable and does not have to be unique.
+                    description: Human-readable name for the Service Account. The name is modifiable and does not have to be unique.
                     maxLength: 64
                     minLength: 1
                     pattern: ^[\p{L}\p{N}\-_.,' ]*$
                     type: string
                 roles:
-                    description: Project roles associated with the service account.
+                    description: A list of project-level roles for the Service Account.
                     items:
-                        description: Project roles associated with the service account.
+                        description: Project roles available for Service Accounts.
                         enum:
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
@@ -16030,7 +16191,7 @@ components:
                         type: string
                     type: array
                 secretExpiresAfterHours:
-                    description: Secret expiration time.
+                    description: The expiration time of the new Service Account secret. The expiration is provided in hours.
                     format: int32
                     type: integer
             required:
@@ -16038,43 +16199,24 @@ components:
                 - name
                 - secretExpiresAfterHours
             type: object
-        GroupServiceAccountRoleAssignment:
-            properties:
-                roles:
-                    description: Group access roles.
-                    items:
-                        description: Project roles associated with the service account.
-                        enum:
-                            - GROUP_OWNER
-                            - GROUP_READ_ONLY
-                            - GROUP_DATA_ACCESS_ADMIN
-                            - GROUP_DATA_ACCESS_READ_ONLY
-                            - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_CLUSTER_MANAGER
-                            - GROUP_SEARCH_INDEX_EDITOR
-                            - GROUP_STREAM_PROCESSING_OWNER
-                        type: string
-                    type: array
-                    uniqueItems: true
-            type: object
         GroupServiceAccountUpdateRequest:
             properties:
                 description:
-                    description: Human readable description for the service account.
+                    description: Human readable description for the Service Account.
                     maxLength: 250
                     minLength: 1
                     pattern: ^[\p{L}\p{N}\-_.,' ]*$
                     type: string
                 name:
-                    description: Human-readable name for the service account. The name is modifiable and does not have to be unique.
+                    description: Human-readable name for the Service Account. The name is modifiable and does not have to be unique.
                     maxLength: 64
                     minLength: 1
                     pattern: ^[\p{L}\p{N}\-_.,' ]*$
                     type: string
                 roles:
-                    description: Project roles associated with the service account.
+                    description: A list of Project roles associated with the Service Account.
                     items:
-                        description: Project roles associated with the service account.
+                        description: Project roles available for Service Accounts.
                         enum:
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
@@ -16673,6 +16815,8 @@ components:
                     OPCOUNTER_REPL_INSERT: '#/components/schemas/RawMetricAlertView'
                     OPCOUNTER_REPL_UPDATE: '#/components/schemas/RawMetricAlertView'
                     OPCOUNTER_UPDATE: '#/components/schemas/RawMetricAlertView'
+                    OPERATION_THROTTLING_REJECTED_OPERATIONS: '#/components/schemas/RawMetricAlertView'
+                    OPERATIONS_QUERIES_KILLED: '#/components/schemas/RawMetricAlertView'
                     OPERATIONS_SCAN_AND_ORDER: '#/components/schemas/RawMetricAlertView'
                     OPLOG_MASTER_LAG_TIME_DIFF: '#/components/schemas/TimeMetricAlertView'
                     OPLOG_MASTER_TIME: '#/components/schemas/TimeMetricAlertView'
@@ -17031,6 +17175,8 @@ components:
                     OPCOUNTER_REPL_INSERT: '#/components/schemas/RawMetricEventView'
                     OPCOUNTER_REPL_UPDATE: '#/components/schemas/RawMetricEventView'
                     OPCOUNTER_UPDATE: '#/components/schemas/RawMetricEventView'
+                    OPERATION_THROTTLING_REJECTED_OPERATIONS: '#/components/schemas/RawMetricEventView'
+                    OPERATIONS_QUERIES_KILLED: '#/components/schemas/RawMetricEventView'
                     OPERATIONS_SCAN_AND_ORDER: '#/components/schemas/RawMetricEventView'
                     OPLOG_MASTER_LAG_TIME_DIFF: '#/components/schemas/TimeMetricEventView'
                     OPLOG_MASTER_TIME: '#/components/schemas/TimeMetricEventView'
@@ -17315,6 +17461,8 @@ components:
                     OPCOUNTER_REPL_INSERT: '#/components/schemas/RawMetricThresholdView'
                     OPCOUNTER_REPL_UPDATE: '#/components/schemas/RawMetricThresholdView'
                     OPCOUNTER_UPDATE: '#/components/schemas/RawMetricThresholdView'
+                    OPERATION_THROTTLING_REJECTED_OPERATIONS: '#/components/schemas/RawMetricThresholdView'
+                    OPERATIONS_QUERIES_KILLED: '#/components/schemas/RawMetricThresholdView'
                     OPERATIONS_SCAN_AND_ORDER: '#/components/schemas/RawMetricThresholdView'
                     OPLOG_MASTER_LAG_TIME_DIFF: '#/components/schemas/TimeMetricThresholdView'
                     OPLOG_MASTER_TIME: '#/components/schemas/TimeMetricThresholdView'
@@ -18482,6 +18630,15 @@ components:
                         description: Encryption at Rest using Customer Key Management
                         url: https://www.mongodb.com/docs/atlas/security-kms-encryption/
                     type: string
+                featureCompatibilityVersion:
+                    description: Feature compatibility version of the cluster.
+                    readOnly: true
+                    type: string
+                featureCompatibilityVersionExpirationDate:
+                    description: Feature compatibility version expiration date.
+                    format: date-time
+                    readOnly: true
+                    type: string
                 globalClusterSelfManagedSharding:
                     description: |-
                         Set this field to configure the Sharding Management Mode when creating a new Global Cluster.
@@ -18593,6 +18750,24 @@ components:
                     type: boolean
                 providerSettings:
                     $ref: '#/components/schemas/ClusterProviderSettings'
+                replicaSetScalingStrategy:
+                    default: WORKLOAD_TYPE
+                    description: |-
+                        Set this field to configure the replica set scaling mode for your cluster.
+
+                        By default, Atlas scales under WORKLOAD_TYPE. This mode allows Atlas to scale your analytics nodes in parallel to your operational nodes.
+
+                        When configured as SEQUENTIAL, Atlas scales all nodes sequentially. This mode is intended for steady-state workloads and applications performing latency-sensitive secondary reads.
+
+                        When configured as NODE_TYPE, Atlas scales your electable nodes in parallel with your read-only and analytics nodes. This mode is intended for large, dynamic workloads requiring frequent and timely cluster tier scaling. This is the fastest scaling strategy, but it might impact latency of workloads when performing extensive secondary reads.
+                    enum:
+                        - SEQUENTIAL
+                        - WORKLOAD_TYPE
+                        - NODE_TYPE
+                    externalDocs:
+                        description: Modify the Replica Set Scaling Mode
+                        url: https://dochub.mongodb.org/core/scale-nodes
+                    type: string
                 replicationFactor:
                     default: 3
                     deprecated: true
@@ -18720,6 +18895,15 @@ components:
                         description: Encryption at Rest using Customer Key Management
                         url: https://www.mongodb.com/docs/atlas/security-kms-encryption/
                     type: string
+                featureCompatibilityVersion:
+                    description: Feature compatibility version of the cluster.
+                    readOnly: true
+                    type: string
+                featureCompatibilityVersionExpirationDate:
+                    description: Feature compatibility version expiration date.
+                    format: date-time
+                    readOnly: true
+                    type: string
                 globalClusterSelfManagedSharding:
                     description: |-
                         Set this field to configure the Sharding Management Mode when creating a new Global Cluster.
@@ -18831,6 +19015,24 @@ components:
                     type: boolean
                 providerSettings:
                     $ref: '#/components/schemas/ClusterProviderSettings'
+                replicaSetScalingStrategy:
+                    default: WORKLOAD_TYPE
+                    description: |-
+                        Set this field to configure the replica set scaling mode for your cluster.
+
+                        By default, Atlas scales under WORKLOAD_TYPE. This mode allows Atlas to scale your analytics nodes in parallel to your operational nodes.
+
+                        When configured as SEQUENTIAL, Atlas scales all nodes sequentially. This mode is intended for steady-state workloads and applications performing latency-sensitive secondary reads.
+
+                        When configured as NODE_TYPE, Atlas scales your electable nodes in parallel with your read-only and analytics nodes. This mode is intended for large, dynamic workloads requiring frequent and timely cluster tier scaling. This is the fastest scaling strategy, but it might impact latency of workloads when performing extensive secondary reads.
+                    enum:
+                        - SEQUENTIAL
+                        - WORKLOAD_TYPE
+                        - NODE_TYPE
+                    externalDocs:
+                        description: Modify the Replica Set Scaling Mode
+                        url: https://dochub.mongodb.org/core/scale-nodes
+                    type: string
                 replicationFactor:
                     default: 3
                     deprecated: true
@@ -19929,6 +20131,7 @@ components:
                 - CLUSTER_IMPORT_CANCELLED
                 - CLUSTER_IMPORT_EXPIRED
                 - CLUSTER_IMPORT_CUTOVER
+                - CLUSTER_IMPORT_COMPLETED
                 - CLUSTER_IMPORT_RESTART_REQUESTED
                 - PROJECT_LIVE_IMPORT_OVERRIDES_ADDED
                 - PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED
@@ -21647,23 +21850,23 @@ components:
         OrgServiceAccount:
             properties:
                 createdAt:
-                    description: Service account creation time.
+                    description: The date that the Service Account was created on.
                     format: date-time
                     type: string
                 description:
-                    description: Description of the service account.
+                    description: Human readable description for the Service Account.
                     type: string
                 id:
-                    description: ID for the service account.
+                    description: The Client ID of the Service Account.
                     pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
                     type: string
                 name:
-                    description: Name for service account.
+                    description: Human-readable name for the Service Account.
                     type: string
                 roles:
-                    description: Organization roles assigned to the Service Account.
+                    description: A list of Organization roles associated with the Service Account.
                     items:
-                        description: Organization roles associated with the service account.
+                        description: Organization roles available for Service Accounts.
                         enum:
                             - ORG_MEMBER
                             - ORG_READ_ONLY
@@ -21675,7 +21878,7 @@ components:
                     type: array
                     uniqueItems: true
                 secrets:
-                    description: List of secrets.
+                    description: A list of secrets associated with the specified Service Account.
                     items:
                         $ref: '#/components/schemas/ServiceAccountSecret'
                     type: array
@@ -21684,21 +21887,21 @@ components:
         OrgServiceAccountRequest:
             properties:
                 description:
-                    description: Human readable description for the service account.
+                    description: Human readable description for the Service Account.
                     maxLength: 250
                     minLength: 1
                     pattern: ^[\p{L}\p{N}\-_.,' ]*$
                     type: string
                 name:
-                    description: Human-readable name for the service account. The name is modifiable and does not have to be unique.
+                    description: Human-readable name for the Service Account. The name is modifiable and does not have to be unique.
                     maxLength: 64
                     minLength: 1
                     pattern: ^[\p{L}\p{N}\-_.,' ]*$
                     type: string
                 roles:
-                    description: Organization roles associated with the service account.
+                    description: A list of organization-level roles for the Service Account.
                     items:
-                        description: Organization roles associated with the service account.
+                        description: Organization roles available for Service Accounts.
                         enum:
                             - ORG_MEMBER
                             - ORG_READ_ONLY
@@ -21709,7 +21912,7 @@ components:
                         type: string
                     type: array
                 secretExpiresAfterHours:
-                    description: Secret expiration time.
+                    description: The expiration time of the new Service Account secret. The expiration is provided in hours.
                     format: int32
                     type: integer
             required:
@@ -21720,21 +21923,21 @@ components:
         OrgServiceAccountUpdateRequest:
             properties:
                 description:
-                    description: Human readable description for the service account.
+                    description: Human readable description for the Service Account.
                     maxLength: 250
                     minLength: 1
                     pattern: ^[\p{L}\p{N}\-_.,' ]*$
                     type: string
                 name:
-                    description: Human-readable name for the service account. The name is modifiable and does not have to be unique.
+                    description: Human-readable name for the Service Account. The name is modifiable and does not have to be unique.
                     maxLength: 64
                     minLength: 1
                     pattern: ^[\p{L}\p{N}\-_.,' ]*$
                     type: string
                 roles:
-                    description: Organization roles associated with the Service account.
+                    description: A list of organization-level roles for the Service Account.
                     items:
-                        description: Organization roles associated with the service account.
+                        description: Organization roles available for Service Accounts.
                         enum:
                             - ORG_MEMBER
                             - ORG_READ_ONLY
@@ -22954,7 +23157,7 @@ components:
                     type: integer
             type: object
         PaginatedGroupServiceAccounts:
-            description: List of Service Accounts
+            description: A list of Project Service Accounts.
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -23123,7 +23326,7 @@ components:
                     type: integer
             type: object
         PaginatedOrgServiceAccounts:
-            description: List of Service Accounts
+            description: A list of Organization Service Accounts.
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -23219,6 +23422,30 @@ components:
                     readOnly: true
                     type: integer
             type: object
+        PaginatedPublicApiUsageDetailsLineItemView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud providers when completing this request.
+                    items:
+                        $ref: '#/components/schemas/PublicApiUsageDetailsLineItemView'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
         PaginatedRestoreJobView:
             properties:
                 links:
@@ -23293,7 +23520,7 @@ components:
                     type: integer
             type: object
         PaginatedServiceAccountGroup:
-            description: List of Service Account projects.
+            description: A list of projects associated with the Service Account.
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -23308,6 +23535,30 @@ components:
                     description: List of returned documents that MongoDB Cloud providers when completing this request.
                     items:
                         $ref: '#/components/schemas/ServiceAccountGroup'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
+        PaginatedServiceAccountIPAccessEntryView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud providers when completing this request.
+                    items:
+                        $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
                     readOnly: true
                     type: array
                 totalCount:
@@ -23999,6 +24250,39 @@ components:
                     type: string
                 dnsName:
                     description: DNS name to use to reach the proxy/s.
+                    type: string
+            type: object
+        PublicApiUsageDetailsLineItemView:
+            properties:
+                billDate:
+                    description: Billing date of the line item.
+                    format: date-time
+                    type: string
+                clusterName:
+                    description: Cluster associated with the line item.
+                    type: string
+                description:
+                    description: Description of the line item, which can include SKU name and other identifying information.
+                    type: string
+                groupId:
+                    description: Group id associated with the line item.
+                    type: string
+                quantity:
+                    description: Quantity of line item in units associated with SKU.
+                    format: double
+                    readOnly: true
+                    type: number
+                totalPriceCents:
+                    description: Price * quantity in applicable units, expressed as an integral number of cents.
+                    format: int64
+                    type: integer
+                unitPriceDollars:
+                    description: Price in units associated with the SKU for the line item.
+                    format: double
+                    type: number
+                usageDate:
+                    description: Usage date of the line item.
+                    format: date-time
                     type: string
             type: object
         PushBasedLogExportProject:
@@ -25176,6 +25460,104 @@ components:
                         - COMPLETED
                     readOnly: true
                     type: string
+            type: object
+        SearchDeploymentAuditTypeView:
+            description: Unique identifier of event type.
+            enum:
+                - SEARCH_DEPLOYMENT_CREATED
+                - SEARCH_DEPLOYMENT_UPDATED
+                - SEARCH_DEPLOYMENT_DELETED
+            example: SEARCH_DEPLOYMENT_CREATED
+            title: Search Deployment Audit Types
+            type: string
+        SearchDeploymentAuditView:
+            description: Indicates activities on decoupled search nodes.
+            properties:
+                apiKeyId:
+                    description: Unique 24-hexadecimal digit string that identifies the [API Key](https://dochub.mongodb.org/core/atlas-create-prog-api-key) that triggered the event. If this resource returns this parameter, it doesn't return the **userId** parameter.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                created:
+                    description: Date and time when this event occurred. This parameter expresses its value in the <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener noreferrer">ISO 8601</a> timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                eventTypeName:
+                    $ref: '#/components/schemas/SearchDeploymentAuditTypeView'
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The **eventId** identifies the specific event.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies the event.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                isGlobalAdmin:
+                    default: false
+                    description: Flag that indicates whether a MongoDB employee triggered the specified event.
+                    readOnly: true
+                    type: boolean
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                orgId:
+                    description: Unique 24-hexadecimal digit string that identifies the organization to which these events apply.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                publicKey:
+                    description: Public part of the [API Key](https://dochub.mongodb.org/core/atlas-create-prog-api-key) that triggered the event. If this resource returns this parameter, it doesn't return the **username** parameter.
+                    format: email
+                    readOnly: true
+                    type: string
+                raw:
+                    $ref: '#/components/schemas/raw'
+                remoteAddress:
+                    description: IPv4 or IPv6 address from which the user triggered this event.
+                    example: 216.172.40.186
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    readOnly: true
+                    type: string
+                userId:
+                    description: Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                username:
+                    description: Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.
+                    example: test.user@mongodb.com
+                    format: email
+                    readOnly: true
+                    type: string
+            required:
+                - created
+                - eventTypeName
+                - id
+            title: Search Deployment Audits
             type: object
         SearchHostStatusDetail:
             properties:
@@ -26451,7 +26833,7 @@ components:
         ServiceAccountGroup:
             properties:
                 groupId:
-                    description: Unique 24-hexadecimal digit string that identifies the project.
+                    description: 'Unique 24-hexadecimal digit string that identifies your project. **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.'
                     example: 32b6e34b3d91647abb20e7b8
                     maxLength: 24
                     minLength: 24
@@ -26549,6 +26931,38 @@ components:
                 - id
             title: ServiceAccount Events
             type: object
+        ServiceAccountIPAccessListEntry:
+            properties:
+                cidrBlock:
+                    description: Range of network addresses in the access list for the Service Account. This parameter requires the range to be expressed in Classless Inter-Domain Routing (CIDR) notation of Internet Protocol version 4 or version 6 addresses. You can set a value for this parameter or **ipAddress**, but not for both in the same request.
+                    example: 203.0.113.0/24
+                    pattern: ^((([0-9]{1,3}\.){3}[0-9]{1,3})|(:{0,2}([0-9a-f]{1,4}:){0,7}[0-9a-f]{1,4}[:]{0,2}))((%2[fF]|/)[0-9]{1,3})+$
+                    type: string
+                createdAt:
+                    description: Date MongoDB Cloud added the entry was added to the Access List.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                ipAddress:
+                    description: Network address in the access list for the Service Account. This parameter requires the address to be expressed as one Internet Protocol version 4 or version 6 address. You can set a value for this parameter or **cidrBlock**, but not for both in the same request.
+                    example: 203.0.113.10
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    type: string
+                lastUsedAddress:
+                    description: Network address that issued the most recent request to the API. This parameter requires the address to be expressed as one Internet Protocol version 4 or version 6 address. The resource returns this parameter after this IP address makes at least one request.
+                    readOnly: true
+                    type: string
+                lastUsedAt:
+                    description: Date when MongoDB Cloud received the most recent request that originated from this Internet Protocol version 4 or version 6 address. The resource returns this parameter when at least one request originates from this IP address. MongoDB Cloud updates this parameter each time a client accesses the permitted resource, with a delay of up to 5 minutes.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                requestCount:
+                    description: The number of requests that has originated from this network address.
+                    format: int32
+                    readOnly: true
+                    type: integer
+            type: object
         ServiceAccountOrgEvents:
             description: Service Account event identifies different activities around user api keys.
             properties:
@@ -26642,34 +27056,34 @@ components:
         ServiceAccountSecret:
             properties:
                 createdAt:
-                    description: Timestamp representing creation time.
+                    description: The date that the secret was created on.
                     format: date-time
                     readOnly: true
                     type: string
                 expiresAt:
-                    description: Timestamp representing secret expiration time.
+                    description: The date for the expiration of the secret.
                     format: date-time
                     readOnly: true
                     type: string
                 id:
-                    description: Unique 24-hexadecimal character string that identifies the secret.
+                    description: Unique 24-hexadecimal digit string that identifies the secret.
                     example: 32b6e34b3d91647abb20e7b8
                     pattern: ^([a-f0-9]{24})$
                     readOnly: true
                     type: string
                 lastUsedAt:
-                    description: Timestamp representing last secret usage.
+                    description: The last time the secret was used.
                     format: date-time
                     readOnly: true
                     type: string
                 maskedSecretValue:
-                    description: Service Account secret with masked values of the first 20 characters.
-                    example: mdb_ic_sk_xxxxxxxx-xxxx-xxxx-xxxxxxxx12ce
+                    description: The masked Service Account secret.
+                    example: mdb_ic_sk_...12ce
                     readOnly: true
                     type: string
                 secret:
-                    description: Secret for the service account. It will be returned only the first time after service account creation.
-                    pattern: ^mdb_sa_sk_[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+                    description: The secret for the Service Account. It will be returned only the first time after creation.
+                    pattern: ^mdb_sa_sk_[0-9a-zA-Z_-]{40}$
                     readOnly: true
                     type: string
             required:
@@ -26680,7 +27094,7 @@ components:
         ServiceAccountSecretRequest:
             properties:
                 secretExpiresAfterHours:
-                    description: Number of hours representing validity duration for secret.
+                    description: The expiration time of the new Service Account secret. The expiration is provided in hours.
                     format: int32
                     type: integer
             required:
@@ -27529,6 +27943,8 @@ components:
                     description: Human-readable name of the stream processor.
                     readOnly: true
                     type: string
+                options:
+                    $ref: '#/components/schemas/StreamsOptions'
                 pipeline:
                     description: Stream aggregation pipeline you want to apply to your streaming data.
                     items:
@@ -29657,6 +30073,80 @@ components:
                     type: array
                     uniqueItems: true
             type: object
+        UsageDetailsFilterRequest:
+            description: Request body which contains various fields to filter line items as part of certain Invoice Usage Details queries.
+            properties:
+                billEndDate:
+                    description: The inclusive billing start date for usage details filter.
+                    example: "2023-02-01"
+                    format: date
+                    type: string
+                billStartDate:
+                    description: The inclusive billing start date for usage details filter.
+                    example: "2023-02-01"
+                    format: date
+                    type: string
+                clusterIds:
+                    description: The list of unique cluster ids to be included in the Usage Details filter.
+                    example:
+                        - 650d11400000000000000000
+                        - 650dd6200000000000000000
+                    items:
+                        type: string
+                    type: array
+                    uniqueItems: true
+                groupIds:
+                    description: The list of groups to be included in the Usage Details filter.
+                    example:
+                        - 650d11400000000000000000
+                        - 650dd6200000000000000000
+                    items:
+                        type: string
+                    type: array
+                    uniqueItems: true
+                includeZeroCentLineItems:
+                    description: Whether zero cent line items should be included.
+                    type: boolean
+                skuServices:
+                    description: The list of projects to be included in the Cost Explorer Query.
+                    example:
+                        - Atlas
+                        - Clusters
+                        - Storage
+                    items:
+                        enum:
+                            - Atlas
+                            - Clusters
+                            - Storage
+                            - Serverless Instances
+                            - Backup
+                            - Data Transfer
+                            - BI Connector
+                            - Premium Features
+                            - Atlas Data Federation
+                            - Atlas Stream Processing
+                            - App Services
+                            - Charts
+                            - Cloud Manager
+                            - Cloud Manager Standard/Premium
+                            - Legacy Backup
+                            - Flex Consulting
+                            - Support
+                            - Credits
+                        type: string
+                    type: array
+                    uniqueItems: true
+                usageEndDate:
+                    description: The inclusive billing start date for usage details filter.
+                    example: "2023-02-01"
+                    format: date
+                    type: string
+                usageStartDate:
+                    description: The inclusive usage start date for usage details filter.
+                    example: "2023-02-01"
+                    format: date
+                    type: string
+            type: object
         UserAccessListRequest:
             properties:
                 cidrBlock:
@@ -31133,6 +31623,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
+    x-xgen-sha: 085f8ae69e1ffc3d0ceee3a41def9343083c26f9
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -38495,6 +38986,166 @@ paths:
             summary: Update Configuration for Encryption at Rest using Customer-Managed Keys for One Project
             tags:
                 - Encryption at Rest using Customer Key Management
+    /api/atlas/v2/groups/{groupId}/encryptionAtRest/{cloudProvider}/privateEndpoints:
+        get:
+            description: Returns the private endpoints of the specified cloud provider for encryption at rest using customer key management.
+            operationId: getEncryptionAtRestPrivateEndpointsForCloudProvider
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - description: Human-readable label that identifies the cloud provider for the private endpoints to return.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    enum:
+                        - AZURE
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasEARPrivateEndpointView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Return Private Endpoints of a Cloud Provider for Encryption at Rest Using Customer Key Management for One Project
+            tags:
+                - Encryption at Rest using Customer Key Management
+        post:
+            description: Creates a private endpoint in the specified region for encryption at rest using customer key management.
+            operationId: createEncryptionAtRestPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cloud provider for the private endpoint to create.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    enum:
+                        - AZURE
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/EARPrivateEndpoint'
+                description: Creates a private endpoint in the specified region.
+                required: true
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/EARPrivateEndpoint'
+                            x-xgen-version: "2023-01-01"
+                    description: Accepted
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Create One Private Endpoint in a Specified Region for Encryption at Rest Using Customer Key Management
+            tags:
+                - Encryption at Rest using Customer Key Management
+    /api/atlas/v2/groups/{groupId}/encryptionAtRest/{cloudProvider}/privateEndpoints/{endpointId}:
+        delete:
+            description: Deletes one private endpoint, identified by its ID, for encryption at rest using Customer Key Management.
+            operationId: requestEncryptionAtRestPrivateEndpointDeletion
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cloud provider of the private endpoint to delete.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    enum:
+                        - AZURE
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint to delete.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Delete Private Endpoint for Encryption at Rest Using Customer Key Management
+            tags:
+                - Encryption at Rest using Customer Key Management
+        get:
+            description: Returns one private endpoint, identified by its ID, for encryption at rest using Customer Key Management.
+            operationId: getEncryptionAtRestPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cloud provider of the private endpoint.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    enum:
+                        - AZURE
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/EARPrivateEndpoint'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Return One Private Endpoint for Encryption at Rest Using Customer Key Management
+            tags:
+                - Encryption at Rest using Customer Key Management
     /api/atlas/v2/groups/{groupId}/events:
         get:
             description: |-
@@ -41952,6 +42603,8 @@ paths:
                             - MAX_DISK_PARTITION_SPACE_PERCENT_FREE
                             - DISK_PARTITION_SPACE_PERCENT_USED
                             - MAX_DISK_PARTITION_SPACE_PERCENT_USED
+                            - DISK_PARTITION_THROUGHPUT_READ
+                            - DISK_PARTITION_THROUGHPUT_WRITE
                         type: string
                     maxItems: 10
                     minItems: 1
@@ -42025,6 +42678,8 @@ paths:
                             - CACHE_BYTES_WRITTEN_FROM
                             - CACHE_DIRTY_BYTES
                             - CACHE_USED_BYTES
+                            - CACHE_FILL_RATIO
+                            - DIRTY_FILL_RATIO
                             - COMPUTED_MEMORY
                             - CONNECTIONS
                             - CURSORS_TOTAL_OPEN
@@ -42106,6 +42761,7 @@ paths:
                             - OPCOUNTER_REPL_UPDATE
                             - OPCOUNTER_UPDATE
                             - OPERATIONS_SCAN_AND_ORDER
+                            - OPERATIONS_QUERIES_KILLED
                             - OPLOG_MASTER_LAG_TIME_DIFF
                             - OPLOG_MASTER_TIME
                             - OPLOG_RATE_GB_PER_HOUR
@@ -42149,6 +42805,7 @@ paths:
                             - SYSTEM_NORMALIZED_CPU_USER
                             - TICKETS_AVAILABLE_READS
                             - TICKETS_AVAILABLE_WRITE
+                            - OPERATION_THROTTLING_REJECTED_OPERATIONS
                         type: string
                     maxItems: 10
                     minItems: 1

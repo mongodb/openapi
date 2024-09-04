@@ -16,7 +16,6 @@ on:
 
 permissions:
   contents: write
-  issues: write
 
 jobs:  
   required-validations:
@@ -34,17 +33,7 @@ jobs:
           id: spectral-validation
           env:
             SPECTRAL_VERSION: ${{ inputs.spectral_version }}
-          run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint openapi-foas.yaml --ruleset=.spectral.yaml # we will update this to lint the FOAS in CLOUDP-263186
-        - name: Create Issue
-          if: ${{ failure() && steps.spectral-validation.outcome == 'failure' }}
-          uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-          env:
-            target_env: ${{ inputs.env }}
-          with:
-            labels: failed-release
-            title: "(${{env.target_env}}) Required Spectral validation failed :scream_cat:"
-            body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            token: ${{ secrets.GITHUB_TOKEN }}
+          run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint openapi-foas.yaml --ruleset=tools/spectral/.spectral.yaml
         - name: Install Go
           uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
           with:
@@ -69,13 +58,3 @@ jobs:
             pushd atlas-sdk-go
             make -e openapi-pipeline
             popd
-        - name: Create Issue
-          if: ${{ failure() && steps.go-sdk-validation.outcome == 'failure' }}
-          uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-          env:
-            target_env: ${{ inputs.env }}
-          with:
-            labels: failed-release
-            title: "(${{env.target_env}}) Required GO SDK validation failed :scream_cat:"
-            body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            token: ${{ secrets.GITHUB_TOKEN }}

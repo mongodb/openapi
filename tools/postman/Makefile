@@ -1,5 +1,6 @@
 export OPENAPI_FOLDER=./openapi
 export TMP_FOLDER=./tmp
+export FULL_OPENAPI_FOLDER=../../openapi/v2/
 
 default: build
 
@@ -16,14 +17,14 @@ transform_collection:
 	./scripts/transform-for-api.sh
 
 .PHONY: upload_collection
-upload_collection: transform_collection
+upload_collection:
 	./scripts/upload-collection.sh
 
 .PHONY: build
 build: fetch_openapi convert_to_collection
 
 .PHONY: build_and_upload
-build_and_upload: build upload_collection
+build_and_upload: build transform_collection upload_collection
 
 .PHONY: fetch_forks
 fetch_forks: 

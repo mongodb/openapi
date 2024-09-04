@@ -36,4 +36,13 @@ const (
 	ExemptionFilePath        = "exemption-file"
 	ExemptionFilePathShort   = "e"
 	IgnoreExpiration         = "ignore-expiration"
+	RunDate                  = "run-date"
+	RunDateShort             = "d"
+	Versions                 = "versions"
+	VersionsShort            = "v"
+	Path                     = "path"
+	PathShort                = "p"
+	MessageID                = "msg-id"
+	ChannelID                = "channel-id"
+	ChannelIDShort           = "c"
 )

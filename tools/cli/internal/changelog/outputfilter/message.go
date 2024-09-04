@@ -58,7 +58,7 @@ func removeResponseStatusCodes(text string) string {
 	re = regexp.MustCompile(` from the response with the '\d{3}' status`)
 	text = re.ReplaceAllString(text, " from the response")
 
-	re = regexp.MustCompile(` list for the response status \d{3}`)
+	re = regexp.MustCompile(` list for the response status '\d{3}'`)
 	text = re.ReplaceAllString(text, " list for the response")
 
 	re = regexp.MustCompile(` for the status '\d{3}'`)
