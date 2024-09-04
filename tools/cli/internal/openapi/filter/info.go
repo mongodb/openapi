@@ -20,6 +20,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
+// Filter: InfoFilter is a filter that modifies the Info object in the OpenAPI spec.
 type InfoFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata

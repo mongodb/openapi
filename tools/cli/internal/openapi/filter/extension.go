@@ -21,6 +21,9 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
+// Filter: ExtensionFilter is a filter that updates the x-sunset and x-xgen-version extensions to a date string
+// and deletes the x-sunset extension if the latest matched version is deprecated by hidden versions
+// for the target environment
 type ExtensionFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
