@@ -1983,6 +1983,8 @@ components:
                            context.cluster.regions.contains(cloud::region::"aws:us-east-1")
                           };
                     type: string
+            required:
+                - body
             type: object
         ApiAtlasPolicyMetadataView:
             properties:
@@ -2028,6 +2030,9 @@ components:
                     items:
                         $ref: '#/components/schemas/ApiAtlasPolicyCreateView'
                     type: array
+            required:
+                - name
+                - policies
             type: object
         ApiAtlasResourcePolicyEditView:
             properties:
@@ -2301,6 +2306,8 @@ components:
             type: object
         ApiError:
             properties:
+                badRequestDetail:
+                    $ref: '#/components/schemas/BadRequestDetail'
                 detail:
                     description: Describes the specific conditions or reasons that cause each type of error.
                     type: string
@@ -5411,6 +5418,15 @@ components:
                         - COMPLETED
                     readOnly: true
                     type: string
+            type: object
+        BadRequestDetail:
+            description: Bad request detail.
+            properties:
+                fields:
+                    description: Describes all violations in a client request.
+                    items:
+                        $ref: '#/components/schemas/FieldViolation'
+                    type: array
             type: object
         BaseAtlasDataLakeRegion:
             description: Name of the region to which the data lake routes client connections.
@@ -15690,6 +15706,15 @@ components:
                         - EXCLUDE
                     type: string
             title: Field Transformation
+            type: object
+        FieldViolation:
+            properties:
+                description:
+                    description: A description of why the request element is bad.
+                    type: string
+                field:
+                    description: A path that leads to a field in the request body.
+                    type: string
             type: object
         ForNdsGroup:
             description: ReplicaSet Event identifies different activities about replica set of mongod instances.
@@ -32537,7 +32562,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 7cfc3a3018ed349185bc2a3de474771cd44a9c17
+    x-xgen-sha: 84ad6d2680c92f71e9f86e9c6f7b35f926d34a32
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
