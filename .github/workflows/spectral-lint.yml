@@ -6,9 +6,14 @@ on:
     paths: 
       - 'tools/spectral/**'
       - 'openapi/**.yaml'
+      - '.spectral.yaml'
   push:
     branches:
       - main
+    paths: 
+      - 'tools/spectral/**'
+      - 'openapi/**.yaml'
+      - '.spectral.yaml'
 
 jobs:
   spectral-lint:
@@ -18,10 +23,19 @@ jobs:
       # Checkout the code
       - name: Checkout repository
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-
-      - name: Run 
-        id: spectral-validation
-        env:
-          SPECTRAL_VERSION: ${{ vars.SPECTRAL_VERSION }}
-        working-directory: tools/spectral
-        run: make linterr
+        with:
+          sparse-checkout:
+            openapi/
+            tools/spectral
+      - name: Spectral action
+        uses: stoplightio/spectral-action@latest
+        with:
+          # Path to the OpenAPI spec files and openapi/v2.yaml
+          file_glob: '{openapi/**/*.yaml,openapi/v2.yaml}'
+          ruleset: tools/spectral/.spectral.yaml;
+      # - name: Run 
+      #   id: spectral-validation
+      #   env:
+      #     SPECTRAL_VERSION: ${{ vars.SPECTRAL_VERSION }}
+      #   working-directory: tools/spectral
+      #   run: make linterr
