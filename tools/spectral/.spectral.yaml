@@ -156,7 +156,7 @@ rules:
         functionOptions:
           match: "^(dev|qa|stage|prod)(,(dev|qa|stage|prod))*$"
   
-  x-xgen-soa-migration-extension:
+  soa-migration-extension:
     description: "Ensure the x-xgen-soa-migration extension is valid."
     message: "The x-xgen-soa-migration extension must include 'service_name', 'allow_diff', and 'source_service' should only be present when 'allow_diff' is true."
     formats: ["oas3"]
@@ -173,9 +173,7 @@ rules:
         message: "'allow_diff' must be true or false."
       - function: falsy
         field: source_service
-        functionOptions:
-          type: "truthy"
-        message: "'source_service' should only exist when 'allow_diff' is true."
+        message: "'source_service' should not exist when 'allow_diff' is false."
         when:
           field: allow_diff
           pattern: "^false$"
@@ -185,6 +183,7 @@ rules:
         when:
           field: allow_diff
           pattern: "^true$"
+
 overrides:
   - files: # load sample data has an issue with different path param names for different VERBS
       - "*.yaml#/paths/~1api~1atlas~1v1.0~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7BsampleDatasetId%7D"
