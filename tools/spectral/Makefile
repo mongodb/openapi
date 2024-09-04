@@ -19,7 +19,7 @@ setup: deps devtools ## Set up dev env
 .PHONY: linterr
 linterr: ## Run spectral linter on foas
 	@echo "==> Running spectral linter"
-	npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ../../openapi/v2.yaml --ruleset=.spectral.yaml --display-only-failures
+	npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ../../openapi/v2.yaml --ruleset=.spectral.yaml
 
 .PHONY: lintwarn
 lintwarn: ## Run spectral linter on foas
