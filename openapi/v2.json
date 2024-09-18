@@ -232,7 +232,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "0cc04a673b6cfb7aff51808208c262d2ccc74089"
+    "x-xgen-sha": "bdfe35eccf975ff1e37edc2a5ecc0d38789df21a"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -30081,6 +30081,93 @@
         "tags": [
           "Organizations"
         ],
+        "x-xgen-owner-team": "IAM"
+      }
+    },
+    "/api/atlas/v2/orgs/{orgId}/users/{userId}:addRole": {
+      "post": {
+        "description": "Adds one organization level role to the MongoDB Cloud user. You can add a role to an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.\n\n**Note**: This operation is atomic.\n\n**Note**: This resource cannot be used to add a role to users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
+        "operationId": "addOrganizationRole",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.",
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization level role to assign to the MongoDB Cloud user.",
+            "in": "query",
+            "name": "role",
+            "required": true,
+            "schema": {
+              "enum": [
+                "ORG_OWNER",
+                "ORG_GROUP_CREATOR",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_READ_ONLY",
+                "ORG_MEMBER"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgUserResponse"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [
+          {
+            "DigestAuth": []
+          }
+        ],
+        "summary": "Add One Organization Role to One MongoDB Cloud User",
+        "tags": [
+          "MongoDB Cloud Users"
+        ],
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
         "x-xgen-owner-team": "IAM"
       }
     },
