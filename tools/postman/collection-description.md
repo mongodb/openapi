@@ -1,4 +1,4 @@
-## MongoDB Atlas Administration API 2024-05-30
+## MongoDB Atlas Administration API
 
 This collection is an introduction to the [MongoDB Atlas Administration API](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/). The MongoDB Atlas Administration API offers a method to manage your [MongoDB Atlas clusters](https://www.mongodb.com/resources/products/fundamentals/clusters) following the principles of the REST architectural style. To learn more, visit the [MongoDB Atlas Administration API documentation](https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/).
 
