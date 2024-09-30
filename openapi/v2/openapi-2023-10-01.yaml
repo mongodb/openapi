@@ -2921,6 +2921,12 @@ components:
                 - id
             title: API User Events
             type: object
+        ApiVersion:
+            properties:
+                version:
+                    description: Object representing a version of the Atlas Admin API.
+                    type: string
+            type: object
         AppServiceAlertConfigViewForNdsGroup:
             description: App Services metric alert configuration allows to select which app service conditions and events trigger alerts and how users are notified.
             properties:
@@ -6849,6 +6855,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
                 roleId:
                     description: Unique 24-hexadecimal digit string that identifies the role.
@@ -7001,6 +7008,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
                 servicePrincipalId:
                     description: UUID string that identifies the Azure Service Principal.
@@ -7166,6 +7174,72 @@ components:
                     readOnly: true
                     type: string
             type: object
+        CloudProviderAccessGCPServiceAccount:
+            allOf:
+                - $ref: '#/components/schemas/CloudProviderAccessRole'
+                - properties:
+                    createdDate:
+                        description: Date and time when this Google Service Account was created. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                        format: date-time
+                        readOnly: true
+                        type: string
+                    featureUsages:
+                        description: List that contains application features associated with this Google Service Account.
+                        items:
+                            $ref: '#/components/schemas/CloudProviderAccessFeatureUsage'
+                        readOnly: true
+                        type: array
+                    gcpServiceAccountForAtlas:
+                        description: Email address for the Google Service Account created by Atlas.
+                        maxLength: 82
+                        minLength: 57
+                        pattern: ^mongodb-atlas-[0-9a-z]{16}@p-[0-9a-z]{24}.iam.gserviceaccount.com$
+                        type: string
+                    roleId:
+                        description: Unique 24-hexadecimal digit string that identifies the role.
+                        example: 32b6e34b3d91647abb20e7b8
+                        maxLength: 24
+                        minLength: 24
+                        pattern: ^([a-f0-9]{24})$
+                        readOnly: true
+                        type: string
+                  type: object
+            description: Details that describe the features linked to the GCP Service Account.
+            required:
+                - providerName
+            type: object
+        CloudProviderAccessGCPServiceAccountRequest:
+            description: Details that describe the features linked to the GCP Service Account.
+            properties:
+                createdDate:
+                    description: Date and time when this GCP Service Account was created. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                featureUsages:
+                    description: List that contains application features associated with this GCP Service Account.
+                    items:
+                        $ref: '#/components/schemas/CloudProviderAccessFeatureUsage'
+                    readOnly: true
+                    type: array
+                gcpServiceAccountForAtlas:
+                    description: ID string that identifies the GCP Service Account used by Atlas.
+                    readOnly: true
+                    type: string
+                providerName:
+                    description: Human-readable label that identifies the cloud provider of the role.
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+                roleId:
+                    description: Unique 24-hexadecimal digit string that identifies the role.
+                    readOnly: true
+                    type: string
+            required:
+                - providerName
+            type: object
         CloudProviderAccessPushBasedLogExportFeatureUsage:
             allOf:
                 - $ref: '#/components/schemas/CloudProviderAccessFeatureUsage'
@@ -7181,6 +7255,7 @@ components:
                 mapping:
                     AWS: '#/components/schemas/CloudProviderAccessAWSIAMRole'
                     AZURE: '#/components/schemas/CloudProviderAccessAzureServicePrincipal'
+                    GCP: '#/components/schemas/CloudProviderAccessGCPServiceAccount'
                 propertyName: providerName
             properties:
                 providerName:
@@ -7188,6 +7263,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
             required:
                 - providerName
@@ -7198,16 +7274,19 @@ components:
                 mapping:
                     AWS: '#/components/schemas/CloudProviderAccessAWSIAMRoleRequest'
                     AZURE: '#/components/schemas/CloudProviderAccessAzureServicePrincipalRequest'
+                    GCP: '#/components/schemas/CloudProviderAccessGCPServiceAccountRequest'
                 propertyName: providerName
             oneOf:
                 - $ref: '#/components/schemas/CloudProviderAccessAWSIAMRoleRequest'
                 - $ref: '#/components/schemas/CloudProviderAccessAzureServicePrincipalRequest'
+                - $ref: '#/components/schemas/CloudProviderAccessGCPServiceAccountRequest'
             properties:
                 providerName:
                     description: Human-readable label that identifies the cloud provider of the role.
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
             required:
                 - providerName
@@ -23824,6 +23903,30 @@ components:
                     readOnly: true
                     type: integer
             type: object
+        PaginatedApiStreamsPrivateLinkView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/StreamsPrivateLinkConnection'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
         PaginatedApiStreamsStreamProcessorWithStatsView:
             properties:
                 links:
@@ -23887,6 +23990,30 @@ components:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
                         $ref: '#/components/schemas/UserAccessListResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
+        PaginatedApiVersions:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/ApiVersion'
                     readOnly: true
                     type: array
                 totalCount:
@@ -29049,6 +29176,48 @@ components:
                     readOnly: true
                     type: array
             type: object
+        StreamsPrivateLinkConnection:
+            description: Container for metadata needed to create a Private Link connection.
+            properties:
+                _id:
+                    description: The ID of the Private Link connection.
+                    type: string
+                dnsDomain:
+                    description: Domain name of Confluent cluster.
+                    type: string
+                dnsSubDomain:
+                    description: Sub-Domain name of Confluent cluster. These are typically your availability zones.
+                    items:
+                        type: string
+                    type: array
+                interfaceEndpointId:
+                    description: Interface endpoint ID that is created from the service endpoint ID provided.
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                provider:
+                    description: Provider where the Kafka cluster is deployed.
+                    type: string
+                region:
+                    description: Domain name of Confluent cluster.
+                    type: string
+                serviceEndpointId:
+                    description: AWS Service Endpoint ID.
+                    type: string
+                state:
+                    description: State the connection is in.
+                    type: string
+                vendor:
+                    description: Vendor who manages the Kafka cluster.
+                    type: string
+            type: object
         StreamsProcessor:
             description: An atlas stream processor.
             properties:
@@ -32837,7 +33006,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: d9dc9db0d8eff93166f666b92bf408178fd5c671
+    x-xgen-sha: 838f9aef747eaec3e6069a855bafb0aa9426e371
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -44317,13 +44486,13 @@ paths:
                     pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
                     type: string
             responses:
-                "204":
+                "202":
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
-                                $ref: '#/components/schemas/NoBody'
+                                $ref: '#/components/schemas/RequestAccepted'
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: Accepted
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "404":
@@ -44935,6 +45104,144 @@ paths:
                 - Streams
             x-xgen-changelog:
                 "2023-09-11": The MongoDB Atlas Streams Processing API is now exposed as part of private preview, but is subject to change until GA.
+    /api/atlas/v2/groups/{groupId}/streams/privateLinkConnections:
+        get:
+            description: Returns all Private Link connections for the specified project.To use this resource, the requesting API Key must have the Project Data Access roles, Project Owner role or Project Stream Processing Owner role.
+            operationId: listPrivateLinkConnections
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiStreamsPrivateLinkView'
+                            x-xgen-version: "2023-02-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Return All Private Link
+            tags:
+                - Streams
+            x-xgen-changelog:
+                "2024-10-02": The MongoDB Atlas Streams Processing Private Link API is now exposed as part of private preview, but is subject to change until GA.
+        post:
+            description: Creates one Private Link in the specified project. To use this resource, the requesting API Key must have the Project Owner or Project Stream Processing Owner role.
+            operationId: createPrivateLinkConnection
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-02-01+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsPrivateLinkConnection'
+                description: Details to create one Private Link connection for a project. project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsPrivateLinkConnection'
+                            x-xgen-version: "2023-02-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "409":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Create One Private Link connection
+            tags:
+                - Streams
+            x-xgen-changelog:
+                "2024-10-02": The MongoDB Atlas Streams Processing Private Link API is now exposed as part of private preview, but is subject to change until GA.
+    /api/atlas/v2/groups/{groupId}/streams/privateLinkConnections/{connectionId}:
+        delete:
+            description: Deletes one Private Link in the specified project. To use this resource, the requesting API Key must have the Project Owner or Project Stream Processing Owner role.
+            operationId: deletePrivateLinkConnection
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique ID that identifies the Private Link connection.
+                  in: path
+                  name: connectionId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-02-01"
+                    description: Accepted
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Delete One Private Link connection
+            tags:
+                - Streams
+            x-xgen-changelog:
+                "2024-10-02": The MongoDB Atlas Streams Processing Private Link API is now exposed as part of private preview, but is subject to change until GA.
+        get:
+            description: Returns the details of one Private Link connection within the project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getPrivateLinkConnection
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique ID that identifies the Private Link connection.
+                  in: path
+                  name: connectionId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsPrivateLinkConnection'
+                            x-xgen-version: "2023-02-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security:
+                - DigestAuth: []
+            summary: Return One PrivateLink Connection
+            tags:
+                - Streams
+            x-xgen-changelog:
+                "2024-10-02": The MongoDB Atlas Streams Processing Private Link API is now exposed as part of private preview, but is subject to change until GA.
     /api/atlas/v2/groups/{groupId}/streams/vpcPeeringConnections:
         get:
             description: Returns a list of incoming VPC Peering Connections.

@@ -2921,6 +2921,12 @@ components:
                 - id
             title: API User Events
             type: object
+        ApiVersion:
+            properties:
+                version:
+                    description: Object representing a version of the Atlas Admin API.
+                    type: string
+            type: object
         AppServiceAlertConfigViewForNdsGroup:
             description: App Services metric alert configuration allows to select which app service conditions and events trigger alerts and how users are notified.
             properties:
@@ -6849,6 +6855,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
                 roleId:
                     description: Unique 24-hexadecimal digit string that identifies the role.
@@ -7001,6 +7008,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
                 servicePrincipalId:
                     description: UUID string that identifies the Azure Service Principal.
@@ -7166,6 +7174,72 @@ components:
                     readOnly: true
                     type: string
             type: object
+        CloudProviderAccessGCPServiceAccount:
+            allOf:
+                - $ref: '#/components/schemas/CloudProviderAccessRole'
+                - properties:
+                    createdDate:
+                        description: Date and time when this Google Service Account was created. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                        format: date-time
+                        readOnly: true
+                        type: string
+                    featureUsages:
+                        description: List that contains application features associated with this Google Service Account.
+                        items:
+                            $ref: '#/components/schemas/CloudProviderAccessFeatureUsage'
+                        readOnly: true
+                        type: array
+                    gcpServiceAccountForAtlas:
+                        description: Email address for the Google Service Account created by Atlas.
+                        maxLength: 82
+                        minLength: 57
+                        pattern: ^mongodb-atlas-[0-9a-z]{16}@p-[0-9a-z]{24}.iam.gserviceaccount.com$
+                        type: string
+                    roleId:
+                        description: Unique 24-hexadecimal digit string that identifies the role.
+                        example: 32b6e34b3d91647abb20e7b8
+                        maxLength: 24
+                        minLength: 24
+                        pattern: ^([a-f0-9]{24})$
+                        readOnly: true
+                        type: string
+                  type: object
+            description: Details that describe the features linked to the GCP Service Account.
+            required:
+                - providerName
+            type: object
+        CloudProviderAccessGCPServiceAccountRequest:
+            description: Details that describe the features linked to the GCP Service Account.
+            properties:
+                createdDate:
+                    description: Date and time when this GCP Service Account was created. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                featureUsages:
+                    description: List that contains application features associated with this GCP Service Account.
+                    items:
+                        $ref: '#/components/schemas/CloudProviderAccessFeatureUsage'
+                    readOnly: true
+                    type: array
+                gcpServiceAccountForAtlas:
+                    description: ID string that identifies the GCP Service Account used by Atlas.
+                    readOnly: true
+                    type: string
+                providerName:
+                    description: Human-readable label that identifies the cloud provider of the role.
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+                roleId:
+                    description: Unique 24-hexadecimal digit string that identifies the role.
+                    readOnly: true
+                    type: string
+            required:
+                - providerName
+            type: object
         CloudProviderAccessPushBasedLogExportFeatureUsage:
             allOf:
                 - $ref: '#/components/schemas/CloudProviderAccessFeatureUsage'
@@ -7181,6 +7255,7 @@ components:
                 mapping:
                     AWS: '#/components/schemas/CloudProviderAccessAWSIAMRole'
                     AZURE: '#/components/schemas/CloudProviderAccessAzureServicePrincipal'
+                    GCP: '#/components/schemas/CloudProviderAccessGCPServiceAccount'
                 propertyName: providerName
             properties:
                 providerName:
@@ -7188,6 +7263,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
             required:
                 - providerName
@@ -7198,16 +7274,19 @@ components:
                 mapping:
                     AWS: '#/components/schemas/CloudProviderAccessAWSIAMRoleRequest'
                     AZURE: '#/components/schemas/CloudProviderAccessAzureServicePrincipalRequest'
+                    GCP: '#/components/schemas/CloudProviderAccessGCPServiceAccountRequest'
                 propertyName: providerName
             oneOf:
                 - $ref: '#/components/schemas/CloudProviderAccessAWSIAMRoleRequest'
                 - $ref: '#/components/schemas/CloudProviderAccessAzureServicePrincipalRequest'
+                - $ref: '#/components/schemas/CloudProviderAccessGCPServiceAccountRequest'
             properties:
                 providerName:
                     description: Human-readable label that identifies the cloud provider of the role.
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
             required:
                 - providerName
@@ -23824,6 +23903,30 @@ components:
                     readOnly: true
                     type: integer
             type: object
+        PaginatedApiStreamsPrivateLinkView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/StreamsPrivateLinkConnection'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
         PaginatedApiStreamsStreamProcessorWithStatsView:
             properties:
                 links:
@@ -23887,6 +23990,30 @@ components:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
                         $ref: '#/components/schemas/UserAccessListResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
+        PaginatedApiVersions:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/ApiVersion'
                     readOnly: true
                     type: array
                 totalCount:
@@ -29049,6 +29176,48 @@ components:
                     readOnly: true
                     type: array
             type: object
+        StreamsPrivateLinkConnection:
+            description: Container for metadata needed to create a Private Link connection.
+            properties:
+                _id:
+                    description: The ID of the Private Link connection.
+                    type: string
+                dnsDomain:
+                    description: Domain name of Confluent cluster.
+                    type: string
+                dnsSubDomain:
+                    description: Sub-Domain name of Confluent cluster. These are typically your availability zones.
+                    items:
+                        type: string
+                    type: array
+                interfaceEndpointId:
+                    description: Interface endpoint ID that is created from the service endpoint ID provided.
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                provider:
+                    description: Provider where the Kafka cluster is deployed.
+                    type: string
+                region:
+                    description: Domain name of Confluent cluster.
+                    type: string
+                serviceEndpointId:
+                    description: AWS Service Endpoint ID.
+                    type: string
+                state:
+                    description: State the connection is in.
+                    type: string
+                vendor:
+                    description: Vendor who manages the Kafka cluster.
+                    type: string
+            type: object
         StreamsProcessor:
             description: An atlas stream processor.
             properties:
@@ -32837,7 +33006,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: d9dc9db0d8eff93166f666b92bf408178fd5c671
+    x-xgen-sha: 838f9aef747eaec3e6069a855bafb0aa9426e371
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -44291,13 +44460,13 @@ paths:
                     pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
                     type: string
             responses:
-                "204":
+                "202":
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
-                                $ref: '#/components/schemas/NoBody'
+                                $ref: '#/components/schemas/RequestAccepted'
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: Accepted
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "404":
