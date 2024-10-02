@@ -7240,6 +7240,13 @@ components:
             required:
                 - providerName
             type: object
+        CloudProviderAccessGCPServiceAccountRequestUpdate:
+            allOf:
+                - $ref: '#/components/schemas/CloudProviderAccessRoleRequestUpdate'
+            description: Details that describe the features linked to the GCP Service Account.
+            required:
+                - providerName
+            type: object
         CloudProviderAccessPushBasedLogExportFeatureUsage:
             allOf:
                 - $ref: '#/components/schemas/CloudProviderAccessFeatureUsage'
@@ -7297,6 +7304,7 @@ components:
                 mapping:
                     AWS: '#/components/schemas/CloudProviderAccessAWSIAMRoleRequestUpdate'
                     AZURE: '#/components/schemas/CloudProviderAccessAzureServicePrincipalRequestUpdate'
+                    GCP: '#/components/schemas/CloudProviderAccessGCPServiceAccountRequestUpdate'
                 propertyName: providerName
             properties:
                 providerName:
@@ -7304,6 +7312,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
             required:
                 - providerName
@@ -33048,7 +33057,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 6e324f982353ee9ccc61cdc3f848641c54900493
+    x-xgen-sha: dd0612b20ed1495df2edde7b4a2f9ea521e810de
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -34826,7 +34835,7 @@ paths:
             summary: Return All AWS S3 Buckets and Azure Blob Storage Containers Used for Cloud Backup Snapshot Exports
             tags:
                 - Cloud Backups
-            x-sunset: "2025-05-30"
+            x-sunset: "2026-05-30"
         post:
             deprecated: true
             description: Grants MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container. This enables this Export Bucket to receive Atlas Cloud Backup Snapshots. To use this resource, the requesting API Key must have the Project Owner role.
@@ -34865,7 +34874,7 @@ paths:
             summary: Grant Access to AWS S3 Bucket or Azure Blob Storage Container for Cloud Backup Snapshot Exports
             tags:
                 - Cloud Backups
-            x-sunset: "2025-05-30"
+            x-sunset: "2026-05-30"
     /api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}:
         delete:
             description: Revoke MongoDB Cloud access to the specified AWS S3 Bucket or Azure Blob Storage Container. This prevents this Export Bucket from receiving Atlas Cloud Backup Snapshots. Auto export must be disabled on all clusters in this Project exporting to this Export Bucket before revoking access. To use this resource, the requesting API Key must have the Project Owner role.
@@ -34940,7 +34949,7 @@ paths:
             summary: Return One AWS S3 Bucket or Azure Blob Storage Container Used for Cloud Backup Snapshot Exports
             tags:
                 - Cloud Backups
-            x-sunset: "2025-05-30"
+            x-sunset: "2026-05-30"
     /api/atlas/v2/groups/{groupId}/backupCompliancePolicy:
         get:
             deprecated: true
@@ -34969,7 +34978,7 @@ paths:
             summary: Return the Backup Compliance Policy settings
             tags:
                 - Cloud Backups
-            x-sunset: "2025-10-01"
+            x-sunset: "2026-10-01"
         put:
             deprecated: true
             description: Updates the Backup Compliance Policy settings for the specified project. To use this resource, the requesting API Key must have the Project Owner role.
@@ -35153,7 +35162,7 @@ paths:
             tags:
                 - Cloud Provider Access
         patch:
-            description: Grants access to the specified project for the specified access role. To use this resource, the requesting API Key must have the Project Owner role. This API endpoint is one step in a procedure to create unified access for MongoDB Cloud services.
+            description: Grants access to the specified project for the specified access role. To use this resource, the requesting API Key must have the Project Owner role. This API endpoint is one step in a procedure to create unified access for MongoDB Cloud services. This is not required for GCP service account access.
             externalDocs:
                 description: Set Up Access to Cloud Providers
                 url: https://www.mongodb.com/docs/atlas/security/cloud-provider-access/
@@ -35738,7 +35747,7 @@ paths:
             summary: Remove All Cloud Backup Schedules
             tags:
                 - Cloud Backups
-            x-sunset: "2025-08-05"
+            x-sunset: "2026-05-30"
         get:
             deprecated: true
             description: Returns the cloud backup schedule for the specified cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Read Only role.
@@ -35773,7 +35782,7 @@ paths:
             summary: Return One Cloud Backup Schedule
             tags:
                 - Cloud Backups
-            x-sunset: "2025-08-05"
+            x-sunset: "2026-05-30"
         patch:
             deprecated: true
             description: Updates the cloud backup schedule for one cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Owner role.
@@ -35820,7 +35829,7 @@ paths:
             summary: Update Cloud Backup Schedule for One Cluster
             tags:
                 - Cloud Backups
-            x-sunset: "2025-08-05"
+            x-sunset: "2026-05-30"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots:
         get:
             description: Returns all snapshots of one cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
