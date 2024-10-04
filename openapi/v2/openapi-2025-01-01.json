@@ -224,7 +224,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "54b21c7777714471548218855a5a6816aa5101ca"
+    "x-xgen-sha": "0da8a350a38af8c61293d341b587b7a81f81f863"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -15147,7 +15147,7 @@
         "tags": [
           "Projects"
         ],
-        "x-sunset": "2024-10-04"
+        "x-sunset": "2024-11-04"
       },
       "patch": {
         "deprecated": true,
@@ -15209,7 +15209,7 @@
         "tags": [
           "Projects"
         ],
-        "x-sunset": "2024-10-04"
+        "x-sunset": "2024-11-04"
       },
       "post": {
         "deprecated": true,
@@ -15265,7 +15265,7 @@
         "tags": [
           "Projects"
         ],
-        "x-sunset": "2024-10-04"
+        "x-sunset": "2024-11-04"
       }
     },
     "/api/atlas/v2/groups/{groupId}/invites/{invitationId}": {
@@ -15321,7 +15321,7 @@
         "tags": [
           "Projects"
         ],
-        "x-sunset": "2024-10-04"
+        "x-sunset": "2024-11-04"
       },
       "get": {
         "deprecated": true,
@@ -15381,7 +15381,7 @@
         "tags": [
           "Projects"
         ],
-        "x-sunset": "2024-10-04"
+        "x-sunset": "2024-11-04"
       },
       "patch": {
         "deprecated": true,
@@ -15452,7 +15452,7 @@
         "tags": [
           "Projects"
         ],
-        "x-sunset": "2024-10-04"
+        "x-sunset": "2024-11-04"
       }
     },
     "/api/atlas/v2/groups/{groupId}/ipAddresses": {
@@ -29126,7 +29126,7 @@
     },
     "/api/atlas/v2/orgs/{orgId}/users/{userId}:addRole": {
       "post": {
-        "description": "Adds one organization level role to the MongoDB Cloud user. You can add a role to an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.\n\n**Note**: This operation is atomic.\n\n**Note**: This resource cannot be used to add a role to users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
+        "description": "Adds one organization level role to the MongoDB Cloud user. You can add a role to an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.\n\n**Note**: This operation is atomic.\n\n**Note**: This resource cannot be used to add a role to users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
         "operationId": "addOrganizationRole",
         "parameters": [
           {
@@ -29202,6 +29202,89 @@
           }
         ],
         "summary": "Add One Organization Role to One MongoDB Cloud User",
+        "tags": [
+          "MongoDB Cloud Users"
+        ]
+      }
+    },
+    "/api/atlas/v2/orgs/{orgId}/users/{userId}:removeRole": {
+      "post": {
+        "description": "Removes one organization level role from the MongoDB Cloud user. You can remove a role from an active user or a user that has not yet accepted the invitation to join the organization. To replace a user's only role, add the new role before removing the old role. A user must have at least one role at all times. To use this resource, the requesting API Key must have the Organization Owner role.\n\n**Note**: This operation is atomic.\n\n**Note**: This resource cannot be used to remove a role from users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
+        "operationId": "removeOrganizationRole",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.",
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization level role to remove from the MongoDB Cloud user.",
+            "in": "query",
+            "name": "role",
+            "required": true,
+            "schema": {
+              "enum": [
+                "ORG_OWNER",
+                "ORG_GROUP_CREATOR",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_READ_ONLY",
+                "ORG_MEMBER"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgUserResponse"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [
+          {
+            "DigestAuth": []
+          }
+        ],
+        "summary": "Remove One Organization Role from One MongoDB Cloud User",
         "tags": [
           "MongoDB Cloud Users"
         ]
