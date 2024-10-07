@@ -19,3 +19,4 @@ Example
 ```shell
 ./tools/cli/test/data/split/download_specs.sh https://<s3_bucket_link>/mms/e6ba3136dbd0be2a81dd4ed21b9e6c470edd4420/24_10_05_23_26_12  dev
 ```
+
