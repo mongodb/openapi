@@ -19,31 +19,31 @@ func TestChangelog(t *testing.T) {
 	cliPath := NewBin(t)
 
 	// Flaky Test: To be fixed in ticket CLOUDP-277324
-	// t.Run("Generate Changelog with new API Version", func(t *testing.T) {
-	//	base := NewChangelogBasePathNewAPIVersion(t)
-	//	revision := NewChangelogRevisionPathNewAPIVersion(t)
-	//	exemptions := NewChangelogExepmtionFilePathNewAPIVersion(t)
-	//	commandOut := getOutputFolder(t, "changelog")
-	//
-	//	cmd := exec.Command(cliPath,
-	//		"changelog",
-	//		"create",
-	//		"-b",
-	//		base,
-	//		"-r",
-	//		revision,
-	//		"-e",
-	//		exemptions,
-	//		"-o",
-	//		commandOut,
-	//	)
-	//
-	//	var o, e bytes.Buffer
-	//	cmd.Stdout = &o
-	//	cmd.Stderr = &e
-	//	require.NoError(t, cmd.Run(), e.String())
-	//	checkChangelogFilesAreTheSame(t, commandOut, NewChangelogOutputPathNewAPIVersion(t))
-	// })
+	t.Run("Generate Changelog with new API Version", func(t *testing.T) {
+		base := NewChangelogBasePathNewAPIVersion(t)
+		revision := NewChangelogRevisionPathNewAPIVersion(t)
+		exemptions := NewChangelogExepmtionFilePathNewAPIVersion(t)
+		commandOut := getOutputFolder(t, "changelog")
+
+		cmd := exec.Command(cliPath,
+			"changelog",
+			"create",
+			"-b",
+			base,
+			"-r",
+			revision,
+			"-e",
+			exemptions,
+			"-o",
+			commandOut,
+		)
+
+		var o, e bytes.Buffer
+		cmd.Stdout = &o
+		cmd.Stderr = &e
+		require.NoError(t, cmd.Run(), e.String())
+		checkChangelogFilesAreTheSame(t, commandOut, NewChangelogOutputPathNewAPIVersion(t))
+	})
 
 	t.Run("Generate Changelog with same API Version", func(t *testing.T) {
 		base := NewChangelogBasePathSameAPIVersion(t)
@@ -74,8 +74,10 @@ func TestChangelog(t *testing.T) {
 
 func checkChangelogFilesAreTheSame(t *testing.T, cmdOutput, testOutput string) {
 	t.Helper()
-	log.Print("Checking file: changelog.json")
+	log.Printf("Checking file: %s", fmt.Sprintf("%s/%s", cmdOutput, "changelog.json"))
 	cmdChangelog := newEntriesFromPath(t, fmt.Sprintf("%s/%s", cmdOutput, "changelog.json"))
+
+	log.Printf("With test file: %s", fmt.Sprintf("%s/%s", testOutput, "changelog.json"))
 	testChangelog := newEntriesFromPath(t, fmt.Sprintf("%s/%s", testOutput, "changelog.json"))
 	areEntriesTheSame(t, cmdChangelog, testChangelog)
 
