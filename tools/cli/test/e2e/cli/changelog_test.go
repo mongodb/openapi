@@ -18,6 +18,7 @@ import (
 func TestChangelog(t *testing.T) {
 	cliPath := NewBin(t)
 
+	// Flaky Test: To be fixed in ticket CLOUDP-277324
 	t.Run("Generate Changelog with new API Version", func(t *testing.T) {
 		base := NewChangelogBasePathNewAPIVersion(t)
 		revision := NewChangelogRevisionPathNewAPIVersion(t)
@@ -73,8 +74,10 @@ func TestChangelog(t *testing.T) {
 
 func checkChangelogFilesAreTheSame(t *testing.T, cmdOutput, testOutput string) {
 	t.Helper()
-	log.Print("Checking file: changelog.json")
+	log.Printf("Checking file: %s", fmt.Sprintf("%s/%s", cmdOutput, "changelog.json"))
 	cmdChangelog := newEntriesFromPath(t, fmt.Sprintf("%s/%s", cmdOutput, "changelog.json"))
+
+	log.Printf("With test file: %s", fmt.Sprintf("%s/%s", testOutput, "changelog.json"))
 	testChangelog := newEntriesFromPath(t, fmt.Sprintf("%s/%s", testOutput, "changelog.json"))
 	areEntriesTheSame(t, cmdChangelog, testChangelog)
 
