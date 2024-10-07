@@ -19,7 +19,7 @@ func TestChangelog(t *testing.T) {
 	cliPath := NewBin(t)
 
 	// Flaky Test: To be fixed in ticket CLOUDP-277324
-	//t.Run("Generate Changelog with new API Version", func(t *testing.T) {
+	// t.Run("Generate Changelog with new API Version", func(t *testing.T) {
 	//	base := NewChangelogBasePathNewAPIVersion(t)
 	//	revision := NewChangelogRevisionPathNewAPIVersion(t)
 	//	exemptions := NewChangelogExepmtionFilePathNewAPIVersion(t)
@@ -43,7 +43,7 @@ func TestChangelog(t *testing.T) {
 	//	cmd.Stderr = &e
 	//	require.NoError(t, cmd.Run(), e.String())
 	//	checkChangelogFilesAreTheSame(t, commandOut, NewChangelogOutputPathNewAPIVersion(t))
-	//})
+	// })
 
 	t.Run("Generate Changelog with same API Version", func(t *testing.T) {
 		base := NewChangelogBasePathSameAPIVersion(t)
