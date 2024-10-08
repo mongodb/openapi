@@ -118,7 +118,7 @@ func (o OasDiff) mergePaths() error {
 		if originalPath := basePaths.Value(externalPath); originalPath == nil {
 			basePaths.Set(externalPath, removeExternalRefs(externalPathData))
 		} else {
-			if shouldSkipPathConflict(originalPath, externalPathData, externalPath) {
+			if o.shouldSkipPathConflict(originalPath, externalPath) {
 				log.Printf("Skipping conflict for path: %s", externalPath)
 				if o.arePathsIdenticalWithExcludeExtensions(externalPath) {
 					log.Printf("No doc diff detected for path %s, merging the paths", externalPath)
@@ -170,6 +170,25 @@ func removeExternalRefs(path *openapi3.PathItem) *openapi3.PathItem {
 	}
 
 	return path
+}
+
+// shouldSkipConflict checks if the conflict should be skipped.
+// The method goes through each path operation and performs the following checks:
+// 1. Validates if both paths have same operations, if not, then it returns false.
+// 2. If both paths have the same operations, then it checks if there is an x-xgen-soa-migration annotation.
+// If there is no annotation, then it returns false.
+func (o OasDiff) shouldSkipPathConflict(basePath *openapi3.PathItem, basePathName string) bool {
+	if ok := o.specDiff.PathsDiff.Modified[basePathName].OperationsDiff.Added; !ok.Empty() {
+		return false
+	}
+
+	if ok := o.specDiff.PathsDiff.Modified[basePathName].OperationsDiff.Deleted; !ok.Empty() {
+		return false
+	}
+
+	// now check if there is an x-xgen-soa-migration annotation in any of the operations, but if any of the operations
+	// doesn't have, then we should not skip the conflict
+	return allOperationsHaveExtension(basePath, basePathName, xgenSoaMigration)
 }
 
 // updateExternalRefResponses updates the external references of OASes to remove the reference to openapi-mms.json

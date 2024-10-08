@@ -24,37 +24,6 @@ const (
 	xgenSoaMigration = "x-xgen-soa-migration"
 )
 
-// shouldSkipConflict checks if the conflict should be skipped.
-// The method goes through each path operation and performs the following checks:
-// 1. Validates if both paths have same operations, if not, then it returns false.
-// 2. If both paths have the same operations, then it checks if there is an x-xgen-soa-migration annotation.
-// If there is no annotation, then it returns false.
-func shouldSkipPathConflict(basePath, externalPath *openapi3.PathItem, basePathName string) bool {
-	if basePath.Get != nil && externalPath.Get == nil || basePath.Get == nil && externalPath.Get != nil {
-		return false
-	}
-
-	if basePath.Put != nil && externalPath.Put == nil || basePath.Put == nil && externalPath.Put != nil {
-		return false
-	}
-
-	if basePath.Post != nil && externalPath.Post == nil || basePath.Post == nil && externalPath.Post != nil {
-		return false
-	}
-
-	if basePath.Patch != nil && externalPath.Patch == nil || basePath.Patch == nil && externalPath.Patch != nil {
-		return false
-	}
-
-	if basePath.Delete != nil && externalPath.Delete == nil || basePath.Delete == nil && externalPath.Delete != nil {
-		return false
-	}
-
-	// now check if there is an x-xgen-soa-migration annotation in any of the operations, but if any of the operations
-	// doesn't have, then we should not skip the conflict
-	return allOperationsHaveExtension(basePath, basePathName, xgenSoaMigration)
-}
-
 // allMethodsHaveExtension checks if all the operations in the base pat have the given extension name.
 func allOperationsHaveExtension(basePath *openapi3.PathItem, basePathName, extensionName string) bool {
 	if basePath.Get != nil {
