@@ -74,7 +74,7 @@ func getOperationExtensionWithName(operation *openapi3.Operation, extensionName 
 	return operation.Extensions[extensionName]
 }
 
-func allOperationsAllowDocsDiff(basePath *openapi3.PathItem, basePathName string) bool {
+func allOperationsAllowDocsDiff(basePath *openapi3.PathItem) bool {
 	if basePath.Operations() == nil || len(basePath.Operations()) == 0 {
 		return false
 	}

@@ -177,7 +177,7 @@ func TestAllOperationsAllowDocsDiff(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			actual := allOperationsAllowDocsDiff(test.input, "/test")
+			actual := allOperationsAllowDocsDiff(test.input)
 			if actual != test.expected {
 				t.Errorf("Expected %t, got %t", test.expected, actual)
 			}

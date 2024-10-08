@@ -15,7 +15,6 @@
 package openapi
 
 import (
-	"encoding/json"
 	"log"
 	"slices"
 	"strings"
@@ -122,11 +121,7 @@ func (o OasDiff) mergePaths() error {
 			if err != nil {
 				return err
 			}
-
-			// if diff is not allowed and there is a diff, then fail
-			if !allOperationsAllowDocsDiff(originalPathData, path) {
-				basePaths.Set(path, removeExternalRefs(externalPathData))
-			}
+			basePaths.Set(path, removeExternalRefs(externalPathData))
 		}
 	}
 	o.base.Spec.Paths = basePaths
@@ -176,19 +171,33 @@ func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName st
 		}
 	}
 
+	var pathsAreIdentical bool
+	var err error
+	if pathsAreIdentical, err = o.arePathsIdenticalWithExcludeExtensions(basePathName); err != nil {
+		return err
+	}
+
 	log.Printf("Skipping conflict for path: %s", basePathName)
-	if o.arePathsIdenticalWithExcludeExtensions(basePathName) {
-		log.Printf("No doc diff detected for path %s, merging the paths", basePathName)
+	if pathsAreIdentical {
 		return nil
 	}
 
-	if !allOperationsAllowDocsDiff(basePath, basePathName) {
-		log.Printf("Doc diff detected failing as allowDocsDiff=true is not supported.")
-		return errors.PathConflictError{
+	// allowDocsDiff = true not supported
+	if allOperationsAllowDocsDiff(basePath) {
+		return errors.AllowDocsDiffNotSupportedError{
 			Entry: basePathName,
 		}
 	}
-	return nil
+
+	d, err := o.getDiffWithoutExtensions()
+	if err != nil {
+		return err
+	}
+
+	return errors.PathDocsDiffConflictError{
+		Entry: basePathName,
+		Diff:  d,
+	}
 }
 
 // shouldSkipConflict checks if the conflict should be skipped.
@@ -475,24 +484,24 @@ func (o OasDiff) areSchemaIdentical(name string) bool {
 }
 
 // arePathsIdenticalWithExcludeExtensions checks if the paths are identical with the extensions excluded
-func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) bool {
+func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) (bool, error) {
 	// If the diff only has extensions diff, then we consider the paths to be identical
-	exclude := []string{"extensions"}
-	customConfig := diff.NewConfig().WithExcludeElements(exclude)
-	d, err := diff.Get(customConfig, o.base.Spec, o.external.Spec)
+	d, err := o.getDiffWithoutExtensions()
 	if err != nil {
-		log.Fatalf("error in calculating the diff of the specs: %s", err)
+		return false, err
 	}
 
 	if d.Empty() || d.PathsDiff.Empty() {
-		return true
+		return true, nil
 	}
 	_, ok := d.PathsDiff.Modified[name]
-	if ok {
-		j, _ := json.MarshalIndent(d.PathsDiff.Modified[name], "", "  ")
-		log.Printf("arePathsIdenticalWithExcludeExtensions diff: %s", j)
-	}
-	return !ok
+	return !ok, nil
+}
+
+func (o OasDiff) getDiffWithoutExtensions() (*diff.Diff, error) {
+	exclude := []string{"extensions"}
+	customConfig := diff.NewConfig().WithExcludeElements(exclude)
+	return diff.Get(customConfig, o.base.Spec, o.external.Spec)
 }
 
 type ByName []*openapi3.Tag
