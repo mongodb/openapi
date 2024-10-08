@@ -178,12 +178,19 @@ func removeExternalRefs(path *openapi3.PathItem) *openapi3.PathItem {
 // 2. If both paths have the same operations, then it checks if there is an x-xgen-soa-migration annotation.
 // If there is no annotation, then it returns false.
 func (o OasDiff) shouldSkipPathConflict(basePath *openapi3.PathItem, basePathName string) bool {
-	if ok := o.specDiff.PathsDiff.Modified[basePathName].OperationsDiff.Added; !ok.Empty() {
-		return false
+	var pathsDiff *diff.PathsDiff
+	if o.specDiff != nil {
+		pathsDiff = o.specDiff.PathsDiff
 	}
 
-	if ok := o.specDiff.PathsDiff.Modified[basePathName].OperationsDiff.Deleted; !ok.Empty() {
-		return false
+	if pathsDiff != nil && pathsDiff.Modified != nil && pathsDiff.Modified[basePathName] != nil {
+		if ok := o.specDiff.PathsDiff.Modified[basePathName].OperationsDiff.Added; !ok.Empty() {
+			return false
+		}
+
+		if ok := o.specDiff.PathsDiff.Modified[basePathName].OperationsDiff.Deleted; !ok.Empty() {
+			return false
+		}
 	}
 
 	// now check if there is an x-xgen-soa-migration annotation in any of the operations, but if any of the operations
@@ -458,6 +465,9 @@ func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) bool {
 		log.Fatalf("error in calculating the diff of the specs: %s", err)
 	}
 
+	if d.Empty() || d.PathsDiff.Empty() {
+		return true
+	}
 	_, ok := d.PathsDiff.Modified[name]
 	if ok {
 		j, _ := json.MarshalIndent(d.PathsDiff.Modified[name], "", "  ")
