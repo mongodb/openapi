@@ -118,19 +118,12 @@ func (o OasDiff) mergePaths() error {
 		if originalPath := basePaths.Value(externalPath); originalPath == nil {
 			basePaths.Set(externalPath, removeExternalRefs(externalPathData))
 		} else {
-			if o.shouldSkipPathConflict(originalPath, externalPath) {
-				log.Printf("Skipping conflict for path: %s", externalPath)
-				if o.arePathsIdenticalWithExcludeExtensions(externalPath) {
-					log.Printf("No doc diff detected for path %s, merging the paths", externalPath)
-					basePaths.Set(externalPath, removeExternalRefs(externalPathData))
-				} else {
-					log.Printf("Doc diff detected failing as allowDocsDiff=true is not supported.")
-				}
+			err := o.handlePathConflict(originalPath, externalPath)
+			if err != nil {
+				return err
 			}
 
-			return errors.PathConflictError{
-				Entry: externalPath,
-			}
+			basePaths.Set(externalPath, removeExternalRefs(externalPathData))
 		}
 	}
 	o.base.Spec.Paths = basePaths
@@ -170,6 +163,26 @@ func removeExternalRefs(path *openapi3.PathItem) *openapi3.PathItem {
 	}
 
 	return path
+}
+
+// handlePathConflict handles the path conflict by checking if the conflict should be skipped or not.
+func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName string) error {
+	if !o.shouldSkipPathConflict(basePath, basePathName) {
+		return errors.PathConflictError{
+			Entry: basePathName,
+		}
+	}
+
+	log.Printf("Skipping conflict for path: %s", basePathName)
+	if o.arePathsIdenticalWithExcludeExtensions(basePathName) {
+		log.Printf("No doc diff detected for path %s, merging the paths", basePathName)
+		return nil
+	}
+
+	log.Printf("Doc diff detected failing as allowDocsDiff=true is not supported.")
+	return errors.PathConflictError{
+		Entry: basePathName,
+	}
 }
 
 // shouldSkipConflict checks if the conflict should be skipped.
