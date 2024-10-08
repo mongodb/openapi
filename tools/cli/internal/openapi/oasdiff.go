@@ -113,17 +113,20 @@ func (o OasDiff) mergePaths() error {
 		return nil
 	}
 
-	for externalPath, externalPathData := range pathsToMerge.Map() {
+	for path, externalPathData := range pathsToMerge.Map() {
 		// Tries to find if the path already exists or not
-		if originalPath := basePaths.Value(externalPath); originalPath == nil {
-			basePaths.Set(externalPath, removeExternalRefs(externalPathData))
+		if originalPathData := basePaths.Value(path); originalPathData == nil {
+			basePaths.Set(path, removeExternalRefs(externalPathData))
 		} else {
-			err := o.handlePathConflict(originalPath, externalPath)
+			err := o.handlePathConflict(originalPathData, path)
 			if err != nil {
 				return err
 			}
 
-			basePaths.Set(externalPath, removeExternalRefs(externalPathData))
+			// if diff is not allowed and there is a diff, then fail
+			if !allOperationsAllowDocsDiff(originalPathData, path) {
+				basePaths.Set(path, removeExternalRefs(externalPathData))
+			}
 		}
 	}
 	o.base.Spec.Paths = basePaths
@@ -179,10 +182,13 @@ func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName st
 		return nil
 	}
 
-	log.Printf("Doc diff detected failing as allowDocsDiff=true is not supported.")
-	return errors.PathConflictError{
-		Entry: basePathName,
+	if !allOperationsAllowDocsDiff(basePath, basePathName) {
+		log.Printf("Doc diff detected failing as allowDocsDiff=true is not supported.")
+		return errors.PathConflictError{
+			Entry: basePathName,
+		}
 	}
+	return nil
 }
 
 // shouldSkipConflict checks if the conflict should be skipped.

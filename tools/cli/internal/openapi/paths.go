@@ -22,40 +22,106 @@ import (
 
 const (
 	xgenSoaMigration = "x-xgen-soa-migration"
+	allowDocsDiff    = "allowDocsDiff"
 )
 
-// allMethodsHaveExtension checks if all the operations in the base pat have the given extension name.
+// allOperationsHaveExtension checks if all the operations in the base pat have the given extension name.
 func allOperationsHaveExtension(basePath *openapi3.PathItem, basePathName, extensionName string) bool {
 	if basePath.Get != nil {
-		if basePath.Get.Extensions == nil || basePath.Get.Extensions[extensionName] == nil {
+		if result := getOperationExtensionWithName(basePath.Get, extensionName); result == nil {
 			return false
 		}
 	}
 
 	if basePath.Put != nil {
-		if basePath.Put.Extensions == nil || basePath.Put.Extensions[extensionName] == nil {
+		if result := getOperationExtensionWithName(basePath.Put, extensionName); result == nil {
 			return false
 		}
 	}
 
 	if basePath.Post != nil {
-		if basePath.Post.Extensions == nil || basePath.Post.Extensions[extensionName] == nil {
+		if result := getOperationExtensionWithName(basePath.Post, extensionName); result == nil {
 			return false
 		}
 	}
 
 	if basePath.Patch != nil {
-		if basePath.Patch.Extensions == nil || basePath.Patch.Extensions[extensionName] == nil {
+		if result := getOperationExtensionWithName(basePath.Patch, extensionName); result == nil {
 			return false
 		}
 	}
 
 	if basePath.Delete != nil {
-		if basePath.Delete.Extensions == nil || basePath.Delete.Extensions[extensionName] == nil {
+		if result := getOperationExtensionWithName(basePath.Delete, extensionName); result == nil {
 			return false
 		}
 	}
 
 	log.Println("Detected x-xgen-soa-migration annotation in all operations for path: ", basePathName)
 	return true
+}
+
+func getOperationExtensionWithName(operation *openapi3.Operation, extensionName string) interface{} {
+	if operation.Extensions == nil || operation.Extensions[extensionName] == nil {
+		log.Printf("Operation %s does not have extension %q", operation.OperationID, extensionName)
+		return nil
+	}
+
+	return operation.Extensions[extensionName]
+}
+
+func allOperationsAllowDocsDiff(basePath *openapi3.PathItem, basePathName string) bool {
+	if basePath.Get != nil {
+		prop := getOperationExtensionProperty(basePath.Get, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	if basePath.Put != nil {
+		prop := getOperationExtensionProperty(basePath.Put, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	if basePath.Post != nil {
+		prop := getOperationExtensionProperty(basePath.Post, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	if basePath.Patch != nil {
+		prop := getOperationExtensionProperty(basePath.Patch, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	if basePath.Delete != nil {
+		prop := getOperationExtensionProperty(basePath.Delete, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	return true
+}
+
+func getOperationExtensionProperty(operation *openapi3.Operation, extensionName, extensionProperty string) string {
+	if operation.Extensions == nil || operation.Extensions[extensionName] == nil {
+		return ""
+	}
+
+	extension := operation.Extensions[extensionName]
+	if extension == nil {
+		return ""
+	}
+
+	value, ok := extension.(map[string]interface{})[extensionProperty].(string)
+	if ok {
+		return value
+	}
+	return ""
 }
