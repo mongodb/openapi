@@ -22,6 +22,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/tufin/oasdiff/diff"
+
 	"github.com/tufin/oasdiff/flatten/allof"
 	"github.com/tufin/oasdiff/load"
 )
@@ -111,18 +112,89 @@ func (o OasDiff) mergePaths() error {
 		return nil
 	}
 
-	for k, v := range pathsToMerge.Map() {
-		if ok := basePaths.Value(k); ok == nil {
-			basePaths.Set(k, removeExternalRefs(v))
+	for externalPath, externalPathData := range pathsToMerge.Map() {
+		// Tries to find if the path already exists or not
+		if originalPath := basePaths.Value(externalPath); originalPath == nil {
+			basePaths.Set(externalPath, removeExternalRefs(externalPathData))
 		} else {
+			if shouldSkipConflict(originalPath, externalPathData, externalPath) {
+				log.Println("Skipping conflict for path: ", externalPath)
+				continue
+			}
 			return errors.PathConflictError{
-				Entry: k,
+				Entry: externalPath,
 			}
 		}
 	}
-
 	o.base.Spec.Paths = basePaths
 	return nil
+}
+
+// shouldSkipConflict checks if the conflict should be skipped.
+// The method goes through each path operation, and validates if it exists for
+// both paths, if it does not, the path conflict should not be ignored.
+// If it does, then we check if there is an x-xgen-soa-migration annotation
+// If it does, then we allow the conflict to be skipped.
+func shouldSkipConflict(basePath, externalPath *openapi3.PathItem, basePathName string) bool {
+	if basePath.Get != nil && externalPath.Get == nil {
+		return false
+	}
+
+	if basePath.Put != nil && externalPath.Put == nil {
+		return false
+	}
+
+	if basePath.Post != nil && externalPath.Post == nil {
+		return false
+	}
+
+	if basePath.Patch != nil && externalPath.Patch == nil {
+		return false
+	}
+
+	if basePath.Delete != nil && externalPath.Delete == nil {
+		return false
+	}
+
+	// now check if there is an x-xgen-soa-migration annotation in any of the operations, but if any of the operations
+	// doesn't have, then we should not skip the conflict
+	return allMethodsHaveExtension(basePath, basePathName)
+}
+
+// allMethodsHaveExtension checks if all the methods in a path have the x-xgen-soa-migration extension.
+func allMethodsHaveExtension(basePath *openapi3.PathItem, basePathName string) bool {
+	if basePath.Get != nil {
+		if basePath.Get.Extensions == nil || basePath.Get.Extensions["x-xgen-soa-migration"] == nil {
+			return false
+		}
+	}
+
+	if basePath.Put != nil {
+		if basePath.Put.Extensions == nil || basePath.Put.Extensions["x-xgen-soa-migration"] == nil {
+			return false
+		}
+	}
+
+	if basePath.Post != nil {
+		if basePath.Post.Extensions == nil || basePath.Post.Extensions["x-xgen-soa-migration"] == nil {
+			return false
+		}
+	}
+
+	if basePath.Patch != nil {
+		if basePath.Patch.Extensions == nil || basePath.Patch.Extensions["x-xgen-soa-migration"] == nil {
+			return false
+		}
+	}
+
+	if basePath.Delete != nil {
+		if basePath.Delete.Extensions == nil || basePath.Delete.Extensions["x-xgen-soa-migration"] == nil {
+			return false
+		}
+	}
+
+	log.Println("Detected x-xgen-soa-migration annotation in all operations for path: ", basePathName)
+	return true
 }
 
 // removeExternalRefs updates the external references of OASes to remove the reference to openapi-mms.json.
