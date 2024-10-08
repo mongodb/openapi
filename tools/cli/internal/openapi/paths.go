@@ -27,6 +27,10 @@ const (
 
 // allOperationsHaveExtension checks if all the operations in the base pat have the given extension name.
 func allOperationsHaveExtension(basePath *openapi3.PathItem, basePathName, extensionName string) bool {
+	if basePath.Operations() == nil || len(basePath.Operations()) == 0 {
+		return false
+	}
+
 	if basePath.Get != nil {
 		if result := getOperationExtensionWithName(basePath.Get, extensionName); result == nil {
 			return false
@@ -71,6 +75,10 @@ func getOperationExtensionWithName(operation *openapi3.Operation, extensionName 
 }
 
 func allOperationsAllowDocsDiff(basePath *openapi3.PathItem, basePathName string) bool {
+	if basePath.Operations() == nil || len(basePath.Operations()) == 0 {
+		return false
+	}
+
 	if basePath.Get != nil {
 		prop := getOperationExtensionProperty(basePath.Get, xgenSoaMigration, allowDocsDiff)
 		if prop != "true" {
