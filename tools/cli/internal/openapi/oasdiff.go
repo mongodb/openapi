@@ -28,11 +28,12 @@ import (
 )
 
 type OasDiff struct {
-	base     *load.SpecInfo
-	external *load.SpecInfo
-	config   *diff.Config
-	specDiff *diff.Diff
-	parser   Parser
+	base      *load.SpecInfo
+	external  *load.SpecInfo
+	config    *diff.Config
+	specDiff  *diff.Diff
+	noExtDiff NoExtensionDiff
+	parser    Parser
 }
 
 type OasDiffResult struct {
@@ -177,7 +178,7 @@ func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName st
 		return err
 	}
 
-	log.Printf("Skipping conflict for path: %s", basePathName)
+	log.Printf("Skipping conflict for path: %s, pathsAreIdentical: %v", basePathName, pathsAreIdentical)
 	if pathsAreIdentical {
 		return nil
 	}
@@ -189,7 +190,7 @@ func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName st
 		}
 	}
 
-	d, err := o.getDiffWithoutExtensions()
+	d, err := o.noExtDiff.GetPathDiffWithoutExtensions(o.base.Spec, o.external.Spec)
 	if err != nil {
 		return err
 	}
@@ -486,7 +487,7 @@ func (o OasDiff) areSchemaIdentical(name string) bool {
 // arePathsIdenticalWithExcludeExtensions checks if the paths are identical with the extensions excluded
 func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) (bool, error) {
 	// If the diff only has extensions diff, then we consider the paths to be identical
-	d, err := o.getDiffWithoutExtensions()
+	d, err := o.noExtDiff.GetPathDiffWithoutExtensions(o.base.Spec, o.external.Spec)
 	if err != nil {
 		return false, err
 	}
@@ -494,14 +495,14 @@ func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) (bool, erro
 	if d.Empty() || d.PathsDiff.Empty() {
 		return true, nil
 	}
-	_, ok := d.PathsDiff.Modified[name]
-	return !ok, nil
-}
+	v, ok := d.PathsDiff.Modified[name]
+	if ok {
+		if v.Empty() {
+			return true, nil
+		}
+	}
 
-func (o OasDiff) getDiffWithoutExtensions() (*diff.Diff, error) {
-	exclude := []string{"extensions"}
-	customConfig := diff.NewConfig().WithExcludeElements(exclude)
-	return diff.Get(customConfig, o.base.Spec, o.external.Spec)
+	return !ok, nil
 }
 
 type ByName []*openapi3.Tag

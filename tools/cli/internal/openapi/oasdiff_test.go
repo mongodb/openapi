@@ -19,11 +19,14 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/mongodb/openapi/tools/cli/internal/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
+	"github.com/tufin/oasdiff/utils"
+	gomock "go.uber.org/mock/gomock"
 )
 
 func TestOasDiff_mergePaths(t *testing.T) {
@@ -1138,6 +1141,201 @@ func TestUpdateExternalRefReqBody(t *testing.T) {
 			updateExternalRefReqBody(tt.input)
 			if !reflect.DeepEqual(tt.expected, tt.input) {
 				t.Errorf("expected %v, got %v", tt.expected, tt.input)
+			}
+		})
+	}
+}
+
+func TestHandlePathConflict(t *testing.T) {
+	testCases := []struct {
+		name          string
+		basePath      *openapi3.PathItem
+		basePathName  string
+		specDiff      *diff.Diff
+		expectedError error
+	}{
+		{
+			name: "No Conflict - Identical Paths",
+			basePath: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Extensions: map[string]interface{}{
+						"x-xgen-soa-migration": map[string]interface{}{
+							"allowDocsDiff": "false",
+						},
+					},
+				},
+			},
+			basePathName: "/test",
+			specDiff: &diff.Diff{
+				PathsDiff: &diff.PathsDiff{
+					Modified: map[string]*diff.PathDiff{},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name: "Conflict with AllowDocsDiff",
+			basePath: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Extensions: map[string]interface{}{
+						"x-xgen-soa-migration": map[string]interface{}{
+							"allowDocsDiff": "true",
+						},
+					},
+				},
+			},
+			basePathName: "/test",
+			specDiff: &diff.Diff{
+				PathsDiff: &diff.PathsDiff{
+					Modified: map[string]*diff.PathDiff{
+						"/test": {
+							OperationsDiff: &diff.OperationsDiff{
+								Modified: diff.ModifiedOperations{
+									"get": {
+										TagsDiff: &diff.StringsDiff{
+											Added: utils.StringList{"tag1"},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedError: errors.AllowDocsDiffNotSupportedError{
+				Entry: "/test",
+			},
+		},
+		{
+			name: "Conflict with Different Operations",
+			basePath: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Extensions: map[string]interface{}{
+						"x-xgen-soa-migration": map[string]interface{}{
+							"allowDocsDiff": "false",
+						},
+					},
+				},
+			},
+			basePathName: "/test",
+			specDiff: &diff.Diff{
+				PathsDiff: &diff.PathsDiff{
+					Modified: map[string]*diff.PathDiff{
+						"/test": {
+							OperationsDiff: &diff.OperationsDiff{
+								Added:   utils.StringList{"get"},
+								Deleted: utils.StringList{},
+							},
+						},
+					},
+				},
+			},
+			expectedError: errors.PathConflictError{
+				Entry: "/test",
+			},
+		},
+		{
+			name: "Conflict with Different Path Operation",
+			basePath: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Extensions: map[string]interface{}{
+						"x-xgen-soa-migration": map[string]interface{}{
+							"allowDocsDiff": "false",
+						},
+					},
+				},
+			},
+			basePathName: "/test",
+			specDiff: &diff.Diff{
+				PathsDiff: &diff.PathsDiff{
+					Modified: map[string]*diff.PathDiff{
+						"/test": {
+							OperationsDiff: &diff.OperationsDiff{
+								Modified: diff.ModifiedOperations{
+									"get": {
+										TagsDiff: &diff.StringsDiff{
+											Added: utils.StringList{"tag1"},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedError: errors.PathDocsDiffConflictError{
+				Entry: "/test",
+				Diff: &diff.Diff{
+					PathsDiff: &diff.PathsDiff{
+						Modified: map[string]*diff.PathDiff{
+							"/test": {
+								OperationsDiff: &diff.OperationsDiff{
+									Modified: diff.ModifiedOperations{
+										"get": {
+											TagsDiff: &diff.StringsDiff{
+												Added: utils.StringList{"tag1"},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Identical Paths with Extensions",
+			basePath: &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					Extensions: map[string]interface{}{
+						"x-xgen-soa-migration": map[string]interface{}{
+							"allowDocsDiff": "false",
+						},
+					},
+				},
+			},
+			basePathName: "/test",
+			specDiff: &diff.Diff{
+				PathsDiff: &diff.PathsDiff{
+					Modified: map[string]*diff.PathDiff{},
+				},
+			},
+			expectedError: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			mockNoExtensionDiff := NewMockNoExtensionDiff(ctrl)
+			o := OasDiff{
+				base: &load.SpecInfo{
+					Spec: &openapi3.T{
+						Paths: &openapi3.Paths{},
+					},
+				},
+				external: &load.SpecInfo{
+					Spec: &openapi3.T{
+						Paths: &openapi3.Paths{},
+					},
+				},
+				specDiff:  tc.specDiff,
+				noExtDiff: mockNoExtensionDiff,
+			}
+
+			mockNoExtensionDiff.
+				EXPECT().
+				GetPathDiffWithoutExtensions(o.base.Spec, o.external.Spec).
+				Return(tc.specDiff, nil).
+				AnyTimes()
+
+			err := o.handlePathConflict(tc.basePath, tc.basePathName)
+			if tc.expectedError != nil {
+				assert.Error(t, err)
+				assert.IsType(t, tc.expectedError, err)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}
