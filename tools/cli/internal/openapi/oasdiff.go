@@ -15,6 +15,7 @@
 package openapi
 
 import (
+	"encoding/json"
 	"log"
 	"slices"
 	"strings"
@@ -40,10 +41,6 @@ type OasDiffResult struct {
 	SourceMap    *diff.OperationsSourcesMap
 	SpecInfoPair *load.SpecInfoPair
 }
-
-const (
-	xgenSoaMigration = "x-xgen-soa-migration"
-)
 
 func (o OasDiff) NewDiffResult() (*OasDiffResult, error) {
 	flattenBaseSpec, err := allof.MergeSpec(o.base.Spec)
@@ -122,9 +119,15 @@ func (o OasDiff) mergePaths() error {
 			basePaths.Set(externalPath, removeExternalRefs(externalPathData))
 		} else {
 			if shouldSkipPathConflict(originalPath, externalPathData, externalPath) {
-				log.Println("Skipping conflict for path: ", externalPath)
-				continue
+				log.Printf("Skipping conflict for path: %s", externalPath)
+				if o.arePathsIdenticalWithExcludeExtensions(externalPath) {
+					log.Printf("No doc diff detected for path %s, merging the paths", externalPath)
+					basePaths.Set(externalPath, removeExternalRefs(externalPathData))
+				} else {
+					log.Printf("Doc diff detected failing as allowDocsDiff=true is not supported.")
+				}
 			}
+
 			return errors.PathConflictError{
 				Entry: externalPath,
 			}
@@ -132,73 +135,6 @@ func (o OasDiff) mergePaths() error {
 	}
 	o.base.Spec.Paths = basePaths
 	return nil
-}
-
-// shouldSkipConflict checks if the conflict should be skipped.
-// The method goes through each path operation, and validates if it exists for
-// both paths, if it does not, the path conflict should not be ignored.
-// If it does, then we check if there is an x-xgen-soa-migration annotation
-// If it does, then we allow the conflict to be skipped.
-func shouldSkipPathConflict(basePath, externalPath *openapi3.PathItem, basePathName string) bool {
-	if basePath.Get != nil && externalPath.Get == nil {
-		return false
-	}
-
-	if basePath.Put != nil && externalPath.Put == nil {
-		return false
-	}
-
-	if basePath.Post != nil && externalPath.Post == nil {
-		return false
-	}
-
-	if basePath.Patch != nil && externalPath.Patch == nil {
-		return false
-	}
-
-	if basePath.Delete != nil && externalPath.Delete == nil {
-		return false
-	}
-
-	// now check if there is an x-xgen-soa-migration annotation in any of the operations, but if any of the operations
-	// doesn't have, then we should not skip the conflict
-	return allMethodsHaveExtension(basePath, basePathName)
-}
-
-// allMethodsHaveExtension checks if all the methods in a path have the x-xgen-soa-migration extension.
-func allMethodsHaveExtension(basePath *openapi3.PathItem, basePathName string) bool {
-	if basePath.Get != nil {
-		if basePath.Get.Extensions == nil || basePath.Get.Extensions[xgenSoaMigration] == nil {
-			return false
-		}
-	}
-
-	if basePath.Put != nil {
-		if basePath.Put.Extensions == nil || basePath.Put.Extensions[xgenSoaMigration] == nil {
-			return false
-		}
-	}
-
-	if basePath.Post != nil {
-		if basePath.Post.Extensions == nil || basePath.Post.Extensions[xgenSoaMigration] == nil {
-			return false
-		}
-	}
-
-	if basePath.Patch != nil {
-		if basePath.Patch.Extensions == nil || basePath.Patch.Extensions[xgenSoaMigration] == nil {
-			return false
-		}
-	}
-
-	if basePath.Delete != nil {
-		if basePath.Delete.Extensions == nil || basePath.Delete.Extensions[xgenSoaMigration] == nil {
-			return false
-		}
-	}
-
-	log.Println("Detected x-xgen-soa-migration annotation in all operations for path: ", basePathName)
-	return true
 }
 
 // removeExternalRefs updates the external references of OASes to remove the reference to openapi-mms.json.
@@ -490,6 +426,24 @@ func (o OasDiff) areResponsesIdentical(name string) bool {
 
 func (o OasDiff) areSchemaIdentical(name string) bool {
 	_, ok := o.specDiff.SchemasDiff.Modified[name]
+	return !ok
+}
+
+// arePathsIdenticalWithExcludeExtensions checks if the paths are identical with the extensions excluded
+func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) bool {
+	// If the diff only has extensions diff, then we consider the paths to be identical
+	exclude := []string{"extensions"}
+	customConfig := diff.NewConfig().WithExcludeElements(exclude)
+	d, err := diff.Get(customConfig, o.base.Spec, o.external.Spec)
+	if err != nil {
+		log.Fatalf("error in calculating the diff of the specs: %s", err)
+	}
+
+	_, ok := d.PathsDiff.Modified[name]
+	if ok {
+		j, _ := json.MarshalIndent(d.PathsDiff.Modified[name], "", "  ")
+		log.Printf("arePathsIdenticalWithExcludeExtensions diff: %s", j)
+	}
 	return !ok
 }
 
