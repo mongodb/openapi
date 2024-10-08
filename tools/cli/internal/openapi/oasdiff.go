@@ -41,6 +41,10 @@ type OasDiffResult struct {
 	SpecInfoPair *load.SpecInfoPair
 }
 
+const (
+	xgenSoaMigration = "x-xgen-soa-migration"
+)
+
 func (o OasDiff) NewDiffResult() (*OasDiffResult, error) {
 	flattenBaseSpec, err := allof.MergeSpec(o.base.Spec)
 	if err != nil {
@@ -117,7 +121,7 @@ func (o OasDiff) mergePaths() error {
 		if originalPath := basePaths.Value(externalPath); originalPath == nil {
 			basePaths.Set(externalPath, removeExternalRefs(externalPathData))
 		} else {
-			if shouldSkipConflict(originalPath, externalPathData, externalPath) {
+			if shouldSkipPathConflict(originalPath, externalPathData, externalPath) {
 				log.Println("Skipping conflict for path: ", externalPath)
 				continue
 			}
@@ -135,7 +139,7 @@ func (o OasDiff) mergePaths() error {
 // both paths, if it does not, the path conflict should not be ignored.
 // If it does, then we check if there is an x-xgen-soa-migration annotation
 // If it does, then we allow the conflict to be skipped.
-func shouldSkipConflict(basePath, externalPath *openapi3.PathItem, basePathName string) bool {
+func shouldSkipPathConflict(basePath, externalPath *openapi3.PathItem, basePathName string) bool {
 	if basePath.Get != nil && externalPath.Get == nil {
 		return false
 	}
@@ -164,31 +168,31 @@ func shouldSkipConflict(basePath, externalPath *openapi3.PathItem, basePathName 
 // allMethodsHaveExtension checks if all the methods in a path have the x-xgen-soa-migration extension.
 func allMethodsHaveExtension(basePath *openapi3.PathItem, basePathName string) bool {
 	if basePath.Get != nil {
-		if basePath.Get.Extensions == nil || basePath.Get.Extensions["x-xgen-soa-migration"] == nil {
+		if basePath.Get.Extensions == nil || basePath.Get.Extensions[xgenSoaMigration] == nil {
 			return false
 		}
 	}
 
 	if basePath.Put != nil {
-		if basePath.Put.Extensions == nil || basePath.Put.Extensions["x-xgen-soa-migration"] == nil {
+		if basePath.Put.Extensions == nil || basePath.Put.Extensions[xgenSoaMigration] == nil {
 			return false
 		}
 	}
 
 	if basePath.Post != nil {
-		if basePath.Post.Extensions == nil || basePath.Post.Extensions["x-xgen-soa-migration"] == nil {
+		if basePath.Post.Extensions == nil || basePath.Post.Extensions[xgenSoaMigration] == nil {
 			return false
 		}
 	}
 
 	if basePath.Patch != nil {
-		if basePath.Patch.Extensions == nil || basePath.Patch.Extensions["x-xgen-soa-migration"] == nil {
+		if basePath.Patch.Extensions == nil || basePath.Patch.Extensions[xgenSoaMigration] == nil {
 			return false
 		}
 	}
 
 	if basePath.Delete != nil {
-		if basePath.Delete.Extensions == nil || basePath.Delete.Extensions["x-xgen-soa-migration"] == nil {
+		if basePath.Delete.Extensions == nil || basePath.Delete.Extensions[xgenSoaMigration] == nil {
 			return false
 		}
 	}
