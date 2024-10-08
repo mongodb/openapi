@@ -158,32 +158,30 @@ rules:
   
   soa-migration-extension:
     description: "Ensure the x-xgen-soa-migration extension is valid."
-    message: "The x-xgen-soa-migration extension must include 'service_name', 'allow_diff', and 'source_service' should only be present when 'allow_diff' is true."
+    message: "The x-xgen-soa-migration extension must include 'additionalServices', 'targetService', 'allowDocsDiff', and 'docsSource'."
     formats: ["oas3"]
     given: "$.paths[*][*].x-xgen-soa-migration"
     severity: error
     then:
-      - field: service_name
+      - field: targetService
         function: truthy
-        message: "'service_name' must be provided."
-      - field: allow_diff
+        message: "'targetService' must be provided."
+      - field: allowDocsDiff
         function: pattern
         functionOptions:
           match: "^(true|false)$"
-        message: "'allow_diff' must be true or false."
-      - function: falsy
-        field: source_service
-        message: "'source_service' should not exist when 'allow_diff' is false."
-        when:
-          field: allow_diff
-          pattern: "^false$"
-      - function: truthy
-        field: source_service
-        message: "'source_service' must be provided when 'allow_diff' is true."
-        when:
-          field: allow_diff
-          pattern: "^true$"
-
+        message: "'allowDocsDiff' must be true or false."
+      - field: docsSource
+        function: truthy
+        message: "'docsSource' must be provided."
+      - field: additionalServices
+        function: truthy
+        message: "'additionalServices' must be provided."
+      - field: additionalServices
+        function: pattern
+        functionOptions:
+          match: "^(mms)$"
+        message: "'additionalServices' must be 'mms' as no other services are supported."
    no-slash-before-custom-method:
     description: "Custom methods (e.g., ':applyItem') should not be preceded by a '/'."
     message: "The path '{{path}}' contains a '/' before a custom method. Custom methods should not start with a '/'."
