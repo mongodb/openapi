@@ -29,7 +29,7 @@ const (
 	allowDocsDiff    = "allowDocsDiff"
 )
 
-// allOperationsHaveExtension checks if all the operations in the base pat have the given extension name.
+// allOperationsHaveExtension checks if all the operations in the base path have the given extension name.
 func allOperationsHaveExtension(basePath *openapi3.PathItem, basePathName, extensionName string) bool {
 	if basePath.Operations() == nil || len(basePath.Operations()) == 0 {
 		return false
