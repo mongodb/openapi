@@ -1332,7 +1332,7 @@ func TestHandlePathConflict(t *testing.T) {
 
 			err := o.handlePathConflict(tc.basePath, tc.basePathName)
 			if tc.expectedError != nil {
-				assert.Error(t, err)
+				require.Error(t, err)
 				assert.IsType(t, tc.expectedError, err)
 			} else {
 				assert.NoError(t, err)
