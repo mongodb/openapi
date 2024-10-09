@@ -118,8 +118,7 @@ func (o OasDiff) mergePaths() error {
 		if originalPathData := basePaths.Value(path); originalPathData == nil {
 			basePaths.Set(path, removeExternalRefs(externalPathData))
 		} else {
-			err := o.handlePathConflict(originalPathData, path)
-			if err != nil {
+			if err := o.handlePathConflict(originalPathData, path); err != nil {
 				return err
 			}
 			basePaths.Set(path, removeExternalRefs(externalPathData))
