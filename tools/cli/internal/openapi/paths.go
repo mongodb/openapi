@@ -65,7 +65,7 @@ func allOperationsHaveExtension(basePath *openapi3.PathItem, basePathName, exten
 		}
 	}
 
-	log.Println("Detected x-xgen-soa-migration annotation in all operations for path: ", basePathName)
+	log.Printf("Detected %s annotation in all operations for path: %s\n", extensionName, basePathName)
 	return true
 }
 
