@@ -56,7 +56,9 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
 			return nil, err
 		}
 
-		o.result.Report = oasdiffReport
+		o.result = &OasDiffResult{
+			Report: oasdiffReport,
+		}
 		o.external = spec
 		o.base, err = o.mergeSpecIntoBase()
 		if err != nil {

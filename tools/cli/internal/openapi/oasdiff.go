@@ -40,6 +40,10 @@ type OasDiffResult struct {
 	SpecInfoPair *load.SpecInfoPair
 }
 
+func (O *OasDiff) NewDiffResult() (*OasDiffResult, error) {
+
+}
+
 func (o OasDiff) NewDiffResult() (*OasDiffResult, error) {
 	flattenBaseSpec, err := allof.MergeSpec(o.base.Spec)
 	if err != nil {
