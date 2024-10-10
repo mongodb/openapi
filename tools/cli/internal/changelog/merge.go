@@ -204,8 +204,7 @@ func (m *Changelog) newPathsFromDeprecatedChanges(
 }
 
 func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
-	// CLOUDP-267267: @Todo need to add the logic to hide from exceptions
-	diffResult, err := m.OasDiff.NewDiffResult()
+	diffResult, err := m.OasDiff.GetFlattenedDiff(m.Base, m.Revision)
 	if err != nil {
 		return nil, err
 	}
