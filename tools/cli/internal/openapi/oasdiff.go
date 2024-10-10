@@ -30,7 +30,7 @@ type OasDiff struct {
 	base     *load.SpecInfo
 	external *load.SpecInfo
 	config   *diff.Config
-	specDiff *diff.Diff
+	result   *OasDiffResult
 	parser   Parser
 }
 
@@ -403,17 +403,17 @@ func (o OasDiff) mergeSchemas() error {
 }
 
 func (o OasDiff) areParamsIdentical(paramName string) bool {
-	_, ok := o.specDiff.ParametersDiff.Modified[paramName]
+	_, ok := o.result.Report.ParametersDiff.Modified[paramName]
 	return !ok
 }
 
 func (o OasDiff) areResponsesIdentical(name string) bool {
-	_, ok := o.specDiff.ResponsesDiff.Modified[name]
+	_, ok := o.result.Report.ResponsesDiff.Modified[name]
 	return !ok
 }
 
 func (o OasDiff) areSchemaIdentical(name string) bool {
-	_, ok := o.specDiff.SchemasDiff.Modified[name]
+	_, ok := o.result.Report.SchemasDiff.Modified[name]
 	return !ok
 }
 
