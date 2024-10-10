@@ -27,6 +27,21 @@ type OasDiffResult struct {
 	Config       *diff.Config
 }
 
+// GetSimpleDiff returns the diff between two OpenAPI specs.
+func (o OasDiff) GetSimpleDiff(base, revision *load.SpecInfo) (*OasDiffResult, error) {
+	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(o.config, base, revision)
+	if err != nil {
+		return nil, err
+	}
+
+	return &OasDiffResult{
+		Report:       diffReport,
+		SourceMap:    operationsSources,
+		SpecInfoPair: load.NewSpecInfoPair(base, revision),
+		Config:       o.config,
+	}, nil
+}
+
 // GetFlattenedDiff returns the diff between two OpenAPI specs after flattening them.
 func (o OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResult, error) {
 	flattenBaseSpec, err := allof.MergeSpec(base.Spec)
@@ -60,5 +75,6 @@ func (o OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResult
 		Report:       diffReport,
 		SourceMap:    operationsSources,
 		SpecInfoPair: load.NewSpecInfoPair(baseSpecInfo, revisionSpecInfo),
+		Config:       o.config,
 	}, nil
 }

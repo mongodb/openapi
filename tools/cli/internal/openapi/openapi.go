@@ -50,15 +50,12 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
 			return nil, err
 		}
 
-		oasdiffReport, err := diff.Get(o.config, o.base.Spec, spec.Spec)
+		o.result, err = o.GetSimpleDiff(o.base, o.external)
 		if err != nil {
 			log.Fatalf("error in calculating the diff of the specs: %s", err)
 			return nil, err
 		}
 
-		o.result = &OasDiffResult{
-			Report: oasdiffReport,
-		}
 		o.external = spec
 		o.base, err = o.mergeSpecIntoBase()
 		if err != nil {
