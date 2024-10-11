@@ -22,17 +22,30 @@ import (
 	"github.com/tufin/oasdiff/load"
 )
 
+// DiffGetter defines an interface for getting diffs.
+type Differ interface {
+	Get(config *diff.Config, base, revision *openapi3.T) (*diff.Diff, error)
+	GetWithOperationsSourcesMap(config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, *diff.OperationsSourcesMap, error)
+}
+
+type ResultGetter struct{}
+
+func NewResultGetter() Differ {
+	return &ResultGetter{}
+}
+
+func (_ ResultGetter) Get(config *diff.Config, base, revision *openapi3.T) (*diff.Diff, error) {
+	return diff.Get(config, base, revision)
+}
+func (_ ResultGetter) GetWithOperationsSourcesMap(config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, *diff.OperationsSourcesMap, error) {
+	return diff.GetWithOperationsSourcesMap(config, base, revision)
+}
+
 type OasDiffResult struct {
 	Report       *diff.Diff
 	SourceMap    *diff.OperationsSourcesMap
 	SpecInfoPair *load.SpecInfoPair
 	Config       *diff.Config
-}
-
-// DiffGetter defines an interface for getting diffs.
-type DiffGetter interface {
-	Get(config *diff.Config, base, revision *openapi3.T) (*diff.Diff, error)
-	GetWithOperationsSourcesMap(config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, *diff.OperationsSourcesMap, error)
 }
 
 // GetSimpleDiff returns the diff between two OpenAPI specs.

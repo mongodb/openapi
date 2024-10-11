@@ -30,7 +30,7 @@ type OasDiff struct {
 	base       *load.SpecInfo
 	external   *load.SpecInfo
 	config     *diff.Config
-	diffGetter DiffGetter
+	diffGetter Differ
 	result     *OasDiffResult
 	parser     Parser
 }
