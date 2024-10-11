@@ -483,7 +483,7 @@ func (o OasDiff) areSchemaIdentical(name string) bool {
 	return !ok
 }
 
-// arePathsIdenticalWithExcludeExtensions checks if the paths are identical with the extensions excluded
+// arePathsIdenticalWithExcludeExtensions checks if the paths are identical excluding extension diffs across operations (e.g. x-xgen-soa-migration).
 func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) (bool, error) {
 	// If the diff only has extensions diff, then we consider the paths to be identical
 	d, err := o.noExtDiff.GetPathDiffWithoutExtensions(o.base.Spec, o.external.Spec)
