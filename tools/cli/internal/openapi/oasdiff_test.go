@@ -1335,6 +1335,12 @@ func TestHandlePathConflict(t *testing.T) {
 				Return(tc.specDiff, nil).
 				AnyTimes()
 
+			mockDiffGetter.
+				EXPECT().
+				GetWithOperationsSourcesMap(o.config, o.base.Spec, o.external.Spec).
+				Return(tc.specDiff, nil).
+				AnyTimes()
+
 			err := o.handlePathConflict(tc.basePath, tc.basePathName)
 			if tc.expectedError != nil {
 				require.Error(t, err)

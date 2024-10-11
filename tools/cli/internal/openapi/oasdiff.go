@@ -167,7 +167,7 @@ func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName st
 // If there is no annotation, then it returns false.
 func (o OasDiff) shouldSkipPathConflict(basePath *openapi3.PathItem, basePathName string) bool {
 	var pathsDiff *diff.PathsDiff
-	if o.result.Report != nil && o.result.Report.PathsDiff != nil {
+	if o.result != nil && o.result.Report != nil && o.result.Report.PathsDiff != nil {
 		pathsDiff = o.result.Report.PathsDiff
 	}
 
@@ -446,7 +446,7 @@ func (o OasDiff) areSchemaIdentical(name string) bool {
 // arePathsIdenticalWithExcludeExtensions checks if the paths are identical excluding extension diffs across operations (e.g. x-xgen-soa-migration).
 func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) (bool, error) {
 	// If the diff only has extensions diff, then we consider the paths to be identical
-	customConfig := o.config.WithExcludeElements([]string{"extensions"})
+	customConfig := diff.NewConfig().WithExcludeElements([]string{"extensions"})
 	result, err := o.GetDiffWithConfig(o.base, o.external, customConfig)
 	if err != nil {
 		return false, err
