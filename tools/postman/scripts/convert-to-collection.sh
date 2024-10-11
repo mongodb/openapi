@@ -21,7 +21,7 @@ jq 'del(.. | select(type == "object") | .pattern?)' "$OPENAPI_FOLDER"/"$OPENAPI_
 echo "Installing openapi-to-postmanv2"
 npm install
 
-echo "Converting from OpenAPI to PostmanV2"
+echo "Converting $OPENAPI_FOLDER/$OPENAPI_FILE_NAME from OpenAPI to PostmanV2"
 ./node_modules/.bin/openapi2postmanv2 -s "$TMP_FOLDER"/tmp.json -o "$TMP_FOLDER"/"$COLLECTION_FILE_NAME" -O folderStrategy=Tags
 
 rm "$TMP_FOLDER"/tmp.json
