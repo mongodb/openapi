@@ -73,14 +73,6 @@ rules:
       functionOptions:
         notMatch: "/^body$/"
 
-  xgen-no-security:
-    description: "Operation MUST have security definition"
-    severity: error
-    given: "#OperationObject"
-    then:
-      field: "security"
-      function: truthy
-
   xgen-docs-tags-alphabetical:
     message: "Tags should be defined in alphabetical order."
     description: "Many documentation tools show tags in the order they are defined, so defining them not in alphabetical order can look funny to API consumers."
@@ -182,7 +174,8 @@ rules:
         functionOptions:
           match: "^(mms)$"
         message: "'additionalServices' must be 'mms' as no other services are supported."
-   no-slash-before-custom-method:
+
+  no-slash-before-custom-method:
     description: "Custom methods (e.g., ':applyItem') should not be preceded by a '/'."
     message: "The path '{{path}}' contains a '/' before a custom method. Custom methods should not start with a '/'."
     severity: error
@@ -192,6 +185,20 @@ rules:
       function: pattern
       functionOptions:
         notMatch: "/[^/]+/:[a-zA-Z]+$"
+
+  xgen-security-override:
+    description: "Security must not be set at resource or method level because it is set globally. Use @Unauthenticated annotation to set no security. https://go/openapi-unauthenticated-annotation"
+    severity: error
+    given: "#OperationObject.security"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: array
+          items:
+            type: object
+          minItems: 0
+          maxItems: 0
 
 overrides:
   - files: # load sample data has an issue with different path param names for different VERBS
@@ -241,11 +248,6 @@ overrides:
       - "*.yaml#/components/schemas/ClusterProviderSettings/properties/providerName" # dynamic field which can't be documented
     rules:
       xgen-description: "off"
-  - files:
-      - "*.yaml#/paths/~1api~1atlas~1v2~1unauth~1controlPlaneIPAddresses/get"
-      - "*.yaml#/paths/~1api~1atlas~1v2~1unauth~1openapi~1versions/get"
-    rules:
-      xgen-no-security: "off"
   - files:
       - "**#/components/schemas/ApiError/properties/parameters" # see https://github.com/stoplightio/spectral/issues/2592
     rules:
