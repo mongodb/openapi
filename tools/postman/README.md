@@ -47,3 +47,41 @@ flowchart TD
    for upload.
 
 5. **Upload Collection to Postman**: Use the Postman API to upload the Collection to Postman.
+
+## Local setup and validation
+
+### Prerequisites
+
+To push to your own workspace via Postman API, [create a private workspace](https://learning.postman.com/docs/collaborating-in-postman/using-workspaces/use-workspaces/) and retrieve the workspace id
+
+Then, [create a Postman API Key](https://learning.postman.com/docs/developer/postman-api/authentication/) that has access to this workspace
+
+### Env var setup
+
+To test the scripts locally, you should set up the required environment variables in `tools/postman/scripts` by creating a `local.env` file populated with the following (at the minimum):
+
+```
+BASE_URL=""
+WORKSPACE_ID=""
+POSTMAN_API_KEY=""
+```
+
+Run `make load-env` to set your required and overriding env vars.
+
+The OpenAPI path for Postman generation and configured feature flags can also be overriden based on provided env vars.
+
+### Running locally
+
+Once env vars are configured, the setup scripts can be run locally using the Make following commands:
+- `make fetch_openapi`
+- `make convert_to_collection`
+- `make transform_collection`
+- `make upload_collection`
+
+
+### Limitations
+
+Our Postman collection generation has several limitations, meaning some manual user actions may be necessary during setup:
+
+-  Only a single content-type header is supported generation, meaning users may have to manually update this header if the API supports more than one; see docs links on endpoint level
+- Only a single auth scheme is supported during generation, meaning users may have to update their auth on the collection level or endpoint level if not selecting the default

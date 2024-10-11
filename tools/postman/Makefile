@@ -1,6 +1,7 @@
 export OPENAPI_FOLDER=./openapi
 export TMP_FOLDER=./tmp
 export FULL_OPENAPI_FOLDER=../../openapi/v2/
+ENV_FILE = ./local.env
 
 default: build
 
@@ -44,3 +45,16 @@ compare_and_send_forks: compare_forks send_forks
 .PHONY: clean
 clean:
 	rm ./openapi/*; rm ./tmp/*
+
+# Command to load local environment variables from file
+load-env:
+	@if [ -f $(ENV_FILE) ]; then \
+		echo "Loading environment variables from $(ENV_FILE)..."; \
+		for var in $$(grep -v '^#' $(ENV_FILE) | cut -d= -f1); do \
+			echo "Loaded: $$var"; \
+		done; \
+		export $$(grep -v '^#' $(ENV_FILE) | xargs); \
+	else \
+		echo "Error: $(ENV_FILE) file not found."; \
+		exit 1; \
+	fi
