@@ -588,7 +588,9 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 			o := OasDiff{
 				base:     tc.inputBase,
 				external: tc.inputExternal,
-				specDiff: tc.diff,
+				result: &OasDiffResult{
+					Report: tc.diff,
+				},
 			}
 			tc.wantErr(t, o.mergeResponses())
 		})
@@ -810,7 +812,9 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 			o := OasDiff{
 				base:     tc.inputBase,
 				external: tc.inputExternal,
-				specDiff: tc.diff,
+				result: &OasDiffResult{
+					Report: tc.diff,
+				},
 			}
 			tc.wantErr(t, o.mergeSchemas())
 		})
