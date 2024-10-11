@@ -34,10 +34,11 @@ func NewResultGetter() Differ {
 	return &ResultGetter{}
 }
 
-func (_ ResultGetter) Get(config *diff.Config, base, revision *openapi3.T) (*diff.Diff, error) {
+func (ResultGetter) Get(config *diff.Config, base, revision *openapi3.T) (*diff.Diff, error) {
 	return diff.Get(config, base, revision)
 }
-func (_ ResultGetter) GetWithOperationsSourcesMap(config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, *diff.OperationsSourcesMap, error) {
+func (ResultGetter) GetWithOperationsSourcesMap(
+	config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, *diff.OperationsSourcesMap, error) {
 	return diff.GetWithOperationsSourcesMap(config, base, revision)
 }
 
