@@ -29,14 +29,14 @@ type OasDiffResult struct {
 
 // GetSimpleDiff returns the diff between two OpenAPI specs.
 func (o OasDiff) GetSimpleDiff(base, revision *load.SpecInfo) (*OasDiffResult, error) {
-	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(o.config, base, revision)
+	diffReport, err := diff.Get(o.config, base.Spec, revision.Spec)
 	if err != nil {
 		return nil, err
 	}
 
 	return &OasDiffResult{
 		Report:       diffReport,
-		SourceMap:    operationsSources,
+		SourceMap:    nil,
 		SpecInfoPair: load.NewSpecInfoPair(base, revision),
 		Config:       o.config,
 	}, nil
