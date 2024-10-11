@@ -27,12 +27,11 @@ import (
 )
 
 type OasDiff struct {
-	base      *load.SpecInfo
-	external  *load.SpecInfo
-	config    *diff.Config
-	result    *OasDiffResult
-	noExtDiff NoExtensionDiff
-	parser    Parser
+	base     *load.SpecInfo
+	external *load.SpecInfo
+	config   *diff.Config
+	result   *OasDiffResult
+	parser   Parser
 }
 
 func (o OasDiff) mergeSpecIntoBase() (*load.SpecInfo, error) {
@@ -147,14 +146,16 @@ func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName st
 		}
 	}
 
-	d, err := o.noExtDiff.GetPathDiffWithoutExtensions(o.base.Spec, o.external.Spec)
+	exclude := []string{"extensions"}
+	customConfig := diff.NewConfig().WithExcludeElements(exclude)
+	d, err := o.GetDiffWithConfig(o.base, o.external, customConfig)
 	if err != nil {
 		return err
 	}
 
 	return errors.PathDocsDiffConflictError{
 		Entry: basePathName,
-		Diff:  d,
+		Diff:  d.Report,
 	}
 }
 
@@ -444,11 +445,13 @@ func (o OasDiff) areSchemaIdentical(name string) bool {
 // arePathsIdenticalWithExcludeExtensions checks if the paths are identical excluding extension diffs across operations (e.g. x-xgen-soa-migration).
 func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) (bool, error) {
 	// If the diff only has extensions diff, then we consider the paths to be identical
-	d, err := o.noExtDiff.GetPathDiffWithoutExtensions(o.base.Spec, o.external.Spec)
+	customConfig := o.config.WithExcludeElements([]string{"extensions"})
+	result, err := o.GetDiffWithConfig(o.base, o.external, customConfig)
 	if err != nil {
 		return false, err
 	}
 
+	d := result.Report
 	if d.Empty() || d.PathsDiff.Empty() {
 		return true, nil
 	}

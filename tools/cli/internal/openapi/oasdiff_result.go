@@ -78,3 +78,18 @@ func (o OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResult
 		Config:       o.config,
 	}, nil
 }
+
+// GetDiffWithConfig returns the diff between two OpenAPI specs with a custom config.
+func (o OasDiff) GetDiffWithConfig(base, revision *load.SpecInfo, config *diff.Config) (*OasDiffResult, error) {
+	diffReport, err := diff.Get(config, base.Spec, revision.Spec)
+	if err != nil {
+		return nil, err
+	}
+
+	return &OasDiffResult{
+		Report:       diffReport,
+		SourceMap:    nil,
+		SpecInfoPair: load.NewSpecInfoPair(base, revision),
+		Config:       config,
+	}, nil
+}

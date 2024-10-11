@@ -15,14 +15,10 @@
 package openapi
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/tufin/oasdiff/diff"
 )
-
-//go:generate mockgen -destination=../openapi/mock_paths.go -package=openapi github.com/mongodb/openapi/tools/cli/internal/openapi NoExtensionDiff
 
 const (
 	xgenSoaMigration = "x-xgen-soa-migration"
@@ -136,18 +132,4 @@ func getOperationExtensionProperty(operation *openapi3.Operation, extensionName,
 		return value
 	}
 	return ""
-}
-
-type NoExtensionDiff interface {
-	GetPathDiffWithoutExtensions(base, external *openapi3.T) (*diff.Diff, error)
-}
-
-func GetPathDiffWithoutExtensions(base, external *openapi3.T) (*diff.Diff, error) {
-	exclude := []string{"extensions"}
-	customConfig := diff.NewConfig().WithExcludeElements(exclude)
-	if base == nil || external == nil {
-		return nil, fmt.Errorf("base or external spec is nil")
-	}
-
-	return diff.Get(customConfig, base, external)
 }

@@ -1324,8 +1324,9 @@ func TestHandlePathConflict(t *testing.T) {
 						Paths: &openapi3.Paths{},
 					},
 				},
-				specDiff:  tc.specDiff,
-				noExtDiff: mockNoExtensionDiff,
+				result: &OasDiffResult{
+					Report: tc.specDiff,
+				},
 			}
 
 			mockNoExtensionDiff.
