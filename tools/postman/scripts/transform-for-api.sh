@@ -9,11 +9,11 @@ set -euo pipefail
 #   OPENAPI_FILE_NAME - name of the openapi specification file
 #   OPENAPI_FOLDER - folder where openapi file is saved
 #   TMP_FOLDER - folder for temporary files during transformations
-#   TOKEN_URL_ENV - client credentials auth path to set at the environment level, will not be set if unpopulated
-#   TOGGLE_INCLUDE_BODY - bool for if generated bodies should be removed or kept
-#   TOGGLE_ADD_DOCS_LINKS - updates requests with corresponding docs links
 #   VERSION_FILE_NAME - name of the file where the current version is stored
 #   DESCRIPTION_FILE - name for the markdown description file
+#   TOGGLE_INCLUDE_BODY - bool for if generated bodies should be removed or kept
+#   TOGGLE_ADD_DOCS_LINKS - updates requests with corresponding docs links
+#   TOKEN_URL_ENV - client credentials auth path to set at the environment level, will not be set if unpopulated
 #   BASE_URL - the default base url the Postman Collection will use
 #########################################################
 
@@ -23,13 +23,12 @@ OPENAPI_FILE_NAME=${OPENAPI_FILE_NAME:-"atlas-api.json"}
 OPENAPI_FOLDER=${OPENAPI_FOLDER:-"../openapi"}
 TMP_FOLDER=${TMP_FOLDER:-"../tmp"}
 VERSION_FILE_NAME=${VERSION_FILE_NAME:-"version.txt"}
+DESCRIPTION_FILE=${DESCRIPTION_FILE:-"../collection-description.md"}
 
-TOGGLE_UPDATE_DOCS_LINKS=${TOGGLE_UPDATE_DOCS_LINKS:-false}
 TOGGLE_INCLUDE_BODY=${TOGGLE_INCLUDE_BODY:-true}
 TOGGLE_ADD_DOCS_LINKS=${TOGGLE_ADD_DOCS_LINKS:-true}
 TOKEN_URL_ENV=${TOKEN_URL_ENV:-""}
 
-DESCRIPTION_FILE=${DESCRIPTION_FILE:-"../collection-description.md"}
 current_api_revision=$(<"$OPENAPI_FOLDER/$VERSION_FILE_NAME")
 
 pushd "${TMP_FOLDER}"
