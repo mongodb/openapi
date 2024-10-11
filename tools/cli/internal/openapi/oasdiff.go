@@ -22,7 +22,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/tufin/oasdiff/diff"
-	"github.com/tufin/oasdiff/flatten/allof"
 	"github.com/tufin/oasdiff/load"
 )
 
@@ -30,49 +29,8 @@ type OasDiff struct {
 	base     *load.SpecInfo
 	external *load.SpecInfo
 	config   *diff.Config
-	specDiff *diff.Diff
+	result   *OasDiffResult
 	parser   Parser
-}
-
-type OasDiffResult struct {
-	Report       *diff.Diff
-	SourceMap    *diff.OperationsSourcesMap
-	SpecInfoPair *load.SpecInfoPair
-}
-
-func (o OasDiff) NewDiffResult() (*OasDiffResult, error) {
-	flattenBaseSpec, err := allof.MergeSpec(o.base.Spec)
-	if err != nil {
-		return nil, err
-	}
-
-	baseSpecInfo := &load.SpecInfo{
-		Spec:    flattenBaseSpec,
-		Url:     o.base.Url,
-		Version: o.base.GetVersion(),
-	}
-
-	flattenExternalSpec, err := allof.MergeSpec(o.external.Spec)
-	if err != nil {
-		return nil, err
-	}
-
-	externalSpecInfo := &load.SpecInfo{
-		Spec:    flattenExternalSpec,
-		Url:     o.external.Url,
-		Version: o.external.GetVersion(),
-	}
-
-	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(o.config, baseSpecInfo, externalSpecInfo)
-	if err != nil {
-		return nil, err
-	}
-
-	return &OasDiffResult{
-		Report:       diffReport,
-		SourceMap:    operationsSources,
-		SpecInfoPair: load.NewSpecInfoPair(baseSpecInfo, externalSpecInfo),
-	}, nil
 }
 
 func (o OasDiff) mergeSpecIntoBase() (*load.SpecInfo, error) {
@@ -403,17 +361,17 @@ func (o OasDiff) mergeSchemas() error {
 }
 
 func (o OasDiff) areParamsIdentical(paramName string) bool {
-	_, ok := o.specDiff.ParametersDiff.Modified[paramName]
+	_, ok := o.result.Report.ParametersDiff.Modified[paramName]
 	return !ok
 }
 
 func (o OasDiff) areResponsesIdentical(name string) bool {
-	_, ok := o.specDiff.ResponsesDiff.Modified[name]
+	_, ok := o.result.Report.ResponsesDiff.Modified[name]
 	return !ok
 }
 
 func (o OasDiff) areSchemaIdentical(name string) bool {
-	_, ok := o.specDiff.SchemasDiff.Modified[name]
+	_, ok := o.result.Report.SchemasDiff.Modified[name]
 	return !ok
 }
 
