@@ -1312,7 +1312,7 @@ func TestHandlePathConflict(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
-			mockNoExtensionDiff := NewMockNoExtensionDiff(ctrl)
+			mockDiffGetter := NewMockDiffGetter(ctrl)
 			o := OasDiff{
 				base: &load.SpecInfo{
 					Spec: &openapi3.T{
@@ -1329,9 +1329,9 @@ func TestHandlePathConflict(t *testing.T) {
 				},
 			}
 
-			mockNoExtensionDiff.
+			mockDiffGetter.
 				EXPECT().
-				GetPathDiffWithoutExtensions(o.base.Spec, o.external.Spec).
+				Get(o.config, o.base.Spec, o.external.Spec).
 				Return(tc.specDiff, nil).
 				AnyTimes()
 

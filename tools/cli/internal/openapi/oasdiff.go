@@ -27,11 +27,12 @@ import (
 )
 
 type OasDiff struct {
-	base     *load.SpecInfo
-	external *load.SpecInfo
-	config   *diff.Config
-	result   *OasDiffResult
-	parser   Parser
+	base       *load.SpecInfo
+	external   *load.SpecInfo
+	config     *diff.Config
+	diffGetter DiffGetter
+	result     *OasDiffResult
+	parser     Parser
 }
 
 func (o OasDiff) mergeSpecIntoBase() (*load.SpecInfo, error) {
