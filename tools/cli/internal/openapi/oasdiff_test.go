@@ -1327,17 +1327,18 @@ func TestHandlePathConflict(t *testing.T) {
 				result: &OasDiffResult{
 					Report: tc.specDiff,
 				},
+				diffGetter: mockDiffGetter,
 			}
 
 			mockDiffGetter.
 				EXPECT().
-				Get(o.config, o.base.Spec, o.external.Spec).
-				Return(tc.specDiff, nil).
+				GetWithOperationsSourcesMap(o.config, o.base.Spec, o.external.Spec).
+				Return(tc.specDiff, nil, nil).
 				AnyTimes()
 
 			mockDiffGetter.
 				EXPECT().
-				GetWithOperationsSourcesMap(o.config, o.base.Spec, o.external.Spec).
+				Get(gomock.Any(), o.base.Spec, o.external.Spec).
 				Return(tc.specDiff, nil).
 				AnyTimes()
 
