@@ -229,7 +229,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "b613b6d17c4855c3d3c04c4802b966cbef4f640b"
+    "x-xgen-sha": "e46939e4d5081473ca43fc1d2ba3405c7ee3e01d"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -26641,6 +26641,78 @@
         ]
       }
     },
+    "/api/atlas/v2/orgs/{orgId}/teams/{teamId}:addUser": {
+      "post": {
+        "description": "Adds one MongoDB Cloud user to one team. You can add an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.\n\n**Note**: This resource cannot be used to add a user invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
+        "operationId": "addUserToTeam",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the team to add the MongoDB Cloud user to.",
+            "in": "path",
+            "name": "teamId",
+            "required": true,
+            "schema": {
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-01-01+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddOrRemoveUserFromTeam"
+              }
+            }
+          },
+          "description": "The active or pending MongoDB Cloud user that you want to add to the specified team.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgUserResponse"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Add One MongoDB Cloud User to One Team",
+        "tags": [
+          "MongoDB Cloud Users"
+        ]
+      }
+    },
     "/api/atlas/v2/orgs/{orgId}/users": {
       "get": {
         "description": "Returns details about the MongoDB Cloud users associated with the specified organization. Each MongoDB Cloud user returned must belong to the specified organization or to a project within the specified organization. To use this resource, the requesting API Key must have the Organization Member role.",
@@ -28542,6 +28614,23 @@
           }
         },
         "title": "Acknowledge Alert",
+        "type": "object"
+      },
+      "AddOrRemoveUserFromTeam": {
+        "properties": {
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies the MongoDB Cloud user.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "id"
+        ],
         "type": "object"
       },
       "AddUserToTeam": {
