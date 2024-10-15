@@ -23,6 +23,9 @@ We're here to help! This is simply a reminder of what we are going to look for b
 - [ ] I have signed the [MongoDB CLA](https://www.mongodb.com/legal/contributor-agreement)
 - [ ] I have added tests that prove my fix is effective or that my feature works
 
+### Changes to Spectral
+- [ ] I have read the [README](../tools/spectral/README.md) file for Spectral Updates
+
 ## Further comments
 
 <!--
