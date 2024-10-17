@@ -83,14 +83,16 @@ func NewOasDiff(base string, excludePrivatePaths bool) (*OasDiff, error) {
 		config: &diff.Config{
 			IncludePathParams: true,
 		},
+		diffGetter: NewResultGetter(),
 	}, nil
 }
 
 func NewOasDiffWithSpecInfo(base, external *load.SpecInfo, config *diff.Config) *OasDiff {
 	return &OasDiff{
-		base:     base,
-		external: external,
-		config:   config,
+		base:       base,
+		external:   external,
+		config:     config,
+		diffGetter: NewResultGetter(),
 	}
 }
 
