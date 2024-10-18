@@ -13451,7 +13451,24 @@ components:
                     readOnly: true
                     type: string
             type: object
-        DiskBackupSnapshotAWSExportBucket:
+        DiskBackupSnapshotAWSExportBucketRequest:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupSnapshotExportBucketRequest'
+                - properties:
+                    iamRoleId:
+                        description: Unique 24-hexadecimal character string that identifies the <a href='https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/' target='_blank'>Unified AWS Access role ID</a>  that MongoDB Cloud uses to access the AWS S3 bucket.
+                        example: 32b6e34b3d91647abb20e7b8
+                        maxLength: 24
+                        minLength: 24
+                        pattern: ^([a-f0-9]{24})$
+                        type: string
+                  type: object
+            required:
+                - bucketName
+                - cloudProvider
+                - iamRoleId
+            type: object
+        DiskBackupSnapshotAWSExportBucketResponse:
             properties:
                 _id:
                     description: Unique 24-hexadecimal character string that identifies the Export Bucket.
@@ -13459,10 +13476,9 @@ components:
                     maxLength: 24
                     minLength: 24
                     pattern: ^([a-f0-9]{24})$
-                    readOnly: true
                     type: string
                 bucketName:
-                    description: Human-readable label that identifies the AWS S3 Bucket or Azure Storage Container that the role is authorized to export to.
+                    description: The name of the AWS S3 Bucket or Azure Storage Container that Snapshots are exported to.
                     example: export-bucket
                     maxLength: 63
                     minLength: 3
@@ -13490,29 +13506,38 @@ components:
                     readOnly: true
                     type: array
             required:
+                - _id
                 - bucketName
                 - cloudProvider
                 - iamRoleId
             type: object
-        DiskBackupSnapshotAzureExportBucket:
+        DiskBackupSnapshotAzureExportBucketRequest:
             allOf:
-                - $ref: '#/components/schemas/DiskBackupSnapshotExportBucket'
+                - $ref: '#/components/schemas/DiskBackupSnapshotExportBucketRequest'
                 - properties:
+                    bucketName:
+                        deprecated: true
+                        description: 'The name of the Azure Storage Container to export to. Deprecated: provide the Container''s URL in serviceUrl instead.'
+                        example: export-container
+                        maxLength: 63
+                        minLength: 3
+                        type: string
                     roleId:
-                        description: Unique 24-hexadecimal digit string that identifies the Azure Service Principal that MongoDB Cloud uses to access the Azure Blob Storage Container.
+                        description: Unique 24-hexadecimal digit string that identifies the Azure Cloud Provider Access Role that MongoDB Cloud uses to access the Azure Blob Storage Container.
                         example: 32b6e34b3d91647abb20e7b8
                         maxLength: 24
                         minLength: 24
                         pattern: ^([a-f0-9]{24})$
                         type: string
                     serviceUrl:
-                        description: URL that identifies the blob Endpoint of the Azure Blob Storage Account.
-                        example: https://examplestorageaccount.blob.core.windows.net
-                        maxLength: 55
+                        description: 'URL of the Azure Storage Container to export to. For example: "https://examplestorageaccount.blob.core.windows.net/examplecontainer". Only standard endpoints (with "blob.core.windows.net") are supported.'
+                        example: https://examplestorageaccount.blob.core.windows.net/examplecontainer
+                        maxLength: 2048
                         minLength: 33
                         type: string
                     tenantId:
-                        description: UUID that identifies the Azure Active Directory Tenant ID.
+                        deprecated: true
+                        description: 'UUID that identifies the Azure Active Directory Tenant ID. Deprecated: this field is ignored; the tenantId of the Cloud Provider Access role (from roleId) is used.'
                         example: 4297fc77-1592-4de8-a6d5-a8c32401df87
                         maxLength: 36
                         minLength: 36
@@ -13520,22 +13545,89 @@ components:
                         type: string
                   type: object
             required:
+                - cloudProvider
+                - roleId
+                - serviceUrl
+            type: object
+        DiskBackupSnapshotAzureExportBucketResponse:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupSnapshotExportBucketResponse'
+                - properties:
+                    roleId:
+                        description: Unique 24-hexadecimal digit string that identifies the Azure Cloud Provider Access Role that MongoDB Cloud uses to access the Azure Blob Storage Container.
+                        example: 32b6e34b3d91647abb20e7b8
+                        maxLength: 24
+                        minLength: 24
+                        pattern: ^([a-f0-9]{24})$
+                        type: string
+                    serviceUrl:
+                        description: URL of the Azure Storage Container to export to. Only standard endpoints (with "blob.core.windows.net") are supported.
+                        example: https://examplestorageaccount.blob.core.windows.net/examplecontainer
+                        maxLength: 2048
+                        minLength: 33
+                        type: string
+                    tenantId:
+                        description: UUID that identifies the Azure Active Directory Tenant ID used during exports.
+                        example: 4297fc77-1592-4de8-a6d5-a8c32401df87
+                        maxLength: 36
+                        minLength: 36
+                        pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+                        type: string
+                  type: object
+            required:
+                - _id
                 - bucketName
                 - cloudProvider
                 - roleId
                 - serviceUrl
                 - tenantId
             type: object
-        DiskBackupSnapshotExportBucket:
+        DiskBackupSnapshotExportBucketRequest:
+            description: Disk backup snapshot Export Bucket Request.
+            discriminator:
+                mapping:
+                    AWS: '#/components/schemas/DiskBackupSnapshotAWSExportBucketRequest'
+                    AZURE: '#/components/schemas/DiskBackupSnapshotAzureExportBucketRequest'
+                propertyName: cloudProvider
+            oneOf:
+                - $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketRequest'
+                - $ref: '#/components/schemas/DiskBackupSnapshotAzureExportBucketRequest'
+            properties:
+                bucketName:
+                    description: Human-readable label that identifies the AWS S3 Bucket or Azure Storage Container that the role is authorized to export to.
+                    example: export-bucket
+                    maxLength: 63
+                    minLength: 3
+                    type: string
+                cloudProvider:
+                    description: Human-readable label that identifies the cloud provider that Snapshots are exported to.
+                    enum:
+                        - AWS
+                        - AZURE
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+            required:
+                - bucketName
+                - cloudProvider
+            type: object
+        DiskBackupSnapshotExportBucketResponse:
             description: Disk backup snapshot Export Bucket.
             discriminator:
                 mapping:
-                    AWS: '#/components/schemas/DiskBackupSnapshotAWSExportBucket'
-                    AZURE: '#/components/schemas/DiskBackupSnapshotAzureExportBucket'
+                    AWS: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
+                    AZURE: '#/components/schemas/DiskBackupSnapshotAzureExportBucketResponse'
                 propertyName: cloudProvider
             oneOf:
-                - $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucket'
-                - $ref: '#/components/schemas/DiskBackupSnapshotAzureExportBucket'
+                - $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
+                - $ref: '#/components/schemas/DiskBackupSnapshotAzureExportBucketResponse'
             properties:
                 _id:
                     description: Unique 24-hexadecimal character string that identifies the Export Bucket.
@@ -13543,10 +13635,9 @@ components:
                     maxLength: 24
                     minLength: 24
                     pattern: ^([a-f0-9]{24})$
-                    readOnly: true
                     type: string
                 bucketName:
-                    description: Human-readable label that identifies the AWS S3 Bucket or Azure Storage Container that the role is authorized to export to.
+                    description: The name of the AWS S3 Bucket or Azure Storage Container that Snapshots are exported to.
                     example: export-bucket
                     maxLength: 63
                     minLength: 3
@@ -13567,6 +13658,7 @@ components:
                     readOnly: true
                     type: array
             required:
+                - _id
                 - bucketName
                 - cloudProvider
             type: object
@@ -24823,7 +24915,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucket'
+                        $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -24847,7 +24939,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/DiskBackupSnapshotExportBucket'
+                        $ref: '#/components/schemas/DiskBackupSnapshotExportBucketResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -33230,7 +33322,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 8b4cee443d6f07f56ee450e509c4b104d18e44fa
+    x-xgen-sha: 26a56ee1714f29a34e1291513416a3efdd2af9de
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -35051,8 +35143,15 @@ paths:
             requestBody:
                 content:
                     application/vnd.atlas.2023-01-01+json:
+                        examples:
+                            AWS:
+                                description: AWS
+                                value:
+                                    bucketName: export-bucket
+                                    cloudProvider: AWS
+                                    iamRoleId: 668c5f0ed436263134491592
                         schema:
-                            $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucket'
+                            $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketRequest'
                         x-sunset: "2025-05-30"
                         x-xgen-version: "2023-01-01"
                 description: Specifies the role and AWS S3 Bucket or Azure Blob Storage Container that the Export Bucket should reference.
@@ -35061,8 +35160,19 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2023-01-01+json:
+                            examples:
+                                AWS:
+                                    description: AWS
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-bucket
+                                        cloudProvider: AWS
+                                        iamRoleId: 668c5f0ed436263134491592
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucket'
+                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -35134,8 +35244,19 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2023-01-01+json:
+                            examples:
+                                AWS:
+                                    description: AWS
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-bucket
+                                        cloudProvider: AWS
+                                        iamRoleId: 668c5f0ed436263134491592
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucket'
+                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
