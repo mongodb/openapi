@@ -229,7 +229,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "9c4f17aae65f5a7d32a3cc4cd8b532e14c1c6b25"
+    "x-xgen-sha": "d0af178d7cb8e9ec373363fd2794c2c2eef14d5b"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -13207,6 +13207,411 @@
         "summary": "Update One Flex Cluster in One Project",
         "tags": [
           "Flex Clusters"
+        ]
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/download": {
+      "post": {
+        "description": "Requests one snapshot for the specified flex cluster. This resource returns a `snapshotURL` that you can use to download the snapshot. This `snapshotURL` remains active for four hours after you make the request. To use this resource, the requesting API Key must have the Project Owner role.",
+        "operationId": "downloadFlexBackup",
+        "parameters": [
+          {
+            "description": "Human-readable label that identifies the flex cluster.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-01-01+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlexBackupSnapshotDownloadCreate20250101"
+              }
+            }
+          },
+          "description": "Snapshot to be downloaded.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlexBackupRestoreJob20250101"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Download One Flex Cluster Snapshot",
+        "tags": [
+          "Flex Snapshots"
+        ]
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/restoreJobs": {
+      "get": {
+        "description": "Returns all restore jobs for one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Owner role.",
+        "operationId": "listFlexBackupRestoreJobs",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the flex cluster.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiAtlasFlexBackupRestoreJob20250101View"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Restore Jobs for One Flex Cluster",
+        "tags": [
+          "Flex Restore Jobs"
+        ]
+      },
+      "post": {
+        "description": "Restores one snapshot of one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Owner role.",
+        "operationId": "createFlexBackupRestoreJob",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the flex cluster whose snapshot you want to restore.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-01-01+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlexBackupRestoreJobCreate20250101"
+              }
+            }
+          },
+          "description": "Restores one snapshot of one flex cluster from the specified project.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlexBackupRestoreJob20250101"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Restore One Snapshot of One Flex Cluster",
+        "tags": [
+          "Flex Restore Jobs"
+        ]
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/restoreJobs/{restoreJobId}": {
+      "get": {
+        "description": "Returns one restore job for one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Owner role.",
+        "operationId": "getFlexBackupRestoreJob",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the flex cluster.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the restore job to return.",
+            "in": "path",
+            "name": "restoreJobId",
+            "required": true,
+            "schema": {
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlexBackupRestoreJob20250101"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Restore Job for One Flex Cluster",
+        "tags": [
+          "Flex Restore Jobs"
+        ]
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/snapshots": {
+      "get": {
+        "description": "Returns all snapshots of one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role.",
+        "operationId": "listFlexBackups",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "description": "Human-readable label that identifies the flex cluster.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiAtlasFlexBackupSnapshot20240710View"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Snapshots of One Flex Cluster",
+        "tags": [
+          "Flex Snapshots"
+        ]
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/snapshots/{snapshotId}": {
+      "get": {
+        "description": "Returns one snapshot of one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role.",
+        "operationId": "getFlexBackup",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the flex cluster.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the desired snapshot.",
+            "in": "path",
+            "name": "snapshotId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647abb20e7b8",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlexBackupSnapshot20250101"
+                },
+                "x-xgen-version": "2025-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Snapshot of One Flex Cluster",
+        "tags": [
+          "Flex Snapshots"
         ]
       }
     },
