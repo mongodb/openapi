@@ -33308,7 +33308,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.2023-10-01+json" \
+          --header "Accept: application/vnd.atlas.2024-10-23+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -33808,10 +33808,76 @@ paths:
             summary: Return All Identity Providers in One Federation
             tags:
                 - Federated Authentication
+        post:
+            description: |-
+                Creates one identity provider within the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
+
+                **Note**: This resource only supports the creation of OIDC identity providers.
+            operationId: createIdentityProvider
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-11-15+json:
+                        schema:
+                            $ref: '#/components/schemas/FederationOidcIdentityProviderUpdate'
+                description: The identity provider that you want to create.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/FederationOidcIdentityProvider'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Identity Provider
+            tags:
+                - Federated Authentication
     /api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}:
+        delete:
+            description: "Deletes one identity provider in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations. \n\n**Note**: Requests to this resource will fail if the identity provider has any connected organizations. Before deleting an identity provider, disconnect all organizations and confirm that no organization in your account uses this identity provider. To learn more, see [Manage Organization Mapping for Federated Authentication](https://www.mongodb.com/docs/atlas/security/manage-org-mapping/)."
+            operationId: deleteIdentityProvider
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - description: Unique 24-hexadecimal digit string that identifies the identity provider to connect.
+                  in: path
+                  name: identityProviderId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            x-xgen-version: "2023-11-15"
+                    description: No Response
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Identity Provider
+            tags:
+                - Federated Authentication
         get:
-            deprecated: true
-            description: Returns one identity provider in the specified federation by the identity provider's id. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
+            description: 'Returns one identity provider in the specified federation by the identity provider''s id. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations. Deprecated versions: v2-{2023-01-01}'
             operationId: getIdentityProvider
             parameters:
                 - $ref: '#/components/parameters/federationSettingsId'
@@ -33826,10 +33892,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2023-11-15+json:
                             schema:
-                                $ref: '#/components/schemas/FederationSamlIdentityProvider'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/FederationIdentityProvider'
+                            x-xgen-version: "2023-11-15"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -33844,13 +33910,11 @@ paths:
             summary: Return One Identity Provider by ID
             tags:
                 - Federated Authentication
-            x-sunset: "2025-01-01"
         patch:
-            deprecated: true
             description: |-
                 Updates one identity provider in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
 
-                **Note**: Changing authorization types and/or updating authorization claims can prevent current users and/or groups from accessing the database.
+                **Note**: Changing authorization types and/or updating authorization claims can prevent current users and/or groups from accessing the database. Deprecated versions: v2-{2023-01-01}
             operationId: updateIdentityProvider
             parameters:
                 - $ref: '#/components/parameters/federationSettingsId'
@@ -33864,18 +33928,18 @@ paths:
                 - $ref: '#/components/parameters/envelope'
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2023-11-15+json:
                         schema:
-                            $ref: '#/components/schemas/FederationSamlIdentityProviderUpdate'
+                            $ref: '#/components/schemas/FederationIdentityProviderUpdate'
                 description: The identity provider that you want to update.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2023-11-15+json:
                             schema:
-                                $ref: '#/components/schemas/FederationSamlIdentityProvider'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/FederationIdentityProvider'
+                            x-xgen-version: "2023-11-15"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -33888,7 +33952,37 @@ paths:
             summary: Update One Identity Provider
             tags:
                 - Federated Authentication
-            x-sunset: "2025-01-01"
+    /api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}/jwks:
+        delete:
+            description: "Revokes the JWKS tokens from the requested OIDC identity provider. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations. \n\n**Note**: Revoking your JWKS tokens immediately refreshes your IdP public keys from all your Atlas clusters, invalidating previously signed access tokens and logging out all users. You may need to restart your MongoDB clients. All organizations connected to the identity provider will be affected. To learn more, see [Configure OIDC Authorization](https://www.mongodb.com/docs/atlas/security-oidc/#revoke-jwks)."
+            operationId: revokeJwksFromIdentityProvider
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - description: Unique 24-hexadecimal digit string that identifies the identity provider to connect.
+                  in: path
+                  name: identityProviderId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            x-xgen-version: "2023-11-15"
+                    description: No Response
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Revoke the JWKS from One OIDC Identity Provider
+            tags:
+                - Federated Authentication
     /api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}/metadata.xml:
         get:
             description: Returns the metadata of one identity provider in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
@@ -34639,11 +34733,10 @@ paths:
             tags:
                 - Alerts
         patch:
-            deprecated: true
             description: |-
                 Confirms receipt of one existing alert. This alert applies to any component in one project. Acknowledging an alert prevents successive notifications. You receive an alert when a monitored component meets or exceeds a value you set until you acknowledge the alert. To use this resource, the requesting API Key must have the Organization Owner or Project Owner role.
 
-                This resource remains under revision and may change.
+                This resource remains under revision and may change. Deprecated versions: v2-{2023-01-01}
             operationId: acknowledgeAlert
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -34660,18 +34753,18 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
-                            $ref: '#/components/schemas/AlertView'
+                            $ref: '#/components/schemas/AcknowledgeAlert'
                 description: Acknowledges or unacknowledges one alert.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/AlertViewForNdsGroup'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -34684,7 +34777,6 @@ paths:
             summary: Acknowledge One Alert from One Project
             tags:
                 - Alerts
-            x-sunset: "2025-05-30"
     /api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs:
         get:
             description: |-
@@ -35011,8 +35103,7 @@ paths:
                 - AWS Clusters DNS
     /api/atlas/v2/groups/{groupId}/backup/exportBuckets:
         get:
-            deprecated: true
-            description: Returns all Export Buckets associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: 'Returns all Export Buckets associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
             operationId: listExportBuckets
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35024,10 +35115,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedBackupSnapshotExportBucketView'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/PaginatedBackupSnapshotExportBucketsView'
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -35036,10 +35127,8 @@ paths:
             summary: Return All Snapshot Export Buckets
             tags:
                 - Cloud Backups
-            x-sunset: "2026-05-30"
         post:
-            deprecated: true
-            description: Creates a Snapshot Export Bucket for an AWS S3 Bucket or Azure Blob Storage Container. Once created, an snapshots can be exported to the Export Bucket and its referenced AWS S3 Bucket or Azure Blob Storage Container. To use this resource, the requesting API Key must have the Project Owner role.
+            description: 'Creates a Snapshot Export Bucket for an AWS S3 Bucket or Azure Blob Storage Container. Once created, an snapshots can be exported to the Export Bucket and its referenced AWS S3 Bucket or Azure Blob Storage Container. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
             operationId: createExportBucket
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35047,7 +35136,7 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         examples:
                             AWS:
                                 description: AWS
@@ -35055,16 +35144,21 @@ paths:
                                     bucketName: export-bucket
                                     cloudProvider: AWS
                                     iamRoleId: 668c5f0ed436263134491592
+                            Azure:
+                                description: Azure
+                                value:
+                                    cloudProvider: AZURE
+                                    roleId: 668c5f0ed436263134491592
+                                    serviceUrl: https://examplestorageaccount.blob.core.windows.net/examplecontainer
                         schema:
-                            $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketRequest'
-                        x-sunset: "2025-05-30"
-                        x-xgen-version: "2023-01-01"
+                            $ref: '#/components/schemas/DiskBackupSnapshotExportBucketRequest'
+                        x-xgen-version: "2024-05-30"
                 description: Specifies the role and AWS S3 Bucket or Azure Blob Storage Container that the Export Bucket should reference.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             examples:
                                 AWS:
                                     description: AWS
@@ -35076,9 +35170,21 @@ paths:
                                         links:
                                             - href: https://cloud.mongodb.com/api/atlas
                                               rel: self
+                                Azure:
+                                    description: Azure
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: exportcontainer
+                                        cloudProvider: AZURE
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                        roleId: 668c5f0ed436263134491592
+                                        serviceUrl: https://examplestorageaccount.blob.core.windows.net/examplecontainer
+                                        tenantId: 4297fc77-1592-4de8-a6d5-a8c32401df87
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotExportBucketResponse'
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -35091,7 +35197,6 @@ paths:
             summary: Create One Snapshot Export Bucket
             tags:
                 - Cloud Backups
-            x-sunset: "2026-05-30"
     /api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}:
         delete:
             description: Deletes an Export Bucket. Auto export must be disabled on all clusters in this Project exporting to this Export Bucket before revoking access. To use this resource, the requesting API Key must have the Project Owner role.
@@ -35129,8 +35234,7 @@ paths:
             tags:
                 - Cloud Backups
         get:
-            deprecated: true
-            description: Returns one Export Bucket associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: 'Returns one Export Bucket associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
             operationId: getExportBucket
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35148,7 +35252,7 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             examples:
                                 AWS:
                                     description: AWS
@@ -35160,9 +35264,21 @@ paths:
                                         links:
                                             - href: https://cloud.mongodb.com/api/atlas
                                               rel: self
+                                Azure:
+                                    description: Azure
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: exportcontainer
+                                        cloudProvider: AZURE
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                        roleId: 668c5f0ed436263134491592
+                                        serviceUrl: https://examplestorageaccount.blob.core.windows.net/examplecontainer
+                                        tenantId: 4297fc77-1592-4de8-a6d5-a8c32401df87
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotExportBucketResponse'
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -35173,7 +35289,6 @@ paths:
             summary: Return One Snapshot Export Bucket
             tags:
                 - Cloud Backups
-            x-sunset: "2026-05-30"
     /api/atlas/v2/groups/{groupId}/backupCompliancePolicy:
         get:
             description: 'Returns the Backup Compliance Policy settings with the specified project. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
@@ -35415,8 +35530,7 @@ paths:
                 - Cloud Provider Access
     /api/atlas/v2/groups/{groupId}/clusters:
         get:
-            deprecated: true
-            description: 'Returns the details for all clusters in the specific project to which you have access. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not  available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
+            description: 'Returns the details for all clusters in the specific project to which you have access. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not  available for serverless clusters. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             operationId: listClusters
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35434,10 +35548,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedAdvancedClusterDescriptionView'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/PaginatedClusterDescription20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -35446,10 +35560,8 @@ paths:
             summary: Return All Clusters in One Project
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
         post:
-            deprecated: true
-            description: 'Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
+            description: 'Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters. Deprecated versions: v2-{2024-08-05}, v2-{2023-02-01}, v2-{2023-01-01}'
             operationId: createCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35457,18 +35569,88 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2023-02-01+json:
+                    application/vnd.atlas.2024-10-23+json:
+                        examples:
+                            Cluster:
+                                description: Cluster
+                                value:
+                                    clusterType: SHARDED
+                                    name: myCluster
+                                    replicationSpecs:
+                                        - regionConfigs:
+                                            - analyticsAutoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: false
+                                                diskGB:
+                                                    enabled: true
+                                              analyticsSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M30
+                                                nodeCount: 0
+                                              autoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: false
+                                                diskGB:
+                                                    enabled: true
+                                              electableSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M30
+                                                nodeCount: 3
+                                              priority: 7
+                                              providerName: AWS
+                                              readOnlySpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M30
+                                                nodeCount: 0
+                                              regionName: US_EAST_1
+                                          zoneName: Zone 1
+                                        - regionConfigs:
+                                            - analyticsAutoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: false
+                                                diskGB:
+                                                    enabled: true
+                                              analyticsSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M10
+                                                nodeCount: 0
+                                              autoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: false
+                                                diskGB:
+                                                    enabled: true
+                                              electableSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M10
+                                                nodeCount: 3
+                                              priority: 7
+                                              providerName: AWS
+                                              readOnlySpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M10
+                                                nodeCount: 0
+                                              regionName: US_EAST_1
+                                          zoneName: Zone 1
                         schema:
-                            $ref: '#/components/schemas/AdvancedClusterDescription'
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-version: "2024-10-23"
                 description: Cluster to create in this project.
                 required: true
             responses:
                 "201":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-10-23+json:
                             schema:
-                                $ref: '#/components/schemas/AdvancedClusterDescription'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-xgen-version: "2024-10-23"
                     description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -35485,7 +35667,6 @@ paths:
             summary: Create One Cluster from One Project
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:
         delete:
             description: 'Removes one cluster from the specified project. The cluster must have termination protection disabled in order to be deleted. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
@@ -35528,8 +35709,7 @@ paths:
             tags:
                 - Clusters
         get:
-            deprecated: true
-            description: 'Returns the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
+            description: 'Returns the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             operationId: getCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35547,10 +35727,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/AdvancedClusterDescription'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -35563,10 +35743,8 @@ paths:
             summary: Return One Cluster from One Project
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
         patch:
-            deprecated: true
-            description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting API Key must have the Project Owner role. For all other updates, the requesting API Key must have the Project Cluster Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters. Deprecated versions: v2-{2023-01-01}'
+            description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting API Key must have the Project Owner role. For all other updates, the requesting API Key must have the Project Cluster Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters. Deprecated versions: v2-{2024-08-05}, v2-{2023-02-01}, v2-{2023-01-01}'
             operationId: updateCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35583,18 +35761,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-02-01+json:
+                    application/vnd.atlas.2024-10-23+json:
                         schema:
-                            $ref: '#/components/schemas/AdvancedClusterDescription'
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-version: "2024-10-23"
                 description: Cluster to update in the specified project.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-10-23+json:
                             schema:
-                                $ref: '#/components/schemas/AdvancedClusterDescription'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-xgen-version: "2024-10-23"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -35609,7 +35788,136 @@ paths:
             summary: Modify One Cluster from One Project
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/{clusterView}/{databaseName}/{collectionName}/collStats/measurements:
+        get:
+            description: Get a list of the Coll Stats Latency cluster-level measurements for the given namespace.
+            operationId: getCollStatsLatencyNamespaceClusterMeasurements
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster to retrieve metrics for.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: Human-readable label that identifies the cluster topology to retrieve metrics for.
+                  in: path
+                  name: clusterView
+                  required: true
+                  schema:
+                    enum:
+                        - PRIMARY
+                        - SECONDARY
+                        - INDIVIDUAL_PROCESS
+                    type: string
+                - $ref: '#/components/parameters/databaseName'
+                - $ref: '#/components/parameters/collectionName'
+                - $ref: '#/components/parameters/envelope'
+                - description: List that contains the metrics that you want to retrieve for the associated data series. If you don't set this parameter, this resource returns data series for all Coll Stats Latency metrics.
+                  explode: true
+                  in: query
+                  name: metrics
+                  schema:
+                    items:
+                        description: Metric requested for the given cluster
+                        enum:
+                            - READS_OPS
+                            - READS_LATENCY
+                            - AVERAGE_READS_LATENCY
+                            - READS_P50_VALUE
+                            - READS_P95_VALUE
+                            - READS_P99_VALUE
+                            - WRITES_OPS
+                            - WRITES_LATENCY
+                            - AVERAGE_WRITES_LATENCY
+                            - WRITES_P50_VALUE
+                            - WRITES_P95_VALUE
+                            - WRITES_P99_VALUE
+                            - COMMANDS_OPS
+                            - COMMANDS_LATENCY
+                            - AVERAGE_COMMANDS_LATENCY
+                            - COMMANDS_P50_VALUE
+                            - COMMANDS_P95_VALUE
+                            - COMMANDS_P99_VALUE
+                            - TOTAL_OPS
+                            - TOTAL_LATENCY
+                            - AVERAGE_TOTAL_OPS_LATENCY
+                            - TOTAL_OPS_P50_VALUE
+                            - TOTAL_OPS_P95_VALUE
+                            - TOTAL_OPS_P99_VALUE
+                        type: string
+                    type: array
+                    uniqueItems: true
+                  style: form
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/period'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/MeasurementsCollStatsLatencyCluster'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Cluster-Level Query Latency
+            tags:
+                - Collection Level Metrics
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/{clusterView}/collStats/namespaces:
+        get:
+            description: Return the subset of namespaces from the given cluster sorted by highest total execution time (descending) within the given time window.
+            operationId: getCollStatsLatencyNamespacesForCluster
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster to pin namespaces to.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: Human-readable label that identifies the cluster topology to retrieve metrics for.
+                  in: path
+                  name: clusterView
+                  required: true
+                  schema:
+                    enum:
+                        - PRIMARY
+                        - SECONDARY
+                        - INDIVIDUAL_PROCESS
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/period'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/CollStatsRankedNamespacesView'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Ranked Namespaces from a Cluster
+            tags:
+                - Collection Level Metrics
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/exports:
         get:
             description: Returns all Cloud Backup Snapshot Export Jobs associated with the specified Atlas cluster. To use this resource, the requesting API Key must have the Project Atlas Admin role.
@@ -35896,8 +36204,7 @@ paths:
                 - Cloud Backups
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/schedule:
         delete:
-            deprecated: true
-            description: Removes all cloud backup schedules for the specified cluster. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Atlas Admin role.
+            description: 'Removes all cloud backup schedules for the specified cluster. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Atlas Admin role. Deprecated versions: v2-{2023-01-01}'
             operationId: deleteAllBackupSchedules
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35914,10 +36221,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -35928,10 +36235,8 @@ paths:
             summary: Remove All Cloud Backup Schedules
             tags:
                 - Cloud Backups
-            x-sunset: "2026-05-30"
         get:
-            deprecated: true
-            description: Returns the cloud backup schedule for the specified cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: 'Returns the cloud backup schedule for the specified cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
             operationId: getBackupSchedule
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35949,10 +36254,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "404":
                     $ref: '#/components/responses/notFound'
@@ -35961,10 +36266,8 @@ paths:
             summary: Return One Cloud Backup Schedule
             tags:
                 - Cloud Backups
-            x-sunset: "2026-05-30"
         patch:
-            deprecated: true
-            description: Updates the cloud backup schedule for one cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Owner role.
+            description: 'Updates the cloud backup schedule for one cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
             operationId: updateBackupSchedule
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -35981,9 +36284,9 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-08-05+json:
                         schema:
-                            $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
+                            $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
                 description: |-
                     Updates the cloud backup schedule for one cluster within the specified project.
 
@@ -35992,10 +36295,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -36006,7 +36309,6 @@ paths:
             summary: Update Cloud Backup Schedule for One Cluster
             tags:
                 - Cloud Backups
-            x-sunset: "2026-05-30"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots:
         get:
             description: Returns all snapshots of one cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
@@ -36666,6 +36968,179 @@ paths:
             summary: Return One Legacy Backup Checkpoint
             tags:
                 - Legacy Backup
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collStats/pinned:
+        get:
+            description: Returns a list of given cluster's pinned namespaces, a set of namespaces manually selected by users to collect query latency metrics on.
+            operationId: getPinnedNamespaces
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Human-readable label that identifies the cluster to retrieve pinned namespaces for.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Pinned Namespaces
+            tags:
+                - Collection Level Metrics
+        patch:
+            description: Add provided list of namespaces to existing pinned namespaces list for collection-level latency metrics collection for the given Group and Cluster
+            operationId: pinNamespacesPatch
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Human-readable label that identifies the cluster to pin namespaces to.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-11-15+json:
+                        schema:
+                            $ref: '#/components/schemas/NamespacesRequest'
+                description: List of namespace strings (combination of database and collection name) to pin for query latency metric collection.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "201":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add Pinned Namespaces
+            tags:
+                - Collection Level Metrics
+        put:
+            description: Pin provided list of namespaces for collection-level latency metrics collection for the given Group and Cluster. This initializes a pinned namespaces list or replaces any existing pinned namespaces list for the Group and Cluster.
+            operationId: pinNamespacesPut
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Human-readable label that identifies the cluster to pin namespaces to.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-11-15+json:
+                        schema:
+                            $ref: '#/components/schemas/NamespacesRequest'
+                description: List of namespace strings (combination of database and collection name) to pin for query latency metric collection.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "201":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Pin Namespaces
+            tags:
+                - Collection Level Metrics
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collStats/unpin:
+        patch:
+            description: Unpin provided list of namespaces for collection-level latency metrics collection for the given Group and Cluster
+            operationId: unpinNamespaces
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Human-readable label that identifies the cluster to unpin namespaces from.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-11-15+json:
+                        schema:
+                            $ref: '#/components/schemas/NamespacesRequest'
+                description: List of namespace strings (combination of database and collection name) to pin for query latency metric collection.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Unpin namespaces
+            tags:
+                - Collection Level Metrics
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes:
         post:
             deprecated: true
@@ -36916,8 +37391,7 @@ paths:
             x-sunset: "2025-06-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites:
         get:
-            deprecated: true
-            description: 'Returns one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Returns one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -36938,10 +37412,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -36950,11 +37424,9 @@ paths:
             summary: Return One Managed Namespace in One Global Cluster
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/customZoneMapping:
         delete:
-            deprecated: true
-            description: 'Removes all custom zone mappings for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. Removing the custom zone mappings restores the default mapping. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Removes all custom zone mappings for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. Removing the custom zone mappings restores the default mapping. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -36975,10 +37447,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -36987,10 +37459,8 @@ paths:
             summary: Remove All Custom Zone Mappings from One Global Cluster
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
         post:
-            deprecated: true
-            description: 'Creates one custom zone mapping for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Creates one custom zone mapping for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -37010,18 +37480,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-02-01+json:
+                    application/vnd.atlas.2024-08-05+json:
                         schema:
                             $ref: '#/components/schemas/CustomZoneMappings'
+                        x-xgen-version: "2024-08-05"
                 description: Custom zone mapping to add to the specified global cluster.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -37032,11 +37503,9 @@ paths:
             summary: Add One Entry to One Custom Zone Mapping
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces:
         delete:
-            deprecated: true
-            description: 'Removes one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. Deleting a managed namespace does not remove the associated collection or data. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Removes one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. Deleting a managed namespace does not remove the associated collection or data. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -37067,10 +37536,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -37081,10 +37550,8 @@ paths:
             summary: Remove One Managed Namespace from One Global Cluster
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
         post:
-            deprecated: true
-            description: 'Creates one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-01-01}'
+            description: 'Creates one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting API Key must have the Project Data Access Admin role. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -37104,18 +37571,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-02-01+json:
+                    application/vnd.atlas.2024-08-05+json:
                         schema:
                             $ref: '#/components/schemas/ManagedNamespaces'
+                        x-xgen-version: "2024-08-05"
                 description: Managed namespace to create within the specified global cluster.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-02-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/GeoSharding'
-                            x-xgen-version: "2023-02-01"
+                                $ref: '#/components/schemas/GeoSharding20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -37128,7 +37596,6 @@ paths:
             summary: Create One Managed Namespace in One Global Cluster
             tags:
                 - Global Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index:
         post:
             description: Creates an index on the cluster identified by its name in a rolling manner. Creating the index in this way allows index builds on one replica set member as a standalone at a time, starting with the secondary members. Creating indexes in this way requires at least one replica set election. To use this resource, the requesting API Key must have the Project Data Access Admin role.
@@ -37656,8 +38123,7 @@ paths:
                 - Cluster Outage Simulation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs:
         get:
-            deprecated: true
-            description: Returns the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: 'Returns the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. This feature isn''t available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters. To use this resource, the requesting API Key must have the Project Read Only role. Deprecated versions: v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -37678,10 +38144,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -37692,10 +38158,8 @@ paths:
             summary: Return One Advanced Configuration Options for One Cluster
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
         patch:
-            deprecated: true
-            description: Updates the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. To use this resource, the requesting API Key must have the Project Cluster Manager role. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters.
+            description: 'Updates the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. To use this resource, the requesting API Key must have the Project Cluster Manager role. This feature isn''t available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters. Deprecated versions: v2-{2023-01-01}'
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
@@ -37715,19 +38179,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-08-05+json:
                         schema:
-                            $ref: '#/components/schemas/ClusterDescriptionProcessArgs'
-                        x-xgen-version: "2023-01-01"
+                            $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                        x-xgen-version: "2024-08-05"
                 description: Advanced configuration details to add for one cluster in the specified project.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                            x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -37740,7 +38204,6 @@ paths:
             summary: Update Advanced Configuration Options for One Cluster
             tags:
                 - Clusters
-            x-sunset: "2026-03-01"
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries:
         post:
             description: 'Starts a failover test for the specified cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. A failover test checks how MongoDB Cloud handles the failure of the cluster''s primary node. During the test, MongoDB Cloud shuts down the primary node and elects a new primary. To use this resource, the requesting API Key must have the Project Cluster Manager role. Deprecated versions: v2-{2023-01-01}'
@@ -37910,7 +38373,6 @@ paths:
                 - Legacy Backup
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment:
         delete:
-            deprecated: true
             description: Deletes the Search Nodes for the specified cluster.
             operationId: deleteAtlasSearchDeployment
             parameters:
@@ -37927,11 +38389,13 @@ paths:
                     pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
                     type: string
             responses:
-                "200":
+                "204":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
-                            x-xgen-version: "2023-01-01"
-                    description: OK
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "404":
@@ -37943,10 +38407,8 @@ paths:
             summary: Delete Search Nodes
             tags:
                 - Atlas Search
-            x-sunset: "2026-03-01"
         get:
-            deprecated: true
-            description: Return the Search Nodes for the specified cluster.
+            description: 'Return the Search Nodes for the specified cluster. Deprecated versions: v2-{2023-01-01}'
             operationId: getAtlasSearchDeployment
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -37964,10 +38426,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -37978,10 +38440,8 @@ paths:
             summary: Return Search Nodes
             tags:
                 - Atlas Search
-            x-sunset: "2026-03-01"
         patch:
-            deprecated: true
-            description: Updates the Search Nodes for the specified cluster.
+            description: 'Updates the Search Nodes for the specified cluster. Deprecated versions: v2-{2023-01-01}'
             operationId: updateAtlasSearchDeployment
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -37998,7 +38458,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
                             $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
                 description: Updates the Search Nodes for the specified cluster.
@@ -38006,10 +38466,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -38022,9 +38482,7 @@ paths:
             summary: Update Search Nodes
             tags:
                 - Atlas Search
-            x-sunset: "2026-03-01"
         post:
-            deprecated: true
             description: Creates Search Nodes for the specified cluster.
             operationId: createAtlasSearchDeployment
             parameters:
@@ -38042,19 +38500,19 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
                             $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
                 description: Creates Search Nodes for the specified cluster.
                 required: true
             responses:
-                "200":
+                "201":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
-                            x-xgen-version: "2023-01-01"
-                    description: OK
+                            x-xgen-version: "2024-05-30"
+                    description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "404":
@@ -38066,7 +38524,476 @@ paths:
             summary: Create Search Nodes
             tags:
                 - Atlas Search
-            x-sunset: "2026-03-01"
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes:
+        get:
+            description: Returns all Atlas Search indexes on the specified cluster. Atlas Search indexes contain the indexed fields and the analyzers used to create the indexes. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: listAtlasSearchIndexesCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/SearchIndexResponse'
+                                type: array
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                    description: Service Unavailable.
+            summary: Return All Atlas Search Indexes for One Cluster
+            tags:
+                - Atlas Search
+        post:
+            description: Creates one Atlas Search index on the specified collection. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. Only clusters running MongoDB v4.2 or later can use Atlas Search. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: createAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection on which to create an Atlas Search index.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/SearchIndexCreateRequest'
+                description: Creates one Atlas Search index on the specified collection.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Atlas Search Index
+            tags:
+                - Atlas Search
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{databaseName}/{collectionName}:
+        get:
+            description: Returns all Atlas Search indexes on the specified collection. Atlas Search indexes contain the indexed fields and the analyzers used to create the indexes. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: listAtlasSearchIndexes
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/SearchIndexResponse'
+                                type: array
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                    description: Service Unavailable.
+            summary: Return All Atlas Search Indexes for One Collection
+            tags:
+                - Atlas Search
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{databaseName}/{collectionName}/{indexName}:
+        delete:
+            description: Removes one Atlas Search index that you identified with its database, collection, and name. To use this resource, the requesting API key must have the Project Data Access Admin role. This deletion is eventually consistent.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: deleteAtlasSearchIndexByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the database and collection with one or more Application Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Name of the Atlas Search index to delete.
+                  in: path
+                  name: indexName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Atlas Search Index by Name
+            tags:
+                - Atlas Search
+        get:
+            description: Returns one Atlas Search index in the specified project. You identify this index using its database, collection and name. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: getAtlasSearchIndexByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Name of the Atlas Search index to return.
+                  in: path
+                  name: indexName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Atlas Search Index by Name
+            tags:
+                - Atlas Search
+        patch:
+            description: Updates one Atlas Search index that you identified with its database, collection name, and index name. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: updateAtlasSearchIndexByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection whose Atlas Search index you want to update.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Name of the Atlas Search index to update.
+                  in: path
+                  name: indexName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/SearchIndexUpdateRequest'
+                description: Details to update the Atlas Search index with.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Atlas Search Index By Name
+            tags:
+                - Atlas Search
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{indexId}:
+        delete:
+            description: Removes one Atlas Search index that you identified with its unique ID. To use this resource, the requesting API key must have the Project Data Access Admin role. This deletion is eventually consistent.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: deleteAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the database and collection with one or more Application Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Atlas Search index. Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Atlas Search Index by Id
+            tags:
+                - Atlas Search
+        get:
+            description: Returns one Atlas Search index in the specified project. You identify this index using its unique ID. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: getAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Application Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Application Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Application Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                    description: Service Unavailable.
+            summary: Return One Atlas Search Index by ID
+            tags:
+                - Atlas Search
+        patch:
+            description: Updates one Atlas Search index that you identified with its unique ID. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: updateAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection whose Atlas Search index you want to update.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Atlas Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/SearchIndexUpdateRequest'
+                description: Details to update on the Atlas Search index.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Atlas Search Index By ID
+            tags:
+                - Atlas Search
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/snapshotSchedule:
         get:
             deprecated: true
@@ -38356,6 +39283,175 @@ paths:
             summary: Return Status of All Cluster Operations
             tags:
                 - Clusters
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:grantMongoDBEmployeeAccess:
+        post:
+            description: Grants MongoDB employee cluster access for the given duration and at the specified level for one cluster.
+            operationId: grantMongoDBEmployeeAccess
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/EmployeeAccessGrantView'
+                        x-xgen-version: "2024-08-05"
+                description: Grant access level and expiration.
+                required: true
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Grant MongoDB employee cluster access for one cluster.
+            tags:
+                - Clusters
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:pinFeatureCompatibilityVersion:
+        post:
+            description: Pins the Feature Compatibility Version (FCV) to the current MongoDB version and sets the pin expiration date. If an FCV pin already exists for the cluster, calling this method will only update the expiration date of the existing pin and will not repin the FCV.
+            operationId: pinFeatureCompatibilityVersion
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/PinFCVView'
+                        x-xgen-version: "2024-05-30"
+                description: Optional request params for tuning FCV pinning configuration.
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Pin FCV for One Cluster from One Project
+            tags:
+                - Clusters
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:revokeMongoDBEmployeeAccess:
+        post:
+            description: Revokes a previously granted MongoDB employee cluster access.
+            operationId: revokeMongoDBEmployeeAccess
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Revoke granted MongoDB employee cluster access for one cluster.
+            tags:
+                - Clusters
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:unpinFeatureCompatibilityVersion:
+        post:
+            description: Unpins the current fixed Feature Compatibility Version (FCV). This feature is not available for clusters on rapid release.
+            operationId: unpinFeatureCompatibilityVersion
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Unpins FCV for One Cluster from One Project
+            tags:
+                - Clusters
     /api/atlas/v2/groups/{groupId}/clusters/{hostName}/logs/{logName}.gz:
         get:
             description: 'Returns a compressed (.gz) log file that contains a range of log messages for the specified host for the specified project. MongoDB updates process and audit logs from the cluster backend infrastructure every five minutes. Logs are stored in chunks approximately five minutes in length, but this duration may vary. If you poll the API for log files, we recommend polling every five minutes even though consecutive polls could contain some overlapping logs. This feature isn''t available for `M0` free clusters, `M2`, `M5`, or serverless clusters. To use this resource, the requesting API Key must have the Project Data Access Read Only or higher role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: "Accept: application/vnd.atlas.YYYY-MM-DD+gzip". Deprecated versions: v2-{2023-01-01}'
@@ -38537,6 +39633,32 @@ paths:
             summary: Upgrades One Shared-Tier Cluster to the Serverless Instance
             tags:
                 - Clusters
+    /api/atlas/v2/groups/{groupId}/collStats/metrics:
+        get:
+            description: Returns all available Coll Stats Latency metric names and their respective units for the specified project at the time of request.
+            operationId: getCollStatsLatencyNamespaceMetrics
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return all metric names
+            tags:
+                - Collection Level Metrics
     /api/atlas/v2/groups/{groupId}/containers:
         get:
             description: Returns details about all network peering containers in the specified project for the specified cloud provider. If you do not specify the cloud provider, MongoDB Cloud returns details about all network peering containers in the project for Amazon Web Services (AWS). To use this resource, the requesting API Key must have the Project Read Only role.
@@ -41114,7 +42236,6 @@ paths:
                 - Projects
     /api/atlas/v2/groups/{groupId}/liveMigrations:
         post:
-            deprecated: true
             description: |-
                 Migrate one cluster that Cloud or Ops Manager manages to MongoDB Atlas.
 
@@ -41122,7 +42243,7 @@ paths:
 
                  You can use this API endpoint for push live migrations only. Your API Key must have the Organization Owner role to successfully call this resource.
 
-                 **NOTE**: Migrating time-series collections is not yet supported on MongoDB 6.0 or higher. Migrations on MongoDB 6.0 or higher will skip any time-series collections on the source cluster.
+                 **NOTE**: Migrating time-series collections is not yet supported on MongoDB 6.0 or higher. Migrations on MongoDB 6.0 or higher will skip any time-series collections on the source cluster. Deprecated versions: v2-{2023-01-01}
             operationId: createPushMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
@@ -41130,20 +42251,19 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
-                            $ref: '#/components/schemas/LiveMigrationRequest'
-                        x-sunset: "2025-05-30"
-                        x-xgen-version: "2023-01-01"
+                            $ref: '#/components/schemas/LiveMigrationRequest20240530'
+                        x-xgen-version: "2024-05-30"
                 description: One migration to be created.
                 required: true
             responses:
                 "201":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/LiveMigrationResponse'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -41158,7 +42278,6 @@ paths:
             summary: Migrate One Local Managed Cluster to MongoDB Atlas
             tags:
                 - Cloud Migration Service
-            x-sunset: "2025-05-30"
     /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}:
         get:
             description: Return details of one cluster migration job. Each push live migration job uses one migration host. Your API Key must have the Organization Member role to successfully call this resource.
@@ -41217,8 +42336,7 @@ paths:
                 - Cloud Migration Service
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate:
         post:
-            deprecated: true
-            description: Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource.
+            description: 'Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource. Deprecated versions: v2-{2023-01-01}'
             operationId: validateMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
@@ -41226,20 +42344,19 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2023-01-01+json:
+                    application/vnd.atlas.2024-05-30+json:
                         schema:
-                            $ref: '#/components/schemas/LiveMigrationRequest'
-                        x-sunset: "2025-05-30"
-                        x-xgen-version: "2023-01-01"
+                            $ref: '#/components/schemas/LiveMigrationRequest20240530'
+                        x-xgen-version: "2024-05-30"
                 description: One migration to be validated.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/LiveImportValidation'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -41254,7 +42371,6 @@ paths:
             summary: Validate One Migration Request
             tags:
                 - Cloud Migration Service
-            x-sunset: "2025-05-30"
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}:
         get:
             description: Return the status of one migration validation job. Your API Key must have the Organization Owner role to successfully call this resource.
@@ -41731,6 +42847,77 @@ paths:
             summary: Update One New Network Peering Connection
             tags:
                 - Network Peering
+    /api/atlas/v2/groups/{groupId}/performanceAdvisor/suggestedIndexes:
+        get:
+            description: Returns the indexes that the Performance Advisor suggests. The Performance Advisor monitors queries that MongoDB considers slow and suggests new indexes to improve query performance. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listSuggestedIndexes_1
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: query
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: ProcessIds from which to retrieve suggested indexes. A processId is a combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests. To include multiple processIds, pass the parameter multiple times delimited with an ampersand (`&`) between each processId.
+                  in: query
+                  name: processIds
+                  schema:
+                    items:
+                        pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                        type: string
+                    type: array
+                  style: form
+                - description: 'Namespaces from which to retrieve suggested indexes. A namespace consists of one database and one collection resource written as `.`: `<database>.<collection>`. To include multiple namespaces, pass the parameter multiple times delimited with an ampersand (`&`) between each namespace. Omit this parameter to return results for all namespaces.'
+                  in: query
+                  name: namespaces
+                  schema:
+                    items:
+                        type: string
+                    type: array
+                  style: form
+                - description: |-
+                    Date and time from which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+
+                    - If you don't specify the **until** parameter, the endpoint returns data covering from the **since** value and the current time.
+                    - If you specify neither the **since** nor the **until** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: since
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+12
+                    type: integer
+                - description: |-
+                    Date and time up until which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+
+                    - If you specify the **until** parameter, you must specify the **since** parameter.
+                    - If you specify neither the **since** nor the **until** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: until
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+12
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PerformanceAdvisorResponse'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Suggested Indexes
+            tags:
+                - Performance Advisor
     /api/atlas/v2/groups/{groupId}/pipelines:
         get:
             deprecated: true
@@ -43090,6 +44277,98 @@ paths:
             summary: Return One MongoDB Process by ID
             tags:
                 - Monitoring and Logs
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/{databaseName}/{collectionName}/collStats/measurements:
+        get:
+            description: Get a list of the Coll Stats Latency process-level measurements for the given namespace
+            operationId: getCollStatsLatencyNamespaceHostMeasurements
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/processId'
+                - $ref: '#/components/parameters/databaseName'
+                - $ref: '#/components/parameters/collectionName'
+                - $ref: '#/components/parameters/envelope'
+                - description: List that contains the metrics that you want to retrieve for the associated data series. If you don't set this parameter, this resource returns data series for all Coll Stats Latency metrics.
+                  in: query
+                  name: metrics
+                  schema:
+                    items:
+                        description: Metric requested for the given process
+                        enum:
+                            - READS_OPS
+                            - READS_LATENCY
+                            - AVERAGE_READS_LATENCY
+                            - READS_P50_VALUE
+                            - READS_P95_VALUE
+                            - READS_P99_VALUE
+                            - WRITES_OPS
+                            - WRITES_LATENCY
+                            - AVERAGE_WRITES_LATENCY
+                            - WRITES_P50_VALUE
+                            - WRITES_P95_VALUE
+                            - WRITES_P99_VALUE
+                            - COMMANDS_OPS
+                            - COMMANDS_LATENCY
+                            - AVERAGE_COMMANDS_LATENCY
+                            - COMMANDS_P50_VALUE
+                            - COMMANDS_P95_VALUE
+                            - COMMANDS_P99_VALUE
+                            - TOTAL_OPS
+                            - TOTAL_LATENCY
+                            - AVERAGE_TOTAL_OPS_LATENCY
+                            - TOTAL_OPS_P50_VALUE
+                            - TOTAL_OPS_P95_VALUE
+                            - TOTAL_OPS_P99_VALUE
+                        type: string
+                    type: array
+                    uniqueItems: true
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/period'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/MeasurementsCollStatsLatencyHost'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Host-Level Query Latency
+            tags:
+                - Collection Level Metrics
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/collStats/namespaces:
+        get:
+            description: Return the subset of namespaces from the given process ranked by highest total execution time (descending) within the given time window.
+            operationId: getCollStatsLatencyNamespacesForHost
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/processId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/period'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/CollStatsRankedNamespacesView'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Ranked Namespaces from a Host
+            tags:
+                - Collection Level Metrics
     /api/atlas/v2/groups/{groupId}/processes/{processId}/databases:
         get:
             description: Returns the list of databases running on the specified host for the specified project. `M0` free clusters, `M2`, `M5`, and serverless clusters have some [operational limits](https://www.mongodb.com/docs/atlas/reference/free-shared-limitations/#operational-limitations). The MongoDB Cloud process must be a `mongod`. To use this resource, the requesting API Key must have the Project Read Only role.
@@ -44393,6 +45672,337 @@ paths:
             summary: Update One Serverless Instance in One Project
             tags:
                 - Serverless Instances
+    /api/atlas/v2/groups/{groupId}/serviceAccounts:
+        get:
+            description: Returns all Service Accounts for the specified Project. Available as a preview feature.
+            operationId: listProjectServiceAccounts
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedGroupServiceAccounts'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: List All Project Service Accounts
+            tags:
+                - Service Accounts
+        post:
+            description: Creates one Service Account for the specified Project. The Service Account will automatically be added as an Organization Member to the Organization that the specified Project is a part of. Available as a preview feature.
+            operationId: createProjectServiceAccount
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupServiceAccountRequest'
+                        x-xgen-version: "2024-08-05"
+                description: Details of the new Service Account.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupServiceAccount'
+                            x-xgen-version: "2024-08-05"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create and Assign one Service Account to one Project
+            tags:
+                - Service Accounts
+    /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:
+        delete:
+            description: Removes the specified Service Account from the specified project. The Service Account will still be a part of the Organization it was created in, and the credentials will remain active until expired or manually revoked. Available as a preview feature.
+            operationId: deleteProjectServiceAccount
+            parameters:
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                    x-xgen-version: "2024-08-05"
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Unassign One Service Account from One Project
+            tags:
+                - Service Accounts
+        get:
+            description: Returns one Service Account in the specified Project. Available as a preview feature.
+            operationId: getProjectServiceAccount
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupServiceAccount'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get one Project Service Account
+            tags:
+                - Service Accounts
+        patch:
+            description: Updates one Service Account in the specified Project. Available as a preview feature.
+            operationId: updateProjectServiceAccount
+            parameters:
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupServiceAccountUpdateRequest'
+                description: The new details for the Service Account.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupServiceAccount'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update one Project Service Account
+            tags:
+                - Service Accounts
+    /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList:
+        get:
+            description: Returns all access list entries that you configured for the specified Service Account for the project. Available as a preview feature.
+            operationId: listProjectServiceAccountAccessList
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedServiceAccountIPAccessEntryView'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Access List entries for one Project Service Account
+            tags:
+                - Service Accounts
+        post:
+            description: Add Access List Entries for the specified Service Account for the project. Resources require all API requests to originate from IP addresses on the API access list. Available as a preview feature.
+            operationId: createProjectServiceAccountAccessList
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            items:
+                                $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
+                            type: array
+                        x-xgen-version: "2024-08-05"
+                description: A list of access list entries to add to the access list of the specified Service Account for the project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedServiceAccountIPAccessEntryView'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add Access List entries for one Project Service Account
+            tags:
+                - Service Accounts
+    /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
+        delete:
+            description: Removes the specified access list entry from the specified Service Account for the project. You can't remove the requesting IP address from the access list. Available as a preview feature.
+            operationId: deleteProjectServiceAccountAccessListEntry
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - description: One IP address or multiple IP addresses represented as one CIDR block. When specifying a CIDR block with a subnet mask, such as 192.0.2.0/24, use the URL-encoded value %2F for the forward slash /.
+                  in: path
+                  name: ipAddress
+                  required: true
+                  schema:
+                    example: 192.0.2.0%2F24
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){7}[0-9a-f]{1,4}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){1,6}\:(%2[fF][0-9]{1,3})?$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Access List entry from one Project Service Account
+            tags:
+                - Service Accounts
+    /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:invite:
+        post:
+            description: Assigns the specified Service Account to the specified Project. Available as a preview feature.
+            operationId: addProjectServiceAccount
+            parameters:
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            items:
+                                $ref: '#/components/schemas/GroupServiceAccountRoleAssignment'
+                            type: array
+                        x-xgen-version: "2024-08-05"
+                description: The Project permissions for the Service Account in the specified Project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupServiceAccount'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Assign One Service Account to One Project
+            tags:
+                - Service Accounts
     /api/atlas/v2/groups/{groupId}/settings:
         get:
             description: Returns details about the specified project's settings. To use this resource, the requesting API Key must have the Project Read Only role.
@@ -44886,6 +46496,235 @@ paths:
                 - Streams
             x-xgen-changelog:
                 "2023-09-11": The MongoDB Atlas Streams Processing API is now exposed as part of private preview, but is subject to change until GA.
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor:
+        post:
+            description: Create one Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: createStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsProcessor'
+                description: Details to create an Atlas Streams Processor.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsProcessor'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "409":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Stream Processor
+            tags:
+                - Streams
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:
+        delete:
+            description: Delete a Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: deleteStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Stream Processor
+            tags:
+                - Streams
+        get:
+            description: Get one Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: getStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsProcessorWithStats'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get One Stream Processor
+            tags:
+                - Streams
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:start:
+        post:
+            description: Start a Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: startStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Start One Stream Processor
+            tags:
+                - Streams
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:stop:
+        post:
+            description: Stop a Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: stopStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Stop One Stream Processor
+            tags:
+                - Streams
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processors:
+        get:
+            description: Returns all Stream Processors within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: listStreamProcessors
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/includeCount'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiStreamsStreamProcessorWithStatsView'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Stream Processors In The Stream Instance.
+            tags:
+                - Streams
     /api/atlas/v2/groups/{groupId}/streams/privateLinkConnections:
         get:
             description: Returns all Private Link connections for the specified project.To use this resource, the requesting API Key must have the Project Data Access roles, Project Owner role or Project Stream Processing Owner role.
@@ -45140,6 +46979,38 @@ paths:
                 "500":
                     $ref: '#/components/responses/internalServerError'
             summary: Requests the rejection of an incoming VPC Peering connection.
+            tags:
+                - Streams
+    /api/atlas/v2/groups/{groupId}/streams:withSampleConnections:
+        post:
+            description: Creates one stream instance in the specified project with sample connections. To use this resource the requesting API Key must have the Project Data Access Admin role, Project Owner role or Project Stream Processing Owner role.
+            operationId: createStreamInstanceWithSampleConnections
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/TenantWithSampleConnections'
+                description: Details to create one streams instance in the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsTenant'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Stream Instance With Sample Connections
             tags:
                 - Streams
     /api/atlas/v2/groups/{groupId}/teams:
@@ -45581,6 +47452,35 @@ paths:
                 "500":
                     $ref: '#/components/responses/internalServerError'
             summary: Update Project Roles for One MongoDB Cloud User
+            tags:
+                - Projects
+    /api/atlas/v2/groups/{groupId}:migrate:
+        post:
+            description: Migrates a project from its current organization to another organization. All project users and their roles will be copied to the same project in the destination organization. You must include an organization API key with the Organization Owner role for the destination organization to verify access to the destination organization when you authenticate with Programmatic API Keys. Otherwise, the requesting user must have the Organization Owner role in both organizations. To use this resource, the requesting API Key must have the Organization Owner role.
+            operationId: migrateProjectToAnotherOrg
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupMigrationRequest'
+                description: Migrates a project from its current organization to another organization.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/Group'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Migrate One Project to Another Organization
             tags:
                 - Projects
     /api/atlas/v2/groups/byName/{groupName}:
@@ -46759,6 +48659,48 @@ paths:
             summary: Return One Organization Invoice as CSV
             tags:
                 - Invoices
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/lineItems:search:
+        get:
+            description: Query the lineItems of the specified invoice and return the result JSON. A unique 24-hexadecimal digit string identifies the invoice.
+            operationId: queryLineItemsFromSingleInvoice
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique 24-hexadecimal digit string that identifies the invoice submitted to the specified organization. Charges typically post the next day.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiPublicUsageDetailsQueryRequest'
+                description: Filter parameters for the lineItems query. Send a request with an empty JSON body to retrieve all line items for a given invoiceID without applying any filters.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedPublicApiUsageDetailsLineItemView'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Query lineItems of the specified invoiceId
+            tags:
+                - Invoices
     /api/atlas/v2/orgs/{orgId}/invoices/pending:
         get:
             description: Returns all invoices accruing charges for the current billing cycle for the specified organization. To use this resource, the requesting API Key must have the Organization Billing Viewer, Organization Billing Admin, or Organization Owner role. If you have a cross-organization setup, you can view linked invoices if you have the Organization Billing Admin or Organization Owner Role.
@@ -46866,6 +48808,566 @@ paths:
             summary: Create One Link-Token
             tags:
                 - Cloud Migration Service
+    /api/atlas/v2/orgs/{orgId}/nonCompliantResources:
+        get:
+            description: Return all non-compliant resources for an org.
+            externalDocs:
+                description: Atlas Resource Policies
+                url: https://dochub.mongodb.org/core/atlas-resource-policies
+            operationId: getResourcesNonCompliant
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/ApiAtlasNonCompliantResourceView'
+                                type: array
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return all non-compliant resources
+            tags:
+                - Resource Policies
+    /api/atlas/v2/orgs/{orgId}/resourcePolicies:
+        get:
+            description: Return all Atlas Resource Policies for the org.
+            externalDocs:
+                description: Atlas Resource Policies
+                url: https://dochub.mongodb.org/core/atlas-resource-policies
+            operationId: getAtlasResourcePolicies
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/ApiAtlasResourcePolicyView'
+                                type: array
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return all Atlas Resource Policies
+            tags:
+                - Resource Policies
+        post:
+            description: Create one Atlas Resource Policy for an org.
+            externalDocs:
+                description: Atlas Resource Policies
+                url: https://dochub.mongodb.org/core/atlas-resource-policies
+            operationId: createAtlasResourcePolicy
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiAtlasResourcePolicyCreateView'
+                        x-xgen-version: "2024-08-05"
+                description: Atlas Resource Policy to create.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasResourcePolicyView'
+                            x-xgen-version: "2024-08-05"
+                    description: Created
+                "400":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasInvalidResourcePolicyCreateErrorView'
+                            x-xgen-version: "2024-08-05"
+                    description: Bad request.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create one Atlas Resource Policy
+            tags:
+                - Resource Policies
+    /api/atlas/v2/orgs/{orgId}/resourcePolicies/{resourcePolicyId}:
+        delete:
+            description: Delete one Atlas Resource Policy for an org.
+            externalDocs:
+                description: Atlas Resource Policies
+                url: https://dochub.mongodb.org/core/atlas-resource-policies
+            operationId: deleteAtlasResourcePolicy
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique 24-hexadecimal digit string that identifies an atlas resource policy.
+                  in: path
+                  name: resourcePolicyId
+                  required: true
+                  schema:
+                    description: Unique 24-hexadecimal character string that identifies the atlas resource policy.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete one Atlas Resource Policy
+            tags:
+                - Resource Policies
+        get:
+            description: Return one Atlas Resource Policy for an org.
+            externalDocs:
+                description: Atlas Resource Policies
+                url: https://dochub.mongodb.org/core/atlas-resource-policies
+            operationId: getAtlasResourcePolicy
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique 24-hexadecimal digit string that identifies an atlas resource policy.
+                  in: path
+                  name: resourcePolicyId
+                  required: true
+                  schema:
+                    description: Unique 24-hexadecimal character string that identifies the atlas resource policy.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasResourcePolicyView'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return one Atlas Resource Policy
+            tags:
+                - Resource Policies
+        patch:
+            description: Update one Atlas Resource Policy for an org.
+            externalDocs:
+                description: Atlas Resource Policies
+                url: https://dochub.mongodb.org/core/atlas-resource-policies
+            operationId: updateAtlasResourcePolicy
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique 24-hexadecimal digit string that identifies an atlas resource policy.
+                  in: path
+                  name: resourcePolicyId
+                  required: true
+                  schema:
+                    description: Unique 24-hexadecimal character string that identifies the atlas resource policy.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiAtlasResourcePolicyEditView'
+                        x-xgen-version: "2024-08-05"
+                description: Atlas Resource Policy to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasResourcePolicyView'
+                            x-xgen-version: "2024-08-05"
+                    description: Ok
+                "400":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasInvalidResourcePolicyCreateErrorView'
+                            x-xgen-version: "2024-08-05"
+                    description: Bad request.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update one Atlas Resource Policy
+            tags:
+                - Resource Policies
+    /api/atlas/v2/orgs/{orgId}/resourcePolicies:validate:
+        post:
+            description: Validate one Atlas Resource Policy for an org.
+            externalDocs:
+                description: Atlas Resource Policies
+                url: https://dochub.mongodb.org/core/atlas-resource-policies
+            operationId: validateAtlasResourcePolicy
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiAtlasResourcePolicyCreateView'
+                        x-xgen-version: "2024-08-05"
+                description: Atlas Resource Policy to create.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasResourcePolicyView'
+                            x-xgen-version: "2024-08-05"
+                    description: Ok
+                "400":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasInvalidResourcePolicyCreateErrorView'
+                            x-xgen-version: "2024-08-05"
+                    description: Bad request.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Validate one Atlas Resource Policy
+            tags:
+                - Resource Policies
+    /api/atlas/v2/orgs/{orgId}/serviceAccounts:
+        get:
+            description: Returns all Service Accounts for the specified Organization. Available as a preview feature.
+            operationId: listServiceAccounts
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOrgServiceAccounts'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: List All Organization Service Accounts
+            tags:
+                - Service Accounts
+        post:
+            description: Creates one Service Account for the specified Organization. Available as a preview feature.
+            operationId: createServiceAccount
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/OrgServiceAccountRequest'
+                description: Details of the new Service Account.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgServiceAccount'
+                            x-xgen-version: "2024-08-05"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create one Organization Service Account
+            tags:
+                - Service Accounts
+    /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}:
+        delete:
+            description: Deletes the specified Service Account. Available as a preview feature.
+            operationId: deleteServiceAccount
+            parameters:
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete one Organization Service Account
+            tags:
+                - Service Accounts
+        get:
+            description: Returns the specified Service Account. Available as a preview feature.
+            operationId: getServiceAccount
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgServiceAccount'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get one Organization Service Account
+            tags:
+                - Service Accounts
+        patch:
+            description: Updates the specified Service Account in the specified Organization. Available as a preview feature.
+            operationId: updateServiceAccount
+            parameters:
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/OrgServiceAccountUpdateRequest'
+                description: The new details for the Service Account.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgServiceAccount'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update one Organization Service Account
+            tags:
+                - Service Accounts
+    /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/groups:
+        get:
+            description: Returns a list of all projects the specified Service Account is a part of. Available as a preview feature.
+            operationId: listServiceAccountProjects
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedServiceAccountGroup'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Service Account Project assignments
+            tags:
+                - Service Accounts
+    /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets:
+        post:
+            description: Create a secret for the specified Service Account. Available as a preview feature.
+            operationId: createServiceAccountSecret
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/ServiceAccountSecretRequest'
+                description: Details for the new secret.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceAccountSecret'
+                            x-xgen-version: "2024-08-05"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create one Organization Service Account Secret
+            tags:
+                - Service Accounts
+    /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets/{secretId}:
+        delete:
+            description: Deletes the specified Service Account secret. Available as a preview feature.
+            operationId: deleteServiceAccountSecret
+            parameters:
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the secret.
+                  in: path
+                  name: secretId
+                  required: true
+                  schema:
+                    type: string
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete a Organization Service Account Secret
+            tags:
+                - Service Accounts
     /api/atlas/v2/orgs/{orgId}/settings:
         get:
             description: Returns details about the specified organization's settings. To use this resource, the requesting API Key must have the Organization Owner role.
@@ -47408,6 +49910,26 @@ paths:
             summary: Update Organization Roles for One MongoDB Cloud User
             tags:
                 - Organizations
+    /api/atlas/v2/unauth/controlPlaneIPAddresses:
+        get:
+            description: Returns all control plane IP addresses.
+            operationId: returnAllControlPlaneIPAddresses
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/ControlPlaneIPAddresses'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security: []
+            summary: Return All Control Plane IP Addresses
+            tags:
+                - Root
     /api/atlas/v2/users:
         post:
             description: |-
@@ -47535,6 +50057,8 @@ tags:
       name: Cluster Outage Simulation
     - description: Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.
       name: Clusters
+    - description: Returns, adds, and edits pinned namespaces for the specified cluster or process. Also returns collection level latency metric data.
+      name: Collection Level Metrics
     - description: Returns, adds, edits, and removes custom database user privilege roles. Use custom roles to specify custom sets of actions that the MongoDB Cloud built-in roles can't describe. You define custom roles at the project level, for all clusters in the project. This resource supports a subset of MongoDB privilege actions. You can create a subset of custom role actions. To create a wider list of custom role actions, use the MongoDB Cloud user interface. Custom roles must include actions that all project's clusters support, and that are compatible with each MongoDB version that your project's clusters use. For example, if your project has MongoDB 4.2 clusters, you can't create custom roles that use actions introduced in MongoDB 4.4.
       name: Custom Database Roles
     - description: Returns, adds, edits, and removes Federated Database Instances. This resource requires your project ID. Changes to federated database instance configurations can affect costs.
@@ -47588,6 +50112,8 @@ tags:
       name: Projects
     - description: You can continually push logs from mongod, mongos, and audit logs to an AWS S3 bucket. Atlas exports logs every 5 minutes.
       name: Push-Based Log Export
+    - description: Configure and manage Atlas Resource Policies within your organization.
+      name: Resource Policies
     - description: Creates one index to a database deployment in a rolling manner. You can't create a rolling index on an `M0` free cluster or `M2/M5` shared cluster.
       name: Rolling Index
     - description: Returns details that describe the MongoDB Cloud build and the access token that requests this resource. This starts the MongoDB Cloud API.
@@ -47599,6 +50125,11 @@ tags:
         description: Set Up a Private Endpoint for a Serverless Instance Tutorial
         url: https://dochub.mongodb.org/core/serverless-private-endpoint
       name: Serverless Private Endpoints
+    - description: Endpoints for managing Service Accounts and secrets. Service Accounts are used for programmatic access to the Atlas Admin API through the OAuth 2.0 Client Credentials flow. This feature is available as a Preview feature.
+      externalDocs:
+        description: Get Started with the Atlas Administration API
+        url: https://www.mongodb.com/docs/atlas/configure-api-access/
+      name: Service Accounts
     - description: Returns and adds restore jobs for shared-tier database deployments.
       name: Shared-Tier Restore Jobs
     - description: Returns and requests to download shared-tier database deployment snapshots.
