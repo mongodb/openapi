@@ -1,6 +1,17 @@
 #!/bin/bash
 set -eou pipefail
 
+# This script checks for upcoming API version releases within the next 3 weeks.
+# It performs the following steps:
+# 1. Fetches and oarse the `versions.json` file using in the `mongodb/openapi` repository deom the `dev` branch
+# 2. Gets the current date in seconds since epoch.
+# 3. Determines if the system is macOS or Linux to use the appropriate `date` command format.
+# 4. Iterates through each date in the `version_dates`:
+#    a. Converts the date to seconds since epoch.
+#    b. Calculates the difference in days between the date and the current date.
+#    c. Checks if the date is within 3 weeks (21 days) and adds it to the list if it is.
+# 5. Outputs the API versions that will be released in the next 3 weeks to the GitHub Actions output variable if any are found.
+
 
 URL="https://raw.githubusercontent.com/mongodb/openapi/dev/openapi/v2/versions.json"
 
