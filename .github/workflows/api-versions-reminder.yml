@@ -3,7 +3,7 @@ name: 'Send a Slack Notification for upcoming release of API versions'
 on:
   workflow_dispatch: # Allow manual triggering
   schedule:
-    - cron: '0 9 * * 1' # Run at 09:00 UTC every Monday
+    - cron: '0 9 * * *' # Run once a day at 09:00 UTC
 
 jobs:
   send-changelog-report:
@@ -17,14 +17,26 @@ jobs:
       - name: Check if there are upcoming API versions releases
         id: check-api-versions
         run: .github/scripts/upcoming_api_releases.sh
-      - name: Get Start and End Dates
+
+      # Create a JIRA ticket for the upcoming API versions only if the there is not already a ticket with the same title
+      - name: Create JIRA Ticket
+        id: create-jira-ticket
         if: steps.check-api-versions.outputs.api_versions != null
+        env:
+          JIRA_API_TOKEN: ${{ secrets.jira_api_token }}
+          JIRA_TICKET_TITLE: "New API Versions ${{steps.check-api-versions.outputs.api_versions}} are about to be released"
+          JIRA_TICKET_DESCRIPTION: "The following API Versions are scheduled to be released in the next 3 weeks: ${{steps.check-api-versions.outputs.api_versions}}"
+        run: .github/scripts/create_jira_ticket.sh
+
+      - name: Send Slack Notification
+        if: steps.create-jira-ticket.outputs.jira-ticket-id != null
         env:
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_APIX_2 }}
           SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
           API_VERSIONS: ${{ steps.check-api-versions.outputs.api_versions }}
+          JIRA_TICKET_ID: ${{ steps.create-jira-ticket.outputs.jira-ticket-id }}
         run: |
           message_id=$(curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
           -H 'Content-type: application/json' \
-          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following API Versions are scheduled to be released in the next 3 weeks: '"${API_VERSIONS}"'. CC @apix-2-on-call","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
+          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following API Versions are scheduled to be released in the next 3 weeks: '"${API_VERSIONS}"'. Jira Ticket: https://jira.mongodb.org/browse/'"${env.JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
           echo "message_id=${message_id}"
