@@ -3,7 +3,7 @@ set -eou pipefail
 
 # This script checks for upcoming API version releases within the next 3 weeks.
 # It performs the following steps:
-# 1. Fetches and oarse the `versions.json` file using in the `mongodb/openapi` repository deom the `dev` branch
+# 1. Fetches and parses the `versions.json` file using in the `mongodb/openapi` repository on the `dev` branch
 # 2. Gets the current date in seconds since epoch.
 # 3. Determines if the system is macOS or Linux to use the appropriate `date` command format.
 # 4. Iterates through each date in the `version_dates`:
