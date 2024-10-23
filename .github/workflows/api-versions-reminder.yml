@@ -14,6 +14,12 @@ jobs:
         with:
           sparse-checkout:
             .github/scripts/upcoming_api_releases.sh
+
+      - name: Install Python
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3
+        with:
+          python-version: '3.12'
+
       - name: Check if there are upcoming API versions releases
         id: check-api-versions
         run: .github/scripts/upcoming_api_releases.sh
@@ -28,6 +34,7 @@ jobs:
           JIRA_TICKET_DESCRIPTION: "The following API Versions are scheduled to be released in the next 3 weeks: ${{steps.check-api-versions.outputs.api_versions}}"
         run: .github/scripts/create_jira_ticket.sh
 
+      # Send Slack notification only if the Jira ticket was created
       - name: Send Slack Notification
         if: steps.create-jira-ticket.outputs.jira-ticket-id != null
         env:

@@ -13,21 +13,23 @@ set -eou pipefail
 
 url_encode() {
     local string="$1"
-    printf '%s' "$string" | xxd -p | sed 's/\(..\)/%\1/g'
+    local encoded=""
+    encoded=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$string'''))")
+    echo "$encoded"
 }
 
 encoded_jira_ticket_title=$(url_encode "${JIRA_TICKET_TITLE:?}")
 echo "${encoded_jira_ticket_title}"
 
 found_issue=$(curl --request GET \
-  --url 'https://jira.mongodb.org/rest/api/2/search?jql=project=10984%20AND%20issuetype=12%20AND%20component=35986%20AND%20summary~'"${encoded_jira_ticket_title:?}" \
-  --header 'Authorization: Bearer '"${JIRA_API_TOKEN:?}" \
-  --header 'Accept: application/json' \
-  --header 'Content-Type: application/json' | jq .total)
+                --url 'https://jira.mongodb.org/rest/api/2/search?jql=project=10984%20AND%20issuetype=12%20AND%20component=35986%20AND%20summary~"'"${encoded_jira_ticket_title:?}"'"' \
+                --header 'Authorization: Bearer '"${JIRA_API_TOKEN:?}" \
+                --header 'Accept: application/json' \
+                --header 'Content-Type: application/json' | jq .total)
 
 if [ "$found_issue" -ne 0 ]; then
-    echo "There is already a Jira ticket with the title ${JIRA_TICKET_TITLE:?}"
-    echo "No new Jira ticket will be created"
+    echo "There is already a Jira ticket with the title \"${JIRA_TICKET_TITLE:?}\""
+    echo "No new Jira ticket will be created."
     exit 0
 fi
 
@@ -47,7 +49,7 @@ json_response=$(curl --request POST \
         },
         "customfield_12751": [{
                 "id": "22223"
-        }],                  
+        }],
         "description": "'"${JIRA_TICKET_DESCRIPTION:?}"'",
         "components": [
             {
