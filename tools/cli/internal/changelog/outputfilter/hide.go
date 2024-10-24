@@ -56,6 +56,7 @@ func hideByIDs(entries []*OasDiffEntry, ids []string) ([]*OasDiffEntry, error) {
 // hideByExemptions hides entries based on the exemptions
 func hideByExemptions(entries []*OasDiffEntry, exemptions []breakingchanges.Exemption) ([]*OasDiffEntry, error) {
 	exemptionsMarkedHidden := breakingchanges.GetHiddenExemptions(exemptions)
+	log.Printf("Found %d exemptions marked hidden from the changelog.", len(exemptionsMarkedHidden))
 	hiddenEntries := 0
 	for _, entry := range entries {
 		if entry.HideFromChangelog {
