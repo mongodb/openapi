@@ -89,6 +89,8 @@ func GetValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afe
 			validExemptions = append(validExemptions, exemption)
 		}
 	}
+
+	log.Printf("Found %d valid exemptions", len(validExemptions))
 	return validExemptions, nil
 }
 
