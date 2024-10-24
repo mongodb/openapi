@@ -12,7 +12,6 @@ package filter
 import (
 	reflect "reflect"
 
-	openapi3 "github.com/getkin/kin-openapi/openapi3"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -40,15 +39,15 @@ func (m *MockFilter) EXPECT() *MockFilterMockRecorder {
 }
 
 // Apply mocks base method.
-func (m *MockFilter) Apply(arg0 *openapi3.T, arg1 *Metadata) error {
+func (m *MockFilter) Apply() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Apply", arg0, arg1)
+	ret := m.ctrl.Call(m, "Apply")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Apply indicates an expected call of Apply.
-func (mr *MockFilterMockRecorder) Apply(arg0, arg1 any) *gomock.Call {
+func (mr *MockFilterMockRecorder) Apply() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Apply", reflect.TypeOf((*MockFilter)(nil).Apply), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Apply", reflect.TypeOf((*MockFilter)(nil).Apply))
 }

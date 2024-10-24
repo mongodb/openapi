@@ -22,15 +22,17 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/tufin/oasdiff/diff"
+
 	"github.com/tufin/oasdiff/load"
 )
 
 type OasDiff struct {
-	base     *load.SpecInfo
-	external *load.SpecInfo
-	config   *diff.Config
-	result   *OasDiffResult
-	parser   Parser
+	base       *load.SpecInfo
+	external   *load.SpecInfo
+	config     *diff.Config
+	diffGetter Differ
+	result     *OasDiffResult
+	parser     Parser
 }
 
 func (o OasDiff) mergeSpecIntoBase() (*load.SpecInfo, error) {
@@ -69,16 +71,17 @@ func (o OasDiff) mergePaths() error {
 		return nil
 	}
 
-	for k, v := range pathsToMerge.Map() {
-		if ok := basePaths.Value(k); ok == nil {
-			basePaths.Set(k, removeExternalRefs(v))
+	for path, externalPathData := range pathsToMerge.Map() {
+		// Tries to find if the path already exists or not
+		if originalPathData := basePaths.Value(path); originalPathData == nil {
+			basePaths.Set(path, removeExternalRefs(externalPathData))
 		} else {
-			return errors.PathConflictError{
-				Entry: k,
+			if err := o.handlePathConflict(originalPathData, path); err != nil {
+				return err
 			}
+			basePaths.Set(path, removeExternalRefs(externalPathData))
 		}
 	}
-
 	o.base.Spec.Paths = basePaths
 	return nil
 }
@@ -116,6 +119,71 @@ func removeExternalRefs(path *openapi3.PathItem) *openapi3.PathItem {
 	}
 
 	return path
+}
+
+// handlePathConflict handles the path conflict by checking if the conflict should be skipped or not.
+func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName string) error {
+	if !o.shouldSkipPathConflict(basePath, basePathName) {
+		return errors.PathConflictError{
+			Entry: basePathName,
+		}
+	}
+
+	var pathsAreIdentical bool
+	var err error
+	if pathsAreIdentical, err = o.arePathsIdenticalWithExcludeExtensions(basePathName); err != nil {
+		return err
+	}
+
+	log.Printf("Skipping conflict for path: %s, pathsAreIdentical: %v", basePathName, pathsAreIdentical)
+	if pathsAreIdentical {
+		return nil
+	}
+
+	// allowDocsDiff = true not supported
+	if allOperationsAllowDocsDiff(basePath) {
+		return errors.AllowDocsDiffNotSupportedError{
+			Entry: basePathName,
+		}
+	}
+
+	exclude := []string{"extensions"}
+	customConfig := diff.NewConfig().WithExcludeElements(exclude)
+	d, err := o.GetDiffWithConfig(o.base, o.external, customConfig)
+	if err != nil {
+		return err
+	}
+
+	return errors.PathDocsDiffConflictError{
+		Entry: basePathName,
+		Diff:  d.Report,
+	}
+}
+
+// shouldSkipConflict checks if the conflict should be skipped.
+// The method goes through each path operation and performs the following checks:
+// 1. Validates if both paths have same operations, if not, then it returns false.
+// 2. If both paths have the same operations, then it checks if there is an x-xgen-soa-migration annotation.
+// If there is no annotation, then it returns false.
+func (o OasDiff) shouldSkipPathConflict(basePath *openapi3.PathItem, basePathName string) bool {
+	var pathsDiff *diff.PathsDiff
+	if o.result != nil && o.result.Report != nil && o.result.Report.PathsDiff != nil {
+		pathsDiff = o.result.Report.PathsDiff
+	}
+
+	if pathsDiff != nil && pathsDiff.Modified != nil && pathsDiff.Modified[basePathName] != nil {
+		if ok := pathsDiff.Modified[basePathName].OperationsDiff.Added; !ok.Empty() {
+			return false
+		}
+
+		if ok := pathsDiff.Modified[basePathName].OperationsDiff.Deleted; !ok.Empty() {
+			return false
+		}
+	}
+
+	// now check if there is an x-xgen-soa-migration annotation in any of the operations, but if any of the operations
+	// doesn't have, then we should not skip the conflict
+	return allOperationsHaveExtension(basePath, basePathName, xgenSoaMigration)
 }
 
 // updateExternalRefResponses updates the external references of OASes to remove the reference to openapi-mms.json
@@ -373,6 +441,29 @@ func (o OasDiff) areResponsesIdentical(name string) bool {
 func (o OasDiff) areSchemaIdentical(name string) bool {
 	_, ok := o.result.Report.SchemasDiff.Modified[name]
 	return !ok
+}
+
+// arePathsIdenticalWithExcludeExtensions checks if the paths are identical excluding extension diffs across operations (e.g. x-xgen-soa-migration).
+func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) (bool, error) {
+	// If the diff only has extensions diff, then we consider the paths to be identical
+	customConfig := diff.NewConfig().WithExcludeElements([]string{"extensions"})
+	result, err := o.GetDiffWithConfig(o.base, o.external, customConfig)
+	if err != nil {
+		return false, err
+	}
+
+	d := result.Report
+	if d.Empty() || d.PathsDiff.Empty() {
+		return true, nil
+	}
+	v, ok := d.PathsDiff.Modified[name]
+	if ok {
+		if v.Empty() {
+			return true, nil
+		}
+	}
+
+	return !ok, nil
 }
 
 type ByName []*openapi3.Tag

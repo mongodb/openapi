@@ -14,7 +14,12 @@
 
 package errors
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/tufin/oasdiff/diff"
+)
 
 type ParamConflictError struct {
 	Entry string
@@ -55,4 +60,27 @@ type TagConflictError struct {
 
 func (e TagConflictError) Error() string {
 	return fmt.Sprintf("there was a conflict with the Tag %q with the description: %q", e.Entry, e.Description)
+}
+
+type PathDocsDiffConflictError struct {
+	Entry string
+	Diff  *diff.Diff
+}
+
+func (e PathDocsDiffConflictError) Error() string {
+	var pathDiff []byte
+	_, ok := e.Diff.PathsDiff.Modified[e.Entry]
+	if ok {
+		pathDiff, _ = json.MarshalIndent(e.Diff.PathsDiff.Modified[e.Entry], "", "  ")
+	}
+
+	return fmt.Sprintf("the path: %q is enabled for merge but it has a diff between the base and external spec. See the diff:\n%s", e.Entry, pathDiff)
+}
+
+type AllowDocsDiffNotSupportedError struct {
+	Entry string
+}
+
+func (e AllowDocsDiffNotSupportedError) Error() string {
+	return fmt.Sprintf("the path: %q is enabled for merge but the flag to allow docs diff is not supported", e.Entry)
 }

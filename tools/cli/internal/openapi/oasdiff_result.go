@@ -14,11 +14,33 @@
 
 package openapi
 
+//go:generate mockgen -destination=../openapi/mock_oasdiff_result.go -package=openapi github.com/mongodb/openapi/tools/cli/internal/openapi DiffGetter
 import (
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/flatten/allof"
 	"github.com/tufin/oasdiff/load"
 )
+
+// DiffGetter defines an interface for getting diffs.
+type Differ interface {
+	Get(config *diff.Config, base, revision *openapi3.T) (*diff.Diff, error)
+	GetWithOperationsSourcesMap(config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, *diff.OperationsSourcesMap, error)
+}
+
+type ResultGetter struct{}
+
+func NewResultGetter() Differ {
+	return &ResultGetter{}
+}
+
+func (ResultGetter) Get(config *diff.Config, base, revision *openapi3.T) (*diff.Diff, error) {
+	return diff.Get(config, base, revision)
+}
+func (ResultGetter) GetWithOperationsSourcesMap(
+	config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, *diff.OperationsSourcesMap, error) {
+	return diff.GetWithOperationsSourcesMap(config, base, revision)
+}
 
 type OasDiffResult struct {
 	Report       *diff.Diff
@@ -29,7 +51,7 @@ type OasDiffResult struct {
 
 // GetSimpleDiff returns the diff between two OpenAPI specs.
 func (o OasDiff) GetSimpleDiff(base, revision *load.SpecInfo) (*OasDiffResult, error) {
-	diffReport, err := diff.Get(o.config, base.Spec, revision.Spec)
+	diffReport, err := o.diffGetter.Get(o.config, base.Spec, revision.Spec)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +88,7 @@ func (o OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResult
 		Version: revision.GetVersion(),
 	}
 
-	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(o.config, baseSpecInfo, revisionSpecInfo)
+	diffReport, operationsSources, err := o.diffGetter.GetWithOperationsSourcesMap(o.config, baseSpecInfo, revisionSpecInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -76,5 +98,20 @@ func (o OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResult
 		SourceMap:    operationsSources,
 		SpecInfoPair: load.NewSpecInfoPair(baseSpecInfo, revisionSpecInfo),
 		Config:       o.config,
+	}, nil
+}
+
+// GetDiffWithConfig returns the diff between two OpenAPI specs with a custom config.
+func (o OasDiff) GetDiffWithConfig(base, revision *load.SpecInfo, config *diff.Config) (*OasDiffResult, error) {
+	diffReport, err := o.diffGetter.Get(config, base.Spec, revision.Spec)
+	if err != nil {
+		return nil, err
+	}
+
+	return &OasDiffResult{
+		Report:       diffReport,
+		SourceMap:    nil,
+		SpecInfoPair: load.NewSpecInfoPair(base, revision),
+		Config:       config,
 	}, nil
 }
