@@ -24172,6 +24172,10 @@ components:
                 apiAccessListRequired:
                     description: Flag that indicates whether to require API operations to originate from an IP Address added to the API access list for the specified organization.
                     type: boolean
+                maxServiceAccountSecretValidityInHours:
+                    description: Number that represents the maximum period before expiry in hours for new Atlas Admin API Service Account secrets within the specified organization.
+                    format: int32
+                    type: integer
                 multiFactorAuthRequired:
                     description: 'Flag that indicates whether to require users to set up Multi-Factor Authentication (MFA) before accessing the specified organization. To learn more, see: https://www.mongodb.com/docs/atlas/security-multi-factor-authentication/.'
                     type: boolean
@@ -33307,6 +33311,13 @@ components:
         DigestAuth:
             scheme: digest
             type: http
+        ServiceAccounts:
+            description: Learn more about the Preview Feature [Service Accounts](https://www.mongodb.com/docs/atlas/api/service-accounts-overview).
+            flows:
+                clientCredentials:
+                    scopes: {}
+                    tokenUrl: https://cloud.mongodb.com/api/oauth/token
+            type: oauth2
 info:
     description: |-
         The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.
@@ -33329,7 +33340,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 24f731b49d024a409ff32e3d25ef8dc67124c9d6
+    x-xgen-sha: 86ea1c3d81a33c7436386c6c6ffd908142c8bc96
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -46921,8 +46932,6 @@ paths:
             summary: List All Project Service Accounts
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
         post:
             description: Creates one Service Account for the specified Project. The Service Account will automatically be added as an Organization Member to the Organization that the specified Project is a part of. Available as a preview feature.
@@ -46956,8 +46965,6 @@ paths:
             summary: Create and Assign one Service Account to one Project
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:
         delete:
@@ -46993,8 +47000,6 @@ paths:
             summary: Unassign One Service Account from One Project
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
         get:
             description: Returns one Service Account in the specified Project. Available as a preview feature.
@@ -47028,8 +47033,6 @@ paths:
             summary: Get one Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
         patch:
             description: Updates one Service Account in the specified Project. Available as a preview feature.
@@ -47072,8 +47075,6 @@ paths:
             summary: Update one Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList:
         get:
@@ -47109,8 +47110,6 @@ paths:
             summary: Return All Access List entries for one Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
         post:
             description: Add Access List Entries for the specified Service Account for the project. Resources require all API requests to originate from IP addresses on the API access list. Available as a preview feature.
@@ -47159,8 +47158,6 @@ paths:
             summary: Add Access List entries for one Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
@@ -47203,8 +47200,85 @@ paths:
             summary: Remove One Access List entry from one Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
+            x-xgen-owner-team: apix
+    /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets:
+        post:
+            description: Create a secret for the specified Service Account in the specified Project. Available as a preview feature.
+            operationId: createProjectServiceAccountSecret
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/ServiceAccountSecretRequest'
+                description: Details for the new secret.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceAccountSecret'
+                            x-xgen-version: "2024-08-05"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create one Project Service Account Secret
+            tags:
+                - Service Accounts
+            x-xgen-owner-team: apix
+    /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets/{secretId}:
+        delete:
+            description: Deletes the specified Service Account secret. Available as a preview feature.
+            operationId: deleteProjectServiceAccountSecret
+            parameters:
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the secret.
+                  in: path
+                  name: secretId
+                  required: true
+                  schema:
+                    type: string
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete one Project Service Account Secret
+            tags:
+                - Service Accounts
             x-xgen-owner-team: apix
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:invite:
         post:
@@ -47249,8 +47323,6 @@ paths:
             summary: Assign One Service Account to One Project
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
     /api/atlas/v2/groups/{groupId}/settings:
         get:
@@ -50483,8 +50555,6 @@ paths:
             summary: List All Organization Service Accounts
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
         post:
             description: Creates one Service Account for the specified Organization. Available as a preview feature.
@@ -50517,8 +50587,6 @@ paths:
             summary: Create one Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}:
         delete:
@@ -50551,8 +50619,6 @@ paths:
             summary: Delete one Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
         get:
             description: Returns the specified Service Account. Available as a preview feature.
@@ -50586,8 +50652,6 @@ paths:
             summary: Get one Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
         patch:
             description: Updates the specified Service Account in the specified Organization. Available as a preview feature.
@@ -50630,8 +50694,131 @@ paths:
             summary: Update one Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
+            x-xgen-owner-team: apix
+    /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList:
+        get:
+            description: Returns all access list entries that you configured for the specified Service Account for the organization. Available as a preview feature.
+            operationId: listServiceAccountAccessList
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedServiceAccountIPAccessEntryView'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Access List entries for one Organization Service Account
+            tags:
+                - Service Accounts
+            x-xgen-owner-team: apix
+        post:
+            description: Add Access List Entries for the specified Service Account for the organization. Resources require all API requests to originate from IP addresses on the API access list. Available as a preview feature.
+            operationId: createServiceAccountAccessList
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            items:
+                                $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
+                            type: array
+                        x-xgen-version: "2024-08-05"
+                description: A list of access list entries to add to the access list of the specified Service Account for the organization.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedServiceAccountIPAccessEntryView'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add Access List entries for one Organization Service Account
+            tags:
+                - Service Accounts
+            x-xgen-owner-team: apix
+    /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
+        delete:
+            description: Removes the specified access list entry from the specified Service Account for the organization. You can't remove the requesting IP address from the access list. Available as a preview feature.
+            operationId: deleteServiceAccountAccessListEntry
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: The Client ID of the Service Account.
+                  in: path
+                  name: clientId
+                  required: true
+                  schema:
+                    example: mdb_sa_id_667066535bc75b03c37b3038
+                    pattern: ^mdb_sa_id_[a-fA-F\d]{24}$
+                    type: string
+                - description: One IP address or multiple IP addresses represented as one CIDR block. When specifying a CIDR block with a subnet mask, such as 192.0.2.0/24, use the URL-encoded value %2F for the forward slash /.
+                  in: path
+                  name: ipAddress
+                  required: true
+                  schema:
+                    example: 192.0.2.0%2F24
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){7}[0-9a-f]{1,4}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){1,6}\:(%2[fF][0-9]{1,3})?$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Access List entry from one Organization Service Account
+            tags:
+                - Service Accounts
             x-xgen-owner-team: apix
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/groups:
         get:
@@ -50668,8 +50855,6 @@ paths:
             summary: Return All Service Account Project assignments
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets:
         post:
@@ -50711,8 +50896,6 @@ paths:
             summary: Create one Organization Service Account Secret
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets/{secretId}:
         delete:
@@ -50751,8 +50934,6 @@ paths:
             summary: Delete a Organization Service Account Secret
             tags:
                 - Service Accounts
-            x-xgen-hidden-env:
-                envs: stage,prod
             x-xgen-owner-team: apix
     /api/atlas/v2/orgs/{orgId}/settings:
         get:
@@ -51796,6 +51977,7 @@ paths:
             x-xgen-owner-team: IAM
 security:
     - DigestAuth: []
+    - ServiceAccounts: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
