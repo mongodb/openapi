@@ -174,7 +174,8 @@ rules:
         functionOptions:
           match: "^mms(,[a-zA-Z0-9_-]+)*$"
         message: "'additionalServices' must start with 'mms' and can include additional services in a comma-separated format."
-   no-slash-before-custom-method:
+
+  no-slash-before-custom-method:
     description: "Custom methods (e.g., ':applyItem') should not be preceded by a '/'."
     message: "The path '{{path}}' contains a '/' before a custom method. Custom methods should not start with a '/'."
     severity: error
@@ -184,6 +185,20 @@ rules:
       function: pattern
       functionOptions:
         notMatch: "/[^/]+/:[a-zA-Z]+$"
+
+  xgen-security-override:
+    description: "Security must not be set at resource or method level because it is set globally. Use @Unauthenticated annotation to set no security. https://go/openapi-unauthenticated-annotation"
+    severity: error
+    given: "#OperationObject.security"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: array
+          items:
+            type: object
+          minItems: 0
+          maxItems: 0
 
 overrides:
   - files: # load sample data has an issue with different path param names for different VERBS
