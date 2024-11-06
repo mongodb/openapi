@@ -33614,7 +33614,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 3dc20b3431524c51c9c2d53030786d1ba5a523c5
+    x-xgen-sha: 5ba6894bf702c16849c91da22b23d57a584f9db2
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -38879,6 +38879,80 @@ paths:
             tags:
                 - Cluster Outage Simulation
             x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/performanceAdvisor/suggestedIndexes:
+        get:
+            description: Returns the indexes that the Performance Advisor suggests. The Performance Advisor monitors queries that MongoDB considers slow and suggests new indexes to improve query performance. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listSuggestedIndexes_1
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
+                    type: string
+                - description: ProcessIds from which to retrieve suggested indexes. A processId is a combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests. To include multiple processIds, pass the parameter multiple times delimited with an ampersand (`&`) between each processId.
+                  in: query
+                  name: processIds
+                  schema:
+                    items:
+                        pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                        type: string
+                    type: array
+                  style: form
+                - description: 'Namespaces from which to retrieve suggested indexes. A namespace consists of one database and one collection resource written as `.`: `<database>.<collection>`. To include multiple namespaces, pass the parameter multiple times delimited with an ampersand (`&`) between each namespace. Omit this parameter to return results for all namespaces.'
+                  in: query
+                  name: namespaces
+                  schema:
+                    items:
+                        type: string
+                    type: array
+                  style: form
+                - description: |-
+                    Date and time from which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+
+                    - If you don't specify the **until** parameter, the endpoint returns data covering from the **since** value and the current time.
+                    - If you specify neither the **since** nor the **until** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: since
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+12
+                    type: integer
+                - description: |-
+                    Date and time up until which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+
+                    - If you specify the **until** parameter, you must specify the **since** parameter.
+                    - If you specify neither the **since** nor the **until** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: until
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+12
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PerformanceAdvisorResponse'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Suggested Indexes
+            tags:
+                - Performance Advisor
+            x-xgen-hidden-env:
+                envs: stage,qa,prod
+            x-xgen-owner-team: Intel II
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs:
         get:
             description: Returns the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, or serverless clusters. To use this resource, the requesting API Key must have the Project Read Only role.
@@ -44286,80 +44360,6 @@ paths:
             tags:
                 - Network Peering
             x-xgen-owner-team: Atlas Dedicated
-    /api/atlas/v2/groups/{groupId}/performanceAdvisor/suggestedIndexes:
-        get:
-            description: Returns the indexes that the Performance Advisor suggests. The Performance Advisor monitors queries that MongoDB considers slow and suggests new indexes to improve query performance. To use this resource, the requesting API Key must have the Project Read Only role.
-            operationId: listSuggestedIndexes_1
-            parameters:
-                - $ref: '#/components/parameters/groupId'
-                - description: Human-readable label that identifies the cluster.
-                  in: query
-                  name: clusterName
-                  required: true
-                  schema:
-                    maxLength: 64
-                    minLength: 1
-                    pattern: ^([a-zA-Z0-9][a-zA-Z0-9-]*)?[a-zA-Z0-9]+$
-                    type: string
-                - description: ProcessIds from which to retrieve suggested indexes. A processId is a combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests. To include multiple processIds, pass the parameter multiple times delimited with an ampersand (`&`) between each processId.
-                  in: query
-                  name: processIds
-                  schema:
-                    items:
-                        pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
-                        type: string
-                    type: array
-                  style: form
-                - description: 'Namespaces from which to retrieve suggested indexes. A namespace consists of one database and one collection resource written as `.`: `<database>.<collection>`. To include multiple namespaces, pass the parameter multiple times delimited with an ampersand (`&`) between each namespace. Omit this parameter to return results for all namespaces.'
-                  in: query
-                  name: namespaces
-                  schema:
-                    items:
-                        type: string
-                    type: array
-                  style: form
-                - description: |-
-                    Date and time from which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
-
-                    - If you don't specify the **until** parameter, the endpoint returns data covering from the **since** value and the current time.
-                    - If you specify neither the **since** nor the **until** parameters, the endpoint returns data from the previous 24 hours.
-                  in: query
-                  name: since
-                  schema:
-                    format: int64
-                    minimum: 1.1991456e+12
-                    type: integer
-                - description: |-
-                    Date and time up until which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
-
-                    - If you specify the **until** parameter, you must specify the **since** parameter.
-                    - If you specify neither the **since** nor the **until** parameters, the endpoint returns data from the previous 24 hours.
-                  in: query
-                  name: until
-                  schema:
-                    format: int64
-                    minimum: 1.1991456e+12
-                    type: integer
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.2024-08-05+json:
-                            schema:
-                                $ref: '#/components/schemas/PerformanceAdvisorResponse'
-                            x-xgen-version: "2024-08-05"
-                    description: OK
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return Suggested Indexes
-            tags:
-                - Performance Advisor
-            x-xgen-hidden-env:
-                envs: stage,qa,prod
-            x-xgen-owner-team: Intel II
     /api/atlas/v2/groups/{groupId}/pipelines:
         get:
             deprecated: true
