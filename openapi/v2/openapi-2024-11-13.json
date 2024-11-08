@@ -95,6 +95,18 @@
       "name": "Federated Authentication"
     },
     {
+      "description": "Returns, adds, edits, and removes flex clusters.",
+      "name": "Flex Clusters"
+    },
+    {
+      "description": "Returns and adds restore jobs for flex database deployments.",
+      "name": "Flex Restore Jobs"
+    },
+    {
+      "description": "Returns and requests to download flex database deployment snapshots.",
+      "name": "Flex Snapshots"
+    },
+    {
       "description": "Returns, adds, and removes Global Cluster managed namespaces and custom zone mappings. Each collection in a Global Cluster is associated with a managed namespace. When you create a managed namespace for a Global Cluster, MongoDB Cloud creates an empty collection for that namespace. Creating a managed namespace doesn't populate a collection with data. Similarly, deleting a managed namespace doesn't delete the associated collection.\nMongoDB Cloud shards the empty collection using the required location field and a custom shard key. For example, if your custom shard key is `city`, the compound shard key is `location, city`. Each Global Cluster is also associated with one or more Global Writes Zones. When a user creates a Global Cluster, MongoDB Cloud automatically maps each location code to the closest geographical zone. Custom zone mappings allow administrators to override these automatic mappings. For example, a use case might require mapping a location code to a geographically distant zone. Administrators can manage custom zone mappings with the APIs below and the **Global Cluster Configuration** pane when you create or modify your Global Cluster.",
       "name": "Global Clusters"
     },
@@ -232,7 +244,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "4943567ec559df3b50ada6a954bd0d256660fe5c"
+    "x-xgen-sha": "0ea3b3f631490ae89c8508d963b864184c0da01b"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -21228,6 +21240,61 @@
         }
       }
     },
+    "/api/atlas/v2/groups/{groupId}/streams/accountDetails": {
+      "get": {
+        "description": "Returns the Account ID, and the VPC ID for the group and region specified.",
+        "operationId": "getAccountDetails",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "One of \"aws\", \"azure\" or \"gcp\".",
+            "in": "query",
+            "name": "cloudProvider",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The cloud provider specific region name, i.e. \"US_EAST_1\" for cloud provider \"aws\".",
+            "in": "query",
+            "name": "regionName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2024-11-13+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AWSAccountDetails"
+                },
+                "x-xgen-version": "2024-11-13"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Returns the Account ID, and the VPC ID for the group and region specified.",
+        "tags": [
+          "Streams"
+        ]
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/streams/privateLinkConnections": {
       "get": {
         "description": "Returns all Private Link connections for the specified project.To use this resource, the requesting API Key must have the Project Data Access roles, Project Owner role or Project Stream Processing Owner role.",
@@ -28171,6 +28238,31 @@
       }
     },
     "schemas": {
+      "AWSAccountDetails": {
+        "properties": {
+          "awsAccountId": {
+            "description": "The AWS Account ID.",
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "vpcId": {
+            "description": "The VPC ID.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AWSCloudProviderContainer": {
         "allOf": [
           {
