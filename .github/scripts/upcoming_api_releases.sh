@@ -47,7 +47,7 @@ for version_date in ${version_dates}; do
     # Check if the date is within 3 weeks (21 days)
     if [[ "${diff_in_days}" -ge 0 && "${diff_in_days}" -le 21 ]]; then
         # Add the date to the list if within 3 weeks
-        version_dates_within_3_weeks+=("${date}")
+        version_dates_within_3_weeks+=("${version_date}")
     fi
 done
 
