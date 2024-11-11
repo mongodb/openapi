@@ -6,7 +6,7 @@ on:
     - cron: '0 9 * * 1-5' # Run once a day at 09:00 UTC between Monday and Friday
 
 jobs:
-  send-changelog-report:
+  send-api-version-reminder:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository (dev branch)
@@ -45,5 +45,5 @@ jobs:
         run: |
           message_id=$(curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
           -H 'Content-type: application/json' \
-          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following API Versions are scheduled to be released in the next 3 weeks: '"${API_VERSIONS}"'. Jira Ticket: https://jira.mongodb.org/browse/'"${env.JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
+          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following API Versions are scheduled to be released in the next 3 weeks: '"${API_VERSIONS}"'. Jira Ticket: https://jira.mongodb.org/browse/'"${JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
           echo "message_id=${message_id}"
