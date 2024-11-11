@@ -252,7 +252,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "d393d5c17c9a4b5bd129eb9f65843cb0bf5b94a2"
+    "x-xgen-sha": "aaf69e22a592dbb69d65277c802e073be647978d"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -22194,6 +22194,62 @@
         "x-xgen-owner-team": "Atlas Streams"
       }
     },
+    "/api/atlas/v2/groups/{groupId}/streams/accountDetails": {
+      "get": {
+        "description": "Returns the Account ID, and the VPC ID for the group and region specified.",
+        "operationId": "getAccountDetails",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "One of \"aws\", \"azure\" or \"gcp\".",
+            "in": "query",
+            "name": "cloudProvider",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The cloud provider specific region name, i.e. \"US_EAST_1\" for cloud provider \"aws\".",
+            "in": "query",
+            "name": "regionName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2024-11-13+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AWSAccountDetails"
+                },
+                "x-xgen-version": "2024-11-13"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Returns the Account ID, and the VPC ID for the group and region specified.",
+        "tags": [
+          "Streams"
+        ],
+        "x-xgen-owner-team": "Atlas Streams"
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/streams/privateLinkConnections": {
       "get": {
         "description": "Returns all Private Link connections for the specified project.To use this resource, the requesting API Key must have the Project Data Access roles, Project Owner role or Project Stream Processing Owner role.",
@@ -29774,6 +29830,31 @@
       }
     },
     "schemas": {
+      "AWSAccountDetails": {
+        "properties": {
+          "awsAccountId": {
+            "description": "The AWS Account ID.",
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "vpcId": {
+            "description": "The VPC ID.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AWSCloudProviderContainer": {
         "allOf": [
           {
