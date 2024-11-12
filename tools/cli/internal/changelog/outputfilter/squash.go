@@ -135,11 +135,16 @@ func squashEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
 	entriesMap := newEntriesMapPerIDAndOperationID(entries)
 	squashHandlers := newSquashHandlers()
 	squashedEntries := []*OasDiffEntry{}
+	hidddenSquashedEntries := []*OasDiffEntry{}
 
 	for _, entry := range entries {
 		// if no squash handlers implemented for entry's code,
 		// just append the entry to the result
 		if _, ok := findHandler(entry.ID); !ok {
+			if entry.HideFromChangelog {
+				hidddenSquashedEntries = append(hidddenSquashedEntries, entry)
+				continue
+			}
 			squashedEntries = append(squashedEntries, entry)
 			continue
 		}
@@ -156,6 +161,7 @@ func squashEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
 			return nil, err
 		}
 
+		squashedEntries = append(squashedEntries, hidddenSquashedEntries...)
 		squashedEntries = append(squashedEntries, sortEntriesByDescription(entries)...)
 	}
 
