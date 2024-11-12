@@ -26,42 +26,42 @@ const (
 )
 
 // allOperationsHaveExtension checks if all the operations in the base path have the given extension name.
-func allOperationsHaveExtension(basePath *openapi3.PathItem, basePathName, extensionName string) bool {
-	if basePath.Operations() == nil || len(basePath.Operations()) == 0 {
+func allOperationsHaveExtension(pathData *openapi3.PathItem, path, extensionName string) bool {
+	if pathData.Operations() == nil || len(pathData.Operations()) == 0 {
 		return false
 	}
 
-	if basePath.Get != nil {
-		if result := getOperationExtensionWithName(basePath.Get, extensionName); result == nil {
+	if pathData.Get != nil {
+		if result := getOperationExtensionWithName(pathData.Get, extensionName); result == nil {
 			return false
 		}
 	}
 
-	if basePath.Put != nil {
-		if result := getOperationExtensionWithName(basePath.Put, extensionName); result == nil {
+	if pathData.Put != nil {
+		if result := getOperationExtensionWithName(pathData.Put, extensionName); result == nil {
 			return false
 		}
 	}
 
-	if basePath.Post != nil {
-		if result := getOperationExtensionWithName(basePath.Post, extensionName); result == nil {
+	if pathData.Post != nil {
+		if result := getOperationExtensionWithName(pathData.Post, extensionName); result == nil {
 			return false
 		}
 	}
 
-	if basePath.Patch != nil {
-		if result := getOperationExtensionWithName(basePath.Patch, extensionName); result == nil {
+	if pathData.Patch != nil {
+		if result := getOperationExtensionWithName(pathData.Patch, extensionName); result == nil {
 			return false
 		}
 	}
 
-	if basePath.Delete != nil {
-		if result := getOperationExtensionWithName(basePath.Delete, extensionName); result == nil {
+	if pathData.Delete != nil {
+		if result := getOperationExtensionWithName(pathData.Delete, extensionName); result == nil {
 			return false
 		}
 	}
 
-	log.Printf("Detected %s annotation in all operations for path: %s\n", extensionName, basePathName)
+	log.Printf("Detected %s annotation in all operations for path: %s\n", extensionName, path)
 	return true
 }
 
@@ -74,41 +74,41 @@ func getOperationExtensionWithName(operation *openapi3.Operation, extensionName 
 	return operation.Extensions[extensionName]
 }
 
-func allOperationsAllowDocsDiff(basePath *openapi3.PathItem) bool {
-	if basePath.Operations() == nil || len(basePath.Operations()) == 0 {
+func allOperationsAllowDocsDiff(pathData *openapi3.PathItem) bool {
+	if pathData.Operations() == nil || len(pathData.Operations()) == 0 {
 		return false
 	}
 
-	if basePath.Get != nil {
-		prop := getOperationExtensionProperty(basePath.Get, xgenSoaMigration, allowDocsDiff)
+	if pathData.Get != nil {
+		prop := getOperationExtensionProperty(pathData.Get, xgenSoaMigration, allowDocsDiff)
 		if prop != "true" {
 			return false
 		}
 	}
 
-	if basePath.Put != nil {
-		prop := getOperationExtensionProperty(basePath.Put, xgenSoaMigration, allowDocsDiff)
+	if pathData.Put != nil {
+		prop := getOperationExtensionProperty(pathData.Put, xgenSoaMigration, allowDocsDiff)
 		if prop != "true" {
 			return false
 		}
 	}
 
-	if basePath.Post != nil {
-		prop := getOperationExtensionProperty(basePath.Post, xgenSoaMigration, allowDocsDiff)
+	if pathData.Post != nil {
+		prop := getOperationExtensionProperty(pathData.Post, xgenSoaMigration, allowDocsDiff)
 		if prop != "true" {
 			return false
 		}
 	}
 
-	if basePath.Patch != nil {
-		prop := getOperationExtensionProperty(basePath.Patch, xgenSoaMigration, allowDocsDiff)
+	if pathData.Patch != nil {
+		prop := getOperationExtensionProperty(pathData.Patch, xgenSoaMigration, allowDocsDiff)
 		if prop != "true" {
 			return false
 		}
 	}
 
-	if basePath.Delete != nil {
-		prop := getOperationExtensionProperty(basePath.Delete, xgenSoaMigration, allowDocsDiff)
+	if pathData.Delete != nil {
+		prop := getOperationExtensionProperty(pathData.Delete, xgenSoaMigration, allowDocsDiff)
 		if prop != "true" {
 			return false
 		}
