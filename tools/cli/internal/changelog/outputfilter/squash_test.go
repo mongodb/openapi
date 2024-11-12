@@ -140,6 +140,17 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 			wantErr:                require.NoError,
 		},
 		{
+			name:      "Multiple values with empty entries",
+			operation: "test",
+			entry: &OasDiffEntry{
+				ID:          "response-write-only-property-enum-value-added",
+				OperationID: "op1",
+				Text:        "added the new '' enum value to the request property '/items/roles/items/'"},
+			expectedNumberOfValues: 2,
+			want:                   []string{"", "/items/roles/items/"},
+			wantErr:                require.NoError,
+		},
+		{
 			name:                   "Incorrect number of values",
 			operation:              "test",
 			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Values: 'test1', 'test2'"},
