@@ -81,7 +81,7 @@ func hideByExemptions(entries []*OasDiffEntry, exemptions []breakingchanges.Exem
 				continue
 			}
 
-			// Mark entry as hidden and break the exemption loop
+			// Mark entry as hidden and break the exemption loop.
 			entry.HideFromChangelog = true
 			hiddenEntries++
 			break
