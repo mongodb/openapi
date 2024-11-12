@@ -73,7 +73,7 @@ func TestOasDiff_mergePaths(t *testing.T) {
 			wantErr: require.NoError,
 		},
 		{
-			name: "SuccessfulMergeWithEmptyBasePaths",
+			name: "SuccessfulMergeWithEmptyexternalPaths",
 			inputBase: &load.SpecInfo{
 				Url: "base",
 				Spec: &openapi3.T{
@@ -1152,15 +1152,15 @@ func TestUpdateExternalRefReqBody(t *testing.T) {
 
 func TestHandlePathConflict(t *testing.T) {
 	testCases := []struct {
-		name          string
-		basePath      *openapi3.PathItem
-		basePathName  string
-		specDiff      *diff.Diff
-		expectedError error
+		name             string
+		externalPath     *openapi3.PathItem
+		externalPathName string
+		specDiff         *diff.Diff
+		expectedError    error
 	}{
 		{
 			name: "No Conflict - Identical Paths",
-			basePath: &openapi3.PathItem{
+			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
 					Extensions: map[string]interface{}{
 						"x-xgen-soa-migration": map[string]interface{}{
@@ -1169,7 +1169,7 @@ func TestHandlePathConflict(t *testing.T) {
 					},
 				},
 			},
-			basePathName: "/test",
+			externalPathName: "/test",
 			specDiff: &diff.Diff{
 				PathsDiff: &diff.PathsDiff{
 					Modified: map[string]*diff.PathDiff{},
@@ -1179,7 +1179,7 @@ func TestHandlePathConflict(t *testing.T) {
 		},
 		{
 			name: "Conflict with AllowDocsDiff",
-			basePath: &openapi3.PathItem{
+			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
 					Extensions: map[string]interface{}{
 						"x-xgen-soa-migration": map[string]interface{}{
@@ -1188,7 +1188,7 @@ func TestHandlePathConflict(t *testing.T) {
 					},
 				},
 			},
-			basePathName: "/test",
+			externalPathName: "/test",
 			specDiff: &diff.Diff{
 				PathsDiff: &diff.PathsDiff{
 					Modified: map[string]*diff.PathDiff{
@@ -1212,7 +1212,7 @@ func TestHandlePathConflict(t *testing.T) {
 		},
 		{
 			name: "Conflict with Different Operations",
-			basePath: &openapi3.PathItem{
+			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
 					Extensions: map[string]interface{}{
 						"x-xgen-soa-migration": map[string]interface{}{
@@ -1221,7 +1221,7 @@ func TestHandlePathConflict(t *testing.T) {
 					},
 				},
 			},
-			basePathName: "/test",
+			externalPathName: "/test",
 			specDiff: &diff.Diff{
 				PathsDiff: &diff.PathsDiff{
 					Modified: map[string]*diff.PathDiff{
@@ -1240,7 +1240,7 @@ func TestHandlePathConflict(t *testing.T) {
 		},
 		{
 			name: "Conflict with Different Path Operation",
-			basePath: &openapi3.PathItem{
+			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
 					Extensions: map[string]interface{}{
 						"x-xgen-soa-migration": map[string]interface{}{
@@ -1249,7 +1249,7 @@ func TestHandlePathConflict(t *testing.T) {
 					},
 				},
 			},
-			basePathName: "/test",
+			externalPathName: "/test",
 			specDiff: &diff.Diff{
 				PathsDiff: &diff.PathsDiff{
 					Modified: map[string]*diff.PathDiff{
@@ -1290,7 +1290,7 @@ func TestHandlePathConflict(t *testing.T) {
 		},
 		{
 			name: "Identical Paths with Extensions",
-			basePath: &openapi3.PathItem{
+			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
 					Extensions: map[string]interface{}{
 						"x-xgen-soa-migration": map[string]interface{}{
@@ -1299,7 +1299,7 @@ func TestHandlePathConflict(t *testing.T) {
 					},
 				},
 			},
-			basePathName: "/test",
+			externalPathName: "/test",
 			specDiff: &diff.Diff{
 				PathsDiff: &diff.PathsDiff{
 					Modified: map[string]*diff.PathDiff{},
@@ -1342,7 +1342,7 @@ func TestHandlePathConflict(t *testing.T) {
 				Return(tc.specDiff, nil).
 				AnyTimes()
 
-			err := o.handlePathConflict(tc.basePath, tc.basePathName)
+			err := o.handlePathConflict(tc.externalPath, tc.externalPathName)
 			if tc.expectedError != nil {
 				require.Error(t, err)
 				assert.IsType(t, tc.expectedError, err)
