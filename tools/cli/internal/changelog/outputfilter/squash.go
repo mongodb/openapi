@@ -11,7 +11,9 @@ import (
 var (
 	// identifierRegex matches text enclosed in single quotes.
 	// Example: it'll match "value" from the string "added the new required request property 'value'".
-	identifierRegex = regexp.MustCompile(`'([^']+)'`)
+	// Example: it'll match "" and "/items/dataProcessRegion/region" from the string
+	// "removed the '' enum value from the '/items/dataProcessRegion/region' response property".
+	identifierRegex = regexp.MustCompile(`'([^']*)'`)
 )
 
 type SquashHandler interface {
