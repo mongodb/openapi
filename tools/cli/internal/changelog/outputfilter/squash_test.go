@@ -33,8 +33,7 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 					},
 				},
 			},
-			wantHidden: map[string]map[string][]*OasDiffEntry{
-				"response-write-only-property-enum-value-added": {}},
+			wantHidden: map[string]map[string][]*OasDiffEntry{},
 		},
 		{
 			name: "Multiple entries with same ID",
@@ -52,8 +51,7 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 					},
 				},
 			},
-			wantHidden: map[string]map[string][]*OasDiffEntry{
-				"response-write-only-property-enum-value-added": {}},
+			wantHidden: map[string]map[string][]*OasDiffEntry{},
 		},
 		{
 			name: "Multiple entries with same ID and OperationID",
@@ -69,8 +67,7 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 					},
 				},
 			},
-			wantHidden: map[string]map[string][]*OasDiffEntry{
-				"response-write-only-property-enum-value-added": {}},
+			wantHidden: map[string]map[string][]*OasDiffEntry{},
 		},
 		{
 			name: "Multiple entries with different IDs",
@@ -98,10 +95,7 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 					},
 				},
 			},
-			wantHidden: map[string]map[string][]*OasDiffEntry{
-				"response-write-only-property-enum-value-added": {},
-				"request-write-only-property-enum-value-added":  {},
-			},
+			wantHidden: map[string]map[string][]*OasDiffEntry{},
 		},
 		{
 			name: "Hidden entries",
@@ -109,8 +103,7 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", HideFromChangelog: true},
 				{ID: "response-write-only-property-enum-value-added", OperationID: "op2", HideFromChangelog: true},
 			},
-			want: map[string]map[string][]*OasDiffEntry{
-				"response-write-only-property-enum-value-added": {}},
+			want: map[string]map[string][]*OasDiffEntry{},
 			wantHidden: map[string]map[string][]*OasDiffEntry{
 				"response-write-only-property-enum-value-added": {
 					"op1": []*OasDiffEntry{

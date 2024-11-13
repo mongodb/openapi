@@ -111,7 +111,8 @@ func newSquashHandlers() []handler {
 	}
 }
 
-// EntryMappings groups entries by ID and then by OperationID and returns a Map[changeCode, Map[operationId, List[oasdiffEntry]]]
+// EntryMappings groups entries by ID and then by OperationID and returns two maps
+// of type Map[changeCode, Map[operationId, List[oasdiffEntry]]], one for hidden squashed entries and one for visible squashed entries.
 func newEntriesMapPerIDAndOperationID(entries []*OasDiffEntry) (result, hiddenResult map[string]map[string][]*OasDiffEntry) {
 	result = make(map[string]map[string][]*OasDiffEntry)
 	hiddenResult = make(map[string]map[string][]*OasDiffEntry)
@@ -121,26 +122,25 @@ func newEntriesMapPerIDAndOperationID(entries []*OasDiffEntry) (result, hiddenRe
 		operationID := entry.OperationID
 		hidden := entry.HideFromChangelog
 
-		// Ensure the code map exists
-		if _, exists := result[code]; !exists {
-			result[code] = make(map[string][]*OasDiffEntry)
-		}
-
-		if _, exists := hiddenResult[code]; !exists {
-			hiddenResult[code] = make(map[string][]*OasDiffEntry)
-		}
-
 		if hidden {
-			// Append the entry to the appropriate operationID slice
-			hiddenResult[code][operationID] = append(hiddenResult[code][operationID], entry)
+			addToMap(hiddenResult, code, operationID, entry)
 			continue
 		}
 
-		// Append the entry to the appropriate operationID slice
-		result[code][operationID] = append(result[code][operationID], entry)
+		addToMap(result, code, operationID, entry)
 	}
 
 	return result, hiddenResult
+}
+
+func addToMap(m map[string]map[string][]*OasDiffEntry, code, operationID string, entry *OasDiffEntry) {
+	// Ensure the code map exists
+	if _, exists := m[code]; !exists {
+		m[code] = make(map[string][]*OasDiffEntry)
+	}
+
+	// Append the entry to the appropriate operationID slice
+	m[code][operationID] = append(m[code][operationID], entry)
 }
 
 func squashEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
