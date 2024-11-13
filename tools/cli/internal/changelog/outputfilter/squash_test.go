@@ -2,6 +2,7 @@ package outputfilter
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,14 +10,16 @@ import (
 
 func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 	testCases := []struct {
-		name    string
-		entries []*OasDiffEntry
-		want    map[string]map[string][]*OasDiffEntry
+		name       string
+		entries    []*OasDiffEntry
+		want       map[string]map[string][]*OasDiffEntry
+		wantHidden map[string]map[string][]*OasDiffEntry
 	}{
 		{
-			name:    "Empty entries",
-			entries: []*OasDiffEntry{},
-			want:    map[string]map[string][]*OasDiffEntry{},
+			name:       "Empty entries",
+			entries:    []*OasDiffEntry{},
+			want:       map[string]map[string][]*OasDiffEntry{},
+			wantHidden: map[string]map[string][]*OasDiffEntry{},
 		},
 		{
 			name: "Single entry",
@@ -30,6 +33,7 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 					},
 				},
 			},
+			wantHidden: map[string]map[string][]*OasDiffEntry{},
 		},
 		{
 			name: "Multiple entries with same ID",
@@ -47,8 +51,8 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 					},
 				},
 			},
+			wantHidden: map[string]map[string][]*OasDiffEntry{},
 		},
-
 		{
 			name: "Multiple entries with same ID and OperationID",
 			entries: []*OasDiffEntry{
@@ -63,6 +67,7 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 					},
 				},
 			},
+			wantHidden: map[string]map[string][]*OasDiffEntry{},
 		},
 		{
 			name: "Multiple entries with different IDs",
@@ -90,14 +95,65 @@ func TestNewEntriesMapPerIDAndOperationID(t *testing.T) {
 					},
 				},
 			},
+			wantHidden: map[string]map[string][]*OasDiffEntry{},
+		},
+		{
+			name: "Hidden entries",
+			entries: []*OasDiffEntry{
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", HideFromChangelog: true},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op2", HideFromChangelog: true},
+			},
+			want: map[string]map[string][]*OasDiffEntry{},
+			wantHidden: map[string]map[string][]*OasDiffEntry{
+				"response-write-only-property-enum-value-added": {
+					"op1": []*OasDiffEntry{
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op1", HideFromChangelog: true},
+					},
+					"op2": []*OasDiffEntry{
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op2", HideFromChangelog: true},
+					},
+				},
+			},
+		},
+		{
+			name: "Mixed hidden and non-hidden entries",
+			entries: []*OasDiffEntry{
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op2", HideFromChangelog: true},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op3"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op4", HideFromChangelog: true},
+			},
+			want: map[string]map[string][]*OasDiffEntry{
+				"response-write-only-property-enum-value-added": {
+					"op1": []*OasDiffEntry{
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op1"},
+					},
+					"op3": []*OasDiffEntry{
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op3"},
+					},
+				},
+			},
+			wantHidden: map[string]map[string][]*OasDiffEntry{
+				"response-write-only-property-enum-value-added": {
+					"op2": []*OasDiffEntry{
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op2", HideFromChangelog: true},
+					},
+					"op4": []*OasDiffEntry{
+						{ID: "response-write-only-property-enum-value-added", OperationID: "op4", HideFromChangelog: true},
+					},
+				},
+			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := newEntriesMapPerIDAndOperationID(tc.entries)
+			got, gotHidden := newEntriesMapPerIDAndOperationID(tc.entries)
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Errorf("got %v, want %v", got, tc.want)
+			}
+			if !reflect.DeepEqual(gotHidden, tc.wantHidden) {
+				t.Errorf("gotHidden %v, wantHidden %v", gotHidden, tc.wantHidden)
 			}
 		})
 	}
@@ -237,4 +293,169 @@ func TestNewSquashMap(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSquashEntries(t *testing.T) {
+	testCases := []struct {
+		name    string
+		entries []*OasDiffEntry
+		want    []*OasDiffEntry
+	}{
+		{
+			name:    "Empty entries",
+			entries: []*OasDiffEntry{},
+			want:    []*OasDiffEntry{},
+		},
+		{
+			name: "Single entry",
+			entries: []*OasDiffEntry{
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+				},
+			},
+			want: []*OasDiffEntry{
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+				},
+			},
+		},
+		{
+			name: "Multiple entries with same ID and OperationID",
+			entries: []*OasDiffEntry{
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+				},
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM2' enum value to the 'region' response write-only property",
+				},
+			},
+			want: []*OasDiffEntry{
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM1, ENUM2' enum values to the 'region' response write-only property",
+				},
+			},
+		},
+		{
+			name: "Multiple entries with different IDs",
+			entries: []*OasDiffEntry{
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+				},
+				{
+					ID:          "request-write-only-property-enum-value-added",
+					OperationID: "op2",
+					Text:        "added the new 'ENUM2' enum value to the 'region' request write-only property",
+				},
+			},
+			want: []*OasDiffEntry{
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+				},
+				{
+					ID:          "request-write-only-property-enum-value-added",
+					OperationID: "op2",
+					Text:        "added the new 'ENUM2' enum value to the 'region' request write-only property",
+				},
+			},
+		},
+		{
+			name: "Hidden entries",
+			entries: []*OasDiffEntry{
+				{
+					ID:                "response-write-only-property-enum-value-added",
+					OperationID:       "op1",
+					Text:              "added the new 'ENUM1' enum value to the 'region' response write-only property",
+					HideFromChangelog: true,
+				},
+				{
+					ID:                "response-write-only-property-enum-value-added",
+					OperationID:       "op1",
+					Text:              "added the new 'ENUM2' enum value to the 'region' response write-only property",
+					HideFromChangelog: true,
+				},
+			},
+			want: []*OasDiffEntry{
+				{
+					ID:                "response-write-only-property-enum-value-added",
+					OperationID:       "op1",
+					Text:              "added the new 'ENUM1, ENUM2' enum values to the 'region' response write-only property",
+					HideFromChangelog: true,
+				},
+			},
+		},
+		{
+			name: "Mixed hidden and non-hidden entries",
+			entries: []*OasDiffEntry{
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+				},
+				{
+					ID:                "response-write-only-property-enum-value-added",
+					OperationID:       "op1",
+					Text:              "added the new 'ENUM2' enum value to the 'region' response write-only property",
+					HideFromChangelog: true,
+				},
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM3' enum value to the 'region' response write-only property",
+				},
+				{
+					ID:                "response-write-only-property-enum-value-added",
+					OperationID:       "op1",
+					Text:              "added the new 'ENUM4' enum value to the 'region' response write-only property",
+					HideFromChangelog: true,
+				},
+			},
+			want: []*OasDiffEntry{
+				{
+					ID:          "response-write-only-property-enum-value-added",
+					OperationID: "op1",
+					Text:        "added the new 'ENUM1, ENUM3' enum values to the 'region' response write-only property",
+				},
+				{
+					ID:                "response-write-only-property-enum-value-added",
+					OperationID:       "op1",
+					Text:              "added the new 'ENUM2, ENUM4' enum values to the 'region' response write-only property",
+					HideFromChangelog: true,
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := squashEntries(tc.entries)
+			require.NoError(t, err)
+			sortEntries(got)
+			sortEntries(tc.want)
+			require.Equal(t, tc.want, got)
+		})
+	}
+}
+
+// sortEntries sorts the entries by their ID and OperationID.
+func sortEntries(entries []*OasDiffEntry) {
+	sort.SliceStable(entries, func(i, j int) bool {
+		if entries[i].ID != entries[j].ID {
+			return entries[i].ID < entries[j].ID
+		}
+		return entries[i].OperationID < entries[j].OperationID
+	})
 }

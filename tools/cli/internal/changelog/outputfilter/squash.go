@@ -111,28 +111,41 @@ func newSquashHandlers() []handler {
 	}
 }
 
-// EntryMappings groups entries by ID and then by OperationID and returns a Map[changeCode, Map[operationId, List[oasdiffEntry]]]
-func newEntriesMapPerIDAndOperationID(entries []*OasDiffEntry) map[string]map[string][]*OasDiffEntry {
-	result := make(map[string]map[string][]*OasDiffEntry)
+// EntryMappings groups entries by ID and then by OperationID and returns two maps
+// of type Map[changeCode, Map[operationId, List[oasdiffEntry]]], one for hidden squashed entries and one for visible squashed entries.
+func newEntriesMapPerIDAndOperationID(entries []*OasDiffEntry) (result, hiddenResult map[string]map[string][]*OasDiffEntry) {
+	result = make(map[string]map[string][]*OasDiffEntry)
+	hiddenResult = make(map[string]map[string][]*OasDiffEntry)
 
 	for _, entry := range entries {
 		code := entry.ID
 		operationID := entry.OperationID
+		hidden := entry.HideFromChangelog
 
-		// Ensure the code map exists
-		if _, exists := result[code]; !exists {
-			result[code] = make(map[string][]*OasDiffEntry)
+		if hidden {
+			addToMap(hiddenResult, code, operationID, entry)
+			continue
 		}
 
-		// Append the entry to the appropriate operationID slice
-		result[code][operationID] = append(result[code][operationID], entry)
+		addToMap(result, code, operationID, entry)
 	}
 
-	return result
+	return result, hiddenResult
+}
+
+func addToMap(m map[string]map[string][]*OasDiffEntry, code, operationID string, entry *OasDiffEntry) {
+	// Ensure the code map exists
+	if _, exists := m[code]; !exists {
+		m[code] = make(map[string][]*OasDiffEntry)
+	}
+
+	// Append the entry to the appropriate operationID slice
+	m[code][operationID] = append(m[code][operationID], entry)
 }
 
 func squashEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
-	entriesMap := newEntriesMapPerIDAndOperationID(entries)
+	entriesByIDandOperationID, hiddenEntriesByIDandOperationID := newEntriesMapPerIDAndOperationID(entries)
+
 	squashHandlers := newSquashHandlers()
 	squashedEntries := []*OasDiffEntry{}
 
@@ -145,6 +158,24 @@ func squashEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
 		}
 	}
 
+	squashedEntriesNotHidden, err := appplySquashHandlerToMap(squashHandlers, entriesByIDandOperationID)
+	if err != nil {
+		return nil, err
+	}
+
+	squashedEntriesHidden, err := appplySquashHandlerToMap(squashHandlers, hiddenEntriesByIDandOperationID)
+	if err != nil {
+		return nil, err
+	}
+
+	squashedEntries = append(squashedEntries, squashedEntriesNotHidden...)
+	squashedEntries = append(squashedEntries, squashedEntriesHidden...)
+
+	return squashedEntries, nil
+}
+
+func appplySquashHandlerToMap(squashHandlers []handler, entriesMap map[string]map[string][]*OasDiffEntry) ([]*OasDiffEntry, error) {
+	squashedEntries := []*OasDiffEntry{}
 	for _, handler := range squashHandlers {
 		entryMapPerOperationID, ok := entriesMap[handler.id]
 		if !ok {
@@ -158,7 +189,6 @@ func squashEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
 
 		squashedEntries = append(squashedEntries, sortEntriesByDescription(entries)...)
 	}
-
 	return squashedEntries, nil
 }
 
