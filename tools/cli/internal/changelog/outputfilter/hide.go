@@ -60,8 +60,10 @@ func hideByExemptions(entries []*OasDiffEntry, exemptions []breakingchanges.Exem
 	hiddenEntries := 0
 	for _, entry := range entries {
 		if entry.HideFromChangelog {
+			hiddenEntries++
 			continue
 		}
+
 		for _, exemption := range exemptionsMarkedHidden {
 			// If the path is not empty and the path is not in the exemption, skip
 			if entry.Path != "" && !strings.Contains(exemption.BreakingChangeDescription, entry.Path) {
@@ -79,8 +81,10 @@ func hideByExemptions(entries []*OasDiffEntry, exemptions []breakingchanges.Exem
 				continue
 			}
 
+			// Mark entry as hidden and break the exemption loop.
 			entry.HideFromChangelog = true
 			hiddenEntries++
+			break
 		}
 	}
 
