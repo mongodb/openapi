@@ -1,0 +1,40 @@
+functions: [hasDescription]
+
+aliases:
+  PathItem:
+    - "$.paths[*]"
+  OperationObject:
+    - "#PathItem[get,put,post,delete,options,head,patch,trace]"
+  DescribableObjects:
+    - "$.info"
+    - "$.tags[*]"
+    - "#OperationObject"
+    - "#PathItem.parameters[?(@ && @.in)]"
+    - "#OperationObject.parameters[?(@ && @.in)]"
+    - "$.components.schemas[*].properties[?(@ && @.type)]"
+
+rules:
+
+  # IPA-117: Documentation
+  xgen-description:
+    description: "API producers must provide descriptions for Properties, Operations and Parameters. http://go/ipa/117"
+    message: "{{error}} http://go/ipa/117"
+    severity: error
+    given: "#DescribableObjects"
+    then:
+        function: "hasDescription" # Doesn't have to be custom, just an example
+
+  xgen-description-format:
+    description: "Descriptions must start with Uppercase and end with a full stop(.). http://go/ipa/117"
+    message: "Description for {{property}} MUST start with Uppercase and end with a full stop(.). http://go/ipa/117"
+    severity: error
+    given: "#DescribableObjects"
+    then:
+      - field: "description"
+        function: pattern
+        functionOptions:
+          match: "/^[A-Z]/"
+      - field: "description"
+        function: pattern
+        functionOptions:
+          match: "\\.|\|$"
