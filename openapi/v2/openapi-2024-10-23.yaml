@@ -14037,15 +14037,7 @@ components:
             type: object
         Document:
             additionalProperties:
-                description: The stats associated with the stream processor.
-                externalDocs:
-                    url: https://www.mongodb.com/docs/atlas/atlas-stream-processing/manage-stream-processor/#view-statistics-of-a-stream-processor
-                readOnly: true
                 type: object
-            description: The stats associated with the stream processor.
-            externalDocs:
-                url: https://www.mongodb.com/docs/atlas/atlas-stream-processing/manage-stream-processor/#view-statistics-of-a-stream-processor
-            readOnly: true
             type: object
         EARPrivateEndpoint:
             description: Encryption At Rest Private Endpoint.
@@ -30333,6 +30325,50 @@ components:
             example: INSTANCE_NAME
             title: Streams Matcher Fields
             type: string
+        StreamsModifyStreamProcessor:
+            description: A request to modify an existing stream processor
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                name:
+                    description: New name for the stream processor.
+                    type: string
+                options:
+                    $ref: '#/components/schemas/StreamsModifyStreamProcessorOptions'
+                pipeline:
+                    description: New pipeline for the stream processor.
+                    externalDocs:
+                        description: Supported Aggregation Pipeline Stages
+                        url: https://www.mongodb.com/docs/atlas/atlas-stream-processing/stream-aggregation/#std-label-stream-aggregation
+                    items:
+                        $ref: '#/components/schemas/Document'
+                    type: array
+            type: object
+        StreamsModifyStreamProcessorOptions:
+            description: Additional options for modifying a stream processor.
+            properties:
+                dlq:
+                    $ref: '#/components/schemas/StreamsDLQ'
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                resumeFromCheckpoint:
+                    description: When true, the modified stream processor resumes from its last checkpoint.
+                    type: boolean
+            type: object
         StreamsOptions:
             description: Optional configuration for the stream processor.
             properties:
@@ -33674,7 +33710,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 5e345280ad74545b6f975916491b63058fc4d872
+    x-xgen-sha: a1a4bd3aa7b6dd6807fa728ab913bc251ce5147c
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -47039,6 +47075,53 @@ paths:
                 "500":
                     $ref: '#/components/responses/internalServerError'
             summary: Get One Stream Processor
+            tags:
+                - Streams
+        patch:
+            description: Modify one existing Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: modifyStreamProcessor
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsModifyStreamProcessor'
+                description: Modifications to apply to the stream processor.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsProcessorWithStats'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Modify One Stream Processor
             tags:
                 - Streams
     /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:start:
