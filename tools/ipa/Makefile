@@ -21,12 +21,12 @@ setup: deps devtools ## Set up dev env
 .PHONY: linterr
 linterr: ## Run spectral linter on foas
 	@echo "==> Running spectral linter"
-	npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ../../openapi/v2.yaml --ruleset=ruleset.yaml
+	npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ../../openapi/v2.yaml --ruleset=ipa-spectral.yaml -v
 
 .PHONY: lintwarn
 lintwarn: ## Run spectral linter on foas
 	@echo "==> Running spectral linter"
-	npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ../../openapi/v2.yaml --ruleset=ruleset.yaml --fail-severity=warn
+	npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ../../openapi/v2.yaml --ruleset=ipa-spectral --fail-severity=warn -v
 
 .PHONY: help
 .DEFAULT_GOAL := help
