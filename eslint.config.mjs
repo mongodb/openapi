@@ -11,4 +11,7 @@ export default [
       sourceType: 'module',
     },
   },
+  {
+    ignores: ['node-modules'],
+  },
 ];
