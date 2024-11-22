@@ -11,9 +11,4 @@ export default [
       sourceType: 'module',
     },
   },
-  {
-    rules: {
-      'no-unused-exports': 'off',
-    },
-  },
 ];
