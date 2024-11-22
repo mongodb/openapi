@@ -1,6 +1,7 @@
 export default (collection) => {
   const errors = [];
   const items = collection.item;
+  let test;
   for (let item of items) {
     if (!item.request && !item.description) {
       errors.push({
