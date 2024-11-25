@@ -1,5 +1,5 @@
 export default (request) => {
-  if (request.method !== "PATCH") {
+  if (request.method !== 'PATCH') {
     return;
   }
   const body = request.body;
