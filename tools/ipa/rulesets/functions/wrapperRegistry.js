@@ -1,5 +1,5 @@
-const { withTracking } = require('./hitTracker');
-const eachResourceHasGetMethod = require('./eachResourceHasGetMethod');
+const { withTracking } = require('./hitTracker.js');
+const eachResourceHasGetMethod = require('./eachResourceHasGetMethod.js');
 // Add additional imports as needed
 
 // Wrap functions with tracking
