@@ -15,17 +15,33 @@ export default async function customJUnitFormatter(results, document, spectral) 
   // Add test cases for each rule
   for (const ruleName of Object.keys(allRules)) {
     const rule = allRules[ruleName];
+
+    // Collect all results for this specific rule
+    const ruleResults = results.filter((result) => result.code === ruleName);
+
     const testCase = xml.ele('testcase', {
       classname: ruleName,
       name: rule.description || 'No description available',
-      time: '0', // Default time
+      time: '0',
     });
 
     if (failedRules.has(ruleName)) {
-      const failure = results.find((result) => result.code === ruleName);
-      testCase.ele('failure', { type: ruleName }, failure.message);
-    } else {
-      testCase.ele('success'); // Mark as success for passed rules
+      // Add detailed failure information including components
+      ruleResults.forEach((result) => {
+        const failureDetails = testCase.ele('failure', {
+          type: ruleName,
+          path: result.path || 'Unknown path'
+        });
+
+        // Include component and specific location details
+        failureDetails.txt(JSON.stringify({
+          message: result.message,
+          component: result.path || 'Unknown',
+          location: result.range
+            ? `Line ${result.range.start.line}, Column ${result.range.start.character}`
+            : 'No specific location',
+        }, null, 2));
+      });
     }
   }
 
