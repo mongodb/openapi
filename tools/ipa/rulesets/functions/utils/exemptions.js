@@ -7,9 +7,14 @@ const EXEMPTION_EXTENSION = 'x-xgen-IPA-exception';
  *
  * @param ruleName the name of the exemption
  * @param object the object to evaluate
+ * @param context the context of the rule function
  * @returns {boolean}
  */
-export function hasExemption(ruleName, object) {
+export function hasException(ruleName, object, context) {
   const exemptions = object[EXEMPTION_EXTENSION];
-  return exemptions !== undefined && Object.keys(exemptions).includes(ruleName);
+  const hasException = exemptions !== undefined && Object.keys(exemptions).includes(ruleName);
+  if (hasException) {
+    console.log('Exception\t', ruleName, '\t', context.path.join('.'));
+  }
+  return hasException;
 }

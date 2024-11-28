@@ -1,4 +1,4 @@
-import { hasExemption } from './utils/exemptions.js';
+import { hasException } from './utils/exemptions.js';
 import {
   hasGetMethod,
   isChild,
@@ -19,7 +19,7 @@ export default (input, _, context) => {
   const oas = context.documentInventory.resolved;
   const resourceObject = oas.paths[input];
 
-  if (hasExemption(RULE_NAME, resourceObject)) {
+  if (hasException(RULE_NAME, resourceObject, context)) {
     return;
   }
 
