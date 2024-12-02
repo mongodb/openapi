@@ -1,3 +1,5 @@
+import exemptionCollector from 'tools/ipa/ExemptionCollector';
+
 const EXEMPTION_EXTENSION = 'x-xgen-IPA-exception';
 
 /**
@@ -14,7 +16,9 @@ export function hasException(ruleName, object, context) {
   const exemptions = object[EXEMPTION_EXTENSION];
   const hasException = exemptions !== undefined && Object.keys(exemptions).includes(ruleName);
   if (hasException) {
+    exemptionCollector.log(ruleName, context, exemptions[ruleName]);
     console.log('Exception\t', ruleName, '\t', context.path.join('.'));
   }
   return hasException;
 }
+
