@@ -244,7 +244,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "70a5abbf2543f89b53fc2972af4ea9011ff8e2e2"
+    "x-xgen-sha": "edbe01331c7ffa31768ae51acf6d887ccc08b18e"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -23877,6 +23877,81 @@
         ]
       }
     },
+    "/api/atlas/v2/groups/{groupId}/users/{userId}:removeRole": {
+      "post": {
+        "description": "Removes one project-level role from the MongoDB Cloud user. You can remove a role from an active user or a user that has been invited to join the project. To replace a user's only role, add the new role before removing the old role. A user must have at least one role at all times. To use this resource, the requesting API Key must have the Project Owner role.\n\n**Note**: This resource cannot be used to remove a role from users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
+        "operationId": "removeProjectRole",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Project resource and filter by username.",
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2043-01-01+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddOrRemoveGroupRole"
+              }
+            }
+          },
+          "description": "Project-level role to remove from the MongoDB Cloud user.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2043-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgUserResponse"
+                },
+                "x-xgen-version": "2043-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Remove One Project Role from One MongoDB Cloud User",
+        "tags": [
+          "MongoDB Cloud Users"
+        ]
+      }
+    },
     "/api/atlas/v2/groups/{groupId}:migrate": {
       "post": {
         "description": "Migrates a project from its current organization to another organization. All project users and their roles will be copied to the same project in the destination organization. You must include an organization API key with the Organization Owner role for the destination organization to verify access to the destination organization when you authenticate with Programmatic API Keys. Otherwise, the requesting user must have the Organization Owner role in both organizations. To use this resource, the requesting API Key must have the Organization Owner role.",
@@ -39270,6 +39345,21 @@
             "format": "int32",
             "type": "integer"
           },
+          "customOpensslCipherConfigTls12": {
+            "description": "The custom OpenSSL cipher suite list for TLS 1.2. This field is only valid when `tlsCipherConfigMode` is set to `CUSTOM`.",
+            "externalDocs": {
+              "description": "This option corresponds to the `opensslCipherConfig` `mongod` configuration file option.",
+              "url": "https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.opensslCipherConfig"
+            },
+            "items": {
+              "enum": [
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
           "defaultMaxTimeMS": {
             "description": "Default time limit in milliseconds for individual read operations to complete.",
             "externalDocs": {
@@ -39389,6 +39479,14 @@
             "minimum": 0,
             "type": "integer"
           },
+          "tlsCipherConfigMode": {
+            "description": "The TLS cipher suite configuration mode. The default mode uses the default cipher suites. The custom mode allows you to specify custom cipher suites for both TLS 1.2 and TLS 1.3.",
+            "enum": [
+              "CUSTOM",
+              "DEFAULT"
+            ],
+            "type": "string"
+          },
           "transactionLifetimeLimitSeconds": {
             "description": "Lifetime, in seconds, of multi-document transactions. Atlas considers the transactions that exceed this limit as expired and so aborts them through a periodic cleanup process.",
             "externalDocs": {
@@ -39422,6 +39520,21 @@
             },
             "format": "int32",
             "type": "integer"
+          },
+          "customOpensslCipherConfigTls12": {
+            "description": "The custom OpenSSL cipher suite list for TLS 1.2. This field is only valid when `tlsCipherConfigMode` is set to `CUSTOM`.",
+            "externalDocs": {
+              "description": "This option corresponds to the `opensslCipherConfig` `mongod` configuration file option.",
+              "url": "https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.opensslCipherConfig"
+            },
+            "items": {
+              "enum": [
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+              ],
+              "type": "string"
+            },
+            "type": "array"
           },
           "defaultMaxTimeMS": {
             "description": "Default time limit in milliseconds for individual read operations to complete.",
@@ -39518,6 +39631,14 @@
             "format": "int32",
             "minimum": 0,
             "type": "integer"
+          },
+          "tlsCipherConfigMode": {
+            "description": "The TLS cipher suite configuration mode. The default mode uses the default cipher suites. The custom mode allows you to specify custom cipher suites for both TLS 1.2 and TLS 1.3.",
+            "enum": [
+              "CUSTOM",
+              "DEFAULT"
+            ],
+            "type": "string"
           },
           "transactionLifetimeLimitSeconds": {
             "description": "Lifetime, in seconds, of multi-document transactions. Atlas considers the transactions that exceed this limit as expired and so aborts them through a periodic cleanup process.",
