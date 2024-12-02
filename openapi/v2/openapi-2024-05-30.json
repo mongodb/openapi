@@ -216,7 +216,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "7e9c9c83ab7a45da8bc786993c2d9474cea68ad8"
+    "x-xgen-sha": "8493f28297f8ef6d49b688fc6cafd7a2feec6389"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -12522,7 +12522,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/events": {
       "get": {
-        "description": "Returns one event for the specified project. Events identify significant database, billing, or security activities or status changes. To use this resource, the requesting API Key must have the Project Read Only role.\n\nThis resource remains under revision and may change.",
+        "description": "Returns all events for the specified project. Events identify significant database, billing, or security activities or status changes. To use this resource, the requesting API Key must have the Project Read Only role.\n\nThis resource remains under revision and may change.",
         "operationId": "listProjectEvents",
         "parameters": [
           {
@@ -20708,6 +20708,82 @@
         "tags": [
           "Streams"
         ]
+      },
+      "patch": {
+        "description": "Modify one existing Stream Processor within the specified stream instance. To use this resource, the requesting API Key must have the Project Owner role or Project Stream Processing Owner role.",
+        "operationId": "modifyStreamProcessor",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the stream instance.",
+            "in": "path",
+            "name": "tenantName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the stream processor.",
+            "in": "path",
+            "name": "processorName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2024-05-30+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamsModifyStreamProcessor"
+              }
+            }
+          },
+          "description": "Modifications to apply to the stream processor.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2024-05-30+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamsProcessorWithStats"
+                },
+                "x-xgen-version": "2024-05-30"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Modify One Stream Processor",
+        "tags": [
+          "Streams"
+        ]
       }
     },
     "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:start": {
@@ -21889,8 +21965,8 @@
         ]
       },
       "patch": {
-        "description": "Renames one organization. To use this resource, the requesting API Key must have the Organization Owner role.",
-        "operationId": "renameOrganization",
+        "description": "Updates one organization. To use this resource, the requesting API Key must have the Organization Owner role.",
+        "operationId": "updateOrganization",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -21941,7 +22017,7 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Rename One Organization",
+        "summary": "Update One Organization",
         "tags": [
           "Organizations"
         ]
@@ -25090,6 +25166,10 @@
             "description": "The AWS Account ID.",
             "type": "string"
           },
+          "cidrBlock": {
+            "description": "The VPC CIDR Block.",
+            "type": "string"
+          },
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
             "externalDocs": {
@@ -25874,6 +25954,28 @@
           }
         },
         "title": "Acknowledge Alert",
+        "type": "object"
+      },
+      "AddOrRemoveGroupRole": {
+        "properties": {
+          "groupRole": {
+            "description": "Project-level role.",
+            "enum": [
+              "GROUP_OWNER",
+              "GROUP_CLUSTER_MANAGER",
+              "GROUP_STREAM_PROCESSING_OWNER",
+              "GROUP_DATA_ACCESS_ADMIN",
+              "GROUP_DATA_ACCESS_READ_WRITE",
+              "GROUP_DATA_ACCESS_READ_ONLY",
+              "GROUP_READ_ONLY",
+              "GROUP_SEARCH_INDEX_EDITOR"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "groupRole"
+        ],
         "type": "object"
       },
       "AddOrRemoveOrgRole": {
@@ -29068,6 +29170,11 @@
             "minLength": 1,
             "pattern": "^[\\p{L}\\p{N}\\-_.(),:&@+']{1,64}$",
             "type": "string"
+          },
+          "skipDefaultAlertsSettings": {
+            "default": false,
+            "description": "Disables automatic alert creation. When set to true, no organization level alerts will be created automatically.",
+            "type": "boolean"
           }
         },
         "required": [
@@ -29387,7 +29494,7 @@
             "$ref": "#/components/schemas/EmployeeAccessGrantView"
           },
           "mongoDBMajorVersion": {
-            "description": "MongoDB major version of the cluster. Set to the binary major version. \n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time. If the cluster is pinned to a MongoDB feature compatibility version exactly one major version below the current MongoDB version, the MongoDB version can be downgraded to the previous major version.",
+            "description": "MongoDB major version of the cluster. Set to the binary major version. \n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLtsVersions).\n\n On update: Increase version only by 1 major version at a time. If the cluster is pinned to a MongoDB feature compatibility version exactly one major version below the current MongoDB version, the MongoDB version can be downgraded to the previous major version.",
             "externalDocs": {
               "description": "Available MongoDB Versions in Atlas",
               "url": "https://www.mongodb.com/docs/atlas/reference/faq/database/#which-versions-of-mongodb-do-service-clusters-use-"
@@ -31703,7 +31810,7 @@
         "type": "object"
       },
       "BaseCloudProviderInstanceSize": {
-        "description": "Minimum instance size to which your cluster can automatically scale. MongoDB Cloud requires this parameter if `\"replicationSpecs[n].regionConfigs[m].autoScaling.compute.scaleDownEnabled\" : true`.",
+        "description": "Instance size boundary to which your cluster can automatically scale.",
         "oneOf": [
           {
             "enum": [
@@ -35022,7 +35129,7 @@
             "$ref": "#/components/schemas/EmployeeAccessGrantView"
           },
           "mongoDBMajorVersion": {
-            "description": "MongoDB major version of the cluster. Set to the binary major version. \n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLTSVersions).\n\n On update: Increase version only by 1 major version at a time. If the cluster is pinned to a MongoDB feature compatibility version exactly one major version below the current MongoDB version, the MongoDB version can be downgraded to the previous major version.",
+            "description": "MongoDB major version of the cluster. Set to the binary major version. \n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLtsVersions).\n\n On update: Increase version only by 1 major version at a time. If the cluster is pinned to a MongoDB feature compatibility version exactly one major version below the current MongoDB version, the MongoDB version can be downgraded to the previous major version.",
             "externalDocs": {
               "description": "Available MongoDB Versions in Atlas",
               "url": "https://www.mongodb.com/docs/atlas/reference/faq/database/#which-versions-of-mongodb-do-service-clusters-use-"
@@ -35634,6 +35741,17 @@
                 ],
                 "type": "string"
               },
+              "effectiveInstanceSizeName": {
+                "description": "The true tenant instance size. This is present to support backwards compatibility for deprecated provider types and/or instance sizes.",
+                "enum": [
+                  "FLEX",
+                  "M2",
+                  "M5",
+                  "M0"
+                ],
+                "readOnly": true,
+                "type": "string"
+              },
               "instanceSizeName": {
                 "description": "Cluster tier, with a default storage and memory capacity, that applies to all the data-bearing hosts in your cluster. You must set **providerSettings.providerName** to `TENANT` and specify the cloud service provider in **providerSettings.backingProviderName**.",
                 "enum": [
@@ -35852,6 +35970,12 @@
           "name": {
             "description": "Human-readable label that identifies this index. Within each namespace, names of all indexes in the namespace must be unique.",
             "type": "string"
+          },
+          "numPartitions": {
+            "default": 1,
+            "description": "Number of index partitions. Note: This feature is currently in preview.",
+            "format": "int32",
+            "type": "integer"
           },
           "status": {
             "description": "Condition of the search index when you made this request.\n\n| Status | Index Condition |\n |---|---|\n | IN_PROGRESS | Atlas is building or re-building the index after an edit. |\n | STEADY | You can use this search index. |\n | FAILED | Atlas could not build the index. |\n | MIGRATING | Atlas is upgrading the underlying cluster tier and migrating indexes. |\n | PAUSED | The cluster is paused. |\n",
@@ -36711,6 +36835,11 @@
             "minLength": 24,
             "pattern": "^([a-f0-9]{24})$",
             "type": "string"
+          },
+          "skipDefaultAlertsSettings": {
+            "default": false,
+            "description": "Disables automatic alert creation. When set to true, no organization level alerts will be created automatically.",
+            "type": "boolean"
           }
         },
         "required": [
@@ -36743,6 +36872,11 @@
           },
           "organization": {
             "$ref": "#/components/schemas/AtlasOrganization"
+          },
+          "skipDefaultAlertsSettings": {
+            "default": false,
+            "description": "Disables automatic alert creation. When set to true, no organization level alerts will be created automatically.",
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -38524,6 +38658,16 @@
           "currentValue": {
             "$ref": "#/components/schemas/DataMetricValueView"
           },
+          "deskLocation": {
+            "description": "Desk location of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "employeeIdentifier": {
+            "description": "Identifier of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/HostMetricEventTypeView"
           },
@@ -38982,6 +39126,7 @@
               "BYPASS_DOCUMENT_VALIDATION",
               "USE_UUID",
               "KILL_OP",
+              "BYPASS_DEFAULT_MAX_TIME_MS",
               "CREATE_COLLECTION",
               "CREATE_INDEX",
               "DROP_COLLECTION",
@@ -39170,6 +39315,16 @@
             ],
             "type": "string"
           },
+          "sendCollectionLatencyMetrics": {
+            "default": false,
+            "description": "Toggle sending collection latency metrics that includes database names and collection namesand latency metrics on reads, writes, commands, and transactions.",
+            "type": "boolean"
+          },
+          "sendDatabaseMetrics": {
+            "default": false,
+            "description": "Toggle sending database metrics that includes database names and metrics on the number of collections, storage size, and index size.",
+            "type": "boolean"
+          },
           "type": {
             "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the third-party service integration type.",
             "enum": [
@@ -39290,7 +39445,8 @@
                   "ISODATE",
                   "EPOCH_SECONDS",
                   "EPOCH_MILLIS",
-                  "EPOCH_NANOSECONDS"
+                  "EPOCH_NANOSECONDS",
+                  "OBJECT_ID"
                 ],
                 "type": "string"
               },
@@ -39402,6 +39558,18 @@
                   "CPS_OPLOG_CAUGHT_UP"
                 ],
                 "title": "Cps Backup Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "CPS_DATA_PROTECTION_ENABLE_REQUESTED",
+                  "CPS_DATA_PROTECTION_ENABLED",
+                  "CPS_DATA_PROTECTION_UPDATE_REQUESTED",
+                  "CPS_DATA_PROTECTION_UPDATED",
+                  "CPS_DATA_PROTECTION_DISABLE_REQUESTED",
+                  "CPS_DATA_PROTECTION_DISABLED"
+                ],
+                "title": "Data Protection Event Types",
                 "type": "string"
               },
               {
@@ -39750,6 +39918,18 @@
                 ],
                 "title": "NDS Auto Scaling Audit Types",
                 "type": "string"
+              },
+              {
+                "enum": [
+                  "CPS_DATA_PROTECTION_ENABLE_REQUESTED",
+                  "CPS_DATA_PROTECTION_ENABLED",
+                  "CPS_DATA_PROTECTION_UPDATE_REQUESTED",
+                  "CPS_DATA_PROTECTION_UPDATED",
+                  "CPS_DATA_PROTECTION_DISABLE_REQUESTED",
+                  "CPS_DATA_PROTECTION_DISABLED"
+                ],
+                "title": "Data Protection Event Types",
+                "type": "string"
               }
             ],
             "readOnly": true,
@@ -39898,7 +40078,8 @@
                   "CLUSTER_CONNECTION_GET_NAMESPACES_WITH_UUID",
                   "CLUSTER_CONNECTION_AGGREGATE",
                   "CLUSTER_CONNECTION_CREATE_COLLECTION",
-                  "CLUSTER_CONNECTION_SAMPLE_COLLECTION_FIELD_NAMES"
+                  "CLUSTER_CONNECTION_SAMPLE_COLLECTION_FIELD_NAMES",
+                  "CLUSTER_CONNECTION_SAMPLE_COLLECTION_FIELD_NAMES_AND_TYPES"
                 ],
                 "title": "Cluster Connection Audit Types",
                 "type": "string"
@@ -40243,6 +40424,13 @@
                   "CLUSTER_OS_UNFIXED"
                 ],
                 "title": "Version Audit Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "EMPLOYEE_DOWNLOADED_CLUSTER_LOGS"
+                ],
+                "title": "Access Event Types",
                 "type": "string"
               }
             ],
@@ -40935,6 +41123,9 @@
             ],
             "readOnly": true,
             "type": "string"
+          },
+          "stateReason": {
+            "$ref": "#/components/schemas/StateReason"
           }
         },
         "required": [
@@ -42142,18 +42333,8 @@
       },
       "Document": {
         "additionalProperties": {
-          "description": "The stats associated with the stream processor.",
-          "externalDocs": {
-            "url": "https://www.mongodb.com/docs/atlas/atlas-stream-processing/manage-stream-processor/#view-statistics-of-a-stream-processor"
-          },
-          "readOnly": true,
           "type": "object"
         },
-        "description": "The stats associated with the stream processor.",
-        "externalDocs": {
-          "url": "https://www.mongodb.com/docs/atlas/atlas-stream-processing/manage-stream-processor/#view-statistics-of-a-stream-processor"
-        },
-        "readOnly": true,
         "type": "object"
       },
       "EARPrivateEndpoint": {
@@ -42657,7 +42838,8 @@
               "CLUSTER_CONNECTION_GET_NAMESPACES_WITH_UUID",
               "CLUSTER_CONNECTION_AGGREGATE",
               "CLUSTER_CONNECTION_CREATE_COLLECTION",
-              "CLUSTER_CONNECTION_SAMPLE_COLLECTION_FIELD_NAMES"
+              "CLUSTER_CONNECTION_SAMPLE_COLLECTION_FIELD_NAMES",
+              "CLUSTER_CONNECTION_SAMPLE_COLLECTION_FIELD_NAMES_AND_TYPES"
             ],
             "title": "Cluster Connection Audit Types",
             "type": "string"
@@ -42844,7 +43026,12 @@
               "HOST_MONGOT_RESUME_REPLICATION",
               "HOST_MONGOT_STOP_REPLICATION",
               "HOST_ENOUGH_DISK_SPACE",
-              "HOST_NOT_ENOUGH_DISK_SPACE"
+              "HOST_NOT_ENOUGH_DISK_SPACE",
+              "SSH_KEY_NDS_HOST_ACCESS_REQUESTED",
+              "SSH_KEY_NDS_HOST_ACCESS_REFRESHED",
+              "SSH_KEY_NDS_HOST_ACCESS_ATTEMPT",
+              "SSH_KEY_NDS_HOST_ACCESS_GRANTED",
+              "HOST_SSH_SESSION_ENDED"
             ],
             "title": "Host Event Types",
             "type": "string"
@@ -42959,6 +43146,7 @@
               "OS_MAINTENANCE_REPLACEMENT",
               "FREE_UPGRADE_STARTED",
               "FLEX_UPGRADE_STARTED",
+              "SERVERLESS_UPGRADE_STARTED",
               "TEST_FAILOVER_REQUESTED",
               "USER_SECURITY_SETTINGS_UPDATED",
               "AUDIT_LOG_CONFIGURATION_UPDATED",
@@ -43072,7 +43260,8 @@
               "ATLAS_SQL_SCHEDULED_UPDATE_REMOVED",
               "CLUSTER_INSTANCE_DISABLED",
               "CLUSTER_INSTANCE_ENABLED",
-              "KMIP_KEY_ROTATION_SCHEDULED"
+              "KMIP_KEY_ROTATION_SCHEDULED",
+              "SSL_CERTIFICATE_ISSUED"
             ],
             "title": "NDS Audit Types",
             "type": "string"
@@ -43364,6 +43553,13 @@
               "GROUP_TAGS_MODIFIED"
             ],
             "title": "Resource Event Types",
+            "type": "string"
+          },
+          {
+            "enum": [
+              "EMPLOYEE_DOWNLOADED_CLUSTER_LOGS"
+            ],
+            "title": "Access Event Types",
             "type": "string"
           }
         ],
@@ -46920,9 +47116,17 @@
             "readOnly": true,
             "type": "integer"
           },
+          "protectedHours": {
+            "$ref": "#/components/schemas/ProtectedHours"
+          },
           "startASAP": {
             "description": "Flag that indicates whether MongoDB Cloud starts the maintenance window immediately upon receiving this request. To start the maintenance window immediately for your project, MongoDB Cloud must have maintenance scheduled and you must set a maintenance window. This flag resets to `false` after MongoDB Cloud completes maintenance.",
             "type": "boolean"
+          },
+          "timeZoneId": {
+            "description": "Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [
@@ -47385,6 +47589,42 @@
         },
         "type": "object"
       },
+      "GroupUserRequest": {
+        "properties": {
+          "roles": {
+            "description": "One or more project-level roles to assign the MongoDB Cloud user.",
+            "items": {
+              "description": "Project-level role.",
+              "enum": [
+                "GROUP_OWNER",
+                "GROUP_CLUSTER_MANAGER",
+                "GROUP_STREAM_PROCESSING_OWNER",
+                "GROUP_DATA_ACCESS_ADMIN",
+                "GROUP_DATA_ACCESS_READ_WRITE",
+                "GROUP_DATA_ACCESS_READ_ONLY",
+                "GROUP_READ_ONLY",
+                "GROUP_SEARCH_INDEX_EDITOR"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true,
+            "writeOnly": true
+          },
+          "username": {
+            "description": "Email address that represents the username of the MongoDB Cloud user.",
+            "format": "email",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "roles",
+          "username"
+        ],
+        "type": "object"
+      },
       "GroupUserResponse": {
         "discriminator": {
           "mapping": {
@@ -47777,7 +48017,12 @@
           "HOST_MONGOT_RESUME_REPLICATION",
           "HOST_MONGOT_STOP_REPLICATION",
           "HOST_ENOUGH_DISK_SPACE",
-          "HOST_NOT_ENOUGH_DISK_SPACE"
+          "HOST_NOT_ENOUGH_DISK_SPACE",
+          "SSH_KEY_NDS_HOST_ACCESS_REQUESTED",
+          "SSH_KEY_NDS_HOST_ACCESS_REFRESHED",
+          "SSH_KEY_NDS_HOST_ACCESS_ATTEMPT",
+          "SSH_KEY_NDS_HOST_ACCESS_GRANTED",
+          "HOST_SSH_SESSION_ENDED"
         ],
         "example": "HOST_DOWN",
         "title": "Host Event Types",
@@ -47790,7 +48035,9 @@
           "HOST_HAS_INDEX_SUGGESTIONS",
           "HOST_MONGOT_CRASHING_OOM",
           "HOST_MONGOT_STOP_REPLICATION",
-          "HOST_NOT_ENOUGH_DISK_SPACE"
+          "HOST_NOT_ENOUGH_DISK_SPACE",
+          "SSH_KEY_NDS_HOST_ACCESS_REQUESTED",
+          "SSH_KEY_NDS_HOST_ACCESS_REFRESHED"
         ],
         "example": "HOST_DOWN",
         "title": "Host Event Types",
@@ -47811,6 +48058,16 @@
           "created": {
             "description": "Date and time when this event occurred. This parameter expresses its value in the <a href=\"https://en.wikipedia.org/wiki/ISO_8601\" target=\"_blank\" rel=\"noopener noreferrer\">ISO 8601</a> timestamp format in UTC.",
             "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "deskLocation": {
+            "description": "Desk location of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "employeeIdentifier": {
+            "description": "Identifier of MongoDB employee associated with the event.",
             "readOnly": true,
             "type": "string"
           },
@@ -48549,6 +48806,16 @@
           },
           "currentValue": {
             "$ref": "#/components/schemas/HostMetricValue"
+          },
+          "deskLocation": {
+            "description": "Desk location of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "employeeIdentifier": {
+            "description": "Identifier of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/HostMetricEventTypeView"
@@ -49652,6 +49919,7 @@
               "ATLAS_ENTERPRISE_AUDITING",
               "ATLAS_FREE_SUPPORT",
               "ATLAS_SUPPORT",
+              "ATLAS_NDS_BACKFILL_SUPPORT",
               "STITCH_DATA_DOWNLOADED_FREE_TIER",
               "STITCH_DATA_DOWNLOADED",
               "STITCH_COMPUTE_FREE_TIER",
@@ -52113,6 +52381,7 @@
           "OS_MAINTENANCE_REPLACEMENT",
           "FREE_UPGRADE_STARTED",
           "FLEX_UPGRADE_STARTED",
+          "SERVERLESS_UPGRADE_STARTED",
           "TEST_FAILOVER_REQUESTED",
           "USER_SECURITY_SETTINGS_UPDATED",
           "AUDIT_LOG_CONFIGURATION_UPDATED",
@@ -52226,7 +52495,8 @@
           "ATLAS_SQL_SCHEDULED_UPDATE_REMOVED",
           "CLUSTER_INSTANCE_DISABLED",
           "CLUSTER_INSTANCE_ENABLED",
-          "KMIP_KEY_ROTATION_SCHEDULED"
+          "KMIP_KEY_ROTATION_SCHEDULED",
+          "SSL_CERTIFICATE_ISSUED"
         ],
         "example": "CLUSTER_CREATED",
         "title": "NDS Audit Types",
@@ -53342,6 +53612,16 @@
           },
           "currentValue": {
             "$ref": "#/components/schemas/NumberMetricValueView"
+          },
+          "deskLocation": {
+            "description": "Desk location of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "employeeIdentifier": {
+            "description": "Identifier of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/HostMetricEventTypeView"
@@ -57608,6 +57888,26 @@
         "title": "PROMETHEUS",
         "type": "object"
       },
+      "ProtectedHours": {
+        "description": "Defines the a window where maintenance will not begin within.",
+        "properties": {
+          "endHourOfDay": {
+            "description": "Zero-based integer that represents the end hour of the of the day that the maintenance will not begin in.",
+            "format": "int32",
+            "maximum": 23,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "startHourOfDay": {
+            "description": "Zero-based integer that represents the beginning hour of the of the day that the maintenance will not begin in.",
+            "format": "int32",
+            "maximum": 23,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PublicApiUsageDetailsLineItemView": {
         "properties": {
           "billDate": {
@@ -57900,6 +58200,16 @@
           },
           "currentValue": {
             "$ref": "#/components/schemas/RawMetricValueView"
+          },
+          "deskLocation": {
+            "description": "Desk location of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "employeeIdentifier": {
+            "description": "Identifier of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/HostMetricEventTypeView"
@@ -59408,6 +59718,14 @@
       },
       "SearchIndexDefinition": {
         "description": "The search index definition set by the user.",
+        "properties": {
+          "numPartitions": {
+            "default": 1,
+            "description": "Number of index partitions. Note: This feature is currently in preview.",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
         "title": "Search Index Definition",
         "type": "object"
       },
@@ -61248,6 +61566,21 @@
         ],
         "type": "object"
       },
+      "StateReason": {
+        "description": "State reason of the Job. This is set when the job state is \"Failed\".",
+        "properties": {
+          "errorCode": {
+            "description": "Error code relating to state.",
+            "type": "string"
+          },
+          "message": {
+            "description": "Message describing error or state.",
+            "type": "string"
+          }
+        },
+        "readOnly": true,
+        "type": "object"
+      },
       "StorageEngine": {
         "additionalProperties": {
           "description": "Storage engine set for the specific index. This value can be set only at creation. This option uses the following format: `\"storageEngine\" : { \"<storage-engine-name>\" : \"<options>\" }` MongoDB validates storage engine configuration options when creating indexes. To support replica sets with members with different storage engines, MongoDB logs these options to the oplog during replication. This option applies to all index types.",
@@ -61640,9 +61973,9 @@
         "discriminator": {
           "mapping": {
             "Cluster": "#/components/schemas/StreamsClusterConnection",
+            "Https": "#/components/schemas/StreamsHttpsConnection",
             "Kafka": "#/components/schemas/StreamsKafkaConnection",
-            "Sample": "#/components/schemas/StreamsSampleConnection",
-            "WebAPI": "#/components/schemas/StreamsWebAPIConnection"
+            "Sample": "#/components/schemas/StreamsSampleConnection"
           },
           "propertyName": "type"
         },
@@ -61657,7 +61990,7 @@
             "$ref": "#/components/schemas/StreamsKafkaConnection"
           },
           {
-            "$ref": "#/components/schemas/StreamsWebAPIConnection"
+            "$ref": "#/components/schemas/StreamsHttpsConnection"
           }
         ],
         "properties": {
@@ -61683,7 +62016,7 @@
               "Kafka",
               "Cluster",
               "Sample",
-              "WebAPI"
+              "Https"
             ],
             "type": "string"
           }
@@ -61836,6 +62169,31 @@
           "id"
         ],
         "title": "Streams Events",
+        "type": "object"
+      },
+      "StreamsHttpsConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsConnection"
+          },
+          {
+            "properties": {
+              "headers": {
+                "additionalProperties": {
+                  "description": "A map of key-value pairs that will be passed as headers for the request.",
+                  "type": "string"
+                },
+                "description": "A map of key-value pairs that will be passed as headers for the request.",
+                "type": "object"
+              },
+              "url": {
+                "description": "The url to be used for the request.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
         "type": "object"
       },
       "StreamsKafkaAuthentication": {
@@ -62038,6 +62396,67 @@
         "example": "INSTANCE_NAME",
         "title": "Streams Matcher Fields",
         "type": "string"
+      },
+      "StreamsModifyStreamProcessor": {
+        "description": "A request to modify an existing stream processor",
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "name": {
+            "description": "New name for the stream processor.",
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/StreamsModifyStreamProcessorOptions"
+          },
+          "pipeline": {
+            "description": "New pipeline for the stream processor.",
+            "externalDocs": {
+              "description": "Supported Aggregation Pipeline Stages",
+              "url": "https://www.mongodb.com/docs/atlas/atlas-stream-processing/stream-aggregation/#std-label-stream-aggregation"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "StreamsModifyStreamProcessorOptions": {
+        "description": "Additional options for modifying a stream processor.",
+        "properties": {
+          "dlq": {
+            "$ref": "#/components/schemas/StreamsDLQ"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "resumeFromCheckpoint": {
+            "description": "When true, the modified stream processor resumes from its last checkpoint.",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
       },
       "StreamsOptions": {
         "description": "Optional configuration for the stream processor.",
@@ -62329,41 +62748,6 @@
         },
         "type": "object"
       },
-      "StreamsWebAPIConnection": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StreamsConnection"
-          },
-          {
-            "properties": {
-              "connectionTimeoutSec": {
-                "description": "The amount of seconds to wait before timing out a connection.",
-                "format": "int32",
-                "type": "integer"
-              },
-              "headers": {
-                "additionalProperties": {
-                  "description": "A map of key-value pairs that will be passed as headers for the request.",
-                  "type": "string"
-                },
-                "description": "A map of key-value pairs that will be passed as headers for the request.",
-                "type": "object"
-              },
-              "requestTimeoutSec": {
-                "description": "The amount of seconds to wait before timing out a request.",
-                "format": "int32",
-                "type": "integer"
-              },
-              "url": {
-                "description": "The url to be used for the request.",
-                "type": "string"
-              }
-            },
-            "type": "object"
-          }
-        ],
-        "type": "object"
-      },
       "SummaryNotification": {
         "description": "Summary notification configuration for MongoDB Cloud to send information when an event triggers an alert condition.",
         "properties": {
@@ -62546,7 +62930,6 @@
           "usernames": {
             "description": "List that contains the MongoDB Cloud users in this team.",
             "items": {
-              "description": "List that contains email addresses that identify MongoDB Cloud users to in this team.",
               "format": "email",
               "type": "string"
             },
@@ -62555,7 +62938,8 @@
           }
         },
         "required": [
-          "name"
+          "name",
+          "usernames"
         ],
         "type": "object"
       },
@@ -62971,6 +63355,17 @@
       },
       "TenantHardwareSpec": {
         "properties": {
+          "effectiveInstanceSize": {
+            "description": "The true tenant instance size. This is present to support backwards compatibility for deprecated provider types and/or instance sizes.",
+            "enum": [
+              "FLEX",
+              "M2",
+              "M5",
+              "M0"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
           "instanceSize": {
             "description": "Hardware specification for the instances in this M0/M2/M5 tier cluster.",
             "enum": [
@@ -62992,6 +63387,17 @@
             "maximum": 4096,
             "minimum": 10,
             "type": "number"
+          },
+          "effectiveInstanceSize": {
+            "description": "The true tenant instance size. This is present to support backwards compatibility for deprecated provider types and/or instance sizes.",
+            "enum": [
+              "FLEX",
+              "M2",
+              "M5",
+              "M0"
+            ],
+            "readOnly": true,
+            "type": "string"
           },
           "instanceSize": {
             "description": "Hardware specification for the instances in this M0/M2/M5 tier cluster.",
@@ -63306,6 +63712,12 @@
           },
           "mappings": {
             "$ref": "#/components/schemas/SearchMappings"
+          },
+          "numPartitions": {
+            "default": 1,
+            "description": "Number of index partitions. Note: This feature is currently in preview.",
+            "format": "int32",
+            "type": "integer"
           },
           "searchAnalyzer": {
             "default": "lucene.standard",
@@ -63694,6 +64106,16 @@
           },
           "currentValue": {
             "$ref": "#/components/schemas/TimeMetricValueView"
+          },
+          "deskLocation": {
+            "description": "Desk location of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "employeeIdentifier": {
+            "description": "Identifier of MongoDB employee associated with the event.",
+            "readOnly": true,
+            "type": "string"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/HostMetricEventTypeView"
@@ -65036,6 +65458,12 @@
               "$ref": "#/components/schemas/BasicDBObject"
             },
             "type": "array"
+          },
+          "numPartitions": {
+            "default": 1,
+            "description": "Number of index partitions. Note: This feature is currently in preview.",
+            "format": "int32",
+            "type": "integer"
           }
         },
         "title": "Vector Search Index Definition",
