@@ -30,7 +30,7 @@ export default async function customJUnitFormatter(results, document, spectral) 
       ruleResults.forEach((result) => {
         const failureDetails = testCase.ele('failure', {
           type: ruleName,
-          path: result.path || 'Unknown path'
+          path: result.path.join(".") || 'Unknown path'
         });
 
         // Include component and specific location details
@@ -41,6 +41,11 @@ export default async function customJUnitFormatter(results, document, spectral) 
             ? `Line ${result.range.start.line}, Column ${result.range.start.character}`
             : 'No specific location',
         }, null, 2));
+      });
+    } else {
+      testCase.ele('success', {
+        description: 'All checks passed for this rule',
+        type: ruleName
       });
     }
   }
