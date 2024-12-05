@@ -19,6 +19,8 @@ done < <(jq -r '.[]' versions.json)
 all_urls=(
    "https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2.json"
    "https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2.yaml"
+   "https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v1-deprecated/v1.json"
+   "https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v1-deprecated/v1.yaml"
 )
 
 # Fetch and append file URLs from each version

@@ -43,6 +43,8 @@ on:
         required: false
       jira_api_token:
         required: true
+      mms_deployed_sha_url:
+        required: true
 
 permissions:
   contents: write
@@ -85,7 +87,7 @@ jobs:
       spectral_version: ${{ vars.SPECTRAL_VERSION }}
 
   release:
-      name: Release OpenAPI Spec
+      name: Release OpenAPI Spec for V2 APIs
       runs-on: ubuntu-latest
       needs: [run-required-validations]
       outputs:
@@ -152,7 +154,58 @@ jobs:
             commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
             branch: ${{env.target_branch}}
             file_pattern: "openapi/*"
-  
+
+  release-v1-oas-apis:
+    name: Release OpenAPI Spec for V1 (DEPRECATED) APIs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download v1 Spec
+        env:
+          AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
+          S3_BUCKET: ${{ inputs.aws_s3_bucket }}
+          MMS_DEPLOYED_SHA_URL: ${{secrets.mms_deployed_sha_url}}
+        run: |
+          sha=$(curl "${MMS_DEPLOYED_SHA_URL}")
+          echo "Downloading the OpenAPI Spec for v1 with sha ${sha}"
+          aws s3 cp "s3://${S3_BUCKET}/openapi/oas/mms-v1/${sha}.json" "v1.json"
+      - name: Generate YAML spec
+        run: |
+          sudo apt install yq
+          yq -P '.' v1.json > v1.yaml
+      - name: Upload artifact
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+        with:
+          name: openapi-v1-${{ inputs.env }}
+          path: |
+            v1.json
+            v1.yaml
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: ${{ inputs.branch }}
+          token: ${{secrets.api_bot_pat}}
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-v1-${{ inputs.env }}
+          github-token: ${{ secrets.api_bot_pat }}
+          run-id: ${{ github.run_id }}
+          path: openapi/v1-deprecated
+      - name: Commit changes
+        id: commit
+        uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842
+        env:
+          target_env: ${{ inputs.env }}
+          target_branch: ${{ inputs.branch }}
+          run_id: ${{ github.run_id }}
+        with:
+          commit_message: "(${{env.target_env}}) Release OpenAPI Spec V1 :rocket:. See https://github.com/mongodb/openapi/actions/runs/${{env.run_id}}."
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          branch: ${{env.target_branch}}
+          file_pattern: "openapi/v1-deprecated/*"
+
   release-postman:
       name: Release Postman
       needs: [release]
