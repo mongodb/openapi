@@ -121,3 +121,19 @@ jobs:
         spectral_version: ${{ vars.SPECTRAL_VERSION }}
         foascli_version: ${{ vars.FOASCLI_VERSION }}
         atlas_prod_base_url: ${{ vars.ATLAS_PROD_BASE_URL }}
+
+  release-spec-v1-prod:
+    name: Release OpenAPI Spec V1 (Deprecated) for PROD
+    if: >-
+      github.event_name == 'schedule' || contains(inputs.env_to_release, 'prod')
+    uses: ./.github/workflows/release-spec-v1.yml
+    secrets:
+      api_bot_pat: ${{ secrets.API_BOT_PAT }}
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+      mms_deployed_sha_url: ${{ secrets.MMS_DEPLOYED_SHA_URL_PROD }}
+    with:
+      aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
+      aws_s3_bucket: ${{ vars.S3_BUCKET_PROD}}
+      env: prod
+      branch: main
