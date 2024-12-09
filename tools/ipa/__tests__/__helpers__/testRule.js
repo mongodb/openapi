@@ -15,12 +15,7 @@ export default (ruleName, tests) => {
         const doc = testCase.document instanceof Document ? testCase.document : JSON.stringify(testCase.document);
         const allErrors = await s.run(doc);
 
-        const errors = allErrors.filter((e) => {
-          if (testCase.errors[0]) {
-            return e.code === testCase.errors[0].code;
-          }
-          return false;
-        });
+        const errors = getErrorsForRule(allErrors, ruleName);
 
         expect(errors.length).toEqual(testCase.errors.length);
 
@@ -36,8 +31,10 @@ export default (ruleName, tests) => {
 
 async function createSpectral() {
   const s = new Spectral({ resolver: httpAndFileResolver });
-
   s.setRuleset(await bundleAndLoadRuleset(rulesetPath, { fs, fetch }));
-
   return s;
+}
+
+function getErrorsForRule(errors, rule) {
+  return errors.filter((e) => e.code === rule);
 }
