@@ -91,4 +91,4 @@ Once env vars are configured, the setup scripts can be run locally using the Mak
 
 ## Automatic updates
 
-Postman collection is regerented automatically by github action [`release-spec.yml`](../../.github/workflows/release-spec.yml)
+Postman collection is regenerated automatically by github action [`release-spec.yml`](../../.github/workflows/release-spec.yml).

@@ -59,10 +59,15 @@ jq --arg desc "$description" \
   '.collection.info.description.content = $desc' \
   intermediateCollectionWithName.json >  intermediateCollectionWithDescription.json
 
-echo "Adding baseUrl env $BASE_URL"
+echo "Removing all variables. We use environment for variables instead"
 jq --arg base_url "$BASE_URL" \
-  '.collection.variable[0].value = $base_url' \
-  intermediateCollectionWithDescription.json > intermediateCollectionWithBaseURL.json
+  '.collection.variable = []' \
+  intermediateCollectionWithDescription.json > intermediateCollectionWithNoVar.json
+
+echo "Adding baseUrl property $BASE_URL"
+jq --arg base_url "$BASE_URL" \
+  '.collection.variable += [{ key: "baseUrl", value: $base_url }]' \
+  intermediateCollectionWithNoVar.json > intermediateCollectionWithBaseURL.json
 
 if [ "$TOGGLE_ADD_DOCS_LINKS" = "true" ]; then
   echo "Adding links to docs for each request"
@@ -130,6 +135,7 @@ rm intermediateCollectionWrapped.json \
    intermediateCollectionWithDescription.json \
    intermediateCollectionWithBaseURL.json \
    intermediateCollectionWithLinks.json \
-   intermediateCollectionPostBody.json 
+   intermediateCollectionPostBody.json \
+   intermediateCollectionWithNoVar.json
 
 popd -0
