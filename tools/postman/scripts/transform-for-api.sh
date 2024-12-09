@@ -60,7 +60,7 @@ jq --arg desc "$description" \
   intermediateCollectionWithName.json >  intermediateCollectionWithDescription.json
 
 echo "Removing all variables. We use environment for variables instead"
-jq --arg base_url "$BASE_URL" \
+jq \
   '.collection.variable = []' \
   intermediateCollectionWithDescription.json > intermediateCollectionWithNoVar.json
 
