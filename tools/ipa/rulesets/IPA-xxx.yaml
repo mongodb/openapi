@@ -1,0 +1,30 @@
+aliases:
+  PathItem:
+    - "$.paths[*]"
+  OperationObject:
+    - "#PathItem[get,put,post,delete,options,head,patch,trace]"
+  DescribableObjects:
+    - "$.info"
+    - "$.tags[*]"
+    - "#OperationObject"
+    - "#PathItem.parameters[?(@ && @.in)]"
+    - "#OperationObject.parameters[?(@ && @.in)]"
+    - "$.components.schemas[*].properties[?(@ && @.type)]"
+
+rules:
+  xgen-description:
+    description: "Use this field to describe the action performed by each specific API endpoint or property, to provide context for how to use it to the users of the API."
+    message: "Property must have a description."
+    severity: error
+    given: "#DescribableObjects"
+    then:
+      - field: "description"
+        function: truthy
+      - field: "description"
+        function: pattern
+        functionOptions:
+          match: "/^[A-Z]/"
+      - field: "description"
+        function: pattern
+        functionOptions:
+          match: "\\.|\|$"

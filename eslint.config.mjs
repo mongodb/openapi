@@ -1,9 +1,14 @@
 import globals from 'globals';
 import pluginJs from '@eslint/js';
+import pluginJest from 'eslint-plugin-jest';
+import jest from 'eslint-plugin-jest';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  { languageOptions: { globals: globals.browser } },
+  {
+    plugins: { jest: pluginJest },
+    languageOptions: { globals: globals.node },
+  },
   pluginJs.configs.recommended,
   {
     languageOptions: {
@@ -13,5 +18,9 @@ export default [
   },
   {
     ignores: ['node-modules'],
+  },
+  {
+    files: ['**/*.test.js'],
+    ...jest.configs['flat/recommended'],
   },
 ];
