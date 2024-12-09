@@ -85,9 +85,10 @@ The OpenAPI path for Postman generation and configured feature flags can also be
 
 Once env vars are configured, the setup scripts can be run locally using the Make following commands:
 - `make fetch_openapi`
-- `make convert_to_collection`
-- `make transform_collection`
-- `make upload_collection`
+- `make convert_to_collection` - covert OpenAPI to Postman collection
+- `make transform_collection` - transform Postman collection to fix common issues
+- `make transform_collection_test` - test collection.
+- `make upload_collection` - uploads collection to the Postman
 
 ## Automatic updates
 
