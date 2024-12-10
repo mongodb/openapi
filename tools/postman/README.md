@@ -1,24 +1,20 @@
 # Postman Collections from OpenAPI
 
-This folder contains the code required to generate the MongoDB Atlas Postman collections from the MongoDB OpenAPI Specification. All scripts can be run locally if the environment variables for POSTMAN_API_KEY, WORKSPACE_ID, BASE_URL, and SLACK_WEBHOOK_URL are set
+Folder contains the code required to generate the [MongoDB Atlas Postman collections](https://www.postman.com/mongodb-devrel?tab=collections).
+Collections are generated from from the MongoDB OpenAPI Specification. 
 
 ## Purpose of the project
 
 Scripts allow for the generation of Postman collections from OpenAPI specifications. This allows
-the [DevRel Postman workspace](https://www.postman.com/mongodb-devrel) to stay up to date with the latest version of the
+the [DevRel Postman workspace](https://www.postman.com/mongodb-devrel?tab=collections) to stay up to date with the latest version of the
 API.
+
+Process of updating involves:
 
 1. Fetching OpenAPI file
 2. Converting OpenAPI file to Postman Collection
 3. Updating information about the Collection
 4. Uploading the Collection to Postman
-
-## Postman folder structure
-
-- `openapi` - Where the OpenAPI Spec, version information, and fork files are stored
-- `tmp` - Where the Postman Collection is generated and the temporary working files are stored
-- `scripts` - Where the Bash scripts are stored
-- `validation` - Where the files for spectral validation of the generated collection is stored
 
 ## Postman Collection Generation Workflow
 
@@ -48,6 +44,20 @@ flowchart TD
 
 5. **Upload Collection to Postman**: Use the Postman API to upload the Collection to Postman.
 
+## Limitations
+
+Our Postman collection generation has several limitations, meaning some manual user actions may be necessary during setup:
+
+-  Only a single content-type header is supported generation, meaning users may have to manually update this header if the API supports more than one; see docs links on endpoint level
+- Only a single auth scheme is supported during generation, meaning users may have to update their auth on the collection level or endpoint level if not selecting the default
+
+## Postman folder structure
+
+- `openapi` - Where the OpenAPI Spec, version information, and fork files are stored
+- `tmp` - Where the Postman Collection is generated and the temporary working files are stored
+- `scripts` - Where the Bash scripts are stored
+- `validation` - Where the files for spectral validation of the generated collection is stored
+
 ## Local setup and validation
 
 ### Prerequisites
@@ -64,6 +74,7 @@ To test the scripts locally, you should set up the required environment variable
 BASE_URL=""
 WORKSPACE_ID=""
 POSTMAN_API_KEY=""
+SLACK_WEBHOOK_URL=""
 ```
 
 Run `make load-env` to set your required and overriding env vars.
@@ -78,10 +89,6 @@ Once env vars are configured, the setup scripts can be run locally using the Mak
 - `make transform_collection`
 - `make upload_collection`
 
+## Automatic updates
 
-### Limitations
-
-Our Postman collection generation has several limitations, meaning some manual user actions may be necessary during setup:
-
--  Only a single content-type header is supported generation, meaning users may have to manually update this header if the API supports more than one; see docs links on endpoint level
-- Only a single auth scheme is supported during generation, meaning users may have to update their auth on the collection level or endpoint level if not selecting the default
+Postman collection is regerented automatically by github action [`release-spec.yml`](../../.github/workflows/release-spec.yml)
