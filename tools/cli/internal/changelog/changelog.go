@@ -463,7 +463,6 @@ func findChangelogEntry(changelog []*Entry, date, operationID, version, changeCo
 
 					for _, change := range v.Changes {
 						if change.Code == changeCode {
-
 							return change
 						}
 					}
