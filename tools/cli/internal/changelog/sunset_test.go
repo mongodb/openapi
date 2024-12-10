@@ -126,7 +126,7 @@ func TestNewOasDiffEntriesFromSunsetEndpoints(t *testing.T) {
 			Operation:   "GET",
 			OperationID: "listStreamInstances",
 			Path:        "/api/atlas/v2/groups/{id}/streams",
-			Text:        "endpoint removed",
+			Text:        "endpoint removed as it has reached its sunset date '2023-07-12'",
 		},
 	}
 

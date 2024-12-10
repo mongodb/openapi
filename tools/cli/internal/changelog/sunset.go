@@ -48,7 +48,7 @@ func (m *Changelog) newOasDiffEntriesFromSunsetEndpoints(
 			changes = append(changes, &outputfilter.OasDiffEntry{
 				Date:        config.Revision.Sunset,
 				ID:          endpointRemovedCode,
-				Text:        "endpoint removed",
+				Text:        fmt.Sprintf("endpoint removed as it has reached its sunset date '%s'", config.Revision.Sunset),
 				Level:       int(checker.ERR),
 				Operation:   config.Revision.HTTPMethod,
 				OperationID: operationID,
