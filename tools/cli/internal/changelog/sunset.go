@@ -43,12 +43,14 @@ func (m *Changelog) newOasDiffEntriesFromSunsetEndpoints(
 			continue
 		}
 
-		// Avoid adding duplicates in the changelog
-		if findChangelogEntry(m.BaseChangelog, config.Revision.Sunset, operationID, version, endpointRemovedCode) == nil {
+		// Avoid adding duplicates in the changelog.
+		// Passing version="" to findChangelogEntry since the sunset date of the endpoint with API version "version"
+		// is the same in all the specs.
+		if findChangelogEntry(m.BaseChangelog, config.Revision.Sunset, operationID, "", endpointRemovedCode) == nil {
 			changes = append(changes, &outputfilter.OasDiffEntry{
 				Date:        config.Revision.Sunset,
 				ID:          endpointRemovedCode,
-				Text:        "endpoint removed",
+				Text:        fmt.Sprintf("endpoint with API Version '%s' was removed as it has reached its sunset date '%s'", version, config.Revision.Sunset),
 				Level:       int(checker.ERR),
 				Operation:   config.Revision.HTTPMethod,
 				OperationID: operationID,

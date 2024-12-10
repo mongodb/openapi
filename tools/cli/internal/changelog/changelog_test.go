@@ -612,7 +612,68 @@ func TestFindChangelogEntry(t *testing.T) {
 		changeCode      string
 		expectedEntries *Change
 	}{
-
+		{
+			name: "find changelog entry no API Version",
+			entries: []*Entry{
+				{
+					Date: "2023-07-10",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{id}/clusters",
+							HTTPMethod:  "POST",
+							OperationID: "createCluster",
+							Tag:         "Multi-Cloud Clusters",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "remove",
+									Changes: []*Change{
+										{
+											Description:        "endpoint removed",
+											Code:               "endpoint-removed",
+											BackwardCompatible: true,
+										}},
+								},
+							},
+						},
+					},
+				},
+				{
+					Date: "2023-07-11",
+					Paths: []*Path{
+						{
+							URI:         "/api/atlas/v2/groups/{id}/clusters",
+							HTTPMethod:  "POST",
+							OperationID: "createCluster",
+							Tag:         "Multi-Cloud Clusters",
+							Versions: []*Version{
+								{
+									Version:        "2023-02-01",
+									StabilityLevel: "stable",
+									ChangeType:     "remove",
+									Changes: []*Change{
+										{
+											Description:        "endpoint removed",
+											Code:               "endpoint-removed",
+											BackwardCompatible: true,
+										}},
+								},
+							},
+						},
+					},
+				},
+			},
+			operationID: "createCluster",
+			date:        "2023-07-10",
+			version:     "",
+			changeCode:  "endpoint-removed",
+			expectedEntries: &Change{
+				Description:        "endpoint removed",
+				Code:               "endpoint-removed",
+				BackwardCompatible: true,
+			},
+		},
 		{
 			name: "find changelog entry",
 			entries: []*Entry{
