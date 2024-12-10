@@ -457,7 +457,7 @@ func findChangelogEntry(changelog []*Entry, date, operationID, version, changeCo
 				}
 
 				for _, v := range path.Versions {
-					if v.Version != version {
+					if version != "" && v.Version != version {
 						continue
 					}
 
