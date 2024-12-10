@@ -235,7 +235,7 @@ func TestNewSquashMap(t *testing.T) {
 		entries                []*OasDiffEntry
 		expectedNumberOfValues int
 		squashIdx              int
-		want                   map[string]valuesToSquashStruct
+		want                   map[string]squashedEntries
 		wantErr                require.ErrorAssertionFunc
 	}{
 		{
@@ -244,7 +244,7 @@ func TestNewSquashMap(t *testing.T) {
 			entries:                []*OasDiffEntry{},
 			expectedNumberOfValues: 0,
 			squashIdx:              0,
-			want:                   map[string]valuesToSquashStruct{},
+			want:                   map[string]squashedEntries{},
 			wantErr:                require.NoError,
 		},
 		{
@@ -255,7 +255,7 @@ func TestNewSquashMap(t *testing.T) {
 			},
 			expectedNumberOfValues: 1,
 			squashIdx:              0,
-			want: map[string]valuesToSquashStruct{
+			want: map[string]squashedEntries{
 				"": {
 					valuesNotSquashed: []string{""},
 					valuesToSquash:    map[string]struct{}{"test": {}},
@@ -273,7 +273,7 @@ func TestNewSquashMap(t *testing.T) {
 			},
 			expectedNumberOfValues: 1,
 			squashIdx:              0,
-			want: map[string]valuesToSquashStruct{
+			want: map[string]squashedEntries{
 				"": {
 					valuesNotSquashed: []string{""},
 					valuesToSquash:    map[string]struct{}{"test1": {}, "test2": {}, "test3": {}},
