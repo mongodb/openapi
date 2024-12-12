@@ -118,3 +118,78 @@ func TestGenerateExemptionsFileWithFs(t *testing.T) {
 		assert.Equal(t, expectedContent, string(data))
 	})
 }
+
+func TestValidateExemption(t *testing.T) {
+	tests := []struct {
+		name          string
+		exemption     Exemption
+		expectedError require.ErrorAssertionFunc
+	}{
+		{
+			name: "Valid exemption",
+			exemption: Exemption{
+				Reason:                    "Some reason",
+				BreakingChangeDescription: "Description of breaking change",
+				HideFromChangelog:         "false",
+				ExemptUntil:               "2024-12-11",
+			},
+			expectedError: require.NoError,
+		},
+		{
+			name: "Invalid date format",
+			exemption: Exemption{
+				Reason:                    "Some reason",
+				BreakingChangeDescription: "Description of breaking change",
+				HideFromChangelog:         "false",
+				ExemptUntil:               "invalid-date",
+			},
+			expectedError: require.Error,
+		},
+		{
+			name: "Empty Reason field",
+			exemption: Exemption{
+				Reason:                    "",
+				BreakingChangeDescription: "Description of breaking change",
+				HideFromChangelog:         "false",
+				ExemptUntil:               "2024-12-11",
+			},
+			expectedError: require.Error,
+		},
+		{
+			name: "Empty BreakingChangeDescription field",
+			exemption: Exemption{
+				Reason:                    "Some reason",
+				BreakingChangeDescription: "",
+				HideFromChangelog:         "false",
+				ExemptUntil:               "2024-12-11",
+			},
+			expectedError: require.Error,
+		},
+		{
+			name: "Empty HideFromChangelog field",
+			exemption: Exemption{
+				Reason:                    "Some reason",
+				BreakingChangeDescription: "Description of breaking change",
+				HideFromChangelog:         "",
+				ExemptUntil:               "2024-12-11",
+			},
+			expectedError: require.NoError,
+		},
+		{
+			name: "Empty ExemptUntil field",
+			exemption: Exemption{
+				Reason:                    "Some reason",
+				BreakingChangeDescription: "Description of breaking change",
+				HideFromChangelog:         "false",
+				ExemptUntil:               "",
+			},
+			expectedError: require.Error,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.expectedError(t, validateExemption(tt.exemption))
+		})
+	}
+}
