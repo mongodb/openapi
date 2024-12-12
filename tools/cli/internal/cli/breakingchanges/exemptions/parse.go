@@ -51,7 +51,7 @@ func (o *Opts) PreRunE(_ []string) error {
 	return nil
 }
 
-// Builder builds the merge command with the following signature:
+// ParseBuilder builds the merge command with the following signature:
 // breaking-changes exemptions parse -e file_path
 func ParseBuilder() *cobra.Command {
 	opts := &Opts{

@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package breakingchanges
 
 import (
@@ -54,6 +55,29 @@ func isWithinExpirationDate(exemption Exemption) bool {
 	return exemptUntil.After(date) || exemptUntil.Equal(date)
 }
 
+func validateExemption(exemption Exemption) error {
+	if _, err := time.Parse("2006-01-02", exemption.ExemptUntil); err != nil {
+		return fmt.Errorf("validation error: %v", err)
+	}
+
+	if err := validateField(exemption.Reason, "reason", exemption); err != nil {
+		return err
+	}
+	
+	if err := validateField(exemption.BreakingChangeDescription, "breaking_change_description", exemption); err != nil {
+		return err
+	}
+
+	return validateField(exemption.ExemptUntil, "exempt_until", exemption)
+}
+
+func validateField(fieldValue, fieldName string, exemption Exemption) error {
+	if fieldValue == "" {
+		return fmt.Errorf("validation error: empty value for the '%s' field is not allowed. Exemption: '%s'", fieldName, exemption)
+	}
+	return nil
+}
+
 func transformComponentEntry(breakingChangeDescription string) string {
 	if strings.Contains(breakingChangeDescription, "api-schema-removed") && !strings.Contains(breakingChangeDescription, "in components") {
 		return fmt.Sprintf("in components %s", breakingChangeDescription)
@@ -85,6 +109,10 @@ func GetValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afe
 
 	var validExemptions []Exemption
 	for _, exemption := range exemptions {
+		if err := validateExemption(exemption); err != nil {
+			return nil, err
+		}
+
 		if ignoreExpiration || isWithinExpirationDate(exemption) {
 			validExemptions = append(validExemptions, exemption)
 		}
