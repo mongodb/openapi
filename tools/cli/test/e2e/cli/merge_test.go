@@ -103,7 +103,7 @@ func TestMerge(t *testing.T) {
 		require.Error(t, err, stringResponse)
 		assert.Contains(t, stringResponse, fmt.Sprintf("Error: there was a conflict with the Tag \"Events\""+
 			" with the description: \"Returns information about the MongoDB Atlas Specification.\"."+
-			" Base Spec: %q, External Spec: %q", base, apiRegistrySpec))
+			" Base Spec: %q, External Spec: %q", base, authnSpec))
 	})
 
 	t.Run("Expecting Error: not identical component", func(t *testing.T) {
