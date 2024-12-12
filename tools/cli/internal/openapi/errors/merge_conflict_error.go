@@ -46,11 +46,13 @@ func (e ResponseConflictError) Error() string {
 }
 
 type SchemaConflictError struct {
-	Entry string
+	Entry                string
+	BaseSpecLocation     string
+	ExternalSpecLocation string
 }
 
 func (e SchemaConflictError) Error() string {
-	return fmt.Sprintf("there was a conflict on a Schema component: %q", e.Entry)
+	return fmt.Sprintf("there was a conflict on a Schema component: %q. Base Spec: %q, External Spec: %q", e.Entry, e.BaseSpecLocation, e.ExternalSpecLocation)
 }
 
 type TagConflictError struct {

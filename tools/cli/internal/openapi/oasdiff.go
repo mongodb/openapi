@@ -419,7 +419,9 @@ func (o OasDiff) mergeSchemas() error {
 
 			// The schemas have the same name but different definitions
 			return errors.SchemaConflictError{
-				Entry: k,
+				Entry:                k,
+				BaseSpecLocation:     o.base.Url,
+				ExternalSpecLocation: o.external.Url,
 			}
 		}
 	}

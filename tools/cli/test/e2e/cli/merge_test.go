@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"testing"
@@ -122,6 +123,7 @@ func TestMerge(t *testing.T) {
 		resp, err := cmd.CombinedOutput()
 		stringResponse := string(resp)
 		require.Error(t, err, stringResponse)
-		assert.Contains(t, stringResponse, "Error: there was a conflict on a Schema component: \"ApiError\"")
+		assert.Contains(t, stringResponse,
+			fmt.Sprintf("Error: there was a conflict on a Schema component: \"ApiError\". Base Spec: %q, External Spec: %q", base, apiRegistrySpec))
 	})
 }
