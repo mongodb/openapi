@@ -52,16 +52,21 @@ type SchemaConflictError struct {
 }
 
 func (e SchemaConflictError) Error() string {
-	return fmt.Sprintf("there was a conflict on a Schema component: %q. Base Spec: %q, External Spec: %q", e.Entry, e.BaseSpecLocation, e.ExternalSpecLocation)
+	return fmt.Sprintf("there was a conflict on a Schema component: %q. Base Spec: %q, External Spec: %q",
+		e.Entry, e.BaseSpecLocation, e.ExternalSpecLocation)
 }
 
 type TagConflictError struct {
-	Entry       string
-	Description string
+	Entry                string
+	Description          string
+	BaseSpecLocation     string
+	ExternalSpecLocation string
 }
 
 func (e TagConflictError) Error() string {
-	return fmt.Sprintf("there was a conflict with the Tag %q with the description: %q", e.Entry, e.Description)
+	return fmt.Sprintf(
+		"there was a conflict with the Tag %q with the description: %q. Base Spec: %q, External Spec: %q",
+		e.Entry, e.Description, e.BaseSpecLocation, e.ExternalSpecLocation)
 }
 
 type PathDocsDiffConflictError struct {

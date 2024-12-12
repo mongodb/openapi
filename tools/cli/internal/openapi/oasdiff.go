@@ -297,8 +297,10 @@ func (o OasDiff) mergeTags() error {
 			baseTags = append(baseTags, v)
 		} else {
 			return errors.TagConflictError{
-				Entry:       v.Name,
-				Description: v.Description,
+				Entry:                v.Name,
+				Description:          v.Description,
+				BaseSpecLocation:     o.base.Url,
+				ExternalSpecLocation: o.external.Url,
 			}
 		}
 	}

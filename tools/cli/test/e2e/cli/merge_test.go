@@ -101,7 +101,9 @@ func TestMerge(t *testing.T) {
 		resp, err := cmd.CombinedOutput()
 		stringResponse := string(resp)
 		require.Error(t, err, stringResponse)
-		assert.Contains(t, stringResponse, "Error: there was a conflict with the Tag \"Events\" with the description: \"Returns information about the MongoDB Atlas Specification.\"") //nolint:lll // Line is over 120 characters
+		assert.Contains(t, stringResponse, fmt.Sprintf("Error: there was a conflict with the Tag \"Events\""+
+			" with the description: \"Returns information about the MongoDB Atlas Specification.\"."+
+			" Base Spec: %q, External Spec: %q", base, apiRegistrySpec))
 	})
 
 	t.Run("Expecting Error: not identical component", func(t *testing.T) {
@@ -124,6 +126,8 @@ func TestMerge(t *testing.T) {
 		stringResponse := string(resp)
 		require.Error(t, err, stringResponse)
 		assert.Contains(t, stringResponse,
-			fmt.Sprintf("Error: there was a conflict on a Schema component: \"ApiError\". Base Spec: %q, External Spec: %q", base, apiRegistrySpec))
+			fmt.Sprintf(
+				"Error: there was a conflict on a Schema component: \"ApiError\". Base Spec: %q, "+
+					"External Spec: %q", base, apiRegistrySpec))
 	})
 }
