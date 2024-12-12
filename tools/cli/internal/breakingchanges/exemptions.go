@@ -57,7 +57,7 @@ func isWithinExpirationDate(exemption Exemption) bool {
 
 func validateExemption(exemption Exemption) error {
 	if _, err := time.Parse("2006-01-02", exemption.ExemptUntil); err != nil {
-		return fmt.Errorf("validation error: %v", err)
+		return fmt.Errorf("validation error: %v. Exemption: %s", err, exemption)
 	}
 
 	if err := validateField(exemption.Reason, "reason", exemption); err != nil {
