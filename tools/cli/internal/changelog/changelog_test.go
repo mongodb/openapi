@@ -884,41 +884,41 @@ func TestLatestVersionActiveOnDate(t *testing.T) {
 			expectedOutput: "2024-11-13",
 			expectedError:  assert.NoError,
 		},
-		//{
-		//	name:           "Date before all versions",
-		//	date:           "2022-12-11",
-		//	versions:       []string{"2023-01-01", "2023-06-01", "2023-11-01"},
-		//	expectedOutput: "",
-		//	expectedError:  assert.NoError,
-		//},
-		//{
-		//	name:           "Empty versions list",
-		//	date:           "2023-12-11",
-		//	versions:       []string{},
-		//	expectedOutput: "",
-		//	expectedError:  assert.NoError,
-		//},
-		//{
-		//	name:           "Invalid date format",
-		//	date:           "invalid-date",
-		//	versions:       []string{"2023-01-01"},
-		//	expectedOutput: "",
-		//	expectedError:  assert.Error,
-		//},
-		//{
-		//	name:           "Invalid version format in list",
-		//	date:           "2023-12-11",
-		//	versions:       []string{"invalid-version", "2023-06-01"},
-		//	expectedOutput: "",
-		//	expectedError:  assert.Error,
-		//},
+		{
+			name:           "Date before all versions",
+			date:           "2022-12-11",
+			versions:       []string{"2023-01-01", "2023-06-01", "2023-11-01"},
+			expectedOutput: "",
+			expectedError:  assert.NoError,
+		},
+		{
+			name:           "Empty versions list",
+			date:           "2023-12-11",
+			versions:       []string{},
+			expectedOutput: "",
+			expectedError:  assert.NoError,
+		},
+		{
+			name:           "Invalid date format",
+			date:           "invalid-date",
+			versions:       []string{"2023-01-01"},
+			expectedOutput: "",
+			expectedError:  assert.Error,
+		},
+		{
+			name:           "Invalid version format in list",
+			date:           "2023-12-11",
+			versions:       []string{"invalid-version", "2023-06-01"},
+			expectedOutput: "",
+			expectedError:  assert.Error,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			output, err := latestVersionActiveOnDate(tt.date, tt.versions)
 			tt.expectedError(t, err)
-			assert.Equal(t, output, tt.expectedOutput)
+			assert.Equal(t, tt.expectedOutput, output)
 		})
 	}
 }
