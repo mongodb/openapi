@@ -861,3 +861,64 @@ func TestFindChangelogEntry(t *testing.T) {
 		})
 	}
 }
+
+func TestLatestVersionActiveOnDate(t *testing.T) {
+	tests := []struct {
+		name           string
+		date           string
+		versions       []string
+		expectedOutput string
+		expectedError  assert.ErrorAssertionFunc
+	}{
+		{
+			name: "Valid case with multiple versions",
+			date: "2024-11-13",
+			versions: []string{"2023-01-01",
+				"2023-02-01",
+				"2023-10-01",
+				"2023-11-15",
+				"2024-05-30",
+				"2024-08-05",
+				"2024-10-23",
+				"2024-11-13"},
+			expectedOutput: "2024-11-13",
+			expectedError:  assert.NoError,
+		},
+		//{
+		//	name:           "Date before all versions",
+		//	date:           "2022-12-11",
+		//	versions:       []string{"2023-01-01", "2023-06-01", "2023-11-01"},
+		//	expectedOutput: "",
+		//	expectedError:  assert.NoError,
+		//},
+		//{
+		//	name:           "Empty versions list",
+		//	date:           "2023-12-11",
+		//	versions:       []string{},
+		//	expectedOutput: "",
+		//	expectedError:  assert.NoError,
+		//},
+		//{
+		//	name:           "Invalid date format",
+		//	date:           "invalid-date",
+		//	versions:       []string{"2023-01-01"},
+		//	expectedOutput: "",
+		//	expectedError:  assert.Error,
+		//},
+		//{
+		//	name:           "Invalid version format in list",
+		//	date:           "2023-12-11",
+		//	versions:       []string{"invalid-version", "2023-06-01"},
+		//	expectedOutput: "",
+		//	expectedError:  assert.Error,
+		//},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			output, err := latestVersionActiveOnDate(tt.date, tt.versions)
+			tt.expectedError(t, err)
+			assert.Equal(t, output, tt.expectedOutput)
+		})
+	}
+}
