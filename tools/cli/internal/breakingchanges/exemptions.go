@@ -63,7 +63,7 @@ func validateExemption(exemption Exemption) error {
 	if err := validateField(exemption.Reason, "reason", exemption); err != nil {
 		return err
 	}
-	
+
 	if err := validateField(exemption.BreakingChangeDescription, "breaking_change_description", exemption); err != nil {
 		return err
 	}
