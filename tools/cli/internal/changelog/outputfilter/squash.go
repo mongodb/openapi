@@ -147,35 +147,35 @@ func squashEntries(entries []*OasDiffEntry) ([]*OasDiffEntry, error) {
 	entriesByIDandOperationID, hiddenEntriesByIDandOperationID := newEntriesMapPerIDAndOperationID(entries)
 
 	squashHandlers := newSquashHandlers()
-	squashedEntries := []*OasDiffEntry{}
+	squashedEntriesOut := []*OasDiffEntry{}
 
 	for _, entry := range entries {
 		// if no squash handlers implemented for entry's code,
 		// just append the entry to the result
 		if _, ok := findHandler(entry.ID); !ok {
-			squashedEntries = append(squashedEntries, entry)
+			squashedEntriesOut = append(squashedEntriesOut, entry)
 			continue
 		}
 	}
 
-	squashedEntriesNotHidden, err := appplySquashHandlerToMap(squashHandlers, entriesByIDandOperationID)
+	squashedEntriesNotHidden, err := applySquashHandlerToMap(squashHandlers, entriesByIDandOperationID)
 	if err != nil {
 		return nil, err
 	}
 
-	squashedEntriesHidden, err := appplySquashHandlerToMap(squashHandlers, hiddenEntriesByIDandOperationID)
+	squashedEntriesHidden, err := applySquashHandlerToMap(squashHandlers, hiddenEntriesByIDandOperationID)
 	if err != nil {
 		return nil, err
 	}
 
-	squashedEntries = append(squashedEntries, squashedEntriesNotHidden...)
-	squashedEntries = append(squashedEntries, squashedEntriesHidden...)
+	squashedEntriesOut = append(squashedEntriesOut, squashedEntriesNotHidden...)
+	squashedEntriesOut = append(squashedEntriesOut, squashedEntriesHidden...)
 
-	return squashedEntries, nil
+	return squashedEntriesOut, nil
 }
 
-func appplySquashHandlerToMap(squashHandlers []handler, entriesMap map[string]map[string][]*OasDiffEntry) ([]*OasDiffEntry, error) {
-	squashedEntries := []*OasDiffEntry{}
+func applySquashHandlerToMap(squashHandlers []handler, entriesMap map[string]map[string][]*OasDiffEntry) ([]*OasDiffEntry, error) {
+	squashedEntriesOut := []*OasDiffEntry{}
 	for _, handler := range squashHandlers {
 		entryMapPerOperationID, ok := entriesMap[handler.id]
 		if !ok {
@@ -187,9 +187,9 @@ func appplySquashHandlerToMap(squashHandlers []handler, entriesMap map[string]ma
 			return nil, err
 		}
 
-		squashedEntries = append(squashedEntries, sortEntriesByDescription(entries)...)
+		squashedEntriesOut = append(squashedEntriesOut, sortEntriesByDescription(entries)...)
 	}
-	return squashedEntries, nil
+	return squashedEntriesOut, nil
 }
 
 func sortEntriesByDescription(entries []*OasDiffEntry) []*OasDiffEntry {

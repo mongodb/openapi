@@ -17,6 +17,10 @@ convert_to_collection:
 transform_collection:
 	./scripts/transform-for-api.sh
 
+.PHONY: transform_collection_test
+transform_collection_test:
+	./scripts/transform-for-api-test.sh
+
 .PHONY: upload_collection
 upload_collection:
 	./scripts/upload-collection.sh
