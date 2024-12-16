@@ -15,6 +15,19 @@ testRule('xgen-IPA-104-resource-has-GET', [
           patch: {},
           delete: {},
         },
+        '/standard/{exampleId}/nested': {
+          post: {},
+          get: {},
+        },
+        '/standard/{exampleId}/nested/{exampleId}': {
+          get: {},
+          patch: {},
+          delete: {},
+        },
+        '/standard/{exampleId}/nestedSingleton': {
+          get: {},
+          patch: {},
+        },
         '/custom': {
           post: {},
           get: {},
@@ -46,6 +59,17 @@ testRule('xgen-IPA-104-resource-has-GET', [
           patch: {},
           delete: {},
         },
+        '/standard/{exampleId}/nested': {
+          post: {},
+          get: {},
+        },
+        '/standard/{exampleId}/nested/{exampleId}': {
+          patch: {},
+          delete: {},
+        },
+        '/standard/{exampleId}/nestedSingleton': {
+          patch: {},
+        },
         '/custom': {
           post: {},
           get: {},
@@ -67,6 +91,18 @@ testRule('xgen-IPA-104-resource-has-GET', [
         code: 'xgen-IPA-104-resource-has-GET',
         message: 'APIs must provide a get method for resources. http://go/ipa/117',
         path: ['paths', '/standard'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-104-resource-has-GET',
+        message: 'APIs must provide a get method for resources. http://go/ipa/117',
+        path: ['paths', '/standard/{exampleId}/nested'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-104-resource-has-GET',
+        message: 'APIs must provide a get method for resources. http://go/ipa/117',
+        path: ['paths', '/standard/{exampleId}/nestedSingleton'],
         severity: DiagnosticSeverity.Warning,
       },
       {
