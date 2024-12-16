@@ -59,6 +59,9 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
     it('returns false for a nested singleton resource', () => {
       expect(isStandardResource(nestedSingletonResourcePaths)).toBe(false);
     });
+    it('testing that this test fails', () => {
+      expect(isStandardResource(nestedSingletonResourcePaths)).toBe(true);
+    });
   });
   describe('isSingletonResource', () => {
     it('returns true for a singleton resource', () => {
