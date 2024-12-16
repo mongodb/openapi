@@ -37,6 +37,9 @@ testRule('xgen-IPA-104-resource-has-GET', [
           patch: {},
           delete: {},
         },
+        '/custom/{exampleId}:method': {
+          post: {},
+        },
         '/custom:method': {
           post: {},
         },
@@ -77,6 +80,9 @@ testRule('xgen-IPA-104-resource-has-GET', [
         '/custom/{exampleId}': {
           patch: {},
           delete: {},
+        },
+        '/custom/{exampleId}:method': {
+          post: {},
         },
         '/custom:method': {
           post: {},

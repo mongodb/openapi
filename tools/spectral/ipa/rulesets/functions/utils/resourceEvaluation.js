@@ -8,9 +8,9 @@ export function isCustomMethod(path) {
 
 /**
  * Checks if a resource is a singleton resource ({@link https://docs.devprod.prod.corp.mongodb.com/ipa/113 IPA-113}) based on the paths for the
- * resource. The resource may have custom methods.
+ * resource. The resource may have custom methods. Use {@link getResourcePaths} to get all paths of a resource.
  *
- * @param resourcePaths all paths for the resource as an array of strings
+ * @param resourcePaths all paths for the resource to be evaluated as an array of strings
  * @returns {boolean}
  */
 export function isSingletonResource(resourcePaths) {
@@ -23,9 +23,9 @@ export function isSingletonResource(resourcePaths) {
 
 /**
  * Checks if a resource is a standard resource ({@link https://docs.devprod.prod.corp.mongodb.com/ipa/103 IPA-103}) based on the paths for the
- * resource. The resource may have custom methods.
+ * resource. The resource may have custom methods. Use {@link getResourcePaths} to get all paths of a resource.
  *
- * @param resourcePaths all paths for the resource as an array of strings
+ * @param resourcePaths all paths for the resource to be evaluated as an array of strings
  * @returns {boolean}
  */
 export function isStandardResource(resourcePaths) {
@@ -58,6 +58,9 @@ export function hasGetMethod(pathObject) {
  */
 export function getResourcePaths(parent, allPaths) {
   const childPathPattern = new RegExp(`^${parent}/{[a-zA-Z]+}$`);
-  const customMethodPattern = new RegExp(`^${parent}/{[a-zA-Z]+}:+[a-zA-Z]+$`);
-  return allPaths.filter((p) => parent === p || childPathPattern.test(p) || customMethodPattern.test(p));
+  const customChildMethodPattern = new RegExp(`^${parent}/{[a-zA-Z]+}:+[a-zA-Z]+$`);
+  const customMethodPattern = new RegExp(`^${parent}:+[a-zA-Z]+$`);
+  return allPaths.filter(
+    (p) => parent === p || childPathPattern.test(p) || customMethodPattern.test(p) || customChildMethodPattern.test(p)
+  );
 }
