@@ -7,7 +7,7 @@ export function isCustomMethod(path) {
 }
 
 /**
- * Checks if a resource is a singleton resource based on the paths for the
+ * Checks if a resource is a singleton resource ({@link https://docs.devprod.prod.corp.mongodb.com/ipa/113 IPA-113}) based on the paths for the
  * resource. The resource may have custom methods.
  *
  * @param resourcePaths all paths for the resource as an array of strings
@@ -22,7 +22,7 @@ export function isSingletonResource(resourcePaths) {
 }
 
 /**
- * Checks if a resource is a standard resource based on the paths for the
+ * Checks if a resource is a standard resource ({@link https://docs.devprod.prod.corp.mongodb.com/ipa/103 IPA-103}) based on the paths for the
  * resource. The resource may have custom methods.
  *
  * @param resourcePaths all paths for the resource as an array of strings
