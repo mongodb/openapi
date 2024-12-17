@@ -32,7 +32,7 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         },
         '/api/atlas/v2': {
           post: {},
-        }
+        },
       },
     },
     errors: [],
@@ -67,7 +67,7 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         },
         '/api/atlas/v2/unauth': {
           post: {},
-        }
+        },
       },
     },
     errors: [],
@@ -99,7 +99,7 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         '/api/atlas/v2/{pathParam1}/{pathParam2}': {
           post: {},
           get: {},
-        }
+        },
       },
     },
     errors: [
@@ -139,7 +139,7 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         path: ['paths', '/api/atlas/v2/{pathParam1}/{pathParam2}'],
         severity: DiagnosticSeverity.Warning,
       },
-    ]
+    ],
   },
   {
     name: 'invalid paths - api/atlas/v2/unauth',
@@ -168,7 +168,7 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         '/api/atlas/v2/unauth/{pathParam1}/{pathParam2}': {
           post: {},
           get: {},
-        }
+        },
       },
     },
     errors: [
