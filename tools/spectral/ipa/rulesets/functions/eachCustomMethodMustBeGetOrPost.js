@@ -1,4 +1,4 @@
-import { isCustomMethod } from './utils/resourceEvaluation';
+import { isCustomMethod } from './utils/resourceEvaluation.js';
 
 const ERROR_MESSAGE = 'The HTTP method for custom methods must be GET or POST.';
 const ERROR_RESULT = [{ message: ERROR_MESSAGE }];
