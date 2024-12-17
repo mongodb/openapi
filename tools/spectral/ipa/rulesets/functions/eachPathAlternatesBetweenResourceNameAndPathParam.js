@@ -1,4 +1,4 @@
-import { isPathParam } from './utils/pathUtils';
+import { isPathParam } from './utils/pathUtils.js';
 
 const ERROR_MESSAGE = 'API paths must alternate between resource name and path params.';
 const ERROR_RESULT = [{ message: ERROR_MESSAGE }];
