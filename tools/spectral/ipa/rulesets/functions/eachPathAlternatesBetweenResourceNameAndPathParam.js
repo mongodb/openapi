@@ -18,8 +18,7 @@ const validatePathStructure = (elements) => {
   });
 };
 
-// eslint-disable-next-line no-unused-vars
-export default (input, _0, _1) => {
+export default (input) => {
   const prefix = getPrefix(input);
   if (!prefix) return [];
 
