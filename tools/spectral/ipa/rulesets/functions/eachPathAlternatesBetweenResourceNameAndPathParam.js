@@ -20,14 +20,16 @@ const validatePathStructure = (elements) => {
 
 export default (input) => {
   const prefix = getPrefix(input);
-  if (!prefix) return [];
+  if (!prefix) return;
 
   let suffixWithLeadingSlash = input.slice(prefix.length);
   if (suffixWithLeadingSlash.length === 0) {
-    return [];
+    return;
   }
 
   let suffix = suffixWithLeadingSlash.slice(1);
   let elements = suffix.split('/');
-  return validatePathStructure(elements) ? [] : ERROR_RESULT;
+  if (!validatePathStructure(elements)) {
+    return ERROR_RESULT;
+  }
 };
