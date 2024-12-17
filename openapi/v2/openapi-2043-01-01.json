@@ -244,7 +244,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "d6ca3fb89a83fb96670175778d1a198073aae7f6"
+    "x-xgen-sha": "ae155f40742f6b5b71ff4506db86ecf49e35dd7d"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -23617,7 +23617,7 @@
         "x-sunset": "2044-01-01"
       },
       "post": {
-        "description": "Adds one MongoDB Cloud user to one project. To use this resource, the requesting API Key must have the Group User Admin role. \n- If the user has a pending invitation to join the project's organization, MongoDB Cloud modifies it and grants project access. \n- If the user doesn't have an invitation to join the organization, MongoDB Cloud sends a new invitation that grants the user organization and project access. \n- If the user is already active in the project's organization, MongoDB Cloud grants access to the project. \n",
+        "description": "Adds one MongoDB Cloud user to one project. To use this resource, the requesting API Key must have the Project Owner role. \n- If the user has a pending invitation to join the project's organization, MongoDB Cloud modifies it and grants project access. \n- If the user doesn't have an invitation to join the organization, MongoDB Cloud sends a new invitation that grants the user organization and project access. \n- If the user is already active in the project's organization, MongoDB Cloud grants access to the project. \n",
         "operationId": "addProjectUser",
         "parameters": [
           {
@@ -23736,7 +23736,7 @@
         ]
       },
       "get": {
-        "description": "Returns information about the specified MongoDB Cloud user within the context of the specified project. To use this resource, the requesting API Key must have the Group Read Only role.\n\n**Note**: You can only use this resource to fetch information about MongoDB Cloud human users. To return information about an API Key, use the [Return One Organization API Key](#tag/Programmatic-API-Keys/operation/getApiKey) endpoint.\n\n**Note**: This resource does not return information about pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
+        "description": "Returns information about the specified MongoDB Cloud user within the context of the specified project. To use this resource, the requesting API Key must have the Project Read Only role.\n\n**Note**: You can only use this resource to fetch information about MongoDB Cloud human users. To return information about an API Key, use the [Return One Organization API Key](#tag/Programmatic-API-Keys/operation/getApiKey) endpoint.\n\n**Note**: This resource does not return information about pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
         "operationId": "getProjectUser",
         "parameters": [
           {
@@ -28222,7 +28222,7 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Create One MongoDB Cloud User in One Organization",
+        "summary": "Add One MongoDB Cloud User to One Organization",
         "tags": [
           "MongoDB Cloud Users"
         ]
@@ -28289,7 +28289,7 @@
         ]
       },
       "get": {
-        "description": "Returns information about the specified MongoDB Cloud user within the context of the specified organization. To use this resource, the requesting API Key must have the Organization Read Only role.\n\n**Note**: This resource can only be used to fetch information about MongoDB Cloud human users. To return information about an API Key, use the [Return One Organization API Key](#tag/Programmatic-API-Keys/operation/getApiKey) endpoint.\n\n**Note**: This resource does not return information about pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
+        "description": "Returns information about the specified MongoDB Cloud user within the context of the specified organization. To use this resource, the requesting API Key must have the Organization Member role.\n\n**Note**: This resource can only be used to fetch information about MongoDB Cloud human users. To return information about an API Key, use the [Return One Organization API Key](#tag/Programmatic-API-Keys/operation/getApiKey) endpoint.\n\n**Note**: This resource does not return information about pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.",
         "operationId": "getOrganizationUser",
         "parameters": [
           {
@@ -47277,7 +47277,8 @@
               "SSH_KEY_NDS_HOST_ACCESS_REFRESHED",
               "SSH_KEY_NDS_HOST_ACCESS_ATTEMPT",
               "SSH_KEY_NDS_HOST_ACCESS_GRANTED",
-              "HOST_SSH_SESSION_ENDED"
+              "HOST_SSH_SESSION_ENDED",
+              "HOST_X509_CERTIFICATE_CERTIFICATE_GENERATED_FOR_SUPPORT_ACCESS"
             ],
             "title": "Host Event Types",
             "type": "string"
@@ -49606,32 +49607,6 @@
       "FlexBackupRestoreJobCreate20241113": {
         "description": "Details to create one restore job of a flex cluster.",
         "properties": {
-          "_snapshotId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the snapshot to restore.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "maxLength": 24,
-            "minLength": 24,
-            "pattern": "^([a-f0-9]{24})$",
-            "type": "string",
-            "writeOnly": true
-          },
-          "_targetDeploymentItemName": {
-            "description": "Human-readable label that identifies the instance or cluster on the target project to which you want to restore the snapshot. You can restore the snapshot to another flex cluster or dedicated cluster tier.",
-            "maxLength": 64,
-            "minLength": 1,
-            "pattern": "^[\\p{L}\\p{N}\\-_.(),:&@+']{1,64}$",
-            "type": "string",
-            "writeOnly": true
-          },
-          "_targetProjectId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the project that contains the instance or cluster to which you want to restore the snapshot.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "maxLength": 24,
-            "minLength": 24,
-            "pattern": "^([a-f0-9]{24})$",
-            "type": "string",
-            "writeOnly": true
-          },
           "deliveryType": {
             "description": "Means by which this resource returns the snapshot to the requesting MongoDB Cloud user.",
             "enum": [
@@ -49703,6 +49678,15 @@
             "readOnly": true,
             "type": "string"
           },
+          "snapshotId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the snapshot to restore.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "writeOnly": true
+          },
           "snapshotUrl": {
             "description": "Internet address from which you can download the compressed snapshot files. The resource returns this parameter when  `\"deliveryType\" : \"DOWNLOAD\"`.",
             "readOnly": true,
@@ -49719,11 +49703,28 @@
             ],
             "readOnly": true,
             "type": "string"
+          },
+          "targetDeploymentItemName": {
+            "description": "Human-readable label that identifies the instance or cluster on the target project to which you want to restore the snapshot. You can restore the snapshot to another flex cluster or dedicated cluster tier.",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[\\p{L}\\p{N}\\-_.(),:&@+']{1,64}$",
+            "type": "string",
+            "writeOnly": true
+          },
+          "targetProjectId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project that contains the instance or cluster to which you want to restore the snapshot.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "writeOnly": true
           }
         },
         "required": [
-          "_snapshotId",
-          "_targetDeploymentItemName"
+          "snapshotId",
+          "targetDeploymentItemName"
         ],
         "title": "Create Flex Backup Restore Job",
         "type": "object"
@@ -52312,7 +52313,8 @@
           "SSH_KEY_NDS_HOST_ACCESS_REFRESHED",
           "SSH_KEY_NDS_HOST_ACCESS_ATTEMPT",
           "SSH_KEY_NDS_HOST_ACCESS_GRANTED",
-          "HOST_SSH_SESSION_ENDED"
+          "HOST_SSH_SESSION_ENDED",
+          "HOST_X509_CERTIFICATE_CERTIFICATE_GENERATED_FOR_SUPPORT_ACCESS"
         ],
         "example": "HOST_DOWN",
         "title": "Host Event Types",
