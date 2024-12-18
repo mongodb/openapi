@@ -16,15 +16,13 @@ export default (paths) => {
     const httpMethods = Object.keys(pathItem);
 
     // Check for invalid methods
-    if (httpMethods.some(method => !VALID_METHODS.includes(method))) {
+    if (httpMethods.some((method) => !VALID_METHODS.includes(method))) {
       errors.push({ path: ['paths', pathKey], message: ERROR_MESSAGE });
       continue;
     }
 
     // Check for multiple valid methods
-    const validMethodCount = httpMethods.filter(method =>
-      VALID_METHODS.includes(method)
-    ).length;
+    const validMethodCount = httpMethods.filter((method) => VALID_METHODS.includes(method)).length;
 
     if (validMethodCount > 1) {
       errors.push({ path: ['paths', pathKey], message: ERROR_MESSAGE });
@@ -32,5 +30,4 @@ export default (paths) => {
   }
 
   return errors;
-
 };
