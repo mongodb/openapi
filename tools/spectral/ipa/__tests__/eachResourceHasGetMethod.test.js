@@ -125,4 +125,25 @@ testRule('xgen-IPA-104-resource-has-GET', [
       },
     ],
   },
+  {
+    name: 'invalid method with exception',
+    document: {
+      paths: {
+        '/standard': {
+          post: {},
+          get: {},
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-104-resource-has-GET': {
+              reason: 'test',
+            },
+          },
+        },
+        '/standard/{exampleId}': {
+          patch: {},
+          delete: {},
+        },
+      },
+    },
+    errors: [],
+  },
 ]);
