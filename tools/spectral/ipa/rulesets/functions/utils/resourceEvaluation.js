@@ -54,7 +54,7 @@ export function hasGetMethod(pathObject) {
  *
  * @param parent the parent path string
  * @param allPaths all paths as an array of strings
- * @returns {*} a string array of all paths for a resource, including the parent
+ * @returns {string[]} all paths for a resource, including the parent
  */
 export function getResourcePaths(parent, allPaths) {
   const childPathPattern = new RegExp(`^${parent}/{[a-zA-Z]+}$`);

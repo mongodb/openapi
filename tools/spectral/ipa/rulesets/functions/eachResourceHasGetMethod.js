@@ -6,7 +6,9 @@ import {
   isSingletonResource,
   getResourcePaths,
 } from './utils/resourceEvaluation.js';
+import { hasException } from './utils/exceptions';
 
+const RULE_NAME = 'xgen-IPA-104-resource-has-GET';
 const ERROR_MESSAGE = 'APIs must provide a get method for resources.';
 
 export default (input, _, { documentInventory }) => {
@@ -15,6 +17,11 @@ export default (input, _, { documentInventory }) => {
   }
 
   const oas = documentInventory.resolved;
+
+  if (hasException(oas.paths[input], RULE_NAME)) {
+    return;
+  }
+
   const resourcePaths = getResourcePaths(input, Object.keys(oas.paths));
 
   if (isSingletonResource(resourcePaths)) {
