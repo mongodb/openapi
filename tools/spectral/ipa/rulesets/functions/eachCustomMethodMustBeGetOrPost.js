@@ -1,33 +1,26 @@
 import { isCustomMethod } from './utils/resourceEvaluation.js';
 
 const ERROR_MESSAGE = 'The HTTP method for custom methods must be GET or POST.';
+const ERROR_RESULT = [{ message: ERROR_MESSAGE }];
 const VALID_METHODS = ['get', 'post'];
 
-export default (paths) => {
-  // Collect all errors
-  const errors = [];
+export default (input, opts, { path }) => {
+  // Extract the path key (e.g., '/a/{exampleId}:method') from the JSONPath.
+  let pathKey = path[1];
 
-  // Iterate through each path key and its corresponding path item
-  for (const [pathKey, pathItem] of Object.entries(paths)) {
-    // Skip if not a custom method
-    if (!isCustomMethod(pathKey)) continue;
+  if (!isCustomMethod(pathKey)) return;
 
-    // Get HTTP methods for this path
-    const httpMethods = Object.keys(pathItem);
+  const httpMethods = Object.keys(input);
 
-    // Check for invalid methods
-    if (httpMethods.some((method) => !VALID_METHODS.includes(method))) {
-      errors.push({ path: ['paths', pathKey], message: ERROR_MESSAGE });
-      continue;
-    }
-
-    // Check for multiple valid methods
-    const validMethodCount = httpMethods.filter((method) => VALID_METHODS.includes(method)).length;
-
-    if (validMethodCount > 1) {
-      errors.push({ path: ['paths', pathKey], message: ERROR_MESSAGE });
-    }
+  // Check for invalid methods
+  if (httpMethods.some((method) => !VALID_METHODS.includes(method))) {
+    return ERROR_RESULT;
   }
 
-  return errors;
+  // Check for multiple valid methods
+  const validMethodCount = httpMethods.filter((method) => VALID_METHODS.includes(method)).length;
+
+  if (validMethodCount > 1) {
+    return ERROR_RESULT;
+  }
 };
