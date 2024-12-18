@@ -13,7 +13,7 @@ export default (input, opts, { path }) => {
 
   //Exclude exception extension key
   let keys = Object.keys(input);
-  const httpMethods = keys.filter(key => key !== EXCEPTION_EXTENSION_KEY);
+  const httpMethods = keys.filter((key) => key !== EXCEPTION_EXTENSION_KEY);
 
   // Check for invalid methods
   if (httpMethods.some((method) => !VALID_METHODS.includes(method))) {
