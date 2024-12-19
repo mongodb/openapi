@@ -8,17 +8,13 @@ testRule('xgen-IPA-005-exception-extension-format', [
       paths: {
         '/path': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-100-rule-name': {
-              reason: 'Exception',
-            },
+            'xgen-IPA-100-rule-name': 'Exception',
           },
         },
         '/nested': {
           post: {
             'x-xgen-IPA-exception': {
-              'xgen-IPA-100-rule-name': {
-                reason: 'Exception',
-              },
+              'xgen-IPA-100-rule-name': 'Exception',
             },
           },
         },
@@ -35,39 +31,17 @@ testRule('xgen-IPA-005-exception-extension-format', [
         },
         '/path2': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-100-rule-name': 'Exception',
-          },
-        },
-        '/path3': {
-          'x-xgen-IPA-exception': {
             'xgen-IPA-100-rule-name': {
               reason: '',
             },
           },
         },
+        '/path3': {
+          'x-xgen-IPA-exception': {
+            'invalid-rule-name': 'Exception',
+          },
+        },
         '/path4': {
-          'x-xgen-IPA-exception': {
-            'invalid-rule-name': {
-              reason: 'Exception',
-            },
-          },
-        },
-        '/path5': {
-          'x-xgen-IPA-exception': {
-            'xgen-IPA-100-rule-name': {
-              wrongKey: 'Exception',
-            },
-          },
-        },
-        '/path6': {
-          'x-xgen-IPA-exception': {
-            'xgen-IPA-100-rule-name': {
-              reason: 'Exception',
-              excessKey: 'Exception',
-            },
-          },
-        },
-        '/path7': {
           'x-xgen-IPA-exception': {
             'xgen-IPA-100-rule-name': {},
           },
@@ -90,31 +64,13 @@ testRule('xgen-IPA-005-exception-extension-format', [
       {
         code: 'xgen-IPA-005-exception-extension-format',
         message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa/5',
-        path: ['paths', '/path3', 'x-xgen-IPA-exception', 'xgen-IPA-100-rule-name'],
+        path: ['paths', '/path3', 'x-xgen-IPA-exception', 'invalid-rule-name'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
         message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa/5',
-        path: ['paths', '/path4', 'x-xgen-IPA-exception', 'invalid-rule-name'],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa/5',
-        path: ['paths', '/path5', 'x-xgen-IPA-exception', 'xgen-IPA-100-rule-name'],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa/5',
-        path: ['paths', '/path6', 'x-xgen-IPA-exception', 'xgen-IPA-100-rule-name'],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa/5',
-        path: ['paths', '/path7', 'x-xgen-IPA-exception', 'xgen-IPA-100-rule-name'],
+        path: ['paths', '/path4', 'x-xgen-IPA-exception', 'xgen-IPA-100-rule-name'],
         severity: DiagnosticSeverity.Warning,
       },
     ],

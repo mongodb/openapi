@@ -5,47 +5,35 @@ const TEST_RULE_NAME_100 = 'xgen-IPA-100';
 
 const objectWithIpa100Exception = {
   'x-xgen-IPA-exception': {
-    'xgen-IPA-100': {
-      reason: 'test',
-    },
+    'xgen-IPA-100': 'reason',
   },
 };
 
 const objectWithNestedIpa100Exception = {
   get: {
     'x-xgen-IPA-exception': {
-      'xgen-IPA-100': {
-        reason: 'test',
-      },
+      'xgen-IPA-100': 'reason',
     },
   },
 };
 
 const objectWithIpa100ExceptionAndOwnerExtension = {
   'x-xgen-IPA-exception': {
-    'xgen-IPA-100': {
-      reason: 'test',
-    },
+    'xgen-IPA-100': 'reason',
   },
   'x-xgen-owner-team': 'apix',
 };
 
 const objectWithIpa101Exception = {
   'x-xgen-IPA-exception': {
-    'xgen-IPA-101': {
-      reason: 'test',
-    },
+    'xgen-IPA-101': 'reason',
   },
 };
 
 const objectWithIpa100And101Exception = {
   'x-xgen-IPA-exception': {
-    'xgen-IPA-101': {
-      reason: 'test',
-    },
-    'xgen-IPA-100': {
-      reason: 'test',
-    },
+    'xgen-IPA-101': 'reason',
+    'xgen-IPA-100': 'reason',
   },
 };
 
