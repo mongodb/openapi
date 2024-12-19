@@ -39,7 +39,7 @@ testRule('xgen-IPA-109-custom-method-must-use-camel-case', [
         '/a/{exampleId}:method_name': {},
         '/a:method_name': {},
         '/a/{exampleId}:': {},
-        '/a:': {}
+        '/a:': {},
       },
     },
     errors: [
