@@ -1,5 +1,5 @@
 import { isPathParam } from './utils/pathUtils.js';
-import { hasException } from './utils/exceptions';
+import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-102-path-alternate-resource-name-path-param';
 const ERROR_MESSAGE = 'API paths must alternate between resource name and path params.';
