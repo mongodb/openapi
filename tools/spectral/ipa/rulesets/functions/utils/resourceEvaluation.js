@@ -6,6 +6,10 @@ export function isCustomMethod(path) {
   return path.includes(':');
 }
 
+export function getCustomMethodName(path) {
+  return path.split(':')[1];
+}
+
 /**
  * Checks if a resource is a singleton resource ({@link https://docs.devprod.prod.corp.mongodb.com/ipa/113 IPA-113}) based on the paths for the
  * resource. The resource may have custom methods. Use {@link getResourcePaths} to get all paths of a resource.
