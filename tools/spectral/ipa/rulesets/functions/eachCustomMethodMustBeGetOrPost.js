@@ -1,5 +1,7 @@
 import { isCustomMethod } from './utils/resourceEvaluation.js';
+import { hasException } from './utils/exceptions.js';
 
+const RULE_NAME = 'xgen-IPA-109-custom-method-must-be-GET-or-POST';
 const ERROR_MESSAGE = 'The HTTP method for custom methods must be GET or POST.';
 const ERROR_RESULT = [{ message: ERROR_MESSAGE }];
 const VALID_METHODS = ['get', 'post'];
@@ -10,6 +12,10 @@ export default (input, opts, { path }) => {
   let pathKey = path[1];
 
   if (!isCustomMethod(pathKey)) return;
+
+  if (hasException(input, RULE_NAME)) {
+    return;
+  }
 
   //Extract the keys which are equivalent of the http methods
   let keys = Object.keys(input);
