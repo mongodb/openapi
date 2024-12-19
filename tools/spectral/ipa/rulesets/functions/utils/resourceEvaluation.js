@@ -6,9 +6,8 @@ export function isCustomMethod(path) {
   return path.includes(':');
 }
 
-export function getCustomMethod(path) {
-  const [, methodName] = path.split(':');
-  return methodName;
+export function getCustomMethodName(path) {
+  return path.split(':')[1];
 }
 
 /**
