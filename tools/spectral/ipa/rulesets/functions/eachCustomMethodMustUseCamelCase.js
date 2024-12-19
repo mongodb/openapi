@@ -3,7 +3,6 @@ import { hasException } from './utils/exceptions.js';
 import { casing } from '@stoplight/spectral-functions';
 
 const RULE_NAME = 'xgen-IPA-109-custom-method-must-use-camel-case';
-const ERROR_MESSAGE = 'The custom method name must use camelCase format.';
 
 export default (input, opts, { path }) => {
   // Extract the path key (e.g., '/a/{exampleId}:method') from the JSONPath.
@@ -21,6 +20,6 @@ export default (input, opts, { path }) => {
   }
 
   if (casing(methodName, { type: 'camel', disallowDigits: true })) {
-    return [{ message: `${ERROR_MESSAGE} Method name: ${methodName}.` }];
+    return [{ message: `${methodName} must use camelCase format.` }];
   }
 };

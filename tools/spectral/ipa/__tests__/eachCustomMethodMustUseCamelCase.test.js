@@ -45,25 +45,25 @@ testRule('xgen-IPA-109-custom-method-must-use-camel-case', [
     errors: [
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'The custom method name must use camelCase format. Method name: MethodName. http://go/ipa/109',
+        message: 'MethodName must use camelCase format. http://go/ipa/109',
         path: ['paths', '/a/{exampleId}:MethodName'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'The custom method name must use camelCase format. Method name: MethodName. http://go/ipa/109',
+        message: 'MethodName must use camelCase format. http://go/ipa/109',
         path: ['paths', '/a:MethodName'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'The custom method name must use camelCase format. Method name: method_name. http://go/ipa/109',
+        message: 'method_name must use camelCase format. http://go/ipa/109',
         path: ['paths', '/a/{exampleId}:method_name'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'The custom method name must use camelCase format. Method name: method_name. http://go/ipa/109',
+        message: 'method_name must use camelCase format. http://go/ipa/109',
         path: ['paths', '/a:method_name'],
         severity: DiagnosticSeverity.Warning,
       },
