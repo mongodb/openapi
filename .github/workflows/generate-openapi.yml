@@ -21,11 +21,8 @@ on:
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
-      aws_access_key_id:
+      aws_s3_role_to_assume:
         required: true
-      aws_secret_access_key:
-        required: true
-      
 
 permissions:
   contents: write
@@ -61,11 +58,14 @@ jobs:
       - name: Add permissions to execute scripts
         run: |
           chmod +x release-scripts/*.sh  
+      - name: aws configure
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws_s3_role_to_assume }}
+          aws-region: ${{inputs.aws_default_region}}
       - name: Retrieve Specs
         env:
           AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
-          AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
           S3_BUCKET: ${{ inputs.aws_s3_bucket }}
         run: ./release-scripts/download_specs.sh
       - name: Generate Federated Spec
