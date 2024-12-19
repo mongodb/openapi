@@ -21,14 +21,8 @@ export default (input, opts, { path }) => {
     return;
   }
 
-  const isCamelCase = casing('fooBar', { type: 'camel', disallowDigits: true });
-  console.log(isCamelCase);
-  if (!isCamelCase) {
+  const isCamelCase = casing(methodName, { type: 'camel', disallowDigits: true });
+  if (isCamelCase !== undefined) {
     return ERROR_RESULT;
   }
-
-  /*const camelCaseRegex = /^[a-z]+(?:[A-Z](?:[a-z]+|$))*$/;
-  if (!camelCaseRegex.test(methodName)) {
-    return ERROR_RESULT;
-  }*/
 };
