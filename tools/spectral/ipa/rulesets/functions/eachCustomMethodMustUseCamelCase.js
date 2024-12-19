@@ -22,7 +22,7 @@ export default (input, opts, { path }) => {
   }
 
   const isCamelCase = casing(methodName, { type: 'camel', disallowDigits: true });
-  if (isCamelCase !== undefined) {
+  if (isCamelCase) {
     return ERROR_RESULT;
   }
 };
