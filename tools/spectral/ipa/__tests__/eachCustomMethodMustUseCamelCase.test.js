@@ -18,12 +18,12 @@ testRule('xgen-IPA-109-custom-method-must-use-camel-case', [
       paths: {
         '/b/{exampleId}:MethodName': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-109-custom-method-must-use-camel-case' : {}
+            'xgen-IPA-109-custom-method-must-use-camel-case': {},
           },
         },
         '/b:MethodName': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-109-custom-method-must-use-camel-case' : {}
+            'xgen-IPA-109-custom-method-must-use-camel-case': {},
           },
         },
       },
@@ -64,7 +64,7 @@ testRule('xgen-IPA-109-custom-method-must-use-camel-case', [
         message: 'The custom method must use camelCase format. http://go/ipa/109',
         path: ['paths', '/a:method_name'],
         severity: DiagnosticSeverity.Warning,
-      }
+      },
     ],
   },
 ]);

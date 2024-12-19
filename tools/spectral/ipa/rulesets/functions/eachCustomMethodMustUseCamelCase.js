@@ -21,7 +21,7 @@ export default (input, opts, { path }) => {
     return;
   }
 
-  const isCamelCase = casing('fooBar' , { type: 'camel', disallowDigits: true });
+  const isCamelCase = casing('fooBar', { type: 'camel', disallowDigits: true });
   console.log(isCamelCase);
   if (!isCamelCase) {
     return ERROR_RESULT;
