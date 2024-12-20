@@ -140,16 +140,12 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
       paths: {
         '/api/atlas/v2/unauth/resourceName1/resourceName2': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-102-path-alternate-resource-name-path-param': {
-              reason: 'test',
-            },
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'reason',
           },
         },
         '/api/atlas/v2/resourceName/{pathParam1}/{pathParam2}': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-102-path-alternate-resource-name-path-param': {
-              reason: 'test',
-            },
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'reason',
           },
         },
       },

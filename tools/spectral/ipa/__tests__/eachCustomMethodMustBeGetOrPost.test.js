@@ -38,14 +38,14 @@ testRule('xgen-IPA-109-custom-method-must-be-GET-or-POST', [
           get: {},
           post: {},
           'x-xgen-IPA-exception': {
-            'xgen-IPA-109-custom-method-must-be-GET-or-POST': {},
+            'xgen-IPA-109-custom-method-must-be-GET-or-POST': 'reason',
           },
         },
         '/d:method': {
           get: {},
           post: {},
           'x-xgen-IPA-exception': {
-            'xgen-IPA-109-custom-method-must-be-GET-or-POST': {},
+            'xgen-IPA-109-custom-method-must-be-GET-or-POST': 'reason',
           },
         },
       },

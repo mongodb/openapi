@@ -18,12 +18,12 @@ testRule('xgen-IPA-109-custom-method-must-use-camel-case', [
       paths: {
         '/b/{exampleId}:MethodName': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-109-custom-method-must-use-camel-case': {},
+            'xgen-IPA-109-custom-method-must-use-camel-case': 'reason',
           },
         },
         '/b:MethodName': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-109-custom-method-must-use-camel-case': {},
+            'xgen-IPA-109-custom-method-must-use-camel-case': 'reason',
           },
         },
       },
