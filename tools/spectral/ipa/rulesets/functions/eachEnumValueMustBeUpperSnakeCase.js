@@ -14,16 +14,16 @@ export default (input, _, { path, documentInventory }) => {
   }
 
   const errors = [];
-  for (const enumValue of input) {
+  input.forEach((enumValue, index) => {
     const isUpperSnakeCase = casing(enumValue, { type: 'macro' });
 
     if (isUpperSnakeCase) {
       errors.push({
+        path: [...path, index],
         message: `${enumValue} ${ERROR_MESSAGE} `,
-        path: path.concat(enumValue),
       });
     }
-  }
+  });
 
   return errors;
 };
