@@ -13,11 +13,11 @@ function getSchemaPath(path) {
   }
 }
 
-export default (input, _, {path}) => {
+export default (input, _, { path }) => {
   //There are two path types for enum definition
   //First type: components.schemas.schemaName.*.enum
   //Second type: paths.*.method.parameters[*].schema.enum
-  if(hasException(getSchemaPath(path), RULE_NAME)) {
+  if (hasException(getSchemaPath(path), RULE_NAME)) {
     return;
   }
 
