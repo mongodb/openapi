@@ -133,9 +133,7 @@ testRule('xgen-IPA-104-resource-has-GET', [
           post: {},
           get: {},
           'x-xgen-IPA-exception': {
-            'xgen-IPA-104-resource-has-GET': {
-              reason: 'test',
-            },
+            'xgen-IPA-104-resource-has-GET': 'reason',
           },
         },
         '/standard/{exampleId}': {
