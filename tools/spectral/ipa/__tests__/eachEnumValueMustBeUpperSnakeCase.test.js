@@ -27,7 +27,7 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
         schemas: {
           SchemaName: {
             'x-xgen-IPA-exception': {
-              'xgen-IPA-123-enum-values-must-be-upper-snake-case': {},
+              'xgen-IPA-123-enum-values-must-be-upper-snake-case': 'reason',
             },
             properties: {
               exampleProperty: {
@@ -42,7 +42,7 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
     errors: [],
   },
   {
-    name: 'invalid schema with exception - components.schemas',
+    name: 'invalid schema - components.schemas',
     document: {
       components: {
         schemas: {
@@ -93,7 +93,7 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
     errors: [],
   },
   {
-    name: 'invalid schema with exceptions - paths.*',
+    name: 'invalid schema with exception - paths.*',
     document: {
       paths: {
         '/a/{exampleId}': {
@@ -102,7 +102,7 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
               {
                 schema: {
                   'x-xgen-IPA-exception': {
-                    'xgen-IPA-123-enum-values-must-be-upper-snake-case': {},
+                    'xgen-IPA-123-enum-values-must-be-upper-snake-case': 'reason',
                   },
                   type: 'string',
                   enum: ['exampleA', 'exampleB'],
@@ -113,20 +113,7 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
         },
       },
     },
-    errors: [
-      {
-        code: 'xgen-IPA-123-enum-values-must-be-upper-snake-case',
-        message: 'exampleA enum value must be UPPER_SNAKE_CASE.  http://go/ipa/123',
-        path: ['paths', '/a/{exampleId}', 'get', 'parameters', '0', 'schema', 'enum'],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-123-enum-values-must-be-upper-snake-case',
-        message: 'exampleB enum value must be UPPER_SNAKE_CASE.  http://go/ipa/123',
-        path: ['paths', '/a/{exampleId}', 'get', 'parameters', '0', 'schema', 'enum'],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
+    errors: [],
   },
   {
     name: 'invalid schema - paths.*',

@@ -1,4 +1,4 @@
-import { isPathParam } from './utils/pathUtils.js';
+import { isPathParam } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-102-path-alternate-resource-name-path-param';
