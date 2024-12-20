@@ -18,12 +18,12 @@ on:
         description: 'Branch to release the OpenAPI Spec to.'
         required: true
         type: string
+      aws_s3_role_to_assume:
+        description: 'AWS S3 Role to Assume.'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
-        required: true
-      aws_access_key_id:
-        required: true
-      aws_secret_access_key:
         required: true
       mms_deployed_sha_url:
         required: true
@@ -31,17 +31,21 @@ on:
 permissions:
   contents: write
   issues: write
+  id-token: write
 
 jobs:
   release-v1-oas-apis:
     name: Release OpenAPI Spec for V1 (DEPRECATED) APIs
     runs-on: ubuntu-latest
     steps:
+      - name: aws configure
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws_s3_role_to_assume }}
+          aws-region: ${{inputs.aws_default_region}}
       - name: Download v1 Spec
         env:
           AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
-          AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
           S3_BUCKET: ${{ inputs.aws_s3_bucket }}
           MMS_DEPLOYED_SHA_URL: ${{secrets.mms_deployed_sha_url}}
         run: |

@@ -30,12 +30,12 @@ on:
         description: 'Base URL of Atlas.'
         required: false
         type: string
+      aws_s3_role_to_assume:
+        description: 'AWS S3 Role to Assume.'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
-        required: true
-      aws_access_key_id:
-        required: true
-      aws_secret_access_key:
         required: true
       postman_api_key:
         required: false
@@ -47,6 +47,7 @@ on:
 permissions:
   contents: write
   issues: write
+  id-token: write
 
 jobs:
   generate-spec:
@@ -54,11 +55,10 @@ jobs:
     uses: ./.github/workflows/generate-openapi.yml
     secrets:
       api_bot_pat: ${{ secrets.api_bot_pat }}
-      aws_access_key_id: ${{ secrets.aws_access_key_id }}
-      aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
     with:
       aws_default_region: ${{ inputs.aws_default_region}}
       aws_s3_bucket: ${{ inputs.aws_s3_bucket}}
+      aws_s3_role_to_assume: ${{ inputs.aws_s3_role_to_assume }}
       env: ${{ inputs.env }}
       foascli_version: ${{ inputs.foascli_version }}
 
@@ -170,10 +170,9 @@ jobs:
     uses: ./.github/workflows/release-changelog.yml
     secrets:
         api_bot_pat: ${{ secrets.api_bot_pat }}
-        aws_access_key_id: ${{ secrets.aws_access_key_id }}
-        aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
     with:
         aws_default_region: ${{ inputs.aws_default_region}}
+        aws_s3_role_to_assume: ${{ inputs.aws_s3_role_to_assume }}
         aws_s3_bucket: ${{ inputs.aws_s3_bucket}}
         env: ${{ inputs.env }}
         branch: ${{ inputs.branch }}
