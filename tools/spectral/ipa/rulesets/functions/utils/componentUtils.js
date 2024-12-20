@@ -48,9 +48,7 @@ export function getSchemaPath(path) {
  * or the value is undefined at any point, the function will return `undefined`.
  *
  * @param {Object} oas - The entire OpenAPI Specification object.
- *                       This represents the root of the OpenAPI document.
  * @param {string[]} objectPath - An array of strings representing the path to the desired value.
- *                                Each element corresponds to a key in the OAS object hierarchy.
  *                                For example, `['components', 'schemas', 'MySchema', 'properties']`.
  * @returns {*} The value at the specified path within the OpenAPI object, or `undefined` if the path is invalid.
  *
@@ -70,7 +68,7 @@ export function getSchemaPath(path) {
  * const result = resolveObject(oas, ['components', 'schemas', 'MySchema', 'properties']);
  * console.log(result); // Output: { fieldName: { type: 'string' } }
  */
- export function resolveObject(oas, objectPath) {
+export function resolveObject(oas, objectPath) {
   return objectPath.reduce((current, key) => {
     return current && current[key] ? current[key] : undefined;
   }, oas);
