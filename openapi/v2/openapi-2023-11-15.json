@@ -216,7 +216,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "85083c79a2c5b4052d8c024565478f04dbc19d27"
+    "x-xgen-sha": "004d955bbb55f336675ef670ab46342ff937d087"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -38975,6 +38975,13 @@
               },
               {
                 "enum": [
+                  "OUTSIDE_FLEX_METRIC_THRESHOLD"
+                ],
+                "title": "Flex Metric Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
                   "JOINED_GROUP",
                   "REMOVED_FROM_GROUP",
                   "USER_ROLES_CHANGED_AUDIT"
@@ -39453,6 +39460,14 @@
                   "OUTSIDE_SERVERLESS_METRIC_THRESHOLD"
                 ],
                 "title": "Serverless Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "INSIDE_FLEX_METRIC_THRESHOLD",
+                  "OUTSIDE_FLEX_METRIC_THRESHOLD"
+                ],
+                "title": "Flex Metric Event Types",
                 "type": "string"
               },
               {
@@ -42576,6 +42591,14 @@
           },
           {
             "enum": [
+              "INSIDE_FLEX_METRIC_THRESHOLD",
+              "OUTSIDE_FLEX_METRIC_THRESHOLD"
+            ],
+            "title": "Flex Metric Event Types",
+            "type": "string"
+          },
+          {
+            "enum": [
               "SETUP_SERVERLESS_INITIATED"
             ],
             "title": "Setup Serverless Audit Types",
@@ -44913,6 +44936,98 @@
         "title": "Flex Cluster Description Update",
         "type": "object"
       },
+      "FlexClusterMetricThreshold": {
+        "description": "Threshold for the metric that, when exceeded, triggers an alert. The metric threshold pertains to event types which reflects changes of measurements and metrics about the serverless database.",
+        "discriminator": {
+          "mapping": {
+            "FLEX_AVG_COMMAND_EXECUTION_TIME": "#/components/schemas/TimeMetricThresholdView",
+            "FLEX_AVG_READ_EXECUTION_TIME": "#/components/schemas/TimeMetricThresholdView",
+            "FLEX_AVG_WRITE_EXECUTION_TIME": "#/components/schemas/TimeMetricThresholdView",
+            "FLEX_CONNECTIONS": "#/components/schemas/RawMetricThresholdView",
+            "FLEX_CONNECTIONS_PERCENT": "#/components/schemas/RawMetricThresholdView",
+            "FLEX_DATA_SIZE_TOTAL": "#/components/schemas/DataMetricThresholdView",
+            "FLEX_NETWORK_BYTES_IN": "#/components/schemas/DataMetricThresholdView",
+            "FLEX_NETWORK_BYTES_OUT": "#/components/schemas/DataMetricThresholdView",
+            "FLEX_NETWORK_NUM_REQUESTS": "#/components/schemas/RawMetricThresholdView",
+            "FLEX_OPCOUNTER_CMD": "#/components/schemas/RawMetricThresholdView",
+            "FLEX_OPCOUNTER_DELETE": "#/components/schemas/RawMetricThresholdView",
+            "FLEX_OPCOUNTER_GETMORE": "#/components/schemas/RawMetricThresholdView",
+            "FLEX_OPCOUNTER_INSERT": "#/components/schemas/RawMetricThresholdView",
+            "FLEX_OPCOUNTER_QUERY": "#/components/schemas/RawMetricThresholdView",
+            "FLEX_OPCOUNTER_UPDATE": "#/components/schemas/RawMetricThresholdView"
+          },
+          "propertyName": "metricName"
+        },
+        "properties": {
+          "metricName": {
+            "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured **metricThreshold.threshold**.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "MongoDB Cloud computes the current metric value as an average.",
+            "enum": [
+              "AVERAGE"
+            ],
+            "type": "string"
+          },
+          "operator": {
+            "description": "Comparison operator to apply when checking the current metric value.",
+            "enum": [
+              "LESS_THAN",
+              "GREATER_THAN"
+            ],
+            "type": "string"
+          },
+          "threshold": {
+            "description": "Value of metric that, when exceeded, triggers an alert.",
+            "format": "double",
+            "type": "number"
+          },
+          "units": {
+            "description": "Element used to express the quantity. This can be an element of time, storage capacity, and the like.",
+            "enum": [
+              "bits",
+              "Kbits",
+              "Mbits",
+              "Gbits",
+              "bytes",
+              "KB",
+              "MB",
+              "GB",
+              "TB",
+              "PB",
+              "nsec",
+              "msec",
+              "sec",
+              "min",
+              "hours",
+              "million minutes",
+              "days",
+              "requests",
+              "1000 requests",
+              "GB seconds",
+              "GB hours",
+              "GB days",
+              "RPU",
+              "thousand RPU",
+              "million RPU",
+              "WPU",
+              "thousand WPU",
+              "million WPU",
+              "count",
+              "thousand",
+              "million",
+              "billion"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "metricName"
+        ],
+        "title": "Flex Cluster Metric Threshold",
+        "type": "object"
+      },
       "FlexConnectionStrings20241113": {
         "description": "Collection of Uniform Resource Locators that point to the MongoDB database.",
         "externalDocs": {
@@ -44942,6 +45057,101 @@
         "readOnly": true,
         "title": "Flex Cluster Connection Strings",
         "type": "object"
+      },
+      "FlexMetricAlertConfigViewForNdsGroup": {
+        "description": "Flex metric alert configuration allows to select which Flex database metrics trigger alerts and how users are notified.",
+        "properties": {
+          "created": {
+            "description": "Date and time when MongoDB Cloud created the alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "description": "Flag that indicates whether someone enabled this alert configuration for the specified project.",
+            "type": "boolean"
+          },
+          "eventTypeName": {
+            "$ref": "#/components/schemas/FlexMetricEventTypeViewAlertable"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies this alert configuration.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "matchers": {
+            "description": "Matching conditions for target resources.",
+            "items": {
+              "$ref": "#/components/schemas/AlertMatcher"
+            },
+            "type": "array"
+          },
+          "metricThreshold": {
+            "$ref": "#/components/schemas/FlexClusterMetricThreshold"
+          },
+          "notifications": {
+            "description": "List that contains the targets that MongoDB Cloud sends notifications.",
+            "items": {
+              "$ref": "#/components/schemas/AlertsNotificationRootForGroup"
+            },
+            "type": "array"
+          },
+          "updated": {
+            "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "eventTypeName",
+          "notifications"
+        ],
+        "title": "Flex Alert Configuration",
+        "type": "object"
+      },
+      "FlexMetricEventTypeViewAlertable": {
+        "description": "Event type that triggers an alert.",
+        "enum": [
+          "OUTSIDE_FLEX_METRIC_THRESHOLD"
+        ],
+        "example": "OUTSIDE_FLEX_METRIC_THRESHOLD",
+        "title": "Flex Metric Event Types",
+        "type": "string"
       },
       "FlexProviderSettings20241113": {
         "description": "Group of cloud provider settings that configure the provisioned MongoDB flex cluster.",
@@ -46065,6 +46275,9 @@
           },
           {
             "$ref": "#/components/schemas/ServerlessMetricAlertConfigViewForNdsGroup"
+          },
+          {
+            "$ref": "#/components/schemas/FlexMetricAlertConfigViewForNdsGroup"
           },
           {
             "$ref": "#/components/schemas/StreamProcessorAlertConfigViewForNdsGroup"
