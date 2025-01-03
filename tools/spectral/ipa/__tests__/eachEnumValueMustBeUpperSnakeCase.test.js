@@ -7,11 +7,22 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
     document: {
       components: {
         schemas: {
-          SchemaName: {
+          SchemaName1: {
             properties: {
               exampleProperty: {
                 enum: ['EXAMPLE_A', 'EXAMPLE_B'],
                 type: 'string',
+              },
+            },
+          },
+          SchemaName2: {
+            properties: {
+              exampleProperty: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  enum: ['EXAMPLE_A', 'EXAMPLE_B'],
+                }
               },
             },
           },
@@ -36,6 +47,20 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
               },
             },
           },
+          SchemaName2: {
+            properties: {
+              exampleProperty: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  enum: ['exampleA', 'exampleB'],
+                },
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-123-enum-values-must-be-upper-snake-case': 'reason',
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -54,6 +79,17 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
               },
             },
           },
+          SchemaName2: {
+            properties: {
+              exampleProperty: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  enum: ['exampleA', 'exampleB'],
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -68,6 +104,18 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
         code: 'xgen-IPA-123-enum-values-must-be-upper-snake-case',
         message: 'enum[1]:exampleB enum value must be UPPER_SNAKE_CASE.  http://go/ipa/123',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'exampleProperty'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-123-enum-values-must-be-upper-snake-case',
+        message: 'enum[0]:exampleA enum value must be UPPER_SNAKE_CASE.  http://go/ipa/123',
+        path: ['components', 'schemas', 'SchemaName2', 'properties', 'exampleProperty'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-123-enum-values-must-be-upper-snake-case',
+        message: 'enum[1]:exampleB enum value must be UPPER_SNAKE_CASE.  http://go/ipa/123',
+        path: ['components', 'schemas', 'SchemaName2', 'properties', 'exampleProperty'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
