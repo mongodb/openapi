@@ -14,33 +14,6 @@ export function isPathParam(str) {
 }
 
 /**
- * Extracts the schema path from the given JSONPath array.
- *
- * This function is designed to handle two types of paths commonly encountered in OpenAPI definitions:
- *
- * 1. **Component Schema Paths**:
- *    - Represented as: `components.schemas.schemaName.*.enum`
- *    - This path indicates that the enum is defined within a schema under `components.schemas`.
- *    - The function returns the first three elements (`["components", "schemas", "schemaName"]`).
- *
- * 2. **Parameter Schema Paths**:
- *    - Represented as: `paths.*.method.parameters[*].schema.enum`
- *    - This path indicates that the enum is part of a parameter's schema in an operation.
- *    - The function identifies the location of `schema` in the path and returns everything up to (and including) it.
- *
- * @param {string[]} path - An array representing the JSONPath structure of the OpenAPI definition.
- * @returns {string[]} The truncated path pointing to the schema object.
- */
-export function getSchemaPath(path) {
-  if (path.includes('components')) {
-    return path.slice(0, 3);
-  } else if (path.includes('paths')) {
-    const index = path.findIndex((item) => item === 'schema');
-    return path.slice(0, index + 1);
-  }
-}
-
-/**
  * Resolves the value of a nested property within an OpenAPI structure using a given path.
  *
  * This function traverses an OpenAPI object based on a specified path (array of keys)
