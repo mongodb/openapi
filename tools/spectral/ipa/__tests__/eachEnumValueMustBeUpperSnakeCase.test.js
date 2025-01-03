@@ -22,7 +22,7 @@ testRule('xgen-IPA-123-enum-values-must-be-upper-snake-case', [
                 items: {
                   type: 'string',
                   enum: ['EXAMPLE_A', 'EXAMPLE_B'],
-                }
+                },
               },
             },
           },

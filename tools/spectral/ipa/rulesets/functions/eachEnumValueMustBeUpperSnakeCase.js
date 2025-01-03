@@ -6,10 +6,10 @@ const RULE_NAME = 'xgen-IPA-123-enum-values-must-be-upper-snake-case';
 const ERROR_MESSAGE = 'enum value must be UPPER_SNAKE_CASE.';
 
 export function getSchemaPathFromEnumPath(path) {
-  if(path.includes('items')) {
-    path = path.slice(0, - 1);
+  if (path.includes('items')) {
+    path = path.slice(0, -1);
   }
-  return path.slice(0, - 1);
+  return path.slice(0, -1);
 }
 
 export default (input, _, { path, documentInventory }) => {
