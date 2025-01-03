@@ -16,28 +16,41 @@ export function isPathParam(str) {
 /**
  * Extracts the schema path from the given JSONPath array.
  *
- * This function is designed to handle two types of paths commonly encountered in OpenAPI definitions:
+ * This function handles the following types of paths in OpenAPI definitions:
  *
  * 1. **Component Schema Paths**:
- *    - Represented as: `components.schemas.schemaName.*.enum`
- *    - This path indicates that the enum is defined within a schema under `components.schemas`.
+ *    - Represented as: `components.schemas.schemaName.enum`
+ *    - This path indicates that the enum is defined directly within a schema under `components.schemas`.
  *    - The function returns the first three elements (`["components", "schemas", "schemaName"]`).
  *
- * 2. **Parameter Schema Paths**:
+ * 2. **Component Schema Property Paths**:
+ *    - Represented as: `components.schemas.schemaName.properties.propertyName.enum`
+ *    - This path indicates that the enum is defined for a specific property of a schema.
+ *    - The function returns up to the property level (`["components", "schemas", "schemaName", "properties", "propertyName"]`).
+ *
+ * 3. **Parameter Schema Paths**:
  *    - Represented as: `paths.*.method.parameters[*].schema.enum`
  *    - This path indicates that the enum is part of a parameter's schema in an operation.
  *    - The function identifies the location of `schema` in the path and returns everything up to (and including) it.
  *
  * @param {string[]} path - An array representing the JSONPath structure of the OpenAPI definition.
- * @returns {string[]} The truncated path pointing to the schema object.
+ * @returns {string[]} The truncated path pointing to the schema object or property.
  */
+
 export function getSchemaPath(path) {
   if (path.includes('components')) {
+    const propertyIndex = path.findIndex((item) => item === 'properties');
+    if (propertyIndex !== -1) {
+      // Path is for a component.schema.property enum
+      return path.slice(0, propertyIndex + 2);
+    }
+    // Path is for a component.schema enum
     return path.slice(0, 3);
   } else if (path.includes('paths')) {
-    const index = path.findIndex((item) => item === 'schema');
-    return path.slice(0, index + 1);
+    const schemaIndex = path.findIndex((item) => item === 'schema');
+    return path.slice(0, schemaIndex + 1);
   }
+  return [];
 }
 
 /**

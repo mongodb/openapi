@@ -19,8 +19,8 @@ export default (input, _, { path, documentInventory }) => {
 
     if (isUpperSnakeCase) {
       errors.push({
-        path: [...path, index],
-        message: `${enumValue} ${ERROR_MESSAGE} `,
+        path: schemaPath,
+        message: `enum[${index}]:${enumValue} ${ERROR_MESSAGE} `,
       });
     }
   });
