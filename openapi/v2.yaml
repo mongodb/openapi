@@ -10450,6 +10450,111 @@ components:
                 - id
             title: Data Explorer Accessed Events
             type: object
+        DataExplorerEvent:
+            description: Data Explorer event tracks different Data Explorer operations.
+            properties:
+                apiKeyId:
+                    description: Unique 24-hexadecimal digit string that identifies the [API Key](https://dochub.mongodb.org/core/atlas-create-prog-api-key) that triggered the event. If this resource returns this parameter, it doesn't return the **userId** parameter.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                created:
+                    description: Date and time when this event occurred. This parameter expresses its value in the <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener noreferrer">ISO 8601</a> timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                eventTypeName:
+                    $ref: '#/components/schemas/DataExplorerEventTypeView'
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The **eventId** identifies the specific event.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies the event.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                isGlobalAdmin:
+                    default: false
+                    description: Flag that indicates whether a MongoDB employee triggered the specified event.
+                    readOnly: true
+                    type: boolean
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                orgId:
+                    description: Unique 24-hexadecimal digit string that identifies the organization to which these events apply.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                publicKey:
+                    description: Public part of the [API Key](https://dochub.mongodb.org/core/atlas-create-prog-api-key) that triggered the event. If this resource returns this parameter, it doesn't return the **username** parameter.
+                    example: test.user@mongodb.com
+                    format: email
+                    readOnly: true
+                    type: string
+                raw:
+                    $ref: '#/components/schemas/raw'
+                remoteAddress:
+                    description: IPv4 or IPv6 address from which the user triggered this event.
+                    example: 216.172.40.186
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    readOnly: true
+                    type: string
+                sessionId:
+                    description: Unique 24-hexadecimal digit string that identifies the Data Explorer session associated with the event.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                userId:
+                    description: Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                username:
+                    description: Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.
+                    example: test.user@mongodb.com
+                    format: email
+                    readOnly: true
+                    type: string
+            required:
+                - created
+                - eventTypeName
+                - id
+            title: Data Explorer Events
+            type: object
+        DataExplorerEventTypeView:
+            description: Unique identifier of event type.
+            enum:
+                - DATA_EXPLORER_SESSION_CREATED
+            example: DATA_EXPLORER_SESSION_CREATED
+            title: Data Explorer Event Types
+            type: string
         DataFederationAzureCloudProviderConfig:
             description: Configuration for running Data Federation in Azure.
             properties:
@@ -15004,6 +15109,10 @@ components:
                   title: Data Explorer Accessed Event Types
                   type: string
                 - enum:
+                    - DATA_EXPLORER_SESSION_CREATED
+                  title: Data Explorer Event Types
+                  type: string
+                - enum:
                     - CPS_DATA_PROTECTION_ENABLE_REQUESTED
                     - CPS_DATA_PROTECTION_ENABLED
                     - CPS_DATA_PROTECTION_UPDATE_REQUESTED
@@ -15865,6 +15974,7 @@ components:
                 - $ref: '#/components/schemas/BillingEventViewForNdsGroup'
                 - $ref: '#/components/schemas/ClusterEventViewForNdsGroup'
                 - $ref: '#/components/schemas/DataExplorerAccessedEventView'
+                - $ref: '#/components/schemas/DataExplorerEvent'
                 - $ref: '#/components/schemas/FTSIndexAuditView'
                 - $ref: '#/components/schemas/HostEventViewForNdsGroup'
                 - $ref: '#/components/schemas/HostMetricEvent'
@@ -34694,7 +34804,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: ef3a26b7c99676de62d1d526b300c627a19d11d6
+    x-xgen-sha: 8be38af0116fbdd3fb9f1ed089a2cb654066c273
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -35327,7 +35437,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/FederationSamlIdentityProvider'
-                            x-sunset: "2025-01-01"
+                            x-sunset: "2025-03-01"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-11-15+json:
                             schema:
@@ -35380,7 +35490,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/FederationSamlIdentityProvider'
-                            x-sunset: "2025-01-01"
+                            x-sunset: "2025-03-01"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-11-15+json:
                             schema:
