@@ -829,6 +829,136 @@ components:
                     readOnly: true
                     type: boolean
             type: object
+        AWSKMSEARPrivateEndpoint:
+            description: AWS Key Management Service Encryption At Rest Private Endpoint.
+            properties:
+                cloudProvider:
+                    description: Human-readable label that identifies the cloud provider for the Encryption At Rest private endpoint.
+                    enum:
+                        - AZURE
+                        - AWS
+                    readOnly: true
+                    type: string
+                errorMessage:
+                    description: Error message for failures associated with the Encryption At Rest private endpoint.
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies the Private Endpoint Service.
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                regionName:
+                    description: Cloud provider region in which the Encryption At Rest private endpoint is located.
+                    oneOf:
+                        - description: Microsoft Azure Regions.
+                          enum:
+                            - US_CENTRAL
+                            - US_EAST
+                            - US_EAST_2
+                            - US_NORTH_CENTRAL
+                            - US_WEST
+                            - US_SOUTH_CENTRAL
+                            - EUROPE_NORTH
+                            - EUROPE_WEST
+                            - US_WEST_CENTRAL
+                            - US_WEST_2
+                            - US_WEST_3
+                            - CANADA_EAST
+                            - CANADA_CENTRAL
+                            - BRAZIL_SOUTH
+                            - BRAZIL_SOUTHEAST
+                            - AUSTRALIA_CENTRAL
+                            - AUSTRALIA_CENTRAL_2
+                            - AUSTRALIA_EAST
+                            - AUSTRALIA_SOUTH_EAST
+                            - GERMANY_CENTRAL
+                            - GERMANY_NORTH_EAST
+                            - GERMANY_WEST_CENTRAL
+                            - GERMANY_NORTH
+                            - SWEDEN_CENTRAL
+                            - SWEDEN_SOUTH
+                            - SWITZERLAND_NORTH
+                            - SWITZERLAND_WEST
+                            - UK_SOUTH
+                            - UK_WEST
+                            - NORWAY_EAST
+                            - NORWAY_WEST
+                            - INDIA_CENTRAL
+                            - INDIA_SOUTH
+                            - INDIA_WEST
+                            - CHINA_EAST
+                            - CHINA_NORTH
+                            - ASIA_EAST
+                            - JAPAN_EAST
+                            - JAPAN_WEST
+                            - ASIA_SOUTH_EAST
+                            - KOREA_CENTRAL
+                            - KOREA_SOUTH
+                            - FRANCE_CENTRAL
+                            - FRANCE_SOUTH
+                            - SOUTH_AFRICA_NORTH
+                            - SOUTH_AFRICA_WEST
+                            - UAE_CENTRAL
+                            - UAE_NORTH
+                            - QATAR_CENTRAL
+                          title: Azure Regions
+                          type: string
+                        - description: Physical location where MongoDB Cloud deploys your AWS-hosted MongoDB cluster nodes. The region you choose can affect network latency for clients accessing your databases. When MongoDB Cloud deploys a dedicated cluster, it checks if a VPC or VPC connection exists for that provider and region. If not, MongoDB Cloud creates them as part of the deployment. MongoDB Cloud assigns the VPC a CIDR block. To limit a new VPC peering connection to one CIDR block and region, create the connection first. Deploy the cluster after the connection starts.
+                          enum:
+                            - US_GOV_WEST_1
+                            - US_GOV_EAST_1
+                            - US_EAST_1
+                            - US_EAST_2
+                            - US_WEST_1
+                            - US_WEST_2
+                            - CA_CENTRAL_1
+                            - EU_NORTH_1
+                            - EU_WEST_1
+                            - EU_WEST_2
+                            - EU_WEST_3
+                            - EU_CENTRAL_1
+                            - EU_CENTRAL_2
+                            - AP_EAST_1
+                            - AP_NORTHEAST_1
+                            - AP_NORTHEAST_2
+                            - AP_NORTHEAST_3
+                            - AP_SOUTHEAST_1
+                            - AP_SOUTHEAST_2
+                            - AP_SOUTHEAST_3
+                            - AP_SOUTHEAST_4
+                            - AP_SOUTH_1
+                            - AP_SOUTH_2
+                            - SA_EAST_1
+                            - CN_NORTH_1
+                            - CN_NORTHWEST_1
+                            - ME_SOUTH_1
+                            - ME_CENTRAL_1
+                            - AF_SOUTH_1
+                            - EU_SOUTH_1
+                            - EU_SOUTH_2
+                            - IL_CENTRAL_1
+                            - CA_WEST_1
+                            - GLOBAL
+                          title: AWS Regions
+                          type: string
+                    type: object
+                status:
+                    description: State of the Encryption At Rest private endpoint.
+                    enum:
+                        - INITIATING
+                        - PENDING_ACCEPTANCE
+                        - ACTIVE
+                        - FAILED
+                        - PENDING_RECREATION
+                        - DELETING
+                    readOnly: true
+                    type: string
+            title: AWS Key Management Service EAR Private Endpoint
+            type: object
         AWSPrivateLinkConnection:
             description: Group of Private Endpoint Service settings.
             properties:
@@ -975,6 +1105,7 @@ components:
                         - GROUP_SEARCH_INDEX_EDITOR
                         - GROUP_BACKUP_MANAGER
                         - GROUP_OBSERVABILITY_VIEWER
+                        - GROUP_DATABASE_ACCESS_ADMIN
                     type: string
             required:
                 - groupRole
@@ -14622,6 +14753,7 @@ components:
             description: Encryption At Rest Private Endpoint.
             oneOf:
                 - $ref: '#/components/schemas/AzureKeyVaultEARPrivateEndpoint'
+                - $ref: '#/components/schemas/AWSKMSEARPrivateEndpoint'
             properties:
                 cloudProvider:
                     description: Human-readable label that identifies the cloud provider for the Encryption At Rest private endpoint.
@@ -18835,6 +18967,7 @@ components:
                             - GROUP_SEARCH_INDEX_EDITOR
                             - GROUP_BACKUP_MANAGER
                             - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     type: array
                     uniqueItems: true
@@ -19044,6 +19177,7 @@ components:
                             - GROUP_SEARCH_INDEX_EDITOR
                             - GROUP_BACKUP_MANAGER
                             - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     minItems: 1
                     type: array
@@ -19098,6 +19232,7 @@ components:
                             - GROUP_SEARCH_INDEX_EDITOR
                             - GROUP_BACKUP_MANAGER
                             - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     readOnly: true
                     type: array
@@ -34804,7 +34939,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 8043ade4745381a8aaa7d2aa163ed42d8d64f9a1
+    x-xgen-sha: e899b55ebca98561547a3ef870478ff5f6511c87
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -40342,7 +40477,7 @@ paths:
             tags:
                 - Custom Database Roles
         post:
-            description: Creates one custom role in the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            description: Creates one custom role in the specified project. To use this resource, the requesting API Key must have the Project Owner role, Project Stream Processing Owner role, or the Project Database Access Admin role.
             operationId: createCustomDatabaseRole
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -40382,7 +40517,7 @@ paths:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}:
         delete:
-            description: Removes one custom role from the specified project. You can't remove a custom role that would leave one or more child roles with no parent roles or actions. You also can't remove a custom role that would leave one or more database users without roles. To use this resource, the requesting API Key must have the Project Atlas Admin role.
+            description: Removes one custom role from the specified project. You can't remove a custom role that would leave one or more child roles with no parent roles or actions. You also can't remove a custom role that would leave one or more database users without roles. To use this resource, the requesting API Key must have the Project Owner role, Project Stream Processing Owner role, or the Project Database Access Admin role.
             operationId: deleteCustomDatabaseRole
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -40444,7 +40579,7 @@ paths:
             tags:
                 - Custom Database Roles
         patch:
-            description: Updates one custom role in the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            description: Updates one custom role in the specified project. To use this resource, the requesting API Key must have the Project Owner role, the Project Stream Processing Owner role, or the Project Database Access Admin role.
             operationId: updateCustomDatabaseRole
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -40924,7 +41059,7 @@ paths:
             tags:
                 - Database Users
         post:
-            description: Creates one database user in the specified project. This MongoDB Cloud supports a maximum of 100 database users per project. If you require more than 100 database users on a project, contact [Support](https://cloud.mongodb.com/support). To use this resource, the requesting API Key must have the Project Owner or Project Charts Admin roles.
+            description: Creates one database user in the specified project. This MongoDB Cloud supports a maximum of 100 database users per project. If you require more than 100 database users on a project, contact [Support](https://cloud.mongodb.com/support). To use this resource, the requesting API Key must have the Project Owner role, the Project Charts Admin role, Project Stream Processing Owner role, or the Project Database Access Admin role.
             operationId: createDatabaseUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -41053,7 +41188,7 @@ paths:
                 - Database Users
     /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}:
         delete:
-            description: Removes one database user from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            description: Removes one database user from the specified project. To use this resource, the requesting API Key must have the Project Owner role, the Project Stream Processing Owner role, or the Project Database Access Admin role.
             operationId: deleteDatabaseUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -41155,7 +41290,7 @@ paths:
             tags:
                 - Database Users
         patch:
-            description: Updates one database user that belongs to the specified project. To use this resource, the requesting API Key must have the Project Owner or Project Charts Admin roles.
+            description: Updates one database user that belongs to the specified project. To use this resource, the requesting API Key must have the Project Owner role, Project Charts Admin role, Project Stream Processing Owner role, or the Project Database Access Admin role.
             operationId: updateDatabaseUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -41307,7 +41442,7 @@ paths:
                 - X.509 Authentication
     /api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}:
         get:
-            description: Returns the access logs of one cluster identified by the cluster's name. Access logs contain a list of authentication requests made against your cluster. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting API Key must have the Project Monitoring Admin role.
+            description: Returns the access logs of one cluster identified by the cluster's name. Access logs contain a list of authentication requests made against your cluster. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting API Key must have the Project Monitoring Admin role or the Project Database Access Admin role.
             externalDocs:
                 description: Database Access History
                 url: https://docs.atlas.mongodb.com/access-tracking/
@@ -41378,7 +41513,7 @@ paths:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/dbAccessHistory/processes/{hostname}:
         get:
-            description: Returns the access logs of one cluster identified by the cluster's hostname. Access logs contain a list of authentication requests made against your clusters. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting API Key must have the Project Monitoring Admin role.
+            description: Returns the access logs of one cluster identified by the cluster's hostname. Access logs contain a list of authentication requests made against your clusters. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting API Key must have the Project Monitoring Admin role or the Project Database Access Admin role.
             externalDocs:
                 description: Database Access History
                 url: https://docs.atlas.mongodb.com/access-tracking/
@@ -41535,6 +41670,7 @@ paths:
                   schema:
                     enum:
                         - AZURE
+                        - AWS
                     type: string
             responses:
                 "200":
@@ -41565,6 +41701,7 @@ paths:
                   schema:
                     enum:
                         - AZURE
+                        - AWS
                     type: string
             requestBody:
                 content:
@@ -45242,7 +45379,7 @@ paths:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/processes/{processId}/performanceAdvisor/slowQueryLogs:
         get:
-            description: Returns log lines for slow queries that the Performance Advisor and Query Profiler identified. The Performance Advisor monitors queries that MongoDB considers slow and suggests new indexes to improve query performance. MongoDB Cloud bases the threshold for slow queries on the average time of operations on your cluster. This enables workload-relevant recommendations. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            description: Returns log lines for slow queries that the Performance Advisor and Query Profiler identified. The Performance Advisor monitors queries that MongoDB considers slow and suggests new indexes to improve query performance. MongoDB Cloud bases the threshold for slow queries on the average time of operations on your cluster. This enables workload-relevant recommendations. To use this resource, the requesting API Key must have any Project Data Access role or the Project Observability Viewer role.
             operationId: listSlowQueries
             parameters:
                 - $ref: '#/components/parameters/envelope'
