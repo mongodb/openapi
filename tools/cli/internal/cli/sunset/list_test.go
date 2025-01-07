@@ -19,6 +19,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestList_Run(t *testing.T) {
@@ -29,13 +30,8 @@ func TestList_Run(t *testing.T) {
 		fs:         fs,
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
+	require.NoError(t, opts.Run())
 	b, err := afero.ReadFile(fs, opts.outputPath)
-	if err != nil {
-		t.Fatalf("ReadFile() unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 	assert.NotEmpty(t, b)
 }

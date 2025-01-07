@@ -20,9 +20,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
-	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -46,7 +48,7 @@ func (o *ListOpts) Run() error {
 		return err
 	}
 
-	sunsets, err := o.newSunsetInRange(openapi.NewSunsetListFromSpec(specInfo))
+	sunsets, err := o.newSunsetInRange(sunset.NewSunsetListFromSpec(specInfo))
 	if err != nil {
 		return err
 	}
@@ -63,8 +65,8 @@ func (o *ListOpts) Run() error {
 	return nil
 }
 
-func (o *ListOpts) newSunsetInRange(sunsets []*openapi.Sunset) ([]*openapi.Sunset, error) {
-	var out []*openapi.Sunset
+func (o *ListOpts) newSunsetInRange(sunsets []*sunset.Sunset) ([]*sunset.Sunset, error) {
+	var out []*sunset.Sunset
 	if o.from == "" && o.to == "" {
 		return sunsets, nil
 	}
@@ -99,7 +101,7 @@ func isDateInRange(date, from, to *time.Time) bool {
 	return true
 }
 
-func (o *ListOpts) newSunsetListBytes(versions []*openapi.Sunset) ([]byte, error) {
+func (o *ListOpts) newSunsetListBytes(versions []*sunset.Sunset) ([]byte, error) {
 	data, err := json.MarshalIndent(versions, "", "  ")
 	if err != nil {
 		return nil, err

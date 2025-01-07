@@ -1,4 +1,4 @@
-package openapi
+package sunset
 
 import (
 	"testing"
@@ -167,7 +167,7 @@ func TestNewExtensionsFrom2xxResponse(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result := newExtensionsFrom2xxResponse(test.responsesMap)
+			result := successResponseExtensions(test.responsesMap)
 			assert.Equal(t, test.expected, result)
 		})
 	}

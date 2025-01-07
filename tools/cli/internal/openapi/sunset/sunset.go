@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package openapi
+package sunset
 
 import (
 	"github.com/getkin/kin-openapi/openapi3"
@@ -39,8 +39,8 @@ func NewSunsetListFromSpec(spec *load.SpecInfo) []*Sunset {
 
 	for path, pathBody := range paths.Map() {
 		for operationName, operationBody := range pathBody.Operations() {
-			teamName := newTeamNameFromOperation(operationBody)
-			extensions := newExtensionsFrom2xxResponse(operationBody.Responses.Map())
+			teamName := teamName(operationBody)
+			extensions := successResponseExtensions(operationBody.Responses.Map())
 			if extensions == nil {
 				continue
 			}
@@ -70,31 +70,31 @@ func NewSunsetListFromSpec(spec *load.SpecInfo) []*Sunset {
 	return sunsets
 }
 
-func newTeamNameFromOperation(op *openapi3.Operation) string {
+func teamName(op *openapi3.Operation) string {
 	if value, ok := op.Extensions[teamExtensionName]; ok {
 		return value.(string)
 	}
 	return ""
 }
 
-func newExtensionsFrom2xxResponse(responsesMap map[string]*openapi3.ResponseRef) map[string]any {
+func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) map[string]any {
 	if val, ok := responsesMap["200"]; ok {
-		return newExtensionsFromContent(val.Value.Content)
+		return contentExtensions(val.Value.Content)
 	}
 	if val, ok := responsesMap["201"]; ok {
-		return newExtensionsFromContent(val.Value.Content)
+		return contentExtensions(val.Value.Content)
 	}
 	if val, ok := responsesMap["202"]; ok {
-		return newExtensionsFromContent(val.Value.Content)
+		return contentExtensions(val.Value.Content)
 	}
 	if val, ok := responsesMap["204"]; ok {
-		return newExtensionsFromContent(val.Value.Content)
+		return contentExtensions(val.Value.Content)
 	}
 
 	return nil
 }
 
-func newExtensionsFromContent(content openapi3.Content) map[string]any {
+func contentExtensions(content openapi3.Content) map[string]any {
 	for _, v := range content {
 		return v.Extensions
 	}
