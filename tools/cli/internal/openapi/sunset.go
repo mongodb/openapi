@@ -22,6 +22,7 @@ import (
 const (
 	sunsetExtensionName     = "x-sunset"
 	apiVersionExtensionName = "x-xgen-version"
+	teamExtensionName       = "x-xgen-owner-team"
 )
 
 type Sunset struct {
@@ -29,6 +30,7 @@ type Sunset struct {
 	Path       string `json:"path" yaml:"path"`
 	Version    string `json:"version" yaml:"version"`
 	SunsetDate string `json:"sunset_date" yaml:"sunset_date"`
+	Team       string `json:"team" yaml:"team"`
 }
 
 func NewSunsetListFromSpec(spec *load.SpecInfo) []*Sunset {
@@ -37,6 +39,7 @@ func NewSunsetListFromSpec(spec *load.SpecInfo) []*Sunset {
 
 	for path, pathBody := range paths.Map() {
 		for operationName, operationBody := range pathBody.Operations() {
+			teamName := newTeamNameFromOperation(operationBody)
 			extensions := newExtensionsFrom2xxResponse(operationBody.Responses.Map())
 			if extensions == nil {
 				continue
@@ -57,6 +60,7 @@ func NewSunsetListFromSpec(spec *load.SpecInfo) []*Sunset {
 				Path:       path,
 				SunsetDate: sunsetExt.(string),
 				Version:    apiVersion.(string),
+				Team:       teamName,
 			}
 
 			sunsets = append(sunsets, &sunset)
@@ -64,6 +68,13 @@ func NewSunsetListFromSpec(spec *load.SpecInfo) []*Sunset {
 	}
 
 	return sunsets
+}
+
+func newTeamNameFromOperation(op *openapi3.Operation) string {
+	if value, ok := op.Extensions[teamExtensionName]; ok {
+		return value.(string)
+	}
+	return ""
 }
 
 func newExtensionsFrom2xxResponse(responsesMap map[string]*openapi3.ResponseRef) map[string]any {

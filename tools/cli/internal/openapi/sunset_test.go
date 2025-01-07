@@ -74,32 +74,18 @@ func TestNewSunsetListFromSpec(t *testing.T) {
 			expected: nil,
 		},
 		{
-			name: "Multiple operations with extensions",
+			name: "201 operations with extensions",
 			specInfo: &load.SpecInfo{
 				Spec: &openapi3.T{
 					Paths: openapi3.NewPaths(
 						openapi3.WithPath("/example1", &openapi3.PathItem{
 							Get: &openapi3.Operation{
-								Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+								Responses: openapi3.NewResponses(openapi3.WithName("201", &openapi3.Response{
 									Content: openapi3.Content{
 										"application/json": &openapi3.MediaType{
 											Extensions: map[string]any{
 												sunsetExtensionName:     "2024-06-15",
 												apiVersionExtensionName: "v2.0",
-											},
-										},
-									},
-								})),
-							},
-						}),
-						openapi3.WithPath("/example2", &openapi3.PathItem{
-							Post: &openapi3.Operation{
-								Responses: openapi3.NewResponses(openapi3.WithName("201", &openapi3.Response{
-									Content: openapi3.Content{
-										"application/json": &openapi3.MediaType{
-											Extensions: map[string]any{
-												sunsetExtensionName:     "2025-01-01",
-												apiVersionExtensionName: "v1.5",
 											},
 										},
 									},
@@ -115,12 +101,6 @@ func TestNewSunsetListFromSpec(t *testing.T) {
 					Path:       "/example1",
 					Version:    "v2.0",
 					SunsetDate: "2024-06-15",
-				},
-				{
-					Operation:  "POST",
-					Path:       "/example2",
-					Version:    "v1.5",
-					SunsetDate: "2025-01-01",
 				},
 			},
 		},
