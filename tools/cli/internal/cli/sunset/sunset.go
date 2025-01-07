@@ -22,9 +22,6 @@ func Builder() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sunset",
 		Short: "Manage the Sunset API for the OpenAPI spec.",
-		Annotations: map[string]string{
-			"toc": "true",
-		},
 	}
 
 	cmd.AddCommand(ListBuilder())

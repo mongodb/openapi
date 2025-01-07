@@ -45,4 +45,6 @@ const (
 	MessageID                = "msg-id"
 	ChannelID                = "channel-id"
 	ChannelIDShort           = "c"
+	From                     = "from"
+	To                       = "to"
 )

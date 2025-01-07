@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
@@ -32,6 +33,10 @@ type ListOpts struct {
 	basePath   string
 	outputPath string
 	format     string
+	from       string
+	to         string
+	toDate     *time.Time
+	fromDate   *time.Time
 }
 
 func (o *ListOpts) Run() error {
@@ -41,7 +46,12 @@ func (o *ListOpts) Run() error {
 		return err
 	}
 
-	bytes, err := o.newSunsetListBytes(openapi.NewSunsetListFromSpec(specInfo))
+	sunsets, err := o.newSunsetInRange(openapi.NewSunsetListFromSpec(specInfo))
+	if err != nil {
+		return err
+	}
+
+	bytes, err := o.newSunsetListBytes(sunsets)
 	if err != nil {
 		return err
 	}
@@ -51,6 +61,42 @@ func (o *ListOpts) Run() error {
 
 	fmt.Println(string(bytes))
 	return nil
+}
+
+func (o *ListOpts) newSunsetInRange(sunsets []*openapi.Sunset) ([]*openapi.Sunset, error) {
+	var out []*openapi.Sunset
+	if o.from == "" && o.to == "" {
+		return sunsets, nil
+	}
+
+	for _, s := range sunsets {
+		sunsetDate, err := time.Parse("2006-01-02", s.SunsetDate)
+		if err != nil {
+			return nil, err
+		}
+
+		if isDateInRange(&sunsetDate, o.fromDate, o.toDate) {
+			out = append(out, s)
+		}
+	}
+
+	return out, nil
+}
+
+func isDateInRange(date, from, to *time.Time) bool {
+	if date == nil {
+		return false
+	}
+
+	if from != nil && date.Before(*from) {
+		return false
+	}
+
+	if to != nil && date.After(*to) {
+		return false
+	}
+
+	return true
 }
 
 func (o *ListOpts) newSunsetListBytes(versions []*openapi.Sunset) ([]byte, error) {
@@ -63,7 +109,7 @@ func (o *ListOpts) newSunsetListBytes(versions []*openapi.Sunset) ([]byte, error
 		return data, nil
 	}
 
-	var jsonData interface{}
+	var jsonData any
 	if mErr := json.Unmarshal(data, &jsonData); mErr != nil {
 		return nil, mErr
 	}
@@ -76,8 +122,28 @@ func (o *ListOpts) newSunsetListBytes(versions []*openapi.Sunset) ([]byte, error
 	return yamlData, nil
 }
 
+func (o *ListOpts) validate() error {
+	if o.from != "" {
+		value, err := time.Parse("2006-01-02", o.from)
+		if err != nil {
+			return err
+		}
+		o.fromDate = &value
+	}
+
+	if o.to != "" {
+		value, err := time.Parse("2006-01-02", o.to)
+		if err != nil {
+			return err
+		}
+		o.toDate = &value
+	}
+
+	return nil
+}
+
 // ListBuilder builds the merge command with the following signature:
-// changelog create -b path_folder -r path_folder --dry-run
+// sunset ls -s spec.json -f 2024-01-01 -t 2024-09-22
 func ListBuilder() *cobra.Command {
 	opts := &ListOpts{
 		fs: afero.NewOsFs(),
@@ -88,6 +154,9 @@ func ListBuilder() *cobra.Command {
 		Short:   "List API endpoints with a Sunset date for a given OpenAPI spec.",
 		Aliases: []string{"ls"},
 		Args:    cobra.NoArgs,
+		PreRunE: func(_ *cobra.Command, _ []string) error {
+			return opts.validate()
+		},
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return opts.Run()
 		},
@@ -95,6 +164,8 @@ func ListBuilder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
+	cmd.Flags().StringVar(&opts.from, flag.From, "", usage.From)
+	cmd.Flags().StringVar(&opts.to, flag.To, "", usage.To)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 
 	_ = cmd.MarkFlagRequired(flag.Spec)

@@ -35,4 +35,6 @@ const (
 	Path                = "Path to the changelog file."
 	MessageID           = "Message ID of the slack message. This ID is used to add the message as slack thread."
 	SlackChannelID      = "Slack Channel ID."
+	From                = "Date in the format YYYY-MM-DD that indicates the start of a date range"
+	To                  = "Date in the format YYYY-MM-DD that indicates the end of a date range"
 )

@@ -24,9 +24,6 @@ func Builder() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "changelog",
 		Short: "Manage the API Changelog for the OpenAPI spec.",
-		Annotations: map[string]string{
-			"toc": "true",
-		},
 	}
 
 	cmd.AddCommand(
