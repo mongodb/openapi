@@ -116,7 +116,7 @@ func (o *Opts) newOutputFilePath(fileName string) string {
 	return fileName
 }
 
-// Builder builds the merge command with the following signature:
+// CreateBuilder builds the merge command with the following signature:
 // changelog create -b path_folder -r path_folder --dry-run
 func CreateBuilder() *cobra.Command {
 	opts := &Opts{

@@ -1,4 +1,4 @@
-// Copyright 2024 MongoDB Inc
+// Copyright 2025 MongoDB Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,25 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package changelog
+package sunset
 
 import (
-	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog/convert"
-	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog/metadata"
 	"github.com/spf13/cobra"
 )
 
 func Builder() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "changelog",
-		Short: "Manage the API Changelog for the OpenAPI spec.",
+		Use:   "sunset",
+		Short: "Manage the Sunset API for the OpenAPI spec.",
 	}
 
-	cmd.AddCommand(
-		CreateBuilder(),
-		metadata.Builder(),
-		convert.Builder(),
-	)
+	cmd.AddCommand(ListBuilder())
 
 	return cmd
 }

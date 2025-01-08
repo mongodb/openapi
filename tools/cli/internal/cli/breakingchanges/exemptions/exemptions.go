@@ -22,9 +22,6 @@ func Builder() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "exemptions",
 		Short: "Manage exemptions.",
-		Annotations: map[string]string{
-			"toc": "true",
-		},
 	}
 
 	cmd.AddCommand(ParseBuilder())

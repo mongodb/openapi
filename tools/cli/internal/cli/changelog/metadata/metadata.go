@@ -22,9 +22,6 @@ func Builder() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "metadata",
 		Short: "Manage the API Changelog Metadata.",
-		Annotations: map[string]string{
-			"toc": "true",
-		},
 	}
 
 	cmd.AddCommand(CreateBuilder())

@@ -23,9 +23,6 @@ func Builder() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "breaking-changes",
 		Short: "Manage API Breaking changes related commands.",
-		Annotations: map[string]string{
-			"toc": "true",
-		},
 	}
 
 	cmd.AddCommand(

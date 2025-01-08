@@ -1,4 +1,4 @@
-// Copyright 2024 MongoDB Inc
+// Copyright 2025 MongoDB Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,25 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package changelog
+package sunset
 
 import (
-	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog/convert"
-	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog/metadata"
-	"github.com/spf13/cobra"
+	"testing"
+
+	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func Builder() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "changelog",
-		Short: "Manage the API Changelog for the OpenAPI spec.",
+func TestList_Run(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &ListOpts{
+		basePath:   "../../../test/data/base_spec.json",
+		outputPath: "foas.json",
+		fs:         fs,
 	}
 
-	cmd.AddCommand(
-		CreateBuilder(),
-		metadata.Builder(),
-		convert.Builder(),
-	)
-
-	return cmd
+	require.NoError(t, opts.Run())
+	b, err := afero.ReadFile(fs, opts.outputPath)
+	require.NoError(t, err)
+	assert.NotEmpty(t, b)
 }
