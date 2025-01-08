@@ -33,7 +33,7 @@ type Sunset struct {
 	Team       string `json:"team" yaml:"team"`
 }
 
-func NewSunsetListFromSpec(spec *load.SpecInfo) []*Sunset {
+func NewListFromSpec(spec *load.SpecInfo) []*Sunset {
 	var sunsets []*Sunset
 	paths := spec.Spec.Paths
 

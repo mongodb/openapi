@@ -48,7 +48,7 @@ func (o *ListOpts) Run() error {
 		return err
 	}
 
-	sunsets, err := o.newSunsetInRange(sunset.NewSunsetListFromSpec(specInfo))
+	sunsets, err := o.newSunsetInRange(sunset.NewListFromSpec(specInfo))
 	if err != nil {
 		return err
 	}
