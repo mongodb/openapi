@@ -5,17 +5,13 @@ import { Spectral, Document } from '@stoplight/spectral-core';
 import { httpAndFileResolver } from '@stoplight/spectral-ref-resolver';
 import { bundleAndLoadRuleset } from '@stoplight/spectral-ruleset-bundler/with-loader';
 
-const rulesetPath = path.join(__dirname, '../..', 'ipa-spectral.yaml');
-
 export default (ruleName, tests) => {
   describe(`Rule ${ruleName}`, () => {
     for (const testCase of tests) {
       it.concurrent(testCase.name, async () => {
-        const s = await createSpectral();
+        const s = await createSpectral(ruleName);
         const doc = testCase.document instanceof Document ? testCase.document : JSON.stringify(testCase.document);
-        const allErrors = await s.run(doc);
-
-        const errors = getErrorsForRule(allErrors, ruleName);
+        const errors = await s.run(doc);
 
         expect(errors.length).toEqual(testCase.errors.length);
 
@@ -29,12 +25,23 @@ export default (ruleName, tests) => {
   });
 };
 
-async function createSpectral() {
+async function createSpectral(ruleName) {
+  const rulesetPath = path.join(__dirname, '../../rulesets', ruleName.slice(5, 12) + '.yaml');
   const s = new Spectral({ resolver: httpAndFileResolver });
-  s.setRuleset(await bundleAndLoadRuleset(rulesetPath, { fs, fetch }));
+  const ruleset = Object(await bundleAndLoadRuleset(rulesetPath, { fs, fetch })).toJSON();
+  s.setRuleset(getRulesetForRule(ruleName, ruleset));
   return s;
 }
 
-function getErrorsForRule(errors, rule) {
-  return errors.filter((e) => e.code === rule);
+/**
+ * Takes the passed ruleset and returns a ruleset with only the specified rule.
+ *
+ * @param ruleName the name of the rule
+ * @param ruleset the ruleset containing the rule by ruleName and optionally other rules
+ * @returns {Object} a ruleset with only the rule with name ruleName
+ */
+function getRulesetForRule(ruleName, ruleset) {
+  const modifiedRuleset = { rules: {} };
+  modifiedRuleset.rules[ruleName] = ruleset.rules[ruleName].definition;
+  return modifiedRuleset;
 }
