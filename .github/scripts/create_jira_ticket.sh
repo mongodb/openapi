@@ -19,7 +19,7 @@ url_encode() {
 }
 
 encoded_jira_ticket_title=$(url_encode "${JIRA_TICKET_TITLE:?}")
-echo "${encoded_jira_ticket_title}"
+echo "encoded_jira_ticket_title: ${encoded_jira_ticket_title}"
 
 found_issue=$(curl --request GET \
                 --url 'https://jira.mongodb.org/rest/api/2/search?jql=project=10984%20AND%20issuetype=12%20AND%20component=35986%20AND%20summary~"'"${encoded_jira_ticket_title:?}"'"' \
@@ -27,41 +27,57 @@ found_issue=$(curl --request GET \
                 --header 'Accept: application/json' \
                 --header 'Content-Type: application/json' | jq .total)
 
+echo "found_issue: ${found_issue}"
 if [ "$found_issue" -ne 0 ]; then
     echo "There is already a Jira ticket with the title \"${JIRA_TICKET_TITLE:?}\""
     echo "No new Jira ticket will be created."
     exit 0
 fi
 
+echo "Creating Jira ticket...."
+echo "JIRA_TICKET_TITLE: ${JIRA_TICKET_TITLE}"
+echo "JIRA_TICKET_DESCRIPTION: ${JIRA_TICKET_DESCRIPTION}"
+
 json_response=$(curl --request POST \
 --url 'https://jira.mongodb.org/rest/api/2/issue' \
 --header 'Authorization: Bearer '"${JIRA_API_TOKEN:?}" \
 --header 'Accept: application/json' \
 --header 'Content-Type: application/json' \
---data '{
-    "fields": {
-        "project": {
-            "id": "10984"
-        },
-        "summary": "'"${JIRA_TICKET_TITLE:?}"'",
-        "issuetype": {
-            "id": "12"
-        },
-        "customfield_12751": [{
-                "id": "22223"
-        }],
-        "description": "'"${JIRA_TICKET_DESCRIPTION:?}"'",
-        "components": [
-            {
-                "id": "35986"
-            }
-        ]
-    }
-}')
+--data @- <<EOF
+{
+  "fields": {
+    "project": {
+      "id": "10984"
+    },
+    "summary": "${JIRA_TICKET_TITLE:?}",
+    "issuetype": {
+      "id": "12"
+    },
+    "customfield_12751": [
+      {
+        "id": "22223"
+      }
+    ],
+    "description": "${JIRA_TICKET_DESCRIPTION:?}",
+    "components": [
+      {
+        "id": "35986"
+      }
+    ]
+  }
+}
+EOF
+)
 
 echo "Response: ${json_response}"
 
 JIRA_TICKET_ID=$(echo "${json_response}" | jq -r '.key')
 
 echo "The following JIRA ticket has been created: ${JIRA_TICKET_ID}"
-echo "jira-ticket-id=${JIRA_TICKET_ID}" >> "${GITHUB_OUTPUT}"
+if [ "${JIRA_TICKET_ID}" != "null" ]; then
+    echo "jira-ticket-id=${JIRA_TICKET_ID}" >> "${GITHUB_OUTPUT}"
+    exit 0
+fi
+
+exit 1
+
