@@ -83,7 +83,13 @@ The OpenAPI path for Postman generation and configured feature flags can also be
 
 ### Running locally
 
-Once env vars are configured, the setup scripts can be run locally using the Make following commands:
+Once env vars are configured, install the required dependencies:
+
+```
+npm install
+```
+
+Then, the setup scripts can be run locally using the Make following commands:
 - `make fetch_openapi`
 - `make convert_to_collection` - covert OpenAPI to Postman collection
 - `make transform_collection` - transform Postman collection to fix common issues
