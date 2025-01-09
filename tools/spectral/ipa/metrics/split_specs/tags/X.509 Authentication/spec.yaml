@@ -1,0 +1,119 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/databaseUsers/{username}/certs:
+        get:
+            description: Returns all unexpired X.509 certificates for the specified MongoDB user. This MongoDB user belongs to one project. Atlas manages these certificates and the MongoDB user. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listDatabaseUserCertificates
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that represents the MongoDB database user account whose certificates you want to return.
+                  in: path
+                  name: username
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedUserCertView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All X.509 Certificates Assigned to One MongoDB User
+            tags:
+                - X.509 Authentication
+            x-xgen-owner-team: Atlas Dedicated
+        post:
+            description: |-
+                Generates one X.509 certificate for the specified MongoDB user. Atlas manages the certificate and MongoDB user that belong to one project. To use this resource, the requesting API Key must have the Project Owner role.
+
+                To get MongoDB Cloud to generate a managed certificate for a database user, set `"x509Type" : "MANAGED"` on the desired MongoDB Database User.
+
+                If you are managing your own Certificate Authority (CA) in Self-Managed X.509 mode, you must generate certificates for database users using your own CA.
+            externalDocs:
+                description: Self-Managed X.509
+                url: https://www.mongodb.com/docs/atlas/security-self-managed-x509/#std-label-self-managed-x509
+            operationId: createDatabaseUserCertificate
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that represents the MongoDB database user account for whom to create a certificate.
+                  in: path
+                  name: username
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/UserCert'
+                description: Generates one X.509 certificate for the specified MongoDB user.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                description: PEM file that contains the user's X.509 certificate and private key.
+                                type: string
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint returns a PEM file with the certificate and private key.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One X.509 Certificate for One MongoDB User
+            tags:
+                - X.509 Authentication
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/userSecurity/customerX509:
+        delete:
+            description: |-
+                Clears the customer-managed X.509 settings on a project, including the uploaded Certificate Authority, which disables self-managed X.509.
+
+                 Updating this configuration triggers a rolling restart of the database. You must have the Project Owner role to use this endpoint.
+            operationId: disableCustomerManagedX509
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/UserSecurity'
+                            x-xgen-version: "2023-01-01"
+                    description: Accepted
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Disable Customer-Managed X.509
+            tags:
+                - X.509 Authentication
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation

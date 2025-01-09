@@ -1,0 +1,545 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/apiKeys:
+        get:
+            description: Returns all organization API keys that you assigned to the specified project. Users with the Project Owner role in the project associated with the API key can use the organization API key to access the resources. To use this resource, the requesting API Key must have the Project Owner role.
+            externalDocs:
+                description: Programmatic API Keys
+                url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-atlas-prog-api-key
+            operationId: listProjectApiKeys
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiApiUserView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Organization API Keys Assigned to One Project
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+        post:
+            description: Creates and assigns the specified organization API key to the specified project. Users with the Project Owner role in the project associated with the API key can use the organization API key to access the resources. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: createProjectApiKey
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/CreateAtlasProjectApiKey'
+                description: Organization API key to be created and assigned to the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiKeyUserDetails'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create and Assign One Organization API Key to One Project
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/apiKeys/{apiUserId}:
+        delete:
+            description: Removes one organization API key from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            externalDocs:
+                description: Programmatic API Keys
+                url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-atlas-prog-api-key
+            operationId: removeProjectApiKey
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key that you want to unassign from one project.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Unassign One Organization API Key from One Project
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+        patch:
+            description: Updates the roles of the organization API key that you specify for the project that you specify. You must specify at least one valid role for the project. The application removes any roles that you do not include in this request if they were previously set in the organization API key that you specify for the project.
+            operationId: updateApiKeyRoles
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/envelope'
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key that you want to unassign from one project.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateAtlasProjectApiKey'
+                description: Organization API Key to be updated. This request requires a minimum of one of the two body parameters.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiKeyUserDetails'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update Roles of One Organization API Key to One Project
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+        post:
+            description: Assigns the specified organization API key to the specified project. Users with the Project Owner role in the project associated with the API key can then use the organization API key to access the resources. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: addProjectApiKey
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key that you want to assign to one project.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            items:
+                                $ref: '#/components/schemas/UserAccessRoleAssignment'
+                            type: array
+                description: Organization API key to be assigned to the specified project.
+                required: true
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Assign One Organization API Key to One Project
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/apiKeys:
+        get:
+            description: Returns all organization API keys for the specified organization. The organization API keys grant programmatic access to an organization. You can't use the API key to log into MongoDB Cloud through the console. To use this resource, the requesting API Key must have the Organization Member role.
+            externalDocs:
+                description: Programmatic API Keys
+                url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-atlas-prog-api-key
+            operationId: listApiKeys
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiApiUserView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Organization API Keys
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+        post:
+            description: Creates one API key for the specified organization. An organization API key grants programmatic access to an organization. You can't use the API key to log into the console. To use this resource, the requesting API Key must have the Organization Owner role.
+            externalDocs:
+                description: Programmatic API Keys
+                url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-atlas-prog-api-key
+            operationId: createApiKey
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/CreateAtlasOrganizationApiKey'
+                description: Organization API Key to be created.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiKeyUserDetails'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Organization API Key
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/apiKeys/{apiUserId}:
+        delete:
+            description: Removes one organization API key from the specified organization. When you remove an API key from an organization, MongoDB Cloud also removes that key from any projects that use that key. To use this resource, the requesting API Key must have the Organization Owner role.
+            externalDocs:
+                description: Configure Atlas API Access
+                url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-enable-api-access-list
+            operationId: deleteApiKey
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Organization API Key
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+        get:
+            description: Returns one organization API key. The organization API keys grant programmatic access to an organization. You can't use the API key to log into MongoDB Cloud through the user interface. To use this resource, the requesting API Key must have the  Organization Member role.
+            externalDocs:
+                description: Programmatic API Keys
+                url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-atlas-prog-api-key
+            operationId: getApiKey
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key that  you want to update.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiKeyUserDetails'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Organization API Key
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+        patch:
+            description: Updates one organization API key in the specified organization. The organization API keys  grant programmatic access to an organization. To use this resource, the requesting  API Key must have the Organization Owner role.
+            externalDocs:
+                description: Programmatic API Keys
+                url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-atlas-prog-api-key
+            operationId: updateApiKey
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key you  want to update.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateAtlasOrganizationApiKey'
+                description: Organization API key to be updated. This request requires a minimum of one of the two body parameters.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiKeyUserDetails'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Organization API Key
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/apiKeys/{apiUserId}/accessList:
+        get:
+            description: Returns all access list entries that you configured for the specified organization API key. To use this resource, the requesting API Key must have the Organization Member role.
+            externalDocs:
+                description: Programmatic API Keys
+                url: https://docs.atlas.mongodb.com/configure-api-access/#view-the-details-of-one-api-key-in-one-organization
+            operationId: listApiKeyAccessListsEntries
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key for which you want to return access list entries.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiUserAccessListResponseView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Access List Entries for One Organization API Key
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+        post:
+            description: Creates the access list entries for the specified organization API key. Resources require all API requests originate from IP addresses on the API access list. To use this resource, the requesting API Key must have the Read Write role.
+            operationId: createApiKeyAccessList
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key for which you want to create a new access list entry.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            items:
+                                $ref: '#/components/schemas/UserAccessListRequest'
+                            type: array
+                description: Access list entries to be created for the specified organization API key.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiUserAccessListResponseView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create Access List Entries for One Organization API Key
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/apiKeys/{apiUserId}/accessList/{ipAddress}:
+        delete:
+            description: Removes the specified access list entry from the specified organization API key. Resources require all API requests originate from the IP addresses on the API access list. To use this resource, the requesting API Key must have the Read Write role. In addition, you cannot remove the requesting IP address from the requesting organization API key.
+            externalDocs:
+                description: Configure Atlas API Access
+                url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-enable-api-access-list
+            operationId: deleteApiKeyAccessListEntry
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key for which you want to remove access list entries.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: One IP address or multiple IP addresses represented as one CIDR block to limit requests to API resources in the specified organization. When adding a CIDR block with a subnet mask, such as 192.0.2.0/24, use the URL-encoded value %2F for the forward slash /.
+                  in: path
+                  name: ipAddress
+                  required: true
+                  schema:
+                    example: 192.0.2.0%2F24
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){7}[0-9a-f]{1,4}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){1,6}\:(%2[fF][0-9]{1,3})?$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Access List Entry for One Organization API Key
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM
+        get:
+            description: Returns one access list entry for the specified organization API key. Resources require  all API requests originate from IP addresses on the API access list. To use this resource, the requesting API Key must have the Organization Member role.
+            externalDocs:
+                description: Configure Atlas API Access
+                url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-enable-api-access-list
+            operationId: getApiKeyAccessList
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: One IP address or multiple IP addresses represented as one CIDR block to limit  requests to API resources in the specified organization. When adding a CIDR block with a subnet mask, such as  192.0.2.0/24, use the URL-encoded value %2F for the forward slash /.
+                  in: path
+                  name: ipAddress
+                  required: true
+                  schema:
+                    example: 192.0.2.0%2F24
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){7}[0-9a-f]{1,4}(%2[fF][0-9]{1,3})?|([0-9a-f]{1,4}\:){1,6}\:(%2[fF][0-9]{1,3})?$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies this organization API key for  which you want to return access list entries.
+                  in: path
+                  name: apiUserId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/UserAccessListResponse'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Access List Entry for One Organization API Key
+            tags:
+                - Programmatic API Keys
+            x-xgen-owner-team: IAM

@@ -1,0 +1,385 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/privateEndpoint/{cloudProvider}/endpointService:
+        get:
+            description: Returns the name, interfaces, and state of all private endpoint services for the specified cloud service provider. This cloud service provider manages the private endpoint service for the project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listPrivateEndpointServices
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Cloud service provider that manages this private endpoint service.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    default: AWS
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/EndpointService'
+                                type: array
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Private Endpoint Services for One Provider
+            tags:
+                - Private Endpoint Services
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/privateEndpoint/{cloudProvider}/endpointService/{endpointServiceId}:
+        delete:
+            description: Removes one private endpoint service from the specified project. This cloud service provider manages the private endpoint service that belongs to the project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: deletePrivateEndpointService
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Cloud service provider that manages this private endpoint service.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    default: AWS
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint service that you want to delete.
+                  in: path
+                  name: endpointServiceId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Private Endpoint Service for One Provider
+            tags:
+                - Private Endpoint Services
+            x-xgen-owner-team: Atlas Dedicated
+        get:
+            description: Returns the name, interfaces, and state of the specified private endpoint service from one project. The cloud service provider hosted this private endpoint service that belongs to the project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getPrivateEndpointService
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Cloud service provider that manages this private endpoint service.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    default: AWS
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint service that you want to return.
+                  in: path
+                  name: endpointServiceId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/EndpointService'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Private Endpoint Service for One Provider
+            tags:
+                - Private Endpoint Services
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/privateEndpoint/{cloudProvider}/endpointService/{endpointServiceId}/endpoint:
+        post:
+            description: Creates one private endpoint for the specified cloud service provider. This cloud service provider manages the private endpoint service, which in turn manages the private endpoints for the project. To use this resource, the requesting API Key must have the Project Owner role. To learn more about considerations, limitations, and prerequisites, see the MongoDB documentation for setting up a private endpoint.
+            operationId: createPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Cloud service provider that manages this private endpoint.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    default: AWS
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint service for which you want to create a private endpoint.
+                  in: path
+                  name: endpointServiceId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/CreateEndpointRequest'
+                description: Creates one private endpoint for the specified cloud service provider.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PrivateLinkEndpoint'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Private Endpoint for One Provider
+            tags:
+                - Private Endpoint Services
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/privateEndpoint/{cloudProvider}/endpointService/{endpointServiceId}/endpoint/{endpointId}:
+        delete:
+            description: Removes one private endpoint from the specified project and private endpoint service, as managed by the specified cloud service provider. When the last private endpoint is removed from a given private endpoint service, that private endpoint service is also removed. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: deletePrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Cloud service provider that manages this private endpoint.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    default: AWS
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+                - description: Unique string that identifies the private endpoint you want to delete. The format of the **endpointId** parameter differs for AWS and Azure. You must URL encode the **endpointId** for Azure private endpoints.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    pattern: ^vpce-[0-9a-f]{17}|^%2[fF]subscriptions%2[fF][0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}%2[fF]resource[gG]roups%2[fF]([-\w._()]+)%2[fF]providers%2[fF]Microsoft\.Network%2[fF]privateEndpoints%2[fF]([-\w._()]+)
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint service from which you want to delete a private endpoint.
+                  in: path
+                  name: endpointServiceId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Private Endpoint for One Provider
+            tags:
+                - Private Endpoint Services
+            x-xgen-owner-team: Atlas Dedicated
+        get:
+            description: Returns the connection state of the specified private endpoint. The private endpoint service manages this private endpoint which belongs to one project hosted from one cloud service provider. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Cloud service provider that manages this private endpoint.
+                  in: path
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    default: AWS
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+                - description: Unique string that identifies the private endpoint you want to return. The format of the **endpointId** parameter differs for AWS and Azure. You must URL encode the **endpointId** for Azure private endpoints.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    pattern: ^vpce-[0-9a-f]{17}|^%2[fF]subscriptions%2[fF][0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}%2[fF]resource[gG]roups%2[fF]([-\w._()]+)%2[fF]providers%2[fF]Microsoft\.Network%2[fF]privateEndpoints%2[fF]([-\w._()]+)
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint service for which you want to return a private endpoint.
+                  in: path
+                  name: endpointServiceId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PrivateLinkEndpoint'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Private Endpoint for One Provider
+            tags:
+                - Private Endpoint Services
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/privateEndpoint/endpointService:
+        post:
+            description: Creates one private endpoint service for the specified cloud service provider. This cloud service provider manages the private endpoint service for the project. When you create a private endpoint service, MongoDB Cloud creates a network container in the project for the cloud provider for which you create the private endpoint service if one doesn't already exist. To learn more about private endpoint terminology in MongoDB Cloud, see Private Endpoint Concepts. To use this resource, the requesting API Key must have the Project Owner role.
+            externalDocs:
+                description: Private Endpoint Concepts
+                url: https://dochub.mongodb.org/core/private-endpoint-concepts
+            operationId: createPrivateEndpointService
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/CloudProviderEndpointServiceRequest'
+                description: Creates one private endpoint for the specified cloud service provider.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/EndpointService'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Private Endpoint Service for One Provider
+            tags:
+                - Private Endpoint Services
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/privateEndpoint/regionalMode:
+        get:
+            description: Checks whether each region in the specified cloud service provider can create multiple private endpoints per region. The cloud service provider manages the private endpoint for the project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getRegionalizedPrivateEndpointSetting
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ProjectSettingItemView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Regionalized Private Endpoint Status
+            tags:
+                - Private Endpoint Services
+            x-xgen-owner-team: Atlas Dedicated
+        patch:
+            description: Enables or disables the ability to create multiple private endpoints per region in all cloud service providers in one project. The cloud service provider manages the private endpoints for the project. Connection strings to existing multi-region and global sharded clusters change when you enable this setting. You must update your applications to use the new connection strings. This might cause downtime. To use this resource, the requesting API Key must have the Project Owner role and all clusters in the deployment must be sharded clusters. Once enabled, you cannot create replica sets.
+            operationId: toggleRegionalizedPrivateEndpointSetting
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ProjectSettingItemView'
+                description: Enables or disables the ability to create multiple private endpoints per region in all cloud service providers in one project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ProjectSettingItemView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Toggle Regionalized Private Endpoint Status
+            tags:
+                - Private Endpoint Services
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

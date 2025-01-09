@@ -1,0 +1,80 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/openapi/info:
+        get:
+            description: This resource returns general information about the MongoDB Atlas Administration API OpenAPI Specification.
+            operationId: getOpenApiInfo
+            parameters:
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/OpenApiInfo'
+                            x-sunset: "2025-05-30"
+                            x-xgen-version: "2024-05-30"
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OpenApiInfo'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return general information about the MongoDB Atlas Administration API OpenAPI Specification.
+            tags:
+                - OpenAPI
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: apix
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/unauth/openapi/versions:
+        get:
+            description: API that provides a list of available versionsfor a given environment.
+            operationId: getApiVersions
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: The environment to get the versions from. If not provided, it returnsthe versions for the given MongoDB URL. (E.g. prod for cloud.mongodb.com)
+                  in: query
+                  name: env
+                  schema:
+                    enum:
+                        - dev
+                        - qa
+                        - prod
+                        - stage
+                    type: string
+                    x-xgen-IPA-exception:
+                        xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiVersions'
+                            x-xgen-version: "2024-08-05"
+                        application/vnd.atlas.2024-08-05+yaml:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiVersions'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Provides a list of versions for a given environment.
+            tags:
+                - OpenAPI
+            x-xgen-hidden-env:
+                envs: qa,prod,stage
+            x-xgen-soa-migration:
+                additionalServices: mms
+                allowDocsDiff: "false"
+                docsSource: mms
+                targetService: api-registry
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

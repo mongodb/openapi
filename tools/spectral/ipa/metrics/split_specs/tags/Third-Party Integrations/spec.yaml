@@ -1,0 +1,236 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/integrations:
+        get:
+            description: Returns the settings that permit integrations with all configured third-party services. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting API Key must have the Organization Owner or Project Owner role.
+            operationId: listThirdPartyIntegrations
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedIntegrationView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Active Third-Party Service Integrations
+            tags:
+                - Third-Party Integrations
+            x-xgen-owner-team: CAP
+    /api/atlas/v2/groups/{groupId}/integrations/{integrationType}:
+        delete:
+            description: Removes the settings that permit configuring one third-party service integration. These settings apply to all databases managed in one MongoDB Cloud project. If you delete an integration from a project, you remove that integration configuration only for that project. This action doesn't affect any other project or organization's configured `{INTEGRATION-TYPE}` integrations. To use this resource, the requesting API Key must have the Organization Owner or Project Owner role.
+            operationId: deleteThirdPartyIntegration
+            parameters:
+                - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
+                  in: path
+                  name: integrationType
+                  required: true
+                  schema:
+                    enum:
+                        - PAGER_DUTY
+                        - SLACK
+                        - DATADOG
+                        - NEW_RELIC
+                        - OPS_GENIE
+                        - VICTOR_OPS
+                        - WEBHOOK
+                        - HIP_CHAT
+                        - PROMETHEUS
+                        - MICROSOFT_TEAMS
+                    title: Integration Type
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Third-Party Service Integration
+            tags:
+                - Third-Party Integrations
+            x-xgen-owner-team: CAP
+        get:
+            description: Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting API Key must have the Organization Owner or Project Owner role.
+            operationId: getThirdPartyIntegration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
+                  in: path
+                  name: integrationType
+                  required: true
+                  schema:
+                    enum:
+                        - PAGER_DUTY
+                        - SLACK
+                        - DATADOG
+                        - NEW_RELIC
+                        - OPS_GENIE
+                        - VICTOR_OPS
+                        - WEBHOOK
+                        - HIP_CHAT
+                        - PROMETHEUS
+                        - MICROSOFT_TEAMS
+                    title: Integration Type
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ThirdPartyIntegration'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Third-Party Service Integration
+            tags:
+                - Third-Party Integrations
+            x-xgen-owner-team: CAP
+        post:
+            description: Adds the settings for configuring one third-party service integration. These settings apply to all databases managed in the specified MongoDB Cloud project. Each project can have only one configuration per `{INTEGRATION-TYPE}`. To use this resource, the requesting API Key must have the Organization Owner or Project Owner role.
+            operationId: createThirdPartyIntegration
+            parameters:
+                - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
+                  in: path
+                  name: integrationType
+                  required: true
+                  schema:
+                    enum:
+                        - PAGER_DUTY
+                        - SLACK
+                        - DATADOG
+                        - NEW_RELIC
+                        - OPS_GENIE
+                        - VICTOR_OPS
+                        - WEBHOOK
+                        - HIP_CHAT
+                        - PROMETHEUS
+                        - MICROSOFT_TEAMS
+                    title: Integration Type
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ThirdPartyIntegration'
+                description: Third-party integration that you want to configure for your project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedIntegrationView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Configure One Third-Party Service Integration
+            tags:
+                - Third-Party Integrations
+            x-xgen-owner-team: CAP
+        put:
+            description: Updates the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting API Key must have the Organization Owner or Project Owner role.
+            operationId: updateThirdPartyIntegration
+            parameters:
+                - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
+                  in: path
+                  name: integrationType
+                  required: true
+                  schema:
+                    enum:
+                        - PAGER_DUTY
+                        - SLACK
+                        - DATADOG
+                        - NEW_RELIC
+                        - OPS_GENIE
+                        - VICTOR_OPS
+                        - WEBHOOK
+                        - HIP_CHAT
+                        - PROMETHEUS
+                        - MICROSOFT_TEAMS
+                    title: Integration Type
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ThirdPartyIntegration'
+                description: Third-party integration that you want to configure for your project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedIntegrationView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Third-Party Service Integration
+            tags:
+                - Third-Party Integrations
+            x-xgen-owner-team: CAP

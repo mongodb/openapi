@@ -1,0 +1,143 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}:
+        get:
+            description: Returns the access logs of one cluster identified by the cluster's name. Access logs contain a list of authentication requests made against your cluster. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting API Key must have the Project Monitoring Admin role or the Project Database Access Admin role.
+            externalDocs:
+                description: Database Access History
+                url: https://docs.atlas.mongodb.com/access-tracking/
+            operationId: listAccessLogsByClusterName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Flag that indicates whether the response returns the successful authentication attempts only.
+                  in: query
+                  name: authResult
+                  schema:
+                    type: boolean
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Date and time when to stop retrieving database history. If you specify **end**, you must also specify **start**. This parameter uses UNIX epoch time in milliseconds.
+                  in: query
+                  name: end
+                  schema:
+                    format: int64
+                    type: integer
+                - description: One Internet Protocol address that attempted to authenticate with the database.
+                  in: query
+                  name: ipAddress
+                  schema:
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    type: string
+                - description: Maximum number of lines from the log to return.
+                  in: query
+                  name: nLogs
+                  schema:
+                    default: 20000
+                    format: int32
+                    maximum: 20000
+                    minimum: 0
+                    type: integer
+                - description: Date and time when MongoDB Cloud begins retrieving database history. If you specify **start**, you must also specify **end**. This parameter uses UNIX epoch time in milliseconds.
+                  in: query
+                  name: start
+                  schema:
+                    format: int64
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/MongoDBAccessLogsList'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Database Access History for One Cluster using Its Cluster Name
+            tags:
+                - Access Tracking
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/dbAccessHistory/processes/{hostname}:
+        get:
+            description: Returns the access logs of one cluster identified by the cluster's hostname. Access logs contain a list of authentication requests made against your clusters. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting API Key must have the Project Monitoring Admin role or the Project Database Access Admin role.
+            externalDocs:
+                description: Database Access History
+                url: https://docs.atlas.mongodb.com/access-tracking/
+            operationId: listAccessLogsByHostname
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Flag that indicates whether the response returns the successful authentication attempts only.
+                  in: query
+                  name: authResult
+                  schema:
+                    type: boolean
+                - description: Date and time when to stop retrieving database history. If you specify **end**, you must also specify **start**. This parameter uses UNIX epoch time in milliseconds.
+                  in: query
+                  name: end
+                  schema:
+                    format: int64
+                    type: integer
+                - description: Fully qualified domain name or IP address of the MongoDB host that stores the log files that you want to download.
+                  in: path
+                  name: hostname
+                  required: true
+                  schema:
+                    type: string
+                - description: One Internet Protocol address that attempted to authenticate with the database.
+                  in: query
+                  name: ipAddress
+                  schema:
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    type: string
+                - description: Maximum number of lines from the log to return.
+                  in: query
+                  name: nLogs
+                  schema:
+                    default: 20000
+                    format: int32
+                    maximum: 20000
+                    minimum: 0
+                    type: integer
+                - description: Date and time when MongoDB Cloud begins retrieving database history. If you specify **start**, you must also specify **end**. This parameter uses UNIX epoch time in milliseconds.
+                  in: query
+                  name: start
+                  schema:
+                    format: int64
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/MongoDBAccessLogsList'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Database Access History for One Cluster using Its Hostname
+            tags:
+                - Access Tracking
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

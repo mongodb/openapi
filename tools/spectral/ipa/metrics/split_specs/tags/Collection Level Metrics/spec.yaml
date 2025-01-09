@@ -1,0 +1,447 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/{clusterView}/{databaseName}/{collectionName}/collStats/measurements:
+        get:
+            description: Get a list of the Coll Stats Latency cluster-level measurements for the given namespace.
+            operationId: getCollStatsLatencyNamespaceClusterMeasurements
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster to retrieve metrics for.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Human-readable label that identifies the cluster topology to retrieve metrics for.
+                  in: path
+                  name: clusterView
+                  required: true
+                  schema:
+                    enum:
+                        - PRIMARY
+                        - SECONDARY
+                        - INDIVIDUAL_PROCESS
+                    type: string
+                - $ref: '#/components/parameters/databaseName'
+                - $ref: '#/components/parameters/collectionName'
+                - $ref: '#/components/parameters/envelope'
+                - description: List that contains the metrics that you want to retrieve for the associated data series. If you don't set this parameter, this resource returns data series for all Coll Stats Latency metrics.
+                  explode: true
+                  in: query
+                  name: metrics
+                  schema:
+                    items:
+                        description: Metric requested for the given cluster
+                        enum:
+                            - READS_OPS
+                            - READS_LATENCY
+                            - AVERAGE_READS_LATENCY
+                            - READS_P50_VALUE
+                            - READS_P95_VALUE
+                            - READS_P99_VALUE
+                            - WRITES_OPS
+                            - WRITES_LATENCY
+                            - AVERAGE_WRITES_LATENCY
+                            - WRITES_P50_VALUE
+                            - WRITES_P95_VALUE
+                            - WRITES_P99_VALUE
+                            - COMMANDS_OPS
+                            - COMMANDS_LATENCY
+                            - AVERAGE_COMMANDS_LATENCY
+                            - COMMANDS_P50_VALUE
+                            - COMMANDS_P95_VALUE
+                            - COMMANDS_P99_VALUE
+                            - TOTAL_OPS
+                            - TOTAL_LATENCY
+                            - AVERAGE_TOTAL_OPS_LATENCY
+                            - TOTAL_OPS_P50_VALUE
+                            - TOTAL_OPS_P95_VALUE
+                            - TOTAL_OPS_P99_VALUE
+                        type: string
+                    type: array
+                    uniqueItems: true
+                  style: form
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/period'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/MeasurementsCollStatsLatencyCluster'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Cluster-Level Query Latency
+            tags:
+                - Collection Level Metrics
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/{clusterView}/collStats/namespaces:
+        get:
+            description: Return the subset of namespaces from the given cluster sorted by highest total execution time (descending) within the given time window.
+            operationId: getCollStatsLatencyNamespacesForCluster
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster to pin namespaces to.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Human-readable label that identifies the cluster topology to retrieve metrics for.
+                  in: path
+                  name: clusterView
+                  required: true
+                  schema:
+                    enum:
+                        - PRIMARY
+                        - SECONDARY
+                        - INDIVIDUAL_PROCESS
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/period'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/CollStatsRankedNamespacesView'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Ranked Namespaces from a Cluster
+            tags:
+                - Collection Level Metrics
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collStats/pinned:
+        get:
+            description: Returns a list of given cluster's pinned namespaces, a set of namespaces manually selected by users to collect query latency metrics on.
+            operationId: getPinnedNamespaces
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Human-readable label that identifies the cluster to retrieve pinned namespaces for.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Pinned Namespaces
+            tags:
+                - Collection Level Metrics
+            x-xgen-owner-team: Intel I
+        patch:
+            description: Add provided list of namespaces to existing pinned namespaces list for collection-level latency metrics collection for the given Group and Cluster
+            operationId: pinNamespacesPatch
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Human-readable label that identifies the cluster to pin namespaces to.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-11-15+json:
+                        schema:
+                            $ref: '#/components/schemas/NamespacesRequest'
+                description: List of namespace strings (combination of database and collection name) to pin for query latency metric collection.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "201":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add Pinned Namespaces
+            tags:
+                - Collection Level Metrics
+            x-xgen-owner-team: Intel I
+        put:
+            description: Pin provided list of namespaces for collection-level latency metrics collection for the given Group and Cluster. This initializes a pinned namespaces list or replaces any existing pinned namespaces list for the Group and Cluster.
+            operationId: pinNamespacesPut
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Human-readable label that identifies the cluster to pin namespaces to.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-11-15+json:
+                        schema:
+                            $ref: '#/components/schemas/NamespacesRequest'
+                description: List of namespace strings (combination of database and collection name) to pin for query latency metric collection.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "201":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Pin Namespaces
+            tags:
+                - Collection Level Metrics
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collStats/unpin:
+        patch:
+            description: Unpin provided list of namespaces for collection-level latency metrics collection for the given Group and Cluster
+            operationId: unpinNamespaces
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Human-readable label that identifies the cluster to unpin namespaces from.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-11-15+json:
+                        schema:
+                            $ref: '#/components/schemas/NamespacesRequest'
+                description: List of namespace strings (combination of database and collection name) to pin for query latency metric collection.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/PinnedNamespaces'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Unpin namespaces
+            tags:
+                - Collection Level Metrics
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/collStats/metrics:
+        get:
+            description: Returns all available Coll Stats Latency metric names and their respective units for the specified project at the time of request.
+            operationId: getCollStatsLatencyNamespaceMetrics
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return all metric names
+            tags:
+                - Collection Level Metrics
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/{databaseName}/{collectionName}/collStats/measurements:
+        get:
+            description: Get a list of the Coll Stats Latency process-level measurements for the given namespace
+            operationId: getCollStatsLatencyNamespaceHostMeasurements
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/processId'
+                - $ref: '#/components/parameters/databaseName'
+                - $ref: '#/components/parameters/collectionName'
+                - $ref: '#/components/parameters/envelope'
+                - description: List that contains the metrics that you want to retrieve for the associated data series. If you don't set this parameter, this resource returns data series for all Coll Stats Latency metrics.
+                  in: query
+                  name: metrics
+                  schema:
+                    items:
+                        description: Metric requested for the given process
+                        enum:
+                            - READS_OPS
+                            - READS_LATENCY
+                            - AVERAGE_READS_LATENCY
+                            - READS_P50_VALUE
+                            - READS_P95_VALUE
+                            - READS_P99_VALUE
+                            - WRITES_OPS
+                            - WRITES_LATENCY
+                            - AVERAGE_WRITES_LATENCY
+                            - WRITES_P50_VALUE
+                            - WRITES_P95_VALUE
+                            - WRITES_P99_VALUE
+                            - COMMANDS_OPS
+                            - COMMANDS_LATENCY
+                            - AVERAGE_COMMANDS_LATENCY
+                            - COMMANDS_P50_VALUE
+                            - COMMANDS_P95_VALUE
+                            - COMMANDS_P99_VALUE
+                            - TOTAL_OPS
+                            - TOTAL_LATENCY
+                            - AVERAGE_TOTAL_OPS_LATENCY
+                            - TOTAL_OPS_P50_VALUE
+                            - TOTAL_OPS_P95_VALUE
+                            - TOTAL_OPS_P99_VALUE
+                        type: string
+                    type: array
+                    uniqueItems: true
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/period'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/MeasurementsCollStatsLatencyHost'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Host-Level Query Latency
+            tags:
+                - Collection Level Metrics
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/collStats/namespaces:
+        get:
+            description: Return the subset of namespaces from the given process ranked by highest total execution time (descending) within the given time window.
+            operationId: getCollStatsLatencyNamespacesForHost
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/processId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/period'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/CollStatsRankedNamespacesView'
+                            x-xgen-version: "2023-11-15"
+                    description: Succeeded
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Ranked Namespaces from a Host
+            tags:
+                - Collection Level Metrics
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

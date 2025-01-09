@@ -1,0 +1,985 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/clusters:
+        get:
+            description: Returns the details for all clusters in all projects to which you have access. Clusters contain a group of hosts that maintain the same data set. The response does not include multi-cloud clusters. To use this resource, the requesting API Key can have any cluster-level role.
+            operationId: listClustersForAllProjects
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOrgGroupView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Authorized Clusters in All Projects
+            tags:
+                - Clusters
+            x-xgen-owner-team: Intel I
+    /api/atlas/v2/groups/{groupId}/clusters:
+        get:
+            description: Returns the details for all clusters in the specific project to which you have access. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not  available for serverless clusters.
+            operationId: listClusters
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Flag that indicates whether to return Clusters with retain backups.
+                  in: query
+                  name: includeDeletedWithRetainedBackups
+                  schema:
+                    default: false
+                    type: boolean
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedLegacyClusterView'
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAdvancedClusterDescriptionView'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-02-01"
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedClusterDescription20240805'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Clusters in One Project
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+        post:
+            description: Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters.
+            operationId: createCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/LegacyAtlasCluster'
+                    application/vnd.atlas.2023-02-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AdvancedClusterDescription'
+                    application/vnd.atlas.2024-08-05+json:
+                        examples:
+                            Cluster:
+                                description: Cluster
+                                value:
+                                    clusterType: SHARDED
+                                    name: myCluster
+                                    replicationSpecs:
+                                        - regionConfigs:
+                                            - analyticsAutoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: false
+                                                diskGB:
+                                                    enabled: true
+                                              analyticsSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M40
+                                                nodeCount: 0
+                                              autoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: false
+                                                diskGB:
+                                                    enabled: true
+                                              electableSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M50
+                                                nodeCount: 3
+                                              priority: 7
+                                              providerName: AWS
+                                              readOnlySpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M50
+                                                nodeCount: 0
+                                              regionName: US_EAST_1
+                                          zoneName: Zone 1
+                                        - regionConfigs:
+                                            - analyticsAutoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: false
+                                                diskGB:
+                                                    enabled: true
+                                              analyticsSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M30
+                                                nodeCount: 0
+                                              autoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: false
+                                                diskGB:
+                                                    enabled: true
+                                              electableSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M40
+                                                nodeCount: 3
+                                              priority: 7
+                                              providerName: AWS
+                                              readOnlySpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M40
+                                                nodeCount: 0
+                                              regionName: US_EAST_1
+                                          zoneName: Zone 1
+                        schema:
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-version: "2024-08-05"
+                    application/vnd.atlas.2024-10-23+json:
+                        examples:
+                            Cluster:
+                                description: Cluster
+                                value:
+                                    clusterType: SHARDED
+                                    name: myCluster
+                                    replicationSpecs:
+                                        - regionConfigs:
+                                            - analyticsAutoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: true
+                                                    maxInstanceSize: M40
+                                                    minInstanceSize: M30
+                                                    scaleDownEnabled: true
+                                                diskGB:
+                                                    enabled: true
+                                              analyticsSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M40
+                                                nodeCount: 0
+                                              autoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: true
+                                                    maxInstanceSize: M60
+                                                    minInstanceSize: M30
+                                                    scaleDownEnabled: true
+                                                diskGB:
+                                                    enabled: true
+                                              electableSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M60
+                                                nodeCount: 3
+                                              priority: 7
+                                              providerName: AWS
+                                              readOnlySpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M60
+                                                nodeCount: 0
+                                              regionName: US_EAST_1
+                                          zoneName: Zone 1
+                                        - regionConfigs:
+                                            - analyticsAutoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: true
+                                                    maxInstanceSize: M40
+                                                    minInstanceSize: M30
+                                                    scaleDownEnabled: true
+                                                diskGB:
+                                                    enabled: true
+                                              analyticsSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M30
+                                                nodeCount: 0
+                                              autoScaling:
+                                                autoIndexing:
+                                                    enabled: false
+                                                compute:
+                                                    enabled: true
+                                                    maxInstanceSize: M60
+                                                    minInstanceSize: M30
+                                                    scaleDownEnabled: true
+                                                diskGB:
+                                                    enabled: true
+                                              electableSpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M40
+                                                nodeCount: 3
+                                              priority: 7
+                                              providerName: AWS
+                                              readOnlySpecs:
+                                                diskSizeGB: 10
+                                                instanceSize: M40
+                                                nodeCount: 0
+                                              regionName: US_EAST_1
+                                          zoneName: Zone 1
+                        schema:
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-version: "2024-10-23"
+                description: Cluster to create in this project.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LegacyAtlasCluster'
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/AdvancedClusterDescription'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-02-01"
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2024-08-05"
+                        application/vnd.atlas.2024-10-23+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-xgen-version: "2024-10-23"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Cluster from One Project
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:
+        delete:
+            description: Removes one cluster from the specified project. The cluster must have termination protection disabled in order to be deleted. To use this resource, the requesting API Key must have the Project Owner role. This feature is not available for serverless clusters.
+            operationId: deleteCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Flag that indicates whether to retain backup snapshots for the deleted dedicated cluster.
+                  in: query
+                  name: retainBackups
+                  schema:
+                    type: boolean
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-02-01+json:
+                            x-xgen-version: "2023-02-01"
+                    description: Accepted
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Cluster from One Project
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+        get:
+            description: Returns the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. The response includes clusters with asymmetrically-sized shards. To use this resource, the requesting API Key must have the Project Read Only role. This feature is not available for serverless clusters.
+            operationId: getCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LegacyAtlasCluster'
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/AdvancedClusterDescription'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-02-01"
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Cluster from One Project
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+        patch:
+            description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting API Key must have the Project Owner role. For all other updates, the requesting API Key must have the Project Cluster Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters.'
+            operationId: updateCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/LegacyAtlasCluster'
+                    application/vnd.atlas.2023-02-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AdvancedClusterDescription'
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-version: "2024-08-05"
+                    application/vnd.atlas.2024-10-23+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-version: "2024-10-23"
+                description: Cluster to update in the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LegacyAtlasCluster'
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/AdvancedClusterDescription'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-02-01"
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2024-08-05"
+                        application/vnd.atlas.2024-10-23+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescription20240805'
+                            x-xgen-version: "2024-10-23"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Modify One Cluster from One Project
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs:
+        get:
+            description: Returns the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, flex clusters, or serverless clusters. To use this resource, the requesting API Key must have the Project Read Only role.
+            externalDocs:
+                description: Global Clusters
+                url: https://www.mongodb.com/docs/atlas/global-clusters/
+            operationId: getClusterAdvancedConfiguration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Advanced Configuration Options for One Cluster
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+        patch:
+            description: Updates the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. To use this resource, the requesting API Key must have the Project Cluster Manager role. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, flex clusters, or serverless clusters.
+            externalDocs:
+                description: Global Clusters
+                url: https://www.mongodb.com/docs/atlas/global-clusters/
+            operationId: updateClusterAdvancedConfiguration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterDescriptionProcessArgs'
+                        x-xgen-version: "2023-01-01"
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                        x-xgen-version: "2024-08-05"
+                description: Advanced configuration details to add for one cluster in the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update Advanced Configuration Options for One Cluster
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries:
+        post:
+            description: Starts a failover test for the specified cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. A failover test checks how MongoDB Cloud handles the failure of the cluster's primary node. During the test, MongoDB Cloud shuts down the primary node and elects a new primary. To use this resource, the requesting API Key must have the Project Cluster Manager role.
+            operationId: testFailover
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-02-01+json:
+                            x-xgen-version: "2023-02-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Test Failover for One Cluster
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/status:
+        get:
+            description: Returns the status of all changes that you made to the specified cluster in the specified project. Use this resource to check the progress MongoDB Cloud has made in processing your changes. The response does not include the deployment of new dedicated clusters. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getClusterStatus
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterStatus'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Status of All Cluster Operations
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:grantMongoDBEmployeeAccess:
+        post:
+            description: Grants MongoDB employee cluster access for the given duration and at the specified level for one cluster.
+            operationId: grantMongoDbEmployeeAccess
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/EmployeeAccessGrantView'
+                        x-xgen-version: "2024-08-05"
+                description: Grant access level and expiration.
+                required: true
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Grant MongoDB employee cluster access for one cluster.
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-109-custom-method-must-use-camel-case: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:pinFeatureCompatibilityVersion:
+        post:
+            description: Pins the Feature Compatibility Version (FCV) to the current MongoDB version and sets the pin expiration date. If an FCV pin already exists for the cluster, calling this method will only update the expiration date of the existing pin and will not repin the FCV.
+            operationId: pinFeatureCompatibilityVersion
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/PinFCVView'
+                        x-xgen-version: "2024-05-30"
+                description: Optional request params for tuning FCV pinning configuration.
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Pin FCV for One Cluster from One Project
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:revokeMongoDBEmployeeAccess:
+        post:
+            description: Revokes a previously granted MongoDB employee cluster access.
+            operationId: revokeMongoDbEmployeeAccess
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-08-05"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Revoke granted MongoDB employee cluster access for one cluster.
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-109-custom-method-must-use-camel-case: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:unpinFeatureCompatibilityVersion:
+        post:
+            description: Unpins the current fixed Feature Compatibility Version (FCV). This feature is not available for clusters on rapid release.
+            operationId: unpinFeatureCompatibilityVersion
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Unpins FCV for One Cluster from One Project
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/clusters/provider/regions:
+        get:
+            description: Returns the list of regions available for the specified cloud provider at the specified tier. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listCloudProviderRegions
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Cloud providers whose regions to retrieve. When you specify multiple providers, the response can return only tiers and regions that support multi-cloud clusters.
+                  in: query
+                  name: providers
+                  schema:
+                    items:
+                        type: string
+                    type: array
+                - description: Cluster tier for which to retrieve the regions.
+                  in: query
+                  name: tier
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasProviderRegionsView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Cloud Provider Regions
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/tenantUpgrade:
+        post:
+            description: Upgrades a shared-tier cluster to a dedicated cluster (M10+) in the specified project. To use this resource, the requesting API key must have the Project Cluster Manager role. Each project supports up to 25 clusters.
+            operationId: upgradeSharedCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/LegacyAtlasTenantClusterUpgradeRequest'
+                description: Details of the shared-tier cluster upgrade in the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LegacyAtlasCluster'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Upgrade One Shared-tier Cluster
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/tenantUpgradeToServerless:
+        post:
+            description: Upgrades a shared-tier cluster to a serverless instance in the specified project. To use this resource, the requesting API key must have the Project Cluster Manager role.
+            operationId: upgradeSharedClusterToServerless
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ServerlessInstanceDescription'
+                description: Details of the shared-tier cluster upgrade in the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessInstanceDescription'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Upgrades One Shared-Tier Cluster to the Serverless Instance
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/sampleDatasetLoad/{name}:
+        post:
+            description: Requests loading the MongoDB sample dataset into the specified cluster. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: loadSampleDataset
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster into which you load the sample dataset.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/SampleDatasetStatus'
+                            x-xgen-version: "2023-01-01"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Load Sample Dataset Request into Cluster
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas
+    /api/atlas/v2/groups/{groupId}/sampleDatasetLoad/{sampleDatasetId}:
+        get:
+            description: Checks the progress of loading the sample dataset into one cluster. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: getSampleDatasetLoadStatus
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique 24-hexadecimal digit string that identifies the loaded sample dataset.
+                  in: path
+                  name: sampleDatasetId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/SampleDatasetStatus'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Check Status of Cluster Sample Dataset Request
+            tags:
+                - Clusters
+            x-xgen-owner-team: Atlas
