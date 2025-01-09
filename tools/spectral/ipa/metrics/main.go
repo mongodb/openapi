@@ -9,9 +9,9 @@ import (
 )
 
 func main() {
-	/*if err := utils.SplitOAS(); err != nil {
+	if err := utils.SplitOAS(); err != nil {
 		log.Fatal(err)
-	}*/
+	}
 	affectedTags, deletedTags := utils.DetectChanges()
 
 	tagsPath := "split_specs/tags"
