@@ -1,3 +1,830 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/clusters/{hostName}/logs/{logName}.gz:
+        get:
+            description: 'Returns a compressed (.gz) log file that contains a range of log messages for the specified host for the specified project. MongoDB updates process and audit logs from the cluster backend infrastructure every five minutes. Logs are stored in chunks approximately five minutes in length, but this duration may vary. If you poll the API for log files, we recommend polling every five minutes even though consecutive polls could contain some overlapping logs. This feature isn''t available for `M0` free clusters, `M2`, `M5`, flex, or serverless clusters. To use this resource, the requesting API Key must have the Project Data Access Read Only or higher role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: "Accept: application/vnd.atlas.YYYY-MM-DD+gzip".'
+            operationId: getHostLogs
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the host that stores the log files that you want to download.
+                  in: path
+                  name: hostName
+                  required: true
+                  schema:
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?$
+                    type: string
+                - description: Human-readable label that identifies the log file that you want to return. To return audit logs, enable *Database Auditing* for the specified project.
+                  in: path
+                  name: logName
+                  required: true
+                  schema:
+                    enum:
+                        - mongodb
+                        - mongos
+                        - mongodb-audit-log
+                        - mongos-audit-log
+                    externalDocs:
+                        description: Set up Database Auditing
+                        url: https://docs.atlas.mongodb.com/database-auditing/
+                    type: string
+                    x-xgen-IPA-exception:
+                        xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
+                - description: Specifies the date and time for the ending point of the range of log messages to retrieve, in the number of seconds that have elapsed since the UNIX epoch. This value will default to 24 hours after the start date. If the start date is also unspecified, the value will default to the time of the request.
+                  in: query
+                  name: endDate
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+09
+                    type: integer
+                - description: Specifies the date and time for the starting point of the range of log messages to retrieve, in the number of seconds that have elapsed since the UNIX epoch. This value will default to 24 hours prior to the end date. If the end date is also unspecified, the value will default to 24 hours prior to the time of the request.
+                  in: query
+                  name: startDate
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+09
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+gzip:
+                            schema:
+                                description: Compressed (.gz) log file that contains a range of log messages for the specified host for the specified project
+                                format: binary
+                                type: string
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-02-01+gzip:
+                            schema:
+                                description: Compressed (.gz) log file that contains a range of log messages for the specified host for the specified project
+                                format: binary
+                                type: string
+                            x-xgen-version: "2023-02-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Download Logs for One Cluster Host in One Project
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/hosts/{processId}/fts/metrics:
+        get:
+            description: Returns all Atlas Search metric types available for one process in the specified project. You must have the Project Read Only or higher role to view the Atlas Search metric types.
+            operationId: listMetricTypes
+            parameters:
+                - $ref: '#/components/parameters/processId'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/CloudSearchMetrics'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Atlas Search Metric Types for One Process
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/hosts/{processId}/fts/metrics/indexes/{databaseName}/{collectionName}/{indexName}/measurements:
+        get:
+            description: Returns the Atlas Search metrics data series within the provided time range for one namespace and index name on the specified process. You must have the Project Read Only or higher role to view the Atlas Search metric types.
+            operationId: getIndexMetrics
+            parameters:
+                - $ref: '#/components/parameters/processId'
+                - $ref: '#/components/parameters/indexName'
+                - $ref: '#/components/parameters/databaseName'
+                - $ref: '#/components/parameters/collectionName'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/granularity'
+                - $ref: '#/components/parameters/period'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/envelope'
+                - description: List that contains the measurements that MongoDB Atlas reports for the associated data series.
+                  in: query
+                  name: metrics
+                  required: true
+                  schema:
+                    description: List that contains the measurements that MongoDB Atlas reports for the associated data series.
+                    items:
+                        enum:
+                            - INDEX_SIZE_ON_DISK
+                            - NUMBER_OF_DELETES
+                            - NUMBER_OF_ERROR_QUERIES
+                            - NUMBER_OF_GETMORE_COMMANDS
+                            - NUMBER_OF_INDEX_FIELDS
+                            - NUMBER_OF_INSERTS
+                            - NUMBER_OF_SUCCESS_QUERIES
+                            - NUMBER_OF_UPDATES
+                            - REPLICATION_LAG
+                            - TOTAL_NUMBER_OF_QUERIES
+                        type: string
+                    maxItems: 10
+                    type: array
+                    uniqueItems: true
+                  style: form
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/MeasurementsIndexes'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Atlas Search Metrics for One Index in One Specified Namespace
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/hosts/{processId}/fts/metrics/indexes/{databaseName}/{collectionName}/measurements:
+        get:
+            description: Returns the Atlas Search index metrics within the specified time range for one namespace in the specified process.
+            operationId: listIndexMetrics
+            parameters:
+                - $ref: '#/components/parameters/processId'
+                - $ref: '#/components/parameters/databaseName'
+                - $ref: '#/components/parameters/collectionName'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/granularity'
+                - $ref: '#/components/parameters/period'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/envelope'
+                - description: List that contains the measurements that MongoDB Atlas reports for the associated data series.
+                  in: query
+                  name: metrics
+                  required: true
+                  schema:
+                    description: List that contains the measurements that MongoDB Atlas reports for the associated data series.
+                    items:
+                        enum:
+                            - INDEX_SIZE_ON_DISK
+                            - NUMBER_OF_DELETES
+                            - NUMBER_OF_ERROR_QUERIES
+                            - NUMBER_OF_GETMORE_COMMANDS
+                            - NUMBER_OF_INDEX_FIELDS
+                            - NUMBER_OF_INSERTS
+                            - NUMBER_OF_SUCCESS_QUERIES
+                            - NUMBER_OF_UPDATES
+                            - REPLICATION_LAG
+                            - TOTAL_NUMBER_OF_QUERIES
+                        type: string
+                    maxItems: 10
+                    type: array
+                    uniqueItems: true
+                  style: form
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/MeasurementsIndexes'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Atlas Search Index Metrics for One Namespace
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/hosts/{processId}/fts/metrics/measurements:
+        get:
+            description: Returns the Atlas Search hardware and status data series within the provided time range for one process in the specified project. You must have the Project Read Only or higher role to view the Atlas Search metric types.
+            operationId: getMeasurements
+            parameters:
+                - $ref: '#/components/parameters/processId'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/granularity'
+                - $ref: '#/components/parameters/period'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+                - $ref: '#/components/parameters/envelope'
+                - description: List that contains the metrics that you want MongoDB Atlas to report for the associated data series. If you don't set this parameter, this resource returns all hardware and status metrics for the associated data series.
+                  in: query
+                  name: metrics
+                  required: true
+                  schema:
+                    description: List that contains the metrics that you want MongoDB Atlas to report for the associated data series. If you don't set this parameter, this resource returns all hardware and status metrics for the associated data series.
+                    items:
+                        enum:
+                            - FTS_DISK_USAGE
+                            - FTS_PROCESS_CPU_KERNEL
+                            - FTS_PROCESS_CPU_USER
+                            - FTS_PROCESS_NORMALIZED_CPU_KERNEL
+                            - FTS_PROCESS_NORMALIZED_CPU_USER
+                            - FTS_PROCESS_RESIDENT_MEMORY
+                            - FTS_PROCESS_SHARED_MEMORY
+                            - FTS_PROCESS_VIRTUAL_MEMORY
+                            - JVM_CURRENT_MEMORY
+                            - JVM_MAX_MEMORY
+                            - PAGE_FAULTS
+                        type: string
+                    maxItems: 10
+                    type: array
+                    uniqueItems: true
+                  style: form
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/MeasurementsNonIndex'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Atlas Search Hardware and Status Metrics
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/processes:
+        get:
+            description: Returns details of all processes for the specified project. A MongoDB process can be either a `mongod` or `mongos`. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listAtlasProcesses
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedHostView_Atlas'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All MongoDB Processes in One Project
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+    /api/atlas/v2/groups/{groupId}/processes/{processId}:
+        get:
+            description: Returns the processes for the specified host for the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getAtlasProcess
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. The host must be the hostname, fully qualified domain name (FQDN), or Internet Protocol address (IPv4 or IPv6) of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    example: mongodb.example.com:27017
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiHostView_Atlas'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One MongoDB Process by ID
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/databases:
+        get:
+            description: Returns the list of databases running on the specified host for the specified project. `M0` free clusters, `M2`, `M5`, and serverless clusters have some [operational limits](https://www.mongodb.com/docs/atlas/reference/free-shared-limitations/#operational-limitations). The MongoDB Cloud process must be a `mongod`. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listDatabases
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. The host must be the hostname, fully qualified domain name (FQDN), or Internet Protocol address (IPv4 or IPv6) of the host that runs the MongoDB process (`mongod`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    example: mongodb.example.com:27017
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedDatabaseView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Available Databases for One MongoDB Process
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/databases/{databaseName}:
+        get:
+            description: Returns one database running on the specified host for the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getDatabase
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the database that the specified MongoDB process serves.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. The host must be the hostname, fully qualified domain name (FQDN), or Internet Protocol address (IPv4 or IPv6) of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    example: mongodb.example.com:27017
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/MesurementsDatabase'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Database for a MongoDB Process
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/databases/{databaseName}/measurements:
+        get:
+            description: Returns the measurements of one database for the specified host for the specified project. Returns the database's on-disk storage space based on the MongoDB `dbStats` command output. To calculate some metric series, Atlas takes the rate between every two adjacent points. For these metric series, the first data point has a null value because Atlas can't calculate a rate for the first data point given the query time range. Atlas retrieves database metrics every 20 minutes but reduces frequency when necessary to optimize database performance. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getDatabaseMeasurements
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the database that the specified MongoDB process serves.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: One or more types of measurement to request for this MongoDB process. If omitted, the resource returns all measurements. To specify multiple values for `m`, repeat the `m` parameter for each value. Specify measurements that apply to the specified host. MongoDB Cloud returns an error if you specified any invalid measurements.
+                  in: query
+                  name: m
+                  schema:
+                    items:
+                        description: One measurement requested for this MongoDB process.
+                        enum:
+                            - DATABASE_AVERAGE_OBJECT_SIZE
+                            - DATABASE_COLLECTION_COUNT
+                            - DATABASE_DATA_SIZE
+                            - DATABASE_STORAGE_SIZE
+                            - DATABASE_INDEX_SIZE
+                            - DATABASE_INDEX_COUNT
+                            - DATABASE_EXTENT_COUNT
+                            - DATABASE_OBJECT_COUNT
+                            - DATABASE_VIEW_COUNT
+                        type: string
+                    maxItems: 10
+                    minItems: 1
+                    type: array
+                    uniqueItems: true
+                  style: form
+                - description: Combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. The host must be the hostname, fully qualified domain name (FQDN), or Internet Protocol address (IPv4 or IPv6) of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    example: mongodb.example.com:27017
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+                - $ref: '#/components/parameters/granularity'
+                - $ref: '#/components/parameters/period'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiMeasurementsGeneralView_Atlas'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Measurements of One Database for One MongoDB Process
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/disks:
+        get:
+            description: Returns the list of disks or partitions for the specified host for the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listDiskPartitions
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. The host must be the hostname, fully qualified domain name (FQDN), or Internet Protocol address (IPv4 or IPv6) of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    example: mongodb.example.com:27017
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedDiskPartitionView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Available Disks for One MongoDB Process
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/disks/{partitionName}:
+        get:
+            description: Returns measurement details for one disk or partition for the specified host for the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listDiskMeasurements
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - description: Human-readable label of the disk or partition to which the measurements apply.
+                  in: path
+                  name: partitionName
+                  required: true
+                  schema:
+                    type: string
+                - $ref: '#/components/parameters/groupId'
+                - description: Combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. The host must be the hostname, fully qualified domain name (FQDN), or Internet Protocol address (IPv4 or IPv6) of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    example: mongodb.example.com:27017
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/MeasurementDiskPartition'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Measurements of One Disk
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/disks/{partitionName}/measurements:
+        get:
+            description: |-
+                Returns the measurements of one disk or partition for the specified host for the specified project. Returned value can be one of the following:
+                - Throughput of I/O operations for the disk partition used for the MongoDB process
+                - Percentage of time during which requests the partition issued and serviced
+                - Latency per operation type of the disk partition used for the MongoDB process
+                - Amount of free and used disk space on the disk partition used for the MongoDB process
+
+                To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getDiskMeasurements
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: One or more types of measurement to request for this MongoDB process. If omitted, the resource returns all measurements. To specify multiple values for `m`, repeat the `m` parameter for each value. Specify measurements that apply to the specified host. MongoDB Cloud returns an error if you specified any invalid measurements.
+                  in: query
+                  name: m
+                  schema:
+                    items:
+                        description: One measurement requested for this MongoDB process.
+                        enum:
+                            - DISK_PARTITION_IOPS_READ
+                            - MAX_DISK_PARTITION_IOPS_READ
+                            - DISK_PARTITION_IOPS_WRITE
+                            - MAX_DISK_PARTITION_IOPS_WRITE
+                            - DISK_PARTITION_IOPS_TOTAL
+                            - MAX_DISK_PARTITION_IOPS_TOTAL
+                            - DISK_PARTITION_LATENCY_READ
+                            - MAX_DISK_PARTITION_LATENCY_READ
+                            - DISK_PARTITION_LATENCY_WRITE
+                            - MAX_DISK_PARTITION_LATENCY_WRITE
+                            - DISK_PARTITION_SPACE_FREE
+                            - MAX_DISK_PARTITION_SPACE_FREE
+                            - DISK_PARTITION_SPACE_USED
+                            - MAX_DISK_PARTITION_SPACE_USED
+                            - DISK_PARTITION_SPACE_PERCENT_FREE
+                            - MAX_DISK_PARTITION_SPACE_PERCENT_FREE
+                            - DISK_PARTITION_SPACE_PERCENT_USED
+                            - MAX_DISK_PARTITION_SPACE_PERCENT_USED
+                            - DISK_PARTITION_THROUGHPUT_READ
+                            - DISK_PARTITION_THROUGHPUT_WRITE
+                            - DISK_QUEUE_DEPTH
+                        type: string
+                    maxItems: 10
+                    minItems: 1
+                    type: array
+                    uniqueItems: true
+                  style: form
+                - description: Human-readable label of the disk or partition to which the measurements apply.
+                  in: path
+                  name: partitionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. The host must be the hostname, fully qualified domain name (FQDN), or Internet Protocol address (IPv4 or IPv6) of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    example: mongodb.example.com:27017
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+                - $ref: '#/components/parameters/granularity'
+                - $ref: '#/components/parameters/period'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiMeasurementsGeneralView_Atlas'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Measurements of One Disk for One MongoDB Process
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/measurements:
+        get:
+            description: |-
+                Returns disk, partition, or host measurements per process for the specified host for the specified project. Returned value can be one of the following:
+                - Throughput of I/O operations for the disk partition used for the MongoDB process
+                - Percentage of time during which requests the partition issued and serviced
+                - Latency per operation type of the disk partition used for the MongoDB process
+                - Amount of free and used disk space on the disk partition used for the MongoDB process
+                - Measurements for the host, such as CPU usage or number of I/O operations
+
+                To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getHostMeasurements
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: One or more types of measurement to request for this MongoDB process. If omitted, the resource returns all measurements. To specify multiple values for `m`, repeat the `m` parameter for each value. Specify measurements that apply to the specified host. MongoDB Cloud returns an error if you specified any invalid measurements.
+                  in: query
+                  name: m
+                  schema:
+                    items:
+                        description: One measurement requested for this MongoDB process.
+                        enum:
+                            - ASSERT_MSG
+                            - ASSERT_REGULAR
+                            - ASSERT_USER
+                            - ASSERT_WARNING
+                            - BACKGROUND_FLUSH_AVG
+                            - CACHE_BYTES_READ_INTO
+                            - CACHE_BYTES_WRITTEN_FROM
+                            - CACHE_DIRTY_BYTES
+                            - CACHE_USED_BYTES
+                            - CACHE_FILL_RATIO
+                            - DIRTY_FILL_RATIO
+                            - COMPUTED_MEMORY
+                            - CONNECTIONS
+                            - CURSORS_TOTAL_OPEN
+                            - CURSORS_TOTAL_TIMED_OUT
+                            - DB_DATA_SIZE_TOTAL
+                            - DB_STORAGE_TOTAL
+                            - DOCUMENT_METRICS_DELETED
+                            - DOCUMENT_METRICS_INSERTED
+                            - DOCUMENT_METRICS_RETURNED
+                            - DOCUMENT_METRICS_UPDATED
+                            - EXTRA_INFO_PAGE_FAULTS
+                            - FTS_DISK_UTILIZATION
+                            - FTS_MEMORY_MAPPED
+                            - FTS_MEMORY_RESIDENT
+                            - FTS_MEMORY_VIRTUAL
+                            - FTS_PROCESS_CPU_KERNEL
+                            - FTS_PROCESS_CPU_USER
+                            - FTS_PROCESS_NORMALIZED_CPU_KERNEL
+                            - FTS_PROCESS_NORMALIZED_CPU_USER
+                            - GLOBAL_ACCESSES_NOT_IN_MEMORY
+                            - GLOBAL_LOCK_CURRENT_QUEUE_READERS
+                            - GLOBAL_LOCK_CURRENT_QUEUE_TOTAL
+                            - GLOBAL_LOCK_CURRENT_QUEUE_WRITERS
+                            - GLOBAL_PAGE_FAULT_EXCEPTIONS_THROWN
+                            - INDEX_COUNTERS_BTREE_ACCESSES
+                            - INDEX_COUNTERS_BTREE_HITS
+                            - INDEX_COUNTERS_BTREE_MISS_RATIO
+                            - INDEX_COUNTERS_BTREE_MISSES
+                            - JOURNALING_COMMITS_IN_WRITE_LOCK
+                            - JOURNALING_MB
+                            - JOURNALING_WRITE_DATA_FILES_MB
+                            - MAX_PROCESS_CPU_CHILDREN_KERNEL
+                            - MAX_PROCESS_CPU_CHILDREN_USER
+                            - MAX_PROCESS_CPU_KERNEL
+                            - MAX_PROCESS_CPU_USER
+                            - MAX_PROCESS_NORMALIZED_CPU_CHILDREN_KERNEL
+                            - MAX_PROCESS_NORMALIZED_CPU_CHILDREN_USER
+                            - MAX_PROCESS_NORMALIZED_CPU_KERNEL
+                            - MAX_PROCESS_NORMALIZED_CPU_USER
+                            - MAX_SWAP_USAGE_FREE
+                            - MAX_SWAP_USAGE_USED
+                            - MAX_SYSTEM_CPU_GUEST
+                            - MAX_SYSTEM_CPU_IOWAIT
+                            - MAX_SYSTEM_CPU_IRQ
+                            - MAX_SYSTEM_CPU_KERNEL
+                            - MAX_SYSTEM_CPU_SOFTIRQ
+                            - MAX_SYSTEM_CPU_STEAL
+                            - MAX_SYSTEM_CPU_USER
+                            - MAX_SYSTEM_MEMORY_AVAILABLE
+                            - MAX_SYSTEM_MEMORY_FREE
+                            - MAX_SYSTEM_MEMORY_USED
+                            - MAX_SYSTEM_NETWORK_IN
+                            - MAX_SYSTEM_NETWORK_OUT
+                            - MAX_SYSTEM_NORMALIZED_CPU_GUEST
+                            - MAX_SYSTEM_NORMALIZED_CPU_IOWAIT
+                            - MAX_SYSTEM_NORMALIZED_CPU_IRQ
+                            - MAX_SYSTEM_NORMALIZED_CPU_KERNEL
+                            - MAX_SYSTEM_NORMALIZED_CPU_NICE
+                            - MAX_SYSTEM_NORMALIZED_CPU_SOFTIRQ
+                            - MAX_SYSTEM_NORMALIZED_CPU_STEAL
+                            - MAX_SYSTEM_NORMALIZED_CPU_USER
+                            - MEMORY_MAPPED
+                            - MEMORY_RESIDENT
+                            - MEMORY_VIRTUAL
+                            - NETWORK_BYTES_IN
+                            - NETWORK_BYTES_OUT
+                            - NETWORK_NUM_REQUESTS
+                            - OP_EXECUTION_TIME_COMMANDS
+                            - OP_EXECUTION_TIME_READS
+                            - OP_EXECUTION_TIME_WRITES
+                            - OPCOUNTER_CMD
+                            - OPCOUNTER_DELETE
+                            - OPCOUNTER_TTL_DELETED
+                            - OPCOUNTER_GETMORE
+                            - OPCOUNTER_INSERT
+                            - OPCOUNTER_QUERY
+                            - OPCOUNTER_REPL_CMD
+                            - OPCOUNTER_REPL_DELETE
+                            - OPCOUNTER_REPL_INSERT
+                            - OPCOUNTER_REPL_UPDATE
+                            - OPCOUNTER_UPDATE
+                            - OPERATIONS_SCAN_AND_ORDER
+                            - OPERATIONS_QUERIES_KILLED
+                            - OPLOG_MASTER_LAG_TIME_DIFF
+                            - OPLOG_MASTER_TIME
+                            - OPLOG_RATE_GB_PER_HOUR
+                            - OPLOG_SLAVE_LAG_MASTER_TIME
+                            - OPLOG_REPLICATION_LAG
+                            - PROCESS_CPU_CHILDREN_KERNEL
+                            - PROCESS_CPU_CHILDREN_USER
+                            - PROCESS_CPU_KERNEL
+                            - PROCESS_CPU_USER
+                            - PROCESS_NORMALIZED_CPU_CHILDREN_KERNEL
+                            - PROCESS_NORMALIZED_CPU_CHILDREN_USER
+                            - PROCESS_NORMALIZED_CPU_KERNEL
+                            - PROCESS_NORMALIZED_CPU_USER
+                            - QUERY_EXECUTOR_SCANNED
+                            - QUERY_EXECUTOR_SCANNED_OBJECTS
+                            - QUERY_TARGETING_SCANNED_OBJECTS_PER_RETURNED
+                            - QUERY_TARGETING_SCANNED_PER_RETURNED
+                            - RESTARTS_IN_LAST_HOUR
+                            - SWAP_USAGE_FREE
+                            - SWAP_USAGE_USED
+                            - SYSTEM_CPU_GUEST
+                            - SYSTEM_CPU_IOWAIT
+                            - SYSTEM_CPU_IRQ
+                            - SYSTEM_CPU_KERNEL
+                            - SYSTEM_CPU_NICE
+                            - SYSTEM_CPU_SOFTIRQ
+                            - SYSTEM_CPU_STEAL
+                            - SYSTEM_CPU_USER
+                            - SYSTEM_MEMORY_AVAILABLE
+                            - SYSTEM_MEMORY_FREE
+                            - SYSTEM_MEMORY_USED
+                            - SYSTEM_NETWORK_IN
+                            - SYSTEM_NETWORK_OUT
+                            - SYSTEM_NORMALIZED_CPU_GUEST
+                            - SYSTEM_NORMALIZED_CPU_IOWAIT
+                            - SYSTEM_NORMALIZED_CPU_IRQ
+                            - SYSTEM_NORMALIZED_CPU_KERNEL
+                            - SYSTEM_NORMALIZED_CPU_NICE
+                            - SYSTEM_NORMALIZED_CPU_SOFTIRQ
+                            - SYSTEM_NORMALIZED_CPU_STEAL
+                            - SYSTEM_NORMALIZED_CPU_USER
+                            - TICKETS_AVAILABLE_READS
+                            - TICKETS_AVAILABLE_WRITE
+                            - OPERATION_THROTTLING_REJECTED_OPERATIONS
+                            - QUERY_SPILL_TO_DISK_DURING_SORT
+                        type: string
+                    maxItems: 10
+                    minItems: 1
+                    type: array
+                    uniqueItems: true
+                  style: form
+                - $ref: '#/components/parameters/period'
+                - description: Combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. The host must be the hostname, fully qualified domain name (FQDN), or Internet Protocol address (IPv4 or IPv6) of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    example: mongodb.example.com:27017
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+                - $ref: '#/components/parameters/granularity'
+                - $ref: '#/components/parameters/start'
+                - $ref: '#/components/parameters/end'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiMeasurementsGeneralView_Atlas'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Measurements for One MongoDB Process
+            tags:
+                - Monitoring and Logs
+            x-xgen-owner-team: Intel I
 components:
     parameters:
         collectionName:
@@ -6,7 +833,7 @@ components:
             name: collectionName
             required: true
             schema:
-                example: mycoll
+                example: mycoll1
                 type: string
         databaseName:
             description: Human-readable label that identifies the database.
@@ -2134,13 +2961,13 @@ components:
                 body:
                     description: A string that defines the permissions for the policy. The syntax used is the Cedar Policy language.
                     example: |4
-                          forbid (
-                            principal,
-                            action == cloud::Action::"cluster.createEdit",
-                            resource
-                          ) when {
-                           context.cluster.regions.contains(cloud::region::"aws:us-east-1")
-                          };
+                                    forbid (
+                                      principal,
+                                      action == cloud::Action::"cluster.createEdit",
+                                      resource
+                                    ) when {
+                                     context.cluster.regions.contains(cloud::region::"aws:us-east-1")
+                                    };
                     readOnly: true
                     type: string
                 errors:
@@ -2209,13 +3036,13 @@ components:
                 body:
                     description: A string that defines the permissions for the policy. The syntax used is the Cedar Policy language.
                     example: |4
-                          forbid (
-                            principal,
-                            action == cloud::Action::"cluster.createEdit",
-                            resource
-                          ) when {
-                           context.cluster.regions.contains(cloud::region::"aws:us-east-1")
-                          };
+                                    forbid (
+                                      principal,
+                                      action == cloud::Action::"cluster.createEdit",
+                                      resource
+                                    ) when {
+                                     context.cluster.regions.contains(cloud::region::"aws:us-east-1")
+                                    };
                     type: string
             required:
                 - body
@@ -2236,13 +3063,13 @@ components:
                 body:
                     description: A string that defines the permissions for the policy. The syntax used is the Cedar Policy language.
                     example: |4
-                          forbid (
-                            principal,
-                            action == cloud::Action::"cluster.createEdit",
-                            resource
-                          ) when {
-                           context.cluster.regions.contains(cloud::region::"aws:us-east-1")
-                          };
+                                    forbid (
+                                      principal,
+                                      action == cloud::Action::"cluster.createEdit",
+                                      resource
+                                    ) when {
+                                     context.cluster.regions.contains(cloud::region::"aws:us-east-1")
+                                    };
                     readOnly: true
                     type: string
                 id:
@@ -32566,6 +33393,8 @@ components:
             type: object
         TenantWithSampleConnections:
             type: object
+        TestSchema:
+            type: string
         TextSearchHostStatusDetail:
             properties:
                 hostname:
