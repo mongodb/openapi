@@ -22,9 +22,6 @@ func Builder() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "convert",
 		Short: "Convert API Changelog entries into another format.",
-		Annotations: map[string]string{
-			"toc": "true",
-		},
 	}
 
 	cmd.AddCommand(SlackBuilder())
