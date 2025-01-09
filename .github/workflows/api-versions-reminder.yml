@@ -1,4 +1,4 @@
-name: 'Send a Slack Notification for upcoming release of API versions'
+name: 'Send a Slack Notification for APIs important events'
 
 on:
   workflow_dispatch: # Allow manual triggering
@@ -6,7 +6,8 @@ on:
     - cron: '0 9 * * 1-5' # Run once a day at 09:00 UTC between Monday and Friday
 
 jobs:
-  send-api-version-reminder:
+  new-api-version-reminder:
+    name: New API Version Release Reminder
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository (dev branch)
@@ -47,3 +48,89 @@ jobs:
           -H 'Content-type: application/json' \
           --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following API Versions are scheduled to be released in the next 3 weeks: '"${API_VERSIONS}"'. Jira Ticket: https://jira.mongodb.org/browse/'"${JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
           echo "message_id=${message_id}"
+
+  sunset-api-version-reminder:
+    name: Sunset APIs Reminder
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Install Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
+        with:
+          python-version: '3.12'
+
+      - name: Install FOASCLI
+        env:
+          foascli_version: ${{ vars.FOASCLI_VERSION }}
+        run: |
+          wget https://github.com/mongodb/openapi/releases/download/v"${foascli_version}"/mongodb-foas-cli_"${foascli_version}"_linux_x86_64.tar.gz -O foascli.tar.gz
+          tar -xzvf foascli.tar.gz 
+          pushd mongodb-foas-cli_*
+          echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+          popd
+
+      - name: Retrieve Sunset APIs
+        id: retrieve-sunset-apis
+        env:
+          openapi_spec_url: "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/v2.json"
+        run: |
+          three_months_date=""
+          
+          # Determine if the system is macOS or Linux
+          if [[ "$(uname)" == "Darwin" ]]; then
+          # macOS date command format
+            three_months_date=$(date -v+3m +"%Y-%m-%d")
+          else
+          # Linux date command format
+            three_months_date=$(date --date="3 months" +"%Y-%m-%d")
+          fi
+          
+          echo "three_months_date: ${three_months_date}"
+          
+          current_date=$(date +"%Y-%m-%d")
+          echo "current_date: ${current_date}"
+          
+          sunset_apis=$(foascli sunset ls -s "${openapi_spec_url}" --from "${current_date}" --to "${three_months_date}")
+          if [[ "${sunset_apis}" != "null" ]]; then
+            echo "API Versions that will be sunsets in the next 3 months: ${sunset_apis}"
+          
+            # We calculate the md5sum of the JSON object which will be included in the Jira ticket title. 
+            # This approach ensures we create a new jira ticket only if the there is not already a ticket 
+            # with the same title
+            hash_code_sunset_apis=$(echo "$sunset_apis" | jq -cS . | md5sum | awk '{print $1}')
+            echo "hash: ${hash_code_sunset_apis}"
+            echo hash_code_sunset_apis="${hash_code_sunset_apis}" >> "${GITHUB_OUTPUT:?}"
+            echo "${sunset_apis}" > sunset_apis.json
+          
+          else
+            echo "No API Versions will be sunset within the next 3 months."
+          fi
+
+      # Create a JIRA ticket only if the there is not already a ticket with the same title
+      - name: Create JIRA Ticket
+        id: create-jira-ticket
+        if: steps.retrieve-sunset-apis.outputs.hash_code_sunset_apis != null
+        env:
+          JIRA_API_TOKEN: ${{ secrets.jira_api_token }}
+          JIRA_TICKET_TITLE: "[API Platform] Some APIs are approaching their sunset date in the next 3 months. ID: ${{steps.retrieve-sunset-apis.outputs.hash_code_sunset_apis}}"
+        run: |
+          sunset_apis=$(sed 's/"/\\"/g' sunset_apis.json)
+          JIRA_TICKET_DESCRIPTION="The following APIs will be sunset in the next 3 months. Please follow our [wiki|https://wiki.corp.mongodb.com/display/MMS/API+eXperience+Production+Checklist#APIeXperienceProductionChecklist-APISunsetActionItems]. {noformat}${sunset_apis}{noformat}"
+          export JIRA_TICKET_DESCRIPTION
+          .github/scripts/create_jira_ticket.sh
+
+      # Send Slack notification only if the Jira ticket was created
+      - name: Send Slack Notification
+        if: steps.create-jira-ticket.outputs.jira-ticket-id != null
+        env:
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_APIX_2 }}
+          SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
+          JIRA_TICKET_ID: ${{ steps.create-jira-ticket.outputs.jira-ticket-id }}
+        run: |
+          echo "JIRA_TICKET_ID: ${JIRA_TICKET_ID}"
+          message_id=$(curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
+          -H 'Content-type: application/json' \
+          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following APIs are scheduled to be sunset in the next 3 months. See Jira Ticket: https://jira.mongodb.org/browse/'"${JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
+          echo "message_id=${message_id}"]
