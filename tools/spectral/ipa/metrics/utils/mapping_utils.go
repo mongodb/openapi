@@ -9,13 +9,14 @@ import (
 // PathTagMapping represents a map from paths to tags.
 type PathTagMapping map[string]string
 
+var mapping PathTagMapping
+
 func loadMappingFromFile(fileName string) (PathTagMapping, error) {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read mapping file: %v", err)
 	}
 
-	var mapping PathTagMapping
 	if err := json.Unmarshal(data, &mapping); err != nil {
 		return nil, fmt.Errorf("failed to parse mapping file: %v", err)
 	}
@@ -36,8 +37,6 @@ func writeMappingToFile(fileName string) error {
 	}
 	return nil
 }
-
-var mapping PathTagMapping
 
 func savePathMapTagging(path string, tag string) {
 	if mapping == nil {
