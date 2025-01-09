@@ -5,6 +5,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
+	"github.com/tufin/oasdiff/utils"
 	"log"
 	"reflect"
 )
@@ -32,7 +33,7 @@ func extractNewRevisionComponents() error {
 	return nil
 }
 
-func DetectChanges() tagSet {
+func DetectChanges() (tagSet, tagSet) {
 	mappingsFile := "./path_to_key_mapping.json"
 	mapping, err := loadMappingFromFile(mappingsFile)
 	if err != nil {
@@ -40,6 +41,7 @@ func DetectChanges() tagSet {
 	}
 
 	affectedTags := tagSet{}
+	deletedPathTags := tagSet{}
 
 	pathsDiff, componentsDiff, err, _, updatedSpecInfo := GetOASChanges()
 	if err != nil {
@@ -60,9 +62,10 @@ func DetectChanges() tagSet {
 	}
 
 	if !pathsDiff.Deleted.Empty() {
-		for pathKey := range pathsDiff.Deleted.ToStringSet() {
-			tagName := mapping[pathKey]
-			affectedTags[tagName] = struct{}{}
+		for path := range pathsDiff.Deleted.ToStringSet() {
+			tagName := mapping[path]
+			DeletePathFromTagFile(tagName, path)
+			deletedPathTags[tagName] = struct{}{}
 		}
 	}
 
@@ -73,7 +76,7 @@ func DetectChanges() tagSet {
 		}
 	}
 
-	return affectedTags
+	return affectedTags, deletedPathTags
 
 }
 
@@ -124,4 +127,8 @@ func isAnyComponentDiffNotNil(diff diff.ComponentsDiff) bool {
 		}
 	}
 	return false
+}
+
+func getComponentsDeleted(diff diff.ComponentsDiff) utils.StringSet {
+	return diff.ParametersDiff.Deleted.ToStringSet()
 }
