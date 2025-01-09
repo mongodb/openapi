@@ -22,6 +22,31 @@ func loadSpecYAMLFile(filePath string) (*OpenAPISpec, error) {
 	return &spec, nil
 }
 
+func RebuildFullDeletedPathsSpec(tagFiles []string, sharedSchemasFile string, outputFile string) error {
+	loader := openapi3.NewLoader()
+
+	componentsSpec, err := loadSpec(loader, sharedSchemasFile)
+	if err != nil {
+		return fmt.Errorf("failed to load shared schemas: %v", err)
+	}
+
+	var deletedPathsSpec OpenAPISpec
+	// Merge tag-specific paths
+	for _, tagFile := range tagFiles {
+		tagSpec, err := loadSpecYAMLFile(tagFile)
+		if err != nil {
+			return fmt.Errorf("failed to load tag file %s: %v", tagFile, err)
+		}
+		for path, pathItem := range tagSpec.Paths {
+			deletedPathsSpec.Paths[path] = pathItem
+		}
+	}
+
+	deletedPathsSpec.Components = componentsSpec.Spec.Components
+
+	return saveYAML(outputFile, deletedPathsSpec)
+}
+
 func RebuildFullSpec(tagFile string, sharedSchemasFile string, outputFile string) error {
 	loader := openapi3.NewLoader()
 
