@@ -2,106 +2,114 @@ package utils
 
 import (
 	"fmt"
-	"github.com/invopop/yaml"
-	"log"
+	"github.com/getkin/kin-openapi/openapi3"
+	"gopkg.in/yaml.v3"
 	"os"
-	"path"
+	"path/filepath"
 )
 
 // Structs for OpenAPI (simplified)
 type OpenAPISpec struct {
 	OpenAPI    string                 `yaml:"openapi"`
-	Info       map[string]interface{} `yaml:"info"`
 	Paths      map[string]interface{} `yaml:"paths"`
-	Components map[string]interface{} `yaml:"components"`
+	Components *openapi3.Components   `yaml:"components,omitempty"`
 }
 
-func SplitOAS() {
-	inputFile := "openapi-foas.yaml"
+func SplitOAS() error {
+	originalInputFile := "openapi-foas.yaml"
 	dirPath := "./split_specs"
-	outputDir := dirPath + "/tags"
-	schemaFile := dirPath + "/shared_schemas.yaml"
+	tagsOutputDir := dirPath + "/tags"
+	schemaFile := dirPath + "/shared_components.yaml"
 
 	// Ensure the directory exists
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
-		fmt.Printf("Error creating directory: %v\n", err)
-		return
+		return fmt.Errorf("Error creating directory: %v\n", err)
 	}
 
-	spec := parseOpenAPISpec(inputFile)
+	// Initialize loader
+	loader := openapi3.NewLoader()
+
+	// Load specs
+	originalSpecInfo, err := loadSpec(loader, originalInputFile)
+	if err != nil {
+		return fmt.Errorf("failed to load original spec: %v", err)
+	}
 
 	// Save shared schemas
 	sharedSchemas := map[string]interface{}{
-		"components": map[string]interface{}{
-			"schemas": spec.Components["schemas"],
-		},
+		"components": originalSpecInfo.Spec.Components,
 	}
 	saveYAML(schemaFile, sharedSchemas)
 
-	// Split by tags
-	for pathKey, operations := range spec.Paths {
-		operationsMap, ok := operations.(map[string]interface{})
-		if !ok {
-			continue
-		}
+	// Map to group paths by tags
+	spec := originalSpecInfo.Spec
+	tagFiles := make(map[string]map[string]interface{})
 
-		for method, details := range operationsMap {
-			detailsMap, ok := details.(map[string]interface{})
-			if !ok {
-				continue
-			}
-
-			tags, ok := detailsMap["tags"].([]interface{})
-			if !ok {
-				continue
-			}
-
-			for _, tag := range tags {
-				tagName := tag.(string)
-				tagDir := path.Join(outputDir, tagName)
-				os.MkdirAll(tagDir, 0755)
-
-				tagFile := path.Join(tagDir, "spec.yaml")
-				splitSpec := OpenAPISpec{
-					OpenAPI: spec.OpenAPI,
-					Info:    spec.Info,
-					Paths: map[string]interface{}{
-						pathKey: map[string]interface{}{
-							method: detailsMap,
-						},
-					},
-					Components: nil,
+	// Iterate through paths
+	pathsMap := spec.Paths.Map()
+	for path, pathItem := range pathsMap {
+		for _, operation := range pathItem.Operations() {
+			for _, tag := range operation.Tags {
+				// Initialize map for the tag if not already present
+				if _, exists := tagFiles[tag]; !exists {
+					tagFiles[tag] = make(map[string]interface{})
 				}
-				saveYAML(tagFile, splitSpec)
+
+				// Add the path and its operations to the tag group
+				tagFiles[tag][path] = pathItem
+				savePathMapTagging(path, tag)
 			}
 		}
 	}
+
+	// Write each tag's paths to a separate file
+	for tag, paths := range tagFiles {
+		tagDir := filepath.Join(tagsOutputDir, tag)
+		os.MkdirAll(tagDir, 0755)
+
+		tagFile := filepath.Join(tagDir, "spec.yaml")
+
+		splitSpec := OpenAPISpec{
+			OpenAPI: spec.OpenAPI,
+			Paths:   paths,
+		}
+		if err := saveYAML(tagFile, splitSpec); err != nil {
+			return fmt.Errorf("failed to save tag file for tag %s: %v", tag, err)
+		}
+		fmt.Printf("Saved spec for tag %s to %s\n", tag, tagFile)
+	}
+
+	writeMappingToFile("./path_to_key_mapping.json")
 	fmt.Println("Splitting completed.")
+	return nil
 }
 
-func parseOpenAPISpec(inputFile string) OpenAPISpec {
-	// Read OpenAPI spec
-	data, err := os.ReadFile(inputFile)
+func loadYAML(filePath string, out interface{}) error {
+	// Read the file contents
+	data, err := os.ReadFile(filePath)
 	if err != nil {
-		log.Fatalf("Failed to read file: %v", err)
+		return fmt.Errorf("failed to read file %s: %v", filePath, err)
 	}
 
-	var spec OpenAPISpec
-	err = yaml.Unmarshal(data, &spec)
-	if err != nil {
-		log.Fatalf("Failed to parse YAML: %v", err)
+	// Unmarshal the YAML content
+	if err := yaml.Unmarshal(data, out); err != nil {
+		return fmt.Errorf("failed to unmarshal YAML content from file %s: %v", filePath, err)
 	}
-	return spec
+
+	return nil
 }
 
-func saveYAML(filePath string, content interface{}) {
+func saveYAML(filePath string, content interface{}) error {
 	data, err := yaml.Marshal(content)
 	if err != nil {
-		log.Fatalf("Failed to marshal YAML: %v", err)
+		return fmt.Errorf("failed to marshal YAML: %v", err)
 	}
+
 	err = os.WriteFile(filePath, data, 0644)
 	if err != nil {
-		log.Fatalf("Failed to write file: %v", err)
+		return fmt.Errorf("failed to write file: %v", err)
 	}
+
+	return nil
 }
