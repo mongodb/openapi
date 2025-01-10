@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package filter
 
 import (
@@ -21,7 +22,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// Filter: ExtensionFilter is a filter that updates the x-sunset and x-xgen-version extensions to a date string
+// ExtensionFilter is a filter that updates the x-sunset and x-xgen-version extensions to a date string
 // and deletes the x-sunset extension if the latest matched version is deprecated by hidden versions
 // for the target environment
 type ExtensionFilter struct {
