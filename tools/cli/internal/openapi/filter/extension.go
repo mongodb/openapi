@@ -97,60 +97,11 @@ func (f *ExtensionFilter) Apply() error {
 			f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, request.Value.Content)
 		}
 	}
-	for _, tag := range f.oas.Tags {
-		if tag != nil {
-			deleteIpaExceptionExtension(tag.Extensions)
-		}
+	if f.oas.Tags != nil {
+		updateExtensionsForTags(f.oas.Tags)
 	}
 	if f.oas.Components != nil {
-		for _, schema := range f.oas.Components.Schemas {
-			if schema != nil {
-				deleteIpaExceptionExtension(schema.Extensions)
-			}
-			if schema.Value != nil {
-				deleteIpaExceptionExtension(schema.Value.Extensions)
-				for _, allOf := range schema.Value.AllOf {
-					if allOf.Value == nil {
-						continue
-					}
-					for _, property := range allOf.Value.Properties {
-						if property.Value != nil {
-							deleteIpaExceptionExtension(property.Value.Extensions)
-						}
-					}
-				}
-				for _, anyOf := range schema.Value.AnyOf {
-					if anyOf.Value == nil {
-						continue
-					}
-					for _, property := range anyOf.Value.Properties {
-						if property.Value != nil {
-							deleteIpaExceptionExtension(property.Value.Extensions)
-						}
-					}
-				}
-				for _, oneOf := range schema.Value.OneOf {
-					if oneOf.Value == nil {
-						continue
-					}
-					for _, property := range oneOf.Value.Properties {
-						if property.Value != nil {
-							deleteIpaExceptionExtension(property.Value.Extensions)
-						}
-					}
-				}
-				for _, property := range schema.Value.Properties {
-					if property.Value != nil {
-						deleteIpaExceptionExtension(property.Value.Extensions)
-					}
-				}
-			}
-		}
-		for _, parameter := range f.oas.Components.Parameters {
-			if parameter != nil {
-				deleteIpaExceptionExtension(parameter.Extensions)
-			}
-		}
+		updateExtensionsForComponents(*f.oas.Components)
 	}
 	return nil
 }
@@ -169,6 +120,65 @@ func updateExtensionToDateString(extensions map[string]any) {
 			continue
 		}
 		extensions[key] = date.Format("2006-01-02")
+	}
+}
+
+func updateExtensionsForComponents(components openapi3.Components) {
+	for _, schema := range components.Schemas {
+		if schema != nil {
+			deleteIpaExceptionExtension(schema.Extensions)
+		}
+		if schema.Value != nil {
+			deleteIpaExceptionExtension(schema.Value.Extensions)
+			for _, allOf := range schema.Value.AllOf {
+				if allOf.Value == nil {
+					continue
+				}
+				for _, property := range allOf.Value.Properties {
+					if property.Value != nil {
+						deleteIpaExceptionExtension(property.Value.Extensions)
+					}
+				}
+			}
+			for _, anyOf := range schema.Value.AnyOf {
+				if anyOf.Value == nil {
+					continue
+				}
+				for _, property := range anyOf.Value.Properties {
+					if property.Value != nil {
+						deleteIpaExceptionExtension(property.Value.Extensions)
+					}
+				}
+			}
+			for _, oneOf := range schema.Value.OneOf {
+				if oneOf.Value == nil {
+					continue
+				}
+				for _, property := range oneOf.Value.Properties {
+					if property.Value != nil {
+						deleteIpaExceptionExtension(property.Value.Extensions)
+					}
+				}
+			}
+			for _, property := range schema.Value.Properties {
+				if property.Value != nil {
+					deleteIpaExceptionExtension(property.Value.Extensions)
+				}
+			}
+		}
+	}
+	for _, parameter := range components.Parameters {
+		if parameter != nil {
+			deleteIpaExceptionExtension(parameter.Extensions)
+		}
+	}
+}
+
+func updateExtensionsForTags(tags openapi3.Tags) {
+	for _, tag := range tags {
+		if tag != nil {
+			deleteIpaExceptionExtension(tag.Extensions)
+		}
 	}
 }
 
