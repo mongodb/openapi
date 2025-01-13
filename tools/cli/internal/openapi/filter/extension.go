@@ -98,10 +98,10 @@ func (f *ExtensionFilter) Apply() error {
 		}
 	}
 	if f.oas.Tags != nil {
-		updateExtensionsForTags(f.oas.Tags)
+		updateExtensionsForTags(&f.oas.Tags)
 	}
 	if f.oas.Components != nil {
-		updateExtensionsForComponents(*f.oas.Components)
+		updateExtensionsForComponents(f.oas.Components)
 	}
 	return nil
 }
@@ -123,7 +123,7 @@ func updateExtensionToDateString(extensions map[string]any) {
 	}
 }
 
-func updateExtensionsForComponents(components openapi3.Components) {
+func updateExtensionsForComponents(components *openapi3.Components) {
 	for _, schema := range components.Schemas {
 		if schema != nil {
 			deleteIpaExceptionExtension(schema.Extensions)
@@ -174,8 +174,8 @@ func updateExtensionsForComponents(components openapi3.Components) {
 	}
 }
 
-func updateExtensionsForTags(tags openapi3.Tags) {
-	for _, tag := range tags {
+func updateExtensionsForTags(tags *openapi3.Tags) {
+	for _, tag := range *tags {
 		if tag != nil {
 			deleteIpaExceptionExtension(tag.Extensions)
 		}
