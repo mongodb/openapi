@@ -21,7 +21,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// Filter: ExtensionFilter is a filter that updates the x-sunset and x-xgen-version extensions to a date string
+// Filter: ExtensionFilter is a filter that deleted the x-xgen-ipa-exception extensions, updates the x-sunset and x-xgen-version extensions to a date string
 // and deletes the x-sunset extension if the latest matched version is deprecated by hidden versions
 // for the target environment
 type ExtensionFilter struct {
@@ -31,6 +31,7 @@ type ExtensionFilter struct {
 
 const sunsetExtension = "x-sunset"
 const xGenExtension = "x-xgen-version"
+const ipaExceptionExtension = "x-xgen-IPA-exception"
 const format = "2006-01-02T15:04:05Z07:00"
 
 func (f *ExtensionFilter) Apply() error {
@@ -39,6 +40,7 @@ func (f *ExtensionFilter) Apply() error {
 			continue
 		}
 		updateExtensionToDateString(pathItem.Extensions)
+		deleteIpaExceptionExtension(pathItem.Extensions)
 
 		for _, operation := range pathItem.Operations() {
 			if operation == nil {
@@ -46,6 +48,18 @@ func (f *ExtensionFilter) Apply() error {
 			}
 
 			updateExtensionToDateString(operation.Extensions)
+			deleteIpaExceptionExtension(operation.Extensions)
+
+			for _, parameter := range operation.Parameters {
+				if parameter.Value == nil || parameter.Value.Schema == nil {
+					continue
+				}
+				deleteIpaExceptionExtension(parameter.Value.Schema.Extensions)
+				if parameter.Value.Schema.Value == nil {
+					continue
+				}
+				deleteIpaExceptionExtension(parameter.Value.Schema.Value.Extensions)
+			}
 
 			latestVersionMatch, err := apiversion.FindLatestContentVersionMatched(operation, f.metadata.targetVersion)
 			if err != nil {
@@ -58,12 +72,14 @@ func (f *ExtensionFilter) Apply() error {
 				}
 
 				updateExtensionToDateString(response.Extensions)
+				deleteIpaExceptionExtension(response.Extensions)
 
 				if response.Value == nil {
 					continue
 				}
 
 				updateExtensionToDateString(response.Value.Extensions)
+				deleteIpaExceptionExtension(response.Value.Extensions)
 
 				if response.Value.Content == nil {
 					continue
@@ -79,6 +95,61 @@ func (f *ExtensionFilter) Apply() error {
 			}
 			f.updateToDateString(request.Value.Content)
 			f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, request.Value.Content)
+		}
+	}
+	for _, tag := range f.oas.Tags {
+		if tag != nil {
+			deleteIpaExceptionExtension(tag.Extensions)
+		}
+	}
+	if f.oas.Components != nil {
+		for _, schema := range f.oas.Components.Schemas {
+			if schema != nil {
+				deleteIpaExceptionExtension(schema.Extensions)
+			}
+			if schema.Value != nil {
+				deleteIpaExceptionExtension(schema.Value.Extensions)
+				for _, allOf := range schema.Value.AllOf {
+					if allOf.Value == nil {
+						continue
+					}
+					for _, property := range allOf.Value.Properties {
+						if property.Value != nil {
+							deleteIpaExceptionExtension(property.Value.Extensions)
+						}
+					}
+				}
+				for _, anyOf := range schema.Value.AnyOf {
+					if anyOf.Value == nil {
+						continue
+					}
+					for _, property := range anyOf.Value.Properties {
+						if property.Value != nil {
+							deleteIpaExceptionExtension(property.Value.Extensions)
+						}
+					}
+				}
+				for _, oneOf := range schema.Value.OneOf {
+					if oneOf.Value == nil {
+						continue
+					}
+					for _, property := range oneOf.Value.Properties {
+						if property.Value != nil {
+							deleteIpaExceptionExtension(property.Value.Extensions)
+						}
+					}
+				}
+				for _, property := range schema.Value.Properties {
+					if property.Value != nil {
+						deleteIpaExceptionExtension(property.Value.Extensions)
+					}
+				}
+			}
+		}
+		for _, parameter := range f.oas.Components.Parameters {
+			if parameter != nil {
+				deleteIpaExceptionExtension(parameter.Extensions)
+			}
 		}
 	}
 	return nil
@@ -99,6 +170,14 @@ func updateExtensionToDateString(extensions map[string]any) {
 		}
 		extensions[key] = date.Format("2006-01-02")
 	}
+}
+
+func deleteIpaExceptionExtension(extensions map[string]any) {
+	if extensions == nil || extensions[ipaExceptionExtension] == nil {
+		return
+	}
+
+	delete(extensions, ipaExceptionExtension)
 }
 
 func (f *ExtensionFilter) updateToDateString(content openapi3.Content) {
