@@ -7,6 +7,7 @@ import {
 } from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
 import { getAllSuccessfulGetResponseSchemas } from './utils/methodUtils.js';
+import collector, { EntryType } from '../../metrics/Collector.js';
 
 const RULE_NAME = 'xgen-IPA-113-singleton-must-not-have-id';
 const ERROR_MESSAGE = 'Singleton resources must not have a user-provided or system-generated ID.';
@@ -18,7 +19,7 @@ export default (input, opts, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME)) {
+  if (hasException(input, RULE_NAME, path)) {
     return;
   }
 
@@ -28,6 +29,7 @@ export default (input, opts, { path, documentInventory }) => {
   if (isSingletonResource(resourcePaths) && hasGetMethod(input)) {
     const resourceSchemas = getAllSuccessfulGetResponseSchemas(input);
     if (resourceSchemas.some((schema) => schemaHasIdProperty(schema))) {
+      collector.add(path, RULE_NAME, EntryType.VIOLATION);
       return [
         {
           message: ERROR_MESSAGE,
@@ -35,6 +37,9 @@ export default (input, opts, { path, documentInventory }) => {
       ];
     }
   }
+
+  collector.add(path, RULE_NAME, EntryType.ADOPTION);
+
 };
 
 function schemaHasIdProperty(schema) {

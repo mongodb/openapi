@@ -1,5 +1,6 @@
 import { isPathParam } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
+import collector, { EntryType } from '../../metrics/Collector.js';
 
 const RULE_NAME = 'xgen-IPA-102-path-alternate-resource-name-path-param';
 const ERROR_MESSAGE = 'API paths must alternate between resource name and path params.';
@@ -24,9 +25,9 @@ const validatePathStructure = (elements) => {
   });
 };
 
-export default (input, _, { documentInventory }) => {
+export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
-  if (hasException(oas.paths[input], RULE_NAME)) {
+  if (hasException(oas.paths[input], RULE_NAME, path)) {
     return;
   }
 
@@ -43,6 +44,9 @@ export default (input, _, { documentInventory }) => {
   let suffix = suffixWithLeadingSlash.slice(1);
   let elements = suffix.split('/');
   if (!validatePathStructure(elements)) {
+    collector.add(path, RULE_NAME, EntryType.VIOLATION);
     return ERROR_RESULT;
   }
+
+  collector.add(path, RULE_NAME, EntryType.ADOPTION);
 };
