@@ -62,18 +62,25 @@ func findRefs(oas *openapi3.T) map[string]bool {
 		for _, op := range v.Operations() {
 			for _, param := range op.Parameters {
 				refs[param.Ref] = true
+				findRefsSchemaRef(refs, param.Value.Schema)
 			}
 
 			if op.RequestBody != nil {
 				refs[op.RequestBody.Ref] = true
+				if op.RequestBody.Value != nil {
+					for _, content := range op.RequestBody.Value.Content {
+						if content.Schema != nil {
+							findRefsSchemaRef(refs, content.Schema)
+						}
+					}
+				}
 			}
 
 			for _, resp := range op.Responses.Map() {
 				refs[resp.Ref] = true
-
 				for _, content := range resp.Value.Content {
 					if content.Schema != nil {
-						refs[content.Schema.Ref] = true
+						findRefsSchemaRef(refs, content.Schema)
 					}
 				}
 			}
@@ -82,6 +89,51 @@ func findRefs(oas *openapi3.T) map[string]bool {
 	}
 
 	return refs
+}
+
+func findRefsSchemasRefs(refs map[string]bool, schemas openapi3.SchemaRefs) {
+	if schemas == nil {
+		return
+	}
+
+	for _, schema := range schemas {
+		if ok := refs[schema.Ref]; ok {
+			continue
+		}
+
+		refs[schema.Ref] = true
+		if schema.Value != nil {
+			findRefsSchemasRefs(refs, schema.Value.AllOf)
+			findRefsSchemasRefs(refs, schema.Value.OneOf)
+			findRefsSchemasRefs(refs, schema.Value.AnyOf)
+			findRefsSchemas(refs, schema.Value.Properties)
+		}
+	}
+}
+
+func findRefsSchemas(refs map[string]bool, schemas openapi3.Schemas) {
+	if schemas == nil {
+		return
+	}
+
+	for _, schema := range schemas {
+		findRefsSchemaRef(refs, schema)
+	}
+}
+
+func findRefsSchemaRef(refs map[string]bool, schema *openapi3.SchemaRef) {
+	if schema == nil {
+		return
+	}
+
+	refs[schema.Ref] = true
+	if schema.Value == nil {
+		return
+	}
+
+	findRefsSchemasRefs(refs, schema.Value.AllOf)
+	findRefsSchemasRefs(refs, schema.Value.OneOf)
+	findRefsSchemasRefs(refs, schema.Value.AnyOf)
 }
 
 func filterComponentSchemasInRefs(oas *openapi3.T, usedRefs map[string]bool) {
