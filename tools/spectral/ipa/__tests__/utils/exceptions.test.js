@@ -40,16 +40,16 @@ const objectWithIpa100And101Exception = {
 describe('tools/spectral/ipa/rulesets/functions/utils/exceptions.js', () => {
   describe('hasException', () => {
     it('returns true if object has exception matching the rule name', () => {
-      expect(hasException(objectWithIpa100Exception, TEST_RULE_NAME_100, '')).toBe(true);
-      expect(hasException(objectWithIpa100ExceptionAndOwnerExtension, TEST_RULE_NAME_100, '')).toBe(true);
-      expect(hasException(objectWithIpa100And101Exception, TEST_RULE_NAME_100, '')).toBe(true);
+      expect(hasException(objectWithIpa100Exception, TEST_RULE_NAME_100)).toBe(true);
+      expect(hasException(objectWithIpa100ExceptionAndOwnerExtension, TEST_RULE_NAME_100)).toBe(true);
+      expect(hasException(objectWithIpa100And101Exception, TEST_RULE_NAME_100)).toBe(true);
     });
     it('returns false if object does not have exception matching the rule name', () => {
-      expect(hasException({}, TEST_RULE_NAME_100, '')).toBe(false);
-      expect(hasException(objectWithIpa101Exception, TEST_RULE_NAME_100, '')).toBe(false);
+      expect(hasException({}, TEST_RULE_NAME_100)).toBe(false);
+      expect(hasException(objectWithIpa101Exception, TEST_RULE_NAME_100)).toBe(false);
     });
     it('returns false if object has nested exception matching the rule name', () => {
-      expect(hasException(objectWithNestedIpa100Exception, TEST_RULE_NAME_100, '')).toBe(false);
+      expect(hasException(objectWithNestedIpa100Exception, TEST_RULE_NAME_100)).toBe(false);
     });
   });
 });
