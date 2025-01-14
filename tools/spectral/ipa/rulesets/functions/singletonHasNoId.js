@@ -7,10 +7,7 @@ import {
 } from './utils/resourceEvaluation.js';
 import { collectException, hasException } from './utils/exceptions.js';
 import { getAllSuccessfulGetResponseSchemas } from './utils/methodUtils.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-} from './utils/collectionUtils.js';
+import { collectAdoption, collectAndReturnViolation } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-113-singleton-must-not-have-id';
 const ERROR_MESSAGE = 'Singleton resources must not have a user-provided or system-generated ID.';
@@ -23,7 +20,7 @@ export default (input, opts, { path, documentInventory }) => {
   }
 
   if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path)
+    collectException(input, RULE_NAME, path);
     return;
   }
 

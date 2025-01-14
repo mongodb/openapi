@@ -17,15 +17,15 @@ export function hasException(object, ruleName) {
 }
 
 /**
- * Collects the information about the object if the object has an exception defined for the given rule
+ * Collects an exception entry.
  *
  * @param object the object to evaluate
- * @param ruleName the name of the exempted rule
- * @param path the JSON path to the object
+ * @param {string} path - The JSON path for the object where the rule exception occurred.
+ * @param {string} ruleName - The name of the rule that the exception is defined for.
  */
 export function collectException(object, ruleName, path) {
   let exceptionReason = object[EXCEPTION_EXTENSION][ruleName];
-  if(exceptionReason) {
+  if (exceptionReason) {
     collector.add(EntryType.EXCEPTION, path, ruleName, exceptionReason);
   }
 }

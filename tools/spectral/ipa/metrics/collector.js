@@ -36,16 +36,16 @@ class Collector {
     });
   }
 
-  add(type, componentId, ruleName, exceptionReason = null ) {
+  add(type, componentId, ruleName, exceptionReason = null) {
     if (componentId && ruleName && type) {
       if (!Object.values(EntryType).includes(type)) {
         throw new Error(`Invalid entry type: ${type}`);
       }
 
       componentId = componentId.join('.');
-      const entry = {componentId, ruleName};
+      const entry = { componentId, ruleName };
 
-      if(type === EntryType.EXCEPTION && exceptionReason) {
+      if (type === EntryType.EXCEPTION && exceptionReason) {
         entry.exceptionReason = exceptionReason;
       }
 

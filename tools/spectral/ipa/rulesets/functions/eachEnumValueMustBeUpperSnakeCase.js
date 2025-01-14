@@ -1,10 +1,7 @@
 import { collectException, hasException } from './utils/exceptions.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-} from './utils/collectionUtils.js';
+import { collectAdoption, collectAndReturnViolation } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-123-enum-values-must-be-upper-snake-case';
 const ERROR_MESSAGE = 'enum value must be UPPER_SNAKE_CASE.';
@@ -43,5 +40,4 @@ export default (input, _, { path, documentInventory }) => {
   } else {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
-
 };
