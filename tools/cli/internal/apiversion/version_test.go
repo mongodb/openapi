@@ -15,10 +15,10 @@
 package apiversion
 
 import (
-	"github.com/getkin/kin-openapi/openapi3"
 	"testing"
 	"time"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
