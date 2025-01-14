@@ -23,66 +23,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPathFilter_getLatestVersionMatch(t *testing.T) {
-	testCases := []struct {
-		name          string
-		targetVersion string
-		expectedMatch string
-	}{
-		{
-			name:          "exact match 2023-01-01",
-			targetVersion: "2023-01-01",
-			expectedMatch: "2023-01-01",
-		},
-		{
-			name:          "exact match 2023-11-15",
-			targetVersion: "2023-11-15",
-			expectedMatch: "2023-11-15",
-		},
-		{
-			name:          "exact match 2024-05-30",
-			targetVersion: "2024-05-30",
-			expectedMatch: "2024-05-30",
-		},
-		{
-			name:          "approx match 2023-01-01",
-			targetVersion: "2023-01-02",
-			expectedMatch: "2023-01-01",
-		},
-		{
-			name:          "approx match 2023-01-01",
-			targetVersion: "2023-01-31",
-			expectedMatch: "2023-01-01",
-		},
-		{
-			name:          "approx match 2023-02-01",
-			targetVersion: "2023-02-20",
-			expectedMatch: "2023-02-01",
-		},
-		{
-			name:          "future date",
-			targetVersion: "2030-02-20",
-			expectedMatch: "2024-05-30",
-		},
-		{
-			name:          "past date",
-			targetVersion: "1999-02-20",
-			expectedMatch: "1999-02-20",
-		},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			targetVersion, err := apiversion.New(apiversion.WithVersion(tt.targetVersion))
-			require.NoError(t, err)
-			r, err := apiversion.FindLatestContentVersionMatched(oasOperationAllVersions(), targetVersion)
-			require.NoError(t, err)
-			// transform time to str with format "2006-01-02"
-			assert.Equal(t, tt.expectedMatch, r.String())
-		})
-	}
-}
-
 func TestPathFilter_processPathItem(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)

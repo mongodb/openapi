@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package apiversion
 
 import (
@@ -128,7 +129,7 @@ func Parse(contentType string) (string, error) {
 }
 
 // FindLatestContentVersionMatched finds the latest content version that matches the requested version.
-func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *APIVersion) (*APIVersion, error) {
+func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *APIVersion) *APIVersion {
 	/*
 		  given:
 			 version: 2024-01-01
@@ -142,7 +143,7 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 	*/
 	var latestVersionMatch *APIVersion
 	if op.Responses == nil {
-		return requestedVersion, nil
+		return requestedVersion
 	}
 
 	for _, response := range op.Responses.Map() {
@@ -153,7 +154,7 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 		for contentType := range response.Value.Content {
 			contentVersion, err := New(WithContent(contentType))
 			if err != nil {
-				log.Printf("Ignoring invalid content type: %s", contentType)
+				log.Printf("Ignoring invalid content type: %q", contentType)
 				continue
 			}
 			if contentVersion.GreaterThan(requestedVersion) {
@@ -161,7 +162,7 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 			}
 
 			if contentVersion.Equal(requestedVersion) {
-				return contentVersion, nil
+				return contentVersion
 			}
 
 			if latestVersionMatch == nil || contentVersion.GreaterThan(latestVersionMatch) {
@@ -171,10 +172,10 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 	}
 
 	if latestVersionMatch == nil {
-		return requestedVersion, nil
+		return requestedVersion
 	}
 
-	return latestVersionMatch, nil
+	return latestVersionMatch
 }
 
 // Sort versions

@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package filter
 
 import (
@@ -63,10 +64,7 @@ func (f *ExtensionFilter) Apply() error {
 				deleteIpaExceptionExtension(parameter.Value.Schema.Value.Extensions)
 			}
 
-			latestVersionMatch, err := apiversion.FindLatestContentVersionMatched(operation, f.metadata.targetVersion)
-			if err != nil {
-				return err
-			}
+			latestVersionMatch := apiversion.FindLatestContentVersionMatched(operation, f.metadata.targetVersion)
 
 			if operation.RequestBody != nil {
 				deleteIpaExceptionExtension(operation.RequestBody.Extensions)
@@ -122,15 +120,15 @@ func updateExtensionToDateString(extensions map[string]any) {
 		return
 	}
 
-	for key, value := range extensions {
-		if key != sunsetExtension && key != xGenExtension {
+	for k, v := range extensions {
+		if k != sunsetExtension && k != xGenExtension {
 			continue
 		}
-		date, err := time.Parse(format, value.(string))
+		date, err := time.Parse(format, v.(string))
 		if err != nil {
 			continue
 		}
-		extensions[key] = date.Format("2006-01-02")
+		extensions[k] = date.Format("2006-01-02")
 	}
 }
 
