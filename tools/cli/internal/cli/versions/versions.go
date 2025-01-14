@@ -113,7 +113,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 // Builder builds the versions command with the following signature:
-// versions -s oas
+// versions -s oas --env dev|qa|staging|prod -stability-level STABLE|PREVIEW
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
