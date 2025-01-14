@@ -15,6 +15,7 @@
 package apiversion
 
 import (
+	"github.com/getkin/kin-openapi/openapi3"
 	"testing"
 	"time"
 
@@ -400,5 +401,97 @@ func TestNew_WithVersion(t *testing.T) {
 			tt.wantErr(t, err)
 			assert.Equal(t, tt.expectedMatch, match.String())
 		})
+	}
+}
+
+func TestFindLatestContentVersionMatched(t *testing.T) {
+	testCases := []struct {
+		name          string
+		targetVersion string
+		expectedMatch string
+	}{
+		{
+			name:          "exact match 2023-01-01",
+			targetVersion: "2023-01-01",
+			expectedMatch: "2023-01-01",
+		},
+		{
+			name:          "exact match 2023-11-15",
+			targetVersion: "2023-11-15",
+			expectedMatch: "2023-11-15",
+		},
+		{
+			name:          "exact match 2024-05-30",
+			targetVersion: "2024-05-30",
+			expectedMatch: "2024-05-30",
+		},
+		{
+			name:          "approx match 2023-01-01",
+			targetVersion: "2023-01-02",
+			expectedMatch: "2023-01-01",
+		},
+		{
+			name:          "approx match 2023-01-01",
+			targetVersion: "2023-01-31",
+			expectedMatch: "2023-01-01",
+		},
+		{
+			name:          "approx match 2023-02-01",
+			targetVersion: "2023-02-20",
+			expectedMatch: "2023-02-01",
+		},
+		{
+			name:          "future date",
+			targetVersion: "2030-02-20",
+			expectedMatch: "2024-05-30",
+		},
+		{
+			name:          "past date",
+			targetVersion: "1999-02-20",
+			expectedMatch: "1999-02-20",
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			targetVersion, err := New(WithVersion(tt.targetVersion))
+			require.NoError(t, err)
+			r := FindLatestContentVersionMatched(oasOperationAllVersions(), targetVersion)
+			// transform time to str with format "2006-01-02"
+			assert.Equal(t, tt.expectedMatch, r.String())
+		})
+	}
+}
+
+func oasOperationAllVersions() *openapi3.Operation {
+	responses := &openapi3.Responses{}
+	responses.Set("200", &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.2023-01-01+json": {},
+				"application/vnd.atlas.2023-01-01+csv":  {},
+				"application/vnd.atlas.2023-02-01+json": {},
+				"application/vnd.atlas.2023-10-01+json": {},
+				"application/vnd.atlas.2023-11-15+json": {},
+				"application/vnd.atlas.2024-05-30+json": {},
+			},
+		},
+	})
+
+	return &openapi3.Operation{
+		OperationID: "operationId",
+		Responses:   responses,
+		RequestBody: &openapi3.RequestBodyRef{
+			Value: &openapi3.RequestBody{
+				Content: map[string]*openapi3.MediaType{
+					"application/vnd.atlas.2023-01-01+json": {},
+					"application/vnd.atlas.2023-02-01+json": {},
+					"application/vnd.atlas.2023-10-01+json": {},
+					"application/vnd.atlas.2023-11-15+json": {},
+					"application/vnd.atlas.2024-05-30+json": {},
+				},
+			},
+		},
 	}
 }
