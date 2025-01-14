@@ -1,5 +1,5 @@
 import { isCustomMethod } from './utils/resourceEvaluation.js';
-import { hasException } from './utils/exceptions.js';
+import { collectException, hasException } from './utils/exceptions.js';
 import collector, { EntryType } from '../../metrics/collector.js';
 
 const RULE_NAME = 'xgen-IPA-109-custom-method-must-be-GET-or-POST';
@@ -14,7 +14,8 @@ export default (input, opts, { path }) => {
 
   if (!isCustomMethod(pathKey)) return;
 
-  if (hasException(input, RULE_NAME, path)) {
+  if (hasException(input, RULE_NAME)) {
+    collectException(input, RULE_NAME, path);
     return;
   }
 
@@ -24,7 +25,7 @@ export default (input, opts, { path }) => {
 
   // Check for invalid methods
   if (httpMethods.some((method) => !VALID_METHODS.includes(method))) {
-    collector.add(path, RULE_NAME, EntryType.VIOLATION);
+    collector.add(EntryType.VIOLATION, path, RULE_NAME);
     return ERROR_RESULT;
   }
 
@@ -32,9 +33,9 @@ export default (input, opts, { path }) => {
   const validMethodCount = httpMethods.filter((method) => VALID_METHODS.includes(method)).length;
 
   if (validMethodCount > 1) {
-    collector.add(path, RULE_NAME, EntryType.VIOLATION);
+    collector.add(EntryType.VIOLATION, path, RULE_NAME);
     return ERROR_RESULT;
   }
 
-  collector.add(path, RULE_NAME, EntryType.ADOPTION);
+  collector.add(EntryType.ADOPTION, path, RULE_NAME);
 };

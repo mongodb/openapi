@@ -17,14 +17,14 @@ export default (input, opts, { path }) => {
 
   let methodName = getCustomMethodName(pathKey);
   if (methodName.length === 0 || methodName.trim().length === 0) {
-    collector.add(path, RULE_NAME, EntryType.VIOLATION);
+    collector.add(EntryType.VIOLATION, path, RULE_NAME);
     return [{ message: 'Custom method name cannot be empty or blank.' }];
   }
 
   if (casing(methodName, { type: 'camel', disallowDigits: true })) {
-    collector.add(path, RULE_NAME, EntryType.VIOLATION);
+    collector.add(EntryType.VIOLATION, path, RULE_NAME);
     return [{ message: `${methodName} must use camelCase format.` }];
   }
 
-  collector.add(path, RULE_NAME, EntryType.ADOPTION);
+  collector.add(EntryType.ADOPTION, path, RULE_NAME);
 };

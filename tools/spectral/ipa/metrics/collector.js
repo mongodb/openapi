@@ -27,7 +27,7 @@ class Collector {
       [EntryType.EXCEPTION]: [],
     };
 
-    this.fileName = 'combined.log';
+    this.fileName = 'ipa-collector-results-combined.log';
 
     process.on('exit', () => this.flushToFile());
     process.on('SIGINT', () => {
@@ -36,11 +36,20 @@ class Collector {
     });
   }
 
-  add(componentId, ruleName, type) {
+  add(type, componentId, ruleName, exceptionReason = null ) {
     if (componentId && ruleName && type) {
+      if (!Object.values(EntryType).includes(type)) {
+        throw new Error(`Invalid entry type: ${type}`);
+      }
+
       componentId = componentId.join('.');
-      const data = { componentId, ruleName };
-      this.entries[type].push(data);
+      const entry = {componentId, ruleName};
+
+      if(type === EntryType.EXCEPTION && exceptionReason) {
+        entry.exceptionReason = exceptionReason;
+      }
+
+      this.entries[type].push(entry);
     }
   }
 

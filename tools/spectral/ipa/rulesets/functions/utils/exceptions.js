@@ -1,4 +1,5 @@
 import collector, { EntryType } from '../../../metrics/collector.js';
+
 const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
 
 /**
@@ -8,10 +9,23 @@ const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
  * @param ruleName the name of the exempted rule
  * @returns {boolean} true if the object has an exception named ruleName, otherwise false
  */
-export function hasException(object, ruleName, path) {
+export function hasException(object, ruleName) {
   if (object[EXCEPTION_EXTENSION]) {
-    collector.add(path, ruleName, EntryType.EXCEPTION);
     return Object.keys(object[EXCEPTION_EXTENSION]).includes(ruleName);
   }
   return false;
+}
+
+/**
+ * Collects the information about the object if the object has an exception defined for the given rule
+ *
+ * @param object the object to evaluate
+ * @param ruleName the name of the exempted rule
+ * @param path the JSON path to the object
+ */
+export function collectException(object, ruleName, path) {
+  let exceptionReason = object[EXCEPTION_EXTENSION][ruleName];
+  if(exceptionReason) {
+    collector.add(EntryType.EXCEPTION, path, ruleName, exceptionReason);
+  }
 }

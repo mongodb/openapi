@@ -27,7 +27,7 @@ export default (input, _, { path, documentInventory }) => {
 
   if (isSingletonResource(resourcePaths)) {
     if (!hasGetMethod(oas.paths[resourcePaths[0]])) {
-      collector.add(path, RULE_NAME, EntryType.VIOLATION);
+      collector.add(EntryType.VIOLATION, path, RULE_NAME);
       return [
         {
           message: ERROR_MESSAGE,
@@ -36,7 +36,7 @@ export default (input, _, { path, documentInventory }) => {
     }
   } else if (isStandardResource(resourcePaths)) {
     if (!hasGetMethod(oas.paths[resourcePaths[1]])) {
-      collector.add(path, RULE_NAME, EntryType.VIOLATION);
+      collector.add(EntryType.VIOLATION, path, RULE_NAME);
       return [
         {
           message: ERROR_MESSAGE,
@@ -45,5 +45,5 @@ export default (input, _, { path, documentInventory }) => {
     }
   }
 
-  collector.add(path, RULE_NAME, EntryType.ADOPTION);
+  collector.add(EntryType.ADOPTION, path, RULE_NAME);
 };

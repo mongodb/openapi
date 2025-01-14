@@ -11,7 +11,7 @@ describe('Collector Class', () => {
       { componentId: 'example.component', ruleName: 'rule-2' },
     ],
     adoptions: [{ componentId: 'example.component', ruleName: 'rule-3' }],
-    exceptions: [{ componentId: 'example.component', ruleName: 'rule-4' }],
+    exceptions: [{ componentId: 'example.component', ruleName: 'rule-4', exceptionReason: 'exception-reason' }],
   };
 
   beforeEach(() => {
@@ -25,16 +25,16 @@ describe('Collector Class', () => {
   });
 
   it('should collect violations, adoptions, and exceptions correctly', () => {
-    collector.add(['example', 'component'], 'rule-1', EntryType.VIOLATION);
-    collector.add(['example', 'component'], 'rule-2', EntryType.VIOLATION);
-    collector.add(['example', 'component'], 'rule-3', EntryType.ADOPTION);
-    collector.add(['example', 'component'], 'rule-4', EntryType.EXCEPTION);
+    collector.add(EntryType.VIOLATION, ['example', 'component'], 'rule-1');
+    collector.add(EntryType.VIOLATION, ['example', 'component'], 'rule-2');
+    collector.add(EntryType.ADOPTION, ['example', 'component'], 'rule-3');
+    collector.add(EntryType.EXCEPTION, ['example', 'component'], 'rule-4', 'exception-reason');
 
     expect(collector.entries).toEqual(expectedOutput);
 
     collector.flushToFile();
     const writtenData = JSON.stringify(expectedOutput, null, 2);
-    expect(fs.writeFileSync).toHaveBeenCalledWith('combined.log', writtenData);
+    expect(fs.writeFileSync).toHaveBeenCalledWith('ipa-collector-results-combined.log', writtenData);
   });
 
   it('should not add invalid entries', () => {

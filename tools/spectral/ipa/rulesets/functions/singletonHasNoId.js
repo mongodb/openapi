@@ -5,7 +5,7 @@ import {
   isCustomMethod,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { hasException } from './utils/exceptions.js';
+import { collectException, hasException } from './utils/exceptions.js';
 import { getAllSuccessfulGetResponseSchemas } from './utils/methodUtils.js';
 import collector, { EntryType } from '../../metrics/collector.js';
 
@@ -19,7 +19,8 @@ export default (input, opts, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME, path)) {
+  if (hasException(input, RULE_NAME)) {
+    collectException(input, RULE_NAME, path)
     return;
   }
 
@@ -29,7 +30,7 @@ export default (input, opts, { path, documentInventory }) => {
   if (isSingletonResource(resourcePaths) && hasGetMethod(input)) {
     const resourceSchemas = getAllSuccessfulGetResponseSchemas(input);
     if (resourceSchemas.some((schema) => schemaHasIdProperty(schema))) {
-      collector.add(path, RULE_NAME, EntryType.VIOLATION);
+      collector.add(EntryType.VIOLATION, path, RULE_NAME);
       return [
         {
           message: ERROR_MESSAGE,
@@ -38,7 +39,7 @@ export default (input, opts, { path, documentInventory }) => {
     }
   }
 
-  collector.add(path, RULE_NAME, EntryType.ADOPTION);
+  collector.add(EntryType.ADOPTION, path, RULE_NAME);
 };
 
 function schemaHasIdProperty(schema) {

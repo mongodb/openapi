@@ -1,5 +1,5 @@
 import { isPathParam } from './utils/componentUtils.js';
-import { hasException } from './utils/exceptions.js';
+import { collectException, hasException } from './utils/exceptions.js';
 import collector, { EntryType } from '../../metrics/collector.js';
 
 const RULE_NAME = 'xgen-IPA-102-path-alternate-resource-name-path-param';
@@ -27,7 +27,8 @@ const validatePathStructure = (elements) => {
 
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
-  if (hasException(oas.paths[input], RULE_NAME, path)) {
+  if (hasException(oas.paths[input], RULE_NAME)) {
+    collectException(oas.paths[input], RULE_NAME, path);
     return;
   }
 
@@ -44,9 +45,9 @@ export default (input, _, { path, documentInventory }) => {
   let suffix = suffixWithLeadingSlash.slice(1);
   let elements = suffix.split('/');
   if (!validatePathStructure(elements)) {
-    collector.add(path, RULE_NAME, EntryType.VIOLATION);
+    collector.add(EntryType.VIOLATION, path, RULE_NAME);
     return ERROR_RESULT;
   }
 
-  collector.add(path, RULE_NAME, EntryType.ADOPTION);
+  collector.add(EntryType.ADOPTION, path, RULE_NAME);
 };

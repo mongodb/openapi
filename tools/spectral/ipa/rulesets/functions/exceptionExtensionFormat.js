@@ -20,9 +20,9 @@ export default (input, _, { path }) => {
   });
 
   if (errors.length === 0) {
-    collector.add(path, RULE_NAME, EntryType.ADOPTION);
+    collector.add(EntryType.ADOPTION, path, RULE_NAME);
   } else {
-    collector.add(path, RULE_NAME, EntryType.VIOLATION);
+    collector.add(EntryType.VIOLATION, path, RULE_NAME);
   }
 
   return errors;

@@ -1,4 +1,4 @@
-import { hasException } from './utils/exceptions.js';
+import { collectException, hasException } from './utils/exceptions.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
 import collector, { EntryType } from '../../metrics/collector.js';
@@ -18,7 +18,8 @@ export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const schemaPath = getSchemaPathFromEnumPath(path);
   const schemaObject = resolveObject(oas, schemaPath);
-  if (hasException(schemaObject, RULE_NAME, schemaPath)) {
+  if (hasException(schemaObject, RULE_NAME)) {
+    collectException(schemaObject, RULE_NAME, path);
     return;
   }
 
@@ -35,9 +36,9 @@ export default (input, _, { path, documentInventory }) => {
   });
 
   if (errors.length === 0) {
-    collector.add(schemaPath, RULE_NAME, EntryType.ADOPTION);
+    collector.add(EntryType.ADOPTION, schemaPath, RULE_NAME);
   } else {
-    collector.add(schemaPath, RULE_NAME, EntryType.VIOLATION);
+    collector.add(EntryType.VIOLATION, schemaPath, RULE_NAME);
   }
 
   return errors;
