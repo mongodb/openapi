@@ -157,7 +157,7 @@ func Parse(contentType string) (string, error) {
 	}
 
 	if len(matches) == 3 {
-		return fmt.Sprintf("%s-%s-%s", matches[1], matches[2], matches[3]), nil
+		return fmt.Sprintf("%s-%s-%s", matches[2], matches[3], matches[4]), nil
 	}
 
 	return matches[1], nil
