@@ -130,7 +130,6 @@ func TestNewAPIVersionFromContentType(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			version, err := New(WithContent(tt.contentType))
-			t.Parallel()
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
