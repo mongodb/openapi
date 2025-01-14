@@ -92,9 +92,7 @@ func (f *VersioningFilter) apply(path *openapi3.PathItem) error {
 		config.parsedOperations[op.OperationID] = opConfig
 
 		var err error
-		if opConfig.latestMatchedVersion, err = apiversion.FindLatestContentVersionMatched(op, f.metadata.targetVersion); err != nil {
-			return err
-		}
+		opConfig.latestMatchedVersion = apiversion.FindLatestContentVersionMatched(op, f.metadata.targetVersion)
 
 		err = updateResponses(op, config)
 		if err != nil {
