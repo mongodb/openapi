@@ -1,4 +1,7 @@
-import collector, { EntryType } from '../../metrics/collector.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-005-exception-extension-format';
 const ERROR_MESSAGE = 'IPA exceptions must have a valid rule name and a reason.';
@@ -20,9 +23,9 @@ export default (input, _, { path }) => {
   });
 
   if (errors.length === 0) {
-    collector.add(EntryType.ADOPTION, path, RULE_NAME);
+    collectAdoption(path, RULE_NAME);
   } else {
-    collector.add(EntryType.VIOLATION, path, RULE_NAME);
+    return collectAndReturnViolation(path, RULE_NAME, errors);
   }
 
   return errors;

@@ -6,8 +6,11 @@ import {
   isSingletonResource,
   getResourcePaths,
 } from './utils/resourceEvaluation.js';
-import { hasException } from './utils/exceptions.js';
-import collector, { EntryType } from '../../metrics/collector.js';
+import { collectException, hasException } from './utils/exceptions.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-104-resource-has-GET';
 const ERROR_MESSAGE = 'APIs must provide a get method for resources.';
@@ -19,7 +22,8 @@ export default (input, _, { path, documentInventory }) => {
 
   const oas = documentInventory.resolved;
 
-  if (hasException(oas.paths[input], RULE_NAME, path)) {
+  if (hasException(oas.paths[input], RULE_NAME)) {
+    collectException(oas.paths[input], RULE_NAME, path);
     return;
   }
 
@@ -27,23 +31,13 @@ export default (input, _, { path, documentInventory }) => {
 
   if (isSingletonResource(resourcePaths)) {
     if (!hasGetMethod(oas.paths[resourcePaths[0]])) {
-      collector.add(EntryType.VIOLATION, path, RULE_NAME);
-      return [
-        {
-          message: ERROR_MESSAGE,
-        },
-      ];
+      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
   } else if (isStandardResource(resourcePaths)) {
     if (!hasGetMethod(oas.paths[resourcePaths[1]])) {
-      collector.add(EntryType.VIOLATION, path, RULE_NAME);
-      return [
-        {
-          message: ERROR_MESSAGE,
-        },
-      ];
+      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
   }
 
-  collector.add(EntryType.ADOPTION, path, RULE_NAME);
+  collectAdoption(path, RULE_NAME);
 };

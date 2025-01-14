@@ -1,7 +1,10 @@
 import { getCustomMethodName, isCustomMethod } from './utils/resourceEvaluation.js';
-import { hasException } from './utils/exceptions.js';
+import { collectException, hasException } from './utils/exceptions.js';
 import { casing } from '@stoplight/spectral-functions';
-import collector, { EntryType } from '../../metrics/collector.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-109-custom-method-must-use-camel-case';
 
@@ -11,20 +14,21 @@ export default (input, opts, { path }) => {
 
   if (!isCustomMethod(pathKey)) return;
 
-  if (hasException(input, RULE_NAME, path)) {
+  if (hasException(input, RULE_NAME)) {
+    collectException(input, RULE_NAME, path);
     return;
   }
 
   let methodName = getCustomMethodName(pathKey);
   if (methodName.length === 0 || methodName.trim().length === 0) {
-    collector.add(EntryType.VIOLATION, path, RULE_NAME);
-    return [{ message: 'Custom method name cannot be empty or blank.' }];
+    const errorMessage = 'Custom method name cannot be empty or blank.';
+    return collectAndReturnViolation(path, RULE_NAME, errorMessage);
   }
 
   if (casing(methodName, { type: 'camel', disallowDigits: true })) {
-    collector.add(EntryType.VIOLATION, path, RULE_NAME);
-    return [{ message: `${methodName} must use camelCase format.` }];
+    const errorMessage = `${methodName} must use camelCase format.`;
+    return collectAndReturnViolation(path, RULE_NAME, errorMessage);
   }
 
-  collector.add(EntryType.ADOPTION, path, RULE_NAME);
+  collectAdoption(path, RULE_NAME);
 };

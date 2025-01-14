@@ -1,10 +1,12 @@
 import { isPathParam } from './utils/componentUtils.js';
 import { collectException, hasException } from './utils/exceptions.js';
-import collector, { EntryType } from '../../metrics/collector.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-102-path-alternate-resource-name-path-param';
 const ERROR_MESSAGE = 'API paths must alternate between resource name and path params.';
-const ERROR_RESULT = [{ message: ERROR_MESSAGE }];
 const AUTH_PREFIX = '/api/atlas/v2';
 const UNAUTH_PREFIX = '/api/atlas/v2/unauth';
 
@@ -45,9 +47,8 @@ export default (input, _, { path, documentInventory }) => {
   let suffix = suffixWithLeadingSlash.slice(1);
   let elements = suffix.split('/');
   if (!validatePathStructure(elements)) {
-    collector.add(EntryType.VIOLATION, path, RULE_NAME);
-    return ERROR_RESULT;
+    return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
   }
 
-  collector.add(EntryType.ADOPTION, path, RULE_NAME);
+  collectAdoption(path, RULE_NAME);
 };
