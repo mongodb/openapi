@@ -1,7 +1,5 @@
 import fs from 'node:fs';
-import {
-  bundleAndLoadRuleset
-} from '@stoplight/spectral-ruleset-bundler/with-loader';
+import { bundleAndLoadRuleset } from '@stoplight/spectral-ruleset-bundler/with-loader';
 import { EntryType } from './collector.js';
 
 export function loadOpenAPIFile(filePath) {
@@ -80,8 +78,8 @@ export function merge(spectralResults, ownershipData, collectorResults, ruleSeve
 
   function addEntry(entryType, adoptionStatus) {
     for (const entry of collectorResults[entryType]) {
-      const existing = results.find((result) =>
-        result.component_id === entry.componentId && result.ipa_rule === entry.ruleName
+      const existing = results.find(
+        (result) => result.component_id === entry.componentId && result.ipa_rule === entry.ruleName
       );
 
       if (existing) {

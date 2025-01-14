@@ -2,14 +2,20 @@ import spectral from '@stoplight/spectral-core';
 import { fileURLToPath } from 'node:url';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { loadOpenAPIFile, extractTeamOwnership, loadRuleset, loadCollectorResults, getSeverityPerRule, merge } from './utils.js';
+import {
+  loadOpenAPIFile,
+  extractTeamOwnership,
+  loadRuleset,
+  loadCollectorResults,
+  getSeverityPerRule,
+  merge,
+} from './utils.js';
 const { Spectral } = spectral;
 
 //TBD
 const oasFile = '../../../../openapi/v2.json';
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const collectorResultsFile = path.join(dirname, '../ipa-collector-results-combined.log');
-
 
 async function runMetricCollectionJob() {
   try {
@@ -43,7 +49,6 @@ async function runMetricCollectionJob() {
     throw error;
   }
 }
-
 
 runMetricCollectionJob()
   .then((results) => fs.writeFileSync('results.log', JSON.stringify(results)))
