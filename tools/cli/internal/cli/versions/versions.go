@@ -46,7 +46,6 @@ func (o *Opts) Run() error {
 
 	var versions []string
 	versions, err = openapi.ExtractVersionsWithEnv(specInfo.Spec, o.env)
-
 	if err != nil {
 		return err
 	}
@@ -55,6 +54,7 @@ func (o *Opts) Run() error {
 		return fmt.Errorf("no versions found in the OpenAPI specification")
 	}
 
+	versions = o.filterStabilityLevelVersions(versions)
 	bytes, err := o.versionsAsBytes(versions)
 	if err != nil {
 		return err
@@ -66,6 +66,25 @@ func (o *Opts) Run() error {
 
 	fmt.Println(string(bytes))
 	return nil
+}
+
+func (o *Opts) filterStabilityLevelVersions(apiVersions []string) []string {
+	if o.stabilityLevel == "" || apiVersions == nil {
+		return apiVersions
+	}
+
+	var out []string
+	for _, v := range apiVersions {
+		if o.stabilityLevel == apiversion.PreviewStabilityLevel && strings.Contains(v, "preview") {
+			out = append(out, v)
+		}
+
+		if o.stabilityLevel == apiversion.StableStabilityLevel && !strings.Contains(v, "preview") {
+			out = append(out, v)
+		}
+	}
+
+	return out
 }
 
 func (o *Opts) versionsAsBytes(versions []string) ([]byte, error) {
