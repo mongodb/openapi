@@ -114,6 +114,18 @@ func TestExtensionFilter_removeIpaException(t *testing.T) {
 	assert.NotNil(t, response)
 	assert.Nil(t, response.Extensions[ipaExceptionExtension])
 
+	requestBody := oas.Paths.Find("/path").Get.RequestBody
+	assert.NotNil(t, requestBody)
+	assert.Nil(t, requestBody.Extensions[ipaExceptionExtension])
+
+	requestBodyContent := oas.Paths.Find("/path").Get.RequestBody.Value.Content.Get(contentKey)
+	assert.NotNil(t, requestBodyContent)
+	assert.Nil(t, requestBodyContent.Extensions[ipaExceptionExtension])
+
+	requestBodyContentSchema := oas.Paths.Find("/path").Get.RequestBody.Value.Content.Get(contentKey).Schema
+	assert.NotNil(t, requestBodyContentSchema)
+	assert.Nil(t, requestBodyContentSchema.Extensions[ipaExceptionExtension])
+
 	path := oas.Paths.Find("/path")
 	assert.NotNil(t, path)
 	assert.Nil(t, path.Extensions[ipaExceptionExtension])
@@ -243,9 +255,10 @@ func getOasIpaExceptions() *openapi3.T {
 		Extensions: extension})
 
 	operation := &openapi3.Operation{
-		Responses:  &openapi3.Responses{},
-		Parameters: parameters,
-		Extensions: extension,
+		Responses:   &openapi3.Responses{},
+		RequestBody: &openapi3.RequestBodyRef{},
+		Parameters:  parameters,
+		Extensions:  extension,
 	}
 
 	operation.Responses.Set("200", &openapi3.ResponseRef{
@@ -264,6 +277,23 @@ func getOasIpaExceptions() *openapi3.T {
 		},
 		Extensions: extension,
 	})
+
+	operation.RequestBody = &openapi3.RequestBodyRef{
+		Value: &openapi3.RequestBody{
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.2023-01-01+json": {
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+						},
+						Extensions: extension,
+					},
+					Extensions: extension,
+				},
+			},
+		},
+		Extensions: extension,
+	}
 
 	oas.Paths.Set("/path", &openapi3.PathItem{
 		Get:        operation,

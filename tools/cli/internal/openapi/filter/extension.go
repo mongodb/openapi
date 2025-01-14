@@ -66,6 +66,15 @@ func (f *ExtensionFilter) Apply() error {
 				return err
 			}
 
+			if operation.RequestBody != nil {
+				deleteIpaExceptionExtension(operation.RequestBody.Extensions)
+				_, contentsInVersion := getVersionsInContentType(operation.RequestBody.Value.Content)
+				for _, content := range contentsInVersion {
+					deleteIpaExceptionExtension(content.Extensions)
+					updateExtensionsForSchema(content.Schema)
+				}
+			}
+
 			for _, response := range operation.Responses.Map() {
 				if response == nil {
 					continue
@@ -125,47 +134,7 @@ func updateExtensionToDateString(extensions map[string]any) {
 
 func updateExtensionsForComponents(components *openapi3.Components) {
 	for _, schema := range components.Schemas {
-		if schema != nil {
-			deleteIpaExceptionExtension(schema.Extensions)
-		}
-		if schema.Value != nil {
-			deleteIpaExceptionExtension(schema.Value.Extensions)
-			for _, allOf := range schema.Value.AllOf {
-				if allOf.Value == nil {
-					continue
-				}
-				for _, property := range allOf.Value.Properties {
-					if property.Value != nil {
-						deleteIpaExceptionExtension(property.Value.Extensions)
-					}
-				}
-			}
-			for _, anyOf := range schema.Value.AnyOf {
-				if anyOf.Value == nil {
-					continue
-				}
-				for _, property := range anyOf.Value.Properties {
-					if property.Value != nil {
-						deleteIpaExceptionExtension(property.Value.Extensions)
-					}
-				}
-			}
-			for _, oneOf := range schema.Value.OneOf {
-				if oneOf.Value == nil {
-					continue
-				}
-				for _, property := range oneOf.Value.Properties {
-					if property.Value != nil {
-						deleteIpaExceptionExtension(property.Value.Extensions)
-					}
-				}
-			}
-			for _, property := range schema.Value.Properties {
-				if property.Value != nil {
-					deleteIpaExceptionExtension(property.Value.Extensions)
-				}
-			}
-		}
+		updateExtensionsForSchema(schema)
 	}
 	for _, parameter := range components.Parameters {
 		if parameter != nil {
@@ -178,6 +147,50 @@ func updateExtensionsForTags(tags *openapi3.Tags) {
 	for _, tag := range *tags {
 		if tag != nil {
 			deleteIpaExceptionExtension(tag.Extensions)
+		}
+	}
+}
+
+func updateExtensionsForSchema(schema *openapi3.SchemaRef) {
+	if schema != nil {
+		deleteIpaExceptionExtension(schema.Extensions)
+	}
+	if schema.Value != nil {
+		deleteIpaExceptionExtension(schema.Value.Extensions)
+		for _, allOf := range schema.Value.AllOf {
+			if allOf.Value == nil {
+				continue
+			}
+			for _, property := range allOf.Value.Properties {
+				if property.Value != nil {
+					deleteIpaExceptionExtension(property.Value.Extensions)
+				}
+			}
+		}
+		for _, anyOf := range schema.Value.AnyOf {
+			if anyOf.Value == nil {
+				continue
+			}
+			for _, property := range anyOf.Value.Properties {
+				if property.Value != nil {
+					deleteIpaExceptionExtension(property.Value.Extensions)
+				}
+			}
+		}
+		for _, oneOf := range schema.Value.OneOf {
+			if oneOf.Value == nil {
+				continue
+			}
+			for _, property := range oneOf.Value.Properties {
+				if property.Value != nil {
+					deleteIpaExceptionExtension(property.Value.Extensions)
+				}
+			}
+		}
+		for _, property := range schema.Value.Properties {
+			if property.Value != nil {
+				deleteIpaExceptionExtension(property.Value.Extensions)
+			}
 		}
 	}
 }
