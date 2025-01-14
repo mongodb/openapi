@@ -1,7 +1,11 @@
 import { getCustomMethodName, isCustomMethod } from './utils/resourceEvaluation.js';
-import { collectException, hasException } from './utils/exceptions.js';
+import { hasException } from './utils/exceptions.js';
 import { casing } from '@stoplight/spectral-functions';
-import { collectAdoption, collectAndReturnViolation } from './utils/collectionUtils.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+  collectException,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-109-custom-method-must-use-camel-case';
 

@@ -31,3 +31,18 @@ export function collectAndReturnViolation(path, ruleName, errorData) {
 export function collectAdoption(path, ruleName) {
   collector.add(EntryType.ADOPTION, path, ruleName);
 }
+
+/**
+ * Collects an exception entry.
+ *
+ * @param object the object to evaluate
+ * @param {string} path - The JSON path for the object where the rule exception occurred.
+ * @param {string} ruleName - The name of the rule that the exception is defined for.
+ */
+export function collectException(object, ruleName, path) {
+  const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
+  let exceptionReason = object[EXCEPTION_EXTENSION][ruleName];
+  if (exceptionReason) {
+    collector.add(EntryType.EXCEPTION, path, ruleName, exceptionReason);
+  }
+}
