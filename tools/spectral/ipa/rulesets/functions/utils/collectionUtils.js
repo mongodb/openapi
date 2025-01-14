@@ -1,5 +1,5 @@
 import collector, { EntryType } from '../../../metrics/collector.js';
-
+import { EXCEPTION_EXTENSION } from './exceptions.js';
 /**
  * Collects a violation entry and returns formatted error data.
  *
@@ -40,7 +40,6 @@ export function collectAdoption(path, ruleName) {
  * @param {string} ruleName - The name of the rule that the exception is defined for.
  */
 export function collectException(object, ruleName, path) {
-  const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
   let exceptionReason = object[EXCEPTION_EXTENSION][ruleName];
   if (exceptionReason) {
     collector.add(EntryType.EXCEPTION, path, ruleName, exceptionReason);
