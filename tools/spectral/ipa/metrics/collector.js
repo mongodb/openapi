@@ -27,7 +27,7 @@ class Collector {
       [EntryType.EXCEPTION]: [],
     };
 
-    this.fileName = "combined.log"
+    this.fileName = 'combined.log';
 
     process.on('exit', () => this.flushToFile());
     process.on('SIGINT', () => {
@@ -37,9 +37,9 @@ class Collector {
   }
 
   add(componentId, ruleName, type) {
-    if(componentId && ruleName && type) {
+    if (componentId && ruleName && type) {
       componentId = componentId.join('.');
-      const data = {componentId, ruleName};
+      const data = { componentId, ruleName };
       this.entries[type].push(data);
     }
   }

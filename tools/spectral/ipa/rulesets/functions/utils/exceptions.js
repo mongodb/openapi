@@ -10,7 +10,7 @@ const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
  */
 export function hasException(object, ruleName, path) {
   if (object[EXCEPTION_EXTENSION]) {
-    collector.add(path, ruleName, EntryType.EXCEPTION)
+    collector.add(path, ruleName, EntryType.EXCEPTION);
     return Object.keys(object[EXCEPTION_EXTENSION]).includes(ruleName);
   }
   return false;

@@ -10,12 +10,8 @@ describe('Collector Class', () => {
       { componentId: 'example.component', ruleName: 'rule-1' },
       { componentId: 'example.component', ruleName: 'rule-2' },
     ],
-    adoptions: [
-      { componentId: 'example.component', ruleName: 'rule-3' },
-    ],
-    exceptions: [
-      { componentId: 'example.component', ruleName: 'rule-4' },
-    ],
+    adoptions: [{ componentId: 'example.component', ruleName: 'rule-3' }],
+    exceptions: [{ componentId: 'example.component', ruleName: 'rule-4' }],
   };
 
   beforeEach(() => {
@@ -38,10 +34,7 @@ describe('Collector Class', () => {
 
     collector.flushToFile();
     const writtenData = JSON.stringify(expectedOutput, null, 2);
-    expect(fs.writeFileSync).toHaveBeenCalledWith(
-      'combined.log',
-      writtenData
-    );
+    expect(fs.writeFileSync).toHaveBeenCalledWith('combined.log', writtenData);
   });
 
   it('should not add invalid entries', () => {

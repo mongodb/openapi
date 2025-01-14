@@ -19,7 +19,7 @@ export default (input, _, { path }) => {
     }
   });
 
-  if(errors.length === 0) {
+  if (errors.length === 0) {
     collector.add(path, RULE_NAME, EntryType.ADOPTION);
   } else {
     collector.add(path, RULE_NAME, EntryType.VIOLATION);

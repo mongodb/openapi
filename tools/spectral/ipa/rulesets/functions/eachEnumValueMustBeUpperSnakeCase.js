@@ -34,7 +34,7 @@ export default (input, _, { path, documentInventory }) => {
     }
   });
 
-  if(errors.length === 0) {
+  if (errors.length === 0) {
     collector.add(schemaPath, RULE_NAME, EntryType.ADOPTION);
   } else {
     collector.add(schemaPath, RULE_NAME, EntryType.VIOLATION);

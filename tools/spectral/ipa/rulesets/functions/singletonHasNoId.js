@@ -39,7 +39,6 @@ export default (input, opts, { path, documentInventory }) => {
   }
 
   collector.add(path, RULE_NAME, EntryType.ADOPTION);
-
 };
 
 function schemaHasIdProperty(schema) {
