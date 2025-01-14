@@ -53,27 +53,13 @@ func (f *ExtensionFilter) Apply() error {
 			updateExtensionToDateString(operation.Extensions)
 			deleteIpaExceptionExtension(operation.Extensions)
 
-			for _, parameter := range operation.Parameters {
-				if parameter.Value == nil || parameter.Value.Schema == nil {
-					continue
-				}
-				deleteIpaExceptionExtension(parameter.Value.Schema.Extensions)
-				if parameter.Value.Schema.Value == nil {
-					continue
-				}
-				deleteIpaExceptionExtension(parameter.Value.Schema.Value.Extensions)
+			if operation.Parameters != nil {
+				updateExtensionsForOperationParameters(operation.Parameters)
 			}
+
+			updateExtensionsForRequestBody(operation.RequestBody)
 
 			latestVersionMatch := apiversion.FindLatestContentVersionMatched(operation, f.metadata.targetVersion)
-
-			if operation.RequestBody != nil {
-				deleteIpaExceptionExtension(operation.RequestBody.Extensions)
-				_, contentsInVersion := getVersionsInContentType(operation.RequestBody.Value.Content)
-				for _, content := range contentsInVersion {
-					deleteIpaExceptionExtension(content.Extensions)
-					updateExtensionsForSchema(content.Schema)
-				}
-			}
 
 			for _, response := range operation.Responses.Map() {
 				if response == nil {
@@ -115,20 +101,28 @@ func (f *ExtensionFilter) Apply() error {
 	return nil
 }
 
-func updateExtensionToDateString(extensions map[string]any) {
-	if extensions == nil {
+func updateExtensionsForRequestBody(requestBody *openapi3.RequestBodyRef) {
+	if requestBody == nil {
 		return
 	}
+	deleteIpaExceptionExtension(requestBody.Extensions)
+	_, contentsInVersion := getVersionsInContentType(requestBody.Value.Content)
+	for _, content := range contentsInVersion {
+		deleteIpaExceptionExtension(content.Extensions)
+		updateExtensionsForSchema(content.Schema)
+	}
+}
 
-	for k, v := range extensions {
-		if k != sunsetExtension && k != xGenExtension {
+func updateExtensionsForOperationParameters(parameters openapi3.Parameters) {
+	for _, parameter := range parameters {
+		if parameter.Value == nil || parameter.Value.Schema == nil {
 			continue
 		}
-		date, err := time.Parse(format, v.(string))
-		if err != nil {
+		deleteIpaExceptionExtension(parameter.Value.Schema.Extensions)
+		if parameter.Value.Schema.Value == nil {
 			continue
 		}
-		extensions[k] = date.Format("2006-01-02")
+		deleteIpaExceptionExtension(parameter.Value.Schema.Value.Extensions)
 	}
 }
 
@@ -201,6 +195,23 @@ func deleteIpaExceptionExtension(extensions map[string]any) {
 	}
 
 	delete(extensions, ipaExceptionExtension)
+}
+
+func updateExtensionToDateString(extensions map[string]any) {
+	if extensions == nil {
+		return
+	}
+
+	for k, v := range extensions {
+		if k != sunsetExtension && k != xGenExtension {
+			continue
+		}
+		date, err := time.Parse(format, v.(string))
+		if err != nil {
+			continue
+		}
+		extensions[k] = date.Format("2006-01-02")
+	}
 }
 
 func (f *ExtensionFilter) updateToDateString(content openapi3.Content) {
