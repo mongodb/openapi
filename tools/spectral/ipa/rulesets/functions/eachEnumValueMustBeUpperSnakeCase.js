@@ -23,7 +23,7 @@ export default (input, _, { path, documentInventory }) => {
   const schemaPath = getSchemaPathFromEnumPath(path);
   const schemaObject = resolveObject(oas, schemaPath);
   if (hasException(schemaObject, RULE_NAME)) {
-    collectException(schemaObject, RULE_NAME, path);
+    collectException(schemaObject, RULE_NAME, schemaPath);
     return;
   }
 
@@ -42,6 +42,6 @@ export default (input, _, { path, documentInventory }) => {
   if (errors.length === 0) {
     collectAdoption(schemaPath, RULE_NAME);
   } else {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
+    return collectAndReturnViolation(schemaPath, RULE_NAME, errors);
   }
 };
