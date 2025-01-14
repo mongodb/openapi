@@ -48,5 +48,5 @@ const (
 	From                     = "from"
 	To                       = "to"
 	StabilityLevel           = "stability-level"
-	StabilityLevelShort      = "sl"
+	StabilityLevelShort      = "l"
 )
