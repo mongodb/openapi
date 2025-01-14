@@ -22,18 +22,24 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 )
 
+// ExtractVersionsWithEnv extracts API version Content Type strings from the given OpenAPI specification and environment.
+// When env is not set, the function returns the API Versions from all the environments.
 func ExtractVersionsWithEnv(oas *openapi3.T, env string) ([]string, error) {
+	if env == "" {
+		return extractVersions(oas)
+	}
+
 	// We need to remove the version that are hidden for the given environment
 	doc, err := filter.ApplyFilters(oas, filter.NewMetadata(nil, env), filter.FiltersToGetVersions)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
-	return ExtractVersions(doc)
+	return extractVersions(doc)
 }
 
-// ExtractVersions extracts version strings from an OpenAPI specification.
-func ExtractVersions(oas *openapi3.T) ([]string, error) {
+// extractVersions extracts version strings from an OpenAPI specification.
+func extractVersions(oas *openapi3.T) ([]string, error) {
 	versions := make(map[string]struct{})
 	for _, pathItem := range oas.Paths.Map() {
 		if pathItem == nil {

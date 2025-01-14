@@ -47,4 +47,6 @@ const (
 	ChannelIDShort           = "c"
 	From                     = "from"
 	To                       = "to"
+	StabilityLevel           = "stability-level"
+	StabilityLevelShort      = "sl"
 )

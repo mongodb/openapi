@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package apiversion
 
 import (
@@ -23,15 +24,18 @@ import (
 )
 
 type APIVersion struct {
-	version     string
-	versionDate time.Time
+	version          string
+	stabilityVersion string
+	versionDate      time.Time
 }
 
 const (
-	dateFormat = "2006-01-02"
+	dateFormat            = "2006-01-02"
+	StableStabilityLevel  = "STABLE"
+	PreviewStabilityLevel = "PREVIEW"
 )
 
-var ContentPattern = regexp.MustCompile(`application/vnd\.atlas\.(\d{4})-(\d{2})-(\d{2})\+(.+)`)
+var ContentPattern = regexp.MustCompile(`application/vnd\.atlas\.((\d{4})-(\d{2})-(\d{2})|preview)\+(.+)`)
 
 // Option is a function that sets a value on the APIVersion.
 type Option func(v *APIVersion) error
@@ -66,10 +70,31 @@ func WithDate(date time.Time) Option {
 	return func(v *APIVersion) error {
 		v.version = date.Format(dateFormat)
 		v.versionDate = date
+		v.stabilityVersion = StableStabilityLevel
 		return nil
 	}
 }
 
+// WithStabilityLevel sets the version and stability level on the APIVersion.
+func WithStabilityLevel(version, stabilityLevel string) Option {
+	return func(v *APIVersion) error {
+		v.stabilityVersion = stabilityLevel
+		v.version = version
+		if stabilityLevel != StableStabilityLevel {
+			return nil
+		}
+
+		versionDate, err := DateFromVersion(version)
+		if err != nil {
+			return err
+		}
+
+		v.versionDate = versionDate
+		return nil
+	}
+}
+
+// WithContent returns an Option to generate a new APIVersion given the contentType.
 func WithContent(contentType string) Option {
 	return func(v *APIVersion) error {
 		version, err := Parse(contentType)
@@ -78,6 +103,12 @@ func WithContent(contentType string) Option {
 		}
 
 		v.version = version
+		v.stabilityVersion = StableStabilityLevel
+		if version == PreviewStabilityLevel {
+			v.stabilityVersion = PreviewStabilityLevel
+			return nil
+		}
+
 		v.versionDate, err = DateFromVersion(version)
 		if err != nil {
 			return err
@@ -124,7 +155,12 @@ func Parse(contentType string) (string, error) {
 	if matches == nil {
 		return "", fmt.Errorf("invalid content type: %s", contentType)
 	}
-	return fmt.Sprintf("%s-%s-%s", matches[1], matches[2], matches[3]), nil
+
+	if len(matches) == 3 {
+		return fmt.Sprintf("%s-%s-%s", matches[1], matches[2], matches[3]), nil
+	}
+
+	return matches[1], nil
 }
 
 // FindLatestContentVersionMatched finds the latest content version that matches the requested version.

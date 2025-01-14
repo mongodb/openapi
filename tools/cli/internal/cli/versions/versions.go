@@ -17,6 +17,7 @@ package versions
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"strings"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
@@ -28,11 +29,12 @@ import (
 )
 
 type Opts struct {
-	fs         afero.Fs
-	basePath   string
-	outputPath string
-	format     string
-	env        string
+	fs             afero.Fs
+	basePath       string
+	outputPath     string
+	format         string
+	env            string
+	stabilityLevel string
 }
 
 func (o *Opts) Run() error {
@@ -43,11 +45,7 @@ func (o *Opts) Run() error {
 	}
 
 	var versions []string
-	if o.env == "" {
-		versions, err = openapi.ExtractVersions(specInfo.Spec)
-	} else {
-		versions, err = openapi.ExtractVersionsWithEnv(specInfo.Spec, o.env)
-	}
+	versions, err = openapi.ExtractVersionsWithEnv(specInfo.Spec, o.env)
 
 	if err != nil {
 		return err
@@ -57,7 +55,7 @@ func (o *Opts) Run() error {
 		return fmt.Errorf("no versions found in the OpenAPI specification")
 	}
 
-	bytes, err := o.getVersionBytes(versions)
+	bytes, err := o.versionsAsBytes(versions)
 	if err != nil {
 		return err
 	}
@@ -70,7 +68,7 @@ func (o *Opts) Run() error {
 	return nil
 }
 
-func (o *Opts) getVersionBytes(versions []string) ([]byte, error) {
+func (o *Opts) versionsAsBytes(versions []string) ([]byte, error) {
 	data, err := json.MarshalIndent(versions, "", "  ")
 	if err != nil {
 		return nil, err
@@ -94,16 +92,21 @@ func (o *Opts) getVersionBytes(versions []string) ([]byte, error) {
 }
 
 func (o *Opts) PreRunE(_ []string) error {
+	o.stabilityLevel = strings.ToUpper(o.stabilityLevel)
+	if o.stabilityLevel != "" && o.stabilityLevel != apiversion.PreviewStabilityLevel && o.stabilityLevel != apiversion.StableStabilityLevel {
+		return fmt.Errorf("stability level must be %q or %q, got %q", apiversion.PreviewStabilityLevel, apiversion.StableStabilityLevel, o.stabilityLevel)
+	}
+
 	if o.basePath == "" {
-		return fmt.Errorf("no OAS detected. Please, use the flag %s to include the base OAS", flag.Base)
+		return fmt.Errorf("no OAS detected. Please, use the flag %q to include the base OAS", flag.Base)
 	}
 
 	if o.outputPath != "" && !strings.Contains(o.outputPath, ".json") && !strings.Contains(o.outputPath, ".yaml") {
-		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
+		return fmt.Errorf("output file must be either a JSON or YAML file, got %q", o.outputPath)
 	}
 
 	if o.format != "json" && o.format != "yaml" {
-		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
+		return fmt.Errorf("output format must be either 'json' or 'yaml', got %q", o.format)
 	}
 
 	return nil
@@ -117,9 +120,10 @@ func Builder() *cobra.Command {
 	}
 
 	cmd := &cobra.Command{
-		Use:   "versions -s spec ",
-		Short: "Get a list of versions from an OpenAPI specification.",
-		Args:  cobra.NoArgs,
+		Use:     "versions -s spec ",
+		Aliases: []string{"versions list", "versions ls"},
+		Short:   "Get a list of versions from an OpenAPI specification.",
+		Args:    cobra.NoArgs,
 		PreRunE: func(_ *cobra.Command, args []string) error {
 			return opts.PreRunE(args)
 		},
@@ -130,7 +134,9 @@ func Builder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
 	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
+	cmd.Flags().StringVarP(&opts.stabilityLevel, flag.StabilityLevel, flag.StabilityLevelShort, "", usage.StabilityLevel)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
+
 	return cmd
 }
