@@ -91,11 +91,8 @@ func (f *VersioningFilter) apply(path *openapi3.PathItem) error {
 		opConfig := newOperationConfig(op)
 		config.parsedOperations[op.OperationID] = opConfig
 
-		var err error
 		opConfig.latestMatchedVersion = apiversion.FindLatestContentVersionMatched(op, f.metadata.targetVersion)
-
-		err = updateResponses(op, config)
-		if err != nil {
+		if err := updateResponses(op, config); err != nil {
 			return err
 		}
 
@@ -103,12 +100,9 @@ func (f *VersioningFilter) apply(path *openapi3.PathItem) error {
 			log.Printf("Removing operation: %s", op.OperationID)
 			path.SetOperation(opKey, nil)
 		}
-
-		err = updateRequestBody(op, opConfig)
-		if err != nil {
+		if err := updateRequestBody(op, opConfig); err != nil {
 			return err
 		}
-
 		addDeprecationMessageToOperation(op, opConfig.deprecatedVersions)
 	}
 
