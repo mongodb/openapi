@@ -13,8 +13,6 @@ E2E_TIMEOUT?=60m
 E2E_PARALLEL?=1
 E2E_EXTRA_ARGS?=
 
-
-
 LINKER_GH_SHA_FLAG=-s -w -X github.com/mongodb/openapi/tools/cli/internal/version.GitCommit=${GIT_SHA}
 LINKER_FLAGS=${LINKER_GH_SHA_FLAG} -X github.com/mongodb/openapi/tools/cli/internal/version.Version=${VERSION}
 

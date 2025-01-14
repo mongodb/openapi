@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package filter
 
 import (
@@ -29,9 +30,11 @@ type ExtensionFilter struct {
 	metadata *Metadata
 }
 
-const sunsetExtension = "x-sunset"
-const xGenExtension = "x-xgen-version"
-const format = "2006-01-02T15:04:05Z07:00"
+const (
+	sunsetExtension = "x-sunset"
+	xGenExtension   = "x-xgen-version"
+	format          = "2006-01-02T15:04:05Z07:00"
+)
 
 func (f *ExtensionFilter) Apply() error {
 	for _, pathItem := range f.oas.Paths.Map() {
@@ -47,11 +50,7 @@ func (f *ExtensionFilter) Apply() error {
 
 			updateExtensionToDateString(operation.Extensions)
 
-			latestVersionMatch, err := apiversion.FindLatestContentVersionMatched(operation, f.metadata.targetVersion)
-			if err != nil {
-				return err
-			}
-
+			latestVersionMatch := apiversion.FindLatestContentVersionMatched(operation, f.metadata.targetVersion)
 			for _, response := range operation.Responses.Map() {
 				if response == nil {
 					continue
@@ -89,15 +88,15 @@ func updateExtensionToDateString(extensions map[string]any) {
 		return
 	}
 
-	for key, value := range extensions {
-		if key != sunsetExtension && key != xGenExtension {
+	for k, v := range extensions {
+		if k != sunsetExtension && k != xGenExtension {
 			continue
 		}
-		date, err := time.Parse(format, value.(string))
+		date, err := time.Parse(format, v.(string))
 		if err != nil {
 			continue
 		}
-		extensions[key] = date.Format("2006-01-02")
+		extensions[k] = date.Format("2006-01-02")
 	}
 }
 
