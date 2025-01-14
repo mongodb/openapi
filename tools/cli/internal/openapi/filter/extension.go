@@ -29,10 +29,12 @@ type ExtensionFilter struct {
 	metadata *Metadata
 }
 
-const sunsetExtension = "x-sunset"
-const xGenExtension = "x-xgen-version"
-const ipaExceptionExtension = "x-xgen-IPA-exception"
-const format = "2006-01-02T15:04:05Z07:00"
+const (
+	sunsetExtension       = "x-sunset"
+	xGenExtension         = "x-xgen-version"
+	ipaExceptionExtension = "x-xgen-IPA-exception"
+	format                = "2006-01-02T15:04:05Z07:00"
+)
 
 func (f *ExtensionFilter) Apply() error {
 	for _, pathItem := range f.oas.Paths.Map() {
