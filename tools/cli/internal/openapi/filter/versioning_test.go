@@ -32,7 +32,7 @@ func TestPathFilter_processPathItem(t *testing.T) {
 	}
 
 	path := oasPathAllVersions()
-	require.NoError(t, filter.apply(path))
+	require.NoError(t, filter.applyInternal(path))
 
 	assert.NotNil(t, path.Get)
 	assert.Equal(t, 1, path.Get.Responses.Len())
@@ -53,7 +53,7 @@ func TestPathFilter_moreThanOneResponse(t *testing.T) {
 	}
 
 	path := oasPathAllVersions()
-	err = filter.apply(path)
+	err = filter.applyInternal(path)
 
 	require.NoError(t, err)
 	assert.NotNil(t, path.Get)
@@ -89,7 +89,7 @@ func TestPathFilter_filterRequestBody(t *testing.T) {
 	}
 
 	path := oasPathAllVersions()
-	require.NoError(t, filter.apply(path))
+	require.NoError(t, filter.applyInternal(path))
 
 	assert.NotNil(t, path.Get)
 	assert.NotNil(t, path.Get.RequestBody)
