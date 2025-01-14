@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package filter
 
 import (
@@ -21,7 +22,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// Filter: VersioningFilter is a filter that modifies the OpenAPI spec by removing operations and responses
+// VersioningFilter is a filter that modifies the OpenAPI spec by removing operations and responses
 // that are not supported by the target version.
 type VersioningFilter struct {
 	oas      *openapi3.T

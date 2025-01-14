@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package filter
 
 import (
@@ -19,7 +20,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// Filter: TagsFilter removes tags that are not used in the operations.
+// TagsFilter removes tags that are not used in the operations.
 type TagsFilter struct {
 	oas *openapi3.T
 }

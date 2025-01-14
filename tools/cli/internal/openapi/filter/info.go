@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package filter
 
 import (
@@ -20,7 +21,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// Filter: InfoFilter is a filter that modifies the Info object in the OpenAPI spec.
+// InfoFilter is a filter that modifies the Info object in the OpenAPI spec.
 type InfoFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
