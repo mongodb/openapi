@@ -78,11 +78,9 @@ func TestXSunsetFilter_removeSunset(t *testing.T) {
 }
 
 func TestExtensionFilter_removeIpaException(t *testing.T) {
-	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
-	contentKey := fmt.Sprintf("application/vnd.atlas.%s+json", version)
-
-	require.NoError(t, err)
 	oas := getOasIpaExceptions()
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
 
 	filter := &ExtensionFilter{
 		oas:      oas,
@@ -90,77 +88,111 @@ func TestExtensionFilter_removeIpaException(t *testing.T) {
 	}
 	require.NoError(t, filter.Apply())
 
-	operationParameter := oas.Paths.Find("/path").Get.Parameters[0]
-	assert.NotNil(t, operationParameter)
-	assert.Nil(t, operationParameter.Extensions[ipaExceptionExtension])
+	contentKey := fmt.Sprintf("application/vnd.atlas.%s+json", version)
 
-	operationParameterSchema := oas.Paths.Find("/path").Get.Parameters[0].Value.Schema
-	assert.NotNil(t, operationParameterSchema)
-	assert.Nil(t, operationParameterSchema.Extensions[ipaExceptionExtension])
+	tests := []struct {
+		name      string
+		component any
+		extension any
+	}{
+		{
+			name:      "operationParameter",
+			component: oas.Paths.Find("/path").Get.Parameters[0],
+			extension: oas.Paths.Find("/path").Get.Parameters[0].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "operationParameterSchema",
+			component: oas.Paths.Find("/path").Get.Parameters[0].Value.Schema,
+			extension: oas.Paths.Find("/path").Get.Parameters[0].Value.Schema.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "operation",
+			component: oas.Paths.Find("/path").Get,
+			extension: oas.Paths.Find("/path").Get.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "responseSchema",
+			component: oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey).Schema,
+			extension: oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey).Schema.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "responseValue",
+			component: oas.Paths.Find("/path").Get.Responses.Map()["200"].Value,
+			extension: oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "response",
+			component: oas.Paths.Find("/path").Get.Responses.Map()["200"],
+			extension: oas.Paths.Find("/path").Get.Responses.Map()["200"].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "requestBody",
+			component: oas.Paths.Find("/path").Get.RequestBody,
+			extension: oas.Paths.Find("/path").Get.RequestBody.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "requestBodyContent",
+			component: oas.Paths.Find("/path").Get.RequestBody.Value.Content.Get(contentKey),
+			extension: oas.Paths.Find("/path").Get.RequestBody.Value.Content.Get(contentKey).Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "requestBodyContentSchema",
+			component: oas.Paths.Find("/path").Get.RequestBody.Value.Content.Get(contentKey).Schema,
+			extension: oas.Paths.Find("/path").Get.RequestBody.Value.Content.Get(contentKey).Schema.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "path",
+			component: oas.Paths.Find("/path"),
+			extension: oas.Paths.Find("/path").Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "tag",
+			component: oas.Tags.Get("tag"),
+			extension: oas.Tags.Get("tag").Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentParameter",
+			component: oas.Components.Parameters["parameter"],
+			extension: oas.Components.Parameters["parameter"].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentSchema",
+			component: oas.Components.Schemas["schema"],
+			extension: oas.Components.Schemas["schema"].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentSchemaValue",
+			component: oas.Components.Schemas["schema"].Value,
+			extension: oas.Components.Schemas["schema"].Value.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentSchemaProperty",
+			component: oas.Components.Schemas["schema"].Value.Properties["property"],
+			extension: oas.Components.Schemas["schema"].Value.Properties["property"].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentAllOfSchemaProperty",
+			component: oas.Components.Schemas["schemaAllOf"].Value.AllOf[0].Value.Properties["property"],
+			extension: oas.Components.Schemas["schemaAllOf"].Value.AllOf[0].Value.Properties["property"].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentAnyOfSchemaProperty",
+			component: oas.Components.Schemas["schemaAnyOf"].Value.AnyOf[0].Value.Properties["property"],
+			extension: oas.Components.Schemas["schemaAnyOf"].Value.AnyOf[0].Value.Properties["property"].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentOneOfSchemaProperty",
+			component: oas.Components.Schemas["schemaOneOf"].Value.OneOf[0].Value.Properties["property"],
+			extension: oas.Components.Schemas["schemaOneOf"].Value.OneOf[0].Value.Properties["property"].Extensions[ipaExceptionExtension],
+		},
+	}
 
-	operation := oas.Paths.Find("/path").Get
-	assert.NotNil(t, operation)
-	assert.Nil(t, operation.Extensions[ipaExceptionExtension])
-
-	responseSchema := oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey).Schema
-	assert.NotNil(t, responseSchema)
-	assert.Nil(t, responseSchema.Extensions[ipaExceptionExtension])
-
-	responseValue := oas.Paths.Find("/path").Get.Responses.Map()["200"].Value
-	assert.NotNil(t, responseValue)
-	assert.Nil(t, responseValue.Extensions[ipaExceptionExtension])
-
-	response := oas.Paths.Find("/path").Get.Responses.Map()["200"]
-	assert.NotNil(t, response)
-	assert.Nil(t, response.Extensions[ipaExceptionExtension])
-
-	requestBody := oas.Paths.Find("/path").Get.RequestBody
-	assert.NotNil(t, requestBody)
-	assert.Nil(t, requestBody.Extensions[ipaExceptionExtension])
-
-	requestBodyContent := oas.Paths.Find("/path").Get.RequestBody.Value.Content.Get(contentKey)
-	assert.NotNil(t, requestBodyContent)
-	assert.Nil(t, requestBodyContent.Extensions[ipaExceptionExtension])
-
-	requestBodyContentSchema := oas.Paths.Find("/path").Get.RequestBody.Value.Content.Get(contentKey).Schema
-	assert.NotNil(t, requestBodyContentSchema)
-	assert.Nil(t, requestBodyContentSchema.Extensions[ipaExceptionExtension])
-
-	path := oas.Paths.Find("/path")
-	assert.NotNil(t, path)
-	assert.Nil(t, path.Extensions[ipaExceptionExtension])
-
-	tag := oas.Tags.Get("tag")
-	assert.NotNil(t, tag)
-	assert.Nil(t, tag.Extensions[ipaExceptionExtension])
-
-	componentParameter := oas.Components.Parameters["parameter"]
-	assert.NotNil(t, componentParameter)
-	assert.Nil(t, componentParameter.Extensions[ipaExceptionExtension])
-
-	componentSchema := oas.Components.Schemas["schema"]
-	assert.NotNil(t, componentSchema)
-	assert.Nil(t, componentSchema.Extensions[ipaExceptionExtension])
-
-	componentSchemaValue := oas.Components.Schemas["schema"].Value
-	assert.NotNil(t, componentSchemaValue)
-	assert.Nil(t, componentSchemaValue.Extensions[ipaExceptionExtension])
-
-	componentSchemaProperty := oas.Components.Schemas["schema"].Value.Properties["property"]
-	assert.NotNil(t, componentSchemaProperty)
-	assert.Nil(t, componentSchemaProperty.Extensions[ipaExceptionExtension])
-
-	componentAllOfSchemaProperty := oas.Components.Schemas["schemaAllOf"].Value.AllOf[0].Value.Properties["property"]
-	assert.NotNil(t, componentAllOfSchemaProperty)
-	assert.Nil(t, componentAllOfSchemaProperty.Extensions[ipaExceptionExtension])
-
-	componentAnyOfSchemaProperty := oas.Components.Schemas["schemaAnyOf"].Value.AnyOf[0].Value.Properties["property"]
-	assert.NotNil(t, componentAnyOfSchemaProperty)
-	assert.Nil(t, componentAnyOfSchemaProperty.Extensions[ipaExceptionExtension])
-
-	componentOneOfSchemaProperty := oas.Components.Schemas["schemaOneOf"].Value.OneOf[0].Value.Properties["property"]
-	assert.NotNil(t, componentOneOfSchemaProperty)
-	assert.Nil(t, componentOneOfSchemaProperty.Extensions[ipaExceptionExtension])
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.NotNil(t, tt.component)
+			assert.Nil(t, tt.extension)
+		})
+	}
 }
 
 func getOasSunset() *openapi3.T {
