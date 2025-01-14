@@ -1,4 +1,4 @@
-import collector, { EntryType } from '../../../metrics/Collector.js';
+import collector, { EntryType } from '../../../metrics/collector.js';
 const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
 
 /**

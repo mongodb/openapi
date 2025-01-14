@@ -7,11 +7,18 @@ export const EntryType = Object.freeze({
 });
 
 class Collector {
-  static instance;
+  static instance = null;
+
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new Collector();
+    }
+    return this.instance;
+  }
 
   constructor() {
     if (Collector.instance) {
-      return Collector.instance;
+      throw new Error('Use Collector.getInstance()');
     }
 
     this.entries = {
@@ -19,19 +26,14 @@ class Collector {
       [EntryType.ADOPTION]: [],
       [EntryType.EXCEPTION]: [],
     };
-    this.fileName = "combined.log"
-    //this.exceptionFileName = 'exceptions.log';
-    //this.violationFileName = 'violations.log';
-    //this.adoptionFileName = 'adoptions.log';
 
+    this.fileName = "combined.log"
 
     process.on('exit', () => this.flushToFile());
     process.on('SIGINT', () => {
       this.flushToFile();
-      process.exit(); // Ensure process exits on Ctrl+C
+      process.exit();
     });
-
-    Collector.instance = this;
   }
 
   add(componentId, ruleName, type) {
@@ -52,5 +54,5 @@ class Collector {
   }
 }
 
-const collector = new Collector();
+const collector = Collector.getInstance();
 export default collector;
