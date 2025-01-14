@@ -7,11 +7,7 @@ import {
   getResourcePaths,
 } from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-} from './utils/collectionUtils.js';
+import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-104-resource-has-GET';
 const ERROR_MESSAGE = 'APIs must provide a get method for resources.';
