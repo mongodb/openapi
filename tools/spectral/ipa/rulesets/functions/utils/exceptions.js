@@ -1,4 +1,4 @@
-const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
+export const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
 
 /**
  * Checks if the object has an exception extension "x-xgen-IPA-exception"
