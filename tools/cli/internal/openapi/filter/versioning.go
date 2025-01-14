@@ -66,7 +66,7 @@ func (f *VersioningFilter) Apply() error {
 			continue
 		}
 
-		if err := f.apply(pathItem); err != nil {
+		if err := f.applyInternal(pathItem); err != nil {
 			return err
 		}
 
@@ -80,7 +80,7 @@ func (f *VersioningFilter) Apply() error {
 	return nil
 }
 
-func (f *VersioningFilter) apply(path *openapi3.PathItem) error {
+func (f *VersioningFilter) applyInternal(path *openapi3.PathItem) error {
 	config := &VersionConfig{
 		requestedVersion:      f.metadata.targetVersion,
 		operationsToBeRemoved: make(map[string]*openapi3.Operation),
@@ -109,7 +109,7 @@ func (f *VersioningFilter) apply(path *openapi3.PathItem) error {
 	return nil
 }
 
-// updateResponses filters the response and removes the deprecated responses from the operation and add the  to the operation config
+// updateResponses filters the response and removes the deprecated responses from the operation and add the  to the operation config.
 func updateResponses(op *openapi3.Operation, config *VersionConfig) error {
 	for responseCode, response := range op.Responses.Map() {
 		if response.Value == nil {
@@ -169,7 +169,7 @@ func filterResponse(response *openapi3.ResponseRef, op *openapi3.Operation, rCon
 }
 
 // addDeprecationMessageToOperation adds a deprecation message to the operation description if there are deprecated versions
-// Example: "Read Only role. Deprecated versions: v2-{2023-01-01}"
+// Example: "Read Only role. Deprecated versions: v2-{2023-01-01}".
 func addDeprecationMessageToOperation(op *openapi3.Operation, deprecatedVersions []*apiversion.APIVersion) {
 	if len(deprecatedVersions) == 0 {
 		return
@@ -226,7 +226,7 @@ func filterLatestVersionedContent(content map[string]*openapi3.MediaType, latest
 	return latestContent, nil
 }
 
-// filterContentExactMatch filters the content based on the exact match of the version
+// filterContentExactMatch filters the content based on the exact match of the version.
 func filterContentExactMatch(content map[string]*openapi3.MediaType, version *apiversion.APIVersion) (map[string]*openapi3.MediaType, error) {
 	if content == nil {
 		return nil, nil
@@ -253,14 +253,14 @@ func filterContentExactMatch(content map[string]*openapi3.MediaType, version *ap
 	return filteredContent, nil
 }
 
-// updateSingleMediaTypeExtension updates the media type extension with the version in string format
+// updateSingleMediaTypeExtension updates the media type extension with the version in string format.
 func updateSingleMediaTypeExtension(m *openapi3.MediaType, version *apiversion.APIVersion) {
 	if _, ok := m.Extensions[versionExtension]; ok {
 		m.Extensions[versionExtension] = version.String()
 	}
 }
 
-// getDeprecatedVersionsPerContent returns the deprecated versions for a given content type
+// getDeprecatedVersionsPerContent returns the deprecated versions for a given content type.
 func getDeprecatedVersionsPerContent(content map[string]*openapi3.MediaType, version *apiversion.APIVersion) []*apiversion.APIVersion {
 	versionsInContentType := make(map[string]*apiversion.APIVersion)
 	for contentType := range content {

@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package openapi
 
 import (
@@ -104,7 +105,7 @@ func SerializeToJSON[T any](data T) ([]byte, error) {
 }
 
 func SerializeToYAML(data []byte) ([]byte, error) {
-	var jsonData interface{}
+	var jsonData any
 	if err := json.Unmarshal(data, &jsonData); err != nil {
 		return nil, err
 	}

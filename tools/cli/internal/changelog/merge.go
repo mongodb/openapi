@@ -50,7 +50,7 @@ func newChangeTypeOverrides() map[string]string {
 	}
 }
 
-// NewEntriesFromSunsetAndManualEntry merges the base changelog with the new changes from manual entries and sunset endpoints
+// NewEntriesFromSunsetAndManualEntry merges the base changelog with the new changes from manual entries and sunset endpoints.
 func (m *Changelog) NewEntriesFromSunsetAndManualEntry() ([]*Entry, error) {
 	conf := outputfilter.NewOperationConfigs(nil, m.Revision)
 	if _, err := m.newEntriesFromSunsetEndpoints(conf); err != nil {
@@ -116,7 +116,7 @@ func (m *Changelog) newManualEntries(conf map[string]*outputfilter.OperationConf
 	return m.BaseChangelog, nil
 }
 
-// newEntryFromOasDiff merges the base changelog with the new changes from a Base and Revision OpenAPI specs
+// newEntryFromOasDiff merges the base changelog with the new changes from a Base and Revision OpenAPI specs.
 func (m *Changelog) newEntryFromOasDiff() ([]*Entry, error) {
 	changes, err := m.newOasDiffEntries()
 	if err != nil {
@@ -143,7 +143,7 @@ func (m *Changelog) newEntryFromOasDiff() ([]*Entry, error) {
 // Logic:
 // 1. If the entry already exists in the changelog for the Run Date, use that entry or create it (newEntryAtRunDate)
 // 2. Get the paths from the changes and add them to the entry
-// 3. Sort the changelog by date DESC, path + httpMethod ASC, version DESC
+// 3. Sort the changelog by date DESC, path + httpMethod ASC, version DESC.
 func (m *Changelog) mergeChangelog(
 	changeType string,
 	changes []*outputfilter.OasDiffEntry,
@@ -167,7 +167,7 @@ func (m *Changelog) mergeChangelog(
 // 1. Get the deprecated paths from the changes
 // 2. Get the updated paths with the deprecated changes from newPathsFromDeprecatedChanges
 // 3. Get the revision paths from the changes
-// 4. Get the updated paths with the revision changes from newPathsFromRevisionChanges
+// 4. Get the updated paths with the revision changes from newPathsFromRevisionChanges.
 func (m *Changelog) newPathsFromChanges(
 	changes []*outputfilter.OasDiffEntry,
 	changeType string, entry *Entry,
@@ -185,7 +185,7 @@ func (m *Changelog) newPathsFromChanges(
 	return paths, nil
 }
 
-// newPathsFromRevisionChanges creates new paths from revision changes
+// newPathsFromRevisionChanges creates new paths from revision changes.
 func (m *Changelog) newPathsFromRevisionChanges(
 	changes []*outputfilter.OasDiffEntry,
 	changeType string, changelogPath *[]*Path,
@@ -194,7 +194,7 @@ func (m *Changelog) newPathsFromRevisionChanges(
 	return newMergedChanges(revisionChanges, changeType, m.RevisionMetadata.ActiveVersion, changelogPath, conf)
 }
 
-// newPathsFromDeprecatedChanges creates new paths from deprecated changes
+// newPathsFromDeprecatedChanges creates new paths from deprecated changes.
 func (m *Changelog) newPathsFromDeprecatedChanges(
 	changes []*outputfilter.OasDiffEntry,
 	changelogPath *[]*Path,
@@ -219,7 +219,7 @@ func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
 	return outputfilter.NewChangelogEntries(changes, diffResult.SpecInfoPair, m.ExemptionFilePath)
 }
 
-// sortChangelog sorts changelog by date DESC, path + httpMethod ASC, version DESC
+// sortChangelog sorts changelog by date DESC, path + httpMethod ASC, version DESC.
 func sortChangelog(changelog []*Entry) []*Entry {
 	sort.Slice(changelog, func(i, j int) bool {
 		return changelog[i].Date > changelog[j].Date
@@ -242,7 +242,7 @@ func sortChangelog(changelog []*Entry) []*Entry {
 	return changelog
 }
 
-// newMergedChanges merges the OasDiff changes into the changelog []paths
+// newMergedChanges merges the OasDiff changes into the changelog []paths.
 func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 	changeType, version string, changelogPath *[]*Path,
 	operationConfig map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
@@ -372,7 +372,7 @@ func newEntryVersion(versions *[]*Version, specVersion string) *Version {
 }
 
 // newPathEntry returns the index and the path entry if it already exists in the changelog
-// otherwise it returns -1 and a new path entry
+// otherwise it returns -1 and a new path entry.
 func newPathEntry(paths *[]*Path, path, operation string) *Path {
 	for _, p := range *paths {
 		if p.URI == path && p.HTTPMethod == operation {

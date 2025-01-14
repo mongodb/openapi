@@ -15,6 +15,7 @@
 package breakingchanges
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -57,7 +58,7 @@ func isWithinExpirationDate(exemption Exemption) bool {
 
 func validateExemption(exemption Exemption) error {
 	if _, err := time.Parse("2006-01-02", exemption.ExemptUntil); err != nil {
-		return fmt.Errorf("validation error: %v. Exemption: %s", err, exemption)
+		return fmt.Errorf("validation error: %w. Exemption: %s", err, exemption)
 	}
 
 	if err := validateField(exemption.Reason, "reason", exemption); err != nil {
@@ -80,7 +81,7 @@ func validateField(fieldValue, fieldName string, exemption Exemption) error {
 
 func transformComponentEntry(breakingChangeDescription string) string {
 	if strings.Contains(breakingChangeDescription, "api-schema-removed") && !strings.Contains(breakingChangeDescription, "in components") {
-		return fmt.Sprintf("in components %s", breakingChangeDescription)
+		return "in components " + breakingChangeDescription
 	}
 	return breakingChangeDescription
 }
@@ -88,26 +89,26 @@ func transformComponentEntry(breakingChangeDescription string) string {
 // GetValidExemptionsList returns a list of exemptions. If ignoreExpiration is set to true, it will return all exemptions.
 func GetValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afero.Fs) ([]Exemption, error) {
 	if exemptionsPath == "" {
-		return nil, fmt.Errorf("could not find exemptions file path")
+		return nil, errors.New("could not find exemptions file path")
 	}
 
 	log.Printf("Generating exemptions from file in %s", exemptionsPath)
 	exemptionsFile, err := fs.Open(exemptionsPath)
 	if err != nil {
-		return nil, fmt.Errorf("could not open exemptions file: %v", err)
+		return nil, fmt.Errorf("could not open exemptions file: %w", err)
 	}
 	defer exemptionsFile.Close()
 	data, err := afero.ReadAll(exemptionsFile)
 	if err != nil {
-		return nil, fmt.Errorf("could not read exemptions file: %v", err)
+		return nil, fmt.Errorf("could not read exemptions file: %w", err)
 	}
 
 	var exemptions []Exemption
 	if err := yaml.Unmarshal(data, &exemptions); err != nil {
-		return nil, fmt.Errorf("could not unmarshal exemptions: %v", err)
+		return nil, fmt.Errorf("could not unmarshal exemptions: %w", err)
 	}
 
-	var validExemptions []Exemption
+	validExemptions := make([]Exemption, 0, len(exemptions))
 	for _, exemption := range exemptions {
 		if err := validateExemption(exemption); err != nil {
 			return nil, err
@@ -126,10 +127,10 @@ func GetValidExemptionsList(exemptionsPath string, ignoreExpiration bool, fs afe
 func CreateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bool, fs afero.Fs) error {
 	validExemptions, err := GetValidExemptionsList(exemptionsPath, ignoreExpiration, fs)
 	if err != nil {
-		return fmt.Errorf("could not get valid exemptions list: %v", err)
+		return fmt.Errorf("could not get valid exemptions list: %w", err)
 	}
 
-	var transformedExemptions = []string{}
+	transformedExemptions := make([]string, 0, len(validExemptions))
 	for _, validExemption := range validExemptions {
 		exemptionLine := transformComponentEntry(validExemption.BreakingChangeDescription)
 		transformedExemptions = append(transformedExemptions, exemptionLine)
@@ -138,13 +139,13 @@ func CreateExemptionsFile(outputPath, exemptionsPath string, ignoreExpiration bo
 
 	file, err := fs.Create(outputPath)
 	if err != nil {
-		return fmt.Errorf("could not create exemptions file: %v", err)
+		return fmt.Errorf("could not create exemptions file: %w", err)
 	}
 	defer file.Close()
 
 	for _, exemption := range transformedExemptions {
 		if _, err := fmt.Fprintf(file, "%s\n", exemption); err != nil {
-			return fmt.Errorf("could not write to exemptions file: %v", err)
+			return fmt.Errorf("could not write to exemptions file: %w", err)
 		}
 	}
 	log.Printf("Exemptions file generated in %s\n", outputPath)

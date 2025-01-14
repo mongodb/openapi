@@ -16,6 +16,7 @@ package versions
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -54,7 +55,7 @@ func (o *Opts) Run() error {
 	}
 
 	if versions == nil {
-		return fmt.Errorf("no versions found in the OpenAPI specification")
+		return errors.New("no versions found in the OpenAPI specification")
 	}
 
 	bytes, err := o.getVersionBytes(versions)
@@ -80,7 +81,7 @@ func (o *Opts) getVersionBytes(versions []string) ([]byte, error) {
 		return data, nil
 	}
 
-	var jsonData interface{}
+	var jsonData any
 	if mErr := json.Unmarshal(data, &jsonData); mErr != nil {
 		return nil, mErr
 	}
@@ -110,7 +111,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 // Builder builds the versions command with the following signature:
-// versions -s oas
+// versions -s oas.
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),

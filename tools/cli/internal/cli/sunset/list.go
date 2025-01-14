@@ -20,10 +20,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mongodb/openapi/tools/cli/internal/openapi"
-
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -145,7 +144,7 @@ func (o *ListOpts) validate() error {
 }
 
 // ListBuilder builds the merge command with the following signature:
-// sunset ls -s spec.json -f 2024-01-01 -t 2024-09-22
+// sunset ls -s spec.json -f 2024-01-01 -t 2024-09-22.
 func ListBuilder() *cobra.Command {
 	opts := &ListOpts{
 		fs: afero.NewOsFs(),

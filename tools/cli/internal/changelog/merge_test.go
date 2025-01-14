@@ -15,7 +15,6 @@
 package changelog
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
@@ -35,14 +34,14 @@ func TestMergeChangelogOneChange(t *testing.T) {
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
 				Sunset:                 "",
-				ManualChangelogEntries: make(map[string]interface{}),
+				ManualChangelogEntries: make(map[string]any),
 			},
 			Revision: &outputfilter.OperationConfig{
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
 				Sunset:                 "",
-				ManualChangelogEntries: make(map[string]interface{}),
+				ManualChangelogEntries: make(map[string]any),
 			},
 		},
 	}
@@ -111,14 +110,14 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
 				Sunset:                 "",
-				ManualChangelogEntries: make(map[string]interface{}),
+				ManualChangelogEntries: make(map[string]any),
 			},
 			Revision: &outputfilter.OperationConfig{
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
 				Sunset:                 "",
-				ManualChangelogEntries: make(map[string]interface{}),
+				ManualChangelogEntries: make(map[string]any),
 			},
 		},
 	}
@@ -250,7 +249,7 @@ func TestMergeChangelogAddTwoEndpoints(t *testing.T) {
 				HTTPMethod:             "GET",
 				Tag:                    "Streams",
 				Sunset:                 "",
-				ManualChangelogEntries: make(map[string]interface{}),
+				ManualChangelogEntries: make(map[string]any),
 			},
 		},
 		"getStreamInstance": {
@@ -260,7 +259,7 @@ func TestMergeChangelogAddTwoEndpoints(t *testing.T) {
 				HTTPMethod:             "GET",
 				Tag:                    "Streams",
 				Sunset:                 "",
-				ManualChangelogEntries: make(map[string]interface{}),
+				ManualChangelogEntries: make(map[string]any),
 			},
 		},
 	}
@@ -487,14 +486,14 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
 				Sunset:                 sunset,
-				ManualChangelogEntries: make(map[string]interface{}),
+				ManualChangelogEntries: make(map[string]any),
 			},
 			Revision: &outputfilter.OperationConfig{
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
 				Sunset:                 "",
-				ManualChangelogEntries: make(map[string]interface{}),
+				ManualChangelogEntries: make(map[string]any),
 			},
 		},
 	}
@@ -709,7 +708,7 @@ func TestMergeChangelogWithDeprecations(t *testing.T) {
 
 	assert.Equal(t, "endpoint-deprecated", firstVersionEntry.Changes[1].Code)
 	assert.True(t, firstVersionEntry.Changes[1].BackwardCompatible)
-	assert.Contains(t, firstVersionEntry.Changes[1].Description, fmt.Sprintf("deprecated and marked for removal on %s", sunset))
+	assert.Contains(t, firstVersionEntry.Changes[1].Description, "deprecated and marked for removal on "+sunset)
 
 	secondVersionEntry := versions[0]
 	require.Len(t, secondVersionEntry.Changes, 1)

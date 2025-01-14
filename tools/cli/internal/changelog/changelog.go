@@ -474,7 +474,7 @@ func findChangelogEntry(changelog []*Entry, date, operationID, version, changeCo
 	return nil
 }
 
-func newStringFromStruct(data interface{}) string {
+func newStringFromStruct(data any) string {
 	bytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return ""
@@ -489,7 +489,7 @@ func newStringFromStruct(data interface{}) string {
 // 1. Remove all entries with hideFromChangelog
 // 2. Remove all empty versions
 // 3. Remove all empty paths
-// 4. Shift changelog entry if it turns out empty
+// 4. Shift changelog entry if it turns out empty.
 func NewNotHiddenEntries(changelog []*Entry) ([]*Entry, error) {
 	if len(changelog) == 0 {
 		return changelog, nil

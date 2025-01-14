@@ -21,21 +21,21 @@ func TestOpenApiSpecMethods(t *testing.T) {
 			HTTPMethod:             "POST",
 			Tag:                    "Multi-Cloud Clusters",
 			Sunset:                 "2025-06-01",
-			ManualChangelogEntries: map[string]interface{}{},
+			ManualChangelogEntries: map[string]any{},
 		},
 		"deleteCluster": {
 			Path:                   "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
 			HTTPMethod:             "DELETE",
 			Tag:                    "Multi-Cloud Clusters",
 			Sunset:                 "2025-06-01",
-			ManualChangelogEntries: map[string]interface{}{},
+			ManualChangelogEntries: map[string]any{},
 		},
 		"getCluster": {
 			Path:       "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
 			HTTPMethod: "GET",
 			Tag:        "Multi-Cloud Clusters",
 			Sunset:     "2025-06-01",
-			ManualChangelogEntries: map[string]interface{}{
+			ManualChangelogEntries: map[string]any{
 				"2023-07-07": "July 7th changelog entry",
 				"2023-08-08": "August announcement for /api/atlas/v2/clusters",
 			},
@@ -45,14 +45,14 @@ func TestOpenApiSpecMethods(t *testing.T) {
 			HTTPMethod:             "GET",
 			Tag:                    "Multi-Cloud Clusters",
 			Sunset:                 "2025-06-01",
-			ManualChangelogEntries: map[string]interface{}{},
+			ManualChangelogEntries: map[string]any{},
 		},
 		"updateCluster": {
 			Path:                   "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}",
 			HTTPMethod:             "PATCH",
 			Tag:                    "Multi-Cloud Clusters",
 			Sunset:                 "2025-06-01",
-			ManualChangelogEntries: map[string]interface{}{},
+			ManualChangelogEntries: map[string]any{},
 		},
 	}
 
@@ -180,7 +180,7 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
 						Sunset:                 "",
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 					Revision: nil,
 				},
@@ -191,7 +191,7 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "revision-tag",
 						Sunset:                 "",
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 				},
 			},
@@ -205,7 +205,7 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 							Get: &openapi3.Operation{
 								OperationID: "op1",
 								Tags:        []string{"base-tag"},
-								Extensions: map[string]interface{}{
+								Extensions: map[string]any{
 									"x-sunset": "2024-08-01",
 								},
 							},
@@ -220,7 +220,7 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 							Get: &openapi3.Operation{
 								OperationID: "op1",
 								Tags:        []string{"revision-tag"},
-								Extensions: map[string]interface{}{
+								Extensions: map[string]any{
 									"x-sunset": "2024-12-01",
 								},
 							},
@@ -235,14 +235,14 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
 						Sunset:                 "2024-08-01",
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 					Revision: &OperationConfig{
 						Path:                   "/path",
 						HTTPMethod:             "GET",
 						Tag:                    "revision-tag",
 						Sunset:                 "2024-12-01",
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 				},
 			},
@@ -256,7 +256,7 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 							Get: &openapi3.Operation{
 								OperationID: "op1",
 								Tags:        []string{"base-tag"},
-								Extensions: map[string]interface{}{
+								Extensions: map[string]any{
 									"x-sunset": "2024-08-01",
 								},
 							},
@@ -283,14 +283,14 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
 						Sunset:                 "2024-08-01",
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 					Revision: &OperationConfig{
 						Path:                   "/path",
 						HTTPMethod:             "GET",
 						Tag:                    "revision-tag",
 						Sunset:                 "", // Sunset not present in revision
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 				},
 			},
@@ -316,7 +316,7 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 							Get: &openapi3.Operation{
 								OperationID: "op1",
 								Tags:        []string{"revision-tag"},
-								Extensions: map[string]interface{}{
+								Extensions: map[string]any{
 									"x-sunset": "2024-12-01",
 								},
 							},
@@ -330,14 +330,14 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						Path:                   "/path",
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 					Revision: &OperationConfig{
 						Path:                   "/path",
 						HTTPMethod:             "GET",
 						Tag:                    "revision-tag",
 						Sunset:                 "2024-12-01",
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 				},
 			},
@@ -363,8 +363,8 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 							Get: &openapi3.Operation{
 								OperationID: "op1",
 								Tags:        []string{"revision-tag"},
-								Extensions: map[string]interface{}{
-									"x-xgen-changelog": map[string]interface{}{
+								Extensions: map[string]any{
+									"x-xgen-changelog": map[string]any{
 										"2024-01-01": "Revision changelog entry.",
 									},
 								},
@@ -380,14 +380,14 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
 						Sunset:                 "",
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 					Revision: &OperationConfig{
 						Path:       "/path",
 						HTTPMethod: "GET",
 						Tag:        "revision-tag",
 						Sunset:     "",
-						ManualChangelogEntries: map[string]interface{}{
+						ManualChangelogEntries: map[string]any{
 							"2024-01-01": "Revision changelog entry.",
 						},
 					},
@@ -415,8 +415,8 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 							Get: &openapi3.Operation{
 								OperationID: "op1",
 								Tags:        []string{"revision-tag"},
-								Extensions: map[string]interface{}{
-									"x-xgen-changelog": map[string]interface{}{
+								Extensions: map[string]any{
+									"x-xgen-changelog": map[string]any{
 										"2024-01-01": "Revision changelog entry.",
 										"2024-01-02": "Revision changelog entry.",
 									},
@@ -433,14 +433,14 @@ func TestNewEndpointsConfigGivenBaseAndRevision(t *testing.T) {
 						HTTPMethod:             "GET",
 						Tag:                    "base-tag",
 						Sunset:                 "",
-						ManualChangelogEntries: map[string]interface{}{},
+						ManualChangelogEntries: map[string]any{},
 					},
 					Revision: &OperationConfig{
 						Path:       "/path",
 						HTTPMethod: "GET",
 						Tag:        "revision-tag",
 						Sunset:     "",
-						ManualChangelogEntries: map[string]interface{}{
+						ManualChangelogEntries: map[string]any{
 							"2024-01-01": "Revision changelog entry.",
 							"2024-01-02": "Revision changelog entry.",
 						},

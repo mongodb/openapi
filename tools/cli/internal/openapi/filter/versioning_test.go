@@ -179,7 +179,7 @@ func TestPathFilter_removeResponses(t *testing.T) {
 func getOasWithPaths() *openapi3.T {
 	oas := &openapi3.T{}
 	oas.Paths = &openapi3.Paths{
-		Extensions: map[string]interface{}{
+		Extensions: map[string]any{
 			"x-sunset": "2025-01-10",
 		},
 	}

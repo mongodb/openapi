@@ -65,56 +65,13 @@ func allOperationsHaveExtension(pathData *openapi3.PathItem, path, extensionName
 	return true
 }
 
-func getOperationExtensionWithName(operation *openapi3.Operation, extensionName string) interface{} {
+func getOperationExtensionWithName(operation *openapi3.Operation, extensionName string) any {
 	if operation.Extensions == nil || operation.Extensions[extensionName] == nil {
 		log.Printf("Operation %s does not have extension %q", operation.OperationID, extensionName)
 		return nil
 	}
 
 	return operation.Extensions[extensionName]
-}
-
-func allOperationsAllowDocsDiff(pathData *openapi3.PathItem) bool {
-	if pathData.Operations() == nil || len(pathData.Operations()) == 0 {
-		return false
-	}
-
-	if pathData.Get != nil {
-		prop := getOperationExtensionProperty(pathData.Get, xgenSoaMigration, allowDocsDiff)
-		if prop != "true" {
-			return false
-		}
-	}
-
-	if pathData.Put != nil {
-		prop := getOperationExtensionProperty(pathData.Put, xgenSoaMigration, allowDocsDiff)
-		if prop != "true" {
-			return false
-		}
-	}
-
-	if pathData.Post != nil {
-		prop := getOperationExtensionProperty(pathData.Post, xgenSoaMigration, allowDocsDiff)
-		if prop != "true" {
-			return false
-		}
-	}
-
-	if pathData.Patch != nil {
-		prop := getOperationExtensionProperty(pathData.Patch, xgenSoaMigration, allowDocsDiff)
-		if prop != "true" {
-			return false
-		}
-	}
-
-	if pathData.Delete != nil {
-		prop := getOperationExtensionProperty(pathData.Delete, xgenSoaMigration, allowDocsDiff)
-		if prop != "true" {
-			return false
-		}
-	}
-
-	return true
 }
 
 func getOperationExtensionProperty(operation *openapi3.Operation, extensionName, extensionProperty string) string {
@@ -127,7 +84,7 @@ func getOperationExtensionProperty(operation *openapi3.Operation, extensionName,
 		return ""
 	}
 
-	value, ok := extension.(map[string]interface{})[extensionProperty].(string)
+	value, ok := extension.(map[string]any)[extensionProperty].(string)
 	if ok {
 		return value
 	}

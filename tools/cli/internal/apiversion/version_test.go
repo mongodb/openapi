@@ -58,6 +58,7 @@ func TestParseVersion(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			match, err := Parse(tt.contentType)
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -127,6 +128,7 @@ func TestNewAPIVersionFromContentType(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			version, err := New(WithContent(tt.contentType))
 			t.Parallel()
 			if tt.wantErr {
