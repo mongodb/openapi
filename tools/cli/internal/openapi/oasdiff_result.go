@@ -50,7 +50,7 @@ type OasDiffResult struct {
 }
 
 // GetSimpleDiff returns the diff between two OpenAPI specs.
-func (o OasDiff) GetSimpleDiff(base, revision *load.SpecInfo) (*OasDiffResult, error) {
+func (o *OasDiff) GetSimpleDiff(base, revision *load.SpecInfo) (*OasDiffResult, error) {
 	diffReport, err := o.diffGetter.Get(o.config, base.Spec, revision.Spec)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (o OasDiff) GetSimpleDiff(base, revision *load.SpecInfo) (*OasDiffResult, e
 }
 
 // GetFlattenedDiff returns the diff between two OpenAPI specs after flattening them.
-func (o OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResult, error) {
+func (o *OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResult, error) {
 	flattenBaseSpec, err := allof.MergeSpec(base.Spec)
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (o OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResult
 }
 
 // GetDiffWithConfig returns the diff between two OpenAPI specs with a custom config.
-func (o OasDiff) GetDiffWithConfig(base, revision *load.SpecInfo, config *diff.Config) (*OasDiffResult, error) {
+func (o *OasDiff) GetDiffWithConfig(base, revision *load.SpecInfo, config *diff.Config) (*OasDiffResult, error) {
 	diffReport, err := o.diffGetter.Get(config, base.Spec, revision.Spec)
 	if err != nil {
 		return nil, err

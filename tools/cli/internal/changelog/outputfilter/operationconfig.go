@@ -10,7 +10,7 @@ type OperationConfig struct {
 	HTTPMethod             string
 	Tag                    string
 	Sunset                 string
-	ManualChangelogEntries map[string]interface{}
+	ManualChangelogEntries map[string]any
 }
 
 type OperationConfigs struct {
@@ -109,9 +109,9 @@ func newEndpointConfig(pathName, operatioName string, operation *openapi3.Operat
 		sunset = value.(string)
 	}
 
-	manualChangelogEntries := make(map[string]interface{})
+	manualChangelogEntries := make(map[string]any)
 	if value, ok := operation.Extensions["x-xgen-changelog"]; ok {
-		manualChangelogEntries = value.(map[string]interface{})
+		manualChangelogEntries = value.(map[string]any)
 	}
 
 	return &OperationConfig{

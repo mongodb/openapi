@@ -22,7 +22,7 @@ import (
 
 func Test_FilterOperations_owners(t *testing.T) {
 	operation := &openapi3.Operation{
-		Extensions: map[string]interface{}{
+		Extensions: map[string]any{
 			"x-xgen-owner-team": "team1",
 		},
 		Summary:     "summary",
@@ -48,7 +48,7 @@ func Test_FilterOperations_moveSunsetToOperationAndMarkDeprecated(t *testing.T) 
 		Value: &openapi3.Response{
 			Content: openapi3.Content{
 				"application/json": &openapi3.MediaType{
-					Extensions: map[string]interface{}{
+					Extensions: map[string]any{
 						"x-sunset": "2024-01-01"},
 				},
 			},

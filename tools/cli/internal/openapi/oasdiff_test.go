@@ -1162,8 +1162,8 @@ func TestHandlePathConflict(t *testing.T) {
 			name: "No Conflict - Identical Paths",
 			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "false",
 						},
 					},
@@ -1181,8 +1181,8 @@ func TestHandlePathConflict(t *testing.T) {
 			name: "Conflict with AllowDocsDiff",
 			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "true",
 						},
 					},
@@ -1214,8 +1214,8 @@ func TestHandlePathConflict(t *testing.T) {
 			name: "Conflict with Different Operations",
 			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "false",
 						},
 					},
@@ -1242,8 +1242,8 @@ func TestHandlePathConflict(t *testing.T) {
 			name: "Conflict with Different Path Operation",
 			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "false",
 						},
 					},
@@ -1292,8 +1292,8 @@ func TestHandlePathConflict(t *testing.T) {
 			name: "Identical Paths with Extensions",
 			externalPath: &openapi3.PathItem{
 				Get: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "false",
 						},
 					},

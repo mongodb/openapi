@@ -64,7 +64,7 @@ func TestDetectManualEntriesAndMergeChangelog(t *testing.T) {
 				HTTPMethod: "POST",
 				Tag:        "Multi-Cloud Clusters",
 				Sunset:     "",
-				ManualChangelogEntries: map[string]interface{}{
+				ManualChangelogEntries: map[string]any{
 					previousRunDate:    "change info 1", // Already in the changelog
 					runDate:            "change info 2", // Should be added to the changelog
 					theDayAfterRunDate: "change info 3", // Should not be added to the changelog

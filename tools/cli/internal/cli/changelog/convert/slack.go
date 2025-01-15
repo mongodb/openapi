@@ -178,7 +178,7 @@ func newColorFromBackwardCompatible(backwardCompatible, hideFromChangelog bool) 
 }
 
 // SlackBuilder constructs the command for converting the changelog entries into a format that can be used with Slack APIs.
-// changelog convert slack -p path_to_changelog -m message_id 1503435956.000247 -c channel_id C061EG9SL
+// changelog convert slack -p path_to_changelog -m message_id 1503435956.000247 -c channel_id C061EG9SL.
 func SlackBuilder() *cobra.Command {
 	opts := &SlackOpts{}
 

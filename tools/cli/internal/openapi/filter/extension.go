@@ -24,7 +24,7 @@ import (
 
 // Filter: ExtensionFilter is a filter that updates the x-sunset and x-xgen-version extensions to a date string
 // and deletes the x-sunset extension if the latest matched version is deprecated by hidden versions
-// for the target environment
+// for the target environment.
 type ExtensionFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
@@ -69,14 +69,14 @@ func (f *ExtensionFilter) Apply() error {
 				}
 
 				f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, response.Value.Content)
-				f.updateToDateString(response.Value.Content)
+				updateToDateString(response.Value.Content)
 			}
 
 			request := operation.RequestBody
 			if request == nil || request.Value == nil || request.Value.Content == nil {
 				continue
 			}
-			f.updateToDateString(request.Value.Content)
+			updateToDateString(request.Value.Content)
 			f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, request.Value.Content)
 		}
 	}
@@ -100,7 +100,7 @@ func updateExtensionToDateString(extensions map[string]any) {
 	}
 }
 
-func (f *ExtensionFilter) updateToDateString(content openapi3.Content) {
+func updateToDateString(content openapi3.Content) {
 	for _, mediaType := range content {
 		if mediaType.Extensions == nil {
 			continue
@@ -110,7 +110,7 @@ func (f *ExtensionFilter) updateToDateString(content openapi3.Content) {
 	}
 }
 
-// deleteSunsetIfDeprecatedByHiddenVersions deletes the sunset extension if the latest matched version is deprecated by hidden versions
+// deleteSunsetIfDeprecatedByHiddenVersions deletes the sunset extension if the latest matched version is deprecated by hidden versions.
 func (f *ExtensionFilter) deleteSunsetIfDeprecatedByHiddenVersions(latestMatchedVersion *apiversion.APIVersion, content openapi3.Content) {
 	versions, versionToContentType := getVersionsInContentType(content)
 
