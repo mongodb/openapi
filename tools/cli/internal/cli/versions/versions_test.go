@@ -19,6 +19,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestVersions_Run(t *testing.T) {
@@ -29,15 +30,9 @@ func TestVersions_Run(t *testing.T) {
 		fs:         fs,
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
+	require.NoError(t, opts.Run())
 	b, err := afero.ReadFile(fs, opts.outputPath)
-	if err != nil {
-		t.Fatalf("ReadFile() unexpected error: %v", err)
-	}
-
+	require.NoError(t, err)
 	// Check initial versions
 	assert.NotEmpty(t, b)
 	assert.Contains(t, string(b), "2023-02-01")
@@ -52,14 +47,9 @@ func TestVersion_RunWithEnv(t *testing.T) {
 		env:        "staging",
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
+	require.NoError(t, opts.Run())
 	b, err := afero.ReadFile(fs, opts.outputPath)
-	if err != nil {
-		t.Fatalf("ReadFile() unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
 	// Check initial versions
 	assert.NotEmpty(t, b)
@@ -75,14 +65,9 @@ func TestVersion_RunWithPreview(t *testing.T) {
 		env:        "staging",
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
+	require.NoError(t, opts.Run())
 	b, err := afero.ReadFile(fs, opts.outputPath)
-	if err != nil {
-		t.Fatalf("ReadFile() unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
 	// Check initial versions
 	assert.NotEmpty(t, b)
@@ -100,14 +85,9 @@ func TestVersion_RunStabilityLevelPreview(t *testing.T) {
 		stabilityLevel: "PREVIEW",
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
+	require.NoError(t, opts.Run())
 	b, err := afero.ReadFile(fs, opts.outputPath)
-	if err != nil {
-		t.Fatalf("ReadFile() unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
 	// Check initial versions
 	assert.NotEmpty(t, b)
@@ -125,14 +105,9 @@ func TestVersion_RunStabilityLevelStable(t *testing.T) {
 		stabilityLevel: "STABLE",
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
+	require.NoError(t, opts.Run())
 	b, err := afero.ReadFile(fs, opts.outputPath)
-	if err != nil {
-		t.Fatalf("ReadFile() unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
 	// Check initial versions
 	assert.NotEmpty(t, b)
