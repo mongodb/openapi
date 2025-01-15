@@ -1,5 +1,6 @@
 import spectral from '@stoplight/spectral-core';
 import * as fs from 'node:fs';
+import { spawnSync } from 'child_process';
 import {
   loadOpenAPIFile,
   extractTeamOwnership,
@@ -9,7 +10,6 @@ import {
   merge,
 } from './utils.js';
 import config from './config.js';
-import collector from './collector.js';
 const { Spectral } = spectral;
 
 async function runMetricCollectionJob(oasFilePath = config.defaultOasFilePath) {
@@ -20,22 +20,16 @@ async function runMetricCollectionJob(oasFilePath = config.defaultOasFilePath) {
     console.log('Extracting team ownership data...');
     const ownershipData = extractTeamOwnership(oasContent);
 
-    console.log('Initializing Spectral...');
+    console.log('Getting rule severities...');
     const spectral = new Spectral();
     const ruleset = await loadRuleset(config.defaultRulesetFilePath, spectral);
-
-    console.log('Getting rule severities...');
     const ruleSeverityMap = getSeverityPerRule(ruleset);
-
-    console.log('Running Spectral analysis...');
-    const spectralResults = await spectral.run(oasContent);
-    collector.flushToFile();
 
     console.log('Loading collector results...');
     const collectorResults = loadCollectorResults(config.defaultCollectorResultsFilePath);
 
     console.log('Merging results...');
-    const mergedResults = merge(spectralResults, ownershipData, collectorResults, ruleSeverityMap);
+    const mergedResults = merge(ownershipData, collectorResults, ruleSeverityMap);
 
     console.log('Metric collection job complete.');
     return mergedResults;
@@ -47,6 +41,34 @@ async function runMetricCollectionJob(oasFilePath = config.defaultOasFilePath) {
 
 const args = process.argv.slice(2);
 const customOasFile = args[0];
+
+const result = spawnSync(
+  'spectral',
+  [
+    'lint',
+    '--ruleset',
+    config.defaultRulesetFilePath,
+    '--format',
+    'stylish',
+    '--verbose',
+    '--format',
+    'junit',
+    '--output.junit',
+    config.defaultSpectralReportFile,
+    config.defaultOasFilePath,
+  ],
+  {
+    encoding: 'utf-8',
+  }
+);
+
+if (result.error) {
+  console.error('Error running Spectral lint:', result.error);
+  process.exit(1);
+}
+
+console.log('Spectral lint completed successfully.');
+fs.writeFileSync(config.defaultSpectralOutputFile, result.stdout);
 
 runMetricCollectionJob(customOasFile)
   .then((results) => fs.writeFileSync(config.defaultMetricCollectionResultsFilePath, JSON.stringify(results)))

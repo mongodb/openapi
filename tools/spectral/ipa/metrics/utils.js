@@ -73,7 +73,7 @@ function getIPAFromIPARule(ipaRule) {
   }
 }
 
-export function merge(spectralResults, ownershipData, collectorResults, ruleSeverityMap) {
+export function merge(ownershipData, collectorResults, ruleSeverityMap) {
   const results = [];
 
   function addEntry(entryType, adoptionStatus) {
