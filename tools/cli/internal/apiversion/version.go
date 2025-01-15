@@ -194,7 +194,7 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 	return latestVersionMatch
 }
 
-// Sort versions
+// Sort versions.
 func Sort(versions []*APIVersion) {
 	for i := 0; i < len(versions); i++ {
 		for j := i + 1; j < len(versions); j++ {

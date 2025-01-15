@@ -26,7 +26,7 @@ const (
 )
 
 // Filter: HiddenEnvsFilter is a filter that removes paths, operations,
-// request/response bodies and content types that are hidden for the target environment
+// request/response bodies and content types that are hidden for the target environment.
 type HiddenEnvsFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
@@ -199,8 +199,8 @@ func (f *HiddenEnvsFilter) isPathHiddenForEnv(pathItem *openapi3.PathItem) bool 
 	return false
 }
 
-func isHiddenExtensionEqualToTargetEnv(extension interface{}, target string) bool {
-	if envs, ok := extension.(map[string]interface{}); ok {
+func isHiddenExtensionEqualToTargetEnv(extension any, target string) bool {
+	if envs, ok := extension.(map[string]any); ok {
 		if v, ok := envs[hiddenEnvsExtKey].(string); ok {
 			log.Printf("Found x-hidden-envs: V: %q", v)
 			return strings.Contains(v, target)

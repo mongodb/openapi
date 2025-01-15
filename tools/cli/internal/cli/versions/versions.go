@@ -16,6 +16,7 @@ package versions
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -51,7 +52,7 @@ func (o *Opts) Run() error {
 	}
 
 	if versions == nil {
-		return fmt.Errorf("no versions found in the OpenAPI specification")
+		return errors.New("no versions found in the OpenAPI specification")
 	}
 
 	versions = o.filterStabilityLevelVersions(versions)
@@ -97,7 +98,7 @@ func (o *Opts) versionsAsBytes(versions []string) ([]byte, error) {
 		return data, nil
 	}
 
-	var jsonData interface{}
+	var jsonData any
 	if mErr := json.Unmarshal(data, &jsonData); mErr != nil {
 		return nil, mErr
 	}
@@ -132,7 +133,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 // Builder builds the versions command with the following signature:
-// versions -s oas --env dev|qa|staging|prod -stability-level STABLE|PREVIEW
+// versions -s oas --env dev|qa|staging|prod -stability-level STABLE|PREVIEW.
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
@@ -156,6 +157,5 @@ func Builder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.stabilityLevel, flag.StabilityLevel, flag.StabilityLevelShort, "", usage.StabilityLevel)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
-
 	return cmd
 }

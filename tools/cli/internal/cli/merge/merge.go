@@ -44,7 +44,7 @@ func (o *Opts) Run() error {
 	}
 
 	if o.gitSha != "" {
-		federated.Info.Extensions = map[string]interface{}{
+		federated.Info.Extensions = map[string]any{
 			"x-xgen-sha": o.gitSha,
 		}
 	}
@@ -85,7 +85,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 // Builder builds the merge command with the following signature:
-// merge -b base-oas -e external-oas-1 -e external-oas-2
+// merge -b base-oas -e external-oas-1 -e external-oas-2.
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),

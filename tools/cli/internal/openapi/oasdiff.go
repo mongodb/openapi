@@ -22,7 +22,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/tufin/oasdiff/diff"
-
 	"github.com/tufin/oasdiff/load"
 )
 
@@ -35,7 +34,7 @@ type OasDiff struct {
 	parser     Parser
 }
 
-func (o OasDiff) mergeSpecIntoBase() (*load.SpecInfo, error) {
+func (o *OasDiff) mergeSpecIntoBase() (*load.SpecInfo, error) {
 	if o.external == nil || o.external.Spec == nil {
 		return o.base, nil
 	}
@@ -59,7 +58,7 @@ func (o OasDiff) mergeSpecIntoBase() (*load.SpecInfo, error) {
 	return o.base, nil
 }
 
-func (o OasDiff) mergePaths() error {
+func (o *OasDiff) mergePaths() error {
 	pathsToMerge := o.external.Spec.Paths
 	if pathsToMerge == nil || pathsToMerge.Len() == 0 {
 		return nil
@@ -88,7 +87,7 @@ func (o OasDiff) mergePaths() error {
 
 // removeExternalRefs updates the external references of OASes to remove the reference to openapi-mms.json.
 // Example of an external ref is "$ref": "openapi-mms.json#/components/responses/internalServerError"
-// Example of an external ref after removeExternalRefs: "$ref": "#/components/responses/internalServerError"
+// Example of an external ref after removeExternalRefs: "$ref": "#/components/responses/internalServerError".
 func removeExternalRefs(path *openapi3.PathItem) *openapi3.PathItem {
 	if path.Get != nil {
 		updateExternalRefResponses(path.Get.Responses)
@@ -122,7 +121,7 @@ func removeExternalRefs(path *openapi3.PathItem) *openapi3.PathItem {
 }
 
 // handlePathConflict handles the path conflict by checking if the conflict should be skipped or not.
-func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName string) error {
+func (o *OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName string) error {
 	if !o.shouldSkipPathConflict(basePath, basePathName) {
 		return errors.PathConflictError{
 			Entry: basePathName,
@@ -165,7 +164,7 @@ func (o OasDiff) handlePathConflict(basePath *openapi3.PathItem, basePathName st
 // 1. Validates if both paths have same operations, if not, then it returns false.
 // 2. If both paths have the same operations, then it checks if there is an x-xgen-soa-migration annotation.
 // If there is no annotation, then it returns false.
-func (o OasDiff) shouldSkipPathConflict(basePath *openapi3.PathItem, basePathName string) bool {
+func (o *OasDiff) shouldSkipPathConflict(basePath *openapi3.PathItem, basePathName string) bool {
 	var pathsDiff *diff.PathsDiff
 	if o.result != nil && o.result.Report != nil && o.result.Report.PathsDiff != nil {
 		pathsDiff = o.result.Report.PathsDiff
@@ -188,7 +187,7 @@ func (o OasDiff) shouldSkipPathConflict(basePath *openapi3.PathItem, basePathNam
 
 // updateExternalRefResponses updates the external references of OASes to remove the reference to openapi-mms.json
 // in the Responses.
-// A Response can have an external ref in Response.Ref or in its content (Response.Content.Schema.Ref)
+// A Response can have an external ref in Response.Ref or in its content (Response.Content.Schema.Ref).
 func updateExternalRefResponses(responses *openapi3.Responses) {
 	if responses == nil {
 		return
@@ -233,7 +232,7 @@ func updateExternalRefContent(content *openapi3.Content) {
 
 // updateExternalRefParams updates the external references of OASes to remove the reference to openapi-mms.json
 // in the Parameters.
-// A Parameter can have an external ref in Parameter.Ref or in its content (Parameter.Content.Schema.Ref)
+// A Parameter can have an external ref in Parameter.Ref or in its content (Parameter.Content.Schema.Ref).
 func updateExternalRefParams(params *openapi3.Parameters) {
 	if params == nil {
 		return
@@ -255,7 +254,7 @@ func updateExternalRefParams(params *openapi3.Parameters) {
 
 // updateExternalRefReqBody updates the external references of OASes to remove the reference to openapi-mms.json
 // in the RequestBody.
-// A RequestBody can have an external ref in RequestBody.Ref or in its content (RequestBody.Content.Schema.Ref)
+// A RequestBody can have an external ref in RequestBody.Ref or in its content (RequestBody.Content.Schema.Ref).
 func updateExternalRefReqBody(reqBody *openapi3.RequestBodyRef) {
 	if reqBody == nil {
 		return
@@ -275,7 +274,7 @@ func updateExternalRefReqBody(reqBody *openapi3.RequestBodyRef) {
 	updateExternalRefContent(&reqBody.Value.Content)
 }
 
-func (o OasDiff) mergeTags() error {
+func (o *OasDiff) mergeTags() error {
 	tagsToMerge := o.external.Spec.Tags
 	if len(tagsToMerge) == 0 {
 		return nil
@@ -295,13 +294,13 @@ func (o OasDiff) mergeTags() error {
 	for _, v := range tagsToMerge {
 		if _, ok := tagsSet[v.Name]; !ok {
 			baseTags = append(baseTags, v)
-		} else {
-			return errors.TagConflictError{
-				Entry:                v.Name,
-				Description:          v.Description,
-				BaseSpecLocation:     o.base.Url,
-				ExternalSpecLocation: o.external.Url,
-			}
+			continue
+		}
+		return errors.TagConflictError{
+			Entry:                v.Name,
+			Description:          v.Description,
+			BaseSpecLocation:     o.base.Url,
+			ExternalSpecLocation: o.external.Url,
 		}
 	}
 	slices.SortFunc(ByName(baseTags), func(a, b *openapi3.Tag) int {
@@ -311,7 +310,7 @@ func (o OasDiff) mergeTags() error {
 	return nil
 }
 
-func (o OasDiff) mergeComponents() error {
+func (o *OasDiff) mergeComponents() error {
 	if o.external.Spec.Components == nil {
 		return nil
 	}
@@ -332,7 +331,7 @@ func (o OasDiff) mergeComponents() error {
 	return o.mergeSchemas()
 }
 
-func (o OasDiff) mergeParameters() error {
+func (o *OasDiff) mergeParameters() error {
 	externalSpecParams := o.external.Spec.Components.Parameters
 	if len(externalSpecParams) == 0 {
 		return nil
@@ -346,17 +345,17 @@ func (o OasDiff) mergeParameters() error {
 	for k, v := range externalSpecParams {
 		if _, ok := baseParams[k]; !ok {
 			baseParams[k] = v
-		} else {
-			if o.areParamsIdentical(k) {
-				// if the responses are the same, we skip
-				log.Printf("\nWe silently resolved the conflict with the response %q because the definition was identical.\n", k)
-				continue
-			}
+			continue
+		}
+		if o.areParamsIdentical(k) {
+			// if the responses are the same, we skip
+			log.Printf("\nWe silently resolved the conflict with the response %q because the definition was identical.\n", k)
+			continue
+		}
 
-			// The params have the same name but different definitions
-			return errors.ParamConflictError{
-				Entry: k,
-			}
+		// The params have the same name but different definitions
+		return errors.ParamConflictError{
+			Entry: k,
 		}
 	}
 
@@ -364,7 +363,7 @@ func (o OasDiff) mergeParameters() error {
 	return nil
 }
 
-func (o OasDiff) mergeResponses() error {
+func (o *OasDiff) mergeResponses() error {
 	extResponses := o.external.Spec.Components.Responses
 	if len(extResponses) == 0 {
 		return nil
@@ -379,17 +378,16 @@ func (o OasDiff) mergeResponses() error {
 	for k, v := range extResponses {
 		if _, ok := baseResponses[k]; !ok {
 			baseResponses[k] = v
-		} else {
-			if o.areResponsesIdentical(k) {
-				// if the params are the same, we skip
-				log.Printf("\nWe silently resolved the conflict with the params %q because the definition was identical.\n", k)
-				continue
-			}
-
-			// The responses have the same name but different definitions
-			return errors.ResponseConflictError{
-				Entry: k,
-			}
+			continue
+		}
+		if o.areResponsesIdentical(k) {
+			// if the params are the same, we skip
+			log.Printf("\nWe silently resolved the conflict with the params %q because the definition was identical.\n", k)
+			continue
+		}
+		// The responses have the same name but different definitions
+		return errors.ResponseConflictError{
+			Entry: k,
 		}
 	}
 
@@ -397,7 +395,7 @@ func (o OasDiff) mergeResponses() error {
 	return nil
 }
 
-func (o OasDiff) mergeSchemas() error {
+func (o *OasDiff) mergeSchemas() error {
 	extSchemas := o.external.Spec.Components.Schemas
 	if len(extSchemas) == 0 {
 		return nil
@@ -412,19 +410,19 @@ func (o OasDiff) mergeSchemas() error {
 	for k, schemaToMerge := range extSchemas {
 		if _, ok := baseSchemas[k]; !ok {
 			baseSchemas[k] = schemaToMerge
-		} else {
-			if o.areSchemaIdentical(k) {
-				// if the schemas are the same, we skip
-				log.Printf("\nWe silently resolved the conflict with the schemas %q because the definition was identical.\n", k)
-				continue
-			}
+			continue
+		}
+		if o.areSchemaIdentical(k) {
+			// if the schemas are the same, we skip
+			log.Printf("\nWe silently resolved the conflict with the schemas %q because the definition was identical.\n", k)
+			continue
+		}
 
-			// The schemas have the same name but different definitions
-			return errors.SchemaConflictError{
-				Entry:                k,
-				BaseSpecLocation:     o.base.Url,
-				ExternalSpecLocation: o.external.Url,
-			}
+		// The schemas have the same name but different definitions
+		return errors.SchemaConflictError{
+			Entry:                k,
+			BaseSpecLocation:     o.base.Url,
+			ExternalSpecLocation: o.external.Url,
 		}
 	}
 
@@ -432,23 +430,23 @@ func (o OasDiff) mergeSchemas() error {
 	return nil
 }
 
-func (o OasDiff) areParamsIdentical(paramName string) bool {
+func (o *OasDiff) areParamsIdentical(paramName string) bool {
 	_, ok := o.result.Report.ParametersDiff.Modified[paramName]
 	return !ok
 }
 
-func (o OasDiff) areResponsesIdentical(name string) bool {
+func (o *OasDiff) areResponsesIdentical(name string) bool {
 	_, ok := o.result.Report.ResponsesDiff.Modified[name]
 	return !ok
 }
 
-func (o OasDiff) areSchemaIdentical(name string) bool {
+func (o *OasDiff) areSchemaIdentical(name string) bool {
 	_, ok := o.result.Report.SchemasDiff.Modified[name]
 	return !ok
 }
 
 // arePathsIdenticalWithExcludeExtensions checks if the paths are identical excluding extension diffs across operations (e.g. x-xgen-soa-migration).
-func (o OasDiff) arePathsIdenticalWithExcludeExtensions(name string) (bool, error) {
+func (o *OasDiff) arePathsIdenticalWithExcludeExtensions(name string) (bool, error) {
 	// If the diff only has extensions diff, then we consider the paths to be identical
 	customConfig := diff.NewConfig().WithExcludeElements([]string{"extensions"})
 	result, err := o.GetDiffWithConfig(o.base, o.external, customConfig)
@@ -475,3 +473,46 @@ type ByName []*openapi3.Tag
 func (a ByName) Len() int           { return len(a) }
 func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
+
+func allOperationsAllowDocsDiff(pathData *openapi3.PathItem) bool {
+	if pathData.Operations() == nil || len(pathData.Operations()) == 0 {
+		return false
+	}
+
+	if pathData.Get != nil {
+		prop := getOperationExtensionProperty(pathData.Get, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	if pathData.Put != nil {
+		prop := getOperationExtensionProperty(pathData.Put, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	if pathData.Post != nil {
+		prop := getOperationExtensionProperty(pathData.Post, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	if pathData.Patch != nil {
+		prop := getOperationExtensionProperty(pathData.Patch, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	if pathData.Delete != nil {
+		prop := getOperationExtensionProperty(pathData.Delete, xgenSoaMigration, allowDocsDiff)
+		if prop != "true" {
+			return false
+		}
+	}
+
+	return true
+}

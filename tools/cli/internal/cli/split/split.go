@@ -83,7 +83,7 @@ func (o *Opts) saveVersionedOas(oas *openapi3.T, version string) error {
 		path = o.outputPath
 	}
 
-	path = strings.Replace(path, fmt.Sprintf(".%s", o.format), fmt.Sprintf("-%s.%s", version, o.format), 1)
+	path = strings.Replace(path, "."+o.format, fmt.Sprintf("-%s.%s", version, o.format), 1)
 	return openapi.Save(path, oas, o.format, o.fs)
 }
 
@@ -108,7 +108,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 // Builder builds the split command with the following signature:
-// split -b base-oas -o output-oas.json
+// split -b base-oas -o output-oas.json.
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
