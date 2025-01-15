@@ -1,7 +1,5 @@
 import spectral from '@stoplight/spectral-core';
-import { fileURLToPath } from 'node:url';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import {
   loadOpenAPIFile,
   extractTeamOwnership,
