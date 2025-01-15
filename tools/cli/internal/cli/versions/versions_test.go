@@ -19,9 +19,10 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestVersions(t *testing.T) {
+func TestVersions_Run(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec.json",
@@ -29,21 +30,15 @@ func TestVersions(t *testing.T) {
 		fs:         fs,
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
+	require.NoError(t, opts.Run())
 	b, err := afero.ReadFile(fs, opts.outputPath)
-	if err != nil {
-		t.Fatalf("ReadFile() unexpected error: %v", err)
-	}
-
+	require.NoError(t, err)
 	// Check initial versions
 	assert.NotEmpty(t, b)
 	assert.Contains(t, string(b), "2023-02-01")
 }
 
-func TestVersionWithEnv(t *testing.T) {
+func TestVersion_RunWithEnv(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec.json",
@@ -52,16 +47,70 @@ func TestVersionWithEnv(t *testing.T) {
 		env:        "staging",
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
+	require.NoError(t, opts.Run())
 	b, err := afero.ReadFile(fs, opts.outputPath)
-	if err != nil {
-		t.Fatalf("ReadFile() unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
 	// Check initial versions
 	assert.NotEmpty(t, b)
 	assert.Contains(t, string(b), "2023-02-01")
+}
+
+func TestVersion_RunWithPreview(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:   "../../../test/data/base_spec_with_preview.json",
+		outputPath: "foas.json",
+		fs:         fs,
+		env:        "staging",
+	}
+
+	require.NoError(t, opts.Run())
+	b, err := afero.ReadFile(fs, opts.outputPath)
+	require.NoError(t, err)
+
+	// Check initial versions
+	assert.NotEmpty(t, b)
+	assert.Contains(t, string(b), "2023-02-01")
+	assert.Contains(t, string(b), "preview")
+}
+
+func TestVersion_RunStabilityLevelPreview(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:       "../../../test/data/base_spec_with_preview.json",
+		outputPath:     "foas.json",
+		fs:             fs,
+		env:            "staging",
+		stabilityLevel: "PREVIEW",
+	}
+
+	require.NoError(t, opts.Run())
+	b, err := afero.ReadFile(fs, opts.outputPath)
+	require.NoError(t, err)
+
+	// Check initial versions
+	assert.NotEmpty(t, b)
+	assert.NotContains(t, string(b), "2023-02-01")
+	assert.Contains(t, string(b), "preview")
+}
+
+func TestVersion_RunStabilityLevelStable(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:       "../../../test/data/base_spec_with_preview.json",
+		outputPath:     "foas.json",
+		fs:             fs,
+		env:            "staging",
+		stabilityLevel: "STABLE",
+	}
+
+	require.NoError(t, opts.Run())
+	b, err := afero.ReadFile(fs, opts.outputPath)
+	require.NoError(t, err)
+
+	// Check initial versions
+	assert.NotEmpty(t, b)
+	assert.Contains(t, string(b), "2023-02-01")
+	assert.NotContains(t, string(b), "preview")
 }

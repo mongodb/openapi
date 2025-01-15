@@ -24,15 +24,18 @@ import (
 )
 
 type APIVersion struct {
-	version     string
-	versionDate time.Time
+	version          string
+	stabilityVersion string
+	versionDate      time.Time
 }
 
 const (
-	dateFormat = "2006-01-02"
+	dateFormat            = "2006-01-02"
+	StableStabilityLevel  = "STABLE"
+	PreviewStabilityLevel = "PREVIEW"
 )
 
-var ContentPattern = regexp.MustCompile(`application/vnd\.atlas\.(\d{4})-(\d{2})-(\d{2})\+(.+)`)
+var contentPattern = regexp.MustCompile(`application/vnd\.atlas\.((\d{4})-(\d{2})-(\d{2})|preview)\+(.+)`)
 
 // Option is a function that sets a value on the APIVersion.
 type Option func(v *APIVersion) error
@@ -67,10 +70,12 @@ func WithDate(date time.Time) Option {
 	return func(v *APIVersion) error {
 		v.version = date.Format(dateFormat)
 		v.versionDate = date
+		v.stabilityVersion = StableStabilityLevel
 		return nil
 	}
 }
 
+// WithContent returns an Option to generate a new APIVersion given the contentType.
 func WithContent(contentType string) Option {
 	return func(v *APIVersion) error {
 		version, err := Parse(contentType)
@@ -79,6 +84,12 @@ func WithContent(contentType string) Option {
 		}
 
 		v.version = version
+		v.stabilityVersion = StableStabilityLevel
+		if version == PreviewStabilityLevel {
+			v.stabilityVersion = PreviewStabilityLevel
+			return nil
+		}
+
 		v.versionDate, err = DateFromVersion(version)
 		if err != nil {
 			return err
@@ -119,13 +130,26 @@ func (v *APIVersion) Date() time.Time {
 	return v.versionDate
 }
 
+func FindMatchesFromContentType(contentType string) []string {
+	return contentPattern.FindStringSubmatch(contentType)
+}
+
+func ReplaceContentType(contentType, replacement string) string {
+	return contentPattern.ReplaceAllString(contentType, replacement)
+}
+
 // Parse extracts the version date from the content type.
 func Parse(contentType string) (string, error) {
-	matches := ContentPattern.FindStringSubmatch(contentType)
+	matches := contentPattern.FindStringSubmatch(contentType)
 	if matches == nil {
 		return "", fmt.Errorf("invalid content type: %s", contentType)
 	}
-	return fmt.Sprintf("%s-%s-%s", matches[1], matches[2], matches[3]), nil
+
+	if len(matches) == 3 {
+		return fmt.Sprintf("%s-%s-%s", matches[2], matches[3], matches[4]), nil
+	}
+
+	return matches[1], nil
 }
 
 // FindLatestContentVersionMatched finds the latest content version that matches the requested version.
