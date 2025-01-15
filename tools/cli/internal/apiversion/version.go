@@ -75,25 +75,6 @@ func WithDate(date time.Time) Option {
 	}
 }
 
-// WithStabilityLevel sets the version and stability level on the APIVersion.
-func WithStabilityLevel(version, stabilityLevel string) Option {
-	return func(v *APIVersion) error {
-		v.stabilityVersion = stabilityLevel
-		v.version = version
-		if stabilityLevel != StableStabilityLevel {
-			return nil
-		}
-
-		versionDate, err := DateFromVersion(version)
-		if err != nil {
-			return err
-		}
-
-		v.versionDate = versionDate
-		return nil
-	}
-}
-
 // WithContent returns an Option to generate a new APIVersion given the contentType.
 func WithContent(contentType string) Option {
 	return func(v *APIVersion) error {
