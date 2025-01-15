@@ -31,7 +31,7 @@ func NewVersionedResponses(t *testing.T) *openapi3.T {
 	t.Helper()
 	inputPath := &openapi3.Paths{}
 
-	extension := map[string]interface{}{
+	extension := map[string]any{
 		"x-xgen-version": "2023-01-01",
 	}
 	response := &openapi3.ResponseRef{
@@ -57,7 +57,7 @@ func NewVersionedResponses(t *testing.T) *openapi3.T {
 		},
 	})
 
-	extensionTwo := map[string]interface{}{
+	extensionTwo := map[string]any{
 		"x-xgen-version": "2023-02-01",
 	}
 

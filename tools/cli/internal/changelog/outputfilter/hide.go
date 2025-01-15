@@ -21,7 +21,7 @@ var hideIDs = []string{
 	"api-sunset-date-too-small",
 }
 
-// MarkHiddenEntries sets the HideFromChangelog flag to true
+// MarkHiddenEntries sets the HideFromChangelog flag to true.
 func MarkHiddenEntries(entries []*OasDiffEntry, exemptionsFilePath string, fs afero.Fs) ([]*OasDiffEntry, error) {
 	exemptions, err := getExemptionsFromPath(exemptionsFilePath, fs)
 	if err != nil {
@@ -36,7 +36,7 @@ func MarkHiddenEntries(entries []*OasDiffEntry, exemptionsFilePath string, fs af
 	return hideByIDs(entries, hideIDs)
 }
 
-// hideByIDs removes entries with the specified IDs from the list of entries
+// hideByIDs removes entries with the specified IDs from the list of entries.
 func hideByIDs(entries []*OasDiffEntry, ids []string) ([]*OasDiffEntry, error) {
 	if len(ids) == 0 {
 		return entries, nil
@@ -53,7 +53,7 @@ func hideByIDs(entries []*OasDiffEntry, ids []string) ([]*OasDiffEntry, error) {
 	return entries, nil
 }
 
-// hideByExemptions hides entries based on the exemptions
+// hideByExemptions hides entries based on the exemptions.
 func hideByExemptions(entries []*OasDiffEntry, exemptions []breakingchanges.Exemption) ([]*OasDiffEntry, error) {
 	exemptionsMarkedHidden := breakingchanges.GetHiddenExemptions(exemptions)
 	log.Printf("Found %d exemptions marked hidden from the changelog.", len(exemptionsMarkedHidden))

@@ -2,10 +2,9 @@ package outputfilter
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
-
-	"regexp"
 )
 
 var (
@@ -214,7 +213,7 @@ type squashedEntries struct {
 	valuesToSquash    map[string]struct{}
 }
 
-// squashEntriesByValues squashes entries based on the given parameters
+// squashEntriesByValues squashes entries based on the given parameters.
 func squashEntriesByValues(
 	operation string,
 	entriesGroupedByOperationID map[string][]*OasDiffEntry,
@@ -356,7 +355,7 @@ func extractExactValuesOrFail(operation string, entry *OasDiffEntry, expectedNum
 		operation, expectedNumberOfValues, text)
 }
 
-// pluralizeToIfNeeded checks if pluralization is needed
+// pluralizeToIfNeeded checks if pluralization is needed.
 func pluralizeToIfNeeded(from, to string, count int) string {
 	if count > 1 {
 		return to

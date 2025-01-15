@@ -1,3 +1,6 @@
+import { collectAdoption, collectAndReturnViolation } from './utils/collectionUtils.js';
+
+const RULE_NAME = 'xgen-IPA-005-exception-extension-format';
 const ERROR_MESSAGE = 'IPA exceptions must have a valid rule name and a reason.';
 const RULE_NAME_PREFIX = 'xgen-IPA-';
 
@@ -15,6 +18,12 @@ export default (input, _, { path }) => {
       });
     }
   });
+
+  if (errors.length === 0) {
+    collectAdoption(path, RULE_NAME);
+  } else {
+    return collectAndReturnViolation(path, RULE_NAME, errors);
+  }
 
   return errors;
 };

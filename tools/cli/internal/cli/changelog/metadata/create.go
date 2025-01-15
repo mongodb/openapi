@@ -79,7 +79,7 @@ func (o *Opts) PreRun() error {
 	return nil
 }
 
-// changelog metadata create [--run-date=2024-09-22] --sha=e624d716e86f6910757b60cefdf3aa3181582d38 versions=2023-01-01,2023-02-01
+// changelog metadata create [--run-date=2024-09-22] --sha=e624d716e86f6910757b60cefdf3aa3181582d38 versions=2023-01-01,2023-02-01.
 func CreateBuilder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),

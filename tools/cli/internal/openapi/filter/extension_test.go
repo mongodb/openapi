@@ -213,7 +213,7 @@ func getOasSunset() *openapi3.T {
 							Description: "description",
 						},
 					},
-					Extensions: map[string]interface{}{
+					Extensions: map[string]any{
 						"x-sunset":    "2024-05-30T00:00:00Z",
 						xGenExtension: "2023-01-01T00:00:00Z",
 					},
@@ -224,7 +224,7 @@ func getOasSunset() *openapi3.T {
 							Description: "description",
 						},
 					},
-					Extensions: map[string]interface{}{
+					Extensions: map[string]any{
 						"x-sunset":    "2024-04-10",
 						xGenExtension: "2024-02-30T00:00:00Z",
 					},
@@ -234,13 +234,13 @@ func getOasSunset() *openapi3.T {
 						Value: &openapi3.Schema{
 							Description: "description",
 						},
-						Extensions: map[string]interface{}{
+						Extensions: map[string]any{
 							"x-sunset":    "2025-01-01T00:00:00Z",
 							xGenExtension: "2025-01-01",
 						},
 					},
-					Extensions: map[string]interface{}{
-						hiddenEnvsExtension: map[string]interface{}{
+					Extensions: map[string]any{
+						hiddenEnvsExtension: map[string]any{
 							"envs": "dev,qa,prod,stage",
 						},
 					},
@@ -251,7 +251,7 @@ func getOasSunset() *openapi3.T {
 							Description: "description",
 						},
 					},
-					Extensions: map[string]interface{}{
+					Extensions: map[string]any{
 						"x-sunset":    "2025-01-01T00:00:00Z",
 						xGenExtension: "2024-05-30",
 					},

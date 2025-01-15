@@ -15,7 +15,7 @@
 package exemptions
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/mongodb/openapi/tools/cli/internal/breakingchanges"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
@@ -42,7 +42,7 @@ func (o *Opts) Run() error {
 
 func (o *Opts) PreRunE(_ []string) error {
 	if o.exemptionsPaths == "" {
-		return fmt.Errorf("valid exemptions file path is required")
+		return errors.New("valid exemptions file path is required")
 	}
 	_, err := o.fs.Stat(o.exemptionsPaths)
 	if err != nil {
@@ -52,7 +52,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 // ParseBuilder builds the merge command with the following signature:
-// breaking-changes exemptions parse -e file_path
+// breaking-changes exemptions parse -e file_path.
 func ParseBuilder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),

@@ -29,36 +29,36 @@ func TestAllOperationsHaveExtension(t *testing.T) {
 			name: "All operations have extension",
 			input: &openapi3.PathItem{
 				Get: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"test": "true",
 						},
 					},
 				},
 				Put: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"test": "true",
 						},
 					},
 				},
 				Post: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"test": "true",
 						},
 					},
 				},
 				Patch: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"test": "true",
 						},
 					},
 				},
 				Delete: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"test": "true",
 						},
 					},
@@ -70,14 +70,14 @@ func TestAllOperationsHaveExtension(t *testing.T) {
 			name: "Not all operations have extension",
 			input: &openapi3.PathItem{
 				Get: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"test": "true",
 						},
 					},
 				},
 				Put: &openapi3.Operation{
-					Extensions: map[string]interface{}{
+					Extensions: map[string]any{
 						"x-xgen-sunset": "true",
 					},
 				},
@@ -111,36 +111,36 @@ func TestAllOperationsAllowDocsDiff(t *testing.T) {
 			name: "All operations allow docs diff",
 			input: &openapi3.PathItem{
 				Get: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "true",
 						},
 					},
 				},
 				Put: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "true",
 						},
 					},
 				},
 				Post: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "true",
 						},
 					},
 				},
 				Patch: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "true",
 						},
 					},
 				},
 				Delete: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "true",
 						},
 					},
@@ -152,15 +152,15 @@ func TestAllOperationsAllowDocsDiff(t *testing.T) {
 			name: "Not all operations allow docs diff",
 			input: &openapi3.PathItem{
 				Get: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "true",
 						},
 					},
 				},
 				Put: &openapi3.Operation{
-					Extensions: map[string]interface{}{
-						"x-xgen-soa-migration": map[string]interface{}{
+					Extensions: map[string]any{
+						"x-xgen-soa-migration": map[string]any{
 							"allowDocsDiff": "false",
 						},
 					},

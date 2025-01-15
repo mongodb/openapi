@@ -46,7 +46,7 @@ func removeRedundantOneOfAllOf(text string) string {
 	return text
 }
 
-// removeResponseStatusCodes removes the status codes from the response messages
+// removeResponseStatusCodes removes the status codes from the response messages.
 func removeResponseStatusCodes(text string) string {
 	// to the response with the '200' status
 	re := regexp.MustCompile(` property for the response status '\d{3}'`)

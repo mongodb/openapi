@@ -117,7 +117,7 @@ func (o *Opts) newOutputFilePath(fileName string) string {
 }
 
 // CreateBuilder builds the merge command with the following signature:
-// changelog create -b path_folder -r path_folder --dry-run
+// changelog create -b path_folder -r path_folder --dry-run.
 func CreateBuilder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
