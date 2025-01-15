@@ -39,11 +39,11 @@ func (f *InfoFilter) Apply() error {
 }
 
 func replaceVersion(input string, v *apiversion.APIVersion) string {
-	matches := apiversion.ContentPattern.FindStringSubmatch(input)
+	matches := apiversion.FindMatchesFromContentType(input)
 	if matches == nil {
 		return input // No match found, return the original string
 	}
 
 	replacement := fmt.Sprintf("application/vnd.atlas.%s+%s", v.String(), matches[5])
-	return apiversion.ContentPattern.ReplaceAllString(input, replacement)
+	return apiversion.ReplaceContentType(input, replacement)
 }
