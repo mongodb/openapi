@@ -10,25 +10,20 @@ import {
   getSeverityPerRule,
   merge,
 } from './utils.js';
+import config from './config.js';
 const { Spectral } = spectral;
 
-//TBD
-const oasFile = '../../../../openapi/v2.json';
-const dirname = path.dirname(fileURLToPath(import.meta.url));
-const collectorResultsFile = path.join(dirname, '../ipa-collector-results-combined.log');
-
-async function runMetricCollectionJob() {
+async function runMetricCollectionJob(oasFilePath = config.defaultOasFilePath) {
   try {
-    console.log('Loading OpenAPI file...');
-    const oasContent = loadOpenAPIFile(oasFile);
+    console.log(`Loading OpenAPI file: ${oasFilePath}`);
+    const oasContent = loadOpenAPIFile(oasFilePath);
 
     console.log('Extracting team ownership data...');
     const ownershipData = extractTeamOwnership(oasContent);
 
     console.log('Initializing Spectral...');
     const spectral = new Spectral();
-    const rulesetPath = path.join(dirname, '../ipa-spectral.yaml');
-    const ruleset = await loadRuleset(rulesetPath, spectral);
+    const ruleset = await loadRuleset(config.defaultRulesetFilePath, spectral);
 
     console.log('Getting rule severities...');
     const ruleSeverityMap = getSeverityPerRule(ruleset);
@@ -37,7 +32,7 @@ async function runMetricCollectionJob() {
     const spectralResults = await spectral.run(oasContent);
 
     console.log('Loading collector results...');
-    const collectorResults = loadCollectorResults(collectorResultsFile);
+    const collectorResults = loadCollectorResults(config.defaultCollectorResultsFilePath);
 
     console.log('Merging results...');
     const mergedResults = merge(spectralResults, ownershipData, collectorResults, ruleSeverityMap);
@@ -50,6 +45,9 @@ async function runMetricCollectionJob() {
   }
 }
 
-runMetricCollectionJob()
-  .then((results) => fs.writeFileSync('results.log', JSON.stringify(results)))
+const args = process.argv.slice(2);
+const customOasFile = args[0];
+
+runMetricCollectionJob(customOasFile)
+  .then((results) => fs.writeFileSync(config.defaultMetricCollectionResultsFilePath, JSON.stringify(results)))
   .catch((error) => console.error(error.message));
