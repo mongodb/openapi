@@ -265,7 +265,7 @@ func getOasSunset() *openapi3.T {
 }
 
 func getOasIpaExceptions() *openapi3.T {
-	extension := map[string]interface{}{
+	extension := map[string]any{
 		ipaExceptionExtension: map[string]string{"IPA-104-resource-has-GET": "reason"},
 	}
 
