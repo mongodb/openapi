@@ -87,6 +87,15 @@ export function merge(ownershipData, collectorResults, ruleSeverityMap) {
         continue;
       }
 
+      let ownerTeam = null;
+      if (entry.componentId.startsWith('paths')) {
+        const pathParts = entry.componentId.split('.');
+        if (pathParts.length === 2) {
+          const path = pathParts[1];
+          ownerTeam = ownershipData[path];
+        }
+      }
+
       results.push({
         component_id: entry.componentId,
         ipa_rule: entry.ruleName,
@@ -94,7 +103,7 @@ export function merge(ownershipData, collectorResults, ruleSeverityMap) {
         severity_level: ruleSeverityMap[entry.ruleName],
         adoption_status: adoptionStatus,
         exception_reason: entryType === EntryType.EXCEPTION ? entry.exceptionReason : null,
-        owner_team: entry.ownerTeam || null,
+        owner_team: ownerTeam,
         timestamp: new Date().toISOString(),
       });
     }
