@@ -9,6 +9,7 @@ import {
   merge,
 } from './utils.js';
 import config from './config.js';
+import collector from './collector.js';
 const { Spectral } = spectral;
 
 async function runMetricCollectionJob(oasFilePath = config.defaultOasFilePath) {
@@ -28,6 +29,7 @@ async function runMetricCollectionJob(oasFilePath = config.defaultOasFilePath) {
 
     console.log('Running Spectral analysis...');
     const spectralResults = await spectral.run(oasContent);
+    collector.flushToFile();
 
     console.log('Loading collector results...');
     const collectorResults = loadCollectorResults(config.defaultCollectorResultsFilePath);
