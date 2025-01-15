@@ -6,7 +6,7 @@ const rootDir = path.resolve(dirname, '../../../../');
 
 const config = {
   defaultOasFilePath: path.join(rootDir, 'openapi', 'v2.json'),
-  defaultCollectorResultsFilePath: path.join(dirname, '..', 'ipa-collector-results-combined.log'),
+  defaultCollectorResultsFilePath: path.join(dirname, 'ipa-collector-results-combined.log'),
   defaultRulesetFilePath: path.join(dirname, '..', 'ipa-spectral.yaml'),
   defaultMetricCollectionResultsFilePath: path.join(dirname, 'metric-collection-results.json'),
 };
