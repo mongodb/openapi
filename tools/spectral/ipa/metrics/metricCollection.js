@@ -42,6 +42,11 @@ async function runMetricCollectionJob(oasFilePath = config.defaultOasFilePath) {
 const args = process.argv.slice(2);
 const customOasFile = args[0];
 
+if(!fs.existsSync(config.defaultOutputsDir)){
+  fs.mkdirSync('outputs');
+  console.log(`Output directory created successfully`);
+}
+
 const result = spawnSync(
   'spectral',
   [
