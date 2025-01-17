@@ -178,9 +178,19 @@ jobs:
         branch: ${{ inputs.branch }}
         foascli_version: ${{ inputs.foascli_version }}
 
+#  release-IPA-validation:
+#    name: Release IPA validations
+#    needs: release
+#    if: ${{ inputs.env == 'dev' && needs.release.outputs.changes_detected == 'true' }}
+#    uses: ./.github/workflows/release-IPA-validation.yml
+#    secrets:
+#      aws_access_key: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME}}
+#      aws_secret_key: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD}}
+#      aws_s3_bucket_prefix: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX}}
+
   failure-handler: 
     name: Failure Handler
-    needs: [ release, release-postman, release-changelog ]
+    needs: [ release, release-postman, release-changelog, release-IPA-validation ]
     if: ${{ always() && contains(needs.*.result, 'failure') }}
     uses: ./.github/workflows/failure-handler.yml
     with:
