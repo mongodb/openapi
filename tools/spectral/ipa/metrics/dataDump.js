@@ -6,7 +6,7 @@ import { PutObjectCommand, S3Client, S3ServiceException } from '@aws-sdk/client-
 import config from './config.js';
 import path from 'path';
 
-function loadConfig() {
+function loadS3Config() {
   if (existsSync('.env') && !process.env.S3_BUCKET_PREFIX) {
     dotenv.config();
   }
@@ -23,16 +23,16 @@ function loadConfig() {
 }
 
 export function getS3FilePath() {
-  const AWSConfig = loadConfig();
+  const S3Config = loadS3Config();
 
-  const pathParts = AWSConfig.s3.prefix.replace('s3://', '').split('/');
+  const pathParts = S3Config.s3.prefix.replace('s3://', '').split('/');
   const bucketName = pathParts[0];
   let key = pathParts.slice(1).join('/');
   return { bucketName, key };
 }
 
 export function getS3Client() {
-  const AWSConfig = loadConfig();
+  const AWSConfig = loadS3Config();
 
   return new S3Client({
     credentials: {
@@ -51,10 +51,10 @@ export async function uploadMetricCollectionDataToS3(filePath = config.defaultMe
   const client = getS3Client();
   const formattedDate = new Date().toISOString().split('T')[0];
 
-  const fileProps = getS3FilePath();
+  const s3fileProps = getS3FilePath();
   const command = new PutObjectCommand({
-    Bucket: fileProps.bucketName,
-    Key: path.join(fileProps.key, formattedDate, 'metric-collection-results.json'),
+    Bucket: s3fileProps.bucketName,
+    Key: path.join(s3fileProps.key, formattedDate, 'metric-collection-results.json'),
     Body: await readFile(filePath),
   });
 
