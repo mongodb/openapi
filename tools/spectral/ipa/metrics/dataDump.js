@@ -6,37 +6,49 @@ import { PutObjectCommand, S3Client, S3ServiceException } from '@aws-sdk/client-
 import config from './config.js';
 import path from 'path';
 
-let AWSConfig = {
-  aws: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: 'us-east-1',
-  },
-  s3: {
-    prefix: process.env.S3_BUCKET_PREFIX,
-  },
-};
+function loadConfig() {
+  if (existsSync('.env') && !process.env.S3_BUCKET_PREFIX) {
+    dotenv.config();
+  }
+  return {
+    aws: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: 'us-east-1',
+    },
+    s3: {
+      prefix: process.env.S3_BUCKET_PREFIX,
+    },
+  };
+}
 
-function getS3FilePath() {
+export function getS3FilePath() {
+  const AWSConfig = loadConfig();
+
   const pathParts = AWSConfig.s3.prefix.replace('s3://', '').split('/');
   const bucketName = pathParts[0];
   let key = pathParts.slice(1).join('/');
   return { bucketName, key };
 }
 
-/**
- * Upload a file to an S3 bucket.
- * @param filePath
- */
-async function uploadMetricCollectionDataToS3(filePath = config.defaultMetricCollectionResultsFilePath) {
-  const client = new S3Client({
+export function getS3Client() {
+  const AWSConfig = loadConfig();
+
+  return new S3Client({
     credentials: {
       accessKeyId: AWSConfig.aws.accessKeyId,
       secretAccessKey: AWSConfig.aws.secretAccessKey,
     },
     region: AWSConfig.aws.region,
   });
-  const bucketName = AWSConfig.s3.bucketName;
+}
+
+/**
+ * Upload a file to an S3 bucket.
+ * @param filePath
+ */
+export async function uploadMetricCollectionDataToS3(filePath = config.defaultMetricCollectionResultsFilePath) {
+  const client = getS3Client();
   const formattedDate = new Date().toISOString().split('T')[0];
 
   const fileProps = getS3FilePath();
@@ -52,13 +64,12 @@ async function uploadMetricCollectionDataToS3(filePath = config.defaultMetricCol
   } catch (caught) {
     if (caught instanceof S3ServiceException && caught.name === 'EntityTooLarge') {
       console.error(
-        `Error from S3 while uploading object to ${bucketName}. \
-The object was too large. To upload objects larger than 5GB, use the S3 console (160GB max) \
-or the multipart upload API (5TB max).`
+        `Error from S3 while uploading object. The object was too large. \
+        To upload objects larger than 5GB, use the S3 console (160GB max) or the multipart upload API (5TB max).`
       );
       throw caught;
     } else if (caught instanceof S3ServiceException) {
-      console.error(`Error from S3 while uploading object to ${bucketName}.  ${caught.name}: ${caught.message}`);
+      console.error(`Error from S3 while uploading object.  ${caught.name}: ${caught.message}`);
       throw caught;
     } else {
       throw caught;
@@ -66,24 +77,11 @@ or the multipart upload API (5TB max).`
   }
 }
 
-const args = process.argv.slice(2);
-const filePath = args[0];
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const filePath = args[0];
 
-//If the config is not populated by the Github Action env variables
-if (existsSync('.env') && !AWSConfig.s3.bucketName) {
-  dotenv.config();
-  AWSConfig = {
-    aws: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: 'us-east-1',
-    },
-    s3: {
-      prefix: process.env.S3_BUCKET_PREFIX,
-    },
-  };
+  uploadMetricCollectionDataToS3(filePath)
+    .then(() => console.log('Data dump to S3 completed successfully.'))
+    .catch((error) => console.error(error.message));
 }
-
-uploadMetricCollectionDataToS3(filePath)
-  .then(() => console.log('Data dump to S3 completed successfully.'))
-  .catch((error) => console.error(error.message));
