@@ -77,11 +77,9 @@ export async function uploadMetricCollectionDataToS3(filePath = config.defaultMe
   }
 }
 
-if (require.main === module) {
-  const args = process.argv.slice(2);
-  const filePath = args[0];
+const args = process.argv.slice(2);
+const filePath = args[0];
 
-  uploadMetricCollectionDataToS3(filePath)
-    .then(() => console.log('Data dump to S3 completed successfully.'))
-    .catch((error) => console.error(error.message));
-}
+uploadMetricCollectionDataToS3(filePath)
+  .then(() => console.log('Data dump to S3 completed successfully.'))
+  .catch((error) => console.error(error.message));
