@@ -1,10 +1,11 @@
-import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import dotenv from 'dotenv';
 
 import { PutObjectCommand, S3Client, S3ServiceException } from '@aws-sdk/client-s3';
 import config from './config.js';
 import path from 'path';
+import fs from 'node:fs';
+import { tableFromJSON, tableToIPC } from 'apache-arrow';
 
 function loadS3Config() {
   if (existsSync('.env') && !process.env.S3_BUCKET_PREFIX) {
@@ -50,12 +51,14 @@ export function getS3Client() {
 export async function uploadMetricCollectionDataToS3(filePath = config.defaultMetricCollectionResultsFilePath) {
   const client = getS3Client();
   const formattedDate = new Date().toISOString().split('T')[0];
+  const metricsCollectionData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  const table = tableFromJSON(metricsCollectionData);
 
   const s3fileProps = getS3FilePath();
   const command = new PutObjectCommand({
     Bucket: s3fileProps.bucketName,
-    Key: path.join(s3fileProps.key, formattedDate, 'metric-collection-results.json'),
-    Body: await readFile(filePath),
+    Key: path.join(s3fileProps.key, formattedDate, 'metric-collection-results.parquet'),
+    Body: tableToIPC(table, 'stream'),
   });
 
   try {
