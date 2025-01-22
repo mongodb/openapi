@@ -14,7 +14,7 @@ const expectedResultFilePath = path.join(dirname, 'data', 'expected-metric-resul
 
 const testConfig = {
   oasFilePath: path.join(dirname, 'data', 'example-openapi-spec.json'),
-  collectorResultsFilePath: path.join(dirname, 'data', 'ipa-collector-results-combined.log'),
+  collectorResultsFilePath: path.join(dirname, 'data', 'collector-results.log'),
   rulesetFilePath: path.join(dirname, 'data', 'test-ipa-spectral.yaml'),
 };
 
