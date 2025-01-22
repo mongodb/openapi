@@ -22,7 +22,7 @@ export function isSingletonResource(resourcePaths) {
     return true;
   }
   const additionalPaths = resourcePaths.slice(1);
-  return !additionalPaths.some((p) => !isCustomMethod(p));
+  return additionalPaths.every(isCustomMethod);
 }
 
 /**
@@ -40,7 +40,7 @@ export function isStandardResource(resourcePaths) {
     return false;
   }
   const additionalPaths = resourcePaths.slice(2);
-  return !additionalPaths.some((p) => !isCustomMethod(p));
+  return additionalPaths.every(isCustomMethod);
 }
 
 /**
@@ -50,7 +50,7 @@ export function isStandardResource(resourcePaths) {
  * @returns {boolean}
  */
 export function hasGetMethod(pathObject) {
-  return Object.keys(pathObject).some((o) => o === 'get');
+  return Object.keys(pathObject).includes('get');
 }
 
 /**
