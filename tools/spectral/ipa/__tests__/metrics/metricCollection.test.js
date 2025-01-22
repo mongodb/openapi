@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { runMetricCollectionJob } from '../../metrics/metricCollection.js';
 import { Spectral } from '@stoplight/spectral-core';
 
-const dirname = path.dirname(fileURLToPath(require('url').pathToFileURL(__filename).toString()));
+const dirname = __dirname;
 const expectedResultFilePath = path.join(dirname, 'data', 'expected-metric-results.json');
 
 // Testing the metrics collection with test data in folder 'data'
