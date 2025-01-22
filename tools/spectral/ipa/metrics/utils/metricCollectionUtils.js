@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { bundleAndLoadRuleset } from '@stoplight/spectral-ruleset-bundler/with-loader';
-import { EntryType } from './collector.js';
+import { EntryType } from '../collector.js';
 
 export function loadOpenAPIFile(filePath) {
   try {
