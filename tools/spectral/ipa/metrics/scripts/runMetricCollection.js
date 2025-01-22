@@ -4,6 +4,7 @@ import spectral from '@stoplight/spectral-core';
 import config from '../config.js';
 import { runMetricCollectionJob } from '../metricCollection.js';
 
+const { Spectral } = spectral;
 const args = process.argv.slice(2);
 const oasFilePath = args[0];
 
@@ -25,7 +26,7 @@ runMetricCollectionJob(
   {
     oasFilePath,
   },
-  spectral
+  new Spectral()
 )
   .then((results) => {
     console.log('Writing results');

@@ -21,10 +21,7 @@ export function getSeverityPerRule(ruleset) {
 }
 
 export async function loadRuleset(rulesetPath, spectral) {
-  const { Spectral } = spectral;
-
   try {
-    const spectral = new Spectral();
     const ruleset = await bundleAndLoadRuleset(rulesetPath, { fs, fetch });
     await spectral.setRuleset(ruleset);
     return ruleset;
