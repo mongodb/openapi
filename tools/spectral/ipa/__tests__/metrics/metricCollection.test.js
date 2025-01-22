@@ -1,12 +1,10 @@
 import fs from 'node:fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { runMetricCollectionJob } from '../../metrics/metricCollection.js';
 import { Spectral } from '@stoplight/spectral-core';
 
-const dirname = __dirname;
-const expectedResultFilePath = path.join(dirname, 'data', 'expected-metric-results.json');
+const expectedResultFilePath = path.join(__dirname, 'data', 'expected-metric-results.json');
 
 // Testing the metrics collection with test data in folder 'data'
 // The testing data runs with:
@@ -14,9 +12,9 @@ const expectedResultFilePath = path.join(dirname, 'data', 'expected-metric-resul
 // - The v2 spec of sha d74daaad5793d066a91cfcbf4bec6fca494e0ae1
 
 const testConfig = {
-  oasFilePath: path.join(dirname, 'data', 'example-openapi-spec.json'),
-  collectorResultsFilePath: path.join(dirname, 'data', 'collector-results.log'),
-  rulesetFilePath: path.join(dirname, 'data', 'test-ipa-spectral.yaml'),
+  oasFilePath: path.join(__dirname, 'data', 'example-openapi-spec.json'),
+  collectorResultsFilePath: path.join(__dirname, 'data', 'collector-results.log'),
+  rulesetFilePath: path.join(__dirname, 'data', 'test-ipa-spectral.yaml'),
 };
 
 describe('tools/spectral/ipa/metrics/metricCollection.js runMetricCollectionJob', () => {
