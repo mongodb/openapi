@@ -8,11 +8,14 @@ import {
   merge,
 } from './utils.js';
 
-export async function runMetricCollectionJob({
-  oasFilePath = config.defaultOasFilePath,
-  rulesetFilePath = config.defaultRulesetFilePath,
-  collectorResultsFilePath = config.defaultCollectorResultsFilePath,
-}) {
+export async function runMetricCollectionJob(
+  {
+    oasFilePath = config.defaultOasFilePath,
+    rulesetFilePath = config.defaultRulesetFilePath,
+    collectorResultsFilePath = config.defaultCollectorResultsFilePath,
+  },
+  spectral
+) {
   try {
     console.log(`Loading OpenAPI file: ${oasFilePath}`);
     const oasContent = loadOpenAPIFile(oasFilePath);
@@ -21,7 +24,7 @@ export async function runMetricCollectionJob({
     const ownershipData = extractTeamOwnership(oasContent);
 
     console.log('Getting rule severities...');
-    const ruleset = await loadRuleset(rulesetFilePath);
+    const ruleset = await loadRuleset(rulesetFilePath, spectral);
     const ruleSeverityMap = getSeverityPerRule(ruleset);
 
     console.log('Loading collector results...');

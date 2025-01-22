@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { runMetricCollectionJob } from '../../metrics/metricCollection.js';
+import * as spectral from '@stoplight/spectral-core';
 
 const dirname = path.dirname(fileURLToPath(require('url').pathToFileURL(__filename).toString()));
 const expectedResultFilePath = path.join(dirname, 'data', 'expected-metric-results.json');
@@ -26,7 +27,7 @@ describe('tools/spectral/ipa/metrics/metricCollection.js runMetricCollectionJob'
   it('Outputs the expected metrics collection results', async () => {
     const expectedResults = JSON.parse(fs.readFileSync(expectedResultFilePath, 'utf8'));
 
-    const results = await runMetricCollectionJob(testConfig);
+    const results = await runMetricCollectionJob(testConfig, spectral);
 
     expect(results).not.toBe(undefined);
     expect(results.length).toEqual(expectedResults.length);

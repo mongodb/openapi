@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { spawnSync } from 'child_process';
+import spectral from '@stoplight/spectral-core';
 import config from '../config.js';
 import { runMetricCollectionJob } from '../metricCollection.js';
 
@@ -7,7 +8,7 @@ const args = process.argv.slice(2);
 const oasFilePath = args[0];
 
 if (!fs.existsSync(config.defaultOutputsDir)) {
-  fs.mkdirSync('outputs');
+  fs.mkdirSync(config.defaultOutputsDir);
   console.log(`Output directory created successfully`);
 }
 
@@ -20,8 +21,14 @@ if (result.error) {
 
 console.log('Spectral lint completed successfully.');
 
-runMetricCollectionJob({
-  oasFilePath,
-})
-  .then((results) => fs.writeFileSync(config.defaultMetricCollectionResultsFilePath, JSON.stringify(results)))
+runMetricCollectionJob(
+  {
+    oasFilePath,
+  },
+  spectral
+)
+  .then((results) => {
+    console.log('Writing results');
+    fs.writeFileSync(config.defaultMetricCollectionResultsFilePath, JSON.stringify(results));
+  })
   .catch((error) => console.error(error.message));

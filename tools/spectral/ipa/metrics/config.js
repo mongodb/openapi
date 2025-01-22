@@ -12,7 +12,5 @@ const config = {
 };
 
 config.defaultMetricCollectionResultsFilePath = path.join(config.defaultOutputsDir, 'metric-collection-results.json');
-config.defaultSpectralReportFile = path.join(config.defaultOutputsDir, 'spectral-report.xml');
-config.defaultSpectralOutputFile = path.join(config.defaultOutputsDir, 'spectral-output.txt');
 
 export default config;
