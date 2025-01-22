@@ -6,7 +6,7 @@ import {
   loadOpenAPIFile,
   loadRuleset,
   merge,
-} from './utils.js';
+} from './utils/metricCollectionUtils.js';
 
 export async function runMetricCollectionJob(
   {
