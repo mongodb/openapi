@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import dotenv from 'dotenv';
 
 import { PutObjectCommand, S3Client, S3ServiceException } from '@aws-sdk/client-s3';
-import config from './config.js';
+import config from '../config.js';
 import path from 'path';
 import fs from 'node:fs';
 import { tableFromJSON, tableToIPC } from 'apache-arrow';
