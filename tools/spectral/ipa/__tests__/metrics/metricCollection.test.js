@@ -8,7 +8,9 @@ const dirname = path.dirname(fileURLToPath(require('url').pathToFileURL(__filena
 const expectedResultFilePath = path.join(dirname, 'data', 'expected-metric-collection-results.json');
 
 // Testing the metrics collection with test data in folder 'data'
-// The testing data runs for one IPA (104) on the v2 spec from 21 january 2025
+// The testing data runs with:
+// - One IPA (104)
+// - The v2 spec of sha d74daaad5793d066a91cfcbf4bec6fca494e0ae1
 
 const testConfig = {
   oasFilePath: path.join(dirname, 'data', 'example-openapi-spec.json'),
