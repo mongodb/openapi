@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { Spectral } from '@stoplight/spectral-core';
 import { bundleAndLoadRuleset } from '@stoplight/spectral-ruleset-bundler/with-loader';
 import { EntryType } from './collector.js';
 
@@ -20,8 +21,9 @@ export function getSeverityPerRule(ruleset) {
   return map;
 }
 
-export async function loadRuleset(rulesetPath, spectral) {
+export async function loadRuleset(rulesetPath) {
   try {
+    const spectral = new Spectral();
     const ruleset = await bundleAndLoadRuleset(rulesetPath, { fs, fetch });
     await spectral.setRuleset(ruleset);
     return ruleset;

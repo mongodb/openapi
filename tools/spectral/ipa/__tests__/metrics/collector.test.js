@@ -1,17 +1,23 @@
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import collector, { EntryType } from '../../metrics/collector';
 import * as fs from 'node:fs';
 
 jest.mock('node:fs');
 
-describe('Collector Class', () => {
+describe('tools/spectral/ipa/metrics/collector.js', () => {
   const expectedOutput = {
     violations: [
       { componentId: 'example.component', ruleName: 'rule-1' },
       { componentId: 'example.component', ruleName: 'rule-2' },
     ],
     adoptions: [{ componentId: 'example.component', ruleName: 'rule-3' }],
-    exceptions: [{ componentId: 'example.component', ruleName: 'rule-4', exceptionReason: 'exception-reason' }],
+    exceptions: [
+      {
+        componentId: 'example.component',
+        ruleName: 'rule-4',
+        exceptionReason: 'exception-reason',
+      },
+    ],
   };
 
   beforeEach(() => {
