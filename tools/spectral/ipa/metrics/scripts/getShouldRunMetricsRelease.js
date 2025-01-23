@@ -22,10 +22,6 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
 
   const lastRunDate = new Date(runs[1].created_at);
   const today = new Date();
-  const lastRunWasToday =
-    today.getFullYear() === lastRunDate.getFullYear() &&
-    today.getMonth() === lastRunDate.getMonth() &&
-    today.getDate() === lastRunDate.getDate();
 
-  return previousStatus === 'failure' || !lastRunWasToday;
+  return previousStatus === 'failure' || today.toDateString() !== lastRunDate.toDateString();
 }
