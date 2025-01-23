@@ -8,19 +8,15 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
     page: 1,
   });
 
-  if (response === undefined || response.data === undefined) {
-    return true;
+  if (!response || !response.data) {
+    throw Error('listWorkFlowRuns response is empty');
   }
 
   const { workflow_runs: runs } = response.data;
 
-  console.log('Runs:', runs);
-
   if (runs === undefined || runs.length === 0) {
-    return true;
+    throw Error('response.data.workflow_runs is empty');
   }
-
-  console.log('Last run:', runs[1]);
 
   const previousResult = runs[1].conclusion;
 

@@ -24,10 +24,10 @@ export async function uploadMetricCollectionDataToS3(filePath = config.defaultMe
   try {
     console.log('Creating S3 Client...');
     const client = getS3Client();
-    const formattedDate = new Date().toISOString().split('T')[0];
 
     console.log('Getting S3 file path...');
     const s3fileProps = getS3FilePath();
+    const formattedDate = new Date().toISOString().split('T')[0];
 
     const command = new PutObjectCommand({
       Bucket: s3fileProps.bucketName,

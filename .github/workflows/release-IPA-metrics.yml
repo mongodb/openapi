@@ -43,7 +43,10 @@ jobs:
           github-token: ${{ secrets.api_bot_pat }}
           script: |
             const { default: getShouldRunMetricsRelease } = await import('${{ github.workspace }}/tools/spectral/ipa/metrics/scripts/getShouldRunMetricsRelease.js')
-            const shouldRunRelease = await getShouldRunMetricsRelease({github, context})
+            const shouldRunRelease = await getShouldRunMetricsRelease({github, context}).catch((error) => {
+              console.error(error.message);
+              process.exit(1)
+            })
             return shouldRunRelease
 
   release-IPA-metrics:
