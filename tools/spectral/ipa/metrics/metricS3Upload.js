@@ -10,23 +10,23 @@ import { getS3Client, getS3FilePath } from './utils/dataDumpUtils.js';
  * @param filePath file path to the metrics collection results, uses config.js by default
  */
 export async function uploadMetricCollectionDataToS3(filePath = config.defaultMetricCollectionResultsFilePath) {
-  console.log('Creating S3 Client...');
-  const client = getS3Client();
-  const formattedDate = new Date().toISOString().split('T')[0];
-
-  console.log('Loading metrics collection data from', filePath);
-  const metricsCollectionData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  const table = tableFromJSON(metricsCollectionData);
-
-  console.log('Getting S3 file path...');
-  const s3fileProps = getS3FilePath();
-  const command = new PutObjectCommand({
-    Bucket: s3fileProps.bucketName,
-    Key: path.join(s3fileProps.key, formattedDate, 'metric-collection-results.parquet'),
-    Body: tableToIPC(table, 'stream'),
-  });
-
   try {
+    console.log('Creating S3 Client...');
+    const client = getS3Client();
+    const formattedDate = new Date().toISOString().split('T')[0];
+
+    console.log('Loading metrics collection data from', filePath);
+    const metricsCollectionData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    const table = tableFromJSON(metricsCollectionData);
+
+    console.log('Getting S3 file path...');
+    const s3fileProps = getS3FilePath();
+    const command = new PutObjectCommand({
+      Bucket: s3fileProps.bucketName,
+      Key: path.join(s3fileProps.key, formattedDate, 'metric-collection-results.parquet'),
+      Body: tableToIPC(table, 'stream'),
+    });
+
     console.log('Dumping data to S3...');
     const response = await client.send(command);
     console.log(response);
