@@ -16,6 +16,11 @@ export async function uploadMetricCollectionDataToS3(filePath = config.defaultMe
     throw new Error('Loaded metrics collection data is empty');
   }
 
+  const table = tableFromJSON(metricsCollectionData);
+  if (table === undefined) {
+    throw new Error('Unable to transform metrics collection data to table');
+  }
+
   try {
     console.log('Creating S3 Client...');
     const client = getS3Client();
@@ -24,7 +29,6 @@ export async function uploadMetricCollectionDataToS3(filePath = config.defaultMe
     console.log('Getting S3 file path...');
     const s3fileProps = getS3FilePath();
 
-    const table = tableFromJSON(metricsCollectionData);
     const command = new PutObjectCommand({
       Bucket: s3fileProps.bucketName,
       Key: path.join(s3fileProps.key, formattedDate, 'metric-collection-results.parquet'),
