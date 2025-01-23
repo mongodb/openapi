@@ -1,0 +1,74 @@
+name: IPA Validation Metrics Release
+on:
+  workflow_call:
+    secrets: # all secrets are passed explicitly in this workflow
+#      aws_access_key:
+#        required: true
+#      aws_secret_key:
+#        required: true
+#      aws_s3_bucket_prefix:
+#        required: true
+      api_bot_pat:
+        required: true
+#    inputs:
+#      env:
+#        description: 'Environment for the FOAS to use for IPA metrics collection'
+#        required: true
+#        type: string
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  release-IPA-metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get Previous Run Date and Status
+        id: get_previous_status
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.api_bot_pat }}
+          script: |
+            const script = require('tools/spectral/ipa/metrics/scripts/getShouldRunMetricsRelease.js')
+            const shouldRunRelease = await getShouldRunMetricsRelease({github, context})
+            return shouldRunRelease
+
+      - name: Skip Metric Collection Job
+        if: ${{steps.get_previous_status.outputs.result == 'false' }}
+        run: echo "Skipping IPA metrics release!"
+
+      - name: Setup Node
+        if: ${{steps.get_previous_status.outputs.result == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        if: ${{steps.get_previous_status.outputs.result == 'true' }}
+        run: npm install
+
+      - name: Download openapi-foas
+        if: ${{steps.get_previous_status.outputs.result == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-foas-dev  # TODO: Change to passed input env
+          github-token: ${{ secrets.api_bot_pat }}
+          run-id: ${{ github.run_id }}
+
+      - name: Run Metric Collection Job
+        if: ${{steps.get_previous_status.outputs.result == 'true' }}
+        working-directory: ./tools/spectral/ipa/metrics/scripts
+        run: node ./tools/spectral/ipa/metrics/scripts/runMetricCollection.js ../../../../../openapi-foas.json
+
+      - name: Dump Metric Collection Job Data to S3
+        if: ${{steps.get_previous_status.outputs.result == 'true' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}       # TODO: Change to passed secret
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}   # TODO: Change to passed secret
+          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}          # TODO: Change to passed secret
+        run: node ./tools/spectral/ipa/metrics/scripts/dataDump.js openapi-foas.json
