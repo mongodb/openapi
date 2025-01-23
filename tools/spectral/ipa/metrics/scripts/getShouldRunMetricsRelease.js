@@ -18,6 +18,8 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
     return true;
   }
 
+  console.log(runs[1]);
+
   const previousStatus = runs[1].status;
 
   const lastRunDate = new Date(runs[1].created_at);
