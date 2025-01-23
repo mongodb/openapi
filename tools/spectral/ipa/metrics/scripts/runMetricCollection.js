@@ -13,7 +13,12 @@ if (!fs.existsSync(config.defaultOutputsDir)) {
   console.log(`Output directory created successfully`);
 }
 
-const result = spawnSync('spectral', ['lint', config.defaultOasFilePath, '--ruleset', config.defaultRulesetFilePath]);
+const result = spawnSync('spectral', [
+  'lint',
+  oasFilePath ? oasFilePath : config.defaultOasFilePath,
+  '--ruleset',
+  config.defaultRulesetFilePath,
+]);
 
 if (result.error) {
   console.error('Error running Spectral lint:', result.error);
