@@ -8,17 +8,21 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
     page: 1,
   });
 
+  console.log('Response:', response);
+
   if (response === undefined) {
     return true;
   }
 
   const { data: runs } = response;
 
+  console.log('Runs:', runs);
+
   if (runs === undefined || runs.length === 0) {
     return true;
   }
 
-  console.log(runs[1]);
+  console.log('Last run:', runs[1]);
 
   const previousStatus = runs[1].status;
 
