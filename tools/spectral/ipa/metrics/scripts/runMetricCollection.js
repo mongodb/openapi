@@ -28,7 +28,8 @@ if (oasFilePath && !fs.existsSync(oasFilePath)) {
   process.exit(1);
 }
 
-const result = spawnSync('spectral', [
+const result = spawnSync('npx', [
+  'spectral',
   'lint',
   oasFilePath ? oasFilePath : config.defaultOasFilePath,
   '--ruleset',
