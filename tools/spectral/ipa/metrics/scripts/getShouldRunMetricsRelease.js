@@ -3,7 +3,7 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
   const response = await github.rest.actions.listWorkflowRuns({
     owner: context.repo.owner,
     repo: context.repo.repo,
-    workflow_id: context.workflow,
+    workflow_id: 'release-IPA-metrics.yml',
     per_page: 2,
     page: 1,
   });
