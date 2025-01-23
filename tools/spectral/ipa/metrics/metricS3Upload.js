@@ -16,9 +16,6 @@ export async function uploadMetricCollectionDataToS3(filePath = config.defaultMe
     throw new Error('Loaded metrics collection data is empty');
   }
 
-  // Remove
-  console.log(metricsCollectionData);
-
   const table = tableFromJSON(metricsCollectionData);
   if (table === undefined) {
     throw new Error('Unable to transform metrics collection data to table');
