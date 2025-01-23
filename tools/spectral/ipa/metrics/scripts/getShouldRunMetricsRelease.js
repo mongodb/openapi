@@ -8,13 +8,11 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
     page: 1,
   });
 
-  console.log('Response:', response);
-
-  if (response === undefined) {
+  if (response === undefined || response.data === undefined) {
     return true;
   }
 
-  const { data: runs } = response;
+  const { workflow_runs: runs } = response.data;
 
   console.log('Runs:', runs);
 
