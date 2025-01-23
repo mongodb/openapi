@@ -23,6 +23,11 @@ if (!oasFilePath && !fs.existsSync(config.defaultOasFilePath)) {
   process.exit(1);
 }
 
+if (oasFilePath && !fs.existsSync(oasFilePath)) {
+  console.error('Could not find OAS file path', oasFilePath);
+  process.exit(1);
+}
+
 const result = spawnSync('spectral', [
   'lint',
   oasFilePath ? oasFilePath : config.defaultOasFilePath,
