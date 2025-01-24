@@ -23,7 +23,7 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
     throw Error('workflowRuns is empty');
   }
 
-  const previousRun = runs[1];
+  const previousWorkflowRun = runs[1];
 
   // Check if job 'Release IPA Validation Metrics' already ran today
   const runJobs = await github.rest.actions.listJobsForWorkflowRun({
@@ -53,7 +53,13 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
   const lastRunDate = new Date(previousReleaseJob.completed_at);
   const today = new Date();
 
+  //Remove
+  console.log('Previous workflow run created at', new Date(previousWorkflowRun.created_at));
+  console.log('Previous workflow run updated', new Date(previousWorkflowRun.updated_at));
+  console.log('Previous workflow run started at', new Date(previousWorkflowRun.run_started_at));
+
+  console.log('Last workflow run status was', previousWorkflowRun.conclusion);
   console.log('Last release job run was', lastRunDate.toDateString(), 'with status', previousReleaseJob.conclusion);
 
-  return previousRun.conclusion === 'failure' || today.toDateString() !== lastRunDate.toDateString();
+  return previousWorkflowRun.conclusion === 'failure' || today.toDateString() !== lastRunDate.toDateString();
 }
