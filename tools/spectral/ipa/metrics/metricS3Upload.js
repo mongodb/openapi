@@ -36,7 +36,8 @@ export async function uploadMetricCollectionDataToS3(filePath = config.defaultMe
     });
 
     console.log('Dumping data to S3...');
-    return await client.send(command);
+    //return await client.send(command);
+    return 'testing';
   } catch (caught) {
     if (caught instanceof S3ServiceException && caught.name === 'EntityTooLarge') {
       console.error(

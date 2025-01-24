@@ -18,10 +18,16 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
     throw Error('response.data.workflow_runs is empty');
   }
 
+  console.log(runs[1]);
+
   const previousResult = runs[1].conclusion;
 
   const lastRunDate = new Date(runs[1].created_at);
   const today = new Date();
+
+  console.log('Last run was', lastRunDate.toDateString(), 'with status', previousResult);
+  console.log('Head branch', runs[1].head_branch);
+  console.log('Run started at', runs[1].run_started_at);
 
   return previousResult === 'failure' || today.toDateString() !== lastRunDate.toDateString();
 }
