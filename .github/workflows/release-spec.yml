@@ -43,6 +43,12 @@ on:
         required: false
       jira_api_token:
         required: true
+      ipa_s3_bucket_dw_staging_username:
+        required: true
+      ipa_s3_bucket_dw_staging_password:
+        required: true
+      ipa_s3_bucket_dw_staging_prefix:
+        required: true
 
 permissions:
   contents: write
@@ -184,11 +190,11 @@ jobs:
     if: ${{ inputs.env == 'dev' && needs.release.outputs.changes_detected == 'true' }}
     uses: ./.github/workflows/release-IPA-metrics.yml
     secrets:
-      aws_access_key: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME}}
-      aws_secret_key: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD}}
-      aws_s3_bucket_prefix: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX}}
+      aws_access_key: ${{ secrets.ipa_s3_bucket_dw_staging_username}}
+      aws_secret_key: ${{ secrets.ipa_s3_bucket_dw_staging_password}}
+      aws_s3_bucket_prefix: ${{ secrets.ipa_s3_bucket_dw_staging_prefix}}
       api_bot_pat: ${{ secrets.api_bot_pat }}
-    inputs:
+    with:
       env: ${{ inputs.env }}
 
   failure-handler: 
