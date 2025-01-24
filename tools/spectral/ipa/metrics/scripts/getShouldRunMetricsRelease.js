@@ -34,11 +34,17 @@ export default async function getShouldRunMetricsRelease({ github, context }) {
     page: 1,
   });
 
-  if (runJobs === undefined || runJobs.length === 0) {
+  if (!runJobs || !runJobs.data) {
     throw Error('listJobsForWorkflowRun response is empty');
   }
 
-  const previousReleaseJob = runJobs.find((job) => job.name === releaseJobName);
+  const { jobs } = runJobs.data;
+
+  if (!jobs || jobs.length === 0) {
+    throw Error('Jobs for workflow is empty');
+  }
+
+  const previousReleaseJob = jobs.find((job) => job.name === releaseJobName);
 
   if (!previousReleaseJob) {
     throw Error('Could not find previous release job with name' + releaseJobName);
