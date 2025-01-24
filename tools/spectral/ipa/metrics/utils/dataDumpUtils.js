@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import { S3Client } from '@aws-sdk/client-s3';
 
 function loadS3Config() {
+  console.log('Loading S3 config...');
+
   if (existsSync('.env') && !process.env.S3_BUCKET_PREFIX) {
     dotenv.config();
   }

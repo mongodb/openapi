@@ -1,27 +1,27 @@
 // Used in .github/workflows/release-IPA-metrics.yml
 export default async function getShouldRunMetricsRelease({ github, context }) {
-  const response = await github.actions.listWorkflowRuns({
+  const response = await github.rest.actions.listWorkflowRuns({
     owner: context.repo.owner,
     repo: context.repo.repo,
-    workflow_id: context.workflow,
+    workflow_id: 'release-IPA-metrics.yml',
     per_page: 2,
     page: 1,
   });
 
-  if (response === undefined) {
-    return true;
+  if (!response || !response.data) {
+    throw Error('listWorkFlowRuns response is empty');
   }
 
-  const { data: runs } = response;
+  const { workflow_runs: runs } = response.data;
 
   if (runs === undefined || runs.length === 0) {
-    return true;
+    throw Error('response.data.workflow_runs is empty');
   }
 
-  const previousStatus = runs[1].status;
+  const previousResult = runs[1].conclusion;
 
   const lastRunDate = new Date(runs[1].created_at);
   const today = new Date();
 
-  return previousStatus === 'failure' || today.toDateString() !== lastRunDate.toDateString();
+  return previousResult === 'failure' || today.toDateString() !== lastRunDate.toDateString();
 }

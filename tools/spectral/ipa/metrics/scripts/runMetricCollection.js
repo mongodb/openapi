@@ -13,7 +13,28 @@ if (!fs.existsSync(config.defaultOutputsDir)) {
   console.log(`Output directory created successfully`);
 }
 
-const result = spawnSync('spectral', ['lint', config.defaultOasFilePath, '--ruleset', config.defaultRulesetFilePath]);
+if (!fs.existsSync(config.defaultRulesetFilePath)) {
+  console.error('Could not find ruleset file path', config.defaultRulesetFilePath);
+  process.exit(1);
+}
+
+if (!oasFilePath && !fs.existsSync(config.defaultOasFilePath)) {
+  console.error('Could not find default OAS file path', config.defaultOasFilePath);
+  process.exit(1);
+}
+
+if (oasFilePath && !fs.existsSync(oasFilePath)) {
+  console.error('Could not find OAS file path', oasFilePath);
+  process.exit(1);
+}
+
+const result = spawnSync('npx', [
+  'spectral',
+  'lint',
+  oasFilePath ? oasFilePath : config.defaultOasFilePath,
+  '--ruleset',
+  config.defaultRulesetFilePath,
+]);
 
 if (result.error) {
   console.error('Error running Spectral lint:', result.error);

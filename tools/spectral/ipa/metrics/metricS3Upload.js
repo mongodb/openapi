@@ -10,21 +10,33 @@ import { getS3Client, getS3FilePath } from './utils/dataDumpUtils.js';
  * @param filePath file path to the metrics collection results, uses config.js by default
  */
 export async function uploadMetricCollectionDataToS3(filePath = config.defaultMetricCollectionResultsFilePath) {
-  const client = getS3Client();
-  const formattedDate = new Date().toISOString().split('T')[0];
+  console.log('Loading metrics collection data from', filePath);
   const metricsCollectionData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  const table = tableFromJSON(metricsCollectionData);
+  if (metricsCollectionData === undefined || metricsCollectionData.length === 0) {
+    throw new Error('Loaded metrics collection data is empty');
+  }
 
-  const s3fileProps = getS3FilePath();
-  const command = new PutObjectCommand({
-    Bucket: s3fileProps.bucketName,
-    Key: path.join(s3fileProps.key, formattedDate, 'metric-collection-results.parquet'),
-    Body: tableToIPC(table, 'stream'),
-  });
+  const table = tableFromJSON(metricsCollectionData);
+  if (table === undefined) {
+    throw new Error('Unable to transform metrics collection data to table');
+  }
 
   try {
-    const response = await client.send(command);
-    console.log(response);
+    console.log('Creating S3 Client...');
+    const client = getS3Client();
+
+    console.log('Getting S3 file path...');
+    const s3fileProps = getS3FilePath();
+    const formattedDate = new Date().toISOString().split('T')[0];
+
+    const command = new PutObjectCommand({
+      Bucket: s3fileProps.bucketName,
+      Key: path.join(s3fileProps.key, formattedDate, 'metric-collection-results.parquet'),
+      Body: tableToIPC(table, 'stream'),
+    });
+
+    console.log('Dumping data to S3...');
+    return await client.send(command);
   } catch (caught) {
     if (caught instanceof S3ServiceException && caught.name === 'EntityTooLarge') {
       console.error(

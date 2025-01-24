@@ -27,8 +27,11 @@ permissions:
   issues: write
 
 jobs:
-  release-IPA-metrics:
+  pre-IPA-metrics-release-checks:
+    name: IPA Metrics Release Pre-Checks
     runs-on: ubuntu-latest
+    outputs:
+      should_run_release: ${{ steps.get_previous_status.outputs.result }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,43 +42,46 @@ jobs:
         with:
           github-token: ${{ secrets.api_bot_pat }}
           script: |
-            const script = require('tools/spectral/ipa/metrics/scripts/getShouldRunMetricsRelease.js')
-            const shouldRunRelease = await getShouldRunMetricsRelease({github, context})
+            const { default: getShouldRunMetricsRelease } = await import('${{ github.workspace }}/tools/spectral/ipa/metrics/scripts/getShouldRunMetricsRelease.js')
+            const shouldRunRelease = await getShouldRunMetricsRelease({github, context}).catch((error) => {
+              console.error(error.message);
+              process.exit(1)
+            })
             return shouldRunRelease
 
-      - name: Skip Metric Collection Job
-        if: ${{steps.get_previous_status.outputs.result == 'false' }}
-        run: echo "Skipping IPA metrics release!"
+  release-IPA-metrics:
+    name: Release IPA Validation Metrics
+    needs: [pre-IPA-metrics-release-checks]
+    if: ${{ needs.pre-IPA-metrics-release-checks.outputs.should_run_release == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        if: ${{steps.get_previous_status.outputs.result == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
 
       - name: Install npm dependencies
-        if: ${{steps.get_previous_status.outputs.result == 'true' }}
         run: npm install
 
-      - name: Download openapi-foas
-        if: ${{steps.get_previous_status.outputs.result == 'true' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: openapi-foas-dev  # TODO: Change to passed input env
-          github-token: ${{ secrets.api_bot_pat }}
-          run-id: ${{ github.run_id }}
+#      - name: Download openapi-foas
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: openapi-foas-dev  # TODO: Change to passed input env
+#          github-token: ${{ secrets.api_bot_pat }}
+#          run-id: ${{ github.run_id }}
 
       - name: Run Metric Collection Job
-        if: ${{steps.get_previous_status.outputs.result == 'true' }}
         working-directory: ./tools/spectral/ipa/metrics/scripts
-        run: node runMetricCollection.js ../../../../../openapi-foas.json
+        run: node runMetricCollection.js ../../../../../openapi/v2.json # TODO: Change to foas from above
 
       - name: Dump Metric Collection Job Data to S3
-        if: ${{steps.get_previous_status.outputs.result == 'true' }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}       # TODO: Change to passed secret
           AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}   # TODO: Change to passed secret
           S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}          # TODO: Change to passed secret
         working-directory: ./tools/spectral/ipa/metrics/scripts
-        run: node dataDump.js ../../../../../openapi-foas.json
+        run: node dataDump.js
