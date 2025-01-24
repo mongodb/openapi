@@ -2,25 +2,19 @@ name: IPA Validation Metrics Release
 on:
   workflow_call:
     secrets: # all secrets are passed explicitly in this workflow
-#      aws_access_key:
-#        required: true
-#      aws_secret_key:
-#        required: true
-#      aws_s3_bucket_prefix:
-#        required: true
+      aws_access_key:
+        required: true
+      aws_secret_key:
+        required: true
+      aws_s3_bucket_prefix:
+        required: true
       api_bot_pat:
         required: true
-      IPA_S3_BUCKET_DW_STAGING_USERNAME:
+    inputs:
+      env:
+        description: 'Environment for the FOAS to use for IPA metrics collection'
         required: true
-      IPA_S3_BUCKET_DW_STAGING_PASSWORD:
-        required: true
-      IPA_S3_BUCKET_DW_STAGING_PREFIX:
-        required: true
-#    inputs:
-#      env:
-#        description: 'Environment for the FOAS to use for IPA metrics collection'
-#        required: true
-#        type: string
+        type: string
   workflow_dispatch:
 
 permissions:
@@ -67,21 +61,21 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-#      - name: Download openapi-foas
-#        uses: actions/download-artifact@v4
-#        with:
-#          name: openapi-foas-dev  # TODO: Change to passed input env
-#          github-token: ${{ secrets.api_bot_pat }}
-#          run-id: ${{ github.run_id }}
+      - name: Download openapi-foas
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-foas-${{ inputs.env }}
+          github-token: ${{ secrets.api_bot_pat }}
+          run-id: ${{ github.run_id }}
 
       - name: Run Metric Collection Job
         working-directory: ./tools/spectral/ipa/metrics/scripts
-        run: node runMetricCollection.js ../../../../../openapi/v2.json # TODO: Change to foas from above
+        run: node runMetricCollection.js ../../../../../openapi-foas.json
 
       - name: Dump Metric Collection Job Data to S3
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}       # TODO: Change to passed secret
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}   # TODO: Change to passed secret
-          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}          # TODO: Change to passed secret
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_key }}
+          S3_BUCKET_PREFIX: ${{ secrets.aws_s3_bucket_prefix }}
         working-directory: ./tools/spectral/ipa/metrics/scripts
         run: node dataDump.js
