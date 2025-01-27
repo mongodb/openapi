@@ -1,3 +1,5 @@
+# This workflow will generate metrics about the IPA validation on the current OAS
+# (number of adoptions, violations and exceptions) and upload the data to an S3 bucket.
 name: IPA Validation Metrics Release
 on:
   workflow_call:
@@ -21,6 +23,8 @@ permissions:
   issues: write
 
 jobs:
+  # Checks the last workflow run, and decides whether the IPA release metrics should be uploaded or
+  # skipped. The release-IPA-metrics job only runs if the last release was not today and did not fail.
   pre-IPA-metrics-release-checks:
     name: IPA Metrics Release Pre-Checks
     runs-on: ubuntu-latest
@@ -43,6 +47,7 @@ jobs:
             })
             return shouldRunRelease
 
+  # Generates and uploads the IPA validation metrics to S3
   release-IPA-metrics:
     name: Release IPA Validation Metrics
     needs: [pre-IPA-metrics-release-checks]
