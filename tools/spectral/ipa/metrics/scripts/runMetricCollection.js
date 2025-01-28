@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import { spawnSync } from 'child_process';
 import spectral from '@stoplight/spectral-core';
+import { Compression, Table, writeParquet, WriterPropertiesBuilder } from 'parquet-wasm';
+import { tableFromJSON, tableToIPC } from 'apache-arrow';
 import config from '../config.js';
 import { runMetricCollectionJob } from '../metricCollection.js';
 
@@ -51,6 +53,12 @@ runMetricCollectionJob(
 )
   .then((results) => {
     console.log('Writing results');
-    fs.writeFileSync(config.defaultMetricCollectionResultsFilePath, JSON.stringify(results));
+    const table = tableFromJSON(results);
+    const wasmTable = Table.fromIPCStream(tableToIPC(table, 'stream'));
+    const parquetUint8Array = writeParquet(
+      wasmTable,
+      new WriterPropertiesBuilder().setCompression(Compression.GZIP).build()
+    );
+    fs.writeFileSync(config.defaultMetricCollectionResultsFilePath, parquetUint8Array);
   })
   .catch((error) => console.error(error.message));

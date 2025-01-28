@@ -11,6 +11,9 @@ const config = {
   defaultOutputsDir: path.join(dirname, 'outputs'),
 };
 
-config.defaultMetricCollectionResultsFilePath = path.join(config.defaultOutputsDir, 'metric-collection-results.json');
+config.defaultMetricCollectionResultsFilePath = path.join(
+  config.defaultOutputsDir,
+  'metric-collection-results.parquet'
+);
 
 export default config;

@@ -2,7 +2,6 @@ import { PutObjectCommand, S3ServiceException } from '@aws-sdk/client-s3';
 import config from './config.js';
 import path from 'path';
 import fs from 'node:fs';
-import { tableFromJSON, tableToIPC } from 'apache-arrow';
 import { getS3Client, getS3FilePath } from './utils/dataDumpUtils.js';
 
 /**
@@ -11,14 +10,9 @@ import { getS3Client, getS3FilePath } from './utils/dataDumpUtils.js';
  */
 export async function uploadMetricCollectionDataToS3(filePath = config.defaultMetricCollectionResultsFilePath) {
   console.log('Loading metrics collection data from', filePath);
-  const metricsCollectionData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  if (metricsCollectionData === undefined || metricsCollectionData.length === 0) {
-    throw new Error('Loaded metrics collection data is empty');
-  }
-
-  const table = tableFromJSON(metricsCollectionData);
-  if (table === undefined) {
-    throw new Error('Unable to transform metrics collection data to table');
+  const metricsData = await fs.readFileSync(filePath);
+  if (metricsData === undefined) {
+    throw new Error('Loaded metrics collection data is undefined');
   }
 
   try {
@@ -32,7 +26,7 @@ export async function uploadMetricCollectionDataToS3(filePath = config.defaultMe
     const command = new PutObjectCommand({
       Bucket: s3fileProps.bucketName,
       Key: path.join(s3fileProps.key, formattedDate, 'metric-collection-results.parquet'),
-      Body: tableToIPC(table, 'stream'),
+      Body: metricsData,
     });
 
     console.log('Dumping data to S3...');
