@@ -125,12 +125,13 @@ jobs:
       - name: Send Slack Notification
         if: steps.create-jira-ticket.outputs.jira-ticket-id != null
         env:
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_APIX_2 }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
           SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
+          SLACK_APIX_2_ONCALL_USER: ${{secrets.SLACK_APIX_2_ONCALL_USER}}
           JIRA_TICKET_ID: ${{ steps.create-jira-ticket.outputs.jira-ticket-id }}
         run: |
           echo "JIRA_TICKET_ID: ${JIRA_TICKET_ID}"
           message_id=$(curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
           -H 'Content-type: application/json' \
-          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following APIs are scheduled to be sunset in the next 3 months. See Jira Ticket: https://jira.mongodb.org/browse/'"${JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
+          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following APIs are scheduled to be sunset in the next 3 months ('"${SLACK_APIX_2_ONCALL_USER}"'). See Jira Ticket: https://jira.mongodb.org/browse/'"${JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
           echo "message_id=${message_id}"]
