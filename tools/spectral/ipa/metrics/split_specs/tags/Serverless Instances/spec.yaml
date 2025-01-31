@@ -1,0 +1,177 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/serverless:
+        get:
+            description: Returns details for all serverless instances in the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listServerlessInstances
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedServerlessInstanceDescriptionView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Serverless Instances from One Project
+            tags:
+                - Serverless Instances
+            x-xgen-owner-team: Atlas Serverless II
+        post:
+            description: Creates one serverless instance in the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: createServerlessInstance
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ServerlessInstanceDescriptionCreate'
+                description: Create One Serverless Instance in One Project.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessInstanceDescription'
+                            x-xgen-version: "2023-01-01"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Serverless Instance in One Project
+            tags:
+                - Serverless Instances
+            x-xgen-owner-team: Atlas Serverless II
+    /api/atlas/v2/groups/{groupId}/serverless/{name}:
+        delete:
+            description: Removes one serverless instance from the specified project. The serverless instance must have termination protection disabled in order to be deleted. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: deleteServerlessInstance
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the serverless instance.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/RequestAccepted'
+                            x-xgen-version: "2023-01-01"
+                    description: Accepted
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Serverless Instance from One Project
+            tags:
+                - Serverless Instances
+            x-xgen-owner-team: Atlas Serverless II
+        get:
+            description: Returns details for one serverless instance in the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getServerlessInstance
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the serverless instance.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessInstanceDescription'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Serverless Instance from One Project
+            tags:
+                - Serverless Instances
+            x-xgen-owner-team: Atlas Serverless II
+        patch:
+            description: Updates one serverless instance in the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: updateServerlessInstance
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the serverless instance.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ServerlessInstanceDescriptionUpdate'
+                description: Update One Serverless Instance in One Project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessInstanceDescription'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "409":
+                    $ref: '#/components/responses/conflict'
+            summary: Update One Serverless Instance in One Project
+            tags:
+                - Serverless Instances
+            x-xgen-owner-team: Atlas Serverless II
