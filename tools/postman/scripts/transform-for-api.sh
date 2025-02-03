@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+## NOTE: Use JS script instead.
+## Script is kept only for backwards compatibilty
+
 #########################################################
 # Prepare collection for Postman API
 # Environment variables:
@@ -27,7 +30,6 @@ DESCRIPTION_FILE=${DESCRIPTION_FILE:-"../collection-description.md"}
 
 TOGGLE_INCLUDE_BODY=${TOGGLE_INCLUDE_BODY:-true}
 TOGGLE_ADD_DOCS_LINKS=${TOGGLE_ADD_DOCS_LINKS:-true}
-TOKEN_URL_ENV=${TOKEN_URL_ENV:-""}
 
 current_api_revision=$(<"$OPENAPI_FOLDER/$VERSION_FILE_NAME")
 
