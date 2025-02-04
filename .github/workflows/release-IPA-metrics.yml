@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: $NODE_VERSION
           cache: 'npm'
 
       - name: Install npm dependencies
@@ -33,12 +33,11 @@ jobs:
       - name: Download openapi-foas
         uses: actions/download-artifact@v4
         with:
-          name: openapi-foas-${{ env.RELEASE_ENV }}
+          name: openapi-foas-$RELEASE_ENV
           github-token: ${{ secrets.API_BOT_PAT }}
-          run-id: ${{ github.run_id }}
 
       - name: Run Metric Collection Job
-        working-directory: ${{ env.WORKING_DIR }}
+        working-directory: $WORKING_DIR
         run: node runMetricCollection.js ../../../../../openapi-foas.json
 
       - name: Dump Metric Collection Job Data to S3
@@ -46,16 +45,16 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
           S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
-        working-directory: ${{ env.WORKING_DIR }}
+        working-directory: $WORKING_DIR
         run: node dataDump.js
 
   failure-handler:
     name: Failure Handler
     needs: [ release-IPA-metrics ]
-    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    if: ${{ failure() }}
     uses: ./.github/workflows/failure-handler.yml
     with:
-      env: ${{ env.RELEASE_ENV }}
+      env: $RELEASE_ENV
       release_name: "OpenAPI Spec"
     secrets:
       jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
