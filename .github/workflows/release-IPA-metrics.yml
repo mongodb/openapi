@@ -10,7 +10,8 @@ permissions:
 env:
   NODE_VERSION: '20.x'
   WORKING_DIR: ./tools/spectral/ipa/metrics/scripts
-  RELEASE_ENV: 'dev'
+  OAS_ENV: 'dev'
+  OAS_BRANCH: 'main'
 
 jobs:
   # Generates and uploads the IPA validation metrics to S3
@@ -30,10 +31,27 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: $OAS_BRANCH
+          token: ${{secrets.API_BOT_PAT}}
+
+      - name: Upload current Specs and Changelog files
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: base-$OAS_ENV
+          retention-days: 1
+          path: |
+            openapi/v2/openapi*.json
+            changelog/changelog.json
+            changelog/internal/changelog-all.json
+            changelog/internal/metadata.json  
+
       - name: Download openapi-foas
         uses: actions/download-artifact@v4
         with:
-          name: openapi-foas-$RELEASE_ENV
+          name: openapi-foas-$OAS_ENV
           github-token: ${{ secrets.API_BOT_PAT }}
 
       - name: Run Metric Collection Job
@@ -54,7 +72,7 @@ jobs:
     if: ${{ failure() }}
     uses: ./.github/workflows/failure-handler.yml
     with:
-      env: $RELEASE_ENV
-      release_name: "OpenAPI Spec"
+      env: $OAS_ENV
+      release_name: "IPA Metrics"
     secrets:
       jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
