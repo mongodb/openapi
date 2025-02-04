@@ -14439,6 +14439,60 @@ components:
             additionalProperties:
                 type: object
             type: object
+        DropIndexSuggestionsIndex:
+            properties:
+                accessCount:
+                    description: Usage count (since last restart) of index.
+                    format: int64
+                    type: integer
+                index:
+                    description: List that contains documents that specify a key in the index and its sort order.
+                    items:
+                        description: One index key paired with its sort order. A value of `1` indicates an ascending sort order. A value of `-1` indicates a descending sort order. Keys in indexes with multiple keys appear in the same order that they appear in the index.
+                        type: object
+                    type: array
+                name:
+                    description: Name of index.
+                    type: string
+                namespace:
+                    description: Human-readable label that identifies the namespace on the specified host. The resource expresses this parameter value as `<database>.<collection>`.
+                    type: string
+                shards:
+                    description: List that contains strings that specifies the shards where the index is found.
+                    items:
+                        description: Shard name.
+                        type: string
+                    type: array
+                since:
+                    description: Date of most recent usage of index.
+                    format: date-time
+                    type: string
+                sizeBytes:
+                    description: Size of index.
+                    format: int64
+                    type: integer
+            type: object
+        DropIndexSuggestionsResponse:
+            properties:
+                hiddenIndexes:
+                    description: List that contains the documents with information about the hidden indexes that the Performance Advisor suggests to remove.
+                    items:
+                        $ref: '#/components/schemas/DropIndexSuggestionsIndex'
+                    readOnly: true
+                    type: array
+                redundantIndexes:
+                    description: List that contains the documents with information about the redundant indexes that the Performance Advisor suggests to remove.
+                    items:
+                        $ref: '#/components/schemas/DropIndexSuggestionsIndex'
+                    readOnly: true
+                    type: array
+                unusedIndexes:
+                    description: List that contains the documents with information about the unused indexes that the Performance Advisor suggests to remove.
+                    items:
+                        $ref: '#/components/schemas/DropIndexSuggestionsIndex'
+                    readOnly: true
+                    type: array
+            type: object
         EARPrivateEndpoint:
             description: Encryption At Rest Private Endpoint.
             oneOf:
@@ -34463,7 +34517,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: e48d60d85ed8b3aa8ed9bcccb7fe16d6f1a555f4
+    x-xgen-sha: 3aced0abb96fec2166e56ec029ccd85f8ab008bf
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -39350,7 +39404,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/PerformanceAdvisorResponse'
+                                $ref: '#/components/schemas/DropIndexSuggestionsResponse'
                             x-xgen-version: "2024-08-05"
                     description: OK
                 "400":
