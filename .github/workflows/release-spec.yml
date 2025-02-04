@@ -184,22 +184,9 @@ jobs:
         branch: ${{ inputs.branch }}
         foascli_version: ${{ inputs.foascli_version }}
 
-  release-IPA-metrics:
-    name: Release IPA Validation Metrics
-    needs: release
-    if: ${{ inputs.env == 'dev' && needs.release.outputs.changes_detected == 'true' }}
-    uses: ./.github/workflows/release-IPA-metrics.yml
-    secrets:
-      aws_access_key: ${{ secrets.ipa_aws_access_key}}
-      aws_secret_key: ${{ secrets.ipa_aws_secret_key}}
-      aws_s3_bucket_prefix: ${{ secrets.ipa_aws_s3_bucket_prefix}}
-      api_bot_pat: ${{ secrets.api_bot_pat }}
-    with:
-      env: ${{ inputs.env }}
-
   failure-handler: 
     name: Failure Handler
-    needs: [ release, release-postman, release-changelog, release-IPA-metrics ]
+    needs: [ release, release-postman, release-changelog]
     if: ${{ always() && contains(needs.*.result, 'failure') }}
     uses: ./.github/workflows/failure-handler.yml
     with:

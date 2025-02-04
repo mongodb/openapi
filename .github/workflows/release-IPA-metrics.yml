@@ -2,56 +2,20 @@
 # (number of adoptions, violations and exceptions) and upload the data to an S3 bucket.
 name: IPA Validation Metrics Release
 on:
-  workflow_call:
-    secrets: # all secrets are passed explicitly in this workflow
-      aws_access_key:
-        required: true
-      aws_secret_key:
-        required: true
-      aws_s3_bucket_prefix:
-        required: true
-      api_bot_pat:
-        required: true
-    inputs:
-      env:
-        description: 'Environment for the FOAS to use for IPA metrics collection'
-        required: true
-        type: string
+  schedule:
+    - cron: '0 22 * * *'  # Runs daily at 22:00 UTC (10 PM UTC)
   workflow_dispatch:
-
 permissions:
   issues: write
+env:
+  NODE_VERSION: '20.x'
+  WORKING_DIR: ./tools/spectral/ipa/metrics/scripts
+  RELEASE_ENV: 'dev'
 
 jobs:
-  # Checks the last workflow run, and decides whether the IPA release metrics should be uploaded or
-  # skipped. The release-IPA-metrics job only runs if the last release was not today and did not fail.
-  pre-IPA-metrics-release-checks:
-    name: IPA Metrics Release Pre-Checks
-    runs-on: ubuntu-latest
-    outputs:
-      should_run_release: ${{ steps.get_previous_status.outputs.result }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Get Previous Run Date and Status
-        id: get_previous_status
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.api_bot_pat }}
-          script: |
-            const { default: getShouldRunMetricsRelease } = await import('${{ github.workspace }}/tools/spectral/ipa/metrics/scripts/getShouldRunMetricsRelease.js')
-            const shouldRunRelease = await getShouldRunMetricsRelease({github, context}).catch((error) => {
-              console.error(error.message);
-              process.exit(1)
-            })
-            return shouldRunRelease
-
   # Generates and uploads the IPA validation metrics to S3
   release-IPA-metrics:
     name: Release IPA Validation Metrics
-    needs: [pre-IPA-metrics-release-checks]
-    if: ${{ needs.pre-IPA-metrics-release-checks.outputs.should_run_release == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -60,7 +24,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install npm dependencies
@@ -69,18 +33,29 @@ jobs:
       - name: Download openapi-foas
         uses: actions/download-artifact@v4
         with:
-          name: openapi-foas-${{ inputs.env }}
-          github-token: ${{ secrets.api_bot_pat }}
+          name: openapi-foas-${{ env.RELEASE_ENV }}
+          github-token: ${{ secrets.API_BOT_PAT }}
           run-id: ${{ github.run_id }}
 
       - name: Run Metric Collection Job
-        working-directory: ./tools/spectral/ipa/metrics/scripts
+        working-directory: ${{ env.WORKING_DIR }}
         run: node runMetricCollection.js ../../../../../openapi-foas.json
 
       - name: Dump Metric Collection Job Data to S3
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_key }}
-          S3_BUCKET_PREFIX: ${{ secrets.aws_s3_bucket_prefix }}
-        working-directory: ./tools/spectral/ipa/metrics/scripts
+          AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
+          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
+        working-directory: ${{ env.WORKING_DIR }}
         run: node dataDump.js
+
+  failure-handler:
+    name: Failure Handler
+    needs: [ release-IPA-metrics ]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    uses: ./.github/workflows/failure-handler.yml
+    with:
+      env: ${{ env.RELEASE_ENV }}
+      release_name: "OpenAPI Spec"
+    secrets:
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
