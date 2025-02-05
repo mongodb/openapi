@@ -12,7 +12,6 @@ env:
   NODE_VERSION: '20.x'
   OAS_BRANCH: 'dev'
   OAS_FILE: 'openapi/v2.json'
-  IPA_PATH: ${{ github.workspace }}/ipa
   DEV_OAS_PATH: ${{ github.workspace }}/dev-oas
 
 jobs:
@@ -28,7 +27,6 @@ jobs:
               tools/spectral/ipa
               package.json
               package-lock.json
-          path: ipa
 
       - name: Checkout repository (dev branch)
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -54,7 +52,7 @@ jobs:
         run: npm install
 
       - name: Run Metric Collection Job
-        working-directory: ${{ env.IPA_PATH }}/metrics/scripts
+        working-directory: ./tools/spectral/ipa/metrics/scripts
         run: node runMetricCollection.js "${{ env.DEV_OAS_PATH }}/openapi/v2.json"
 
       - name: Dump Metric Collection Job Data to S3
@@ -62,7 +60,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
           S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
-        working-directory: ${{ env.IPA_PATH }}/metrics/scripts
+        working-directory: ./tools/spectral/ipa/metrics/scripts
         run: node dataDump.js
 
 #  failure-handler:
