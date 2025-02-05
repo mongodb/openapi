@@ -8,10 +8,6 @@ on:
 permissions:
   issues: write
   contents: write
-env:
-  NODE_VERSION: '20.x'
-  OAS_BRANCH: 'dev'
-  OAS_FILE: 'v2.json'
 
 jobs:
   # Generates and uploads the IPA validation metrics to S3
@@ -22,14 +18,14 @@ jobs:
       - name: Fetch OAS file from Dev Branch
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
-          ref: ${{ env.OAS_BRANCH }}
-          sparse-checkout: openapi/${{ env.OAS_FILE }}
+          ref: 'dev'
+          sparse-checkout: openapi/v2.json
 
       - name: Upload OAS file
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: oas-dev
-          path: openapi/${{ env.OAS_FILE }}
+          path: openapi/v2.json
 
       - name: Checkout repository (scripts)
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -42,7 +38,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20.x'
           cache: 'npm'
 
       - name: Install npm dependencies
@@ -55,7 +51,7 @@ jobs:
 
       - name: Run Metric Collection Job
         working-directory: tools/spectral/ipa/metrics/scripts
-        run: node runMetricCollection.js "${{ github.workspace }}/${{ env.OAS_FILE }}"
+        run: node runMetricCollection.js "${{ github.workspace }}/v2.json"
 
       - name: Dump Metric Collection Job Data to S3
         env:
@@ -71,7 +67,7 @@ jobs:
     if: ${{ failure() }}
     uses: ./.github/workflows/failure-handler.yml
     with:
-      env: ${{ env.OAS_BRANCH }}
+      oas_env: 'dev'
       release_name: "IPA Metrics"
     secrets:
       jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
