@@ -12,7 +12,7 @@ env:
   OAS_ENV: 'dev'
   OAS_BRANCH: 'dev'
   OAS_FILE: 'openapi/v2.json'
-  SCRIPTS_PATH: ${{ github.workspace }}/scripts
+  IPA_PATH: ${{ github.workspace }}/ipa
   DEV_OAS_PATH: ${{ github.workspace }}/dev-oas
 
 jobs:
@@ -25,8 +25,8 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           sparse-checkout:
-              tools/spectral/ipa/metrics/scripts
-          path: scripts
+              tools/spectral/ipa
+          path: ipa
 
       - name: Checkout repository (dev branch)
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -34,6 +34,11 @@ jobs:
           ref: $OAS_BRANCH
           sparse-checkout: $OAS_FILE
           path: dev-oas
+
+      - name: Validate paths
+        run: |
+          ls -la $SCRIPTS_PATH
+          ls -la $DEV_OAS_PATH/openapi/v2.json
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -45,7 +50,7 @@ jobs:
         run: npm install
 
       - name: Run Metric Collection Job
-        working-directory: $SCRIPTS_PATH
+        working-directory: $IPA_PATH/metrics/scripts
         run: node runMetricCollection.js $DEV_OAS_PATH/openapi/v2.json
 
       - name: Dump Metric Collection Job Data to S3
@@ -53,7 +58,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
           S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
-        working-directory: $SCRIPTS_PATH
+        working-directory: $IPA_PATH/metrics/scripts
         run: node dataDump.js
 
   failure-handler:
