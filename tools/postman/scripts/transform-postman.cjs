@@ -109,7 +109,6 @@ const transform = () => {
     collection.collection.variable.push({ key: 'clientCredentialsTokenUrl', value: TOKEN_URL_ENV });
   }
 
-
   saveJsonFile(path.join(TMP_FOLDER, COLLECTION_TRANSFORMED_FILE_NAME), collection);
 
   console.log('Transformation complete');
