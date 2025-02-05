@@ -25,11 +25,6 @@ jobs:
           ref: ${{ env.OAS_BRANCH }}
           sparse-checkout: openapi/${{ env.OAS_FILE }}
 
-      - name: Debug Checkout
-        run: |
-          echo "Workspace Contents:"
-          ls -la
-
       - name: Upload OAS file
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
@@ -58,19 +53,9 @@ jobs:
         with:
           name: oas-dev
 
-      - name: Debug Checkout
-        run: |
-          echo "Workspace Contents:"
-          ls -la
-          echo "Tools Spectral Contents:"
-          ls -la tools/spectral
-          echo "IPA Contents:"
-          ls -la tools/spectral/ipa || echo "ipa directory is missing!"
-
       - name: Run Metric Collection Job
         working-directory: tools/spectral/ipa/metrics/scripts
-        run: ls -la
-        # node runMetricCollection.js ${{ env.OAS_FILE }}
+        run: node runMetricCollection.js "${{ github.workspace }}/${{ env.OAS_FILE }}"
 
 #      - name: Dump Metric Collection Job Data to S3
 #        env:
