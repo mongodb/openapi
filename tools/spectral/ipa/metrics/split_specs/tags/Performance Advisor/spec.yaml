@@ -1,0 +1,503 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/performanceAdvisor/dropIndexSuggestions:
+        get:
+            description: Returns the indexes that the Performance Advisor suggests to drop. The Performance Advisor suggests dropping unused, redundant, and hidden indexes to improve write performance and increase storage space. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listDropIndexes
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PerformanceAdvisorResponse'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Returns Suggested Indexes to Drop
+            tags:
+                - Performance Advisor
+            x-xgen-hidden-env:
+                envs: stage,qa,prod
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/performanceAdvisor/schemaAdvice:
+        get:
+            description: Returns the schema suggestions that the Performance Advisor detects. The Performance Advisor provides holistic schema recommendations for your cluster by sampling documents in your most active collections and collections with slow-running queries. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listSchemaAdvice
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PerformanceAdvisorResponse'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Schema Advice
+            tags:
+                - Performance Advisor
+            x-xgen-hidden-env:
+                envs: stage,qa,prod
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/performanceAdvisor/suggestedIndexes:
+        get:
+            description: Returns the indexes that the Performance Advisor suggests. The Performance Advisor monitors queries that MongoDB considers slow and suggests new indexes to improve query performance. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listClusterSuggestedIndexes
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: ProcessIds from which to retrieve suggested indexes. A processId is a combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests. To include multiple processIds, pass the parameter multiple times delimited with an ampersand (`&`) between each processId.
+                  in: query
+                  name: processIds
+                  schema:
+                    items:
+                        pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                        type: string
+                    type: array
+                  style: form
+                - description: 'Namespaces from which to retrieve suggested indexes. A namespace consists of one database and one collection resource written as `.`: `<database>.<collection>`. To include multiple namespaces, pass the parameter multiple times delimited with an ampersand (`&`) between each namespace. Omit this parameter to return results for all namespaces.'
+                  in: query
+                  name: namespaces
+                  schema:
+                    items:
+                        type: string
+                    type: array
+                  style: form
+                - description: |-
+                    Date and time from which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+
+                    - If you don't specify the **until** parameter, the endpoint returns data covering from the **since** value and the current time.
+                    - If you specify neither the **since** nor the **until** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: since
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+12
+                    type: integer
+                - description: |-
+                    Date and time up until which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+
+                    - If you specify the **until** parameter, you must specify the **since** parameter.
+                    - If you specify neither the **since** nor the **until** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: until
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+12
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PerformanceAdvisorResponse'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Suggested Indexes
+            tags:
+                - Performance Advisor
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/managedSlowMs:
+        get:
+            description: Get whether the Managed Slow MS feature is enabled.
+            operationId: getManagedSlowMs
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Managed Slow MS enabled
+            tags:
+                - Performance Advisor
+            x-xgen-owner-team: Intel II
+    /api/atlas/v2/groups/{groupId}/managedSlowMs/disable:
+        delete:
+            description: Disables the slow operation threshold that MongoDB Cloud calculated for the specified project. The threshold determines which operations the Performance Advisor and Query Profiler considers slow. When enabled, MongoDB Cloud uses the average execution time for operations on your cluster to determine slow-running queries. As a result, the threshold is more pertinent to your cluster workload. The slow operation threshold is enabled by default for dedicated clusters (M10+). When disabled, MongoDB Cloud considers any operation that takes longer than 100 milliseconds to be slow. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: disableSlowOperationThresholding
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Disable Managed Slow Operation Threshold
+            tags:
+                - Performance Advisor
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/managedSlowMs/enable:
+        post:
+            description: Enables MongoDB Cloud to use its slow operation threshold for the specified project. The threshold determines which operations the Performance Advisor and Query Profiler considers slow. When enabled, MongoDB Cloud uses the average execution time for operations on your cluster to determine slow-running queries. As a result, the threshold is more pertinent to your cluster workload. The slow operation threshold is enabled by default for dedicated clusters (M10+). When disabled, MongoDB Cloud considers any operation that takes longer than 100 milliseconds to be slow. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: enableSlowOperationThresholding
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Enable Managed Slow Operation Threshold
+            tags:
+                - Performance Advisor
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/performanceAdvisor/namespaces:
+        get:
+            description: Returns up to 20 namespaces for collections experiencing slow queries on the specified host. If you specify a secondary member of a replica set that hasn't received any database read operations, the endpoint doesn't return any namespaces. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listSlowQueryNamespaces
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: |-
+                    Length of time expressed during which the query finds suggested indexes among the managed namespaces in the cluster. This parameter expresses its value in milliseconds.
+
+                    - If you don't specify the **since** parameter, the endpoint returns data covering the duration before the current time.
+                    - If you specify neither the **duration** nor **since** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: duration
+                  schema:
+                    format: int64
+                    type: integer
+                - description: Combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+                - description: |-
+                    Date and time from which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+
+                    - If you don't specify the **duration** parameter, the endpoint returns data covering from the **since** value and the current time.
+                    - If you specify neither the **duration** nor the **since** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: since
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+12
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/Namespaces'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Namespaces for One Host
+            tags:
+                - Performance Advisor
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/performanceAdvisor/slowQueryLogs:
+        get:
+            description: Returns log lines for slow queries that the Performance Advisor and Query Profiler identified. The Performance Advisor monitors queries that MongoDB considers slow and suggests new indexes to improve query performance. MongoDB Cloud bases the threshold for slow queries on the average time of operations on your cluster. This enables workload-relevant recommendations. To use this resource, the requesting API Key must have any Project Data Access role or the Project Observability Viewer role.
+            operationId: listSlowQueries
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: |-
+                    Length of time expressed during which the query finds slow queries among the managed namespaces in the cluster. This parameter expresses its value in milliseconds.
+
+                    - If you don't specify the **since** parameter, the endpoint returns data covering the duration before the current time.
+                    - If you specify neither the **duration** nor **since** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: duration
+                  schema:
+                    format: int64
+                    type: integer
+                - description: 'Namespaces from which to retrieve slow queries. A namespace consists of one database and one collection resource written as `.`: `<database>.<collection>`. To include multiple namespaces, pass the parameter multiple times delimited with an ampersand (`&`) between each namespace. Omit this parameter to return results for all namespaces.'
+                  in: query
+                  name: namespaces
+                  schema:
+                    items:
+                        type: string
+                    type: array
+                  style: form
+                - description: Maximum number of lines from the log to return.
+                  in: query
+                  name: nLogs
+                  schema:
+                    default: 20000
+                    format: int64
+                    maximum: 20000
+                    minimum: 0
+                    type: integer
+                - description: Combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+                - description: |-
+                    Date and time from which the query retrieves the slow queries. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+
+                    - If you don't specify the **duration** parameter, the endpoint returns data covering from the **since** value and the current time.
+                    - If you specify neither the **duration** nor the **since** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: since
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+12
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PerformanceAdvisorSlowQueryList'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Slow Queries
+            tags:
+                - Performance Advisor
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/processes/{processId}/performanceAdvisor/suggestedIndexes:
+        get:
+            description: Returns the indexes that the Performance Advisor suggests. The Performance Advisor monitors queries that MongoDB considers slow and suggests new indexes to improve query performance. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listSuggestedIndexes
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: |-
+                    Length of time expressed during which the query finds suggested indexes among the managed namespaces in the cluster. This parameter expresses its value in milliseconds.
+
+                    - If you don't specify the **since** parameter, the endpoint returns data covering the duration before the current time.
+                    - If you specify neither the **duration** nor **since** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: duration
+                  schema:
+                    format: int64
+                    type: integer
+                - description: 'Namespaces from which to retrieve suggested indexes. A namespace consists of one database and one collection resource written as `.`: `<database>.<collection>`. To include multiple namespaces, pass the parameter multiple times delimited with an ampersand (`&`) between each namespace. Omit this parameter to return results for all namespaces.'
+                  in: query
+                  name: namespaces
+                  schema:
+                    items:
+                        type: string
+                    type: array
+                  style: form
+                - description: Maximum number of example queries that benefit from the suggested index.
+                  in: query
+                  name: nExamples
+                  schema:
+                    default: 5
+                    format: int64
+                    type: integer
+                - description: Number that indicates the maximum indexes to suggest.
+                  in: query
+                  name: nIndexes
+                  schema:
+                    format: int64
+                    type: integer
+                - description: Combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests.
+                  in: path
+                  name: processId
+                  required: true
+                  schema:
+                    pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
+                    type: string
+                - description: |-
+                    Date and time from which the query retrieves the suggested indexes. This parameter expresses its value in the number of milliseconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+
+                    - If you don't specify the **duration** parameter, the endpoint returns data covering from the **since** value and the current time.
+                    - If you specify neither the **duration** nor the **since** parameters, the endpoint returns data from the previous 24 hours.
+                  in: query
+                  name: since
+                  schema:
+                    format: int64
+                    minimum: 1.1991456e+12
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PerformanceAdvisorResponse'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Suggested Indexes
+            tags:
+                - Performance Advisor
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/serverless/{clusterName}/performanceAdvisor/autoIndexing:
+        get:
+            description: Get whether the Serverless Auto Indexing feature is enabled.
+            operationId: getServerlessAutoIndexing
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                type: boolean
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Serverless Auto Indexing Enabled
+            tags:
+                - Performance Advisor
+            x-xgen-owner-team: Intel II
+        post:
+            description: Set whether the Serverless Auto Indexing feature is enabled.
+            operationId: setServerlessAutoIndexing
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Value that we want to set for the Serverless Auto Indexing toggle.
+                  in: query
+                  name: enable
+                  required: true
+                  schema:
+                    type: boolean
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Set Serverless Auto Indexing
+            tags:
+                - Performance Advisor
+            x-xgen-owner-team: Intel II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

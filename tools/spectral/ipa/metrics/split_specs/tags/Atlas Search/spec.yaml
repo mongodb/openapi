@@ -1,0 +1,937 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes:
+        post:
+            deprecated: true
+            description: Creates one Atlas Search index on the specified collection. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. Only clusters running MongoDB v4.2 or later can use Atlas Search. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: createAtlasSearchIndexDeprecated
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection on which to create an Atlas Search index.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterSearchIndex'
+                description: Creates one Atlas Search index on the specified collection.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterSearchIndex'
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Atlas Search Index
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes/{databaseName}/{collectionName}:
+        get:
+            deprecated: true
+            description: Returns all Atlas Search indexes on the specified collection. Atlas Search indexes contain the indexed fields and the analyzers used to create the indexes. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: listAtlasSearchIndexesDeprecated
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/ClusterSearchIndex'
+                                type: array
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Atlas Search Indexes for One Collection
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes/{indexId}:
+        delete:
+            deprecated: true
+            description: Removes one Atlas Search index that you identified with its unique ID. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: deleteAtlasSearchIndexDeprecated
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the database and collection with one or more Application Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Atlas Search index. Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Atlas Search Index
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        get:
+            deprecated: true
+            description: Returns one Atlas Search index in the specified project. You identify this index using its unique ID. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: getAtlasSearchIndexDeprecated
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Application Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Application Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Application Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterSearchIndex'
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Atlas Search Index
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        patch:
+            deprecated: true
+            description: Updates one Atlas Search index that you identified with its unique ID. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: updateAtlasSearchIndexDeprecated
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection whose Atlas Search index to update.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Atlas Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterSearchIndex'
+                description: Details to update on the Atlas Search index.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterSearchIndex'
+                            x-sunset: "2025-06-01"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Atlas Search Index
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment:
+        delete:
+            description: Deletes the Search Nodes for the specified cluster.
+            operationId: deleteAtlasSearchDeployment
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Label that identifies the cluster to delete.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete Search Nodes
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        get:
+            description: Return the Search Nodes for the specified cluster.
+            operationId: getAtlasSearchDeployment
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Label that identifies the cluster to return the Search Nodes for.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Search Nodes
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        patch:
+            description: Updates the Search Nodes for the specified cluster.
+            operationId: updateAtlasSearchDeployment
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Label that identifies the cluster to update the Search Nodes for.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
+                description: Updates the Search Nodes for the specified cluster.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update Search Nodes
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        post:
+            description: Creates Search Nodes for the specified cluster.
+            operationId: createAtlasSearchDeployment
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Label that identifies the cluster to create Search Nodes for.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
+                description: Creates Search Nodes for the specified cluster.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
+                            x-sunset: "2026-03-01"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "201":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
+                            x-xgen-version: "2024-05-30"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create Search Nodes
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes:
+        get:
+            description: Returns all Atlas Search indexes on the specified cluster. Atlas Search indexes contain the indexed fields and the analyzers used to create the indexes. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: listAtlasSearchIndexesCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/SearchIndexResponse'
+                                type: array
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                    description: Service Unavailable.
+            summary: Return All Atlas Search Indexes for One Cluster
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        post:
+            description: Creates one Atlas Search index on the specified collection. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. Only clusters running MongoDB v4.2 or later can use Atlas Search. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: createAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection on which to create an Atlas Search index.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/SearchIndexCreateRequest'
+                description: Creates one Atlas Search index on the specified collection.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Atlas Search Index
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{databaseName}/{collectionName}:
+        get:
+            description: Returns all Atlas Search indexes on the specified collection. Atlas Search indexes contain the indexed fields and the analyzers used to create the indexes. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: listAtlasSearchIndexes
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/SearchIndexResponse'
+                                type: array
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                    description: Service Unavailable.
+            summary: Return All Atlas Search Indexes for One Collection
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{databaseName}/{collectionName}/{indexName}:
+        delete:
+            description: Removes one Atlas Search index that you identified with its database, collection, and name. To use this resource, the requesting API key must have the Project Data Access Admin role. This deletion is eventually consistent.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: deleteAtlasSearchIndexByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the database and collection with one or more Application Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Name of the Atlas Search index to delete.
+                  in: path
+                  name: indexName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Atlas Search Index by Name
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        get:
+            description: Returns one Atlas Search index in the specified project. You identify this index using its database, collection and name. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: getAtlasSearchIndexByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Name of the Atlas Search index to return.
+                  in: path
+                  name: indexName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Atlas Search Index by Name
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        patch:
+            description: Updates one Atlas Search index that you identified with its database, collection name, and index name. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: updateAtlasSearchIndexByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection whose Atlas Search index you want to update.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the collection that contains one or more Atlas Search indexes.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the database that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Name of the Atlas Search index to update.
+                  in: path
+                  name: indexName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/SearchIndexUpdateRequest'
+                description: Details to update the Atlas Search index with.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Atlas Search Index By Name
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes/{indexId}:
+        delete:
+            description: Removes one Atlas Search index that you identified with its unique ID. To use this resource, the requesting API key must have the Project Data Access Admin role. This deletion is eventually consistent.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: deleteAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the database and collection with one or more Application Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Atlas Search index. Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-05-30"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Atlas Search Index by Id
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        get:
+            description: Returns one Atlas Search index in the specified project. You identify this index using its unique ID. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting API Key must have the Project Data Access Read Write role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: getAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection with one or more Atlas Search indexes.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Application Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Application Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Application Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                    description: Service Unavailable.
+            summary: Return One Atlas Search Index by ID
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        patch:
+            description: Updates one Atlas Search index that you identified with its unique ID. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Atlas Search Indexes
+                url: https://dochub.mongodb.org/core/index-definitions-fts
+            operationId: updateAtlasSearchIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster that contains the collection whose Atlas Search index you want to update.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the Atlas Search [index](https://dochub.mongodb.org/core/index-definitions-fts). Use the [Get All Atlas Search Indexes for a Collection API](https://docs.atlas.mongodb.com/reference/api/fts-indexes-get-all/) endpoint to find the IDs of all Atlas Search indexes.
+                  in: path
+                  name: indexId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/SearchIndexUpdateRequest'
+                description: Details to update on the Atlas Search index.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/SearchIndexResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Atlas Search Index By ID
+            tags:
+                - Atlas Search
+            x-xgen-owner-team: Search Web Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

@@ -1,0 +1,820 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/users:
+        get:
+            description: Returns details about all users in the specified project. Users belong to an organization. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listProjectUsers
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: 'Flag that indicates whether the returned list should include users who belong to a team with a role in this project. You might not have assigned the individual users a role in this project. If `"flattenTeams" : false`, this resource returns only users with a role in the project.  If `"flattenTeams" : true`, this resource returns both users with roles in the project and users who belong to teams with roles in the project.'
+                  in: query
+                  name: flattenTeams
+                  schema:
+                    default: false
+                    type: boolean
+                - description: 'Flag that indicates whether the returned list should include users with implicit access to the project, the Organization Owner or Organization Read Only role. You might not have assigned the individual users a role in this project. If `"includeOrgUsers": false`, this resource returns only users with a role in the project. If `"includeOrgUsers": true`, this resource returns both users with roles in the project and users who have implicit access to the project through their organization role.'
+                  in: query
+                  name: includeOrgUsers
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Flag that indicates whether to filter the returned list by users organization membership status. If you exclude this parameter, this resource returns both pending and active users.
+                  in: query
+                  name: orgMembershipStatus
+                  schema:
+                    example: ACTIVE
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAppUserView'
+                            x-sunset: "2044-01-01"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Users in One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        post:
+            description: "Adds one MongoDB Cloud user to one project. To use this resource, the requesting API Key must have the Project Owner role. \n- If the user has a pending invitation to join the project's organization, MongoDB Cloud modifies it and grants project access. \n- If the user doesn't have an invitation to join the organization, MongoDB Cloud sends a new invitation that grants the user organization and project access. \n- If the user is already active in the project's organization, MongoDB Cloud grants access to the project. \n"
+            operationId: addProjectUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupUserRequest'
+                description: The active or pending MongoDB Cloud user that you want to add to the specified project.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One MongoDB Cloud User to One Project
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/users/{userId}:
+        delete:
+            description: Removes the specified user from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: removeProjectUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal string that identifies MongoDB Cloud user you want to remove from the specified project. To return a application user's ID using their application username, use the Get All application users in One Project endpoint.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-sunset: "2044-01-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-hidden-env:
+                                envs: qa,stage,prod
+                            x-xgen-version: "2043-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One User from One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        get:
+            description: |-
+                Returns information about the specified MongoDB Cloud user within the context of the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                **Note**: You can only use this resource to fetch information about MongoDB Cloud human users. To return information about an API Key, use the [Return One Organization API Key](#tag/Programmatic-API-Keys/operation/getApiKey) endpoint.
+
+                **Note**: This resource does not return information about pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: getProjectUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Project resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One MongoDB Cloud User in One Project
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/users/{userId}:addRole:
+        post:
+            description: |-
+                Adds one project-level role to the MongoDB Cloud user. You can add a role to an active user or a user that has been invited to join the project. To use this resource, the requesting API Key must have the Project Owner role.
+
+                **Note**: This resource cannot be used to add a role to users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: addProjectRole
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Project resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveGroupRole'
+                description: Project-level role to assign to the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One Project Role to One MongoDB Cloud User
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/users/{userId}:removeRole:
+        post:
+            description: |-
+                Removes one project-level role from the MongoDB Cloud user. You can remove a role from an active user or a user that has been invited to join the project. To replace a user's only role, add the new role before removing the old role. A user must have at least one role at all times. To use this resource, the requesting API Key must have the Project Owner role.
+
+                **Note**: This resource cannot be used to remove a role from users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: removeProjectRole
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Project resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveGroupRole'
+                description: Project-level role to remove from the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Project Role from One MongoDB Cloud User
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/teams/{teamId}:addUser:
+        post:
+            description: |-
+                Adds one MongoDB Cloud user to one team. You can add an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This resource cannot be used to add a user invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: addUserToTeam
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the team to add the MongoDB Cloud user to.
+                  in: path
+                  name: teamId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveUserFromTeam'
+                description: The active or pending MongoDB Cloud user that you want to add to the specified team.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One MongoDB Cloud User to One Team
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/teams/{teamId}:removeUser:
+        post:
+            description: |-
+                Removes one MongoDB Cloud user from one team. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This resource cannot be used to remove a user invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: removeUserFromTeam
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the team to remove the MongoDB user from.
+                  in: path
+                  name: teamId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveUserFromTeam'
+                description: The id of the active or pending MongoDB Cloud user that you want to remove from the specified team.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One MongoDB Cloud User from One Team
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/users:
+        get:
+            description: Returns details about the MongoDB Cloud users associated with the specified organization. Each MongoDB Cloud user returned must belong to the specified organization or to a project within the specified organization. To use this resource, the requesting API Key must have the Organization Member role.
+            operationId: listOrganizationUsers
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAppUserView'
+                            x-sunset: "2044-01-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOrgUserView'
+                            x-xgen-hidden-env:
+                                envs: qa,stage,prod
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All MongoDB Cloud Users in One Organization
+            tags:
+                - Organizations
+            x-xgen-owner-team: IAM
+        post:
+            description: |-
+                Invites one new or existing MongoDB Cloud user to join the organization. The invitation to join the organization will be sent to the username provided and must be accepted within 30 days. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: If the user does not have an existing MongoDB Cloud account, they will be prompted to finish setting up an account upon accepting the invitation. If the user already has an account, they will still receive an invitation to access the organization.
+            operationId: createOrganizationUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/OrgUserRequest'
+                description: Represents the MongoDB Cloud user to be created within the organization.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One MongoDB Cloud User to One Organization
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/users/{userId}:
+        delete:
+            description: Removes one MongoDB Cloud user from the specified organization. To use this resource, the requesting API Key must have the Organization User Admin role.
+            operationId: removeOrganizationUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the user to be deleted.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-sunset: "2044-01-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-hidden-env:
+                                envs: qa,stage,prod
+                            x-xgen-version: "2043-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One MongoDB Cloud User From One Organization
+            tags:
+                - Organizations
+            x-xgen-owner-team: IAM
+        get:
+            description: |-
+                Returns information about the specified MongoDB Cloud user within the context of the specified organization. To use this resource, the requesting API Key must have the Organization Member role.
+
+                **Note**: This resource can only be used to fetch information about MongoDB Cloud human users. To return information about an API Key, use the [Return One Organization API Key](#tag/Programmatic-API-Keys/operation/getApiKey) endpoint.
+
+                **Note**: This resource does not return information about pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: getOrganizationUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One MongoDB Cloud User in One Organization
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+        patch:
+            description: |-
+                Updates one MongoDB Cloud user in the specified organization. You can update an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: Only include the fields you wish to update in the request body. Supplying a field with an empty value will reset that field on the user.
+
+                **Note**: This resource cannot be used to update pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: updateOrganizationUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/OrgUserUpdateRequest'
+                description: Represents the roles and teams to assign the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One MongoDB Cloud User in One Organization
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/users/{userId}:addRole:
+        post:
+            description: |-
+                Adds one organization-level role to the MongoDB Cloud user. You can add a role to an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This operation is atomic.
+
+                **Note**: This resource cannot be used to add a role to users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: addOrganizationRole
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveOrgRole'
+                description: Organization-level role to assign to the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One Organization Role to One MongoDB Cloud User
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/users/{userId}:removeRole:
+        post:
+            description: |-
+                Removes one organization-level role from the MongoDB Cloud user. You can remove a role from an active user or a user that has not yet accepted the invitation to join the organization. To replace a user's only role, add the new role before removing the old role. A user must have at least one role at all times. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This operation is atomic.
+
+                **Note**: This resource cannot be used to remove a role from users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: removeOrganizationRole
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveOrgRole'
+                description: Organization-level role to remove from the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Organization Role from One MongoDB Cloud User
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/users:
+        post:
+            description: |-
+                Creates one MongoDB Cloud user account. A MongoDB Cloud user account grants access to only the MongoDB Cloud application. To grant database access, create a database user. MongoDB Cloud sends an email to the users you specify, inviting them to join the project. Invited users don't have access to the project until they accept the invitation. Invitations expire after 30 days.
+
+                 MongoDB Cloud limits MongoDB Cloud user membership to a maximum of 250 MongoDB Cloud users per team. MongoDB Cloud limits MongoDB Cloud user membership to 500 MongoDB Cloud users per project and 500 MongoDB Cloud users per organization, which includes the combined membership of all projects in the organization. MongoDB Cloud raises an error if an operation exceeds these limits. For example, if you have an organization with five projects, and each project has 100 MongoDB Cloud users, and each MongoDB Cloud user belongs to only one project, you can't add any MongoDB Cloud users to this organization without first removing existing MongoDB Cloud users from the organization.
+
+                 To use this resource, the requesting API Key can have any role.
+            operationId: createUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/CloudAppUser'
+                description: MongoDB Cloud user account to create.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/CloudAppUser'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One MongoDB Cloud User
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/users/{userId}:
+        get:
+            description: Returns the details for one MongoDB Cloud user account with the specified unique identifier for the user. You can't use this endpoint to return information on an API Key. To return information about an API Key, use the [Return One Organization](#tag/Organizations/operation/getOrganization) API Key endpoint. You can always retrieve your own user account. If you are the owner of a MongoDB Cloud organization or project, you can also retrieve the user profile for any user with membership in that organization or project. To use this resource, the requesting API Key can have any role.
+            operationId: getUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies this user.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/CloudAppUser'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One MongoDB Cloud User using Its ID
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/users/byName/{userName}:
+        get:
+            description: Returns the details for one MongoDB Cloud user account with the specified username. You can't use this endpoint to return information about an API Key. To return information about an API Key, use the [Return One Organization](#tag/Organizations/operation/getOrganization) API Key endpoint. To use this resource, the requesting API Key can have any role.
+            operationId: getUserByUsername
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Email address that belongs to the MongoDB Cloud user account. You cannot modify this address after creating the user.
+                  in: path
+                  name: userName
+                  required: true
+                  schema:
+                    pattern: ^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/CloudAppUser'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One MongoDB Cloud User using Their Username
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-owner-team: IAM
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

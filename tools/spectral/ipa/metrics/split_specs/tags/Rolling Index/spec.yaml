@@ -1,0 +1,112 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index:
+        post:
+            description: Creates an index on the cluster identified by its name in a rolling manner. Creating the index in this way allows index builds on one replica set member as a standalone at a time, starting with the secondary members. Creating indexes in this way requires at least one replica set election. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Rolling Index Builds on Replica Sets
+                url: https://docs.mongodb.com/manual/tutorial/build-indexes-on-replica-sets/
+            operationId: createRollingIndex
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster on which MongoDB Cloud creates an index.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        examples:
+                            2dspere Index:
+                                description: 2dspere Index
+                                value:
+                                    collation:
+                                        alternate: non-ignorable
+                                        backwards: false
+                                        caseFirst: lower
+                                        caseLevel: false
+                                        locale: af
+                                        maxVariable: punct
+                                        normalization: false
+                                        numericOrdering: false
+                                        strength: 3
+                                    collection: accounts
+                                    db: sample_airbnb
+                                    keys:
+                                        - property_type: "1"
+                                    options:
+                                        name: PartialIndexTest
+                                        partialFilterExpression:
+                                            limit:
+                                                $gt: 900
+                            Partial Index:
+                                description: Partial Index
+                                value:
+                                    collation:
+                                        alternate: non-ignorable
+                                        backwards: false
+                                        caseFirst: lower
+                                        caseLevel: false
+                                        locale: af
+                                        maxVariable: punct
+                                        normalization: false
+                                        numericOrdering: false
+                                        strength: 3
+                                    collection: accounts
+                                    db: sample_airbnb
+                                    keys:
+                                        - property_type: "1"
+                                    options:
+                                        name: PartialIndexTest
+                                        partialFilterExpression:
+                                            limit:
+                                                $gt: 900
+                            Sparse Index:
+                                description: Sparse Index
+                                value:
+                                    collation:
+                                        alternate: non-ignorable
+                                        backwards: false
+                                        caseFirst: lower
+                                        caseLevel: false
+                                        locale: af
+                                        maxVariable: punct
+                                        normalization: false
+                                        numericOrdering: false
+                                        strength: 3
+                                    collection: accounts
+                                    db: sample_airbnb
+                                    keys:
+                                        - test_field: "1"
+                                    options:
+                                        name: SparseIndexTest
+                                        sparse: true
+                        schema:
+                            $ref: '#/components/schemas/DatabaseRollingIndexRequest'
+                description: Rolling index to create on the specified cluster.
+                required: true
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-xgen-version: "2023-01-01"
+                    description: Accepted
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Rolling Index
+            tags:
+                - Rolling Index
+            x-xgen-owner-team: Developer Tools
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation

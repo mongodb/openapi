@@ -1,0 +1,324 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/orgs/{orgId}/billing/costExplorer/usage:
+        post:
+            description: Creates a query process within the Cost Explorer for the given parameters. A token is returned that can be used to poll the status of the query and eventually retrieve the results.
+            operationId: createCostExplorerQueryProcess
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/CostExplorerFilterRequestBody'
+                description: Filter parameters for the Cost Explorer query.
+                required: true
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/CostExplorerFilterResponseView'
+                            x-xgen-version: "2023-01-01"
+                    description: Accepted
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create Cost Explorer query process
+            tags:
+                - Invoices
+            x-xgen-owner-team: Billing Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/orgs/{orgId}/billing/costExplorer/usage/{token}:
+        get:
+            description: Returns the usage details for a Cost Explorer query, if the query is finished and the data is ready to be viewed. If the data is not ready, a 'processing' response willindicate that another request should be sent later to view the data.
+            operationId: getCostExplorerQueryProcess
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Unique 64 digit string that identifies the Cost Explorer query.
+                  in: path
+                  name: token
+                  required: true
+                  schema:
+                    example: 4ABBE973862346D40F3AE859D4BE96E0F895764EB14EAB039E7B82F9D638C05C
+                    maxLength: 64
+                    minLength: 64
+                    type: string
+            responses:
+                "102":
+                    description: Processing
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+csv:
+                            schema:
+                                type: string
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/CostExplorerQueryResult'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return results from a given Cost Explorer query, or notify that the results are not ready yet.
+            tags:
+                - Invoices
+            x-xgen-owner-team: Billing Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/orgs/{orgId}/invoices:
+        get:
+            description: |-
+                Returns all invoices that MongoDB issued to the specified organization. This list includes all invoices regardless of invoice status. To use this resource, the requesting API Key must have the Organization Billing Viewer, Organization Billing Admin, or Organization Owner role. If you have a cross-organization setup, you can view linked invoices if you have the Organization Billing Admin or Organization Owner role.
+                To compute the total owed amount of the invoices - sum up total owed of each invoice. It could be computed as a sum of owed amount of each payment included into the invoice. To compute payment's owed amount - use formula *totalBilledCents* * *unitPrice* + *salesTax* - *startingBalanceCents*.
+            operationId: listInvoices
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Flag that indicates whether to return linked invoices in the linkedInvoices field.
+                  in: query
+                  name: viewLinkedInvoices
+                  schema:
+                    default: true
+                    example: true
+                    type: boolean
+                - description: Statuses of the invoice to be retrieved. Omit to return invoices of all statuses.
+                  in: query
+                  name: statusNames
+                  schema:
+                    items:
+                        enum:
+                            - PENDING
+                            - CLOSED
+                            - FORGIVEN
+                            - FAILED
+                            - PAID
+                            - FREE
+                            - PREPAID
+                            - INVOICED
+                        type: string
+                    type: array
+                    uniqueItems: true
+                - description: Retrieve the invoices the startDates of which are greater than or equal to the fromDate. If omit, the invoices return will go back to earliest startDate.
+                  in: query
+                  name: fromDate
+                  schema:
+                    example: "2023-01-01"
+                    format: date
+                    type: string
+                - description: Retrieve the invoices the endDates of which are smaller than or equal to the toDate. If omit, the invoices return will go further to latest endDate.
+                  in: query
+                  name: toDate
+                  schema:
+                    example: "2023-01-01"
+                    format: date
+                    type: string
+                - description: Field used to sort the returned invoices by. Use in combination with orderBy parameter to control the order of the result.
+                  in: query
+                  name: sortBy
+                  schema:
+                    default: END_DATE
+                    enum:
+                        - START_DATE
+                        - END_DATE
+                    type: string
+                - description: Field used to order the returned invoices by. Use in combination of sortBy parameter to control the order of the result.
+                  example: desc
+                  in: query
+                  name: orderBy
+                  schema:
+                    default: desc
+                    enum:
+                        - desc
+                        - asc
+                    type: string
+                    x-xgen-IPA-exception:
+                        xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiInvoiceMetadataView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Invoices for One Organization
+            tags:
+                - Invoices
+            x-xgen-owner-team: Payments
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:
+        get:
+            description: |-
+                Returns one invoice that MongoDB issued to the specified organization. A unique 24-hexadecimal digit string identifies the invoice. You can choose to receive this invoice in JSON or CSV format. To use this resource, the requesting API Key must have the Organization Billing Viewer, Organization Billing Admin, or Organization Owner role. If you have a cross-organization setup, you can query for a linked invoice if you have the Organization Billing Admin or Organization Owner role.
+                To compute the total owed amount of the invoice - sum up total owed amount of each payment included into the invoice. To compute payment's owed amount - use formula *totalBilledCents* * *unitPrice* + *salesTax* - *startingBalanceCents*.
+            operationId: getInvoice
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the invoice submitted to the specified organization. Charges typically post the next day.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+csv:
+                            schema:
+                                type: string
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/BillingInvoice'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Organization Invoice
+            tags:
+                - Invoices
+            x-xgen-owner-team: Payments
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/csv:
+        get:
+            description: |-
+                Returns one invoice that MongoDB issued to the specified organization in CSV format. A unique 24-hexadecimal digit string identifies the invoice. To use this resource, the requesting API Key have at least the Organization Billing Viewer, Organization Billing Admin, or Organization Owner role. If you have a cross-organization setup, you can query for a linked invoice if you have the Organization Billing Admin or Organization Owner Role.
+                 To compute the total owed amount of the invoice - sum up total owed amount of each payment included into the invoice. To compute payment's owed amount - use formula *totalBilledCents* * *unitPrice* + *salesTax* - *startingBalanceCents*.
+            operationId: downloadInvoiceCsv
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the invoice submitted to the specified organization. Charges typically post the next day.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    pattern: '[0-9a-f]+'
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+csv:
+                            example: |
+                                Invoice Number,666acb8787ba43606905dcae,
+                                Billing Period,"June 1, 2024 - July 1, 2024",
+                                Organization Name,Test 2,
+                                Organization ID,666acb8787ba43606905dcac,
+
+                                Date,Usage Date,Description,Note,Organization Name,Organization ID,Project,Project ID,SKU,Region,Cluster,Replica Set,Config Server,Application,Unit,Unit Price,Quantity,Discount Percent,Amount
+                            schema:
+                                type: string
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Organization Invoice as CSV
+            tags:
+                - Invoices
+            x-xgen-owner-team: Payments
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/lineItems:search:
+        get:
+            description: Query the lineItems of the specified invoice and return the result JSON. A unique 24-hexadecimal digit string identifies the invoice.
+            operationId: queryLineItemsFromSingleInvoice
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique 24-hexadecimal digit string that identifies the invoice submitted to the specified organization. Charges typically post the next day.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiPublicUsageDetailsQueryRequest'
+                description: Filter parameters for the lineItems query. Send a request with an empty JSON body to retrieve all line items for a given invoiceID without applying any filters.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedPublicApiUsageDetailsLineItemView'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Query lineItems of the specified invoiceId
+            tags:
+                - Invoices
+            x-xgen-owner-team: Billing
+    /api/atlas/v2/orgs/{orgId}/invoices/pending:
+        get:
+            description: Returns all invoices accruing charges for the current billing cycle for the specified organization. To use this resource, the requesting API Key must have the Organization Billing Viewer, Organization Billing Admin, or Organization Owner role. If you have a cross-organization setup, you can view linked invoices if you have the Organization Billing Admin or Organization Owner Role.
+            operationId: listPendingInvoices
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiInvoiceView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Pending Invoices for One Organization
+            tags:
+                - Invoices
+            x-xgen-owner-team: Payments
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

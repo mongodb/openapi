@@ -1,0 +1,255 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/eventTypes:
+        get:
+            description: Returns a list of all event types, along with a description and additional metadata about each event.
+            operationId: listEventTypes
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedEventTypeDetailsResponse'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: List All Possible Event Types
+            tags:
+                - Events
+            x-xgen-owner-team: CAP
+    /api/atlas/v2/groups/{groupId}/events:
+        get:
+            description: |-
+                Returns all events for the specified project. Events identify significant database, billing, or security activities or status changes. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                This resource remains under revision and may change.
+            operationId: listProjectEvents
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: query
+                  name: clusterNames
+                  schema:
+                    items:
+                        maxLength: 64
+                        minLength: 1
+                        pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                        type: string
+                    type: array
+                  style: form
+                - description: |-
+                    Category of incident recorded at this moment in time.
+
+                    **IMPORTANT**: The complete list of event type values changes frequently.
+                  in: query
+                  name: eventType
+                  schema:
+                    items:
+                        $ref: '#/components/schemas/EventTypeForNdsGroup'
+                    type: array
+                - description: |-
+                    Category of event that you would like to exclude from query results, such as CLUSTER_CREATED
+
+                    **IMPORTANT**: Event type names change frequently. Verify that you specify the event type correctly by checking the complete list of event types.
+                  in: query
+                  name: excludedEventType
+                  schema:
+                    items:
+                        $ref: '#/components/schemas/EventTypeForNdsGroup'
+                    type: array
+                - description: Flag that indicates whether to include the raw document in the output. The raw document contains additional meta information about the event.
+                  in: query
+                  name: includeRaw
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Date and time from when MongoDB Cloud stops returning events. This parameter uses the <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener noreferrer">ISO 8601</a> timestamp format in UTC.
+                  in: query
+                  name: maxDate
+                  schema:
+                    format: date-time
+                    type: string
+                - description: Date and time from when MongoDB Cloud starts returning events. This parameter uses the <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener noreferrer">ISO 8601</a> timestamp format in UTC.
+                  in: query
+                  name: minDate
+                  schema:
+                    format: date-time
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupPaginatedEventView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Events from One Project
+            tags:
+                - Events
+            x-xgen-owner-team: CAP
+    /api/atlas/v2/groups/{groupId}/events/{eventId}:
+        get:
+            description: |-
+                Returns one event for the specified project. Events identify significant database, billing, or security activities or status changes. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                This resource remains under revision and may change.
+            operationId: getProjectEvent
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the event that you want to return. Use the [/events](#tag/Events/operation/listProjectEvents) endpoint to retrieve all events to which the authenticated user has access.
+                  in: path
+                  name: eventId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: Flag that indicates whether to include the raw document in the output. The raw document contains additional meta information about the event.
+                  in: query
+                  name: includeRaw
+                  schema:
+                    default: false
+                    type: boolean
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/EventViewForNdsGroup'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Event from One Project
+            tags:
+                - Events
+            x-xgen-owner-team: CAP
+    /api/atlas/v2/orgs/{orgId}/events:
+        get:
+            description: |-
+                Returns all events for the specified organization. Events identify significant database, billing, or security activities or status changes. To use this resource, the requesting API Key must have the Organization Member role.
+
+                This resource remains under revision and may change.
+            operationId: listOrganizationEvents
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: |-
+                    Category of incident recorded at this moment in time.
+
+                    **IMPORTANT**: The complete list of event type values changes frequently.
+                  in: query
+                  name: eventType
+                  schema:
+                    items:
+                        $ref: '#/components/schemas/EventTypeForOrg'
+                    type: array
+                - description: Flag that indicates whether to include the raw document in the output. The raw document contains additional meta information about the event.
+                  in: query
+                  name: includeRaw
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Date and time from when MongoDB Cloud stops returning events. This parameter uses the <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener noreferrer">ISO 8601</a> timestamp format in UTC.
+                  in: query
+                  name: maxDate
+                  schema:
+                    format: date-time
+                    type: string
+                - description: Date and time from when MongoDB Cloud starts returning events. This parameter uses the <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener noreferrer">ISO 8601</a> timestamp format in UTC.
+                  in: query
+                  name: minDate
+                  schema:
+                    format: date-time
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgPaginatedEventView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Events from One Organization
+            tags:
+                - Events
+            x-xgen-owner-team: CAP
+    /api/atlas/v2/orgs/{orgId}/events/{eventId}:
+        get:
+            description: |-
+                Returns one event for the specified organization. Events identify significant database, billing, or security activities or status changes. To use this resource, the requesting API Key must have the Organization Member role.
+
+                This resource remains under revision and may change.
+            operationId: getOrganizationEvent
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the event that you want to return. Use the [/events](#tag/Events/operation/listOrganizationEvents) endpoint to retrieve all events to which the authenticated user has access.
+                  in: path
+                  name: eventId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: Flag that indicates whether to include the raw document in the output. The raw document contains additional meta information about the event.
+                  in: query
+                  name: includeRaw
+                  schema:
+                    default: false
+                    type: boolean
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/EventViewForOrg'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Event from One Organization
+            tags:
+                - Events
+            x-xgen-owner-team: CAP

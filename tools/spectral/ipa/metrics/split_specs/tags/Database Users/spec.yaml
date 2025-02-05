@@ -1,0 +1,329 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/databaseUsers:
+        get:
+            description: Returns all database users that belong to the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listDatabaseUsers
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasDatabaseUserView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Database Users from One Project
+            tags:
+                - Database Users
+            x-xgen-owner-team: Atlas Dedicated
+        post:
+            description: Creates one database user in the specified project. This MongoDB Cloud supports a maximum of 100 database users per project. If you require more than 100 database users on a project, contact [Support](https://cloud.mongodb.com/support). To use this resource, the requesting API Key must have the Project Owner role, the Project Charts Admin role, Project Stream Processing Owner role, or the Project Database Access Admin role.
+            operationId: createDatabaseUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        examples:
+                            AWS IAM Authentication:
+                                description: AWS IAM Authentication
+                                value:
+                                    awsIAMType: USER
+                                    databaseName: $external
+                                    groupId: 32b6e34b3d91647abb20e7b8
+                                    roles:
+                                        - databaseName: sales
+                                          roleName: readWrite
+                                        - databaseName: marketing
+                                          roleName: read
+                                    scopes:
+                                        - name: myCluster
+                                          type: CLUSTER
+                                    username: arn:aws:iam::358363220050:user/mongodb-aws-iam-auth-test-user
+                            LDAP Authentication:
+                                description: LDAP Authentication
+                                value:
+                                    databaseName: admin
+                                    groupId: 32b6e34b3d91647abb20e7b8
+                                    ldapAuthType: GROUP
+                                    roles:
+                                        - databaseName: sales
+                                          roleName: readWrite
+                                        - databaseName: marketing
+                                          roleName: read
+                                    scopes:
+                                        - name: myCluster
+                                          type: CLUSTER
+                                    username: CN=marketing,OU=groups,DC=example,DC=com
+                            OIDC Workforce Federated Authentication:
+                                description: OIDC Workforce Federated Authentication
+                                value:
+                                    databaseName: admin
+                                    groupId: 32b6e34b3d91647abb20e7b8
+                                    oidcAuthType: IDP_GROUP
+                                    roles:
+                                        - databaseName: sales
+                                          roleName: readWrite
+                                        - databaseName: marketing
+                                          roleName: read
+                                    scopes:
+                                        - name: myCluster
+                                          type: CLUSTER
+                                    username: 5dd7496c7a3e5a648454341c/sales
+                            OIDC Workload Federated Authentication:
+                                description: OIDC Workload Federated Authentication
+                                value:
+                                    databaseName: $external
+                                    groupId: 32b6e34b3d91647abb20e7b8
+                                    oidcAuthType: USER
+                                    roles:
+                                        - databaseName: sales
+                                          roleName: readWrite
+                                        - databaseName: marketing
+                                          roleName: read
+                                    scopes:
+                                        - name: myCluster
+                                          type: CLUSTER
+                                    username: 5dd7496c7a3e5a648454341c/sales
+                            SCRAM-SHA Authentication:
+                                description: SCRAM-SHA Authentication
+                                value:
+                                    databaseName: admin
+                                    groupId: 32b6e34b3d91647abb20e7b8
+                                    password: changeme123
+                                    roles:
+                                        - databaseName: sales
+                                          roleName: readWrite
+                                        - databaseName: marketing
+                                          roleName: read
+                                    scopes:
+                                        - name: myCluster
+                                          type: CLUSTER
+                                    username: david
+                            X509 Authentication:
+                                description: X509 Authentication
+                                value:
+                                    databaseName: $external
+                                    groupId: 32b6e34b3d91647abb20e7b8
+                                    roles:
+                                        - databaseName: sales
+                                          roleName: readWrite
+                                        - databaseName: marketing
+                                          roleName: read
+                                    scopes:
+                                        - name: myCluster
+                                          type: CLUSTER
+                                    username: CN=david@example.com,OU=users,DC=example,DC=com
+                                    x509Type: CUSTOMER
+                        schema:
+                            $ref: '#/components/schemas/CloudDatabaseUser'
+                description: Creates one database user in the specified project.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/CloudDatabaseUser'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Database User in One Project
+            tags:
+                - Database Users
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}:
+        delete:
+            description: Removes one database user from the specified project. To use this resource, the requesting API Key must have the Project Owner role, the Project Stream Processing Owner role, or the Project Database Access Admin role.
+            operationId: deleteDatabaseUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: The database against which the database user authenticates. Database users must provide both a username and authentication database to log into MongoDB. If the user authenticates with AWS IAM, x.509, LDAP, or OIDC Workload this value should be `$external`. If the user authenticates with SCRAM-SHA or OIDC Workforce, this value should be `admin`.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: |
+                    Human-readable label that represents the user that authenticates to MongoDB. The format of this label depends on the method of authentication:
+
+                    | Authentication Method | Parameter Needed | Parameter Value | username Format |
+                    |---|---|---|---|
+                    | AWS IAM | awsIAMType | ROLE | <abbr title="Amazon Resource Name">ARN</abbr> |
+                    | AWS IAM | awsIAMType | USER | <abbr title="Amazon Resource Name">ARN</abbr> |
+                    | x.509 | x509Type | CUSTOMER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | x.509 | x509Type | MANAGED | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | LDAP | ldapAuthType | USER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | LDAP | ldapAuthType | GROUP | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | OIDC Workforce | oidcAuthType | IDP_GROUP | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP group name |
+                    | OIDC Workload | oidcAuthType | USER | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP user name |
+                    | SCRAM-SHA | awsIAMType, x509Type, ldapAuthType, oidcAuthType | NONE | Alphanumeric string |
+                  in: path
+                  name: username
+                  required: true
+                  schema:
+                    example: 'SCRAM-SHA: dylan or AWS IAM: arn:aws:iam::123456789012:user/sales/enterprise/DylanBloggs or x.509/LDAP: CN=Dylan Bloggs,OU=Enterprise,OU=Sales,DC=Example,DC=COM or OIDC: IdPIdentifier/IdPGroupName'
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Database User from One Project
+            tags:
+                - Database Users
+            x-xgen-owner-team: Atlas Dedicated
+        get:
+            description: Returns one database user that belong to the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getDatabaseUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: The database against which the database user authenticates. Database users must provide both a username and authentication database to log into MongoDB. If the user authenticates with AWS IAM, x.509, LDAP, or OIDC Workload this value should be `$external`. If the user authenticates with SCRAM-SHA or OIDC Workforce, this value should be `admin`.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: |
+                    Human-readable label that represents the user that authenticates to MongoDB. The format of this label depends on the method of authentication:
+
+                    | Authentication Method | Parameter Needed | Parameter Value | username Format |
+                    |---|---|---|---|
+                    | AWS IAM | awsIAMType | ROLE | <abbr title="Amazon Resource Name">ARN</abbr> |
+                    | AWS IAM | awsIAMType | USER | <abbr title="Amazon Resource Name">ARN</abbr> |
+                    | x.509 | x509Type | CUSTOMER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | x.509 | x509Type | MANAGED | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | LDAP | ldapAuthType | USER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | LDAP | ldapAuthType | GROUP | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | OIDC Workforce | oidcAuthType | IDP_GROUP | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP group name |
+                    | OIDC Workload | oidcAuthType | USER | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP user name |
+                    | SCRAM-SHA | awsIAMType, x509Type, ldapAuthType, oidcAuthType | NONE | Alphanumeric string |
+                  in: path
+                  name: username
+                  required: true
+                  schema:
+                    example: 'SCRAM-SHA: dylan or AWS IAM: arn:aws:iam::123456789012:user/sales/enterprise/DylanBloggs or x.509/LDAP: CN=Dylan Bloggs,OU=Enterprise,OU=Sales,DC=Example,DC=COM or OIDC: IdPIdentifier/IdPGroupName'
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/CloudDatabaseUser'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Database User from One Project
+            tags:
+                - Database Users
+            x-xgen-owner-team: Atlas Dedicated
+        patch:
+            description: Updates one database user that belongs to the specified project. To use this resource, the requesting API Key must have the Project Owner role, Project Charts Admin role, Project Stream Processing Owner role, or the Project Database Access Admin role.
+            operationId: updateDatabaseUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: The database against which the database user authenticates. Database users must provide both a username and authentication database to log into MongoDB. If the user authenticates with AWS IAM, x.509, LDAP, or OIDC Workload this value should be `$external`. If the user authenticates with SCRAM-SHA or OIDC Workforce, this value should be `admin`.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: |
+                    Human-readable label that represents the user that authenticates to MongoDB. The format of this label depends on the method of authentication:
+
+                    | Authentication Method | Parameter Needed | Parameter Value | username Format |
+                    |---|---|---|---|
+                    | AWS IAM | awsIAMType | ROLE | <abbr title="Amazon Resource Name">ARN</abbr> |
+                    | AWS IAM | awsIAMType | USER | <abbr title="Amazon Resource Name">ARN</abbr> |
+                    | x.509 | x509Type | CUSTOMER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | x.509 | x509Type | MANAGED | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | LDAP | ldapAuthType | USER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | LDAP | ldapAuthType | GROUP | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | OIDC Workforce | oidcAuthType | IDP_GROUP | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP group name |
+                    | OIDC Workload | oidcAuthType | USER | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP user name |
+                    | SCRAM-SHA | awsIAMType, x509Type, ldapAuthType, oidcAuthType | NONE | Alphanumeric string |
+                  in: path
+                  name: username
+                  required: true
+                  schema:
+                    example: 'SCRAM-SHA: dylan or AWS IAM: arn:aws:iam::123456789012:user/sales/enterprise/DylanBloggs or x.509/LDAP: CN=Dylan Bloggs,OU=Enterprise,OU=Sales,DC=Example,DC=COM or OIDC: IdPIdentifier/IdPGroupName'
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/CloudDatabaseUser'
+                description: Updates one database user that belongs to the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/CloudDatabaseUser'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Database User in One Project
+            tags:
+                - Database Users
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
