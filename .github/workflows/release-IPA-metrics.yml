@@ -3,7 +3,7 @@
 name: IPA Validation Metrics Release
 on:
   schedule:
-    - cron: '0 22 * * *'  # Runs daily at 22:00 UTC (10 PM UTC)
+    - cron: '0 11 * * *'  # Runs daily at 11:00 UTC (11 AM UTC)
   workflow_dispatch:
 permissions:
   issues: write
@@ -11,7 +11,8 @@ env:
   NODE_VERSION: '20.x'
   WORKING_DIR: ./tools/spectral/ipa/metrics/scripts
   OAS_ENV: 'dev'
-  OAS_BRANCH: 'main'
+  OAS_BRANCH: 'dev'
+  OAS_FILE: 'openapi/v2.json'
 
 jobs:
   # Generates and uploads the IPA validation metrics to S3
@@ -19,8 +20,17 @@ jobs:
     name: Release IPA Validation Metrics
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout repository (scripts)
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          sparse-checkout:
+              tools/spectral/ipa
+
+      - name: Checkout repository (dev branch)
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: $OAS_BRANCH
+          sparse-checkout: $OAS_FILE
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -31,32 +41,9 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-      - name: Checkout repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-        with:
-          ref: $OAS_BRANCH
-          token: ${{secrets.API_BOT_PAT}}
-
-      - name: Upload current Specs and Changelog files
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
-        with:
-          name: base-$OAS_ENV
-          retention-days: 1
-          path: |
-            openapi/v2/openapi*.json
-            changelog/changelog.json
-            changelog/internal/changelog-all.json
-            changelog/internal/metadata.json  
-
-      - name: Download openapi-foas
-        uses: actions/download-artifact@v4
-        with:
-          name: openapi-foas-$OAS_ENV
-          github-token: ${{ secrets.API_BOT_PAT }}
-
       - name: Run Metric Collection Job
         working-directory: $WORKING_DIR
-        run: node runMetricCollection.js ../../../../../openapi-foas.json
+        run: node runMetricCollection.js ../../../../../openapi/v2.json
 
       - name: Dump Metric Collection Job Data to S3
         env:
