@@ -38,7 +38,7 @@ jobs:
       - name: Validate OAS file
         run: |
           if [ ! -f "dev-oas/${{ env.OAS_FILE }}" ]; then
-            echo "::error::OAS file not found in $OAS_BRANCH branch"
+            echo "::error::OAS file not found in ${{ env.OAS_BRANCH }} branch"
             exit 1
           fi
 
@@ -52,18 +52,17 @@ jobs:
         run: npm install
 
       - name: Run Metric Collection Job
-        working-directory: tools/spectral/ipa/metrics/scripts
-        run: |
-          ls -la
-          node runMetricCollection.js "${{ env.DEV_OAS_PATH }}/openapi/v2.json"
+        #working-directory: tools/spectral/ipa/metrics/scripts
+        run: ls -la
+        #  node runMetricCollection.js "${{ env.DEV_OAS_PATH }}/openapi/v2.json"
 
-      - name: Dump Metric Collection Job Data to S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
-          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
-        working-directory: tools/spectral/ipa/metrics/scripts
-        run: node dataDump.js
+#      - name: Dump Metric Collection Job Data to S3
+#        env:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
+#          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
+#        working-directory: tools/spectral/ipa/metrics/scripts
+#        run: node dataDump.js
 
 #  failure-handler:
 #    name: Failure Handler
