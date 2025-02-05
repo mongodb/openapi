@@ -31,13 +31,13 @@ jobs:
       - name: Checkout repository (dev branch)
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
-          ref: $OAS_BRANCH
-          sparse-checkout: $OAS_FILE
+          ref: ${{ env.OAS_BRANCH }}
+          sparse-checkout: ${{ env.OAS_FILE }}
           path: dev-oas
 
       - name: Validate OAS file
         run: |
-          if [ ! -f "dev-oas/$OAS_FILE" ]; then
+          if [ ! -f "dev-oas/${{ env.OAS_FILE }}" ]; then
             echo "::error::OAS file not found in $OAS_BRANCH branch"
             exit 1
           fi
@@ -52,24 +52,24 @@ jobs:
         run: npm install
 
       - name: Run Metric Collection Job
-        working-directory: $IPA_PATH/metrics/scripts
-        run: node runMetricCollection.js "$DEV_OAS_PATH/openapi/v2.json"
+        working-directory: ${{ env.IPA_PATH }}/metrics/scripts
+        run: node runMetricCollection.js "${{ env.DEV_OAS_PATH }}/openapi/v2.json"
 
       - name: Dump Metric Collection Job Data to S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
           S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
-        working-directory: $IPA_PATH/metrics/scripts
+        working-directory: ${{ env.IPA_PATH }}/metrics/scripts
         run: node dataDump.js
 
-  failure-handler:
-    name: Failure Handler
-    needs: [ release-IPA-metrics ]
-    if: ${{ failure() }}
-    uses: ./.github/workflows/failure-handler.yml
-    with:
-      env: $OAS_BRANCH
-      release_name: "IPA Metrics"
-    secrets:
-      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+#  failure-handler:
+#    name: Failure Handler
+#    needs: [ release-IPA-metrics ]
+#    if: ${{ failure() }}
+#    uses: ./.github/workflows/failure-handler.yml
+#    with:
+#      env: $OAS_BRANCH
+#      release_name: "IPA Metrics"
+#    secrets:
+#      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
