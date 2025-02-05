@@ -244,7 +244,7 @@
     }
   ],
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2043-01-01+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2025-02-19+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -252,7 +252,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "11c57a5a84492487976573d7030889a4d5d242ac"
+    "x-xgen-sha": "bb206ec276269e4310e955e9d7986ce824d1b425"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -25019,7 +25019,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/users": {
       "get": {
-        "description": "Returns details about all users in the specified project. Users belong to an organization. To use this resource, the requesting API Key must have the Project Read Only role.",
+        "description": "Returns details about the pending and active MongoDB Cloud users associated with the specified project. To use this resource, the requesting API Key must have the Project Read Only role.\n\n**Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.\n\n**Note**: If using a deprecated version, only active users will be returned.",
         "operationId": "listProjectUsers",
         "parameters": [
           {
@@ -25057,6 +25057,24 @@
               "default": false,
               "type": "boolean"
             }
+          },
+          {
+            "description": "Flag that indicates whether to filter the returned list by users organization membership status. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.",
+            "in": "query",
+            "name": "orgMembershipStatus",
+            "schema": {
+              "example": "ACTIVE",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Email address to filter users by. Not supported in deprecated versions.",
+            "in": "query",
+            "name": "username",
+            "schema": {
+              "format": "email",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -25069,14 +25087,11 @@
                 "x-sunset": "2044-01-01",
                 "x-xgen-version": "2023-01-01"
               },
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedGroupUserView"
                 },
-                "x-xgen-hidden-env": {
-                  "envs": "qa,stage,prod"
-                },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -25088,11 +25103,11 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return All Users in One Project",
+        "summary": "Return All MongoDB Cloud Users in One Project",
         "tags": [
-          "Projects"
+          "MongoDB Cloud Users"
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/listProjectUsers",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listProjectUsers",
         "x-xgen-owner-team": "IAM"
       },
       "post": {
@@ -25111,7 +25126,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+json": {
+            "application/vnd.atlas.2025-02-19+json": {
               "schema": {
                 "$ref": "#/components/schemas/GroupUserRequest"
               }
@@ -25123,11 +25138,11 @@
         "responses": {
           "201": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/GroupUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "Created"
@@ -25156,15 +25171,12 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addProjectUser",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },
     "/api/atlas/v2/groups/{groupId}/users/{userId}": {
       "delete": {
-        "description": "Removes the specified user from the specified project. To use this resource, the requesting API Key must have the Project Owner role.",
+        "description": "Removes one MongoDB Cloud user from the specified project. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Project Owner role.\n\n**Note**: This resource cannot be used to remove pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.\n\n**Note**: If using a deprecated version, only active users can be removed.",
         "operationId": "removeProjectUser",
         "parameters": [
           {
@@ -25177,7 +25189,7 @@
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Unique 24-hexadecimal string that identifies MongoDB Cloud user you want to remove from the specified project. To return a application user's ID using their application username, use the Get All application users in One Project endpoint.",
+            "description": "Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the [Return All MongoDB Cloud Users in One Project](#tag/MongoDB-Cloud-Users/operation/listProjectUsers) resource and filter by username.",
             "in": "path",
             "name": "userId",
             "required": true,
@@ -25194,14 +25206,11 @@
                 "x-sunset": "2026-07-31",
                 "x-xgen-version": "2023-01-01"
               },
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/NoBody"
                 },
-                "x-xgen-hidden-env": {
-                  "envs": "qa,stage,prod"
-                },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "This endpoint does not return a response body."
@@ -25219,11 +25228,11 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Remove One User from One Project",
+        "summary": "Remove One MongoDB Cloud User from One Project",
         "tags": [
-          "Projects"
+          "MongoDB Cloud Users"
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/removeProjectUser",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeProjectUser",
         "x-xgen-owner-team": "IAM"
       },
       "get": {
@@ -25253,11 +25262,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/GroupUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -25283,9 +25292,6 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getProjectUser",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },
@@ -25390,7 +25396,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+json": {
+            "application/vnd.atlas.2025-02-19+json": {
               "schema": {
                 "$ref": "#/components/schemas/AddOrRemoveGroupRole"
               }
@@ -25402,11 +25408,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -25435,9 +25441,6 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addProjectRole",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },
@@ -25468,7 +25471,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+json": {
+            "application/vnd.atlas.2025-02-19+json": {
               "schema": {
                 "$ref": "#/components/schemas/AddOrRemoveGroupRole"
               }
@@ -25480,11 +25483,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -25513,9 +25516,6 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeProjectRole",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },
@@ -29409,7 +29409,7 @@
     },
     "/api/atlas/v2/orgs/{orgId}/teams/{teamId}/users": {
       "get": {
-        "description": "Returns all MongoDB Cloud users assigned to the team specified using its unique 24-hexadecimal digit identifier. This team belongs to one organization. Teams enable you to grant project access roles to MongoDB Cloud users. To use this resource, the requesting API Key must have the Organization Member role.",
+        "description": "Returns details about the pending and active MongoDB Cloud users associated with the specified team in the organization. Teams enable you to grant project access roles to MongoDB Cloud users. To use this resource, the requesting API Key must have the Organization Member role.**Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.\n\n**Note**: If using a deprecated version, only active users will be returned.",
         "externalDocs": {
           "description": "Manage Organization Teams",
           "url": "https://docs.atlas.mongodb.com/access/manage-teams-in-orgs/#std-label-manage-teams"
@@ -29440,6 +29440,24 @@
               "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             }
+          },
+          {
+            "description": "Email address to filter users by. Not supported in deprecated versions.",
+            "in": "query",
+            "name": "username",
+            "schema": {
+              "format": "email",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization membership status to filter users by. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.",
+            "in": "query",
+            "name": "orgMembershipStatus",
+            "schema": {
+              "example": "ACTIVE",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -29452,14 +29470,11 @@
                 "x-sunset": "2044-01-01",
                 "x-xgen-version": "2023-01-01"
               },
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedOrgUserView"
                 },
-                "x-xgen-hidden-env": {
-                  "envs": "qa,stage,prod"
-                },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -29482,9 +29497,9 @@
         },
         "summary": "Return All MongoDB Cloud Users Assigned to One Team",
         "tags": [
-          "Teams"
+          "MongoDB Cloud Users"
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/listTeamUsers",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listTeamUsers",
         "x-xgen-owner-team": "IAM"
       },
       "post": {
@@ -29668,7 +29683,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+json": {
+            "application/vnd.atlas.2025-02-19+json": {
               "schema": {
                 "$ref": "#/components/schemas/AddOrRemoveUserFromTeam"
               }
@@ -29680,11 +29695,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -29710,9 +29725,6 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addUserToTeam",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },
@@ -29743,7 +29755,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+json": {
+            "application/vnd.atlas.2025-02-19+json": {
               "schema": {
                 "$ref": "#/components/schemas/AddOrRemoveUserFromTeam"
               }
@@ -29755,11 +29767,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -29785,15 +29797,12 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeUserFromTeam",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/users": {
       "get": {
-        "description": "Returns details about the MongoDB Cloud users associated with the specified organization. Each MongoDB Cloud user returned must belong to the specified organization or to a project within the specified organization. To use this resource, the requesting API Key must have the Organization Member role.",
+        "description": "Returns details about the pending and active MongoDB Cloud users associated with the specified organization. To use this resource, the requesting API Key must have the Organization Member role.\n\n**Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.\n\n**Note**: If using a deprecated version, only active users will be returned.",
         "operationId": "listOrganizationUsers",
         "parameters": [
           {
@@ -29813,6 +29822,24 @@
           },
           {
             "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "description": "Email address to filter users by. Not supported in deprecated versions.",
+            "in": "query",
+            "name": "username",
+            "schema": {
+              "format": "email",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization membership status to filter users by. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.",
+            "in": "query",
+            "name": "orgMembershipStatus",
+            "schema": {
+              "example": "ACTIVE",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -29825,14 +29852,11 @@
                 "x-sunset": "2026-07-31",
                 "x-xgen-version": "2023-01-01"
               },
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedOrgUserView"
                 },
-                "x-xgen-hidden-env": {
-                  "envs": "qa,stage,prod"
-                },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -29852,9 +29876,9 @@
         },
         "summary": "Return All MongoDB Cloud Users in One Organization",
         "tags": [
-          "Organizations"
+          "MongoDB Cloud Users"
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/listOrganizationUsers",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listOrganizationUsers",
         "x-xgen-owner-team": "IAM"
       },
       "post": {
@@ -29873,7 +29897,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+json": {
+            "application/vnd.atlas.2025-02-19+json": {
               "schema": {
                 "$ref": "#/components/schemas/OrgUserRequest"
               }
@@ -29885,11 +29909,11 @@
         "responses": {
           "201": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "Created"
@@ -29918,15 +29942,12 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/createOrganizationUser",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/users/{userId}": {
       "delete": {
-        "description": "Removes one MongoDB Cloud user from the specified organization. To use this resource, the requesting API Key must have the Organization User Admin role.",
+        "description": "Removes one MongoDB Cloud user in the specified organization. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.\n\n**Note**: This resource cannot be used to remove pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.\n\n**Note**: If using a deprecated version, only active users can be removed.",
         "operationId": "removeOrganizationUser",
         "parameters": [
           {
@@ -29939,7 +29960,7 @@
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Unique 24-hexadecimal digit string that identifies the user to be deleted.",
+            "description": "Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the [Return All MongoDB Cloud Users in One Organization](#tag/MongoDB-Cloud-Users/operation/listOrganizationUsers) resource and filter by username.",
             "in": "path",
             "name": "userId",
             "required": true,
@@ -29959,14 +29980,11 @@
                 "x-sunset": "2026-07-31",
                 "x-xgen-version": "2023-01-01"
               },
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/NoBody"
                 },
-                "x-xgen-hidden-env": {
-                  "envs": "qa,stage,prod"
-                },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "This endpoint does not return a response body."
@@ -29989,9 +30007,9 @@
         },
         "summary": "Remove One MongoDB Cloud User From One Organization",
         "tags": [
-          "Organizations"
+          "MongoDB Cloud Users"
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/removeOrganizationUser",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrganizationUser",
         "x-xgen-owner-team": "IAM"
       },
       "get": {
@@ -30021,11 +30039,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -30051,9 +30069,6 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getOrganizationUser",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       },
       "patch": {
@@ -30082,7 +30097,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+json": {
+            "application/vnd.atlas.2025-02-19+json": {
               "schema": {
                 "$ref": "#/components/schemas/OrgUserUpdateRequest"
               }
@@ -30094,11 +30109,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -30124,9 +30139,6 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/updateOrganizationUser",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },
@@ -30231,7 +30243,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+json": {
+            "application/vnd.atlas.2025-02-19+json": {
               "schema": {
                 "$ref": "#/components/schemas/AddOrRemoveOrgRole"
               }
@@ -30243,11 +30255,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -30276,9 +30288,6 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addOrganizationRole",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },
@@ -30309,7 +30318,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+json": {
+            "application/vnd.atlas.2025-02-19+json": {
               "schema": {
                 "$ref": "#/components/schemas/AddOrRemoveOrgRole"
               }
@@ -30321,11 +30330,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2043-01-01+json": {
+              "application/vnd.atlas.2025-02-19+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgUserResponse"
                 },
-                "x-xgen-version": "2043-01-01"
+                "x-xgen-version": "2025-02-19"
               }
             },
             "description": "OK"
@@ -30351,9 +30360,6 @@
           "MongoDB Cloud Users"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrganizationRole",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        },
         "x-xgen-owner-team": "IAM"
       }
     },

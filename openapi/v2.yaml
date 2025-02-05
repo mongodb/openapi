@@ -34506,7 +34506,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.2043-01-01+json" \
+          --header "Accept: application/vnd.atlas.2025-02-19+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -34519,7 +34519,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 11c57a5a84492487976573d7030889a4d5d242ac
+    x-xgen-sha: bb206ec276269e4310e955e9d7986ce824d1b425
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -50449,7 +50449,12 @@ paths:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/users:
         get:
-            description: Returns details about all users in the specified project. Users belong to an organization. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: |-
+                Returns details about the pending and active MongoDB Cloud users associated with the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                **Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users will be returned.
             operationId: listProjectUsers
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -50470,6 +50475,18 @@ paths:
                   schema:
                     default: false
                     type: boolean
+                - description: Flag that indicates whether to filter the returned list by users organization membership status. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.
+                  in: query
+                  name: orgMembershipStatus
+                  schema:
+                    example: ACTIVE
+                    type: string
+                - description: Email address to filter users by. Not supported in deprecated versions.
+                  in: query
+                  name: username
+                  schema:
+                    format: email
+                    type: string
             responses:
                 "200":
                     content:
@@ -50478,21 +50495,19 @@ paths:
                                 $ref: '#/components/schemas/PaginatedAppUserView'
                             x-sunset: "2044-01-01"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedGroupUserView'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return All Users in One Project
+            summary: Return All MongoDB Cloud Users in One Project
             tags:
-                - Projects
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/listProjectUsers
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listProjectUsers
             x-xgen-owner-team: IAM
         post:
             description: "Adds one MongoDB Cloud user to one project. To use this resource, the requesting API Key must have the Project Owner role. \n- If the user has a pending invitation to join the project's organization, MongoDB Cloud modifies it and grants project access. \n- If the user doesn't have an invitation to join the organization, MongoDB Cloud sends a new invitation that grants the user organization and project access. \n- If the user is already active in the project's organization, MongoDB Cloud grants access to the project. \n"
@@ -50503,7 +50518,7 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/GroupUserRequest'
                 description: The active or pending MongoDB Cloud user that you want to add to the specified project.
@@ -50511,10 +50526,10 @@ paths:
             responses:
                 "201":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/GroupUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50532,18 +50547,21 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addProjectUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/groups/{groupId}/users/{userId}:
         delete:
-            description: Removes the specified user from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            description: |-
+                Removes one MongoDB Cloud user from the specified project. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Project Owner role.
+
+                **Note**: This resource cannot be used to remove pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users can be removed.
             operationId: removeProjectUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
-                - description: Unique 24-hexadecimal string that identifies MongoDB Cloud user you want to remove from the specified project. To return a application user's ID using their application username, use the Get All application users in One Project endpoint.
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the [Return All MongoDB Cloud Users in One Project](#tag/MongoDB-Cloud-Users/operation/listProjectUsers) resource and filter by username.
                   in: path
                   name: userId
                   required: true
@@ -50556,12 +50574,10 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/NoBody'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: This endpoint does not return a response body.
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50571,10 +50587,10 @@ paths:
                     $ref: '#/components/responses/notFound'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Remove One User from One Project
+            summary: Remove One MongoDB Cloud User from One Project
             tags:
-                - Projects
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/removeProjectUser
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeProjectUser
             x-xgen-owner-team: IAM
         get:
             description: |-
@@ -50598,10 +50614,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/GroupUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50617,8 +50633,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getProjectUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/groups/{groupId}/users/{userId}/roles:
         put:
@@ -50687,7 +50701,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveGroupRole'
                 description: Project-level role to assign to the MongoDB Cloud user.
@@ -50695,10 +50709,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50716,8 +50730,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addProjectRole
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/groups/{groupId}/users/{userId}:removeRole:
         post:
@@ -50739,7 +50751,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveGroupRole'
                 description: Project-level role to remove from the MongoDB Cloud user.
@@ -50747,10 +50759,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50768,8 +50780,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeProjectRole
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/groups/{groupId}:migrate:
         post:
@@ -53223,7 +53233,10 @@ paths:
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/teams/{teamId}/users:
         get:
-            description: Returns all MongoDB Cloud users assigned to the team specified using its unique 24-hexadecimal digit identifier. This team belongs to one organization. Teams enable you to grant project access roles to MongoDB Cloud users. To use this resource, the requesting API Key must have the Organization Member role.
+            description: |-
+                Returns details about the pending and active MongoDB Cloud users associated with the specified team in the organization. Teams enable you to grant project access roles to MongoDB Cloud users. To use this resource, the requesting API Key must have the Organization Member role.**Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users will be returned.
             externalDocs:
                 description: Manage Organization Teams
                 url: https://docs.atlas.mongodb.com/access/manage-teams-in-orgs/#std-label-manage-teams
@@ -53241,6 +53254,18 @@ paths:
                   schema:
                     pattern: ^([a-f0-9]{24})$
                     type: string
+                - description: Email address to filter users by. Not supported in deprecated versions.
+                  in: query
+                  name: username
+                  schema:
+                    format: email
+                    type: string
+                - description: Organization membership status to filter users by. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.
+                  in: query
+                  name: orgMembershipStatus
+                  schema:
+                    example: ACTIVE
+                    type: string
             responses:
                 "200":
                     content:
@@ -53249,12 +53274,10 @@ paths:
                                 $ref: '#/components/schemas/PaginatedAppUserView'
                             x-sunset: "2044-01-01"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedOrgUserView'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53268,8 +53291,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return All MongoDB Cloud Users Assigned to One Team
             tags:
-                - Teams
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/listTeamUsers
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listTeamUsers
             x-xgen-owner-team: IAM
         post:
             deprecated: true
@@ -53390,7 +53413,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveUserFromTeam'
                 description: The active or pending MongoDB Cloud user that you want to add to the specified team.
@@ -53398,10 +53421,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53417,8 +53440,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addUserToTeam
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/teams/{teamId}:removeUser:
         post:
@@ -53440,7 +53461,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveUserFromTeam'
                 description: The id of the active or pending MongoDB Cloud user that you want to remove from the specified team.
@@ -53448,10 +53469,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53467,8 +53488,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeUserFromTeam
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/teams/byName/{teamName}:
         get:
@@ -53512,7 +53531,12 @@ paths:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/orgs/{orgId}/users:
         get:
-            description: Returns details about the MongoDB Cloud users associated with the specified organization. Each MongoDB Cloud user returned must belong to the specified organization or to a project within the specified organization. To use this resource, the requesting API Key must have the Organization Member role.
+            description: |-
+                Returns details about the pending and active MongoDB Cloud users associated with the specified organization. To use this resource, the requesting API Key must have the Organization Member role.
+
+                **Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users will be returned.
             operationId: listOrganizationUsers
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -53521,6 +53545,18 @@ paths:
                 - $ref: '#/components/parameters/includeCount'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
+                - description: Email address to filter users by. Not supported in deprecated versions.
+                  in: query
+                  name: username
+                  schema:
+                    format: email
+                    type: string
+                - description: Organization membership status to filter users by. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.
+                  in: query
+                  name: orgMembershipStatus
+                  schema:
+                    example: ACTIVE
+                    type: string
             responses:
                 "200":
                     content:
@@ -53529,12 +53565,10 @@ paths:
                                 $ref: '#/components/schemas/PaginatedAppUserView'
                             x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedOrgUserView'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53546,8 +53580,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return All MongoDB Cloud Users in One Organization
             tags:
-                - Organizations
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/listOrganizationUsers
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listOrganizationUsers
             x-xgen-owner-team: IAM
         post:
             description: |-
@@ -53561,7 +53595,7 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/OrgUserRequest'
                 description: Represents the MongoDB Cloud user to be created within the organization.
@@ -53569,10 +53603,10 @@ paths:
             responses:
                 "201":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53590,18 +53624,21 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/createOrganizationUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/users/{userId}:
         delete:
-            description: Removes one MongoDB Cloud user from the specified organization. To use this resource, the requesting API Key must have the Organization User Admin role.
+            description: |-
+                Removes one MongoDB Cloud user in the specified organization. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This resource cannot be used to remove pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users can be removed.
             operationId: removeOrganizationUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/pretty'
-                - description: Unique 24-hexadecimal digit string that identifies the user to be deleted.
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the [Return All MongoDB Cloud Users in One Organization](#tag/MongoDB-Cloud-Users/operation/listOrganizationUsers) resource and filter by username.
                   in: path
                   name: userId
                   required: true
@@ -53616,12 +53653,10 @@ paths:
                                 $ref: '#/components/schemas/NoBody'
                             x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/NoBody'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: This endpoint does not return a response body.
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53635,8 +53670,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Remove One MongoDB Cloud User From One Organization
             tags:
-                - Organizations
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/removeOrganizationUser
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrganizationUser
             x-xgen-owner-team: IAM
         get:
             description: |-
@@ -53660,10 +53695,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53679,8 +53714,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getOrganizationUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
         patch:
             description: |-
@@ -53703,7 +53736,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/OrgUserUpdateRequest'
                 description: Represents the roles and teams to assign the MongoDB Cloud user.
@@ -53711,10 +53744,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53730,8 +53763,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/updateOrganizationUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/users/{userId}/roles:
         put:
@@ -53802,7 +53833,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveOrgRole'
                 description: Organization-level role to assign to the MongoDB Cloud user.
@@ -53810,10 +53841,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53831,8 +53862,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addOrganizationRole
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/users/{userId}:removeRole:
         post:
@@ -53856,7 +53885,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveOrgRole'
                 description: Organization-level role to remove from the MongoDB Cloud user.
@@ -53864,10 +53893,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53883,8 +53912,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrganizationRole
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/unauth/controlPlaneIPAddresses:
         get:
