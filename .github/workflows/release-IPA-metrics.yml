@@ -9,10 +9,11 @@ permissions:
   issues: write
 env:
   NODE_VERSION: '20.x'
-  WORKING_DIR: ./tools/spectral/ipa/metrics/scripts
   OAS_ENV: 'dev'
   OAS_BRANCH: 'dev'
   OAS_FILE: 'openapi/v2.json'
+  SCRIPTS_PATH: ${{ github.workspace }}/scripts
+  DEV_OAS_PATH: ${{ github.workspace }}/dev-oas
 
 jobs:
   # Generates and uploads the IPA validation metrics to S3
@@ -24,13 +25,15 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           sparse-checkout:
-              tools/spectral/ipa
+              tools/spectral/ipa/metrics/scripts
+          path: scripts
 
       - name: Checkout repository (dev branch)
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           ref: $OAS_BRANCH
           sparse-checkout: $OAS_FILE
+          path: dev-oas
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -42,15 +45,15 @@ jobs:
         run: npm install
 
       - name: Run Metric Collection Job
-        working-directory: $WORKING_DIR
-        run: node runMetricCollection.js ../../../../../openapi/v2.json
+        working-directory: $SCRIPTS_PATH
+        run: node runMetricCollection.js $DEV_OAS_PATH/openapi/v2.json
 
       - name: Dump Metric Collection Job Data to S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
           S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
-        working-directory: $WORKING_DIR
+        working-directory: $SCRIPTS_PATH
         run: node dataDump.js
 
   failure-handler:
