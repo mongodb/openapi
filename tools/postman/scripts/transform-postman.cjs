@@ -17,7 +17,6 @@ const _ = require('lodash');
 #   TOKEN_URL_ENV - client credentials auth path to set at the environment level, will not be set if unpopulated
 #   BASE_URL - the default base url the Postman Collection will use
  */
-// TODO CLI arguments instead of env variables.
 const COLLECTION_FILE_NAME = process.env.COLLECTION_FILE_NAME || 'collection.json';
 const COLLECTION_TRANSFORMED_FILE_NAME = process.env.COLLECTION_TRANSFORMED_FILE_NAME || 'collection-transformed.json';
 const OPENAPI_FILE_NAME = process.env.OPENAPI_FILE_NAME || 'atlas-api.json';
