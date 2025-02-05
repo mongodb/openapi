@@ -12,7 +12,6 @@ env:
   NODE_VERSION: '20.x'
   OAS_BRANCH: 'dev'
   OAS_FILE: 'openapi/v2.json'
-  DEV_OAS_PATH: ${{ github.workspace }}/dev-oas
 
 jobs:
   # Generates and uploads the IPA validation metrics to S3
@@ -20,12 +19,17 @@ jobs:
     name: Release IPA Validation Metrics
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository (dev branch)
+      - name: Fetch OAS file from Dev Branch
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           ref: ${{ env.OAS_BRANCH }}
           sparse-checkout: ${{ env.OAS_FILE }}
-          path: dev-oas
+
+      - name: Upload OAS file
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: oas-dev
+          path: ${{ env.OAS_FILE }}
 
       - name: Checkout repository (scripts)
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -34,23 +38,6 @@ jobs:
             tools/spectral/ipa
             package.json
             package-lock.json
-
-      - name: Validate OAS file
-        run: |
-          if [ ! -f "${{ env.DEV_OAS_PATH }}/${{ env.OAS_FILE }}" ]; then
-            ls -la
-            echo "::error::OAS file not found in ${{ env.OAS_BRANCH }} branch"
-            exit 1
-          fi
-
-      - name: Debug Checkout
-        run: |
-          echo "Workspace Contents:"
-          ls -la
-          echo "Tools Spectral Contents:"
-          ls -la tools/spectral
-          echo "IPA Contents:"
-          ls -la tools/spectral/ipa || echo "ipa directory is missing!"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -61,10 +48,14 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      - name: Download oas-dev
+        uses: actions/download-artifact@v4
+        with:
+          name: oas-dev
+
       - name: Run Metric Collection Job
-        working-directory: tools/spectral/ipa
-        run: ls -la
-        #  node runMetricCollection.js "${{ env.DEV_OAS_PATH }}/openapi/v2.json"
+        working-directory: tools/spectral/ipa/metrics/scripts
+        run: node runMetricCollection.js ${{ env.OAS_FILE }}
 
 #      - name: Dump Metric Collection Job Data to S3
 #        env:
