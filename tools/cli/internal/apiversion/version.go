@@ -57,7 +57,7 @@ func (v *APIVersion) newVersion(version string, date time.Time) {
 	v.stabilityVersion = StableStabilityLevel
 	v.versionDate = date
 
-	if IsPreviewVersion(version) {
+	if IsPreviewSabilityLevel(version) {
 		v.versionDate = time.Now().AddDate(10, 0, 0) // set preview date to the future
 		v.stabilityVersion = PreviewStabilityLevel
 	}
@@ -103,7 +103,7 @@ func WithContent(contentType string) Option {
 }
 
 func DateFromVersion(version string) (time.Time, error) {
-	if IsPreviewVersion(version) {
+	if IsPreviewSabilityLevel(version) {
 		return time.Now(), nil
 	}
 	return time.Parse(dateFormat, version)
@@ -142,11 +142,19 @@ func (v *APIVersion) StabilityLevel() string {
 }
 
 func (v *APIVersion) ExactMatchOnly() bool {
-	return v.stabilityVersion == PreviewStabilityLevel
+	return v.IsPreview()
 }
 
-func IsPreviewVersion(version string) bool {
-	return strings.EqualFold(version, PreviewStabilityLevel)
+func (v *APIVersion) IsPreview() bool {
+	return IsPreviewSabilityLevel(v.version)
+}
+
+func IsPreviewSabilityLevel(value string) bool {
+	return strings.EqualFold(value, PreviewStabilityLevel)
+}
+
+func IsStableSabilityLevel(value string) bool {
+	return strings.EqualFold(value, StableStabilityLevel)
 }
 
 func FindMatchesFromContentType(contentType string) []string {

@@ -76,11 +76,11 @@ func (o *Opts) filterStabilityLevelVersions(apiVersions []string) []string {
 
 	var out []string
 	for _, v := range apiVersions {
-		if o.stabilityLevel == apiversion.PreviewStabilityLevel && strings.Contains(v, "preview") {
+		if (apiversion.IsStableSabilityLevel(o.stabilityLevel)) && !apiversion.IsPreviewSabilityLevel(v) {
 			out = append(out, v)
 		}
 
-		if o.stabilityLevel == apiversion.StableStabilityLevel && !strings.Contains(v, "preview") {
+		if (apiversion.IsPreviewSabilityLevel(o.stabilityLevel)) && apiversion.IsPreviewSabilityLevel(v) {
 			out = append(out, v)
 		}
 	}
