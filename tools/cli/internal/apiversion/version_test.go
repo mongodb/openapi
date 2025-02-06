@@ -49,8 +49,20 @@ func TestParseVersion(t *testing.T) {
 			wantErr:       false,
 		},
 		{
-			name:          "preview",
+			name:          "preview_json",
 			contentType:   "application/vnd.atlas.preview+json",
+			expectedMatch: "preview",
+			wantErr:       false,
+		},
+		{
+			name:          "preview_yaml",
+			contentType:   "application/vnd.atlas.preview+yaml",
+			expectedMatch: "preview",
+			wantErr:       false,
+		},
+		{
+			name:          "preview_csv",
+			contentType:   "application/vnd.atlas.preview+csv",
 			expectedMatch: "preview",
 			wantErr:       false,
 		},
@@ -429,6 +441,11 @@ func TestFindLatestContentVersionMatched(t *testing.T) {
 			expectedMatch: "2023-01-01",
 		},
 		{
+			name:          "exact match preview",
+			targetVersion: "preview",
+			expectedMatch: "preview",
+		},
+		{
 			name:          "exact match 2023-11-15",
 			targetVersion: "2023-11-15",
 			expectedMatch: "2023-11-15",
@@ -482,6 +499,7 @@ func oasOperationAllVersions() *openapi3.Operation {
 	responses.Set("200", &openapi3.ResponseRef{
 		Value: &openapi3.Response{
 			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.preview+json":    {},
 				"application/vnd.atlas.2023-01-01+json": {},
 				"application/vnd.atlas.2023-01-01+csv":  {},
 				"application/vnd.atlas.2023-02-01+json": {},
