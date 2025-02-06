@@ -7,12 +7,7 @@ on:
   workflow_dispatch:
 permissions:
   issues: write
-env:
-  NODE_VERSION: '20.x'
-  OAS_BRANCH: 'dev'
-  OAS_FILE: 'openapi/v2.json'
-  IPA_PATH: ${{ github.workspace }}/ipa
-  DEV_OAS_PATH: ${{ github.workspace }}/dev-oas
+  contents: write
 
 jobs:
   # Generates and uploads the IPA validation metrics to S3
@@ -20,46 +15,50 @@ jobs:
     name: Release IPA Validation Metrics
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch OAS file from Dev Branch
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: 'dev'
+          sparse-checkout: openapi/v2.json
+
+      - name: Upload OAS file
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: oas-dev
+          path: openapi/v2.json
+
       - name: Checkout repository (scripts)
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
-          sparse-checkout:
-              tools/spectral/ipa
-          path: ipa
-
-      - name: Checkout repository (dev branch)
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-        with:
-          ref: $OAS_BRANCH
-          sparse-checkout: $OAS_FILE
-          path: dev-oas
-
-      - name: Validate OAS file
-        run: |
-          if [ ! -f "dev-oas/$OAS_FILE" ]; then
-            echo "::error::OAS file not found in $OAS_BRANCH branch"
-            exit 1
-          fi
+          sparse-checkout: |
+            tools/spectral/ipa
+            package.json
+            package-lock.json
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: $NODE_VERSION
+          node-version: '20.x'
           cache: 'npm'
 
       - name: Install npm dependencies
         run: npm install
 
+      - name: Download oas-dev
+        uses: actions/download-artifact@v4
+        with:
+          name: oas-dev
+
       - name: Run Metric Collection Job
-        working-directory: $IPA_PATH/metrics/scripts
-        run: node runMetricCollection.js "$DEV_OAS_PATH/openapi/v2.json"
+        working-directory: tools/spectral/ipa/metrics/scripts
+        run: node runMetricCollection.js "${{ github.workspace }}/v2.json"
 
       - name: Dump Metric Collection Job Data to S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
           S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
-        working-directory: $IPA_PATH/metrics/scripts
+        working-directory: tools/spectral/ipa/metrics/scripts
         run: node dataDump.js
 
   failure-handler:
@@ -68,7 +67,7 @@ jobs:
     if: ${{ failure() }}
     uses: ./.github/workflows/failure-handler.yml
     with:
-      env: $OAS_BRANCH
+      env: 'dev'
       release_name: "IPA Metrics"
     secrets:
       jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
