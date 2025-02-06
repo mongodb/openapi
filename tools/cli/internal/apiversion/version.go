@@ -58,7 +58,7 @@ func (v *APIVersion) newVersion(version string, date time.Time) {
 	v.versionDate = date
 
 	if IsPreviewVersion(version) {
-		v.versionDate = time.Now()
+		v.versionDate = time.Now().AddDate(10, 0, 0) // set preview date to the future
 		v.stabilityVersion = PreviewStabilityLevel
 	}
 }
