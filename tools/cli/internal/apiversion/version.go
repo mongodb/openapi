@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -54,6 +55,13 @@ func New(opts ...Option) (*APIVersion, error) {
 // WithVersion sets the version on the APIVersion.
 func WithVersion(version string) Option {
 	return func(v *APIVersion) error {
+		if strings.EqualFold(version, PreviewStabilityLevel) {
+			v.version = version
+			v.stabilityVersion = PreviewStabilityLevel
+			v.versionDate = time.Now() // make preview look like the latest version
+			return nil
+		}
+
 		versionDate, err := DateFromVersion(version)
 		if err != nil {
 			return err
@@ -87,6 +95,7 @@ func WithContent(contentType string) Option {
 		v.stabilityVersion = StableStabilityLevel
 		if version == PreviewStabilityLevel {
 			v.stabilityVersion = PreviewStabilityLevel
+			v.versionDate = time.Now() // make preview look like the latest version
 			return nil
 		}
 

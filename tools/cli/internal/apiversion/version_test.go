@@ -49,6 +49,12 @@ func TestParseVersion(t *testing.T) {
 			wantErr:       false,
 		},
 		{
+			name:          "preview",
+			contentType:   "application/vnd.atlas.preview+json",
+			expectedMatch: "preview",
+			wantErr:       false,
+		},
+		{
 			name:          "invalid",
 			contentType:   "application/vnd.test.2023-01-01",
 			expectedMatch: "",
@@ -92,6 +98,12 @@ func TestNewAPIVersionFromContentType(t *testing.T) {
 			name:          "yaml",
 			contentType:   "application/vnd.atlas.2030-02-20+yaml",
 			expectedMatch: "2030-02-20",
+			wantErr:       false,
+		},
+		{
+			name:          "preview",
+			contentType:   "application/vnd.atlas.preview+json",
+			expectedMatch: "preview",
 			wantErr:       false,
 		},
 		{
