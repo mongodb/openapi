@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -31,8 +32,8 @@ type APIVersion struct {
 
 const (
 	dateFormat            = "2006-01-02"
-	StableStabilityLevel  = "STABLE"
-	PreviewStabilityLevel = "PREVIEW"
+	StableStabilityLevel  = "stable"
+	PreviewStabilityLevel = "preview"
 )
 
 var contentPattern = regexp.MustCompile(`application/vnd\.atlas\.((\d{4})-(\d{2})-(\d{2})|preview)\+(.+)`)
@@ -51,6 +52,17 @@ func New(opts ...Option) (*APIVersion, error) {
 	return version, nil
 }
 
+func (v *APIVersion) newVersion(version string, date time.Time) {
+	v.version = version
+	v.stabilityVersion = StableStabilityLevel
+	v.versionDate = date
+
+	if IsPreviewSabilityLevel(version) {
+		v.versionDate = time.Now().AddDate(10, 0, 0) // set preview date to the future
+		v.stabilityVersion = PreviewStabilityLevel
+	}
+}
+
 // WithVersion sets the version on the APIVersion.
 func WithVersion(version string) Option {
 	return func(v *APIVersion) error {
@@ -59,8 +71,7 @@ func WithVersion(version string) Option {
 			return err
 		}
 
-		v.version = version
-		v.versionDate = versionDate
+		v.newVersion(version, versionDate)
 		return nil
 	}
 }
@@ -68,9 +79,7 @@ func WithVersion(version string) Option {
 // WithDate sets the version on the APIVersion.
 func WithDate(date time.Time) Option {
 	return func(v *APIVersion) error {
-		v.version = date.Format(dateFormat)
-		v.versionDate = date
-		v.stabilityVersion = StableStabilityLevel
+		v.newVersion(date.Format(dateFormat), date)
 		return nil
 	}
 }
@@ -83,22 +92,20 @@ func WithContent(contentType string) Option {
 			return err
 		}
 
-		v.version = version
-		v.stabilityVersion = StableStabilityLevel
-		if version == PreviewStabilityLevel {
-			v.stabilityVersion = PreviewStabilityLevel
-			return nil
-		}
-
-		v.versionDate, err = DateFromVersion(version)
+		versionDate, err := DateFromVersion(version)
 		if err != nil {
 			return err
 		}
+
+		v.newVersion(version, versionDate)
 		return nil
 	}
 }
 
 func DateFromVersion(version string) (time.Time, error) {
+	if IsPreviewSabilityLevel(version) {
+		return time.Now(), nil
+	}
 	return time.Parse(dateFormat, version)
 }
 
@@ -128,6 +135,26 @@ func (v *APIVersion) String() string {
 
 func (v *APIVersion) Date() time.Time {
 	return v.versionDate
+}
+
+func (v *APIVersion) StabilityLevel() string {
+	return v.stabilityVersion
+}
+
+func (v *APIVersion) ExactMatchOnly() bool {
+	return v.IsPreview()
+}
+
+func (v *APIVersion) IsPreview() bool {
+	return IsPreviewSabilityLevel(v.version)
+}
+
+func IsPreviewSabilityLevel(value string) bool {
+	return strings.EqualFold(value, PreviewStabilityLevel)
+}
+
+func IsStableSabilityLevel(value string) bool {
+	return strings.EqualFold(value, StableStabilityLevel)
 }
 
 func FindMatchesFromContentType(contentType string) []string {
@@ -160,6 +187,7 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 			 op response:
 			   "200":
 				  content: application/vnd.atlas.2023-01-01+json
+				  content: application/vnd.atlas.preview+json
 			   "201":
 				  content: application/vnd.atlas.2023-12-01+json
 				  content: application/vnd.atlas.2025-01-01+json
@@ -181,12 +209,17 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 				log.Printf("Ignoring invalid content type: %q", contentType)
 				continue
 			}
-			if contentVersion.GreaterThan(requestedVersion) {
-				continue
-			}
 
 			if contentVersion.Equal(requestedVersion) {
 				return contentVersion
+			}
+
+			if contentVersion.ExactMatchOnly() || requestedVersion.ExactMatchOnly() {
+				continue
+			}
+
+			if contentVersion.GreaterThan(requestedVersion) {
+				continue
 			}
 
 			if latestVersionMatch == nil || contentVersion.GreaterThan(latestVersionMatch) {
