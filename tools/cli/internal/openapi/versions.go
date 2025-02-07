@@ -120,7 +120,7 @@ func parsePreviewExtensionData(contentTypeValue *openapi3.MediaType) (public boo
 		return false, "", errors.New("no preview extension found")
 	}
 
-	previewExtensionMap, ok := previewExtension.(map[string]interface{})
+	previewExtensionMap, ok := previewExtension.(map[string]any)
 	if !ok {
 		return false, "", errors.New("no preview extension found")
 	}
