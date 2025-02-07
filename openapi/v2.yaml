@@ -2455,6 +2455,31 @@ components:
             readOnly: true
             title: BSON Timestamp
             type: object
+        ApiChartsDashboardImportRequestView20430101:
+            description: Details to import or override a dashboard.
+            properties:
+                dashboardId:
+                    description: Optional field that contains the ID of the dashboard to override. If `override=true`, you must provide this field.
+                    type: string
+                override:
+                    description: Flag that indicates whether to override a dashboard.
+                    type: boolean
+                template:
+                    description: Template of the dashboard to import, which corresponds to the returned response schema from calling the Dashboard Export API.
+                    format: binary
+                    type: string
+            type: object
+        ApiChartsDashboardImportResponseView20430101:
+            description: Imported dashboard and associated imported items.
+            properties:
+                dashboard:
+                    $ref: '#/components/schemas/ImportedDashboard'
+                items:
+                    description: Imported items.
+                    items:
+                        $ref: '#/components/schemas/ImportedItem'
+                    type: array
+            type: object
         ApiCheckpointPartView:
             description: Metadata contained in one document that describes the complete snapshot taken for this node.
             properties:
@@ -20286,6 +20311,38 @@ components:
                         xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
             readOnly: true
             type: object
+        ImportedDashboard:
+            description: Imported dashboard.
+            properties:
+                embeddingId:
+                    description: Embedding ID of the item. This field only returns if embedding is enabled for the entity.
+                    type: string
+                id:
+                    description: ID of the dashboard.
+                    type: string
+                title:
+                    description: Title of the dashboard.
+                    type: string
+            required:
+                - id
+                - title
+            type: object
+        ImportedItem:
+            description: Imported Item.
+            properties:
+                embeddingId:
+                    description: Embedding ID of the item. This will only be returned if embedding is enabled for the entity.
+                    type: string
+                id:
+                    description: ID of the item.
+                    type: string
+                title:
+                    description: Title of the item.
+                    type: string
+            required:
+                - id
+                - title
+            type: object
         InboundControlPlaneCloudProviderIPAddresses:
             description: List of inbound IP addresses to the Atlas control plane, categorized by cloud provider. If your application allows outbound HTTP requests only to specific IP addresses, you must allow access to the following IP addresses so that your API requests can reach the Atlas control plane.
             properties:
@@ -34476,7 +34533,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.2025-02-19+json" \
+          --header "Accept: application/vnd.atlas.2043-01-01+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -34489,7 +34546,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 34713ca9c73fd08a01ce3c7a448c47a0b9086018
+    x-xgen-sha: 20d55b7101990a22a2ccdf88b31868b8ad47fc5b
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -36766,6 +36823,75 @@ paths:
                 - Cloud Backups
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateDataProtectionSettings
             x-xgen-owner-team: Backup - Atlas
+    /api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export:
+        get:
+            description: Exports the specified Charts dashboard. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: exportChartsDashboard
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: ID of the dashboard to export.
+                  in: path
+                  name: dashboardId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                description: This resource downloads a Charts dashboard. You can use this resource to import to the Charts Dashboard Import endpoint.
+                                format: binary
+                                type: string
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Export One Charts Dashboard
+            tags:
+                - Charts Dashboards
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/exportChartsDashboard
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Sydney Cloud Integration
+    /api/atlas/v2/groups/{groupId}/chartsDashboards:import:
+        post:
+            description: Imports the Charts dashboard that the template specifies. Optionally, you can specify a `dashboardId` with `override=true` to import into an existing dashboard. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: importChartsDashboard
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+multipart:
+                        schema:
+                            $ref: '#/components/schemas/ApiChartsDashboardImportRequestView20430101'
+                description: Details to import or override a dashboard.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiChartsDashboardImportResponseView20430101'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Import One Charts Dashboard
+            tags:
+                - Charts Dashboards
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/importChartsDashboard
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Sydney Cloud Integration
     /api/atlas/v2/groups/{groupId}/cloudProviderAccess:
         get:
             description: Returns all cloud provider access roles with access to the specified project. To use this resource, the requesting API Key must have the Project Owner role.
@@ -54084,6 +54210,8 @@ tags:
       name: Auditing
     - description: Returns and edits custom DNS configurations for MongoDB Cloud database deployments on AWS. The resource requires your Project ID. If you use the VPC peering on AWS and you use your own DNS servers instead of Amazon Route 53, enable custom DNS. Before 31 March 2020, applications deployed within AWS using custom DNS services and VPC-peered with MongoDB Cloud couldn't connect over private IP addresses. Custom DNS resolved to public IP addresses. AWS internal DNS resolved to private IP addresses. Applications deployed with custom DNS services in AWS should use Private IP for Peering connection strings.
       name: AWS Clusters DNS
+    - description: Returns, adds, and edits Charts Dashboard instances. This resource applies only to projects with a Charts tenant, and requires your Project ID.
+      name: Charts Dashboards
     - description: Manages Cloud Backup snapshots, snapshot export buckets, restore jobs, and schedules. This resource applies only to clusters that use Cloud Backups.
       name: Cloud Backups
     - description: Manages the Cloud Migration Service. Source organizations, projects, and MongoDB clusters reside on Cloud Manager or Ops Manager. Destination organizations, projects, and MongoDB clusters reside on MongoDB Cloud. Source databases can't use any authentication except SCRAM-SHA.

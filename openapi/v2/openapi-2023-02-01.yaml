@@ -2455,6 +2455,31 @@ components:
             readOnly: true
             title: BSON Timestamp
             type: object
+        ApiChartsDashboardImportRequestView20430101:
+            description: Details to import or override a dashboard.
+            properties:
+                dashboardId:
+                    description: Optional field that contains the ID of the dashboard to override. If `override=true`, you must provide this field.
+                    type: string
+                override:
+                    description: Flag that indicates whether to override a dashboard.
+                    type: boolean
+                template:
+                    description: Template of the dashboard to import, which corresponds to the returned response schema from calling the Dashboard Export API.
+                    format: binary
+                    type: string
+            type: object
+        ApiChartsDashboardImportResponseView20430101:
+            description: Imported dashboard and associated imported items.
+            properties:
+                dashboard:
+                    $ref: '#/components/schemas/ImportedDashboard'
+                items:
+                    description: Imported items.
+                    items:
+                        $ref: '#/components/schemas/ImportedItem'
+                    type: array
+            type: object
         ApiCheckpointPartView:
             description: Metadata contained in one document that describes the complete snapshot taken for this node.
             properties:
@@ -20286,6 +20311,38 @@ components:
                         xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
             readOnly: true
             type: object
+        ImportedDashboard:
+            description: Imported dashboard.
+            properties:
+                embeddingId:
+                    description: Embedding ID of the item. This field only returns if embedding is enabled for the entity.
+                    type: string
+                id:
+                    description: ID of the dashboard.
+                    type: string
+                title:
+                    description: Title of the dashboard.
+                    type: string
+            required:
+                - id
+                - title
+            type: object
+        ImportedItem:
+            description: Imported Item.
+            properties:
+                embeddingId:
+                    description: Embedding ID of the item. This will only be returned if embedding is enabled for the entity.
+                    type: string
+                id:
+                    description: ID of the item.
+                    type: string
+                title:
+                    description: Title of the item.
+                    type: string
+            required:
+                - id
+                - title
+            type: object
         InboundControlPlaneCloudProviderIPAddresses:
             description: List of inbound IP addresses to the Atlas control plane, categorized by cloud provider. If your application allows outbound HTTP requests only to specific IP addresses, you must allow access to the following IP addresses so that your API requests can reach the Atlas control plane.
             properties:
@@ -34489,7 +34546,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 34713ca9c73fd08a01ce3c7a448c47a0b9086018
+    x-xgen-sha: 20d55b7101990a22a2ccdf88b31868b8ad47fc5b
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
