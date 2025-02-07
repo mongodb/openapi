@@ -150,7 +150,7 @@ func (v *APIVersion) IsPreview() bool {
 }
 
 func IsPreviewSabilityLevel(value string) bool {
-	return strings.Contains(value, PreviewStabilityLevel)
+	return strings.EqualFold(value, PreviewStabilityLevel) || strings.Contains(value, PreviewStabilityLevel) // we also need string match given private preview versions like "private-preview-<name>"
 }
 
 func IsStableSabilityLevel(value string) bool {
