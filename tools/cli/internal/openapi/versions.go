@@ -15,7 +15,10 @@
 package openapi
 
 import (
+	"errors"
+	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
@@ -53,17 +56,88 @@ func extractVersions(oas *openapi3.T) ([]string, error) {
 				if response.Value == nil || response.Value.Content == nil {
 					continue
 				}
-				for contentType := range response.Value.Content {
+				for contentType, contentTypeValue := range response.Value.Content {
 					version, err := apiversion.Parse(contentType)
-					if err == nil {
-						versions[version] = struct{}{}
+					if err != nil {
+						continue
 					}
+
+					if apiversion.IsPreviewSabilityLevel(version) {
+						// parse if it is public or not
+						version, err = getPreviewVersionName(contentTypeValue)
+						if err != nil {
+							fmt.Printf("failed to parse preview version name: %v\n", err)
+							continue
+						}
+					}
+
+					versions[version] = struct{}{}
 				}
 			}
 		}
 	}
 
 	return mapKeysToSortedSlice(versions), nil
+}
+
+func getPreviewVersionName(contentTypeValue *openapi3.MediaType) (name string, err error) {
+	public, name, err := parsePreviewExtensionData(contentTypeValue)
+	if err != nil {
+		return "", err
+	}
+
+	if public {
+		return "preview", nil
+	}
+
+	if !public && name != "" {
+		return "private-preview-" + name, nil
+	}
+
+	return "", errors.New("no preview extension found")
+}
+
+func parsePreviewExtensionData(contentTypeValue *openapi3.MediaType) (public bool, name string, err error) {
+	// Expected formats:
+	//
+	//   "x-xgen-preview": {
+	// 		"name": "api-registry-private-preview"
+	//   }
+	//
+	//   "x-xgen-preview": {
+	// 		"public": "true"
+	//   }
+
+	name = ""
+	public = false
+
+	if contentTypeValue.Extensions == nil {
+		return false, "", errors.New("no preview extension found")
+	}
+
+	previewExtension, ok := contentTypeValue.Extensions["x-xgen-preview"]
+	if !ok {
+		return false, "", errors.New("no preview extension found")
+	}
+
+	previewExtensionMap, ok := previewExtension.(map[string]interface{})
+	if !ok {
+		return false, "", errors.New("no preview extension found")
+	}
+
+	// Reading if it's public or not
+	publicV, ok := previewExtensionMap["public"].(string)
+	if ok {
+		public = strings.EqualFold(publicV, "true")
+	}
+
+	// Reading the name
+	nameV, ok := previewExtensionMap["name"].(string)
+	if ok {
+		name = nameV
+	}
+
+	return public, name, nil
 }
 
 // mapKeysToSortedSlice converts map keys to a sorted slice.
