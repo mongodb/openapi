@@ -15,18 +15,6 @@ jobs:
     name: Release IPA Validation Metrics
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch OAS file from Dev Branch
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-        with:
-          ref: 'dev'
-          sparse-checkout: openapi/v2.json
-
-      - name: Upload OAS file
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
-        with:
-          name: oas-dev
-          path: openapi/v2.json
-
       - name: Checkout repository (scripts)
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
@@ -44,10 +32,9 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-      - name: Download oas-dev
-        uses: actions/download-artifact@v4
-        with:
-          name: oas-dev
+      - name: Fetch OAS file from Dev Branch
+        run: curl -L -O "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/v2.json"
+        working-directory: ${{ github.workspace }}
 
       - name: Run Metric Collection Job
         working-directory: tools/spectral/ipa/metrics/scripts
@@ -55,9 +42,9 @@ jobs:
 
       - name: Dump Metric Collection Job Data to S3
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_USERNAME }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PASSWORD }}
-          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_PROD_USERNAME }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_PROD_PASSWORD }}
+          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_PROD_PREFIX }}
         working-directory: tools/spectral/ipa/metrics/scripts
         run: node dataDump.js
 
