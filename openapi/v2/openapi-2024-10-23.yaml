@@ -30735,6 +30735,31 @@ components:
                 - id
             title: Stream Processor Events
             type: object
+        StreamsAWSConnectionBaseConfig:
+            description: The base configuration of AWS connection used in stream processors.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                roleArn:
+                    description: Amazon Resource Name (ARN) that identifies the Amazon Web Services (AWS) Identity and Access Management (IAM) role that MongoDB Cloud assumes when it accesses resources in your AWS account.
+                    type: string
+            type: object
+        StreamsAWSLambdaConnection:
+            allOf:
+                - $ref: '#/components/schemas/StreamsConnection'
+                - properties:
+                    aws:
+                        $ref: '#/components/schemas/StreamsAWSConnectionBaseConfig'
+                  type: object
+            description: The configuration for AWS Lambda connections.
+            type: object
         StreamsClusterConnection:
             allOf:
                 - $ref: '#/components/schemas/StreamsConnection'
@@ -30750,6 +30775,7 @@ components:
             description: Settings that define a connection to an external data store.
             discriminator:
                 mapping:
+                    AWSLambda: '#/components/schemas/StreamsAWSLambdaConnection'
                     Cluster: '#/components/schemas/StreamsClusterConnection'
                     Https: '#/components/schemas/StreamsHttpsConnection'
                     Kafka: '#/components/schemas/StreamsKafkaConnection'
@@ -30760,6 +30786,7 @@ components:
                 - $ref: '#/components/schemas/StreamsClusterConnection'
                 - $ref: '#/components/schemas/StreamsKafkaConnection'
                 - $ref: '#/components/schemas/StreamsHttpsConnection'
+                - $ref: '#/components/schemas/StreamsAWSLambdaConnection'
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -30780,6 +30807,7 @@ components:
                         - Cluster
                         - Sample
                         - Https
+                        - AWSLambda
                     type: string
                     x-xgen-IPA-exception:
                         xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
@@ -34536,7 +34564,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 0a1516fa9d9788e20c85285f4399ffbc36778480
+    x-xgen-sha: 0630a7f1dab1496989dfb2ed9db06b8b35b6f6ec
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
