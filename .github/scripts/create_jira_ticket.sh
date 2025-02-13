@@ -6,7 +6,7 @@
 # 2. URL encodes the JIRA ticket title.
 # 3. Checks if a JIRA ticket with the same title already exists in the specified project (id=10984) and component (id=35986).
 # 4. If a ticket already exists, it exits without creating a new ticket.
-# 5. If no ticket exists, it creates a new JIRA ticket with the provided title and description.
+# 5. If no ticket exists, it creates a new JIRA ticket with the provided title, description and team id.
 # 6. Outputs the ID of the created JIRA ticket and sets it as a GitHub Actions output variable.
 
 set -eou pipefail
@@ -64,7 +64,7 @@ json_response=$(curl --request POST \
     },
     "customfield_12751": [
       {
-        "id": "22223"
+        "id": "${JIRA_TEAM_ID:?}"
       }
     ],
     "description": "${JIRA_TICKET_DESCRIPTION:?}",
