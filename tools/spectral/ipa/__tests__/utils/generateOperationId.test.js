@@ -76,9 +76,24 @@ const standardMethodCases = [
     expectedOperationId: 'createGroupServiceAccounts', // Ideally singular instead of plural
   },
   {
+    path: '/api/atlas/v2/groups/{groupId}/invites/{invitationId}',
+    method: 'get',
+    expectedOperationId: 'getGroupInvitation',
+  },
+  {
+    path: '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}',
+    method: 'delete',
+    expectedOperationId: 'deleteFederationSettingsConnectedOrgConfigsOrgRoleMappings',
+  },
+  {
+    path: '/api/atlas/v2/groups/{groupId}/clusters/{hostName}/logs/{logName}.gz',
+    method: 'get',
+    expectedOperationId: 'getGroupClustersHostLog',
+  },
+  {
     path: '/api/atlas/v2/groups/{groupId}/serverless/{name}',
     method: 'delete',
-    expectedOperationId: 'deleteGroupServerlessName', // Ideally it should be something like /{instanceName} -> deleteGroupServerlessInstance
+    expectedOperationId: 'deleteGroupServerless', // Ideally it should be something like /{instanceName} -> deleteGroupServerlessInstance
   },
   {
     path: '/api/atlas/v2/groups/{groupId}/cloudProviderAccess/{cloudProvider}/{roleId}',

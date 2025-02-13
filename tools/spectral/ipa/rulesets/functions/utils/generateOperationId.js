@@ -1,9 +1,9 @@
-const PATH_PREFIX = 'api/atlas/v2/';
+const PATH_PREFIX = '/api/atlas/v2/';
 const lowerCasePattern = new RegExp('^[a-z]+$');
 
 // Method should be get, delete, update or create
 export function generateOperationIdForStandardMethod(path, method) {
-  let remainingPath = path.split(PATH_PREFIX)[1].split('/');
+  let remainingPath = removePathPrefix(path).split('/');
 
   // Start with the method, for example, 'get' or 'list'
   let operationId = method;
@@ -18,7 +18,7 @@ export function generateOperationIdForCustomMethod(path) {
   const resourcePath = path.split(':')[0];
   const customMethodName = path.split(':')[1];
 
-  let remainingPath = resourcePath.split(PATH_PREFIX)[1].split('/');
+  let remainingPath = removePathPrefix(resourcePath).split('/');
   let operationId = '';
 
   // Get custom verb to start the operationId
@@ -63,7 +63,16 @@ function getWordFromNextResource(pathSections) {
     // If parent ant specifier does not start the same way, return both
     // For example ServiceAccounts + Client
     const specifier = getResourceNameFromResourceSpecifier(pathSections[1]);
+    if (specifier === 'id' || specifier === 'hostname' || specifier === 'username' || specifier === 'name') {
+      const strippedPath = pathSections.slice(2);
+      return { nextWord: parentResource, strippedPath };
+    }
     if (!parentResource.startsWith(specifier)) {
+      if (specifier.endsWith('ation') && parentResource.startsWith(specifier.substring(0, specifier.length - 5))) {
+        const nextWord = specifier;
+        const strippedPath = pathSections.slice(2);
+        return { nextWord, strippedPath };
+      }
       const nextWord = parentResource + capitalizeFirstLetter(specifier);
       const strippedPath = pathSections.slice(2);
       return { nextWord, strippedPath };
@@ -90,13 +99,17 @@ function getWordFromNextResource(pathSections) {
 
 /**
  * Returns the resource name from a resource specifier.
- * For example, '{orgId}' returns 'org', 'apiUserId' returns 'apiUser'
+ * For example, '{orgId}' returns 'org', 'apiUserId' returns 'apiUser', '{logName}.gz' returns 'log'
  *
  * @param resourceSpecifier the resource specifier, including brackets
  * @returns {string} the resource name derived from the specifier
  */
 function getResourceNameFromResourceSpecifier(resourceSpecifier) {
-  const strippedFromBrackets = stripStringFromBrackets(resourceSpecifier);
+  let string = resourceSpecifier;
+  if (resourceSpecifier.includes('.')) {
+    string = resourceSpecifier.split('.')[0];
+  }
+  const strippedFromBrackets = stripStringFromBrackets(string);
   if (lowerCasePattern.test(strippedFromBrackets)) {
     return strippedFromBrackets;
   }
@@ -145,4 +158,13 @@ function removeLastWordFromCamelCase(string) {
  */
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function removePathPrefix(path) {
+  if (path.startsWith(PATH_PREFIX)) {
+    return path.split(PATH_PREFIX)[1];
+  } else {
+    console.error('There is another prefix', path);
+    return path;
+  }
 }
