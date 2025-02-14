@@ -102,19 +102,21 @@ const transform = () => {
     });
   }
 
-  if(collection.collection.auth && collection.collection.auth.oauth2){
-      collection.collection.auth.oauth2.push[{
-          "key": "clientSecret",
-          "value": "{{vault:mongodb-private-clientsecret}}",
-          "type": "string"
+  if (collection.collection.auth && collection.collection.auth.oauth2) {
+    collection.collection.auth.oauth2.push[
+      ({
+        key: 'clientSecret',
+        value: '{{vault:mongodb-private-clientsecret}}',
+        type: 'string',
       },
       {
-          "key": "clientId",
-          "value": "{{vault:mongodb-public-clientid}}",
-          "type": "string"
-      }]
+        key: 'clientId',
+        value: '{{vault:mongodb-public-clientid}}',
+        type: 'string',
+      })
+    ];
   } else {
-      throw "Failed to add required authentication variables"
+    throw 'Failed to add required authentication variables';
   }
 
   saveJsonFile(path.join(TMP_FOLDER, COLLECTION_TRANSFORMED_FILE_NAME), collection);
