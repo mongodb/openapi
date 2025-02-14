@@ -26,7 +26,6 @@ const VERSION_FILE_NAME = process.env.VERSION_FILE_NAME || 'version.txt';
 const DESCRIPTION_FILE = process.env.DESCRIPTION_FILE || './collection-description.md';
 const TOGGLE_INCLUDE_BODY = process.env.TOGGLE_INCLUDE_BODY !== 'false';
 const TOGGLE_ADD_DOCS_LINKS = process.env.TOGGLE_ADD_DOCS_LINKS === 'true';
-const TOKEN_URL_ENV = process.env.TOKEN_URL_ENV || '';
 const BASE_URL = process.env.BASE_URL || '';
 
 // Dedicated transformation for postman collection.json file.
@@ -103,9 +102,21 @@ const transform = () => {
     });
   }
 
-  if (TOKEN_URL_ENV) {
-    console.log(`Adding client credentials auth url variable ${TOKEN_URL_ENV}`);
-    collection.collection.variable.push({ key: 'clientCredentialsTokenUrl', value: TOKEN_URL_ENV });
+  if (collection.collection.auth && collection.collection.auth.oauth2) {
+    collection.collection.auth.oauth2.push[
+      ({
+        key: 'clientSecret',
+        value: '{{vault:mongodb-private-clientsecret}}',
+        type: 'string',
+      },
+      {
+        key: 'clientId',
+        value: '{{vault:mongodb-public-clientid}}',
+        type: 'string',
+      })
+    ];
+  } else {
+    throw 'Failed to add required authentication variables';
   }
 
   saveJsonFile(path.join(TMP_FOLDER, COLLECTION_TRANSFORMED_FILE_NAME), collection);
