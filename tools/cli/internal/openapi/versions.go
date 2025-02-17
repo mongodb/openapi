@@ -67,7 +67,7 @@ func extractVersions(oas *openapi3.T) ([]string, error) {
 						version, err = getPreviewVersionName(contentTypeValue)
 						if err != nil {
 							fmt.Printf("failed to parse preview version name: %v\n", err)
-							continue
+							return nil, err
 						}
 					}
 
@@ -135,6 +135,10 @@ func parsePreviewExtensionData(contentTypeValue *openapi3.MediaType) (public boo
 	nameV, ok := previewExtensionMap["name"].(string)
 	if ok {
 		name = nameV
+	}
+
+	if nameV == "" && publicV != "true" && publicV != "false" {
+		return false, "", errors.New("invalid value for 'public' field, only 'true' or 'false' are allowed")
 	}
 
 	return public, name, nil

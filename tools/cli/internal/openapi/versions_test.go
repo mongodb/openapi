@@ -39,6 +39,20 @@ func TestVersions_PublicPreview(t *testing.T) {
 	assert.Equal(t, []string{"2023-01-01", "2023-02-01", "preview"}, versions)
 }
 
+func TestVersions_InvalidPreviewData(t *testing.T) {
+	r := NewVersionedResponses(t)
+	// override the extension so something invalid like "public": true
+	r.Paths.Find("pathBase4").Post.Responses.Map()["200"].Value.
+		Content.Get("application/vnd.atlas.preview+json").
+		Extensions["x-xgen-preview"] = map[string]any{
+		"public": true,
+	}
+
+	_, err := ExtractVersionsWithEnv(r, "qa")
+	require.Error(t, err)
+	require.ErrorContains(t, err, "nvalid value for 'public' field")
+}
+
 func NewVersionedResponses(t *testing.T) *openapi3.T {
 	t.Helper()
 	inputPath := &openapi3.Paths{}
@@ -95,6 +109,7 @@ func NewVersionedResponses(t *testing.T) *openapi3.T {
 		},
 	})
 
+	// private preview version
 	extensionThree := map[string]any{
 		"x-xgen-version": "preview",
 		"x-xgen-preview": map[string]any{
@@ -133,6 +148,7 @@ func NewVersionedResponses(t *testing.T) *openapi3.T {
 		},
 	})
 
+	// public preview version
 	extensionFour := map[string]any{
 		"x-xgen-version": "preview",
 		"x-xgen-preview": map[string]any{
