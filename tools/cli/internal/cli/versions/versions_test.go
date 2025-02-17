@@ -59,7 +59,7 @@ func TestVersion_RunWithEnv(t *testing.T) {
 func TestVersion_RunWithPreview(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
-		basePath:   "../../../test/data/base_spec_with_preview.json",
+		basePath:   "../../../test/data/base_spec_with_private_preview.json",
 		outputPath: "foas.json",
 		fs:         fs,
 		env:        "staging",
@@ -78,7 +78,7 @@ func TestVersion_RunWithPreview(t *testing.T) {
 func TestVersion_RunStabilityLevelPreview(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
-		basePath:       "../../../test/data/base_spec_with_preview.json",
+		basePath:       "../../../test/data/base_spec_with_private_preview.json",
 		outputPath:     "foas.json",
 		fs:             fs,
 		env:            "staging",
@@ -92,13 +92,13 @@ func TestVersion_RunStabilityLevelPreview(t *testing.T) {
 	// Check initial versions
 	assert.NotEmpty(t, b)
 	assert.NotContains(t, string(b), "2023-02-01")
-	assert.Contains(t, string(b), "preview")
+	assert.Contains(t, string(b), "private-preview")
 }
 
 func TestVersion_RunStabilityLevelStable(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
-		basePath:       "../../../test/data/base_spec_with_preview.json",
+		basePath:       "../../../test/data/base_spec_with_private_preview.json",
 		outputPath:     "foas.json",
 		fs:             fs,
 		env:            "staging",
@@ -112,5 +112,26 @@ func TestVersion_RunStabilityLevelStable(t *testing.T) {
 	// Check initial versions
 	assert.NotEmpty(t, b)
 	assert.Contains(t, string(b), "2023-02-01")
-	assert.NotContains(t, string(b), "preview")
+	assert.NotContains(t, string(b), "private-review")
+}
+
+func TestVersion_PreviewAndPublicPreview(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:       "../../../test/data/base_spec_with_public_preview.json",
+		outputPath:     "foas.json",
+		fs:             fs,
+		env:            "staging",
+		stabilityLevel: "PREVIEW",
+	}
+
+	require.NoError(t, opts.Run())
+	b, err := afero.ReadFile(fs, opts.outputPath)
+	require.NoError(t, err)
+
+	// Check initial versions
+	assert.NotEmpty(t, b)
+	assert.Contains(t, string(b), "2023-02-01")
+	assert.NotContains(t, string(b), "private-preview")
+	assert.Contains(t, string(b), "preview")
 }
