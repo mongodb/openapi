@@ -2,7 +2,7 @@ module github.com/mongodb/openapi/tools/cli
 
 go 1.23
 
-toolchain go1.23.5
+toolchain go1.23.6
 
 require (
 	github.com/getkin/kin-openapi v0.128.0
