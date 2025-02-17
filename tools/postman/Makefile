@@ -19,7 +19,7 @@ transform_collection:
 
 .PHONY: transform_collection_js
 transform_collection_js:
-	node ./scripts/transform-postman.cjs
+	node ./scripts/transform-postman.js
 
 .PHONY: transform_collection_test
 transform_collection_test:
