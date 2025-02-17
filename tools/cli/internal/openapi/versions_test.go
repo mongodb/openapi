@@ -42,7 +42,9 @@ func TestVersions_PublicPreview(t *testing.T) {
 func TestVersions_InvalidPreviewData(t *testing.T) {
 	r := NewVersionedResponses(t)
 	// override the extension so something invalid like "public": true
-	r.Paths.Find("pathBase4").Post.Responses.Map()["200"].Value.Content.Get("application/vnd.atlas.preview+json").Extensions["x-xgen-preview"] = map[string]any{
+	r.Paths.Find("pathBase4").Post.Responses.Map()["200"].Value.
+		Content.Get("application/vnd.atlas.preview+json").
+		Extensions["x-xgen-preview"] = map[string]any{
 		"public": true,
 	}
 
