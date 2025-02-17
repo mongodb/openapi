@@ -75,7 +75,7 @@ func TestVersion_RunWithPreview(t *testing.T) {
 	assert.Contains(t, string(b), "preview")
 }
 
-func TestVersion_RunStabilityLevelPreview(t *testing.T) {
+func TestVersion_RunStabilityLevelPreviewAndPrivatePreview(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
 		basePath:       "../../../test/data/base_spec_with_private_preview.json",
@@ -95,6 +95,26 @@ func TestVersion_RunStabilityLevelPreview(t *testing.T) {
 	assert.Contains(t, string(b), "private-preview")
 }
 
+func TestVersion_PreviewAndPublicPreview(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:       "../../../test/data/base_spec_with_public_preview.json",
+		outputPath:     "foas.json",
+		fs:             fs,
+		env:            "staging",
+		stabilityLevel: "PREVIEW",
+	}
+
+	require.NoError(t, opts.Run())
+	b, err := afero.ReadFile(fs, opts.outputPath)
+	require.NoError(t, err)
+
+	// Check initial versions
+	assert.NotEmpty(t, b)
+	assert.NotContains(t, string(b), "private-preview")
+	assert.Contains(t, string(b), "preview")
+}
+
 func TestVersion_RunStabilityLevelStable(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
@@ -112,26 +132,88 @@ func TestVersion_RunStabilityLevelStable(t *testing.T) {
 	// Check initial versions
 	assert.NotEmpty(t, b)
 	assert.Contains(t, string(b), "2023-02-01")
-	assert.NotContains(t, string(b), "private-review")
+	assert.NotContains(t, string(b), "private-preview")
 }
 
-func TestVersion_PreviewAndPublicPreview(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	opts := &Opts{
-		basePath:       "../../../test/data/base_spec_with_public_preview.json",
-		outputPath:     "foas.json",
-		fs:             fs,
-		env:            "staging",
-		stabilityLevel: "PREVIEW",
-	}
+func TestVersion_PreRun(t *testing.T) {
+	t.Run("NoBasePath", func(t *testing.T) {
+		opts := &Opts{}
+		err := opts.PreRunE(nil)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "no OAS detected")
+	})
 
-	require.NoError(t, opts.Run())
-	b, err := afero.ReadFile(fs, opts.outputPath)
-	require.NoError(t, err)
+	t.Run("InvalidOutputPath", func(t *testing.T) {
+		opts := &Opts{
+			basePath:   "base",
+			outputPath: "output",
+		}
+		err := opts.PreRunE(nil)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "output file must be either a JSON or YAML file")
+	})
 
-	// Check initial versions
-	assert.NotEmpty(t, b)
-	assert.Contains(t, string(b), "2023-02-01")
-	assert.NotContains(t, string(b), "private-preview")
-	assert.Contains(t, string(b), "preview")
+	t.Run("InvalidFormat", func(t *testing.T) {
+		opts := &Opts{
+			basePath:   "base",
+			outputPath: "output.json",
+			format:     "invalid",
+		}
+		err := opts.PreRunE(nil)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "output format must be either 'json' or 'yaml'")
+	})
+
+	t.Run("ValidFormat", func(t *testing.T) {
+		opts := &Opts{
+			basePath:   "base",
+			outputPath: "output.json",
+			format:     "json",
+		}
+		err := opts.PreRunE(nil)
+		require.NoError(t, err)
+	})
+
+	t.Run("ValidFormatYAML", func(t *testing.T) {
+		opts := &Opts{
+			basePath:   "base",
+			outputPath: "output.yaml",
+			format:     "yaml",
+		}
+		err := opts.PreRunE(nil)
+		require.NoError(t, err)
+	})
+
+	t.Run("InvalidStabilityLevel", func(t *testing.T) {
+		opts := &Opts{
+			basePath:       "base",
+			outputPath:     "output.yaml",
+			format:         "yaml",
+			stabilityLevel: "invalid",
+		}
+		err := opts.PreRunE(nil)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "stability level must be")
+	})
+	t.Run("ValidStabilityLevelPreview", func(t *testing.T) {
+		opts := &Opts{
+			basePath:       "base",
+			outputPath:     "output.yaml",
+			format:         "yaml",
+			stabilityLevel: "preview",
+		}
+		err := opts.PreRunE(nil)
+		require.NoError(t, err)
+	})
+
+	t.Run("ValidStabilityLevelPreviewUppercase", func(t *testing.T) {
+		opts := &Opts{
+			basePath:       "base",
+			outputPath:     "output.yaml",
+			format:         "yaml",
+			stabilityLevel: "PREVIEW",
+		}
+		err := opts.PreRunE(nil)
+		require.NoError(t, err)
+	})
 }
