@@ -112,7 +112,7 @@ func (o *Opts) versionsAsBytes(versions []string) ([]byte, error) {
 }
 
 func (o *Opts) PreRunE(_ []string) error {
-	o.stabilityLevel = strings.ToUpper(o.stabilityLevel)
+	o.stabilityLevel = strings.ToLower(o.stabilityLevel)
 	if o.stabilityLevel != "" && o.stabilityLevel != apiversion.PreviewStabilityLevel && o.stabilityLevel != apiversion.StableStabilityLevel {
 		return fmt.Errorf("stability level must be %q or %q, got %q", apiversion.PreviewStabilityLevel, apiversion.StableStabilityLevel, o.stabilityLevel)
 	}
