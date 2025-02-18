@@ -10,7 +10,7 @@ Once you have a cluster, you can [fork this collection](https://learning.postman
 ### Authentication Using Service Accounts (OAuth)
 
 After you have your cluster up and running, follow [this guide](https://www.mongodb.com/docs/atlas/configure-api-access/) to create a new service account.
-Once created copy your public and private API keys.
+After you create a service account, copy your clientId and clientSecret values
 Set each of these values as secrets in the [Postman Vault](https://learning.postman.com/docs/sending-requests/postman-vault/postman-vault-secrets/): 
 
 - Service Account Client ID: \`mongodb-public-clientid\`  
