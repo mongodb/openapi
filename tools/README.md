@@ -2,15 +2,13 @@
 
 Folder contains essential tools and workflows for managing MongoDB Atlas API specifications and their integration with development tools like Postman and Spectral. Below is a summary of the functionalities provided in the subfolders:
 
-## POSTMAN
+## Postman
 
-Includes resources and scripts to generate MongoDB Atlas Postman Collections from OpenAPI specifications. 
-The automated process ensures that the Postman workspace is always synchronized with the latest API updates.
+Includes resources and scripts to generate [MongoDB Atlas Postman Collections](https://www.mongodb.com/developer/products/atlas/admin-api-postman/) from OpenAPI specifications. 
 
-## SPECTRAL
+## Spectral
 
-This segment focuses on using Spectral for OpenAPI specification validation. 
-Any changes to rules or configuration in `.spectral.yaml` will automatically update OpenAPI validations across the MongoDB OpenAPI repository.
+MongoDB [Spectral](https://github.com/stoplightio/spectral) OpenAPI specification validation rules
 
 ## CLI
 
