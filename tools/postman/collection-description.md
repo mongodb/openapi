@@ -18,7 +18,7 @@ Set each of these values as secrets in the [Postman Vault](https://learning.post
 
 #### Digest Authentication
 
-Alternatively to Service Account you can use [API Keys](https://www.mongodb.com/docs/atlas/configure-api-access/) authentication.
+Alternatively to service accounts, you can use [API Keys](https://www.mongodb.com/docs/atlas/configure-api-access/) to authenticate your requests to the Atlas Admin API.
 Set each of these values as secrets in the [Postman Vault](https://learning.postman.com/docs/sending-requests/postman-vault/postman-vault-secrets/): 
 
 - public API key as the value for a key named \`mongodb-public-api-key\`  
