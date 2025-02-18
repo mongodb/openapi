@@ -24,7 +24,7 @@ Set each of these values as secrets in the [Postman Vault](https://learning.post
 - public API key as the value for a key named \`mongodb-public-api-key\`  
 - private API key as the value for a key named  \`mongodb-private-api-key\`
 
-Additionally to setting those values you would need to manually configure[Digest Authentication in the Collection Authentication Settings](https://learning.postman.com/docs/sending-requests/authorization/digest-auth/)
+In addition to configuring your public and private API keys, you must configure [Digest Authentication in the Collection Authentication Settings](https://learning.postman.com/docs/sending-requests/authorization/digest-auth/).
 
 
 ### Using API 
