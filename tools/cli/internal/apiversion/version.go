@@ -104,6 +104,21 @@ func WithContent(contentType string) Option {
 	}
 }
 
+func WithFullContent(contentType string, contentValue *openapi3.MediaType) Option {
+	return func(v *APIVersion) error {
+		if !IsPreviewSabilityLevel(contentType) {
+			return WithContent(contentType)(v)
+		}
+
+		name, _ := GetPreviewVersionName(contentValue)
+		if name != "" {
+			return WithVersion(name)(v)
+		}
+
+		return WithContent(contentType)(v)
+	}
+}
+
 func DateFromVersion(version string) (time.Time, error) {
 	if IsPreviewSabilityLevel(version) {
 		return time.Now(), nil
@@ -112,7 +127,7 @@ func DateFromVersion(version string) (time.Time, error) {
 }
 
 func (v *APIVersion) Equal(v2 *APIVersion) bool {
-	return v.version == v2.version
+	return strings.EqualFold(v.version, v2.version)
 }
 
 func (v *APIVersion) GreaterThan(v2 *APIVersion) bool {
@@ -155,9 +170,13 @@ func (v *APIVersion) IsPrivatePreview() bool {
 	return strings.Contains(v.version, PrivatePreviewStabilityLevel)
 }
 
+func (v *APIVersion) IsPublicPreview() bool {
+	return v.IsPreview() && !v.IsPrivatePreview()
+}
+
 func IsPreviewSabilityLevel(value string) bool {
 	// we also need string match given private preview versions like "private-preview-<name>"
-	return strings.EqualFold(value, PreviewStabilityLevel) || strings.Contains(value, PrivatePreviewStabilityLevel)
+	return strings.EqualFold(value, PreviewStabilityLevel) || strings.Contains(value, PreviewStabilityLevel)
 }
 
 func IsStableSabilityLevel(value string) bool {
@@ -211,7 +230,7 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 		}
 
 		for contentType, contentValue := range response.Value.Content {
-			contentVersion, err := New(WithContent(contentType))
+			contentVersion, err := New(WithFullContent(contentType, contentValue))
 			if err != nil {
 				log.Printf("Ignoring invalid content type: %q", contentType)
 				continue
@@ -221,9 +240,9 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 				return contentVersion
 			}
 
-			if contentVersion.ExactMatchOnly() || requestedVersion.ExactMatchOnly() {
+			if requestedVersion.ExactMatchOnly() {
 				// for private preview, we will need to match with "preview" and x-xgen-preview name extension
-				if requestedVersion.IsPrivatePreview() && PrivatePreviewContentMatch(contentValue, requestedVersion) {
+				if privatePreviewContentMatch(contentVersion, contentValue, requestedVersion) {
 					return contentVersion
 				}
 				continue
@@ -246,10 +265,16 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 	return latestVersionMatch
 }
 
-func PrivatePreviewContentMatch(contentValue *openapi3.MediaType, requestedVersion *APIVersion) bool {
+func privatePreviewContentMatch(contentVersion *APIVersion, contentValue *openapi3.MediaType, requestedVersion *APIVersion) bool {
+	log.Printf("trying to match in case one of the versions is private preview")
+	if !contentVersion.IsPrivatePreview() && !requestedVersion.IsPrivatePreview() {
+		return false
+	}
+
 	name, err := GetPreviewVersionName(contentValue)
 	if err != nil {
-		log.Printf("failed to parse preview version name: %v", err)
+		log.Printf("failed to parse preview version name for content=%v err=%v", contentVersion.version, err)
+		return false
 	}
 
 	return strings.EqualFold(name, requestedVersion.version)
@@ -266,6 +291,7 @@ func Sort(versions []*APIVersion) {
 	}
 }
 
+// GetPreviewVersionName returns the preview version name.
 func GetPreviewVersionName(contentTypeValue *openapi3.MediaType) (name string, err error) {
 	public, name, err := parsePreviewExtensionData(contentTypeValue)
 	if err != nil {

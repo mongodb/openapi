@@ -195,7 +195,7 @@ func filterLatestVersionedContent(content map[string]*openapi3.MediaType, latest
 	latestContent := openapi3.Content{}
 
 	for contentType, mediaType := range content {
-		contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
+		contentVersion, err := apiversion.New(apiversion.WithFullContent(contentType, mediaType))
 		if err != nil {
 			log.Printf("Ignoring invalid content type: %s", contentType)
 			continue
@@ -234,13 +234,24 @@ func filterContentExactMatch(content map[string]*openapi3.MediaType, version *ap
 
 	filteredContent := make(map[string]*openapi3.MediaType)
 	for contentType, mediaType := range content {
-		contentVersion, err := apiversion.New(apiversion.WithContent(contentType))
+		contentVersion, err := apiversion.New(apiversion.WithFullContent(contentType, mediaType))
 		if err != nil {
 			log.Printf("Ignoring invalid content type: %s", contentType)
 			continue
 		}
 
+		if version.IsPrivatePreview() && !contentVersion.IsPrivatePreview() {
+			continue
+		}
+
+		if !version.IsPrivatePreview() && contentVersion.IsPrivatePreview() {
+			continue
+		}
+
 		if contentVersion.Equal(version) {
+			if version.IsPreview() {
+				log.Printf("Found preview content: %s matching with %s", contentType, version.String())
+			}
 			updateSingleMediaTypeExtension(mediaType, contentVersion)
 			filteredContent[contentType] = mediaType
 		}
@@ -263,8 +274,8 @@ func updateSingleMediaTypeExtension(m *openapi3.MediaType, version *apiversion.A
 // getDeprecatedVersionsPerContent returns the deprecated versions for a given content type.
 func getDeprecatedVersionsPerContent(content map[string]*openapi3.MediaType, version *apiversion.APIVersion) []*apiversion.APIVersion {
 	versionsInContentType := make(map[string]*apiversion.APIVersion)
-	for contentType := range content {
-		v, err := apiversion.New(apiversion.WithContent(contentType))
+	for contentType, contentValue := range content {
+		v, err := apiversion.New(apiversion.WithFullContent(contentType, contentValue))
 		if err != nil {
 			log.Printf("Ignoring invalid content type: %s", contentType)
 			continue
@@ -286,8 +297,8 @@ func isVersionedContent(content map[string]*openapi3.MediaType) bool {
 		return false
 	}
 
-	for contentType := range content {
-		if _, err := apiversion.New(apiversion.WithContent(contentType)); err == nil {
+	for contentType, contentValue := range content {
+		if _, err := apiversion.New(apiversion.WithFullContent(contentType, contentValue)); err == nil {
 			log.Printf("Found versioned content: %s", contentType)
 			return true
 		}

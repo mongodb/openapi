@@ -256,8 +256,8 @@ func getVersionsInContentType(content map[string]*openapi3.MediaType) (
 	contentsInVersion = make(map[string]*openapi3.MediaType)
 	versionsInContentType := make(map[string]*apiversion.APIVersion)
 
-	for contentType := range content {
-		v, err := apiversion.New(apiversion.WithContent(contentType))
+	for contentType, contentValue := range content {
+		v, err := apiversion.New(apiversion.WithFullContent(contentType, contentValue))
 		if err != nil {
 			log.Printf("Ignoring invalid content type: %s", contentType)
 			continue

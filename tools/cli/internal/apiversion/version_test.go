@@ -163,6 +163,56 @@ func TestNewAPIVersionFromContentType(t *testing.T) {
 	}
 }
 
+func TestApiVersion_WithFullContent(t *testing.T) {
+	testCases := []struct {
+		name          string
+		contentType   string
+		contentValue  *openapi3.MediaType
+		expectedMatch string
+		wantErr       bool
+	}{
+		{
+			name:          "json",
+			contentType:   "application/vnd.atlas.2023-01-01+json",
+			contentValue:  &openapi3.MediaType{},
+			expectedMatch: "2023-01-01",
+			wantErr:       false,
+		},
+		{
+			name:          "preview",
+			contentType:   "application/vnd.atlas.preview+json",
+			contentValue:  &openapi3.MediaType{},
+			expectedMatch: "preview",
+			wantErr:       false,
+		},
+		{
+			name:        "private-preview",
+			contentType: "application/vnd.atlas.preview+json",
+			contentValue: &openapi3.MediaType{
+				Extensions: map[string]interface{}{
+					"x-xgen-preview": map[string]interface{}{
+						"name": "feature",
+					},
+				},
+			},
+			expectedMatch: "private-preview-feature",
+			wantErr:       false,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			version, err := New(WithFullContent(tt.contentType, tt.contentValue))
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, tt.expectedMatch, version.String())
+			}
+		})
+	}
+}
+
 func TestApiVersion_GreaterThan(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -444,6 +494,11 @@ func TestFindLatestContentVersionMatched(t *testing.T) {
 			name:          "exact match preview",
 			targetVersion: "preview",
 			expectedMatch: "preview",
+		},
+		{
+			name:          "exact match private-preview-feature",
+			targetVersion: "private-preview-feature",
+			expectedMatch: "private-preview-feature",
 		},
 		{
 			name:          "exact match 2023-11-15",
