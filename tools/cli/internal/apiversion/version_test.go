@@ -189,8 +189,8 @@ func TestApiVersion_WithFullContent(t *testing.T) {
 			name:        "private-preview",
 			contentType: "application/vnd.atlas.preview+json",
 			contentValue: &openapi3.MediaType{
-				Extensions: map[string]interface{}{
-					"x-xgen-preview": map[string]interface{}{
+				Extensions: map[string]any{
+					"x-xgen-preview": map[string]any{
 						"name": "feature",
 					},
 				},
