@@ -240,14 +240,6 @@ func filterContentExactMatch(content map[string]*openapi3.MediaType, version *ap
 			continue
 		}
 
-		if version.IsPrivatePreview() && !contentVersion.IsPrivatePreview() {
-			continue
-		}
-
-		if !version.IsPrivatePreview() && contentVersion.IsPrivatePreview() {
-			continue
-		}
-
 		if contentVersion.Equal(version) {
 			if version.IsPreview() {
 				log.Printf("Found preview content: %s matching with %s", contentType, version.String())
