@@ -15,6 +15,7 @@
 package changelog
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -35,16 +36,16 @@ const (
 )
 
 type Opts struct {
-	fs              afero.Fs
-	basePath        string
-	revisionPath    string
-	exceptionsPaths string
-	outputPath      string
-	dryRun          bool
+	fs             afero.Fs
+	basePath       string
+	revisionPath   string
+	exemptionPaths string
+	outputPath     string
+	dryRun         bool
 }
 
 func (o *Opts) Run() error {
-	entries, err := changelog.NewEntries(o.basePath, o.revisionPath, o.exceptionsPaths)
+	entries, err := changelog.NewEntries(o.basePath, o.revisionPath, o.exemptionPaths)
 	if err != nil {
 		return err
 	}
@@ -54,7 +55,7 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath, o.exceptionsPaths)
+	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath, o.exemptionPaths)
 	if err != nil {
 		return err
 	}
@@ -94,15 +95,15 @@ func (o *Opts) Run() error {
 
 func (o *Opts) validations() error {
 	if _, err := o.fs.Stat(fmt.Sprintf("%s/%s", o.basePath, metadataFileName)); err != nil {
-		return err
+		return errors.New("base path does not contain metadata.json")
 	}
 
 	if _, err := o.fs.Stat(fmt.Sprintf("%s/%s", o.revisionPath, metadataFileName)); err != nil {
-		return err
+		return errors.New("revision path does not contain metadata.json")
 	}
 
-	if _, err := o.fs.Stat(o.exceptionsPaths); err != nil {
-		return err
+	if _, err := o.fs.Stat(o.exemptionPaths); err != nil {
+		return fmt.Errorf("exemption file path is invalid: %s", o.exemptionPaths)
 	}
 
 	return nil
@@ -138,7 +139,7 @@ func CreateBuilder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Base, flag.BaseShort, "", usage.BaseFolder)
 	cmd.Flags().StringVarP(&opts.revisionPath, flag.Revision, flag.RevisionShort, "", usage.RevisionFolder)
-	cmd.Flags().StringVarP(&opts.exceptionsPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
+	cmd.Flags().StringVarP(&opts.exemptionPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
 	cmd.Flags().BoolVarP(&opts.dryRun, flag.DryRun, flag.DryRunShort, false, usage.DryRun)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 
