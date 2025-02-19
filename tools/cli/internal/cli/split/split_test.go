@@ -15,10 +15,14 @@
 package split
 
 import (
+	"net/url"
 	"testing"
 
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"github.com/tufin/oasdiff/load"
 )
 
 func TestSuccessfulSplit_Run(t *testing.T) {
@@ -32,6 +36,83 @@ func TestSuccessfulSplit_Run(t *testing.T) {
 	if err := opts.Run(); err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
+}
+
+func TestSplitPublicPreviewRun(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:   "../../../test/data/base_spec_with_public_preview.json",
+		outputPath: "foas.yaml",
+		fs:         fs,
+	}
+
+	if err := opts.Run(); err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+
+	info, err := loadRunResultOas(fs, "foas-preview.yaml")
+	require.NoError(t, err)
+
+	// check paths has only one
+	require.Len(t, info.Spec.Paths.Map(), 1)
+	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups")
+}
+
+func TestSplitPrivatePreviewRun(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:   "../../../test/data/base_spec_with_private_preview.json",
+		outputPath: "foas.yaml",
+		fs:         fs,
+	}
+
+	if err := opts.Run(); err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+
+	info, err := loadRunResultOas(fs, "foas-private-preview-new-feature.yaml")
+	require.NoError(t, err)
+
+	// check paths has only one
+	require.Len(t, info.Spec.Paths.Map(), 1)
+	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups")
+}
+
+func TestSplitMulitplePreviewsRun(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:   "../../../test/data/base_spec_with_multiple_private_and_public_previews.json",
+		outputPath: "foas.yaml",
+		fs:         fs,
+	}
+
+	if err := opts.Run(); err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+
+	// private preview feature 1
+	info, err := loadRunResultOas(fs, "foas-private-preview-new-feature.yaml")
+	require.NoError(t, err)
+
+	// check paths has only one
+	require.Len(t, info.Spec.Paths.Map(), 1)
+	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups")
+
+	// private preview feature 2
+	info, err = loadRunResultOas(fs, "foas-private-preview-secrets-feature.yaml")
+	require.NoError(t, err)
+
+	// check paths has only one
+	require.Len(t, info.Spec.Paths.Map(), 1)
+	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets")
+
+	// public preview
+	info, err = loadRunResultOas(fs, "foas-preview.yaml")
+	require.NoError(t, err)
+
+	// check paths has only one
+	require.Len(t, info.Spec.Paths.Map(), 1)
+	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups/{groupId}/serviceAccounts")
 }
 
 func TestOpts_PreRunE(t *testing.T) {
@@ -83,4 +164,18 @@ func TestInvalidPath_PreRun(t *testing.T) {
 	err := opts.PreRunE(nil)
 	require.Error(t, err)
 	require.EqualError(t, err, "output file must be either a JSON or YAML file, got foas.html")
+}
+
+func loadRunResultOas(fs afero.Fs, fileName string) (*load.SpecInfo, error) {
+	oas := openapi.NewOpenAPI3()
+	oas.Loader.ReadFromURIFunc = func(_ *openapi3.Loader, _ *url.URL) ([]byte, error) {
+		f, err := fs.OpenFile(fileName, 0, 0)
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+		return afero.ReadAll(f)
+	}
+
+	return oas.CreateOpenAPISpecFromPath(fileName)
 }
