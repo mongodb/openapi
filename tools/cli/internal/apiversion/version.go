@@ -362,7 +362,7 @@ func validatePreviewExtensionData(name, public string) error {
 		return errors.New("both name and public = true fields are set, only one is allowed")
 	}
 
-	if name == "" && public != "" && public != "true" && public != "false" {
+	if name == "" && public != "true" && public != "false" {
 		return errors.New("invalid value for 'public' field, only 'true' or 'false' are allowed")
 	}
 
