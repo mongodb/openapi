@@ -153,7 +153,7 @@ func TestNewAPIVersionFromContentType(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			version, err := New(WithContent(tt.contentType))
+			version, err := New(withContent(tt.contentType))
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -179,9 +179,67 @@ func TestApiVersion_WithFullContent(t *testing.T) {
 			wantErr:       false,
 		},
 		{
-			name:          "preview",
-			contentType:   "application/vnd.atlas.preview+json",
+			name:         "csv",
+			contentType:  "application/vnd.atlas.2023-01-02+csv",
+			contentValue: &openapi3.MediaType{},
+
+			expectedMatch: "2023-01-02",
+			wantErr:       false,
+		},
+		{
+			name:          "yaml",
+			contentType:   "application/vnd.atlas.2030-02-20+yaml",
 			contentValue:  &openapi3.MediaType{},
+			expectedMatch: "2030-02-20",
+			wantErr:       false,
+		},
+		{
+			name: "invalid",
+
+			contentType:   "application/vnd.test.2023-01-01",
+			contentValue:  &openapi3.MediaType{},
+			expectedMatch: "",
+			wantErr:       true,
+		},
+		{
+			name:          "notVersioned",
+			contentType:   "application/json",
+			contentValue:  &openapi3.MediaType{},
+			expectedMatch: "",
+			wantErr:       true,
+		},
+		{
+			name:          "empty",
+			contentType:   "",
+			contentValue:  &openapi3.MediaType{},
+			expectedMatch: "",
+			wantErr:       true,
+		},
+		{
+			name:          "invalidFormat",
+			contentType:   "application/vnd.atlas.2023-01-01",
+			expectedMatch: "",
+			contentValue:  &openapi3.MediaType{},
+			wantErr:       true,
+		},
+		{
+			name:          "invalidDate",
+			contentType:   "application/vnd.atlas.2023111-01-01",
+			expectedMatch: "",
+			contentValue:  &openapi3.MediaType{},
+			wantErr:       true,
+		},
+
+		{
+			name:        "preview",
+			contentType: "application/vnd.atlas.preview+json",
+			contentValue: &openapi3.MediaType{
+				Extensions: map[string]any{
+					"x-xgen-preview": map[string]any{
+						"public": "true",
+					},
+				},
+			},
 			expectedMatch: "preview",
 			wantErr:       false,
 		},
@@ -198,6 +256,27 @@ func TestApiVersion_WithFullContent(t *testing.T) {
 			expectedMatch: "private-preview-feature",
 			wantErr:       false,
 		},
+		{
+			name:        "invalid-preview",
+			contentType: "application/vnd.atlas.preview+json",
+			contentValue: &openapi3.MediaType{
+				Extensions: map[string]any{
+					"x-xgen-preview": map[string]any{
+						"public": "true",
+						"name":   "feature",
+					},
+				},
+			},
+			expectedMatch: "private-preview-feature",
+			wantErr:       true,
+		},
+		{
+			name:          "invalid-preview",
+			contentType:   "application/vnd.atlas.preview+json",
+			contentValue:  &openapi3.MediaType{},
+			expectedMatch: "preview",
+			wantErr:       true,
+		},
 	}
 
 	for _, tt := range testCases {
@@ -207,6 +286,7 @@ func TestApiVersion_WithFullContent(t *testing.T) {
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
+				require.NoError(t, err)
 				assert.Equal(t, tt.expectedMatch, version.String())
 			}
 		})

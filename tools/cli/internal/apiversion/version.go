@@ -86,8 +86,8 @@ func WithDate(date time.Time) Option {
 	}
 }
 
-// WithContent returns an Option to generate a new APIVersion given the contentType.
-func WithContent(contentType string) Option {
+// withContent returns an Option to generate a new APIVersion given the contentType.
+func withContent(contentType string) Option {
 	return func(v *APIVersion) error {
 		version, err := Parse(contentType)
 		if err != nil {
@@ -104,18 +104,19 @@ func WithContent(contentType string) Option {
 	}
 }
 
+// WithFullContent returns an Option to generate a new APIVersion given the contentType and contentValue.
 func WithFullContent(contentType string, contentValue *openapi3.MediaType) Option {
 	return func(v *APIVersion) error {
 		if !IsPreviewSabilityLevel(contentType) {
-			return WithContent(contentType)(v)
+			return withContent(contentType)(v)
 		}
 
-		name, _ := GetPreviewVersionName(contentValue)
-		if name != "" {
-			return WithVersion(name)(v)
+		name, err := GetPreviewVersionName(contentValue)
+		if err != nil {
+			return err
 		}
-
-		return WithContent(contentType)(v)
+		// version will be based on the name, either 'preview' or 'private-preview-<name>'
+		return WithVersion(name)(v)
 	}
 }
 
@@ -349,9 +350,21 @@ func parsePreviewExtensionData(contentTypeValue *openapi3.MediaType) (public boo
 		name = nameV
 	}
 
-	if nameV == "" && publicV != "true" && publicV != "false" {
-		return false, "", errors.New("invalid value for 'public' field, only 'true' or 'false' are allowed")
+	if err := validatePreviewExtensionData(name, publicV); err != nil {
+		return false, "", err
 	}
 
 	return public, name, nil
+}
+
+func validatePreviewExtensionData(name string, public string) error {
+	if name != "" && (public == "true") {
+		return errors.New("both name and public = true fields are set, only one is allowed")
+	}
+
+	if name == "" && public != "" && public != "true" && public != "false" {
+		return errors.New("invalid value for 'public' field, only 'true' or 'false' are allowed")
+	}
+
+	return nil
 }
