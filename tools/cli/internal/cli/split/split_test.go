@@ -168,7 +168,7 @@ func TestInvalidPath_PreRun(t *testing.T) {
 
 func loadRunResultOas(fs afero.Fs, fileName string) (*load.SpecInfo, error) {
 	oas := openapi.NewOpenAPI3()
-	oas.Loader.ReadFromURIFunc = func(_ *openapi3.Loader, uri *url.URL) ([]byte, error) {
+	oas.Loader.ReadFromURIFunc = func(_ *openapi3.Loader, _ *url.URL) ([]byte, error) {
 		f, err := fs.OpenFile(fileName, 0, 0)
 		if err != nil {
 			return nil, err
