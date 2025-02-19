@@ -835,6 +835,10 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     readOnly: true
                     type: string
+                privateEndpointConnectionName:
+                    description: Resource Id of the Aws Private Endpoint.
+                    readOnly: true
+                    type: string
                 regionName:
                     description: Cloud provider region in which the Encryption At Rest private endpoint is located.
                     oneOf:
@@ -2454,6 +2458,31 @@ components:
                     type: integer
             readOnly: true
             title: BSON Timestamp
+            type: object
+        ApiChartsDashboardImportRequestView20430101:
+            description: Details to import or override a dashboard.
+            properties:
+                dashboardId:
+                    description: Optional field that contains the ID of the dashboard to override. If `override=true`, you must provide this field.
+                    type: string
+                override:
+                    description: Flag that indicates whether to override a dashboard.
+                    type: boolean
+                template:
+                    description: Template of the dashboard to import, which corresponds to the returned response schema from calling the Dashboard Export API.
+                    format: binary
+                    type: string
+            type: object
+        ApiChartsDashboardImportResponseView20430101:
+            description: Imported dashboard and associated imported items.
+            properties:
+                dashboard:
+                    $ref: '#/components/schemas/ImportedDashboard'
+                items:
+                    description: Imported items.
+                    items:
+                        $ref: '#/components/schemas/ImportedItem'
+                    type: array
             type: object
         ApiCheckpointPartView:
             description: Metadata contained in one document that describes the complete snapshot taken for this node.
@@ -6704,42 +6733,25 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 roleName:
-                    description: |+
-                        Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.
-
-                        Organization Roles
-
-                        * ORG_OWNER
-                        * ORG_MEMBER
-                        * ORG_GROUP_CREATOR
-                        * ORG_BILLING_ADMIN
-                        * ORG_READ_ONLY
-
-                        Project Roles
-
-                        * GROUP_CLUSTER_MANAGER
-                        * GROUP_DATA_ACCESS_ADMIN
-                        * GROUP_DATA_ACCESS_READ_ONLY
-                        * GROUP_DATA_ACCESS_READ_WRITE
-                        * GROUP_OWNER
-                        * GROUP_READ_ONLY
-                        * GROUP_SEARCH_INDEX_EDITOR
-                        * GROUP_STREAM_PROCESSING_OWNER
-
+                    description: Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.
                     enum:
-                        - ORG_OWNER
                         - ORG_MEMBER
-                        - ORG_GROUP_CREATOR
-                        - ORG_BILLING_ADMIN
                         - ORG_READ_ONLY
-                        - GROUP_CLUSTER_MANAGER
+                        - ORG_BILLING_ADMIN
+                        - ORG_BILLING_READ_ONLY
+                        - ORG_GROUP_CREATOR
+                        - ORG_OWNER
+                        - GROUP_OWNER
+                        - GROUP_READ_ONLY
                         - GROUP_DATA_ACCESS_ADMIN
                         - GROUP_DATA_ACCESS_READ_ONLY
                         - GROUP_DATA_ACCESS_READ_WRITE
-                        - GROUP_OWNER
-                        - GROUP_READ_ONLY
+                        - GROUP_CLUSTER_MANAGER
                         - GROUP_SEARCH_INDEX_EDITOR
                         - GROUP_STREAM_PROCESSING_OWNER
+                        - GROUP_BACKUP_MANAGER
+                        - GROUP_OBSERVABILITY_VIEWER
+                        - GROUP_DATABASE_ACCESS_ADMIN
                     type: string
             title: Role Assignment
             type: object
@@ -9843,8 +9855,8 @@ components:
                             - ORG_MEMBER
                             - ORG_GROUP_CREATOR
                             - ORG_BILLING_ADMIN
+                            - ORG_BILLING_READ_ONLY
                             - ORG_READ_ONLY
-                            - ORG_TEAM_MEMBERS_ADMIN
                         type: string
                     minItems: 1
                     type: array
@@ -9863,29 +9875,23 @@ components:
                     description: List of roles to grant this API key. If you provide this list, provide a minimum of one role and ensure each role applies to this project.
                     items:
                         enum:
-                            - ORG_OWNER
                             - ORG_MEMBER
-                            - ORG_GROUP_CREATOR
-                            - ORG_BILLING_ADMIN
                             - ORG_READ_ONLY
-                            - ORG_TEAM_MEMBERS_ADMIN
-                            - GROUP_ATLAS_ADMIN
-                            - GROUP_AUTOMATION_ADMIN
-                            - GROUP_BACKUP_ADMIN
-                            - GROUP_MONITORING_ADMIN
+                            - ORG_BILLING_ADMIN
+                            - ORG_BILLING_READ_ONLY
+                            - ORG_GROUP_CREATOR
+                            - ORG_OWNER
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
-                            - GROUP_USER_ADMIN
-                            - GROUP_BILLING_ADMIN
                             - GROUP_DATA_ACCESS_ADMIN
                             - GROUP_DATA_ACCESS_READ_ONLY
                             - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_CHARTS_ADMIN
                             - GROUP_CLUSTER_MANAGER
                             - GROUP_SEARCH_INDEX_EDITOR
                             - GROUP_STREAM_PROCESSING_OWNER
                             - GROUP_BACKUP_MANAGER
                             - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     minItems: 1
                     type: array
@@ -12267,6 +12273,7 @@ components:
                             - CPS_SNAPSHOT_FALLBACK_FAILED
                             - CPS_COPY_SNAPSHOT_STARTED
                             - CPS_COPY_SNAPSHOT_FAILED
+                            - CPS_COPY_SNAPSHOT_FAILED_WILL_RETRY
                             - CPS_COPY_SNAPSHOT_SUCCESSFUL
                             - CPS_RESTORE_SUCCESSFUL
                             - CPS_EXPORT_SUCCESSFUL
@@ -12337,6 +12344,7 @@ components:
                           type: string
                         - enum:
                             - STREAM_PROCESSOR_STATE_IS_FAILED
+                            - STREAM_PROCESSOR_KAFKA_LAG_BEHIND
                           title: Stream Processor Event Types
                           type: string
                         - enum:
@@ -12454,6 +12462,7 @@ components:
                             - CPS_SNAPSHOT_BEHIND
                             - CPS_COPY_SNAPSHOT_STARTED
                             - CPS_COPY_SNAPSHOT_FAILED
+                            - CPS_COPY_SNAPSHOT_FAILED_WILL_RETRY
                             - CPS_COPY_SNAPSHOT_SUCCESSFUL
                             - CPS_PREV_SNAPSHOT_OLD
                             - CPS_SNAPSHOT_FALLBACK_SUCCESSFUL
@@ -12541,6 +12550,7 @@ components:
                           type: string
                         - enum:
                             - STREAM_PROCESSOR_STATE_IS_FAILED
+                            - STREAM_PROCESSOR_KAFKA_LAG_BEHIND
                           title: Stream Processor Event Types
                           type: string
                         - enum:
@@ -12703,6 +12713,7 @@ components:
                             - CPS_SNAPSHOT_BEHIND
                             - CPS_COPY_SNAPSHOT_STARTED
                             - CPS_COPY_SNAPSHOT_FAILED
+                            - CPS_COPY_SNAPSHOT_FAILED_WILL_RETRY
                             - CPS_COPY_SNAPSHOT_SUCCESSFUL
                             - CPS_PREV_SNAPSHOT_OLD
                             - CPS_SNAPSHOT_FALLBACK_FAILED
@@ -12918,6 +12929,8 @@ components:
                           type: string
                         - enum:
                             - STREAM_PROCESSOR_STATE_IS_FAILED
+                            - STREAM_PROCESSOR_KAFKA_LAG_BEHIND
+                            - STREAM_PROCESSOR_KAFKA_LAG_CURRENT
                           title: Stream Processor Event Types
                           type: string
                         - enum:
@@ -12944,6 +12957,8 @@ components:
                             - CLUSTER_FCV_FIXED
                             - CLUSTER_FCV_UNFIXED
                             - CLUSTER_FCV_EXPIRATION_DATE_UPDATED
+                            - ACME_PROVIDER_FIXED
+                            - ACME_PROVIDER_UNFIXED
                             - AGENT_VERSION_FIXED
                             - AGENT_VERSION_UNFIXED
                             - FIXED_VERSION_UPDATED
@@ -14956,6 +14971,7 @@ components:
                     - CPS_SNAPSHOT_BEHIND
                     - CPS_COPY_SNAPSHOT_STARTED
                     - CPS_COPY_SNAPSHOT_FAILED
+                    - CPS_COPY_SNAPSHOT_FAILED_WILL_RETRY
                     - CPS_COPY_SNAPSHOT_SUCCESSFUL
                     - CPS_PREV_SNAPSHOT_OLD
                     - CPS_SNAPSHOT_FALLBACK_FAILED
@@ -15156,6 +15172,7 @@ components:
                     - CLUSTER_INSTANCE_REPLACED
                     - CLUSTER_INSTANCE_REPLACE_CLEARED
                     - CLUSTER_INSTANCE_CONFIG_UPDATED
+                    - CLUSTER_INSTANCE_AGENT_API_KEY_ROTATED
                     - CLUSTER_INSTANCE_SSL_ROTATED
                     - CLUSTER_INSTANCE_SSL_ROTATED_PER_CLUSTER
                     - CLUSTER_INSTANCE_SSL_REVOKED
@@ -15168,6 +15185,7 @@ components:
                     - ONLINE_ARCHIVE_QUERY_LOGS_DOWNLOADED
                     - MONGODB_LOGS_DOWNLOADED
                     - MONGOSQLD_LOGS_DOWNLOADED
+                    - MONGOT_LOGS_DOWNLOADED
                     - MONGODB_USER_ADDED
                     - MONGODB_USER_DELETED
                     - MONGODB_USER_X509_CERT_CREATED
@@ -15501,6 +15519,8 @@ components:
                   type: string
                 - enum:
                     - STREAM_PROCESSOR_STATE_IS_FAILED
+                    - STREAM_PROCESSOR_KAFKA_LAG_BEHIND
+                    - STREAM_PROCESSOR_KAFKA_LAG_CURRENT
                   title: Stream Processor Event Types
                   type: string
                 - enum:
@@ -15544,6 +15564,8 @@ components:
                     - CLUSTER_FCV_FIXED
                     - CLUSTER_FCV_UNFIXED
                     - CLUSTER_FCV_EXPIRATION_DATE_UPDATED
+                    - ACME_PROVIDER_FIXED
+                    - ACME_PROVIDER_UNFIXED
                     - AGENT_VERSION_FIXED
                     - AGENT_VERSION_UNFIXED
                     - FIXED_VERSION_UPDATED
@@ -18328,12 +18350,17 @@ components:
                     description: One or more organization or project level roles to assign to the MongoDB Cloud user.
                     items:
                         enum:
+                            - GROUP_BACKUP_MANAGER
                             - GROUP_CLUSTER_MANAGER
                             - GROUP_DATA_ACCESS_ADMIN
                             - GROUP_DATA_ACCESS_READ_ONLY
                             - GROUP_DATA_ACCESS_READ_WRITE
+                            - GROUP_DATABASE_ACCESS_ADMIN
+                            - GROUP_OBSERVABILITY_VIEWER
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
+                            - GROUP_SEARCH_INDEX_EDITOR
+                            - GROUP_STREAM_PROCESSING_OWNER
                         type: string
                     type: array
                     uniqueItems: true
@@ -18349,12 +18376,17 @@ components:
                     description: One or more project level roles to assign to the MongoDB Cloud user.
                     items:
                         enum:
+                            - GROUP_BACKUP_MANAGER
                             - GROUP_CLUSTER_MANAGER
                             - GROUP_DATA_ACCESS_ADMIN
                             - GROUP_DATA_ACCESS_READ_ONLY
                             - GROUP_DATA_ACCESS_READ_WRITE
+                            - GROUP_DATABASE_ACCESS_ADMIN
+                            - GROUP_OBSERVABILITY_VIEWER
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
+                            - GROUP_SEARCH_INDEX_EDITOR
+                            - GROUP_STREAM_PROCESSING_OWNER
                         type: string
                     type: array
                     uniqueItems: true
@@ -18366,15 +18398,20 @@ components:
         GroupInvitationUpdateRequest:
             properties:
                 roles:
-                    description: One or more organization or project level roles to assign to the MongoDB Cloud user.
+                    description: One or more project-level roles to assign to the MongoDB Cloud user.
                     items:
                         enum:
+                            - GROUP_BACKUP_MANAGER
                             - GROUP_CLUSTER_MANAGER
                             - GROUP_DATA_ACCESS_ADMIN
                             - GROUP_DATA_ACCESS_READ_ONLY
                             - GROUP_DATA_ACCESS_READ_WRITE
+                            - GROUP_DATABASE_ACCESS_ADMIN
+                            - GROUP_OBSERVABILITY_VIEWER
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
+                            - GROUP_SEARCH_INDEX_EDITOR
+                            - GROUP_STREAM_PROCESSING_OWNER
                         type: string
                     type: array
                     uniqueItems: true
@@ -18477,21 +18514,21 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 roles:
-                    description: 'List that contains the one or more [organization](https://dochub.mongodb.org/core/atlas-org-roles) or [project roles](https://dochub.mongodb.org/core/atlas-proj-roles) that receive the configured alert. The resource requires this parameter when `"notifications.[n].typeName" : "GROUP"` or `"notifications.[n].typeName" : "ORG"`. If you include this parameter, MongoDB Cloud sends alerts only to users assigned the roles you specify in the array. If you omit this parameter, MongoDB Cloud sends alerts to users assigned any role.'
+                    description: 'List that contains the one or more [project roles](https://dochub.mongodb.org/core/atlas-proj-roles) that receive the configured alert. This parameter is available when `"notifications.[n].typeName" : "GROUP"` or `"notifications.[n].typeName" : "ORG"`. If you include this parameter, MongoDB Cloud sends alerts only to users assigned the roles you specify in the array. If you omit this parameter, MongoDB Cloud sends alerts to users assigned any role.'
                     items:
-                        description: One organization or project role that receive the configured alert.
+                        description: One or more project roles that receive the configured alert.
                         enum:
+                            - GROUP_BACKUP_MANAGER
                             - GROUP_CLUSTER_MANAGER
                             - GROUP_DATA_ACCESS_ADMIN
                             - GROUP_DATA_ACCESS_READ_ONLY
                             - GROUP_DATA_ACCESS_READ_WRITE
+                            - GROUP_DATABASE_ACCESS_ADMIN
+                            - GROUP_OBSERVABILITY_VIEWER
                             - GROUP_OWNER
-                            - GROUP_READ_WRITE
-                            - ORG_OWNER
-                            - ORG_MEMBER
-                            - ORG_GROUP_CREATOR
-                            - ORG_BILLING_ADMIN
-                            - ORG_READ_ONLY
+                            - GROUP_READ_ONLY
+                            - GROUP_SEARCH_INDEX_EDITOR
+                            - GROUP_STREAM_PROCESSING_OWNER
                         type: string
                     type: array
                 smsEnabled:
@@ -18572,25 +18609,15 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 groupRole:
-                    description: |+
-                        Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include project-level roles.
-
-                        Project Roles
-
-                        * GROUP_CLUSTER_MANAGER
-                        * GROUP_DATA_ACCESS_ADMIN
-                        * GROUP_DATA_ACCESS_READ_ONLY
-                        * GROUP_DATA_ACCESS_READ_WRITE
-                        * GROUP_OWNER
-                        * GROUP_READ_ONLY
-                        * GROUP_SEARCH_INDEX_EDITOR
-                        * GROUP_STREAM_PROCESSING_OWNER
-
+                    description: Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include project-level roles.
                     enum:
+                        - GROUP_BACKUP_MANAGER
                         - GROUP_CLUSTER_MANAGER
                         - GROUP_DATA_ACCESS_ADMIN
                         - GROUP_DATA_ACCESS_READ_ONLY
                         - GROUP_DATA_ACCESS_READ_WRITE
+                        - GROUP_DATABASE_ACCESS_ADMIN
+                        - GROUP_OBSERVABILITY_VIEWER
                         - GROUP_OWNER
                         - GROUP_READ_ONLY
                         - GROUP_SEARCH_INDEX_EDITOR
@@ -18668,6 +18695,7 @@ components:
                             - GROUP_STREAM_PROCESSING_OWNER
                             - GROUP_BACKUP_MANAGER
                             - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     type: array
                     uniqueItems: true
@@ -18707,6 +18735,7 @@ components:
                             - GROUP_STREAM_PROCESSING_OWNER
                             - GROUP_BACKUP_MANAGER
                             - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     type: array
                 secretExpiresAfterHours:
@@ -18737,6 +18766,7 @@ components:
                             - GROUP_STREAM_PROCESSING_OWNER
                             - GROUP_BACKUP_MANAGER
                             - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     type: array
                     uniqueItems: true
@@ -18772,6 +18802,7 @@ components:
                             - GROUP_STREAM_PROCESSING_OWNER
                             - GROUP_BACKUP_MANAGER
                             - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     type: array
             type: object
@@ -18779,16 +18810,23 @@ components:
             description: Collection of settings that configures the project.
             properties:
                 isCollectDatabaseSpecificsStatisticsEnabled:
-                    description: Flag that indicates whether to collect database-specific metrics  for the specified project.
+                    description: Flag that indicates whether to collect database-specific metrics for the specified project.
                     type: boolean
                 isDataExplorerEnabled:
                     description: Flag that indicates whether to enable the Data Explorer for the specified project.
                     type: boolean
+                isDataExplorerGenAIFeaturesEnabled:
+                    description: Flag that indicates whether to enable the use of generative AI features which make requests to 3rd party services in Data Explorer for the specified project.
+                    type: boolean
+                isDataExplorerGenAISampleDocumentPassingEnabled:
+                    default: false
+                    description: Flag that indicates whether to enable the passing of sample field values with the use of generative AI features in the Data Explorer for the specified project.
+                    type: boolean
                 isExtendedStorageSizesEnabled:
-                    description: Flag that indicates whether to enable extended storage sizes  for the specified project.
+                    description: Flag that indicates whether to enable extended storage sizes for the specified project.
                     type: boolean
                 isPerformanceAdvisorEnabled:
-                    description: Flag that indicates whether to enable the Performance Advisor and Profiler  for the specified project.
+                    description: Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.
                     type: boolean
                 isRealtimePerformancePanelEnabled:
                     description: Flag that indicates whether to enable the Real Time Performance Panel for the specified project.
@@ -20287,6 +20325,38 @@ components:
                     x-xgen-IPA-exception:
                         xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
             readOnly: true
+            type: object
+        ImportedDashboard:
+            description: Imported dashboard.
+            properties:
+                embeddingId:
+                    description: Embedding ID of the item. This field only returns if embedding is enabled for the entity.
+                    type: string
+                id:
+                    description: ID of the dashboard.
+                    type: string
+                title:
+                    description: Title of the dashboard.
+                    type: string
+            required:
+                - id
+                - title
+            type: object
+        ImportedItem:
+            description: Imported Item.
+            properties:
+                embeddingId:
+                    description: Embedding ID of the item. This will only be returned if embedding is enabled for the entity.
+                    type: string
+                id:
+                    description: ID of the item.
+                    type: string
+                title:
+                    description: Title of the item.
+                    type: string
+            required:
+                - id
+                - title
             type: object
         InboundControlPlaneCloudProviderIPAddresses:
             description: List of inbound IP addresses to the Atlas control plane, categorized by cloud provider. If your application allows outbound HTTP requests only to specific IP addresses, you must allow access to the following IP addresses so that your API requests can reach the Atlas control plane.
@@ -22192,7 +22262,6 @@ components:
                     type: string
                 customShardKey:
                     description: Database parameter used to divide the *collection* into shards. Global clusters require a compound shard key. This compound shard key combines the location parameter and the user-selected custom key.
-                    readOnly: true
                     type: string
                 db:
                     description: Human-readable label of the database to manage for this Global Cluster.
@@ -22204,12 +22273,10 @@ components:
                         description: Hashed Shard Keys
                         url: https://www.mongodb.com/docs/manual/reference/method/sh.shardCollection/#hashed-shard-keys
                     type: boolean
-                    writeOnly: true
                 isShardKeyUnique:
                     default: false
                     description: Flag that indicates whether someone [hashed](https://www.mongodb.com/docs/manual/reference/method/sh.shardCollection/#hashed-shard-keys) the custom shard key. If this parameter returns `false`, this cluster uses [ranged sharding](https://www.mongodb.com/docs/manual/core/ranged-sharding/).
                     type: boolean
-                    writeOnly: true
                 numInitialChunks:
                     description: Minimum number of chunks to create initially when sharding an empty collection with a [hashed shard key](https://www.mongodb.com/docs/manual/core/hashed-sharding/).
                     externalDocs:
@@ -22218,7 +22285,6 @@ components:
                     format: int64
                     maximum: 8192
                     type: integer
-                    writeOnly: true
                 presplitHashedZones:
                     default: false
                     description: Flag that indicates whether MongoDB Cloud should create and distribute initial chunks for an empty or non-existing collection. MongoDB Cloud distributes data based on the defined zones and zone ranges for the collection.
@@ -22226,7 +22292,6 @@ components:
                         description: Hashed Shard Key
                         url: https://www.mongodb.com/docs/manual/core/hashed-sharding/
                     type: boolean
-                    writeOnly: true
             required:
                 - collection
                 - customShardKey
@@ -22855,6 +22920,7 @@ components:
                 - CLUSTER_INSTANCE_REPLACED
                 - CLUSTER_INSTANCE_REPLACE_CLEARED
                 - CLUSTER_INSTANCE_CONFIG_UPDATED
+                - CLUSTER_INSTANCE_AGENT_API_KEY_ROTATED
                 - CLUSTER_INSTANCE_SSL_ROTATED
                 - CLUSTER_INSTANCE_SSL_ROTATED_PER_CLUSTER
                 - CLUSTER_INSTANCE_SSL_REVOKED
@@ -22867,6 +22933,7 @@ components:
                 - ONLINE_ARCHIVE_QUERY_LOGS_DOWNLOADED
                 - MONGODB_LOGS_DOWNLOADED
                 - MONGOSQLD_LOGS_DOWNLOADED
+                - MONGOT_LOGS_DOWNLOADED
                 - MONGODB_USER_ADDED
                 - MONGODB_USER_DELETED
                 - MONGODB_USER_X509_CERT_CREATED
@@ -24542,20 +24609,15 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 roles:
-                    description: 'List that contains the one or more [organization](https://dochub.mongodb.org/core/atlas-org-roles) or [project roles](https://dochub.mongodb.org/core/atlas-proj-roles) that receive the configured alert. The resource requires this parameter when `"notifications.[n].typeName" : "GROUP"` or `"notifications.[n].typeName" : "ORG"`. If you include this parameter, MongoDB Cloud sends alerts only to users assigned the roles you specify in the array. If you omit this parameter, MongoDB Cloud sends alerts to users assigned any role.'
+                    description: 'List that contains the one or more [organization roles](https://dochub.mongodb.org/core/atlas-org-roles) that receive the configured alert. This parameter is available when `"notifications.[n].typeName" : "GROUP"` or `"notifications.[n].typeName" : "ORG"`. If you include this parameter, MongoDB Cloud sends alerts only to users assigned the roles you specify in the array. If you omit this parameter, MongoDB Cloud sends alerts to users assigned any role.'
                     items:
-                        description: One organization or project role that receive the configured alert.
+                        description: One or more organization roles that receive the configured alert.
                         enum:
-                            - GROUP_CLUSTER_MANAGER
-                            - GROUP_DATA_ACCESS_ADMIN
-                            - GROUP_DATA_ACCESS_READ_ONLY
-                            - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_OWNER
-                            - GROUP_READ_WRITE
                             - ORG_OWNER
                             - ORG_MEMBER
                             - ORG_GROUP_CREATOR
                             - ORG_BILLING_ADMIN
+                            - ORG_BILLING_READ_ONLY
                             - ORG_READ_ONLY
                         type: string
                     type: array
@@ -24912,20 +24974,15 @@ components:
                     pattern: ^[\p{L}\p{N}\-_.(),:&@+']{1,64}$
                     type: string
                 roles:
-                    description: One or more organization level roles to assign to the MongoDB Cloud user.
+                    description: One or more organization-level roles to assign to the MongoDB Cloud user.
                     items:
                         enum:
                             - ORG_OWNER
                             - ORG_MEMBER
                             - ORG_GROUP_CREATOR
                             - ORG_BILLING_ADMIN
+                            - ORG_BILLING_READ_ONLY
                             - ORG_READ_ONLY
-                            - GROUP_CLUSTER_MANAGER
-                            - GROUP_DATA_ACCESS_ADMIN
-                            - GROUP_DATA_ACCESS_READ_ONLY
-                            - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_OWNER
-                            - GROUP_READ_ONLY
                         type: string
                     type: array
                     uniqueItems: true
@@ -24955,12 +25012,17 @@ components:
                     description: One or more project level roles to assign to the MongoDB Cloud user.
                     items:
                         enum:
+                            - GROUP_BACKUP_MANAGER
                             - GROUP_CLUSTER_MANAGER
                             - GROUP_DATA_ACCESS_ADMIN
                             - GROUP_DATA_ACCESS_READ_ONLY
                             - GROUP_DATA_ACCESS_READ_WRITE
+                            - GROUP_DATABASE_ACCESS_ADMIN
+                            - GROUP_OBSERVABILITY_VIEWER
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
+                            - GROUP_SEARCH_INDEX_EDITOR
+                            - GROUP_STREAM_PROCESSING_OWNER
                         type: string
                     type: array
                     uniqueItems: true
@@ -24980,6 +25042,7 @@ components:
                             - ORG_MEMBER
                             - ORG_GROUP_CREATOR
                             - ORG_BILLING_ADMIN
+                            - ORG_BILLING_READ_ONLY
                             - ORG_READ_ONLY
                         type: string
                     type: array
@@ -25011,6 +25074,7 @@ components:
                             - ORG_MEMBER
                             - ORG_GROUP_CREATOR
                             - ORG_BILLING_ADMIN
+                            - ORG_BILLING_READ_ONLY
                             - ORG_READ_ONLY
                         type: string
                     type: array
@@ -28387,38 +28451,21 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 role:
-                    description: |+
-                        Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.
-
-                        Organization Roles
-
-                        * ORG_OWNER
-                        * ORG_MEMBER
-                        * ORG_GROUP_CREATOR
-                        * ORG_BILLING_ADMIN
-                        * ORG_READ_ONLY
-
-                        Project Roles
-
-                        * GROUP_CLUSTER_MANAGER
-                        * GROUP_DATA_ACCESS_ADMIN
-                        * GROUP_DATA_ACCESS_READ_ONLY
-                        * GROUP_DATA_ACCESS_READ_WRITE
-                        * GROUP_OWNER
-                        * GROUP_READ_ONLY
-                        * GROUP_SEARCH_INDEX_EDITOR
-                        * GROUP_STREAM_PROCESSING_OWNER
-
+                    description: Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.
                     enum:
                         - ORG_OWNER
                         - ORG_MEMBER
                         - ORG_GROUP_CREATOR
                         - ORG_BILLING_ADMIN
+                        - ORG_BILLING_READ_ONLY
                         - ORG_READ_ONLY
+                        - GROUP_BACKUP_MANAGER
                         - GROUP_CLUSTER_MANAGER
                         - GROUP_DATA_ACCESS_ADMIN
                         - GROUP_DATA_ACCESS_READ_ONLY
                         - GROUP_DATA_ACCESS_READ_WRITE
+                        - GROUP_DATABASE_ACCESS_ADMIN
+                        - GROUP_OBSERVABILITY_VIEWER
                         - GROUP_OWNER
                         - GROUP_READ_ONLY
                         - GROUP_SEARCH_INDEX_EDITOR
@@ -30606,6 +30653,7 @@ components:
             description: Event type that triggers an alert.
             enum:
                 - STREAM_PROCESSOR_STATE_IS_FAILED
+                - STREAM_PROCESSOR_KAFKA_LAG_BEHIND
             example: STREAM_PROCESSOR_STATE_IS_FAILED
             title: Stream Processor Event Types
             type: string
@@ -30613,6 +30661,8 @@ components:
             description: Unique identifier of event type.
             enum:
                 - STREAM_PROCESSOR_STATE_IS_FAILED
+                - STREAM_PROCESSOR_KAFKA_LAG_BEHIND
+                - STREAM_PROCESSOR_KAFKA_LAG_CURRENT
             example: STREAM_PROCESSOR_STATE_IS_FAILED
             title: Stream Processor Event Types
             type: string
@@ -30684,6 +30734,31 @@ components:
                 - id
             title: Stream Processor Events
             type: object
+        StreamsAWSConnectionBaseConfig:
+            description: The base configuration of AWS connection used in stream processors.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                roleArn:
+                    description: Amazon Resource Name (ARN) that identifies the Amazon Web Services (AWS) Identity and Access Management (IAM) role that MongoDB Cloud assumes when it accesses resources in your AWS account.
+                    type: string
+            type: object
+        StreamsAWSLambdaConnection:
+            allOf:
+                - $ref: '#/components/schemas/StreamsConnection'
+                - properties:
+                    aws:
+                        $ref: '#/components/schemas/StreamsAWSConnectionBaseConfig'
+                  type: object
+            description: The configuration for AWS Lambda connections.
+            type: object
         StreamsClusterConnection:
             allOf:
                 - $ref: '#/components/schemas/StreamsConnection'
@@ -30699,6 +30774,7 @@ components:
             description: Settings that define a connection to an external data store.
             discriminator:
                 mapping:
+                    AWSLambda: '#/components/schemas/StreamsAWSLambdaConnection'
                     Cluster: '#/components/schemas/StreamsClusterConnection'
                     Https: '#/components/schemas/StreamsHttpsConnection'
                     Kafka: '#/components/schemas/StreamsKafkaConnection'
@@ -30709,6 +30785,7 @@ components:
                 - $ref: '#/components/schemas/StreamsClusterConnection'
                 - $ref: '#/components/schemas/StreamsKafkaConnection'
                 - $ref: '#/components/schemas/StreamsHttpsConnection'
+                - $ref: '#/components/schemas/StreamsAWSLambdaConnection'
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -30729,6 +30806,7 @@ components:
                         - Cluster
                         - Sample
                         - Https
+                        - AWSLambda
                     type: string
                     x-xgen-IPA-exception:
                         xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
@@ -31725,15 +31803,20 @@ components:
                     readOnly: true
                     type: array
                 roleNames:
-                    description: One or more organization- or project-level roles to assign to the MongoDB Cloud user.
+                    description: One or more project-level roles to assign to the team.
+                    enum:
+                        - GROUP_BACKUP_MANAGER
+                        - GROUP_CLUSTER_MANAGER
+                        - GROUP_DATA_ACCESS_ADMIN
+                        - GROUP_DATA_ACCESS_READ_ONLY
+                        - GROUP_DATA_ACCESS_READ_WRITE
+                        - GROUP_DATABASE_ACCESS_ADMIN
+                        - GROUP_OBSERVABILITY_VIEWER
+                        - GROUP_OWNER
+                        - GROUP_READ_ONLY
+                        - GROUP_SEARCH_INDEX_EDITOR
+                        - GROUP_STREAM_PROCESSING_OWNER
                     items:
-                        enum:
-                            - GROUP_CLUSTER_MANAGER
-                            - GROUP_DATA_ACCESS_ADMIN
-                            - GROUP_DATA_ACCESS_READ_ONLY
-                            - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_OWNER
-                            - GROUP_READ_ONLY
                         type: string
                     type: array
                     uniqueItems: true
@@ -32740,8 +32823,8 @@ components:
                             - ORG_MEMBER
                             - ORG_GROUP_CREATOR
                             - ORG_BILLING_ADMIN
+                            - ORG_BILLING_READ_ONLY
                             - ORG_READ_ONLY
-                            - ORG_TEAM_MEMBERS_ADMIN
                         type: string
                     type: array
             type: object
@@ -32756,25 +32839,15 @@ components:
                     description: List of roles to grant this API key. If you provide this list, provide a minimum of one role and ensure each role applies to this project.
                     items:
                         enum:
-                            - ORG_OWNER
-                            - ORG_MEMBER
-                            - ORG_GROUP_CREATOR
-                            - ORG_BILLING_ADMIN
-                            - ORG_READ_ONLY
-                            - ORG_TEAM_MEMBERS_ADMIN
-                            - GROUP_ATLAS_ADMIN
-                            - GROUP_AUTOMATION_ADMIN
-                            - GROUP_BACKUP_ADMIN
-                            - GROUP_MONITORING_ADMIN
-                            - GROUP_OWNER
-                            - GROUP_READ_ONLY
-                            - GROUP_USER_ADMIN
-                            - GROUP_BILLING_ADMIN
+                            - GROUP_BACKUP_MANAGER
+                            - GROUP_CLUSTER_MANAGER
                             - GROUP_DATA_ACCESS_ADMIN
                             - GROUP_DATA_ACCESS_READ_ONLY
                             - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_CHARTS_ADMIN
-                            - GROUP_CLUSTER_MANAGER
+                            - GROUP_DATABASE_ACCESS_ADMIN
+                            - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_OWNER
+                            - GROUP_READ_ONLY
                             - GROUP_SEARCH_INDEX_EDITOR
                             - GROUP_STREAM_PROCESSING_OWNER
                         type: string
@@ -32800,10 +32873,13 @@ components:
                     description: One or more project level roles to assign to the MongoDB Cloud user.
                     items:
                         enum:
+                            - GROUP_BACKUP_MANAGER
                             - GROUP_CLUSTER_MANAGER
                             - GROUP_DATA_ACCESS_ADMIN
                             - GROUP_DATA_ACCESS_READ_ONLY
                             - GROUP_DATA_ACCESS_READ_WRITE
+                            - GROUP_DATABASE_ACCESS_ADMIN
+                            - GROUP_OBSERVABILITY_VIEWER
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
                             - GROUP_SEARCH_INDEX_EDITOR
@@ -32840,6 +32916,7 @@ components:
                             - ORG_MEMBER
                             - ORG_GROUP_CREATOR
                             - ORG_BILLING_ADMIN
+                            - ORG_BILLING_READ_ONLY
                             - ORG_READ_ONLY
                         type: string
                     type: array
@@ -32987,16 +33064,17 @@ components:
                     description: List of roles to grant this API key. If you provide this list, provide a minimum of one role and ensure each role applies to this project.
                     items:
                         enum:
+                            - GROUP_BACKUP_MANAGER
                             - GROUP_CLUSTER_MANAGER
                             - GROUP_DATA_ACCESS_ADMIN
                             - GROUP_DATA_ACCESS_READ_ONLY
                             - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_SEARCH_INDEX_EDITOR
-                            - GROUP_STREAM_PROCESSING_OWNER
+                            - GROUP_DATABASE_ACCESS_ADMIN
+                            - GROUP_OBSERVABILITY_VIEWER
                             - GROUP_OWNER
                             - GROUP_READ_ONLY
-                            - GROUP_BACKUP_MANAGER
-                            - GROUP_OBSERVABILITY_VIEWER
+                            - GROUP_SEARCH_INDEX_EDITOR
+                            - GROUP_STREAM_PROCESSING_OWNER
                         type: string
                     type: array
                 userId:
@@ -34485,7 +34563,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 398d53c1ef0f2f7fad1f11b841260d033bc5ec9a
+    x-xgen-sha: 5a76ff12fe66c96360f061cf79371b60199cdfaa
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -35426,6 +35504,7 @@ paths:
             x-xgen-owner-team: IAM
     /api/atlas/v2/groups/{groupId}/access:
         post:
+            deprecated: true
             description: Adds one MongoDB Cloud user to the specified project. If the MongoDB Cloud user is not a member of the project's organization, then the user must accept their invitation to the organization to access information within the specified project. If the MongoDB Cloud User is already a member of the project's organization, then they will be added to the project immediately and an invitation will not be returned by this resource. To use this resource, the requesting API Key must have the Group User Admin role.
             operationId: addUserToProject
             parameters:
@@ -35445,6 +35524,7 @@ paths:
                         application/vnd.atlas.2023-02-01+json:
                             schema:
                                 $ref: '#/components/schemas/OrganizationInvitation'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-02-01"
                     description: OK
                 "204":
@@ -36760,6 +36840,75 @@ paths:
                 - Cloud Backups
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateDataProtectionSettings
             x-xgen-owner-team: Backup - Atlas
+    /api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export:
+        get:
+            description: Exports the specified Charts dashboard. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: exportChartsDashboard
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: ID of the dashboard to export.
+                  in: path
+                  name: dashboardId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                description: This resource downloads a Charts dashboard. You can use this resource to import to the Charts Dashboard Import endpoint.
+                                format: binary
+                                type: string
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Export One Charts Dashboard
+            tags:
+                - Charts Dashboards
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/exportChartsDashboard
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Sydney Cloud Integration
+    /api/atlas/v2/groups/{groupId}/chartsDashboards:import:
+        post:
+            description: Imports the Charts dashboard that the template specifies. Optionally, you can specify a `dashboardId` with `override=true` to import into an existing dashboard. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: importChartsDashboard
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+multipart:
+                        schema:
+                            $ref: '#/components/schemas/ApiChartsDashboardImportRequestView20430101'
+                description: Details to import or override a dashboard.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiChartsDashboardImportResponseView20430101'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Import One Charts Dashboard
+            tags:
+                - Charts Dashboards
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/importChartsDashboard
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Sydney Cloud Integration
     /api/atlas/v2/groups/{groupId}/cloudProviderAccess:
         get:
             description: Returns all cloud provider access roles with access to the specified project. To use this resource, the requesting API Key must have the Project Owner role.
@@ -50409,7 +50558,12 @@ paths:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/users:
         get:
-            description: Returns details about all users in the specified project. Users belong to an organization. To use this resource, the requesting API Key must have the Project Read Only role.
+            description: |-
+                Returns details about the pending and active MongoDB Cloud users associated with the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                **Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users will be returned.
             operationId: listProjectUsers
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -50430,6 +50584,18 @@ paths:
                   schema:
                     default: false
                     type: boolean
+                - description: Flag that indicates whether to filter the returned list by users organization membership status. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.
+                  in: query
+                  name: orgMembershipStatus
+                  schema:
+                    example: ACTIVE
+                    type: string
+                - description: Email address to filter users by. Not supported in deprecated versions.
+                  in: query
+                  name: username
+                  schema:
+                    format: email
+                    type: string
             responses:
                 "200":
                     content:
@@ -50438,21 +50604,19 @@ paths:
                                 $ref: '#/components/schemas/PaginatedAppUserView'
                             x-sunset: "2044-01-01"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedGroupUserView'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return All Users in One Project
+            summary: Return All MongoDB Cloud Users in One Project
             tags:
-                - Projects
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/listProjectUsers
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listProjectUsers
             x-xgen-owner-team: IAM
         post:
             description: "Adds one MongoDB Cloud user to one project. To use this resource, the requesting API Key must have the Project Owner role. \n- If the user has a pending invitation to join the project's organization, MongoDB Cloud modifies it and grants project access. \n- If the user doesn't have an invitation to join the organization, MongoDB Cloud sends a new invitation that grants the user organization and project access. \n- If the user is already active in the project's organization, MongoDB Cloud grants access to the project. \n"
@@ -50463,7 +50627,7 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/GroupUserRequest'
                 description: The active or pending MongoDB Cloud user that you want to add to the specified project.
@@ -50471,10 +50635,10 @@ paths:
             responses:
                 "201":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/GroupUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50492,18 +50656,21 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addProjectUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/groups/{groupId}/users/{userId}:
         delete:
-            description: Removes the specified user from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            description: |-
+                Removes one MongoDB Cloud user from the specified project. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Project Owner role.
+
+                **Note**: This resource cannot be used to remove pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users can be removed.
             operationId: removeProjectUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
-                - description: Unique 24-hexadecimal string that identifies MongoDB Cloud user you want to remove from the specified project. To return a application user's ID using their application username, use the Get All application users in One Project endpoint.
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the [Return All MongoDB Cloud Users in One Project](#tag/MongoDB-Cloud-Users/operation/listProjectUsers) resource and filter by username.
                   in: path
                   name: userId
                   required: true
@@ -50514,14 +50681,12 @@ paths:
                 "204":
                     content:
                         application/vnd.atlas.2023-01-01+json:
-                            x-sunset: "2044-01-01"
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/NoBody'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: This endpoint does not return a response body.
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50531,10 +50696,10 @@ paths:
                     $ref: '#/components/responses/notFound'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Remove One User from One Project
+            summary: Remove One MongoDB Cloud User from One Project
             tags:
-                - Projects
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/removeProjectUser
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeProjectUser
             x-xgen-owner-team: IAM
         get:
             description: |-
@@ -50558,10 +50723,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/GroupUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50577,11 +50742,10 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getProjectUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/groups/{groupId}/users/{userId}/roles:
         put:
+            deprecated: true
             description: Updates the roles of the specified user in the specified project. To specify the user to update, provide the unique 24-hexadecimal digit string that identifies the user in the specified project. To use this resource, the requesting API Key must have the Group User Admin role.
             operationId: updateProjectRoles
             parameters:
@@ -50608,6 +50772,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/UpdateGroupRolesForUser'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -50645,7 +50810,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveGroupRole'
                 description: Project-level role to assign to the MongoDB Cloud user.
@@ -50653,10 +50818,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50674,8 +50839,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addProjectRole
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/groups/{groupId}/users/{userId}:removeRole:
         post:
@@ -50697,7 +50860,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveGroupRole'
                 description: Project-level role to remove from the MongoDB Cloud user.
@@ -50705,10 +50868,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -50726,8 +50889,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeProjectRole
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/groups/{groupId}:migrate:
         post:
@@ -51630,6 +51791,7 @@ paths:
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/invites:
         get:
+            deprecated: true
             description: Returns all pending invitations to the specified organization. To use this resource, the requesting API Key must have the Organization Owner role.
             operationId: listOrganizationInvitations
             parameters:
@@ -51650,6 +51812,7 @@ paths:
                                 items:
                                     $ref: '#/components/schemas/OrganizationInvitation'
                                 type: array
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -51666,6 +51829,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/listOrganizationInvitations
             x-xgen-owner-team: IAM
         patch:
+            deprecated: true
             description: Updates the details of one pending invitation to the specified organization. To specify which invitation, provide the username of the invited user. To use this resource, the requesting API Key must have the Organization Owner role.
             operationId: updateOrganizationInvitation
             parameters:
@@ -51685,6 +51849,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/OrganizationInvitation'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -51701,6 +51866,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrganizationInvitation
             x-xgen-owner-team: IAM
         post:
+            deprecated: true
             description: Invites one MongoDB Cloud user to join the specified organization. The user must accept the invitation to access information within the specified organization. To use this resource, the requesting API Key must have the Organization Owner role.
             operationId: createOrganizationInvitation
             parameters:
@@ -51720,6 +51886,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/OrganizationInvitation'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -51737,6 +51904,7 @@ paths:
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/invites/{invitationId}:
         delete:
+            deprecated: true
             description: Cancels one pending invitation sent to the specified MongoDB Cloud user to join an organization. You can't cancel an invitation that the user accepted. To use this resource, the requesting API Key must have the Organization Owner role.
             operationId: deleteOrganizationInvitation
             parameters:
@@ -51755,6 +51923,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/NoBody'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: This endpoint does not return a response body.
                 "400":
@@ -51771,6 +51940,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/deleteOrganizationInvitation
             x-xgen-owner-team: IAM
         get:
+            deprecated: true
             description: Returns the details of one pending invitation to the specified organization. To use this resource, the requesting API Key must have the Organization Owner role.
             operationId: getOrganizationInvitation
             parameters:
@@ -51789,6 +51959,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/OrganizationInvitation'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -51805,6 +51976,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/getOrganizationInvitation
             x-xgen-owner-team: IAM
         patch:
+            deprecated: true
             description: Updates the details of one pending invitation to the specified organization. To specify which invitation, provide the unique identification string for that invitation. Use the Return All Organization Invitations endpoint to retrieve IDs for all pending organization invitations. To use this resource, the requesting API Key must have the Organization Owner role.
             operationId: updateOrganizationInvitationById
             parameters:
@@ -51831,6 +52003,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/OrganizationInvitation'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -53167,7 +53340,10 @@ paths:
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/teams/{teamId}/users:
         get:
-            description: Returns all MongoDB Cloud users assigned to the team specified using its unique 24-hexadecimal digit identifier. This team belongs to one organization. Teams enable you to grant project access roles to MongoDB Cloud users. To use this resource, the requesting API Key must have the Organization Member role.
+            description: |-
+                Returns details about the pending and active MongoDB Cloud users associated with the specified team in the organization. Teams enable you to grant project access roles to MongoDB Cloud users. To use this resource, the requesting API Key must have the Organization Member role.**Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users will be returned.
             externalDocs:
                 description: Manage Organization Teams
                 url: https://docs.atlas.mongodb.com/access/manage-teams-in-orgs/#std-label-manage-teams
@@ -53185,6 +53361,18 @@ paths:
                   schema:
                     pattern: ^([a-f0-9]{24})$
                     type: string
+                - description: Email address to filter users by. Not supported in deprecated versions.
+                  in: query
+                  name: username
+                  schema:
+                    format: email
+                    type: string
+                - description: Organization membership status to filter users by. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.
+                  in: query
+                  name: orgMembershipStatus
+                  schema:
+                    example: ACTIVE
+                    type: string
             responses:
                 "200":
                     content:
@@ -53193,12 +53381,10 @@ paths:
                                 $ref: '#/components/schemas/PaginatedAppUserView'
                             x-sunset: "2044-01-01"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedOrgUserView'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53212,10 +53398,11 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return All MongoDB Cloud Users Assigned to One Team
             tags:
-                - Teams
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/listTeamUsers
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listTeamUsers
             x-xgen-owner-team: IAM
         post:
+            deprecated: true
             description: Adds one or more MongoDB Cloud users from the specified organization to the specified team. Teams enable you to grant project access roles to MongoDB Cloud users. You can assign up to 250 MongoDB Cloud users from one organization to one team. To use this resource, the requesting API Key must have the Organization Owner role.
             externalDocs:
                 description: Manage Organization Teams
@@ -53247,6 +53434,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiAppUserView'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -53268,6 +53456,7 @@ paths:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/orgs/{orgId}/teams/{teamId}/users/{userId}:
         delete:
+            deprecated: true
             description: Removes one MongoDB Cloud user from the specified team. This team belongs to one organization. Teams enable you to grant project access roles to MongoDB Cloud users. To use this resource, the requesting API Key must have the Organization Owner role.
             externalDocs:
                 description: Manage Organization Teams
@@ -53295,6 +53484,7 @@ paths:
                 "204":
                     content:
                         application/vnd.atlas.2023-01-01+json:
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: This endpoint does not return a response body.
                 "400":
@@ -53330,7 +53520,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveUserFromTeam'
                 description: The active or pending MongoDB Cloud user that you want to add to the specified team.
@@ -53338,10 +53528,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53357,8 +53547,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addUserToTeam
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/teams/{teamId}:removeUser:
         post:
@@ -53380,7 +53568,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveUserFromTeam'
                 description: The id of the active or pending MongoDB Cloud user that you want to remove from the specified team.
@@ -53388,10 +53576,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53407,8 +53595,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeUserFromTeam
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/teams/byName/{teamName}:
         get:
@@ -53452,7 +53638,12 @@ paths:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/orgs/{orgId}/users:
         get:
-            description: Returns details about the MongoDB Cloud users associated with the specified organization. Each MongoDB Cloud user returned must belong to the specified organization or to a project within the specified organization. To use this resource, the requesting API Key must have the Organization Member role.
+            description: |-
+                Returns details about the pending and active MongoDB Cloud users associated with the specified organization. To use this resource, the requesting API Key must have the Organization Member role.
+
+                **Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users will be returned.
             operationId: listOrganizationUsers
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -53461,20 +53652,30 @@ paths:
                 - $ref: '#/components/parameters/includeCount'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
+                - description: Email address to filter users by. Not supported in deprecated versions.
+                  in: query
+                  name: username
+                  schema:
+                    format: email
+                    type: string
+                - description: Organization membership status to filter users by. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.
+                  in: query
+                  name: orgMembershipStatus
+                  schema:
+                    example: ACTIVE
+                    type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedAppUserView'
-                            x-sunset: "2044-01-01"
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedOrgUserView'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53486,8 +53687,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return All MongoDB Cloud Users in One Organization
             tags:
-                - Organizations
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/listOrganizationUsers
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listOrganizationUsers
             x-xgen-owner-team: IAM
         post:
             description: |-
@@ -53501,7 +53702,7 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/OrgUserRequest'
                 description: Represents the MongoDB Cloud user to be created within the organization.
@@ -53509,10 +53710,10 @@ paths:
             responses:
                 "201":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: Created
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53530,18 +53731,21 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/createOrganizationUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/users/{userId}:
         delete:
-            description: Removes one MongoDB Cloud user from the specified organization. To use this resource, the requesting API Key must have the Organization User Admin role.
+            description: |-
+                Removes one MongoDB Cloud user in the specified organization. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This resource cannot be used to remove pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+
+                **Note**: If using a deprecated version, only active users can be removed.
             operationId: removeOrganizationUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/pretty'
-                - description: Unique 24-hexadecimal digit string that identifies the user to be deleted.
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the [Return All MongoDB Cloud Users in One Organization](#tag/MongoDB-Cloud-Users/operation/listOrganizationUsers) resource and filter by username.
                   in: path
                   name: userId
                   required: true
@@ -53554,14 +53758,12 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/NoBody'
-                            x-sunset: "2044-01-01"
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/NoBody'
-                            x-xgen-hidden-env:
-                                envs: qa,stage,prod
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: This endpoint does not return a response body.
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53575,8 +53777,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Remove One MongoDB Cloud User From One Organization
             tags:
-                - Organizations
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/removeOrganizationUser
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrganizationUser
             x-xgen-owner-team: IAM
         get:
             description: |-
@@ -53600,10 +53802,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53619,8 +53821,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getOrganizationUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
         patch:
             description: |-
@@ -53643,7 +53843,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/OrgUserUpdateRequest'
                 description: Represents the roles and teams to assign the MongoDB Cloud user.
@@ -53651,10 +53851,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53670,11 +53870,10 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/updateOrganizationUser
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/users/{userId}/roles:
         put:
+            deprecated: true
             description: Updates the roles of the specified user in the specified organization. To specify the user to update, provide the unique 24-hexadecimal digit string that identifies the user in the specified organization. To use this resource, the requesting API Key must have the Organization User Admin role.
             operationId: updateOrganizationRoles
             parameters:
@@ -53701,6 +53900,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/UpdateOrgRolesForUser'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -53740,7 +53940,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveOrgRole'
                 description: Organization-level role to assign to the MongoDB Cloud user.
@@ -53748,10 +53948,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53769,8 +53969,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addOrganizationRole
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/users/{userId}:removeRole:
         post:
@@ -53794,7 +53992,7 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.2043-01-01+json:
+                    application/vnd.atlas.2025-02-19+json:
                         schema:
                             $ref: '#/components/schemas/AddOrRemoveOrgRole'
                 description: Organization-level role to remove from the MongoDB Cloud user.
@@ -53802,10 +54000,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2043-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/OrgUserResponse'
-                            x-xgen-version: "2043-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53821,8 +54019,6 @@ paths:
             tags:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrganizationRole
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
             x-xgen-owner-team: IAM
     /api/atlas/v2/unauth/controlPlaneIPAddresses:
         get:
@@ -53895,6 +54091,7 @@ paths:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/users:
         post:
+            deprecated: true
             description: |-
                 Creates one MongoDB Cloud user account. A MongoDB Cloud user account grants access to only the MongoDB Cloud application. To grant database access, create a database user. MongoDB Cloud sends an email to the users you specify, inviting them to join the project. Invited users don't have access to the project until they accept the invitation. Invitations expire after 30 days.
 
@@ -53918,6 +54115,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/CloudAppUser'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -53933,6 +54131,7 @@ paths:
             x-xgen-owner-team: IAM
     /api/atlas/v2/users/{userId}:
         get:
+            deprecated: true
             description: Returns the details for one MongoDB Cloud user account with the specified unique identifier for the user. You can't use this endpoint to return information on an API Key. To return information about an API Key, use the [Return One Organization](#tag/Organizations/operation/getOrganization) API Key endpoint. You can always retrieve your own user account. If you are the owner of a MongoDB Cloud organization or project, you can also retrieve the user profile for any user with membership in that organization or project. To use this resource, the requesting API Key can have any role.
             operationId: getUser
             parameters:
@@ -53951,6 +54150,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/CloudAppUser'
+                            x-sunset: "2044-01-01"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -53966,6 +54166,7 @@ paths:
             x-xgen-owner-team: IAM
     /api/atlas/v2/users/byName/{userName}:
         get:
+            deprecated: true
             description: Returns the details for one MongoDB Cloud user account with the specified username. You can't use this endpoint to return information about an API Key. To return information about an API Key, use the [Return One Organization](#tag/Organizations/operation/getOrganization) API Key endpoint. To use this resource, the requesting API Key can have any role.
             operationId: getUserByUsername
             parameters:
@@ -53984,6 +54185,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/CloudAppUser'
+                            x-sunset: "2026-07-31"
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -54017,6 +54219,8 @@ tags:
       name: Auditing
     - description: Returns and edits custom DNS configurations for MongoDB Cloud database deployments on AWS. The resource requires your Project ID. If you use the VPC peering on AWS and you use your own DNS servers instead of Amazon Route 53, enable custom DNS. Before 31 March 2020, applications deployed within AWS using custom DNS services and VPC-peered with MongoDB Cloud couldn't connect over private IP addresses. Custom DNS resolved to public IP addresses. AWS internal DNS resolved to private IP addresses. Applications deployed with custom DNS services in AWS should use Private IP for Peering connection strings.
       name: AWS Clusters DNS
+    - description: Returns, adds, and edits Charts Dashboard instances. This resource applies only to projects with a Charts tenant, and requires your Project ID.
+      name: Charts Dashboards
     - description: Manages Cloud Backup snapshots, snapshot export buckets, restore jobs, and schedules. This resource applies only to clusters that use Cloud Backups.
       name: Cloud Backups
     - description: Manages the Cloud Migration Service. Source organizations, projects, and MongoDB clusters reside on Cloud Manager or Ops Manager. Destination organizations, projects, and MongoDB clusters reside on MongoDB Cloud. Source databases can't use any authentication except SCRAM-SHA.
