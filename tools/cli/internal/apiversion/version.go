@@ -357,7 +357,7 @@ func parsePreviewExtensionData(contentTypeValue *openapi3.MediaType) (public boo
 	return public, name, nil
 }
 
-func validatePreviewExtensionData(name string, public string) error {
+func validatePreviewExtensionData(name, public string) error {
 	if name != "" && (public == "true") {
 		return errors.New("both name and public = true fields are set, only one is allowed")
 	}
