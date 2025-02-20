@@ -11,3 +11,6 @@ mv -f "openapi-foas.json" "./openapi/v2.json"
 
 foascli split -s openapi-foas.yaml --env "${target_env:?}" -o ./openapi/v2/openapi.yaml
 mv -f "openapi-foas.yaml" "./openapi/v2.yaml"
+
+echo "Moving preview files to preview folder"
+find ./openapi/v2 -type f -name "*preview*" -exec mv -f {} ./openapi/preview/ \;
