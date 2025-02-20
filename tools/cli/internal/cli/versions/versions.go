@@ -70,7 +70,7 @@ func (o *Opts) Run() error {
 }
 
 func (o *Opts) filterStabilityLevelVersions(apiVersions []string) []string {
-	if o.stabilityLevel == nil || len(o.stabilityLevel) == 0 || apiVersions == nil {
+	if len(o.stabilityLevel) == 0 || apiVersions == nil {
 		return apiVersions
 	}
 
@@ -91,6 +91,9 @@ func (o *Opts) filterStabilityLevelVersions(apiVersions []string) []string {
 		}
 	}
 
+	if len(out) == 0 {
+		return []string{}
+	}
 	return out
 }
 
@@ -163,7 +166,7 @@ func Builder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
 	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
-	cmd.Flags().StringArrayP(flag.StabilityLevel, flag.StabilityLevelShort, opts.stabilityLevel, usage.StabilityLevel)
+	cmd.Flags().StringArrayVar(&opts.stabilityLevel, flag.StabilityLevel, nil, usage.StabilityLevel)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 	return cmd

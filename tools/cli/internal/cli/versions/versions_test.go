@@ -82,7 +82,7 @@ func TestVersion_RunStabilityLevelPreviewAndPrivatePreview(t *testing.T) {
 		outputPath:     "foas.json",
 		fs:             fs,
 		env:            "staging",
-		stabilityLevel: []string{"PREVIEW"},
+		stabilityLevel: []string{"private-preview"},
 	}
 
 	require.NoError(t, opts.Run())
@@ -102,7 +102,7 @@ func TestVersion_PreviewAndPublicPreview(t *testing.T) {
 		outputPath:     "foas.json",
 		fs:             fs,
 		env:            "staging",
-		stabilityLevel: []string{"private-preview", "public-preview"},
+		stabilityLevel: []string{"public-preview"},
 	}
 
 	require.NoError(t, opts.Run())

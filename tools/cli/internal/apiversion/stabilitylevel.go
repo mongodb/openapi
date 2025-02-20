@@ -23,9 +23,10 @@ const (
 	StableStabilityLevel         = "stable"
 	PreviewStabilityLevel        = "preview"
 	PrivatePreviewStabilityLevel = "private-preview"
+	PublicPreviewSabilityLevel   = "public-preview"
 )
 
-var supportedValues = []string{StableStabilityLevel, PreviewStabilityLevel, PrivatePreviewStabilityLevel}
+var supportedValues = []string{StableStabilityLevel, PublicPreviewSabilityLevel, PrivatePreviewStabilityLevel}
 
 // IsPreviewSabilityLevel checks if the version is a preview version, public or private.
 func IsPreviewSabilityLevel(value string) bool {
@@ -35,12 +36,12 @@ func IsPreviewSabilityLevel(value string) bool {
 
 // IsPrivatePreviewSabilityLevel checks if the version is a private preview version.
 func IsPrivatePreviewSabilityLevel(value string) bool {
-	return strings.Contains(value, PrivatePreviewStabilityLevel)
+	return strings.Contains(strings.ToLower(value), PrivatePreviewStabilityLevel)
 }
 
 // IsPublicPreviewSabilityLevel checks if the version is a public preview version.
 func IsPublicPreviewSabilityLevel(value string) bool {
-	return strings.EqualFold(value, PreviewStabilityLevel)
+	return strings.EqualFold(value, PublicPreviewSabilityLevel) || strings.EqualFold(value, PreviewStabilityLevel)
 }
 
 // IsStableSabilityLevel checks if the version is a stable version.
