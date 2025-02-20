@@ -30,7 +30,6 @@ var supportedValues = []string{StableStabilityLevel, PublicPreviewSabilityLevel,
 
 // IsPreviewSabilityLevel checks if the version is a preview version, public or private.
 func IsPreviewSabilityLevel(value string) bool {
-	// we also need string match given private preview versions like "private-preview-<name>"
 	return IsPrivatePreviewSabilityLevel(value) || IsPublicPreviewSabilityLevel(value)
 }
 

@@ -104,7 +104,7 @@ func withContent(contentType string) Option {
 // WithFullContent returns an Option to generate a new APIVersion given the contentType and contentValue.
 func WithFullContent(contentType string, contentValue *openapi3.MediaType) Option {
 	return func(v *APIVersion) error {
-		if !IsPreviewSabilityLevel(contentType) {
+		if !strings.Contains(contentType, PreviewStabilityLevel) {
 			return withContent(contentType)(v)
 		}
 
