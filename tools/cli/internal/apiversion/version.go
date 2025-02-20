@@ -32,10 +32,7 @@ type APIVersion struct {
 }
 
 const (
-	dateFormat                   = "2006-01-02"
-	StableStabilityLevel         = "stable"
-	PreviewStabilityLevel        = "preview"
-	PrivatePreviewStabilityLevel = "private-preview"
+	dateFormat = "2006-01-02"
 )
 
 var contentPattern = regexp.MustCompile(`application/vnd\.atlas\.((\d{4})-(\d{2})-(\d{2})|preview)\+(.+)`)
@@ -107,7 +104,7 @@ func withContent(contentType string) Option {
 // WithFullContent returns an Option to generate a new APIVersion given the contentType and contentValue.
 func WithFullContent(contentType string, contentValue *openapi3.MediaType) Option {
 	return func(v *APIVersion) error {
-		if !IsPreviewSabilityLevel(contentType) {
+		if !strings.Contains(contentType, PreviewStabilityLevel) {
 			return withContent(contentType)(v)
 		}
 
@@ -173,15 +170,6 @@ func (v *APIVersion) IsPrivatePreview() bool {
 
 func (v *APIVersion) IsPublicPreview() bool {
 	return v.IsPreview() && !v.IsPrivatePreview()
-}
-
-func IsPreviewSabilityLevel(value string) bool {
-	// we also need string match given private preview versions like "private-preview-<name>"
-	return strings.EqualFold(value, PreviewStabilityLevel) || strings.Contains(value, PreviewStabilityLevel)
-}
-
-func IsStableSabilityLevel(value string) bool {
-	return strings.EqualFold(value, StableStabilityLevel)
 }
 
 func FindMatchesFromContentType(contentType string) []string {

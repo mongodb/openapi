@@ -37,5 +37,5 @@ const (
 	SlackChannelID      = "Slack Channel ID."
 	From                = "Date in the format YYYY-MM-DD that indicates the start of a date range"
 	To                  = "Date in the format YYYY-MM-DD that indicates the end of a date range"
-	StabilityLevel      = "Stability level related to the API Version. Valid values: [STABLE, PREVIEW]"
+	StabilityLevel      = "Stability level related to the API Version. Valid values: [STABLE, PUBLIC-PREVIEW, PRIVATE-PREVIEW]"
 )

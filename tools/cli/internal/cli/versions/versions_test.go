@@ -82,7 +82,7 @@ func TestVersion_RunStabilityLevelPreviewAndPrivatePreview(t *testing.T) {
 		outputPath:     "foas.json",
 		fs:             fs,
 		env:            "staging",
-		stabilityLevel: "PREVIEW",
+		stabilityLevel: []string{"private-preview"},
 	}
 
 	require.NoError(t, opts.Run())
@@ -102,7 +102,7 @@ func TestVersion_PreviewAndPublicPreview(t *testing.T) {
 		outputPath:     "foas.json",
 		fs:             fs,
 		env:            "staging",
-		stabilityLevel: "PREVIEW",
+		stabilityLevel: []string{"public-preview"},
 	}
 
 	require.NoError(t, opts.Run())
@@ -122,7 +122,7 @@ func TestVersion_RunStabilityLevelStable(t *testing.T) {
 		outputPath:     "foas.json",
 		fs:             fs,
 		env:            "staging",
-		stabilityLevel: "STABLE",
+		stabilityLevel: []string{"STABLE"},
 	}
 
 	require.NoError(t, opts.Run())
@@ -189,18 +189,18 @@ func TestVersion_PreRun(t *testing.T) {
 			basePath:       "base",
 			outputPath:     "output.yaml",
 			format:         "yaml",
-			stabilityLevel: "invalid",
+			stabilityLevel: []string{"invalid"},
 		}
 		err := opts.PreRunE(nil)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "stability level must be")
+		assert.Contains(t, err.Error(), "invalid stability level value m")
 	})
 	t.Run("ValidStabilityLevelPreview", func(t *testing.T) {
 		opts := &Opts{
 			basePath:       "base",
 			outputPath:     "output.yaml",
 			format:         "yaml",
-			stabilityLevel: "preview",
+			stabilityLevel: []string{"PREVIEW"},
 		}
 		err := opts.PreRunE(nil)
 		require.NoError(t, err)
@@ -211,7 +211,7 @@ func TestVersion_PreRun(t *testing.T) {
 			basePath:       "base",
 			outputPath:     "output.yaml",
 			format:         "yaml",
-			stabilityLevel: "PREVIEW",
+			stabilityLevel: []string{"PREVIEW"},
 		}
 		err := opts.PreRunE(nil)
 		require.NoError(t, err)
