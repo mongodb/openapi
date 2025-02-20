@@ -28,7 +28,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "1e204bf9d824ce954d9c230e7fd39f9349bfb3f2"
+    "x-xgen-sha": "c93c571a3842580c22e199952d8c493949023900"
   },
   "paths": {
     "/api/atlas/v2/openapi/info": {
@@ -48,7 +48,7 @@
                   "$ref": "#/components/schemas/OpenApiInfo"
                 },
                 "x-xgen-preview": {
-                  "name": "api-registry-private-preview"
+                  "public": "true"
                 },
                 "x-xgen-version": "preview"
               }
@@ -1046,6 +1046,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "privateEndpointConnectionName": {
+            "description": "Resource Id of the Aws Private Endpoint.",
+            "readOnly": true,
+            "type": "string"
+          },
           "regionName": {
             "description": "Cloud provider region in which the Encryption At Rest private endpoint is located.",
             "oneOf": [
@@ -1689,7 +1694,7 @@
         "description": "Options that determine how this cluster handles CPU scaling.",
         "properties": {
           "enabled": {
-            "description": "Flag that indicates whether someone enabled instance size auto-scaling.\n\n- Set to `true` to enable instance size auto-scaling. If enabled, you must specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.maxInstanceSize**.\n- Set to `false` to disable instance size automatic scaling.",
+            "description": "Flag that indicates whether instance size reactive auto-scaling is enabled.\n\n- Set to `true` to enable instance size reactive auto-scaling. If enabled, you must specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.maxInstanceSize**.\n- Set to `false` to disable instance size reactive auto-scaling.",
             "type": "boolean"
           },
           "maxInstanceSize": {
@@ -1698,8 +1703,12 @@
           "minInstanceSize": {
             "$ref": "#/components/schemas/BaseCloudProviderInstanceSize"
           },
+          "predictiveEnabled": {
+            "description": "Flag that indicates whether predictive instance size auto-scaling is enabled.\n\n- Set to `true` to enable predictive instance size auto-scaling. MongoDB Cloud requires **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** to be `true` in order to enable this feature.\n- Set to `false` to disable predictive instance size auto-scaling.",
+            "type": "boolean"
+          },
           "scaleDownEnabled": {
-            "description": "Flag that indicates whether the instance size may scale down. MongoDB Cloud requires this parameter if `\"replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled\" : true`. If you enable this option, specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.minInstanceSize**.",
+            "description": "Flag that indicates whether the instance size may scale down via reactive auto-scaling. MongoDB Cloud requires this parameter if **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.minInstanceSize**.",
             "type": "boolean"
           }
         },
@@ -3569,6 +3578,24 @@
       },
       "ApiSearchDeploymentResponseView": {
         "properties": {
+          "encryptionAtRestProvider": {
+            "description": "Cloud service provider that manages your customer keys to provide an additional layer of Encryption At Rest for the cluster.",
+            "enum": [
+              "NONE",
+              "AWS",
+              "AZURE",
+              "GCP"
+            ],
+            "externalDocs": {
+              "description": "Encryption at Rest using Customer Key Management",
+              "url": "https://www.mongodb.com/docs/atlas/security-kms-encryption/"
+            },
+            "readOnly": true,
+            "type": "string",
+            "x-xgen-hidden-env": {
+              "envs": "qa,prod,stage"
+            }
+          },
           "groupId": {
             "description": "Unique 24-hexadecimal character string that identifies the project.",
             "example": "32b6e34b3d91647abb20e7b8",
@@ -8145,6 +8172,118 @@
         "title": "Billing Threshold Alert Configuration",
         "type": "object"
       },
+      "ChartsAudit": {
+        "description": "Audit events related to Atlas Charts",
+        "properties": {
+          "apiKeyId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the API Key that triggered the event. If this resource returns this parameter, it doesn't return the **userId** parameter.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "created": {
+            "description": "Date and time when this event occurred. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "eventTypeName": {
+            "$ref": "#/components/schemas/ChartsAuditTypeView"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The **eventId** identifies the specific event.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies the event.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "isGlobalAdmin": {
+            "default": false,
+            "description": "Flag that indicates whether a MongoDB employee triggered the specified event.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "orgId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the organization to which these events apply.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "publicKey": {
+            "description": "Public part of the API Key that triggered the event. If this resource returns this parameter, it doesn't return the **username** parameter.",
+            "externalDocs": {
+              "url": "https://dochub.mongodb.org/core/atlas-create-prog-api-key"
+            },
+            "format": "email",
+            "readOnly": true,
+            "type": "string"
+          },
+          "raw": {
+            "$ref": "#/components/schemas/raw"
+          },
+          "remoteAddress": {
+            "description": "IPv4 or IPv6 address from which the user triggered this event.",
+            "example": "216.172.40.186",
+            "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "userId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "username": {
+            "description": "Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.",
+            "format": "email",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "created",
+          "eventTypeName",
+          "id"
+        ],
+        "type": "object"
+      },
+      "ChartsAuditTypeView": {
+        "description": "Unique identifier of event type.",
+        "enum": [
+          "CHARTS_API_SUCCESS",
+          "CHARTS_API_FAILURE"
+        ],
+        "example": "CHARTS_API_SUCCESS",
+        "title": "Charts Api Call Audit Types",
+        "type": "string"
+      },
       "CloudAccessRoleAssignment": {
         "description": "MongoDB Cloud user's roles and the corresponding organization or project to which that role applies. Each role can apply to one organization or one project but not both.",
         "properties": {
@@ -10174,12 +10313,17 @@
         "properties": {
           "enabled": {
             "default": false,
-            "description": "Flag that indicates whether cluster tier auto-scaling is enabled. Set to `true` to enable cluster tier auto-scaling. If enabled, you must specify a value for **providerSettings.autoScaling.compute.maxInstanceSize** also. Set to `false` to disable cluster tier auto-scaling.",
+            "description": "Flag that indicates whether instance size reactive auto-scaling is enabled.\n\n- Set to `true` to enable instance size reactive auto-scaling. If enabled, you must specify a value for **providerSettings.autoScaling.compute.maxInstanceSize**.\n- Set to `false` to disable instance size reactive auto-scaling.",
+            "type": "boolean"
+          },
+          "predictiveEnabled": {
+            "default": false,
+            "description": "Flag that indicates whether predictive instance size auto-scaling is enabled.\n\n- Set to `true` to enable predictive instance size auto-scaling. MongoDB Cloud requires **autoScaling.compute.enabled** is `true` in order to enable this feature.\n- Set to `false` to disable predictive instance size auto-scaling.",
             "type": "boolean"
           },
           "scaleDownEnabled": {
             "default": false,
-            "description": "Flag that indicates whether the cluster tier can scale down. This is required if **autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **providerSettings.autoScaling.compute.minInstanceSize**.",
+            "description": "Flag that indicates whether the cluster tier can scale down via reactive auto-scaling. This is required if **autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **providerSettings.autoScaling.compute.minInstanceSize**.",
             "type": "boolean"
           }
         },
@@ -11992,6 +12136,7 @@
           "roles": {
             "description": "List of roles to grant this API key. If you provide this list, provide a minimum of one role and ensure each role applies to this project.",
             "items": {
+              "description": "Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.",
               "enum": [
                 "ORG_MEMBER",
                 "ORG_READ_ONLY",
@@ -15041,6 +15186,7 @@
                   "CPS_SNAPSHOT_FALLBACK_FAILED",
                   "CPS_COPY_SNAPSHOT_STARTED",
                   "CPS_COPY_SNAPSHOT_FAILED",
+                  "CPS_COPY_SNAPSHOT_FAILED_WILL_RETRY",
                   "CPS_COPY_SNAPSHOT_SUCCESSFUL",
                   "CPS_RESTORE_SUCCESSFUL",
                   "CPS_EXPORT_SUCCESSFUL",
@@ -15137,7 +15283,8 @@
               },
               {
                 "enum": [
-                  "STREAM_PROCESSOR_STATE_IS_FAILED"
+                  "STREAM_PROCESSOR_STATE_IS_FAILED",
+                  "STREAM_PROCESSOR_KAFKA_LAG_BEHIND"
                 ],
                 "title": "Stream Processor Event Types",
                 "type": "string"
@@ -15282,6 +15429,7 @@
                   "CPS_SNAPSHOT_BEHIND",
                   "CPS_COPY_SNAPSHOT_STARTED",
                   "CPS_COPY_SNAPSHOT_FAILED",
+                  "CPS_COPY_SNAPSHOT_FAILED_WILL_RETRY",
                   "CPS_COPY_SNAPSHOT_SUCCESSFUL",
                   "CPS_PREV_SNAPSHOT_OLD",
                   "CPS_SNAPSHOT_FALLBACK_SUCCESSFUL",
@@ -15404,7 +15552,8 @@
               },
               {
                 "enum": [
-                  "STREAM_PROCESSOR_STATE_IS_FAILED"
+                  "STREAM_PROCESSOR_STATE_IS_FAILED",
+                  "STREAM_PROCESSOR_KAFKA_LAG_BEHIND"
                 ],
                 "title": "Stream Processor Event Types",
                 "type": "string"
@@ -15610,6 +15759,7 @@
                   "CPS_SNAPSHOT_BEHIND",
                   "CPS_COPY_SNAPSHOT_STARTED",
                   "CPS_COPY_SNAPSHOT_FAILED",
+                  "CPS_COPY_SNAPSHOT_FAILED_WILL_RETRY",
                   "CPS_COPY_SNAPSHOT_SUCCESSFUL",
                   "CPS_PREV_SNAPSHOT_OLD",
                   "CPS_SNAPSHOT_FALLBACK_FAILED",
@@ -15899,7 +16049,9 @@
               },
               {
                 "enum": [
-                  "STREAM_PROCESSOR_STATE_IS_FAILED"
+                  "STREAM_PROCESSOR_STATE_IS_FAILED",
+                  "STREAM_PROCESSOR_KAFKA_LAG_BEHIND",
+                  "STREAM_PROCESSOR_KAFKA_LAG_CURRENT"
                 ],
                 "title": "Stream Processor Event Types",
                 "type": "string"
@@ -18110,6 +18262,14 @@
           "azureKeyVault": {
             "$ref": "#/components/schemas/AzureKeyVault"
           },
+          "enabledForSearchNodes": {
+            "description": "Flag that indicates whether Encryption at Rest for Dedicated Search Nodes is enabled in the specified project.",
+            "nullable": true,
+            "type": "boolean",
+            "x-xgen-hidden-env": {
+              "envs": "qa,prod,stage"
+            }
+          },
           "googleCloudKms": {
             "$ref": "#/components/schemas/GoogleCloudKMS"
           }
@@ -18446,6 +18606,7 @@
               "CPS_SNAPSHOT_BEHIND",
               "CPS_COPY_SNAPSHOT_STARTED",
               "CPS_COPY_SNAPSHOT_FAILED",
+              "CPS_COPY_SNAPSHOT_FAILED_WILL_RETRY",
               "CPS_COPY_SNAPSHOT_SUCCESSFUL",
               "CPS_PREV_SNAPSHOT_OLD",
               "CPS_SNAPSHOT_FALLBACK_FAILED",
@@ -18691,6 +18852,7 @@
               "CLUSTER_INSTANCE_REPLACED",
               "CLUSTER_INSTANCE_REPLACE_CLEARED",
               "CLUSTER_INSTANCE_CONFIG_UPDATED",
+              "CLUSTER_INSTANCE_AGENT_API_KEY_ROTATED",
               "CLUSTER_INSTANCE_SSL_ROTATED",
               "CLUSTER_INSTANCE_SSL_ROTATED_PER_CLUSTER",
               "CLUSTER_INSTANCE_SSL_REVOKED",
@@ -19096,7 +19258,9 @@
           },
           {
             "enum": [
-              "STREAM_PROCESSOR_STATE_IS_FAILED"
+              "STREAM_PROCESSOR_STATE_IS_FAILED",
+              "STREAM_PROCESSOR_KAFKA_LAG_BEHIND",
+              "STREAM_PROCESSOR_KAFKA_LAG_CURRENT"
             ],
             "title": "Stream Processor Event Types",
             "type": "string"
@@ -19186,6 +19350,14 @@
               "EMPLOYEE_DOWNLOADED_CLUSTER_LOGS"
             ],
             "title": "Access Event Types",
+            "type": "string"
+          },
+          {
+            "enum": [
+              "CHARTS_API_SUCCESS",
+              "CHARTS_API_FAILURE"
+            ],
+            "title": "Charts Api Call Audit Types",
             "type": "string"
           }
         ],
@@ -19599,6 +19771,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamProcessorEventViewForNdsGroup"
+          },
+          {
+            "$ref": "#/components/schemas/ChartsAudit"
           }
         ],
         "type": "object"
@@ -22935,7 +23110,7 @@
             "type": "string"
           },
           "roles": {
-            "description": "List that contains the one or more [organization](https://dochub.mongodb.org/core/atlas-org-roles) or [project roles](https://dochub.mongodb.org/core/atlas-proj-roles) that receive the configured alert. The resource requires this parameter when `\"notifications.[n].typeName\" : \"GROUP\"` or `\"notifications.[n].typeName\" : \"ORG\"`. If you include this parameter, MongoDB Cloud sends alerts only to users assigned the roles you specify in the array. If you omit this parameter, MongoDB Cloud sends alerts to users assigned any role.",
+            "description": "List that contains the one or more [project roles](https://dochub.mongodb.org/core/atlas-proj-roles) that receive the configured alert. This parameter is available when `\"notifications.[n].typeName\" : \"GROUP\"` or `\"notifications.[n].typeName\" : \"ORG\"`. If you include this parameter, MongoDB Cloud sends alerts only to users assigned the roles you specify in the array. If you omit this parameter, MongoDB Cloud sends alerts to users assigned any role.",
             "items": {
               "description": "One or more project roles that receive the configured alert.",
               "enum": [
@@ -25584,6 +25759,11 @@
               "ATLAS_AWS_SEARCH_INSTANCE_S90_MEMORY_NVME",
               "ATLAS_AWS_SEARCH_INSTANCE_S100_MEMORY_NVME",
               "ATLAS_AWS_SEARCH_INSTANCE_S110_MEMORY_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S40_STORAGE_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S50_STORAGE_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S60_STORAGE_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S80_STORAGE_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S90_STORAGE_NVME",
               "ATLAS_AWS_STORAGE_PROVISIONED",
               "ATLAS_AWS_STORAGE_STANDARD",
               "ATLAS_AWS_STORAGE_STANDARD_GP3",
@@ -27286,7 +27466,6 @@
           },
           "customShardKey": {
             "description": "Database parameter used to divide the *collection* into shards. Global clusters require a compound shard key. This compound shard key combines the location parameter and the user-selected custom key.",
-            "readOnly": true,
             "type": "string"
           },
           "db": {
@@ -27300,14 +27479,12 @@
               "description": "Hashed Shard Keys",
               "url": "https://www.mongodb.com/docs/manual/reference/method/sh.shardCollection/#hashed-shard-keys"
             },
-            "type": "boolean",
-            "writeOnly": true
+            "type": "boolean"
           },
           "isShardKeyUnique": {
             "default": false,
             "description": "Flag that indicates whether someone [hashed](https://www.mongodb.com/docs/manual/reference/method/sh.shardCollection/#hashed-shard-keys) the custom shard key. If this parameter returns `false`, this cluster uses [ranged sharding](https://www.mongodb.com/docs/manual/core/ranged-sharding/).",
-            "type": "boolean",
-            "writeOnly": true
+            "type": "boolean"
           },
           "numInitialChunks": {
             "description": "Minimum number of chunks to create initially when sharding an empty collection with a [hashed shard key](https://www.mongodb.com/docs/manual/core/hashed-sharding/).",
@@ -27317,8 +27494,7 @@
             },
             "format": "int64",
             "maximum": 8192,
-            "type": "integer",
-            "writeOnly": true
+            "type": "integer"
           },
           "presplitHashedZones": {
             "default": false,
@@ -27327,8 +27503,7 @@
               "description": "Hashed Shard Key",
               "url": "https://www.mongodb.com/docs/manual/core/hashed-sharding/"
             },
-            "type": "boolean",
-            "writeOnly": true
+            "type": "boolean"
           }
         },
         "required": [
@@ -28129,6 +28304,7 @@
           "CLUSTER_INSTANCE_REPLACED",
           "CLUSTER_INSTANCE_REPLACE_CLEARED",
           "CLUSTER_INSTANCE_CONFIG_UPDATED",
+          "CLUSTER_INSTANCE_AGENT_API_KEY_ROTATED",
           "CLUSTER_INSTANCE_SSL_ROTATED",
           "CLUSTER_INSTANCE_SSL_ROTATED_PER_CLUSTER",
           "CLUSTER_INSTANCE_SSL_REVOKED",
@@ -30135,7 +30311,7 @@
             "type": "string"
           },
           "roles": {
-            "description": "List that contains the one or more [organization](https://dochub.mongodb.org/core/atlas-org-roles) or [project roles](https://dochub.mongodb.org/core/atlas-proj-roles) that receive the configured alert. The resource requires this parameter when `\"notifications.[n].typeName\" : \"GROUP\"` or `\"notifications.[n].typeName\" : \"ORG\"`. If you include this parameter, MongoDB Cloud sends alerts only to users assigned the roles you specify in the array. If you omit this parameter, MongoDB Cloud sends alerts to users assigned any role.",
+            "description": "List that contains the one or more [organization roles](https://dochub.mongodb.org/core/atlas-org-roles) that receive the configured alert. This parameter is available when `\"notifications.[n].typeName\" : \"GROUP\"` or `\"notifications.[n].typeName\" : \"ORG\"`. If you include this parameter, MongoDB Cloud sends alerts only to users assigned the roles you specify in the array. If you omit this parameter, MongoDB Cloud sends alerts to users assigned any role.",
             "items": {
               "description": "One or more organization roles that receive the configured alert.",
               "enum": [
@@ -37715,7 +37891,8 @@
       "StreamProcessorEventTypeViewAlertable": {
         "description": "Event type that triggers an alert.",
         "enum": [
-          "STREAM_PROCESSOR_STATE_IS_FAILED"
+          "STREAM_PROCESSOR_STATE_IS_FAILED",
+          "STREAM_PROCESSOR_KAFKA_LAG_BEHIND"
         ],
         "example": "STREAM_PROCESSOR_STATE_IS_FAILED",
         "title": "Stream Processor Event Types",
@@ -37724,7 +37901,9 @@
       "StreamProcessorEventTypeViewForNdsGroup": {
         "description": "Unique identifier of event type.",
         "enum": [
-          "STREAM_PROCESSOR_STATE_IS_FAILED"
+          "STREAM_PROCESSOR_STATE_IS_FAILED",
+          "STREAM_PROCESSOR_KAFKA_LAG_BEHIND",
+          "STREAM_PROCESSOR_KAFKA_LAG_CURRENT"
         ],
         "example": "STREAM_PROCESSOR_STATE_IS_FAILED",
         "title": "Stream Processor Event Types",
@@ -37878,6 +38057,7 @@
         "description": "Settings that define a connection to an external data store.",
         "discriminator": {
           "mapping": {
+            "AWSLambda": "#/components/schemas/StreamsAWSLambdaConnection",
             "Cluster": "#/components/schemas/StreamsClusterConnection",
             "Https": "#/components/schemas/StreamsHttpsConnection",
             "Kafka": "#/components/schemas/StreamsKafkaConnection",
@@ -37897,6 +38077,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamsHttpsConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsAWSLambdaConnection"
           }
         ],
         "properties": {
@@ -37922,7 +38105,8 @@
               "Kafka",
               "Cluster",
               "Sample",
-              "Https"
+              "Https",
+              "AWSLambda"
             ],
             "type": "string"
           }
@@ -38413,6 +38597,11 @@
           },
           "interfaceEndpointId": {
             "description": "Interface endpoint ID that is created from the service endpoint ID provided.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "interfaceEndpointName": {
+            "description": "Interface endpoint name that is created from the service endpoint ID provided.",
             "readOnly": true,
             "type": "string"
           },
