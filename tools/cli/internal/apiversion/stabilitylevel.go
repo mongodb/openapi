@@ -49,6 +49,7 @@ func IsStableSabilityLevel(value string) bool {
 }
 
 // IsValidStabilityLevel checks if the version is a valid stability level.
+// ValidateStabilityLevel checks if the version is a valid stability level.
 func ValidateStabilityLevel(value string) error {
 	if IsStableSabilityLevel(value) || IsPreviewSabilityLevel(value) {
 		return nil
