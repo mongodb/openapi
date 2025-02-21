@@ -89,28 +89,28 @@ func NewChangelogOutputPathSameAPIVersion(t *testing.T) string {
 
 func newChangelogOutputPathNewPreviewAPIVersion(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/changelog/new-preview-api-version/output")
+	cliPath, err := filepath.Abs("../../data/changelog/new-api-preview-version/output")
 	require.NoError(t, err)
 	return cliPath
 }
 
 func newChangelogBasePathNewPreviewAPIVersion(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/changelog/new-preview-api-version/base")
+	cliPath, err := filepath.Abs("../../data/changelog/new-api-preview-version/base")
 	require.NoError(t, err)
 	return cliPath
 }
 
 func newChangelogRevisionPathNewPreviewAPIVersion(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/changelog/new-preview-api-version/revision")
+	cliPath, err := filepath.Abs("../../data/changelog/new-api-preview-version/revision")
 	require.NoError(t, err)
 	return cliPath
 }
 
 func newChangelogExepmtionFilePathNewPreviewAPIVersion(t *testing.T) string {
 	t.Helper()
-	cliPath, err := filepath.Abs("../../data/changelog/new-preview-api-version/exemptions.yaml")
+	cliPath, err := filepath.Abs("../../data/changelog/new-api-preview-version/exemptions.yaml")
 	require.NoError(t, err)
 	return cliPath
 }
