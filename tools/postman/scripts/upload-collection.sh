@@ -41,11 +41,9 @@ collection_exists=$(jq '.collections | any(.name=="'"${current_collection_name}"
 if [  "$collection_exists" = "false" ]; then
   # Check if a collection with a star icon already exists
   previous_star_collection_id=$(jq -r '.collections | map(select(.name | startswith("⭐")).id)[0] // empty' "${COLLECTIONS_LIST_FILE}")
-  echo "Previous star collection id: ${previous_star_collection_id}"
   if [[ -n "${previous_star_collection_id}" ]]; then
     previous_collection_name=$(jq -r '.collections | map(select(.id=="'"${previous_star_collection_id}"'").name)[0]' "${COLLECTIONS_LIST_FILE}")
     new_collection_name="${previous_collection_name//⭐/}"
-    echo "New collection name: ${new_collection_name}"
 
     echo "Removing star icon from the previous collection name"
     echo "curl -o ${COLLECTIONS_LIST_FILE}
