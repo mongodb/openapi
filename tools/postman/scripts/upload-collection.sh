@@ -27,7 +27,6 @@ pushd "${OPENAPI_FOLDER}"
 
 current_collection_name="⭐MongoDB Atlas Administration API ${current_api_revision}"
 
-echo "${WORKSPACE_ID}"
 echo "Fetching list of current collections"
 echo "curl -o ${COLLECTIONS_LIST_FILE} 
      --location 'https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}'
