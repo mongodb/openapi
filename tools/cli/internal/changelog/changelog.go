@@ -33,14 +33,16 @@ const (
 	stabilityLevelStable  = "stable"
 )
 
-var breakingChangesAdditionalCheckers = []string{
-	"response-non-success-status-removed",
-	"api-operation-id-removed",
-	"api-tag-removed",
-	"response-property-enum-value-removed",
-	"response-mediatype-enum-value-removed",
-	"request-body-enum-value-removed",
-	"api-schema-removed",
+var breakingChangesAdditionalCheckers = map[string]checker.Level{
+	"response-non-success-status-removed":   checker.ERR,
+	"api-operation-id-removed":              checker.ERR,
+	"api-tag-removed":                       checker.ERR,
+	"response-property-enum-value-removed":  checker.ERR,
+	"response-mediatype-enum-value-removed": checker.ERR,
+	"request-body-enum-value-removed":       checker.ERR,
+	"api-schema-removed":                    checker.ERR,
+	"response-property-one-of-added":        checker.INFO,
+	"response-body-one-of-added":            checker.INFO,
 }
 
 type Changelog struct {
@@ -323,7 +325,7 @@ func newChangelog(baseMetadata, revisionMetadata *Metadata, exceptionFilePath st
 	}
 
 	changelogConfig := checker.NewConfig(
-		checker.GetAllChecks()).WithOptionalChecks(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
+		checker.GetAllChecks()).WithSeverityLevels(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
 
 	return &Changelog{
 		BaseChangelog:     baseChangelog,
