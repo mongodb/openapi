@@ -50,7 +50,7 @@ sed 's/\\"value\\": \\"<Circular reference to #[^>"]* detected>\\"//g' intermedi
 
 echo "Updating name with version $current_api_revision"
 jq --arg api_version "$current_api_revision" \
-  '.collection.info.name = ("MongoDB Atlas Administration API " + $api_version)' \
+  '.collection.info.name = ("⭐MongoDB Atlas Administration API " + $api_version)' \
   intermediateCollectionNoCircular.json >  intermediateCollectionWithName.json
 
 echo "Adding Collection description to $DESCRIPTION_FILE"
