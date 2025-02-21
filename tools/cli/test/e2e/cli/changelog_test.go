@@ -18,6 +18,7 @@ import (
 func TestChangelog(t *testing.T) {
 	cliPath := NewBin(t)
 
+	// Flaky Test: To be fixed in ticket CLOUDP-277324
 	t.Run("Generate Changelog with new API Version", func(t *testing.T) {
 		base := NewChangelogBasePathNewAPIVersion(t)
 		revision := NewChangelogRevisionPathNewAPIVersion(t)
