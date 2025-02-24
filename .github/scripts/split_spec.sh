@@ -10,7 +10,7 @@ foascli split -s openapi-foas.json --env "${target_env:?}" -o ./openapi/v2/opena
 mv -f "openapi-foas.json" "./openapi/v2.json"
 
 foascli split -s openapi-foas.yaml --env "${target_env:?}" -o ./openapi/v2/openapi.yaml
-
+mv -f "openapi-foas.yaml" "./openapi/v2.yaml"
 # Create folder if it does not exist
 mkdir -p ./openapi/v2/private
 
@@ -18,6 +18,4 @@ echo "Moving preview files to preview and private-preview folder"
 find ./openapi/v2 -type f -name "*private-preview*" -exec mv -f {} ./openapi/v2/private/ \;
 
 echo "Generate the versions.json file for private preview APIs"
-foascli versions --spec openapi-foas.json --stability-level PRIVATE-PREVIEW -o ./openapi/v2/private/versions.json
-
-mv -f "openapi-foas.yaml" "./openapi/v2.yaml"
+foascli versions --spec ./openapi/v2.json --stability-level PRIVATE-PREVIEW -o ./openapi/v2/private/versions.json
