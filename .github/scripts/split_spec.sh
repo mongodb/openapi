@@ -18,4 +18,4 @@ echo "Moving preview files to preview and private-preview folder"
 find ./openapi/v2 -type f -name "*private-preview*" -exec mv -f {} ./openapi/v2/private/ \;
 
 echo "Generate the versions.json file for private preview APIs"
-foascli versions --spec ./openapi/v2.json --stability-level PRIVATE-PREVIEW -o ./openapi/v2/private/versions.json
+foascli versions --spec ./openapi/v2.json --stability-level PRIVATE-PREVIEW -o ./openapi/v2/private/versions.json --env "${target_env:?}"
