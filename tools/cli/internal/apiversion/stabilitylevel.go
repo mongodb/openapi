@@ -23,35 +23,35 @@ const (
 	StableStabilityLevel         = "stable"
 	PreviewStabilityLevel        = "preview"
 	PrivatePreviewStabilityLevel = "private-preview"
-	PublicPreviewSabilityLevel   = "public-preview"
+	PublicPreviewStabilityLevel  = "public-preview"
 )
 
-var supportedValues = []string{StableStabilityLevel, PublicPreviewSabilityLevel, PrivatePreviewStabilityLevel}
+var supportedValues = []string{StableStabilityLevel, PublicPreviewStabilityLevel, PrivatePreviewStabilityLevel}
 
 // IsPreviewStabilityLevel checks if the version is a preview version, public or private.
 func IsPreviewStabilityLevel(value string) bool {
-	return IsPrivatePreviewSabilityLevel(value) || IsPublicPreviewSabilityLevel(value)
+	return IsPrivatePreviewStabilityLevel(value) || IsPublicPreviewStabilityLevel(value)
 }
 
-// IsPrivatePreviewSabilityLevel checks if the version is a private preview version.
-func IsPrivatePreviewSabilityLevel(value string) bool {
+// IsPrivatePreviewStabilityLevel checks if the version is a private preview version.
+func IsPrivatePreviewStabilityLevel(value string) bool {
 	return strings.Contains(strings.ToLower(value), PrivatePreviewStabilityLevel)
 }
 
-// IsPublicPreviewSabilityLevel checks if the version is a public preview version.
-func IsPublicPreviewSabilityLevel(value string) bool {
-	return strings.EqualFold(value, PublicPreviewSabilityLevel) || strings.EqualFold(value, PreviewStabilityLevel)
+// IsPublicPreviewStabilityLevel checks if the version is a public preview version.
+func IsPublicPreviewStabilityLevel(value string) bool {
+	return strings.EqualFold(value, PublicPreviewStabilityLevel) || strings.EqualFold(value, PreviewStabilityLevel)
 }
 
-// IsStableSabilityLevel checks if the version is a stable version.
-func IsStableSabilityLevel(value string) bool {
+// IsStableStabilityLevel checks if the version is a stable version.
+func IsStableStabilityLevel(value string) bool {
 	return strings.EqualFold(value, StableStabilityLevel)
 }
 
 // IsValidStabilityLevel checks if the version is a valid stability level.
 // ValidateStabilityLevel checks if the version is a valid stability level.
 func ValidateStabilityLevel(value string) error {
-	if IsStableSabilityLevel(value) || IsPreviewStabilityLevel(value) {
+	if IsStableStabilityLevel(value) || IsPreviewStabilityLevel(value) {
 		return nil
 	}
 
