@@ -7,38 +7,38 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestIsPreviewSabilityLevel(t *testing.T) {
-	assert.True(t, IsPreviewSabilityLevel("preview"))
-	assert.True(t, IsPreviewSabilityLevel("PREVIEW"))
-	assert.True(t, IsPreviewSabilityLevel("prEvIEW"))
-	assert.True(t, IsPreviewSabilityLevel("private-preview"))
-	assert.True(t, IsPreviewSabilityLevel("public-preview"))
-	assert.False(t, IsPreviewSabilityLevel("stable"))
-	assert.False(t, IsPreviewSabilityLevel("invalid"))
+func TestIsPreviewStabilityLevel(t *testing.T) {
+	assert.True(t, IsPreviewStabilityLevel("preview"))
+	assert.True(t, IsPreviewStabilityLevel("PREVIEW"))
+	assert.True(t, IsPreviewStabilityLevel("prEvIEW"))
+	assert.True(t, IsPreviewStabilityLevel("private-preview"))
+	assert.True(t, IsPreviewStabilityLevel("public-preview"))
+	assert.False(t, IsPreviewStabilityLevel("stable"))
+	assert.False(t, IsPreviewStabilityLevel("invalid"))
 }
 
-func TestIsPrivatePreviewSabilityLevel(t *testing.T) {
-	assert.True(t, IsPrivatePreviewSabilityLevel("private-preview"))
-	assert.False(t, IsPrivatePreviewSabilityLevel("public-preview"))
-	assert.False(t, IsPrivatePreviewSabilityLevel("preview"))
-	assert.False(t, IsPrivatePreviewSabilityLevel("stable"))
-	assert.False(t, IsPrivatePreviewSabilityLevel("invalid"))
+func TestIsPrivatePreviewStabilityLevel(t *testing.T) {
+	assert.True(t, IsPrivatePreviewStabilityLevel("private-preview"))
+	assert.False(t, IsPrivatePreviewStabilityLevel("public-preview"))
+	assert.False(t, IsPrivatePreviewStabilityLevel("preview"))
+	assert.False(t, IsPrivatePreviewStabilityLevel("stable"))
+	assert.False(t, IsPrivatePreviewStabilityLevel("invalid"))
 }
 
-func TestIsPublicPreviewSabilityLevel(t *testing.T) {
-	assert.True(t, IsPublicPreviewSabilityLevel("public-preview"))
-	assert.True(t, IsPublicPreviewSabilityLevel("preview"))
-	assert.False(t, IsPublicPreviewSabilityLevel("private-preview"))
-	assert.False(t, IsPublicPreviewSabilityLevel("stable"))
-	assert.False(t, IsPublicPreviewSabilityLevel("invalid"))
+func TestIsPublicPreviewStabilityLevel(t *testing.T) {
+	assert.True(t, IsPublicPreviewStabilityLevel("public-preview"))
+	assert.True(t, IsPublicPreviewStabilityLevel("preview"))
+	assert.False(t, IsPublicPreviewStabilityLevel("private-preview"))
+	assert.False(t, IsPublicPreviewStabilityLevel("stable"))
+	assert.False(t, IsPublicPreviewStabilityLevel("invalid"))
 }
 
-func TestIsStableSabilityLevel(t *testing.T) {
-	assert.True(t, IsStableSabilityLevel("stable"))
-	assert.False(t, IsStableSabilityLevel("preview"))
-	assert.False(t, IsStableSabilityLevel("private-preview"))
-	assert.False(t, IsStableSabilityLevel("public-preview"))
-	assert.False(t, IsStableSabilityLevel("invalid"))
+func TestIsStableStabilityLevel(t *testing.T) {
+	assert.True(t, IsStableStabilityLevel("stable"))
+	assert.False(t, IsStableStabilityLevel("preview"))
+	assert.False(t, IsStableStabilityLevel("private-preview"))
+	assert.False(t, IsStableStabilityLevel("public-preview"))
+	assert.False(t, IsStableStabilityLevel("invalid"))
 }
 
 func TestValidateStabilityLevel(t *testing.T) {

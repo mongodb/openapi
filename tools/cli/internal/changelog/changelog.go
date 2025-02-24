@@ -21,6 +21,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
@@ -175,6 +176,11 @@ func NewEntries(basePath, revisionPath, exceptionFilePath string) ([]*Entry, err
 	}
 
 	for _, version := range changelog.RevisionMetadata.Versions {
+		// Skip preview versions
+		if apiversion.IsPreviewStabilityLevel(version) {
+			continue
+		}
+
 		changelog.RevisionMetadata.ActiveVersion = version
 		changelog.BaseMetadata.ActiveVersion = version
 		changelog.Revision, err = newOpeAPISpecFromPathAndVersion(changelog.RevisionMetadata.Path, version)
@@ -215,6 +221,10 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) (
 	entries := []*Entry{}
 	for idx, fromVersion := range revisionMetadata.Versions {
 		for _, toVersion := range revisionMetadata.Versions[idx+1:] {
+			// skip preview versions
+			if apiversion.IsPreviewStabilityLevel(fromVersion) || apiversion.IsPreviewStabilityLevel(toVersion) {
+				continue
+			}
 			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion, exceptionFilePath)
 			if err != nil {
 				return nil, err
@@ -422,6 +432,9 @@ func latestVersionActiveOnDate(date string, versions []string) (string, error) {
 
 	activeVersions := []time.Time{}
 	for _, version := range versions {
+		if apiversion.IsPreviewStabilityLevel(version) {
+			continue
+		}
 		versionTime, err := newDateFromString(version)
 		if err != nil {
 			return "", err

@@ -56,7 +56,7 @@ func (v *APIVersion) newVersion(version string, date time.Time) {
 	v.stabilityVersion = StableStabilityLevel
 	v.versionDate = date
 
-	if IsPreviewSabilityLevel(version) {
+	if IsPreviewStabilityLevel(version) {
 		v.versionDate = time.Now().AddDate(10, 0, 0) // set preview date to the future
 		v.stabilityVersion = PreviewStabilityLevel
 	}
@@ -118,7 +118,7 @@ func WithFullContent(contentType string, contentValue *openapi3.MediaType) Optio
 }
 
 func DateFromVersion(version string) (time.Time, error) {
-	if IsPreviewSabilityLevel(version) {
+	if IsPreviewStabilityLevel(version) {
 		return time.Now(), nil
 	}
 	return time.Parse(dateFormat, version)
@@ -161,7 +161,7 @@ func (v *APIVersion) ExactMatchOnly() bool {
 }
 
 func (v *APIVersion) IsPreview() bool {
-	return IsPreviewSabilityLevel(v.version)
+	return IsPreviewStabilityLevel(v.version)
 }
 
 func (v *APIVersion) IsPrivatePreview() bool {

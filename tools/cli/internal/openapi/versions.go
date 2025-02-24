@@ -60,7 +60,7 @@ func extractVersions(oas *openapi3.T) ([]string, error) {
 						continue
 					}
 
-					if apiversion.IsPreviewSabilityLevel(version) {
+					if apiversion.IsPreviewStabilityLevel(version) {
 						// parse if it is public or not
 						version, err = apiversion.GetPreviewVersionName(contentTypeValue)
 						if err != nil {
