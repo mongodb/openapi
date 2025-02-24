@@ -6,38 +6,6 @@ on:
     - cron: '0 9 * * 1' # at 9:00 UTC on Monday
 
 jobs:
-  new-api-version-reminder:
-    name: New API Version Release Reminder
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository (dev branch)
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-        with:
-          sparse-checkout:
-            .github/scripts/upcoming_api_releases.sh
-
-      - name: Install Python
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
-        with:
-          python-version: '3.12'
-
-      - name: Check if there are upcoming API versions releases
-        id: check-api-versions
-        run: .github/scripts/upcoming_api_releases.sh
-
-      # Send Slack notification only if the Jira ticket was created
-      - name: Send Slack Notification
-        if: steps.check-api-versions.outputs.api_versions != null
-        env:
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_APIX_2 }}
-          SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
-          API_VERSIONS: ${{ steps.check-api-versions.outputs.api_versions }}
-        run: |
-          message_id=$(curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
-          -H 'Content-type: application/json' \
-          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following API Versions are scheduled to be released in the next 3 weeks: '"${API_VERSIONS}"'.","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
-          echo "message_id=${message_id}"
-
   sunset-api-version-reminder:
     name: Sunset APIs Reminder
     runs-on: ubuntu-latest
