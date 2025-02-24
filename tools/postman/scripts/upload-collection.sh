@@ -25,7 +25,7 @@ collection_transformed_path="${PWD}/${TMP_FOLDER}/${COLLECTION_TRANSFORMED_FILE_
 
 pushd "${OPENAPI_FOLDER}"
 
-current_collection_name="MongoDB Atlas Administration API ${current_api_revision}"
+current_collection_name="⭐MongoDB Atlas Administration API ${current_api_revision}"
 
 echo "Fetching list of current collections"
 echo "curl -o ${COLLECTIONS_LIST_FILE} 
@@ -38,6 +38,24 @@ curl --show-error --fail --silent -o "${COLLECTIONS_LIST_FILE}" \
 collection_exists=$(jq '.collections | any(.name=="'"${current_collection_name}"'")' "${COLLECTIONS_LIST_FILE}")
 
 if [  "$collection_exists" = "false" ]; then
+  # Check if a collection with a star icon already exists
+  previous_star_collection_id=$(jq -r '.collections | map(select(.name | startswith("⭐")).id)[0] // empty' "${COLLECTIONS_LIST_FILE}")
+  if [[ -n "${previous_star_collection_id}" ]]; then
+    previous_collection_name=$(jq -r '.collections | map(select(.id=="'"${previous_star_collection_id}"'").name)[0]' "${COLLECTIONS_LIST_FILE}")
+    new_collection_name="${previous_collection_name//⭐/}"
+
+    echo "Removing star icon from the previous collection name"
+    echo "curl -o ${COLLECTIONS_LIST_FILE}
+         --location 'https://api.getpostman.com/collections/${previous_star_collection_id}'
+         --header 'X-API-Key: **********'
+         --data \"{\"collection\": {\"info\": {\"name\": \"${new_collection_name}\"}}}\""
+    curl --show-error --fail --silent --request PATCH \
+         --location "https://api.getpostman.com/collections/${previous_star_collection_id}" \
+         --header "Content-Type: application/json" \
+         --header "X-API-Key: ${POSTMAN_API_KEY}" \
+         --data "{\"collection\": {\"info\": {\"name\": \"${new_collection_name}\"}}}"
+  fi
+
   # Create new collection
   echo "Creating new remote collection ${current_collection_name}"
   echo "curl -o ${COLLECTIONS_LIST_FILE}
