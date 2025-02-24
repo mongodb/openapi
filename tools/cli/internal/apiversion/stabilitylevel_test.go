@@ -7,14 +7,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestIsPreviewSabilityLevel(t *testing.T) {
-	assert.True(t, IsPreviewSabilityLevel("preview"))
-	assert.True(t, IsPreviewSabilityLevel("PREVIEW"))
-	assert.True(t, IsPreviewSabilityLevel("prEvIEW"))
-	assert.True(t, IsPreviewSabilityLevel("private-preview"))
-	assert.True(t, IsPreviewSabilityLevel("public-preview"))
-	assert.False(t, IsPreviewSabilityLevel("stable"))
-	assert.False(t, IsPreviewSabilityLevel("invalid"))
+func TestIsPreviewStabilityLevel(t *testing.T) {
+	assert.True(t, IsPreviewStabilityLevel("preview"))
+	assert.True(t, IsPreviewStabilityLevel("PREVIEW"))
+	assert.True(t, IsPreviewStabilityLevel("prEvIEW"))
+	assert.True(t, IsPreviewStabilityLevel("private-preview"))
+	assert.True(t, IsPreviewStabilityLevel("public-preview"))
+	assert.False(t, IsPreviewStabilityLevel("stable"))
+	assert.False(t, IsPreviewStabilityLevel("invalid"))
 }
 
 func TestIsPrivatePreviewSabilityLevel(t *testing.T) {

@@ -175,7 +175,7 @@ func NewEntries(basePath, revisionPath, exceptionFilePath string) ([]*Entry, err
 
 	for _, version := range changelog.RevisionMetadata.Versions {
 		// Skip preview versions
-		if apiversion.IsPreviewSabilityLevel(version) {
+		if apiversion.IsPreviewStabilityLevel(version) {
 			continue
 		}
 
@@ -220,7 +220,7 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) (
 	for idx, fromVersion := range revisionMetadata.Versions {
 		for _, toVersion := range revisionMetadata.Versions[idx+1:] {
 			// skip preview versions
-			if apiversion.IsPreviewSabilityLevel(fromVersion) || apiversion.IsPreviewSabilityLevel(toVersion) {
+			if apiversion.IsPreviewStabilityLevel(fromVersion) || apiversion.IsPreviewStabilityLevel(toVersion) {
 				continue
 			}
 			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion, exceptionFilePath)
@@ -430,7 +430,7 @@ func latestVersionActiveOnDate(date string, versions []string) (string, error) {
 
 	activeVersions := []time.Time{}
 	for _, version := range versions {
-		if apiversion.IsPreviewSabilityLevel(version) {
+		if apiversion.IsPreviewStabilityLevel(version) {
 			continue
 		}
 		versionTime, err := newDateFromString(version)
