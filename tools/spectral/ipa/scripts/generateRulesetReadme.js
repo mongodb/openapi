@@ -35,7 +35,8 @@ async function getRulesetsSection() {
   ipaNumbers.forEach((ipaNumber) => {
     const ipaRules = filterRulesByIpaNumber(ipaNumber, rules);
     const table = generateRulesetTable(ipaRules);
-    content += `### ${ipaNumber}\n\n` + `${table}\n\n`;
+    content +=
+      `### ${ipaNumber}\n\n` + `For rule definitions, see ${getIpaRulesetUrl(ipaNumber)}.\n\n` + `${table}\n\n`;
   });
 
   return content;
@@ -72,6 +73,10 @@ function getIpaNumbers(ruleNames) {
     }
   });
   return ipaNumbers.sort();
+}
+
+function getIpaRulesetUrl(ipaNumber) {
+  return `[${ipaNumber}.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/${ipaNumber}.yaml)`;
 }
 
 function filterRulesByIpaNumber(ipaNumber, rules) {

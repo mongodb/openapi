@@ -10,11 +10,15 @@ The tables below lists all available rules, their descriptions and severity leve
 
 ### IPA-005
 
+For rule definitions, see [IPA-005.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-005.yaml).
+
 | Rule Name                               | Description                                                              | Severity |
 | --------------------------------------- | ------------------------------------------------------------------------ | -------- |
 | xgen-IPA-005-exception-extension-format | IPA exception extensions must follow the correct format. http://go/ipa/5 | warn     |
 
 ### IPA-102
+
+For rule definitions, see [IPA-102.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-102.yaml).
 
 | Rule Name                                            | Description                                                                      | Severity |
 | ---------------------------------------------------- | -------------------------------------------------------------------------------- | -------- |
@@ -22,11 +26,15 @@ The tables below lists all available rules, their descriptions and severity leve
 
 ### IPA-104
 
+For rule definitions, see [IPA-104.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-104.yaml).
+
 | Rule Name                     | Description                                                     | Severity |
 | ----------------------------- | --------------------------------------------------------------- | -------- |
 | xgen-IPA-104-resource-has-GET | APIs must provide a get method for resources. http://go/ipa/104 | warn     |
 
 ### IPA-109
+
+For rule definitions, see [IPA-109.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-109.yaml).
 
 | Rule Name                                      | Description                                                               | Severity |
 | ---------------------------------------------- | ------------------------------------------------------------------------- | -------- |
@@ -35,11 +43,15 @@ The tables below lists all available rules, their descriptions and severity leve
 
 ### IPA-113
 
+For rule definitions, see [IPA-113.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-113.yaml).
+
 | Rule Name                               | Description                                                                                 | Severity |
 | --------------------------------------- | ------------------------------------------------------------------------------------------- | -------- |
 | xgen-IPA-113-singleton-must-not-have-id | Singleton resources must not have a user-provided or system-generated ID. http://go/ipa/113 | warn     |
 
 ### IPA-123
+
+For rule definitions, see [IPA-123.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-123.yaml).
 
 | Rule Name                                         | Description                                             | Severity |
 | ------------------------------------------------- | ------------------------------------------------------- | -------- |
