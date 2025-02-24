@@ -35,6 +35,7 @@ type Opts struct {
 	outputPath string
 	env        string
 	format     string
+	gitSha     string
 }
 
 func (o *Opts) Run() error {
@@ -53,6 +54,12 @@ func (o *Opts) Run() error {
 		filteredOAS, err := o.filter(specInfo.Spec, version)
 		if err != nil {
 			return err
+		}
+
+		if o.gitSha != "" {
+			filteredOAS.Info.Extensions = map[string]any{
+				"x-xgen-sha": o.gitSha,
+			}
 		}
 
 		if err := o.saveVersionedOas(filteredOAS, version); err != nil {
@@ -130,6 +137,7 @@ func Builder() *cobra.Command {
 	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.JSON, usage.Format)
+	cmd.Flags().StringVar(&opts.gitSha, flag.GitSha, "", usage.GitSha)
 
 	_ = cmd.MarkFlagRequired(flag.Output)
 
