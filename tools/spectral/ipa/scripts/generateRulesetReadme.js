@@ -22,7 +22,6 @@ fs.writeFile(readmeFilePath, fileContent, (error) => {
     console.error('Error while generating the IPA rulesets README.md:', error);
     process.exit(1);
   }
-  console.log('Successfully updated the IPA rulesets README.md');
 });
 
 async function getRulesetsSection() {
