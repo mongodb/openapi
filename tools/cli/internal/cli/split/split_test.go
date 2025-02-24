@@ -115,6 +115,26 @@ func TestSplitMulitplePreviewsRun(t *testing.T) {
 	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups/{groupId}/serviceAccounts")
 }
 
+func TestInjectSha_Run(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:   "../../../test/data/base_spec.json",
+		outputPath: "foas.yaml",
+		fs:         fs,
+		gitSha:     "123456",
+	}
+
+	if err := opts.Run(); err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+
+	result, err := loadRunResultOas(fs, "foas-2023-01-01.yaml")
+	require.NoError(t, err)
+	// check sha
+	require.Contains(t, result.Spec.Info.Extensions, "x-xgen-sha")
+	require.Equal(t, "123456", result.Spec.Info.Extensions["x-xgen-sha"])
+}
+
 func TestOpts_PreRunE(t *testing.T) {
 	testCases := []struct {
 		wantErr  require.ErrorAssertionFunc
