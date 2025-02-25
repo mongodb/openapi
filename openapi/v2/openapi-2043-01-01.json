@@ -248,7 +248,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "c7b52f579a3374d39acbfbc347fc666062ff780c"
+    "x-xgen-sha": "f21e7a97ee0c6d8fff9f3b68b79e2d051ccb10ac"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -3697,7 +3697,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/chartsDashboards:import": {
       "post": {
-        "description": "Imports the Charts dashboard that the template specifies. Optionally, you can specify a `dashboardId` with `override=true` to import into an existing dashboard. To use this resource, the requesting API Key must have the Project Read Only role.",
+        "description": "Imports the Charts dashboard that the template specifies. Optionally, you can specify a `dashboardId` with `override=true` to import into an existing dashboard. To use this resource, the requesting API Key must have the Project Data Access Read Only role.",
         "operationId": "importChartsDashboard",
         "parameters": [
           {
@@ -3705,17 +3705,69 @@
           },
           {
             "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Setting this to true enables importing into an existing dashboard.",
+            "in": "query",
+            "name": "override",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Id of the dashboard to override on import.",
+            "in": "query",
+            "name": "dashboardId",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.2043-01-01+multipart": {
+            "application/vnd.atlas.2043-01-01+json": {
+              "examples": {
+                "Sample import response body": {
+                  "description": "Sample import response body",
+                  "value": {
+                    "dashboards": {
+                      "dashboard-1": {
+                        "description": "Dashboard description",
+                        "embedding": {
+                          "anonymousAuthEnabled": true
+                        },
+                        "filters": [],
+                        "layout": [],
+                        "title": "Dashboard title"
+                      }
+                    },
+                    "dataSources": {
+                      "data-source-1": {
+                        "alias": "Sample Data: Movies",
+                        "collection": "movies",
+                        "database": "sample_data",
+                        "deployment": "sample-data-cluster",
+                        "sourceType": "cluster"
+                      }
+                    },
+                    "exportVersion": 9,
+                    "items": {
+                      "item-1": {
+                        "calculatedFields": [],
+                        "query": null,
+                        "sample": false
+                      }
+                    },
+                    "queries": {}
+                  }
+                }
+              },
               "schema": {
-                "$ref": "#/components/schemas/ApiChartsDashboardImportRequestView20430101"
+                "type": "object"
               }
             }
           },
-          "description": "Details to import or override a dashboard.",
+          "description": "Schema corresponding to the response fetched from an exported dashboard.",
           "required": true
         },
         "responses": {
@@ -3729,6 +3781,9 @@
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -32278,25 +32333,6 @@
         },
         "readOnly": true,
         "title": "BSON Timestamp",
-        "type": "object"
-      },
-      "ApiChartsDashboardImportRequestView20430101": {
-        "description": "Details to import or override a dashboard.",
-        "properties": {
-          "dashboardId": {
-            "description": "Optional field that contains the ID of the dashboard to override. If `override=true`, you must provide this field.",
-            "type": "string"
-          },
-          "override": {
-            "description": "Flag that indicates whether to override a dashboard.",
-            "type": "boolean"
-          },
-          "template": {
-            "description": "Template of the dashboard to import, which corresponds to the returned response schema from calling the Dashboard Export API.",
-            "format": "binary",
-            "type": "string"
-          }
-        },
         "type": "object"
       },
       "ApiChartsDashboardImportResponseView20430101": {
