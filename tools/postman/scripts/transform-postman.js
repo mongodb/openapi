@@ -55,7 +55,7 @@ const transform = () => {
   collection = JSON.parse(cleanedCollectionString);
 
   console.log(`Updating name with version ${currentApiRevision}`);
-  collection.collection.info.name = `MongoDB Atlas Administration API ${currentApiRevision}`;
+  collection.collection.info.name = `⭐ MongoDB Atlas Administration API ${currentApiRevision}`;
 
   console.log('Adding Collection description');
   const description = fs.readFileSync(DESCRIPTION_FILE, 'utf8').trim();
