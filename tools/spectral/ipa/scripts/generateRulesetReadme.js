@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import spectral from '@stoplight/spectral-core';
 import { markdownTable } from 'markdown-table';
-import { loadRuleset } from '../metrics/utils/metricCollectionUtils.js';
+import { loadRuleset } from '../utils.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const readmeFilePath = path.join(dirname, '../rulesets', 'README.md');

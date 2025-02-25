@@ -1,15 +1,5 @@
-import fs from 'node:fs';
-import { bundleAndLoadRuleset } from '@stoplight/spectral-ruleset-bundler/with-loader';
 import { EntryType } from '../collector.js';
-
-export function loadOpenAPIFile(filePath) {
-  try {
-    const content = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(content);
-  } catch (error) {
-    throw new Error(`Failed to load OpenAPI file: ${error.message}`);
-  }
-}
+import { loadJsonFile } from '../../utils.js';
 
 export function getSeverityPerRule(ruleset) {
   const rules = ruleset.rules || {};
@@ -18,16 +8,6 @@ export function getSeverityPerRule(ruleset) {
     map[name] = ruleObject.definition.severity;
   }
   return map;
-}
-
-export async function loadRuleset(rulesetPath, spectral) {
-  try {
-    const ruleset = await bundleAndLoadRuleset(rulesetPath, { fs, fetch });
-    await spectral.setRuleset(ruleset);
-    return ruleset;
-  } catch (error) {
-    throw new Error(`Failed to load ruleset: ${error.message}`);
-  }
 }
 
 export function extractTeamOwnership(oasContent) {
@@ -53,15 +33,14 @@ export function extractTeamOwnership(oasContent) {
 
 export function loadCollectorResults(collectorResultsFilePath) {
   try {
-    const content = fs.readFileSync(collectorResultsFilePath, 'utf8');
-    const contentParsed = JSON.parse(content);
+    const content = loadJsonFile(collectorResultsFilePath);
     return {
-      [EntryType.VIOLATION]: contentParsed[EntryType.VIOLATION],
-      [EntryType.ADOPTION]: contentParsed[EntryType.ADOPTION],
-      [EntryType.EXCEPTION]: contentParsed[EntryType.EXCEPTION],
+      [EntryType.VIOLATION]: content[EntryType.VIOLATION],
+      [EntryType.ADOPTION]: content[EntryType.ADOPTION],
+      [EntryType.EXCEPTION]: content[EntryType.EXCEPTION],
     };
   } catch (error) {
-    throw new Error(`Failed to load Collector Results file: ${error.message}`);
+    throw new Error(`Failed to parse Collector Results: ${error.message}`);
   }
 }
 
