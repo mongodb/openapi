@@ -91,7 +91,7 @@ func (o *Opts) saveVersionedOas(oas *openapi3.T, version string) error {
 	}
 
 	path = strings.Replace(path, "."+o.format, fmt.Sprintf("-%s.%s", version, o.format), 1)
-	return openapi.Save(path, oas, o.format, o.fs)
+	return openapi.SaveToFile(path, o.format, oas, o.fs)
 }
 
 func (o *Opts) PreRunE(_ []string) error {
