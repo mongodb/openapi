@@ -248,7 +248,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "5986da9635044df345c8004e07220a6d5964b3c1"
+    "x-xgen-sha": "0e85dc4d653a5ee21c9bf0cd43fcdc110b63bd12"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -44452,7 +44452,7 @@
               {
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
-                  "STREAM_PROCESSOR_KAFKA_LAG_BEHIND"
+                  "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ],
                 "title": "Stream Processor Event Types",
                 "type": "string"
@@ -44722,7 +44722,7 @@
               {
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
-                  "STREAM_PROCESSOR_KAFKA_LAG_BEHIND"
+                  "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ],
                 "title": "Stream Processor Event Types",
                 "type": "string"
@@ -45221,8 +45221,8 @@
               {
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
-                  "STREAM_PROCESSOR_KAFKA_LAG_BEHIND",
-                  "STREAM_PROCESSOR_KAFKA_LAG_CURRENT"
+                  "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
+                  "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ],
                 "title": "Stream Processor Event Types",
                 "type": "string"
@@ -48435,8 +48435,8 @@
           {
             "enum": [
               "STREAM_PROCESSOR_STATE_IS_FAILED",
-              "STREAM_PROCESSOR_KAFKA_LAG_BEHIND",
-              "STREAM_PROCESSOR_KAFKA_LAG_CURRENT"
+              "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
+              "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
             ],
             "title": "Stream Processor Event Types",
             "type": "string"
@@ -52028,6 +52028,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamProcessorAlertConfigViewForNdsGroup"
+          },
+          {
+            "$ref": "#/components/schemas/StreamProcessorMetricAlertConfigViewForNdsGroup"
           }
         ],
         "type": "object"
@@ -66851,7 +66854,7 @@
             "type": "boolean"
           },
           "eventTypeName": {
-            "$ref": "#/components/schemas/StreamProcessorEventTypeViewAlertable"
+            "$ref": "#/components/schemas/StreamProcessorEventTypeViewAlertableNoThreshold"
           },
           "groupId": {
             "description": "Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.",
@@ -67066,13 +67069,21 @@
         "title": "Stream Processor Alerts",
         "type": "object"
       },
-      "StreamProcessorEventTypeViewAlertable": {
+      "StreamProcessorEventTypeViewAlertableNoThreshold": {
         "description": "Event type that triggers an alert.",
         "enum": [
-          "STREAM_PROCESSOR_STATE_IS_FAILED",
-          "STREAM_PROCESSOR_KAFKA_LAG_BEHIND"
+          "STREAM_PROCESSOR_STATE_IS_FAILED"
         ],
         "example": "STREAM_PROCESSOR_STATE_IS_FAILED",
+        "title": "Stream Processor Event Types",
+        "type": "string"
+      },
+      "StreamProcessorEventTypeViewAlertableWithThreshold": {
+        "description": "Event type that triggers an alert.",
+        "enum": [
+          "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
+        ],
+        "example": "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
         "title": "Stream Processor Event Types",
         "type": "string"
       },
@@ -67080,8 +67091,8 @@
         "description": "Unique identifier of event type.",
         "enum": [
           "STREAM_PROCESSOR_STATE_IS_FAILED",
-          "STREAM_PROCESSOR_KAFKA_LAG_BEHIND",
-          "STREAM_PROCESSOR_KAFKA_LAG_CURRENT"
+          "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
+          "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
         ],
         "example": "STREAM_PROCESSOR_STATE_IS_FAILED",
         "title": "Stream Processor Event Types",
@@ -67170,6 +67181,169 @@
           "id"
         ],
         "title": "Stream Processor Events",
+        "type": "object"
+      },
+      "StreamProcessorMetricAlertConfigViewForNdsGroup": {
+        "description": "Stream Processor threshold alert configuration allows to select thresholds on metrics which trigger alerts and how users are notified.",
+        "properties": {
+          "created": {
+            "description": "Date and time when MongoDB Cloud created the alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "description": "Flag that indicates whether someone enabled this alert configuration for the specified project.",
+            "type": "boolean"
+          },
+          "eventTypeName": {
+            "$ref": "#/components/schemas/StreamProcessorEventTypeViewAlertableWithThreshold"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies this alert configuration.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "matchers": {
+            "description": "List of rules that determine whether MongoDB Cloud checks an object for the alert configuration.",
+            "items": {
+              "$ref": "#/components/schemas/StreamsMatcher"
+            },
+            "type": "array"
+          },
+          "notifications": {
+            "description": "List that contains the targets that MongoDB Cloud sends notifications.",
+            "items": {
+              "$ref": "#/components/schemas/AlertsNotificationRootForGroup"
+            },
+            "type": "array"
+          },
+          "threshold": {
+            "$ref": "#/components/schemas/StreamProcessorMetricThreshold"
+          },
+          "updated": {
+            "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "eventTypeName",
+          "notifications"
+        ],
+        "title": "Stream Processor Metric Alert Configuration",
+        "type": "object"
+      },
+      "StreamProcessorMetricThreshold": {
+        "description": "Threshold for the metric that, when exceeded, triggers an alert. The metric threshold pertains to event types which reflects changes of measurements and metrics in stream processors.",
+        "discriminator": {
+          "mapping": {
+            "STREAM_PROCESSOR_CHANGE_STREAM_LAG": "#/components/schemas/TimeMetricThresholdView",
+            "STREAM_PROCESSOR_DLQ_MESSAGE_COUNT": "#/components/schemas/RawMetricThresholdView",
+            "STREAM_PROCESSOR_KAFKA_LAG": "#/components/schemas/RawMetricThresholdView",
+            "STREAM_PROCESSOR_OUTPUT_MESSAGE_COUNT": "#/components/schemas/RawMetricThresholdView"
+          },
+          "propertyName": "metricName"
+        },
+        "properties": {
+          "metricName": {
+            "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured **metricThreshold.threshold**.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "MongoDB Cloud computes the current metric value as an average.",
+            "enum": [
+              "AVERAGE"
+            ],
+            "type": "string"
+          },
+          "operator": {
+            "description": "Comparison operator to apply when checking the current metric value.",
+            "enum": [
+              "LESS_THAN",
+              "GREATER_THAN"
+            ],
+            "type": "string"
+          },
+          "threshold": {
+            "description": "Value of metric that, when exceeded, triggers an alert.",
+            "format": "double",
+            "type": "number"
+          },
+          "units": {
+            "description": "Element used to express the quantity. This can be an element of time, storage capacity, and the like.",
+            "enum": [
+              "bits",
+              "Kbits",
+              "Mbits",
+              "Gbits",
+              "bytes",
+              "KB",
+              "MB",
+              "GB",
+              "TB",
+              "PB",
+              "nsec",
+              "msec",
+              "sec",
+              "min",
+              "hours",
+              "million minutes",
+              "days",
+              "requests",
+              "1000 requests",
+              "GB seconds",
+              "GB hours",
+              "GB days",
+              "RPU",
+              "thousand RPU",
+              "million RPU",
+              "WPU",
+              "thousand WPU",
+              "million WPU",
+              "count",
+              "thousand",
+              "million",
+              "billion"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "metricName"
+        ],
+        "title": "Stream Processor Metric Threshold",
         "type": "object"
       },
       "StreamsAWSConnectionConfig": {
