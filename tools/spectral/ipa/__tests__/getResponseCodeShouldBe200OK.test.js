@@ -6,7 +6,7 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
     name: 'valid methods',
     document: {
       paths: {
-        '/path1/{resource}': {
+        '/resource': {
           get: {
             responses: {
               200: {},
@@ -15,12 +15,30 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
             },
           },
         },
-        '/path2/{resource}': {
+        '/resource/{id}': {
           get: {
             responses: {
               200: {},
-              401: {},
-              404: {},
+              400: {},
+              500: {},
+            },
+          },
+        },
+        '/resource/{id}:customMethod': {
+          get: {
+            responses: {
+              200: {},
+              400: {},
+              500: {},
+            },
+          },
+        },
+        '/singleton': {
+          get: {
+            responses: {
+              200: {},
+              400: {},
+              500: {},
             },
           },
         },
@@ -32,7 +50,7 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
     name: 'invalid methods',
     document: {
       paths: {
-        '/path1/{resource}': {
+        '/resource1/{id}': {
           get: {
             responses: {
               201: {},
@@ -41,7 +59,7 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
             },
           },
         },
-        '/path2/{resource}': {
+        '/resource2/{id}': {
           get: {
             responses: {
               400: {},
@@ -55,13 +73,13 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
       {
         code: 'xgen-IPA-104-GET-response-code-should-be-200-OK',
         message: 'The HTTP response status code for GET operations should be 200 OK. http://go/ipa/104',
-        path: ['paths', '/path1/{resource}', 'get'],
+        path: ['paths', '/resource1/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-GET-response-code-should-be-200-OK',
         message: 'The HTTP response status code for GET operations should be 200 OK. http://go/ipa/104',
-        path: ['paths', '/path2/{resource}', 'get'],
+        path: ['paths', '/resource2/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -70,7 +88,7 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
     name: 'invalid method with exception',
     document: {
       paths: {
-        '/path1/{resource}': {
+        '/resource1/{id}': {
           get: {
             responses: {
               201: {},
@@ -82,7 +100,7 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
             },
           },
         },
-        '/path2/{resource}': {
+        '/resource2/{id}': {
           get: {
             responses: {
               400: {},
