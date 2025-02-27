@@ -41,7 +41,7 @@ func SaveToFile[T any](path, format string, content T, fs afero.Fs) error {
 		return err
 	}
 
-	if format == JSON || format == "" {
+	if format == JSON || format == "" || format == "all" {
 		jsonPath := newPathWithExtension(path, JSON)
 		if errJSON := afero.WriteFile(fs, jsonPath, data, 0o600); errJSON != nil {
 			return errJSON
@@ -49,7 +49,7 @@ func SaveToFile[T any](path, format string, content T, fs afero.Fs) error {
 		log.Printf("\nFile was saved in '%s'.\n\n", jsonPath)
 	}
 
-	if format == YAML || format == "" {
+	if format == YAML || format == "" || format == "all" {
 		dataYAML, err := SerializeToYAML(data)
 		if err != nil {
 			return err
