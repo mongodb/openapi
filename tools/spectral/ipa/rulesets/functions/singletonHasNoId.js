@@ -6,7 +6,7 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
-import { getAllSuccessfulGetResponseSchemas } from './utils/methodUtils.js';
+import { getAllSuccessfulResponseSchemas } from './utils/methodUtils.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-113-singleton-must-not-have-id';
@@ -28,8 +28,8 @@ export default (input, opts, { path, documentInventory }) => {
   const resourcePaths = getResourcePaths(resourcePath, Object.keys(oas.paths));
 
   if (isSingletonResource(resourcePaths) && hasGetMethod(input)) {
-    const resourceSchemas = getAllSuccessfulGetResponseSchemas(input);
-    if (resourceSchemas.some((schema) => schemaHasIdProperty(schema))) {
+    const resourceSchemas = getAllSuccessfulResponseSchemas(input['get']);
+    if (resourceSchemas.some(({ schema }) => schemaHasIdProperty(schema))) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
   }
