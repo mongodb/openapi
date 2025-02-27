@@ -30949,7 +30949,7 @@ components:
             title: Stream Processor Metric Threshold
             type: object
         StreamsAWSConnectionConfig:
-            description: The configuration of AWS connection used in stream processors.
+            description: AWS configurations for AWS-based connection types.
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -30962,6 +30962,9 @@ components:
                     type: array
                 roleArn:
                     description: Amazon Resource Name (ARN) that identifies the Amazon Web Services (AWS) Identity and Access Management (IAM) role that MongoDB Cloud assumes when it accesses resources in your AWS account.
+                    type: string
+                testBucket:
+                    description: The name of an S3 bucket used to check authorization of the passed-in IAM role ARN.
                     type: string
             type: object
         StreamsAWSLambdaConnection:
@@ -30992,6 +30995,7 @@ components:
                     Cluster: '#/components/schemas/StreamsClusterConnection'
                     Https: '#/components/schemas/StreamsHttpsConnection'
                     Kafka: '#/components/schemas/StreamsKafkaConnection'
+                    S3: '#/components/schemas/StreamsS3Connection'
                     Sample: '#/components/schemas/StreamsSampleConnection'
                 propertyName: type
             oneOf:
@@ -31000,6 +31004,7 @@ components:
                 - $ref: '#/components/schemas/StreamsKafkaConnection'
                 - $ref: '#/components/schemas/StreamsHttpsConnection'
                 - $ref: '#/components/schemas/StreamsAWSLambdaConnection'
+                - $ref: '#/components/schemas/StreamsS3Connection'
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -31014,7 +31019,7 @@ components:
                     description: Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.
                     type: string
                 type:
-                    description: Type of the connection. Can be either Cluster or Kafka.
+                    description: Type of the connection.
                     enum:
                         - Kafka
                         - Cluster
@@ -31504,6 +31509,15 @@ components:
                 - name
                 - pipeline
                 - state
+            type: object
+        StreamsS3Connection:
+            allOf:
+                - $ref: '#/components/schemas/StreamsConnection'
+                - properties:
+                    aws:
+                        $ref: '#/components/schemas/StreamsAWSConnectionConfig'
+                  type: object
+            description: The configuration for S3 connections.
             type: object
         StreamsSampleConnection:
             allOf:
@@ -34677,7 +34691,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: b5d35fbc74858fb46cd5fb1bdecf61419de6305b
+    x-xgen-sha: 902690679470722fa4bc6410a7a00f2965a4cd85
 openapi: 3.0.1
 paths:
     /api/atlas/v2/openapi/info:
