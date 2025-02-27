@@ -9,18 +9,18 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
         '/path1/{resource}': {
           get: {
             responses: {
-              '200': {},
-              '400': {},
-              '500': {},
+              200: {},
+              400: {},
+              500: {},
             },
           },
         },
         '/path2/{resource}': {
           get: {
             responses: {
-              '200': {},
-              '401': {},
-              '404': {},
+              200: {},
+              401: {},
+              404: {},
             },
           },
         },
@@ -35,17 +35,17 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
         '/path1/{resource}': {
           get: {
             responses: {
-              '201': {},
-              '400': {},
-              '500': {},
+              201: {},
+              400: {},
+              500: {},
             },
           },
         },
         '/path2/{resource}': {
           get: {
             responses: {
-              '400': {},
-              '500': {},
+              400: {},
+              500: {},
             },
           },
         },
@@ -73,9 +73,9 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
         '/path1/{resource}': {
           get: {
             responses: {
-              '201': {},
-              '400': {},
-              '500': {},
+              201: {},
+              400: {},
+              500: {},
             },
           },
           'x-xgen-IPA-exception': {
@@ -85,8 +85,8 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
         '/path2/{resource}': {
           get: {
             responses: {
-              '400': {},
-              '500': {},
+              400: {},
+              500: {},
             },
           },
           'x-xgen-IPA-exception': {
