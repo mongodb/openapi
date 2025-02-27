@@ -2,11 +2,10 @@ import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-104-get-method-response-code-is-200-OK';
-const ERROR_MESSAGE = 'The HTTP response status code for GET operations should be 200 OK.';
+const ERROR_MESSAGE =
+  'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.';
 
 export default (input, _, { path }) => {
-  console.log(input);
-
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
     return;
@@ -14,10 +13,17 @@ export default (input, _, { path }) => {
 
   if (input['responses']) {
     const responses = input['responses'];
+
+    // If there is no 200 response, return a violation
     if (!responses['200']) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
+
+    // If there are other 2xx responses that are not 200, return a violation
+    if (Object.keys(responses).some((key) => key.startsWith('2') && key !== '200')) {
+      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+    }
   }
-  console.log('adoption');
+
   collectAdoption(path, RULE_NAME);
 };

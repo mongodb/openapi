@@ -32,7 +32,7 @@ For rule definitions, see [IPA-104.yaml](https://github.com/mongodb/openapi/blob
 | ----------------------------------------------- | ----------------------------------------------------------------------------------------- | -------- |
 | xgen-IPA-104-resource-has-GET                   | APIs must provide a get method for resources. http://go/ipa/104                           | warn     |
 | xgen-IPA-104-get-method-returns-single-resource | The purpose of the get method is to return data from a single resource. http://go/ipa/104 | warn     |
-| xgen-IPA-104-get-method-response-code-is-200-OK | The HTTP response status code for GET operations should be 200 OK. http://go/ipa/104      | warn     |
+| xgen-IPA-104-get-method-response-code-is-200-OK | The Get method must return a 200 OK response. http://go/ipa/104                           | warn     |
 
 ### IPA-109
 
@@ -58,3 +58,5 @@ For rule definitions, see [IPA-123.yaml](https://github.com/mongodb/openapi/blob
 | Rule Name                                         | Description                                             | Severity |
 | ------------------------------------------------- | ------------------------------------------------------- | -------- |
 | xgen-IPA-123-enum-values-must-be-upper-snake-case | Enum values must be UPPER_SNAKE_CASE. http://go/ipa/123 | warn     |
+
+
