@@ -5,7 +5,7 @@ import { hasException } from './utils/exceptions.js';
 import { schemaIsArray, schemaIsPaginated } from './utils/schemaUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-104-GET-resource-not-paginated';
+const RULE_NAME = 'xgen-IPA-104-get-method-returns-single-resource';
 const ERROR_MESSAGE_STANDARD_RESOURCE =
   'Get methods should return data for a single resource. This method returns an array or a paginated response.';
 

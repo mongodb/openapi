@@ -23,7 +23,7 @@ const componentSchemas = {
   },
 };
 
-testRule('xgen-IPA-104-GET-resource-not-paginated', [
+testRule('xgen-IPA-104-get-method-returns-single-resource', [
   {
     name: 'valid resources',
     document: {
@@ -97,21 +97,6 @@ testRule('xgen-IPA-104-GET-resource-not-paginated', [
     name: 'invalid resources',
     document: {
       paths: {
-        '/arrayResource': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: {
-                      $ref: '#/components/schemas/PaginatedSchema',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
         '/arrayResource/{id}': {
           get: {
             responses: {
@@ -120,21 +105,6 @@ testRule('xgen-IPA-104-GET-resource-not-paginated', [
                   'application/vnd.atlas.2024-08-05+json': {
                     schema: {
                       $ref: '#/components/schemas/ArraySchema',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        '/paginatedResource': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: {
-                      $ref: '#/components/schemas/PaginatedSchema',
                     },
                   },
                 },
@@ -192,7 +162,7 @@ testRule('xgen-IPA-104-GET-resource-not-paginated', [
     },
     errors: [
       {
-        code: 'xgen-IPA-104-GET-resource-not-paginated',
+        code: 'xgen-IPA-104-get-method-returns-single-resource',
         message:
           'Get methods should return data for a single resource. This method returns an array or a paginated response. http://go/ipa/104',
         path: [
@@ -207,7 +177,7 @@ testRule('xgen-IPA-104-GET-resource-not-paginated', [
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-104-GET-resource-not-paginated',
+        code: 'xgen-IPA-104-get-method-returns-single-resource',
         message:
           'Get methods should return data for a single resource. This method returns an array or a paginated response. http://go/ipa/104',
         path: [
@@ -222,7 +192,7 @@ testRule('xgen-IPA-104-GET-resource-not-paginated', [
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-104-GET-resource-not-paginated',
+        code: 'xgen-IPA-104-get-method-returns-single-resource',
         message:
           'Get methods should return data for a single resource. This method returns an array or a paginated response. http://go/ipa/104',
         path: [
@@ -237,7 +207,7 @@ testRule('xgen-IPA-104-GET-resource-not-paginated', [
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-104-GET-resource-not-paginated',
+        code: 'xgen-IPA-104-get-method-returns-single-resource',
         message:
           'Get methods should return data for a single resource. This method returns an array or a paginated response. http://go/ipa/104',
         path: [
@@ -254,24 +224,9 @@ testRule('xgen-IPA-104-GET-resource-not-paginated', [
     ],
   },
   {
-    name: 'invalid resource with exception',
+    name: 'invalid resources with exceptions',
     document: {
       paths: {
-        '/arrayResource': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: {
-                      $ref: '#/components/schemas/PaginatedSchema',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
         '/arrayResource/{id}': {
           get: {
             responses: {
@@ -279,10 +234,28 @@ testRule('xgen-IPA-104-GET-resource-not-paginated', [
                 content: {
                   'application/vnd.atlas.2024-08-05+json': {
                     'x-xgen-IPA-exception': {
-                      'xgen-IPA-104-GET-resource-not-paginated': 'reason',
+                      'xgen-IPA-104-get-method-returns-single-resource': 'reason',
                     },
                     schema: {
                       $ref: '#/components/schemas/ArraySchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/paginatedSingleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-08-05+json': {
+                    'x-xgen-IPA-exception': {
+                      'xgen-IPA-104-get-method-returns-single-resource': 'reason',
+                    },
+                    schema: {
+                      $ref: '#/components/schemas/PaginatedSchema',
                     },
                   },
                 },
