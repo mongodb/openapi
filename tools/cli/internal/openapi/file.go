@@ -118,6 +118,8 @@ func SerializeToYAML(data []byte) ([]byte, error) {
 	return yamlData, nil
 }
 
+// Save saves the OpenAPI document to a file in the specified format. This is important for public
+// OpenAPI documents as it ensures to follow the order of the Spec object.
 func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
 	return SaveToFile(path, format, newSpec(oas), fs)
 }
