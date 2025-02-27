@@ -28,9 +28,9 @@ For rule definitions, see [IPA-102.yaml](https://github.com/mongodb/openapi/blob
 
 For rule definitions, see [IPA-104.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-104.yaml).
 
-| Rule Name                               | Description                                                                               | Severity |
-| --------------------------------------- | ----------------------------------------------------------------------------------------- | -------- |
-| xgen-IPA-104-resource-has-GET           | APIs must provide a get method for resources. http://go/ipa/104                           | warn     |
+| Rule Name                                       | Description                                                                               | Severity |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------- | -------- |
+| xgen-IPA-104-resource-has-GET                   | APIs must provide a get method for resources. http://go/ipa/104                           | warn     |
 | xgen-IPA-104-get-method-returns-single-resource | The purpose of the get method is to return data from a single resource. http://go/ipa/104 | warn     |
 
 ### IPA-109
