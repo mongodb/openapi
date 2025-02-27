@@ -1,7 +1,7 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-104-GET-response-code-should-be-200-OK';
+const RULE_NAME = 'xgen-IPA-104-get-method-response-code-is-200-OK';
 const ERROR_MESSAGE = 'The HTTP response status code for GET operations should be 200 OK.';
 
 export default (input, _, { path }) => {

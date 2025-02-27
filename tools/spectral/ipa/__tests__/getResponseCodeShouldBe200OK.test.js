@@ -1,7 +1,7 @@
 import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
-testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
+testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
   {
     name: 'valid methods',
     document: {
@@ -71,14 +71,14 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
     },
     errors: [
       {
-        code: 'xgen-IPA-104-GET-response-code-should-be-200-OK',
-        message: 'The HTTP response status code for GET operations should be 200 OK. http://go/ipa/104',
+        code: 'xgen-IPA-104-get-method-response-code-should-be-200-OK',
+        message: 'The HTTP response status code for get operations should be 200 OK. http://go/ipa/104',
         path: ['paths', '/resource1/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-104-GET-response-code-should-be-200-OK',
-        message: 'The HTTP response status code for GET operations should be 200 OK. http://go/ipa/104',
+        code: 'xgen-IPA-104-get-method-response-code-should-be-200-OK',
+        message: 'The HTTP response status code for get operations should be 200 OK. http://go/ipa/104',
         path: ['paths', '/resource2/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -96,7 +96,7 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-104-GET-response-code-should-be-200-OK': 'reason',
+              'xgen-IPA-104-get-method-response-code-should-be-200-OK': 'reason',
             },
           },
         },
@@ -107,7 +107,7 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-104-GET-response-code-should-be-200-OK': 'reason',
+              'xgen-IPA-104-get-method-response-code-should-be-200-OK': 'reason',
             },
           },
         },
