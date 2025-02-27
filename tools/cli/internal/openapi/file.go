@@ -29,6 +29,7 @@ import (
 const (
 	JSON    = "json"
 	YAML    = "yaml"
+	ALL     = "all"
 	DotYAML = ".yaml"
 	DotJSON = ".json"
 )
@@ -41,7 +42,7 @@ func SaveToFile[T any](path, format string, content T, fs afero.Fs) error {
 		return err
 	}
 
-	if format == JSON || format == "" || format == "all" {
+	if format == JSON || format == "" || format == ALL {
 		jsonPath := newPathWithExtension(path, JSON)
 		if errJSON := afero.WriteFile(fs, jsonPath, data, 0o600); errJSON != nil {
 			return errJSON
@@ -49,7 +50,7 @@ func SaveToFile[T any](path, format string, content T, fs afero.Fs) error {
 		log.Printf("\nFile was saved in '%s'.\n\n", jsonPath)
 	}
 
-	if format == YAML || format == "" || format == "all" {
+	if format == YAML || format == "" || format == ALL {
 		dataYAML, err := SerializeToYAML(data)
 		if err != nil {
 			return err
@@ -122,4 +123,13 @@ func SerializeToYAML(data []byte) ([]byte, error) {
 // OpenAPI documents as it ensures to follow the order of the Spec object.
 func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
 	return SaveToFile(path, format, newSpec(oas), fs)
+}
+
+// ValidateFormat validates the format of files supported.
+func ValidateFormat(format string) error {
+	if format != JSON && format != YAML && format != ALL {
+		return fmt.Errorf("format must be either 'json', 'yaml' or 'all', got %s", format)
+	}
+
+	return nil
 }
