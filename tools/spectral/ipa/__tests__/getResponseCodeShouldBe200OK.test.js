@@ -54,14 +54,14 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
     errors: [
       {
         code: 'xgen-IPA-104-GET-response-code-should-be-200-OK',
-        message: 'GET method response code should be 200 OK. http://go/ipa/104',
-        path: ['paths', '/path1/{resource}'],
+        message: 'The HTTP response status code for GET operations should be 200 OK. http://go/ipa/104',
+        path: ['paths', '/path1/{resource}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-GET-response-code-should-be-200-OK',
-        message: 'GET method response code should be 200 OK. http://go/ipa/104',
-        path: ['paths', '/path2/{resource}'],
+        message: 'The HTTP response status code for GET operations should be 200 OK. http://go/ipa/104',
+        path: ['paths', '/path2/{resource}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -77,9 +77,9 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
               400: {},
               500: {},
             },
-          },
-          'x-xgen-IPA-exception': {
-            'xgen-IPA-104-GET-response-code-should-be-200-OK': 'reason',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-104-GET-response-code-should-be-200-OK': 'reason',
+            },
           },
         },
         '/path2/{resource}': {
@@ -88,9 +88,9 @@ testRule('xgen-IPA-104-GET-response-code-should-be-200-OK', [
               400: {},
               500: {},
             },
-          },
-          'x-xgen-IPA-exception': {
-            'xgen-IPA-104-GET-response-code-should-be-200-OK': 'reason',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-104-GET-response-code-should-be-200-OK': 'reason',
+            },
           },
         },
       },
