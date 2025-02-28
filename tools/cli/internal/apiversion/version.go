@@ -32,7 +32,8 @@ type APIVersion struct {
 }
 
 const (
-	dateFormat = "2006-01-02"
+	dateFormat  = "2006-01-02"
+	previewDate = "3000-01-01"
 )
 
 var contentPattern = regexp.MustCompile(`application/vnd\.atlas\.((\d{4})-(\d{2})-(\d{2})|preview)\+(.+)`)
@@ -57,7 +58,6 @@ func (v *APIVersion) newVersion(version string, date time.Time) {
 	v.versionDate = date
 
 	if IsPreviewStabilityLevel(version) {
-		v.versionDate = time.Now().AddDate(10, 0, 0) // set preview date to the future
 		v.stabilityVersion = PreviewStabilityLevel
 	}
 }
@@ -119,7 +119,7 @@ func WithFullContent(contentType string, contentValue *openapi3.MediaType) Optio
 
 func DateFromVersion(version string) (time.Time, error) {
 	if IsPreviewStabilityLevel(version) {
-		return time.Now(), nil
+		return time.Parse(dateFormat, previewDate)
 	}
 	return time.Parse(dateFormat, version)
 }
