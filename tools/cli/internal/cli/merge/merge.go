@@ -75,8 +75,8 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
 	}
 
-	if o.format != "json" && o.format != "yaml" {
-		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
+	if err := openapi.ValidateFormat(o.format); err != nil {
+		return err
 	}
 
 	m, err := openapi.NewOasDiff(o.basePath, o.excludePrivatePaths)
