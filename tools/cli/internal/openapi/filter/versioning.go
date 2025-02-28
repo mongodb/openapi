@@ -22,7 +22,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// VersioningFilter is a filter that modifies the OpenAPI spec by removing operations and responses
+// Filter: VersioningFilter is a filter that modifies the OpenAPI spec by removing operations and responses
 // that are not supported by the target version.
 type VersioningFilter struct {
 	oas      *openapi3.T
