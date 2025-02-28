@@ -51,9 +51,6 @@ func (o *Opts) Run() error {
 	}
 
 	for _, version := range versions {
-		if version != "private-preview-charts-dashboards" {
-			continue
-		}
 		filteredOAS, err := o.filter(specInfo.Spec, version)
 		if err != nil {
 			return err
