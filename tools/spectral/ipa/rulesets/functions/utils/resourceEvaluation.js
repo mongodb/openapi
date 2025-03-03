@@ -1,4 +1,7 @@
-export function isChild(path) {
+export const AUTH_PREFIX = '/api/atlas/v2';
+export const UNAUTH_PREFIX = '/api/atlas/v2/unauth';
+
+export function isSingleResource(path) {
   return path.endsWith('}');
 }
 
@@ -19,7 +22,7 @@ export function getCustomMethodName(path) {
  */
 export function isSingletonResource(resourcePaths) {
   if (resourcePaths.length === 1) {
-    return true;
+    return resourceBelongsToSingleParent(resourcePaths[0]);
   }
   const additionalPaths = resourcePaths.slice(1);
   return additionalPaths.every(isCustomMethod);
@@ -33,11 +36,11 @@ export function isSingletonResource(resourcePaths) {
  * @returns {boolean}
  */
 export function isStandardResource(resourcePaths) {
-  if (resourcePaths.length === 2 && isChild(resourcePaths[1])) {
-    return true;
+  if (resourcePaths.length === 1) {
+    return !resourceBelongsToSingleParent(resourcePaths[0]);
   }
-  if (resourcePaths.length < 3 || !isChild(resourcePaths[1])) {
-    return false;
+  if (resourcePaths.length === 2) {
+    return isSingleResource(resourcePaths[1]);
   }
   const additionalPaths = resourcePaths.slice(2);
   return additionalPaths.every(isCustomMethod);
@@ -54,17 +57,60 @@ export function hasGetMethod(pathObject) {
 }
 
 /**
- * Get all paths for a resource based on the parent path
+ * Get all paths for a resource based on the path for the resource collection
+ * For example, resource collection path '/resource' may return ['/resource', '/resource{id}', '/resource{id}:customMethod']
  *
- * @param parent the parent path string
- * @param allPaths all paths as an array of strings
- * @returns {string[]} all paths for a resource, including the parent
+ * @param {string} resourceCollectionPath the path string
+ * @param {Array<string>} allPaths all paths
+ * @returns {string[]} all paths for a resource, including the path for the resource collection
  */
-export function getResourcePaths(parent, allPaths) {
-  const childPathPattern = new RegExp(`^${parent}/{[a-zA-Z]+}$`);
-  const customChildMethodPattern = new RegExp(`^${parent}/{[a-zA-Z]+}:+[a-zA-Z]+$`);
-  const customMethodPattern = new RegExp(`^${parent}:+[a-zA-Z]+$`);
+export function getResourcePaths(resourceCollectionPath, allPaths) {
+  const singleResourcePathPattern = new RegExp(`^${resourceCollectionPath}/{[a-zA-Z]+}$`);
+  const singleResourceCustomMethodPattern = new RegExp(`^${resourceCollectionPath}/{[a-zA-Z]+}:+[a-zA-Z]+$`);
+  const customMethodPattern = new RegExp(`^${resourceCollectionPath}:+[a-zA-Z]+$`);
   return allPaths.filter(
-    (p) => parent === p || childPathPattern.test(p) || customMethodPattern.test(p) || customChildMethodPattern.test(p)
+    (p) =>
+      resourceCollectionPath === p ||
+      singleResourcePathPattern.test(p) ||
+      customMethodPattern.test(p) ||
+      singleResourceCustomMethodPattern.test(p)
   );
+}
+
+/**
+ * Checks whether a resource belongs to one parent resource.
+ * For example, '/resource' returns false, '/resource/{id}/child' returns true.
+ *
+ * @param {string} resourcePath a path for a resource
+ * @returns {boolean}
+ */
+function resourceBelongsToSingleParent(resourcePath) {
+  // Ignore /api/atlas/v2 and /api/atlas/v2/unauth
+  let path = resourcePath;
+  if (resourcePath.startsWith(AUTH_PREFIX)) {
+    path = resourcePath.slice(AUTH_PREFIX.length);
+  }
+  if (resourcePath.startsWith(UNAUTH_PREFIX)) {
+    path = resourcePath.slice(UNAUTH_PREFIX.length);
+  }
+
+  if (path === '') {
+    return true;
+  }
+
+  let resourcePathSections = path.split('/');
+  if (resourcePathSections[0] === '') {
+    resourcePathSections.shift();
+  }
+  if (resourcePathSections.length < 2) {
+    return false;
+  }
+  if (isSingleResource(resourcePathSections[resourcePathSections.length - 1])) {
+    resourcePathSections = resourcePathSections.slice(0, resourcePathSections.length - 2);
+  }
+  if (resourcePathSections.length === 1) {
+    return false;
+  }
+  const parentResourceSection = resourcePathSections[resourcePathSections.length - 2];
+  return isSingleResource(parentResourceSection);
 }

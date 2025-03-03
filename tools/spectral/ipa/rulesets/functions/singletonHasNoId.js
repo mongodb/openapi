@@ -1,7 +1,7 @@
 import {
   getResourcePaths,
   hasGetMethod,
-  isChild,
+  isSingleResource,
   isCustomMethod,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
@@ -15,7 +15,7 @@ const ERROR_MESSAGE = 'Singleton resources must not have a user-provided or syst
 export default (input, opts, { path, documentInventory }) => {
   const resourcePath = path[1];
 
-  if (isCustomMethod(resourcePath) || isChild(resourcePath)) {
+  if (isCustomMethod(resourcePath) || isSingleResource(resourcePath)) {
     return;
   }
 

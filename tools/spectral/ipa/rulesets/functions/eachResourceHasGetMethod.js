@@ -1,6 +1,6 @@
 import {
   hasGetMethod,
-  isChild,
+  isSingleResource,
   isCustomMethod,
   isStandardResource,
   isSingletonResource,
@@ -13,7 +13,7 @@ const RULE_NAME = 'xgen-IPA-104-resource-has-GET';
 const ERROR_MESSAGE = 'APIs must provide a get method for resources.';
 
 export default (input, _, { path, documentInventory }) => {
-  if (isChild(input) || isCustomMethod(input)) {
+  if (isSingleResource(input) || isCustomMethod(input)) {
     return;
   }
 
@@ -31,6 +31,9 @@ export default (input, _, { path, documentInventory }) => {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
   } else if (isStandardResource(resourcePaths)) {
+    if (resourcePaths.length === 1) {
+      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+    }
     if (!hasGetMethod(oas.paths[resourcePaths[1]])) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }

@@ -1,4 +1,4 @@
-import { isChild, isCustomMethod, isSingletonResource, getResourcePaths } from './utils/resourceEvaluation.js';
+import { isSingleResource, isCustomMethod, isSingletonResource, getResourcePaths } from './utils/resourceEvaluation.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { getAllSuccessfulResponseSchemas } from './utils/methodUtils.js';
 import { hasException } from './utils/exceptions.js';
@@ -14,7 +14,7 @@ export default (input, _, { path, documentInventory }) => {
   const resourcePath = path[1];
   const resourcePaths = getResourcePaths(resourcePath, Object.keys(oas.paths));
 
-  if (isCustomMethod(resourcePath) || (!isChild(resourcePath) && !isSingletonResource(resourcePaths))) {
+  if (isCustomMethod(resourcePath) || (!isSingleResource(resourcePath) && !isSingletonResource(resourcePaths))) {
     return;
   }
 

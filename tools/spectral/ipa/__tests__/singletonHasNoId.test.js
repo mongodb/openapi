@@ -47,7 +47,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
           patch: {},
           delete: {},
         },
-        '/singleton1': {
+        '/standard/{exampleId}/singleton1': {
           get: {
             responses: {
               200: {
@@ -65,7 +65,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
             },
           },
         },
-        '/singleton2': {
+        '/standard/{exampleId}/singleton2': {
           get: {
             responses: {
               200: {
@@ -92,7 +92,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
     name: 'invalid resources',
     document: {
       paths: {
-        '/singleton1': {
+        '/standard/{exampleId}/singleton1': {
           get: {
             responses: {
               200: {
@@ -111,7 +111,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
             },
           },
         },
-        '/singleton2': {
+        '/standard/{exampleId}/singleton2': {
           get: {
             responses: {
               200: {
@@ -130,7 +130,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
             },
           },
         },
-        '/singleton3': {
+        '/standard/{exampleId}/singleton3': {
           get: {
             responses: {
               200: {
@@ -164,19 +164,19 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
       {
         code: 'xgen-IPA-113-singleton-must-not-have-id',
         message: 'Singleton resources must not have a user-provided or system-generated ID. http://go/ipa/113',
-        path: ['paths', '/singleton1'],
+        path: ['paths', '/standard/{exampleId}/singleton1'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-113-singleton-must-not-have-id',
         message: 'Singleton resources must not have a user-provided or system-generated ID. http://go/ipa/113',
-        path: ['paths', '/singleton2'],
+        path: ['paths', '/standard/{exampleId}/singleton2'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-113-singleton-must-not-have-id',
         message: 'Singleton resources must not have a user-provided or system-generated ID. http://go/ipa/113',
-        path: ['paths', '/singleton3'],
+        path: ['paths', '/standard/{exampleId}/singleton3'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
