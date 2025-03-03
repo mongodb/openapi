@@ -32,6 +32,7 @@ spectral lint {path/to/oas/file} --ruleset=./tools/spectral/ipa/ipa-spectral.yam
 The rule validations are custom JS functions (see [/rulesets/functions](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/rulesets/functions)). To learn more about custom functions, refer to the [Spectral Documentation](https://docs.stoplight.io/docs/spectral/a781e290eb9f9-custom-functions).
 
 The custom rule implementation allows for:
+
 - Advanced validations not available using the standard Spectral rules
 - Custom exception handling
 - Metrics collection
@@ -49,8 +50,8 @@ Instead of using the [Spectral overrides approach](https://docs.stoplight.io/doc
 ## Testing
 
 - IPA Validation related code is tested using [Jest](https://jestjs.io/)
-- Each custom validation function has tests, located in [/\__tests\__](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/__tests__). They use the test hook [testRule.js](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/__tests__/__helpers__/testRule.js) as a common approach for Spectral rule testing
-- Helper/util functions are tested as well, see [/\__tests\__/utils](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/__tests__/utils)
+- Each custom validation function has tests, located in [/\_\_tests\_\_](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/__tests__). They use the test hook [testRule.js](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/__tests__/__helpers__/testRule.js) as a common approach for Spectral rule testing
+- Helper/util functions are tested as well, see [/\_\_tests\_\_/utils](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/__tests__/utils)
 
 Install necessary dependencies with `npm install` if you haven't already. All Jest tests can be run with:
 
