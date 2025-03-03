@@ -47,7 +47,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
     name: 'invalid methods',
     document: {
       paths: {
-        '/resource1': { get: { responses: {}}},
+        '/resource1': { get: { responses: {} } },
         '/resource1/{id}': {
           get: {
             responses: {
@@ -57,7 +57,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
             },
           },
         },
-        '/resource2': { get: { responses: {} }},
+        '/resource2': { get: { responses: {} } },
         '/resource2/{id}': {
           get: {
             responses: {
@@ -66,7 +66,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
             },
           },
         },
-        '/resource3': { get: { responses: {}}},
+        '/resource3': { get: { responses: {} } },
         '/resource3/{id}': {
           get: {
             responses: {
@@ -107,7 +107,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
     name: 'invalid method with exception',
     document: {
       paths: {
-        '/resource1': { get: {responses: {}}},
+        '/resource1': { get: { responses: {} } },
         '/resource1/{id}': {
           get: {
             responses: {
@@ -120,7 +120,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
             },
           },
         },
-        '/resource2': { get: {responses: {}}},
+        '/resource2': { get: { responses: {} } },
         '/resource2/{id}': {
           get: {
             responses: {

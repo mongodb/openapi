@@ -1,9 +1,6 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import {
-  isChild,
-  isCustomMethod,
-} from './utils/resourceEvaluation.js';
+import { isChild, isCustomMethod } from './utils/resourceEvaluation.js';
 
 const RULE_NAME = 'xgen-IPA-104-get-method-response-code-is-200';
 const ERROR_MESSAGE =
