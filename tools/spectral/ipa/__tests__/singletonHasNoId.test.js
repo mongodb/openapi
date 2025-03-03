@@ -6,7 +6,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
     name: 'valid resources',
     document: {
       paths: {
-        '/standard': {
+        '/resource': {
           post: {},
           get: {
             responses: {
@@ -26,7 +26,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
             },
           },
         },
-        '/standard/{exampleId}': {
+        '/resource/{exampleId}': {
           get: {
             responses: {
               200: {
@@ -47,7 +47,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
           patch: {},
           delete: {},
         },
-        '/standard/{exampleId}/singleton1': {
+        '/resource/{exampleId}/singleton1': {
           get: {
             responses: {
               200: {
@@ -65,7 +65,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
             },
           },
         },
-        '/standard/{exampleId}/singleton2': {
+        '/resource/{exampleId}/singleton2': {
           get: {
             responses: {
               200: {
@@ -92,7 +92,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
     name: 'invalid resources',
     document: {
       paths: {
-        '/standard/{exampleId}/singleton1': {
+        '/resource/{exampleId}/singleton1': {
           get: {
             responses: {
               200: {
@@ -111,7 +111,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
             },
           },
         },
-        '/standard/{exampleId}/singleton2': {
+        '/resource/{exampleId}/singleton2': {
           get: {
             responses: {
               200: {
@@ -130,7 +130,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
             },
           },
         },
-        '/standard/{exampleId}/singleton3': {
+        '/resource/{exampleId}/singleton3': {
           get: {
             responses: {
               200: {
@@ -164,19 +164,19 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
       {
         code: 'xgen-IPA-113-singleton-must-not-have-id',
         message: 'Singleton resources must not have a user-provided or system-generated ID. http://go/ipa/113',
-        path: ['paths', '/standard/{exampleId}/singleton1'],
+        path: ['paths', '/resource/{exampleId}/singleton1'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-113-singleton-must-not-have-id',
         message: 'Singleton resources must not have a user-provided or system-generated ID. http://go/ipa/113',
-        path: ['paths', '/standard/{exampleId}/singleton2'],
+        path: ['paths', '/resource/{exampleId}/singleton2'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-113-singleton-must-not-have-id',
         message: 'Singleton resources must not have a user-provided or system-generated ID. http://go/ipa/113',
-        path: ['paths', '/standard/{exampleId}/singleton3'],
+        path: ['paths', '/resource/{exampleId}/singleton3'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -185,7 +185,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
     name: 'invalid resources with exceptions',
     document: {
       paths: {
-        '/singleton1': {
+        '/resource/{exampleId}/singleton1': {
           'x-xgen-IPA-exception': {
             'xgen-IPA-113-singleton-must-not-have-id': 'reason',
           },

@@ -5,11 +5,16 @@ import {
   isStandardResource,
 } from '../../rulesets/functions/utils/resourceEvaluation';
 
-const standardResourcePaths = ['/standard', '/standard/{exampleId}'];
+const standardResourcePaths = ['/resource', '/resource/{exampleId}'];
 
-const nestedStandardResourcePaths = ['/standard/{exampleId}/nested', '/standard/{exampleId}/nested/{exampleId}'];
+const nestedStandardResourcePaths = ['/resource/{exampleId}/nested', '/resource/{exampleId}/nested/{exampleId}'];
 
-const standardResourceWithCustomPaths = ['/customStandard', '/customStandard/{exampleId}', '/customStandard:method'];
+const standardResourceWithCustomPaths = [
+  '/customStandard',
+  '/customStandard/{exampleId}',
+  '/customStandard/{id}:method',
+  '/customStandard:method',
+];
 
 const standardResourceMissingSubPath = ['/standardMissingSub'];
 
@@ -17,11 +22,11 @@ const standardResourceMissingSubPathInvalidFormat = ['/standard/nestedStandardMi
 
 const standardResourcePathsInvalidFormat = ['/resource1/resource2', '/resource1/resource2/{exampleId}'];
 
-const singletonResourcePaths = ['/standard/{exampleId}/singleton'];
+const singletonResourcePaths = ['/resource/{exampleId}/singleton'];
 
 const singletonResourceWithCustomPaths = [
-  '/standard/{exampleId}/customSingleton',
-  '/standard/{exampleId}/customSingleton:method',
+  '/resource/{exampleId}/customSingleton',
+  '/resource/{exampleId}/customSingleton:method',
 ];
 
 const allPaths = standardResourcePaths.concat(
@@ -39,12 +44,12 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
     const testCases = [
       {
         description: 'standard resource',
-        resourceCollectionPath: '/standard',
+        resourceCollectionPath: '/resource',
         expectedPaths: standardResourcePaths,
       },
       {
         description: 'nested standard resource',
-        resourceCollectionPath: '/standard/{exampleId}/nested',
+        resourceCollectionPath: '/resource/{exampleId}/nested',
         expectedPaths: nestedStandardResourcePaths,
       },
       {
@@ -69,12 +74,12 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       },
       {
         description: 'singleton resource',
-        resourceCollectionPath: '/standard/{exampleId}/singleton',
+        resourceCollectionPath: '/resource/{exampleId}/singleton',
         expectedPaths: singletonResourcePaths,
       },
       {
         description: 'singleton resource with custom methods',
-        resourceCollectionPath: '/standard/{exampleId}/customSingleton',
+        resourceCollectionPath: '/resource/{exampleId}/customSingleton',
         expectedPaths: singletonResourceWithCustomPaths,
       },
     ];
