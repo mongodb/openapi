@@ -58,3 +58,4 @@ For rule definitions, see [IPA-123.yaml](https://github.com/mongodb/openapi/blob
 | Rule Name                                         | Description                                             | Severity |
 | ------------------------------------------------- | ------------------------------------------------------- | -------- |
 | xgen-IPA-123-enum-values-must-be-upper-snake-case | Enum values must be UPPER_SNAKE_CASE. http://go/ipa/123 | warn     |
+
