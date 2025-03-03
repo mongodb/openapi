@@ -1,7 +1,7 @@
 import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
-testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
+testRule('xgen-IPA-104-get-method-response-code-is-200', [
   {
     name: 'valid methods',
     document: {
@@ -9,7 +9,6 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
         '/resource': {
           get: {
             responses: {
-              200: {},
               400: {},
               500: {},
             },
@@ -27,7 +26,6 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
         '/resource/{id}:customMethod': {
           get: {
             responses: {
-              200: {},
               400: {},
               500: {},
             },
@@ -36,7 +34,6 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
         '/singleton': {
           get: {
             responses: {
-              200: {},
               400: {},
               500: {},
             },
@@ -50,6 +47,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
     name: 'invalid methods',
     document: {
       paths: {
+        '/resource1': { get: { responses: {}}},
         '/resource1/{id}': {
           get: {
             responses: {
@@ -59,6 +57,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
             },
           },
         },
+        '/resource2': { get: { responses: {} }},
         '/resource2/{id}': {
           get: {
             responses: {
@@ -67,6 +66,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
             },
           },
         },
+        '/resource3': { get: { responses: {}}},
         '/resource3/{id}': {
           get: {
             responses: {
@@ -81,21 +81,21 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
     },
     errors: [
       {
-        code: 'xgen-IPA-104-get-method-response-code-is-200-OK',
+        code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
           'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
         path: ['paths', '/resource1/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-104-get-method-response-code-is-200-OK',
+        code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
           'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
         path: ['paths', '/resource2/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-104-get-method-response-code-is-200-OK',
+        code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
           'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
         path: ['paths', '/resource3/{id}', 'get'],
@@ -107,6 +107,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
     name: 'invalid method with exception',
     document: {
       paths: {
+        '/resource1': { get: {responses: {}}},
         '/resource1/{id}': {
           get: {
             responses: {
@@ -115,10 +116,11 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-104-get-method-response-code-is-200-OK': 'reason',
+              'xgen-IPA-104-get-method-response-code-is-200': 'reason',
             },
           },
         },
+        '/resource2': { get: {responses: {}}},
         '/resource2/{id}': {
           get: {
             responses: {
@@ -126,7 +128,7 @@ testRule('xgen-IPA-104-get-method-response-code-is-200-OK', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-104-get-method-response-code-is-200-OK': 'reason',
+              'xgen-IPA-104-get-method-response-code-is-200': 'reason',
             },
           },
         },

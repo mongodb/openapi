@@ -1,3 +1,5 @@
+import { schemaIsArray, schemaIsPaginated } from './schemaUtils.js';
+
 /**
  * Returns a list of all successful response schemas for the passed operation, i.e. for any 2xx response.
  *
@@ -28,4 +30,8 @@ export function getAllSuccessfulResponseSchemas(operationObject) {
     }
   });
   return result;
+}
+
+export function returnsSingleResource(schema) {
+  return !schemaIsArray(schema) && !schemaIsPaginated(schema);
 }

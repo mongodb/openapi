@@ -1,11 +1,21 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import {
+  isChild,
+  isCustomMethod,
+} from './utils/resourceEvaluation.js';
 
-const RULE_NAME = 'xgen-IPA-104-get-method-response-code-is-200-OK';
+const RULE_NAME = 'xgen-IPA-104-get-method-response-code-is-200';
 const ERROR_MESSAGE =
   'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.';
 
 export default (input, _, { path }) => {
+  const resourcePath = path[1];
+
+  if (isCustomMethod(resourcePath) || !isChild(resourcePath)) {
+    return;
+  }
+
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
     return;
