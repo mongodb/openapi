@@ -1,6 +1,6 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { isChild, isCustomMethod } from './utils/resourceEvaluation.js';
+import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
 
 const RULE_NAME = 'xgen-IPA-104-get-method-response-code-is-200';
 const ERROR_MESSAGE =
@@ -9,7 +9,7 @@ const ERROR_MESSAGE =
 export default (input, _, { path }) => {
   const resourcePath = path[1];
 
-  if (isCustomMethod(resourcePath) || !isChild(resourcePath)) {
+  if (!isSingleResourceIdentifier(resourcePath)) {
     return;
   }
 
