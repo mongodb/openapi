@@ -5,6 +5,7 @@ import {
   isStandardResource,
 } from '../../rulesets/functions/utils/resourceEvaluation';
 
+// Standard resources
 const standardResourcePaths = ['/resource', '/resource/{exampleId}'];
 
 const nestedStandardResourcePaths = ['/resource/{exampleId}/nested', '/resource/{exampleId}/nested/{exampleId}'];
@@ -18,10 +19,7 @@ const standardResourceWithCustomPaths = [
 
 const standardResourceMissingSubPath = ['/standardMissingSub'];
 
-const standardResourceMissingSubPathInvalidFormat = ['/standard/nestedStandardMissingSub'];
-
-const standardResourcePathsInvalidFormat = ['/resource1/resource2', '/resource1/resource2/{exampleId}'];
-
+// Singleton resources
 const singletonResourcePaths = ['/resource/{exampleId}/singleton'];
 
 const singletonResourceWithCustomPaths = [
@@ -29,14 +27,19 @@ const singletonResourceWithCustomPaths = [
   '/resource/{exampleId}/customSingleton:method',
 ];
 
+// Neither standard nor singleton resources
+const resourceMissingSubPathInvalidFormat = ['/standard/nestedStandardMissingSub'];
+
+const resourcePathsInvalidFormat = ['/resourceOne/resourceTwo', '/resourceOne/resourceTwo/{exampleId}'];
+
 const allPaths = standardResourcePaths.concat(
   nestedStandardResourcePaths,
   standardResourceWithCustomPaths,
   standardResourceMissingSubPath,
-  standardResourceMissingSubPathInvalidFormat,
-  standardResourcePathsInvalidFormat,
   singletonResourcePaths,
-  singletonResourceWithCustomPaths
+  singletonResourceWithCustomPaths,
+  resourceMissingSubPathInvalidFormat,
+  resourcePathsInvalidFormat
 );
 
 describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', () => {
@@ -65,12 +68,12 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       {
         description: 'nested standard resource with missing sub-path',
         resourceCollectionPath: '/standard/nestedStandardMissingSub',
-        expectedPaths: standardResourceMissingSubPathInvalidFormat,
+        expectedPaths: resourceMissingSubPathInvalidFormat,
       },
       {
         description: 'standard resource with missing sub-path',
-        resourceCollectionPath: '/resource1/resource2',
-        expectedPaths: standardResourcePathsInvalidFormat,
+        resourceCollectionPath: '/resourceOne/resourceTwo',
+        expectedPaths: resourcePathsInvalidFormat,
       },
       {
         description: 'singleton resource',
@@ -110,8 +113,8 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       },
       {
         description: 'nested standard resource with missing sub-path',
-        resourcePaths: standardResourceMissingSubPathInvalidFormat,
-        isStandardResource: true,
+        resourcePaths: resourceMissingSubPathInvalidFormat,
+        isStandardResource: false,
       },
       {
         description: 'nested standard resource',
@@ -130,8 +133,8 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       },
       {
         description: 'invalid path format',
-        resourcePaths: standardResourcePathsInvalidFormat,
-        isStandardResource: true,
+        resourcePaths: resourcePathsInvalidFormat,
+        isStandardResource: false,
       },
     ];
 
@@ -161,12 +164,12 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       },
       {
         description: 'nested standard resource with missing sub-path',
-        resourcePaths: standardResourceMissingSubPathInvalidFormat,
+        resourcePaths: resourceMissingSubPathInvalidFormat,
         isSingletonResource: false,
       },
       {
         description: 'invalid path format',
-        resourcePaths: standardResourcePathsInvalidFormat,
+        resourcePaths: resourcePathsInvalidFormat,
         isSingletonResource: false,
       },
       {

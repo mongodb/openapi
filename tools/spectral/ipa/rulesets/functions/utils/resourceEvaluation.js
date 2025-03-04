@@ -1,16 +1,54 @@
 export const AUTH_PREFIX = '/api/atlas/v2';
 export const UNAUTH_PREFIX = '/api/atlas/v2/unauth';
 
-export function isSingleResource(path) {
-  return path.endsWith('}');
+/**
+ * Checks if a path represents a collection of resources/singleton resource.
+ *
+ * @param {string} path the path to evaluate
+ * @returns {boolean} true if the path represents a collection of resources/singleton resource, false otherwise
+ */
+export function isResourceCollectionIdentifier(path) {
+  const p = removePrefix(path);
+  const childPattern = new RegExp(`^.*}/[a-zA-Z]+$`);
+  const basePattern = new RegExp(`^/[a-zA-Z]+$`);
+  return basePattern.test(p) || childPattern.test(p);
 }
 
-export function isCustomMethod(path) {
+/**
+ * Checks if a path represents a single resource. For example:
+ * '/resource/{id}' returns true
+ * '/resource/{id}/child' returns false
+ * '/resource/{id}/{id}' returns false
+ *
+ * @param {string} path the path to evaluate
+ * @returns {boolean} true if the path represents a single resource, false otherwise
+ */
+export function isSingleResourceIdentifier(path) {
+  const pattern = new RegExp(`^.*/[a-zA-Z]+/{[a-zA-Z]+}$`);
+  return pattern.test(path);
+}
+
+/**
+ * Returns the resource collection identifier for a resource based on a single resource identifier.
+ *
+ * @param {string} singleResourceIdentifier a valid single resource identifier
+ * @returns {string} the resource collection identifier
+ */
+export function getResourceCollectionIdentifier(singleResourceIdentifier) {
+  const pathSections = singleResourceIdentifier.split('/');
+  return pathSections.slice(0, pathSections.length - 1).join('/');
+}
+
+export function isCustomMethodIdentifier(path) {
   return path.includes(':');
 }
 
 export function getCustomMethodName(path) {
   return path.split(':')[1];
+}
+
+export function isPathParam(string) {
+  return string.startsWith('{') && string.endsWith('}');
 }
 
 /**
@@ -21,11 +59,16 @@ export function getCustomMethodName(path) {
  * @returns {boolean}
  */
 export function isSingletonResource(resourcePaths) {
+  if (!isResourceCollectionIdentifier(resourcePaths[0])) {
+    return false;
+  }
+
   if (resourcePaths.length === 1) {
     return resourceBelongsToSingleParent(resourcePaths[0]);
   }
+  // TODO check for POST?
   const additionalPaths = resourcePaths.slice(1);
-  return additionalPaths.every(isCustomMethod);
+  return additionalPaths.every(isCustomMethodIdentifier);
 }
 
 /**
@@ -36,14 +79,18 @@ export function isSingletonResource(resourcePaths) {
  * @returns {boolean}
  */
 export function isStandardResource(resourcePaths) {
+  if (!isResourceCollectionIdentifier(resourcePaths[0]) || isSingletonResource(resourcePaths)) {
+    return false;
+  }
   if (resourcePaths.length === 1) {
+    // TODO check for POST?
     return !resourceBelongsToSingleParent(resourcePaths[0]);
   }
   if (resourcePaths.length === 2) {
-    return isSingleResource(resourcePaths[1]);
+    return isSingleResourceIdentifier(resourcePaths[1]);
   }
   const additionalPaths = resourcePaths.slice(2);
-  return additionalPaths.every(isCustomMethod);
+  return isSingleResourceIdentifier(resourcePaths[1]) && additionalPaths.every(isCustomMethodIdentifier);
 }
 
 /**
@@ -86,14 +133,7 @@ export function getResourcePaths(resourceCollectionPath, allPaths) {
  */
 function resourceBelongsToSingleParent(resourcePath) {
   // Ignore /api/atlas/v2 and /api/atlas/v2/unauth
-  let path = resourcePath;
-  if (resourcePath.startsWith(AUTH_PREFIX)) {
-    path = resourcePath.slice(AUTH_PREFIX.length);
-  }
-  if (resourcePath.startsWith(UNAUTH_PREFIX)) {
-    path = resourcePath.slice(UNAUTH_PREFIX.length);
-  }
-
+  const path = removePrefix(resourcePath);
   if (path === '') {
     return true;
   }
@@ -105,12 +145,22 @@ function resourceBelongsToSingleParent(resourcePath) {
   if (resourcePathSections.length < 2) {
     return false;
   }
-  if (isSingleResource(resourcePathSections[resourcePathSections.length - 1])) {
+  if (isPathParam(resourcePathSections[resourcePathSections.length - 1])) {
     resourcePathSections = resourcePathSections.slice(0, resourcePathSections.length - 2);
   }
   if (resourcePathSections.length === 1) {
     return false;
   }
   const parentResourceSection = resourcePathSections[resourcePathSections.length - 2];
-  return isSingleResource(parentResourceSection);
+  return isPathParam(parentResourceSection);
+}
+
+function removePrefix(path) {
+  if (path.startsWith(AUTH_PREFIX)) {
+    return path.slice(AUTH_PREFIX.length);
+  }
+  if (path.startsWith(UNAUTH_PREFIX)) {
+    return path.slice(UNAUTH_PREFIX.length);
+  }
+  return path;
 }
