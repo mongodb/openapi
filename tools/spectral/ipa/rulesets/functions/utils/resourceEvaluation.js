@@ -66,7 +66,6 @@ export function isSingletonResource(resourcePaths) {
   if (resourcePaths.length === 1) {
     return resourceBelongsToSingleParent(resourcePaths[0]);
   }
-  // TODO check for POST?
   const additionalPaths = resourcePaths.slice(1);
   return additionalPaths.every(isCustomMethodIdentifier);
 }
@@ -83,8 +82,7 @@ export function isStandardResource(resourcePaths) {
     return false;
   }
   if (resourcePaths.length === 1) {
-    // TODO check for POST?
-    return !resourceBelongsToSingleParent(resourcePaths[0]);
+    return true;
   }
   if (resourcePaths.length === 2) {
     return isSingleResourceIdentifier(resourcePaths[1]);
