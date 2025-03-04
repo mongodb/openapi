@@ -117,7 +117,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    type: "object",
+                    type: 'object',
                   },
                 },
               },
@@ -204,7 +204,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    type: "object",
+                    type: 'object',
                   },
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-106-create-method-request-body-is-request-suffixed-object': 'reason',

@@ -24,7 +24,7 @@ export default (input, _, { path, documentInventory }) => {
 
   if (contentPerMediaType.schema) {
     const schema = contentPerMediaType.schema;
-    if(!schema.$ref) {
+    if (!schema.$ref) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
     }
 
