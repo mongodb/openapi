@@ -174,22 +174,6 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
             },
           },
         },
-        '/resource/{id}': {
-          post: {
-            requestBody: {
-              content: {
-                'application/vnd.atlas.2023-01-01+json': {
-                  schema: {
-                    $ref: '#/components/schemas/Schema',
-                  },
-                  'x-xgen-IPA-exception': {
-                    'xgen-IPA-106-create-method-request-body-is-request-suffixed-object': 'reason',
-                  },
-                },
-              },
-            },
-          },
-        },
         '/resource2': {
           post: {
             requestBody: {
@@ -205,6 +189,22 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
                     $ref: '#/components/schemas/Schema',
+                  },
+                  'x-xgen-IPA-exception': {
+                    'xgen-IPA-106-create-method-request-body-is-request-suffixed-object': 'reason',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resource3': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    type: "object",
                   },
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-106-create-method-request-body-is-request-suffixed-object': 'reason',
