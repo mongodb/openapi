@@ -4,7 +4,8 @@ import { isCustomMethod } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object';
-const ERROR_MESSAGE = 'Response body for the Create method should refer to Request suffixed schema.';
+const ERROR_MESSAGE_SCHEMA_NAME = 'The response body schema must reference a schema with a Request suffix.';
+const ERROR_MESSAGE_SCHEMA_REF = 'The response body schema is defined inline and must reference a predefined schema.';
 
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
@@ -24,11 +25,11 @@ export default (input, _, { path, documentInventory }) => {
   if (contentPerMediaType.schema) {
     const schema = contentPerMediaType.schema;
     if(!schema.$ref) {
-      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
     }
 
     if (!schema.$ref.endsWith('Request')) {
-      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
     }
   }
 
