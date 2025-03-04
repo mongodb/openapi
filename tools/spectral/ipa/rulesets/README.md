@@ -42,6 +42,17 @@ For rule definitions, see [IPA-106.yaml](https://github.com/mongodb/openapi/blob
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------- | -------- |
 | xgen-IPA-106-create-method-request-body-is-request-suffixed-object | The Create method request should be a Request suffixed object. http://go/ipa/106 | warn     |
 
+### IPA-108
+
+For rule definitions, see [IPA-108.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-108.yaml).
+
+| Rule Name                                      | Description                                            | Severity |
+| ---------------------------------------------- | ------------------------------------------------------ | -------- |
+| xgen-IPA-108-delete-response-should-be-empty   | Delete method response must be empty http://go/ipa/108 | warn     |
+| xgen-IPA-108-delete-method-return-204-response | DELETE method must return 204 No Content               | warn     |
+| xgen-IPA-108-delete-request-no-body            | DELETE method must not have request body               | warn     |
+| xgen-IPA-108-delete-include-404-response       | DELETE method must include 404 response                | warn     |
+
 ### IPA-109
 
 For rule definitions, see [IPA-109.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-109.yaml).

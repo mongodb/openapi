@@ -4,15 +4,15 @@ import { EXCEPTION_EXTENSION } from './exceptions.js';
 /**
  * Collects a violation entry and returns formatted error data.
  *
- * @param {Array<string>} path - The JSON path for the object where the rule violation occurred.
+ * @param {Array<string>} jsonPath - The JSON path for the object where the rule violation occurred. Example: 'paths./pets.get])
  * @param {string} ruleName - The name of the rule that was violated.
  * @param {string|Array<Object>} errorData - The error information. Can be either a string message or an array of error objects.
  * @returns {Array<Object>} An array of error objects. Each object has a 'message' property.
  * @throws {Error} Throws an error if errorData is neither a string nor an array.
  *
  */
-export function collectAndReturnViolation(path, ruleName, errorData) {
-  collector.add(EntryType.VIOLATION, path, ruleName);
+export function collectAndReturnViolation(jsonPath, ruleName, errorData) {
+  collector.add(EntryType.VIOLATION, jsonPath, ruleName);
 
   if (typeof errorData === 'string') {
     return [{ message: errorData }];
@@ -29,8 +29,8 @@ export function collectAndReturnViolation(path, ruleName, errorData) {
  * @param {Array<string>} path - The JSON path for the object where the rule adoption occurred.
  * @param {string} ruleName - The name of the rule that was adopted.
  */
-export function collectAdoption(path, ruleName) {
-  collector.add(EntryType.ADOPTION, path, ruleName);
+export function collectAdoption(jsonPath, ruleName) {
+  collector.add(EntryType.ADOPTION, jsonPath, ruleName);
 }
 
 /**
@@ -40,9 +40,9 @@ export function collectAdoption(path, ruleName) {
  * @param {Array<string>} path - The JSON path for the object where the rule exception occurred.
  * @param {string} ruleName - The name of the rule that the exception is defined for.
  */
-export function collectException(object, ruleName, path) {
+export function collectException(object, ruleName, jsonPath) {
   let exceptionReason = object[EXCEPTION_EXTENSION][ruleName];
   if (exceptionReason) {
-    collector.add(EntryType.EXCEPTION, path, ruleName, exceptionReason);
+    collector.add(EntryType.EXCEPTION, jsonPath, ruleName, exceptionReason);
   }
 }
