@@ -97,21 +97,6 @@ testRule('xgen-IPA-104-get-method-returns-single-resource', [
     name: 'invalid resources',
     document: {
       paths: {
-        '/arrayResource': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: {
-                      $ref: '#/components/schemas/PaginatedSchema',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
         '/arrayResource/{id}': {
           get: {
             responses: {
@@ -120,21 +105,6 @@ testRule('xgen-IPA-104-get-method-returns-single-resource', [
                   'application/vnd.atlas.2024-08-05+json': {
                     schema: {
                       $ref: '#/components/schemas/ArraySchema',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        '/paginatedResource': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: {
-                      $ref: '#/components/schemas/PaginatedSchema',
                     },
                   },
                 },
