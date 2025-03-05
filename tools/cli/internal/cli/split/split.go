@@ -103,11 +103,7 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
 	}
 
-	if err := openapi.ValidateFormat(o.format); err != nil {
-		return err
-	}
-
-	return nil
+	return openapi.ValidateFormat(o.format)
 }
 
 // Builder builds the split command with the following signature:
