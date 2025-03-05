@@ -1,6 +1,6 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { isCustomMethod } from './utils/resourceEvaluation.js';
+import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object';
@@ -11,7 +11,7 @@ export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
 
-  if (isCustomMethod(resourcePath)) {
+  if (isCustomMethodIdentifier(resourcePath)) {
     return;
   }
 
