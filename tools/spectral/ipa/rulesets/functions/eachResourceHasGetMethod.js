@@ -1,8 +1,7 @@
 import {
   hasGetMethod,
-  isStandardResource,
   isSingletonResource,
-  getResourcePaths,
+  getResourcePathItems,
   isResourceCollectionIdentifier,
   isSingleResourceIdentifier,
 } from './utils/resourceEvaluation.js';
@@ -24,17 +23,18 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const resourcePaths = getResourcePaths(input, Object.keys(oas.paths));
+  const resourcePathItems = getResourcePathItems(input, oas.paths);
+  const resourcePaths = Object.keys(resourcePathItems);
 
-  if (isSingletonResource(resourcePaths)) {
-    if (!hasGetMethod(oas.paths[resourcePaths[0]])) {
+  if (isSingletonResource(resourcePathItems)) {
+    if (!hasGetMethod(resourcePathItems[resourcePaths[0]])) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
-  } else if (isStandardResource(resourcePaths)) {
+  } else {
     if (resourcePaths.length === 1 || !isSingleResourceIdentifier(resourcePaths[1])) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
-    if (!hasGetMethod(oas.paths[resourcePaths[1]])) {
+    if (!hasGetMethod(resourcePathItems[resourcePaths[1]])) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
   }

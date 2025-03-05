@@ -1,5 +1,5 @@
 import {
-  getResourcePaths,
+  getResourcePathItems,
   hasGetMethod,
   isSingletonResource,
   isResourceCollectionIdentifier,
@@ -18,22 +18,22 @@ export default (input, opts, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
   const oas = documentInventory.resolved;
-  const resourcePaths = getResourcePaths(resourcePath, Object.keys(oas.paths));
+  const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
 
-  if (isSingletonResource(resourcePaths) && hasGetMethod(input)) {
-    const resourceSchemas = getAllSuccessfulResponseSchemas(input['get']);
-    if (resourceSchemas.some(({ schema }) => schemaHasIdProperty(schema))) {
-      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+  if (isSingletonResource(resourcePathItems)) {
+    if (hasException(input, RULE_NAME)) {
+      collectException(input, RULE_NAME, path);
+      return;
+    }
+    if (hasGetMethod(input)) {
+      const resourceSchemas = getAllSuccessfulResponseSchemas(input['get']);
+      if (resourceSchemas.some(({ schema }) => schemaHasIdProperty(schema))) {
+        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+      }
+      collectAdoption(path, RULE_NAME);
     }
   }
-
-  collectAdoption(path, RULE_NAME);
 };
 
 function schemaHasIdProperty(schema) {

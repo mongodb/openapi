@@ -2,7 +2,10 @@ export const AUTH_PREFIX = '/api/atlas/v2';
 export const UNAUTH_PREFIX = '/api/atlas/v2/unauth';
 
 /**
- * Checks if a path represents a collection of resources/singleton resource.
+ * Checks if a path represents a collection of resources/a singleton resource. For example:
+ * '/resource' returns true
+ * '/resource/{id}/child' returns true
+ * '/resource/child' returns false
  *
  * @param {string} path the path to evaluate
  * @returns {boolean} true if the path represents a collection of resources/singleton resource, false otherwise
@@ -28,17 +31,6 @@ export function isSingleResourceIdentifier(path) {
   return pattern.test(path);
 }
 
-/**
- * Returns the resource collection identifier for a resource based on a single resource identifier.
- *
- * @param {string} singleResourceIdentifier a valid single resource identifier
- * @returns {string} the resource collection identifier
- */
-export function getResourceCollectionIdentifier(singleResourceIdentifier) {
-  const pathSections = singleResourceIdentifier.split('/');
-  return pathSections.slice(0, pathSections.length - 1).join('/');
-}
-
 export function isCustomMethodIdentifier(path) {
   return path.includes(':');
 }
@@ -52,43 +44,23 @@ export function isPathParam(string) {
 }
 
 /**
- * Checks if a resource is a singleton resource ({@link https://docs.devprod.prod.corp.mongodb.com/ipa/113 IPA-113}) based on the paths for the
- * resource. The resource may have custom methods. Use {@link getResourcePaths} to get all paths of a resource.
+ * Checks if a resource is a singleton resource ({@link https://docs.devprod.prod.corp.mongodb.com/ipa/113 IPA-113}) based on the path items for the
+ * resource. The resource may have custom methods. Use {@link getResourcePathItems} to get all path items of a resource.
  *
- * @param resourcePaths all paths for the resource to be evaluated as an array of strings
+ * @param resourcePathItems all path items for the resource to be evaluated as an array of strings
  * @returns {boolean}
  */
-export function isSingletonResource(resourcePaths) {
+export function isSingletonResource(resourcePathItems) {
+  const resourcePaths = Object.keys(resourcePathItems);
   if (!isResourceCollectionIdentifier(resourcePaths[0])) {
     return false;
   }
 
   if (resourcePaths.length === 1) {
-    return resourceBelongsToSingleParent(resourcePaths[0]);
+    return resourceBelongsToSingleParent(resourcePaths[0]) && !hasPostMethod(resourcePathItems[resourcePaths[0]]);
   }
   const additionalPaths = resourcePaths.slice(1);
   return additionalPaths.every(isCustomMethodIdentifier);
-}
-
-/**
- * Checks if a resource is a standard resource ({@link https://docs.devprod.prod.corp.mongodb.com/ipa/103 IPA-103}) based on the paths for the
- * resource. The resource may have custom methods. Use {@link getResourcePaths} to get all paths of a resource.
- *
- * @param resourcePaths all paths for the resource to be evaluated as an array of strings
- * @returns {boolean}
- */
-export function isStandardResource(resourcePaths) {
-  if (!isResourceCollectionIdentifier(resourcePaths[0]) || isSingletonResource(resourcePaths)) {
-    return false;
-  }
-  if (resourcePaths.length === 1) {
-    return true;
-  }
-  if (resourcePaths.length === 2) {
-    return isSingleResourceIdentifier(resourcePaths[1]);
-  }
-  const additionalPaths = resourcePaths.slice(2);
-  return isSingleResourceIdentifier(resourcePaths[1]) && additionalPaths.every(isCustomMethodIdentifier);
 }
 
 /**
@@ -102,24 +74,39 @@ export function hasGetMethod(pathObject) {
 }
 
 /**
- * Get all paths for a resource based on the path for the resource collection
- * For example, resource collection path '/resource' may return ['/resource', '/resource{id}', '/resource{id}:customMethod']
+ * Checks if a path object has a POST method
  *
- * @param {string} resourceCollectionPath the path string
- * @param {Array<string>} allPaths all paths
- * @returns {string[]} all paths for a resource, including the path for the resource collection
+ * @param pathObject the path object to evaluate
+ * @returns {boolean}
  */
-export function getResourcePaths(resourceCollectionPath, allPaths) {
+export function hasPostMethod(pathObject) {
+  return Object.keys(pathObject).includes('post');
+}
+
+/**
+ * Get all path items for a resource based on the path for the resource collection
+ * For example, resource collection path '/resource' may return path items for ['/resource', '/resource{id}', '/resource{id}:customMethod']
+ *
+ * @param {string} resourceCollectionPath the path for the resource collection
+ * @param {Object} allPathItems all path items
+ * @returns {Object} all path items for a resource, including the path for the resource collection
+ */
+export function getResourcePathItems(resourceCollectionPath, allPathItems) {
   const singleResourcePathPattern = new RegExp(`^${resourceCollectionPath}/{[a-zA-Z]+}$`);
   const singleResourceCustomMethodPattern = new RegExp(`^${resourceCollectionPath}/{[a-zA-Z]+}:+[a-zA-Z]+$`);
   const customMethodPattern = new RegExp(`^${resourceCollectionPath}:+[a-zA-Z]+$`);
-  return allPaths.filter(
-    (p) =>
-      resourceCollectionPath === p ||
-      singleResourcePathPattern.test(p) ||
-      customMethodPattern.test(p) ||
-      singleResourceCustomMethodPattern.test(p)
-  );
+  return Object.keys(allPathItems)
+    .filter(
+      (p) =>
+        resourceCollectionPath === p ||
+        singleResourcePathPattern.test(p) ||
+        customMethodPattern.test(p) ||
+        singleResourceCustomMethodPattern.test(p)
+    )
+    .reduce((obj, key) => {
+      obj[key] = allPathItems[key];
+      return obj;
+    }, {});
 }
 
 /**

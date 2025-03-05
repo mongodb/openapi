@@ -224,7 +224,7 @@ testRule('xgen-IPA-104-get-method-returns-single-resource', [
       {
         code: 'xgen-IPA-104-get-method-returns-single-resource',
         message:
-          'Get methods should return data for a single resource. This method returns an array or a paginated response. http://go/ipa/104',
+          'Get methods for singleton resource should return data for a single resource. This method returns an array or a paginated response. If this is not a singleton resource, please implement all standard methods. http://go/ipa/104',
         path: [
           'paths',
           '/resource/{id}/arraySingleton',
@@ -239,7 +239,7 @@ testRule('xgen-IPA-104-get-method-returns-single-resource', [
       {
         code: 'xgen-IPA-104-get-method-returns-single-resource',
         message:
-          'Get methods should return data for a single resource. This method returns an array or a paginated response. http://go/ipa/104',
+          'Get methods for singleton resource should return data for a single resource. This method returns an array or a paginated response. If this is not a singleton resource, please implement all standard methods. http://go/ipa/104',
         path: [
           'paths',
           '/resource/{id}/paginatedSingleton',
