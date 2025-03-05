@@ -31,9 +31,10 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
             },
           },
         },
-        '/singleton': {
+        '/resource/{id}/singleton': {
           get: {
             responses: {
+              200: {},
               400: {},
               500: {},
             },
@@ -47,8 +48,8 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
     name: 'invalid methods',
     document: {
       paths: {
-        '/resource1': { get: { responses: {} } },
-        '/resource1/{id}': {
+        '/resourceOne': { get: { responses: {} } },
+        '/resourceOne/{id}': {
           get: {
             responses: {
               201: {},
@@ -57,8 +58,8 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
             },
           },
         },
-        '/resource2': { get: { responses: {} } },
-        '/resource2/{id}': {
+        '/resourceTwo': { get: { responses: {} } },
+        '/resourceTwo/{id}': {
           get: {
             responses: {
               400: {},
@@ -66,12 +67,21 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
             },
           },
         },
-        '/resource3': { get: { responses: {} } },
-        '/resource3/{id}': {
+        '/resourceThree': { get: { responses: {} } },
+        '/resourceThree/{id}': {
           get: {
             responses: {
               200: {},
               201: {},
+              400: {},
+              500: {},
+            },
+          },
+        },
+        '/resource/{id}/singleton': {
+          get: {
+            responses: {
+              202: {},
               400: {},
               500: {},
             },
@@ -84,21 +94,28 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
         code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
           'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
-        path: ['paths', '/resource1/{id}', 'get'],
+        path: ['paths', '/resourceOne/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
           'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
-        path: ['paths', '/resource2/{id}', 'get'],
+        path: ['paths', '/resourceTwo/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
           'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
-        path: ['paths', '/resource3/{id}', 'get'],
+        path: ['paths', '/resourceThree/{id}', 'get'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-104-get-method-response-code-is-200',
+        message:
+          'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
+        path: ['paths', '/resource/{id}/singleton', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -107,8 +124,8 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
     name: 'invalid method with exception',
     document: {
       paths: {
-        '/resource1': { get: { responses: {} } },
-        '/resource1/{id}': {
+        '/resourceOne': { get: { responses: {} } },
+        '/resourceOne/{id}': {
           get: {
             responses: {
               201: {},
@@ -120,10 +137,22 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
             },
           },
         },
-        '/resource2': { get: { responses: {} } },
-        '/resource2/{id}': {
+        '/resourceTwo': { get: { responses: {} } },
+        '/resourceTwo/{id}': {
           get: {
             responses: {
+              400: {},
+              500: {},
+            },
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-104-get-method-response-code-is-200': 'reason',
+            },
+          },
+        },
+        '/resource/{id}/singleton': {
+          get: {
+            responses: {
+              202: {},
               400: {},
               500: {},
             },
