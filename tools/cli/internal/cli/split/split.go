@@ -94,8 +94,8 @@ func (o *Opts) saveVersionedOas(oas *openapi3.T, version string) error {
 	return openapi.Save(path, oas, o.format, o.fs)
 }
 
-// getVersionPath replaces file path from 'path/path.to.file/file.<json|yaml|any>'
-// to 'path/path.to.file/file-version.<json|yaml|any>'
+// getVersionPath replaces file path with version.
+// Example: 'path/path.to.file/file.<json|yaml|any>' to 'path/path.to.file/file-version.<json|yaml|any>'.
 func getVersionPath(path, version string) string {
 	extIndex := strings.LastIndex(path, ".")
 	if extIndex == -1 {
