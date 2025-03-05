@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -31,35 +32,15 @@ func TestNewArrayBytesFromOAS(t *testing.T) {
 		expected string
 	}{
 		{
-			name: "JSON with HTML characters",
-			spec: &Spec{
-				Paths: openapi3.NewPaths(
-					openapi3.WithPath(
-						"/api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}",
-						&openapi3.PathItem{
-							Delete: &openapi3.Operation{
-								Description: "<test>&</test>",
-							},
-						},
-					)),
-			},
+			name:     "JSON with HTML characters",
+			spec:     getTestSpecWithHTMLChars(),
 			path:     "test.json",
 			format:   "json",
 			expected: "<test>&</test>",
 		},
 		{
-			name: "YAML with HTML characters",
-			spec: &Spec{
-				Paths: openapi3.NewPaths(
-					openapi3.WithPath(
-						"/api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}",
-						&openapi3.PathItem{
-							Delete: &openapi3.Operation{
-								Description: "<test>&</test>",
-							},
-						},
-					)),
-			},
+			name:     "YAML with HTML characters",
+			spec:     getTestSpecWithHTMLChars(),
 			path:     "test.yaml",
 			format:   "yaml",
 			expected: "<test>&</test>",
@@ -107,5 +88,88 @@ func TestNewArrayBytesFromOAS(t *testing.T) {
 			fmt.Printf("data: %s", data)
 			assert.Contains(t, string(data), tt.expected)
 		})
+	}
+}
+
+func TestSaveToFileFormats(t *testing.T) {
+	tests := []struct {
+		name     string
+		spec     *Spec
+		path     string
+		format   string
+		expected string
+	}{
+		{
+			name:     "JSON with HTML characters",
+			spec:     getTestSpecWithHTMLChars(),
+			path:     "test.json",
+			format:   "json",
+			expected: "<test>&</test>",
+		},
+		{
+			name: "YAML with HTML characters",
+			spec: getTestSpecWithHTMLChars(),
+
+			path:     "test.yaml",
+			format:   "yaml",
+			expected: "<test>&</test>",
+		},
+		{
+			name:     "all with HTML characters",
+			spec:     getTestSpecWithHTMLChars(),
+			path:     "test.yaml",
+			format:   "all",
+			expected: "<test>&</test>",
+		},
+		{
+			name:     "empty format with HTML characters",
+			spec:     getTestSpecWithHTMLChars(),
+			path:     "test.yaml",
+			format:   "",
+			expected: "<test>&</test>",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fs := afero.NewMemMapFs()
+			err := SaveToFile(tt.path, tt.format, tt.spec, fs)
+			require.NoError(t, err)
+
+			data, err := afero.ReadFile(fs, tt.path)
+			require.NoError(t, err)
+			assert.Contains(t, string(data), tt.expected)
+		})
+	}
+}
+
+func TestSaveToFile_All(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	err := SaveToFile("test.yaml", "all", getTestSpecWithHTMLChars(), fs)
+	require.NoError(t, err)
+
+	// read yaml file
+	data, err := afero.ReadFile(fs, "test.yaml")
+	require.NoError(t, err)
+	assert.Contains(t, string(data), "<test>&</test>")
+
+	// read json file
+	data, err = afero.ReadFile(fs, "test.json")
+	require.NoError(t, err)
+	assert.Contains(t, string(data), "<test>&</test>")
+}
+
+func getTestSpecWithHTMLChars() *Spec {
+	return &Spec{
+		Paths: openapi3.NewPaths(
+			openapi3.WithPath(
+				"/api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}",
+				&openapi3.PathItem{
+					Delete: &openapi3.Operation{
+						Description: "<test>&</test>",
+					},
+				},
+			),
+		),
 	}
 }
