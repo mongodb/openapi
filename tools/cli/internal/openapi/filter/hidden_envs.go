@@ -165,19 +165,6 @@ func (f *HiddenEnvsFilter) isResponseHiddenForEnv(response *openapi3.ResponseRef
 	return false
 }
 
-func isContentTypeHiddenForEnv(contentType *openapi3.MediaType, targetEnv string) bool {
-	if contentType == nil {
-		return false
-	}
-
-	if extension, ok := contentType.Extensions[hiddenEnvsExtension]; ok {
-		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
-		return isHiddenExtensionEqualToTargetEnv(extension, targetEnv)
-	}
-
-	return false
-}
-
 func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.RequestBodyRef) bool {
 	if requestBody == nil {
 		return false
