@@ -35,11 +35,17 @@ const (
 )
 
 // SaveToFile saves the content to a file in the specified format.
-// If format is empty, it saves the content in both JSON and YAML formats.
+// If format is empty or set to 'all', it saves the content in both JSON and YAML formats.
 func SaveToFile[T any](path, format string, content T, fs afero.Fs) error {
 	data, err := SerializeToJSON(content)
 	if err != nil {
 		return err
+	}
+
+	if format == ALL || format == "" {
+		// strip . format from path
+		path = strings.TrimSuffix(path, DotJSON)
+		path = strings.TrimSuffix(path, DotYAML)
 	}
 
 	if format == JSON || format == "" || format == ALL {
