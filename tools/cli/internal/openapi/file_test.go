@@ -33,14 +33,14 @@ func TestNewArrayBytesFromOAS(t *testing.T) {
 	}{
 		{
 			name:     "JSON with HTML characters",
-			spec:     getTestSpecWithHtmlChars(),
+			spec:     getTestSpecWithHTMLChars(),
 			path:     "test.json",
 			format:   "json",
 			expected: "<test>&</test>",
 		},
 		{
 			name:     "YAML with HTML characters",
-			spec:     getTestSpecWithHtmlChars(),
+			spec:     getTestSpecWithHTMLChars(),
 			path:     "test.yaml",
 			format:   "yaml",
 			expected: "<test>&</test>",
@@ -101,14 +101,14 @@ func TestSaveToFileFormats(t *testing.T) {
 	}{
 		{
 			name:     "JSON with HTML characters",
-			spec:     getTestSpecWithHtmlChars(),
+			spec:     getTestSpecWithHTMLChars(),
 			path:     "test.json",
 			format:   "json",
 			expected: "<test>&</test>",
 		},
 		{
 			name: "YAML with HTML characters",
-			spec: getTestSpecWithHtmlChars(),
+			spec: getTestSpecWithHTMLChars(),
 
 			path:     "test.yaml",
 			format:   "yaml",
@@ -116,14 +116,14 @@ func TestSaveToFileFormats(t *testing.T) {
 		},
 		{
 			name:     "all with HTML characters",
-			spec:     getTestSpecWithHtmlChars(),
+			spec:     getTestSpecWithHTMLChars(),
 			path:     "test.yaml",
 			format:   "all",
 			expected: "<test>&</test>",
 		},
 		{
 			name:     "empty format with HTML characters",
-			spec:     getTestSpecWithHtmlChars(),
+			spec:     getTestSpecWithHTMLChars(),
 			path:     "test.yaml",
 			format:   "",
 			expected: "<test>&</test>",
@@ -145,7 +145,7 @@ func TestSaveToFileFormats(t *testing.T) {
 
 func TestSaveToFile_All(t *testing.T) {
 	fs := afero.NewMemMapFs()
-	err := SaveToFile("test.yaml", "all", getTestSpecWithHtmlChars(), fs)
+	err := SaveToFile("test.yaml", "all", getTestSpecWithHTMLChars(), fs)
 	require.NoError(t, err)
 
 	// read yaml file
@@ -159,7 +159,7 @@ func TestSaveToFile_All(t *testing.T) {
 	assert.Contains(t, string(data), "<test>&</test>")
 }
 
-func getTestSpecWithHtmlChars() *Spec {
+func getTestSpecWithHTMLChars() *Spec {
 	return &Spec{
 		Paths: openapi3.NewPaths(
 			openapi3.WithPath(
