@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
-#########################################################
-# Run foas cli to split the openapi file
-# Variables:
-#   target_env - target environment to split the openapi file
-#########################################################
-
 echo "Running FOAS CLI versions command"
 foascli versions -s openapi-foas.json -o ./openapi/v2/versions.json --env "${target_env:?}" --stability-level stable  --stability-level preview
 
