@@ -24,14 +24,24 @@ export default (input, _, { path, documentInventory }) => {
 
   if (contentPerMediaType.schema) {
     const schema = contentPerMediaType.schema;
-    if (!schema.$ref) {
-      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
+    if (schema.type === 'array' && schema.items) {
+      let schemaItems = schema.items;
+      if (!schemaItems.$ref) {
+        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
+      }
+      if (!schemaItems.$ref.endsWith('Request')) {
+        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
+      }
+    } else {
+      if (!schema.$ref) {
+        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
+      }
+
+      if (!schema.$ref.endsWith('Request')) {
+        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
+      }
     }
 
-    if (!schema.$ref.endsWith('Request')) {
-      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
-    }
+    collectAdoption(path, RULE_NAME);
   }
-
-  collectAdoption(path, RULE_NAME);
 };
