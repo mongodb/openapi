@@ -8807,6 +8807,17 @@ components:
                         - CONTINUOUS
                     type: string
             type: object
+        ClusterDescriptionAutoScalingModeConfiguration:
+            description: Contains the internal configuration of AutoScaling on sharded clusters.
+            properties:
+                autoScalingMode:
+                    description: Describes whether cluster nodes scale together across all shards or independently.
+                    enum:
+                        - INDEPENDENT_SHARD_SCALING
+                        - CLUSTER_WIDE_SCALING
+                    type: string
+            title: Internal configuration of AutoScaling on sharded clusters
+            type: object
         ClusterDescriptionConnectionStringsPrivateEndpoint:
             description: Private endpoint-aware connection string that you can use to connect to this cluster through a private endpoint.
             externalDocs:
@@ -34897,7 +34908,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 9a37286fc2ec294bf6daa310edab3dbf872186a2
+    x-xgen-sha: 374081fb76609b0f4a781bedd6e28a8291126aab
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -38053,6 +38064,43 @@ paths:
             x-xgen-owner-team: Intel I
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoScalingConfiguration:
+        get:
+            deprecated: true
+            description: Returns the internal configuration of AutoScaling for sharded clusters. This endpoint can be used for diagnostic purposes to ensure that sharded clusters updated from older APIs have gained support for AutoScaling each shard independently.
+            operationId: autoScalingConfiguration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies this cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterDescriptionAutoScalingModeConfiguration'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get cluster internal configuration of sharded cluster AutoScaling operations
+            tags:
+                - Clusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/autoScalingConfiguration
+            x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/exports:
         get:
             description: Returns all Cloud Backup Snapshot Export Jobs associated with the specified Atlas cluster. To use this resource, the requesting API Key must have the Project Atlas Admin role.
