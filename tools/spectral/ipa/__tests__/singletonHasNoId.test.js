@@ -47,7 +47,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
           patch: {},
           delete: {},
         },
-        '/resource/{exampleId}/singleton1': {
+        '/resource/{exampleId}/singletonOne': {
           get: {
             responses: {
               200: {
@@ -65,7 +65,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
             },
           },
         },
-        '/resource/{exampleId}/singleton2': {
+        '/resource/{exampleId}/singletonTwo': {
           get: {
             responses: {
               200: {
