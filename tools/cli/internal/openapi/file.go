@@ -128,7 +128,7 @@ func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
 // ValidateFormat validates the format of files supported.
 func ValidateFormat(format string) error {
 	if format != JSON && format != YAML && format != ALL {
-		return fmt.Errorf("format must be either 'json', 'yaml' or 'all', got %s", format)
+		return fmt.Errorf("format must be either 'json', 'yaml' or 'all', got '%s'", format)
 	}
 
 	return nil
