@@ -90,8 +90,18 @@ func (o *Opts) saveVersionedOas(oas *openapi3.T, version string) error {
 		path = o.outputPath
 	}
 
-	path = strings.Replace(path, "."+o.format, fmt.Sprintf("-%s.%s", version, o.format), 1)
+	path = getVersionPath(path, version)
 	return openapi.Save(path, oas, o.format, o.fs)
+}
+
+// getVersionPath replaces file path from 'path/path.to.file/file.<json|yaml|any>'
+// to 'path/path.to.file/file-version.<json|yaml|any>'
+func getVersionPath(path, version string) string {
+	extIndex := strings.LastIndex(path, ".")
+	if extIndex == -1 {
+		return fmt.Sprintf("%s-%s", path, version)
+	}
+	return fmt.Sprintf("%s-%s%s", path[:extIndex], version, path[extIndex:])
 }
 
 func (o *Opts) PreRunE(_ []string) error {
@@ -128,7 +138,7 @@ func Builder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "-", usage.Spec)
 	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
-	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.JSON, usage.Format)
+	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.ALL, usage.Format)
 	cmd.Flags().StringVar(&opts.gitSha, flag.GitSha, "", usage.GitSha)
 
 	_ = cmd.MarkFlagRequired(flag.Output)
