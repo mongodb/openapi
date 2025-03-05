@@ -31,10 +31,11 @@ export default (input, _, { path, documentInventory }) => {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
   } else {
-    if (resourcePaths.length === 1 || !isSingleResourceIdentifier(resourcePaths[1])) {
+    if (resourcePaths.length === 1) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
-    if (!hasGetMethod(resourcePathItems[resourcePaths[1]])) {
+    const singleResourcePath = resourcePaths.find((p) => isSingleResourceIdentifier(p));
+    if (!singleResourcePath || !hasGetMethod(resourcePathItems[singleResourcePath])) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
   }

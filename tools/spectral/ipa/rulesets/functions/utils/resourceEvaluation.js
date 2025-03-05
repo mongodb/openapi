@@ -52,14 +52,15 @@ export function isPathParam(string) {
  */
 export function isSingletonResource(resourcePathItems) {
   const resourcePaths = Object.keys(resourcePathItems);
-  if (!isResourceCollectionIdentifier(resourcePaths[0])) {
+  const collectionIdentifier = resourcePaths.filter((p) => isResourceCollectionIdentifier(p));
+  if (collectionIdentifier.length !== 1) {
     return false;
   }
 
   if (resourcePaths.length === 1) {
     return resourceBelongsToSingleParent(resourcePaths[0]) && !hasPostMethod(resourcePathItems[resourcePaths[0]]);
   }
-  const additionalPaths = resourcePaths.slice(1);
+  const additionalPaths = resourcePaths.splice(resourcePaths.indexOf(collectionIdentifier[0]), 1);
   return additionalPaths.every(isCustomMethodIdentifier);
 }
 
