@@ -195,3 +195,17 @@ func isHiddenExtensionEqualToTargetEnv(extension any, target string) bool {
 	}
 	return false
 }
+
+// isContentTypeHiddenForEnv returns true if the content type is hidden for the target environment.
+func isContentTypeHiddenForEnv(contentType *openapi3.MediaType, targetEnv string) bool {
+	if contentType == nil {
+		return false
+	}
+
+	if extension, ok := contentType.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
+		return isHiddenExtensionEqualToTargetEnv(extension, targetEnv)
+	}
+
+	return false
+}

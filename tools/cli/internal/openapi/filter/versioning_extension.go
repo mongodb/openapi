@@ -68,8 +68,8 @@ func (f *VersioningExtensionFilter) Apply() error {
 					continue
 				}
 
-				updateToDateString(response.Value.Content)
 				f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, response.Value.Content)
+				updateToDateString(response.Value.Content)
 			}
 
 			request := operation.RequestBody
@@ -102,20 +102,13 @@ func (f *VersioningExtensionFilter) deleteSunsetIfDeprecatedByHiddenVersions(lat
 			}
 		}
 	}
-}
 
-// isContentTypeHiddenForEnv returns true if the content type is hidden for the target environment.
-func isContentTypeHiddenForEnv(contentType *openapi3.MediaType, targetEnv string) bool {
-	if contentType == nil {
-		return false
+	// If the exact requested version is marked for sunset for a list of hidden versions
+	if value, ok := versionToContentType[latestMatchedVersion.String()]; ok {
+		if len(deprecatedByHiddenVersions) > 0 && len(deprecatedByVersions) == 0 && value.Extensions != nil {
+			delete(value.Extensions, sunsetExtension)
+		}
 	}
-
-	if extension, ok := contentType.Extensions[hiddenEnvsExtension]; ok {
-		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
-		return isHiddenExtensionEqualToTargetEnv(extension, targetEnv)
-	}
-
-	return false
 }
 
 // getVersionsInContentType returns a list of versions and a map of versions to content types.
