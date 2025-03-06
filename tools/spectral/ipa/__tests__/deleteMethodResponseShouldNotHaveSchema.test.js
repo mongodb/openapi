@@ -18,7 +18,7 @@ testRule('xgen-IPA-108-delete-response-should-be-empty', [
     errors: [],
   },
   {
-    name: 'valid DELETE with void 204',
+    name: 'valid DELETE with void 204 versioned',
     document: {
       paths: {
         '/resource/{id}': {
@@ -62,7 +62,7 @@ testRule('xgen-IPA-108-delete-response-should-be-empty', [
       {
         code: 'xgen-IPA-108-delete-response-should-be-empty',
         message:
-          'DELETE method should return an empty response. The response should not have a schema property and reference to models http://go/ipa/108',
+          'DELETE method should return an empty response. The response should not have a schema property and reference to models. http://go/ipa/108',
         path: ['paths', '/resource/{id}', 'delete'],
         severity: DiagnosticSeverity.Warning,
       },

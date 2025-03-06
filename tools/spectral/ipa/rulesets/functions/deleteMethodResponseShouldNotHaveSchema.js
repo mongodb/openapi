@@ -3,7 +3,7 @@ import { collectAdoption, collectAndReturnViolation, collectException } from './
 
 const RULE_NAME = 'xgen-IPA-108-delete-response-should-be-empty';
 const ERROR_MESSAGE =
-  'DELETE method should return an empty response. The response should not have a schema property and reference to models';
+  'DELETE method should return an empty response. The response should not have a schema property and reference to models.';
 
 /**
  * Delete method should return an empty response
