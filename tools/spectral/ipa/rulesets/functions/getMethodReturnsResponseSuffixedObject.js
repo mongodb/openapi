@@ -33,11 +33,11 @@ export default (input, _, { path, documentInventory }) => {
 
     if (contentPerMediaType.schema) {
       const schema = contentPerMediaType.schema;
-      const schemaName = getSchemaRef(schema);
-      if (!schemaName) {
+      const schemaRef = getSchemaRef(schema);
+      if (!schemaRef) {
         return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
       }
-      if (!schemaName.endsWith('Response')) {
+      if (!schemaRef.endsWith('Response')) {
         return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
       }
       collectAdoption(path, RULE_NAME);
