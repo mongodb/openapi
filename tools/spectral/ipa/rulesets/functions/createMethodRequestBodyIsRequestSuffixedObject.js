@@ -11,8 +11,9 @@ const ERROR_MESSAGE_SCHEMA_REF = 'The response body schema is defined inline and
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
+  const contentMediaType = path[path.length - 1];
 
-  if (isCustomMethodIdentifier(resourcePath)) {
+  if (isCustomMethodIdentifier(resourcePath) || !contentMediaType.endsWith('json')) {
     return;
   }
 
@@ -24,7 +25,6 @@ export default (input, _, { path, documentInventory }) => {
   }
 
   if (contentPerMediaType.schema) {
-    console.log(contentPerMediaType);
     const schema = contentPerMediaType.schema;
     const schemaRef = getSchemaRef(schema);
     if (!schemaRef) {

@@ -16,13 +16,15 @@ const ERROR_MESSAGE_SCHEMA_REF = 'The response body schema is defined inline and
 export default (input, _, { path, documentInventory }) => {
   const resourcePath = path[1];
   const responseCode = path[4];
+  const contentMediaType = path[path.length - 1];
   const oas = documentInventory.unresolved;
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
   if (
     responseCode.startsWith('2') &&
-    (isResourceCollectionIdentifier(resourcePath) ||
-      (isSingleResourceIdentifier(resourcePath) && isSingletonResource(resourcePaths)))
+    contentMediaType.endsWith('json') &&
+    (isSingleResourceIdentifier(resourcePath) ||
+      (isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths)))
   ) {
     const contentPerMediaType = resolveObject(oas, path);
 
