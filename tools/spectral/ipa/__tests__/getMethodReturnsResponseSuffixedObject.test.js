@@ -3,19 +3,11 @@ import { DiagnosticSeverity } from '@stoplight/types';
 
 const componentSchemas = {
   schemas: {
-    ExampleResponse: {
-      properties: {
-        exampleProperty: {
-          type: 'string',
-        },
-      },
+    SchemaResponse: {
+      type: 'object',
     },
-    ExampleRequest: {
-      properties: {
-        exampleProperty: {
-          type: 'string',
-        },
-      },
+    Schema: {
+      type: 'object',
     },
   },
 };
@@ -25,14 +17,36 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
     name: 'valid schema names names',
     document: {
       paths: {
-        '/resource1/{id}': {
+        '/resource/{id}': {
           get: {
             responses: {
               200: {
                 content: {
-                  'application/vnd.atlas.2024-08-05+json': {
+                  'application/vnd.atlas.2023-01-01+json': {
                     schema: {
-                      $ref: '#/components/schemas/ExampleResponse',
+                      $ref: '#/components/schemas/SchemaResponse',
+                    },
+                  },
+                  'application/vnd.atlas.2024-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaResponse',
+                    },
+                  },
+                  'application/vnd.atlas.2025-01-01+json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/SchemaResponse',
+                      },
+                    },
+                  },
+                },
+              },
+              400: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/Schema',
                     },
                   },
                 },
@@ -40,7 +54,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
             },
           },
         },
-        '/resource2/{id}': {
+        '/resourceTwo/{id}': {
           get: {
             responses: {
               200: {
@@ -53,14 +67,14 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
             },
           },
         },
-        '/singleton': {
+        '/resource/{id}/singleton': {
           get: {
             responses: {
               200: {
                 content: {
                   'application/vnd.atlas.2024-08-05+json': {
                     schema: {
-                      $ref: '#/components/schemas/ExampleResponse',
+                      $ref: '#/components/schemas/SchemaResponse',
                     },
                   },
                 },
@@ -82,9 +96,22 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
             responses: {
               200: {
                 content: {
-                  'application/vnd.atlas.2024-08-05+json': {
+                  'application/vnd.atlas.2023-01-01+json': {
                     schema: {
-                      $ref: '#/components/schemas/ExampleRequest',
+                      $ref: '#/components/schemas/Schema',
+                    },
+                  },
+                  'application/vnd.atlas.2024-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/Schema',
+                    },
+                  },
+                  'application/vnd.atlas.2025-01-01+json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/Schema',
+                      },
                     },
                   },
                 },
@@ -92,14 +119,14 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
             },
           },
         },
-        '/singleton': {
+        '/resource/{id}/singleton': {
           get: {
             responses: {
               200: {
                 content: {
                   'application/vnd.atlas.2024-08-05+json': {
                     schema: {
-                      $ref: '#/components/schemas/ExampleRequest',
+                      $ref: '#/components/schemas/Schema',
                     },
                   },
                 },
@@ -113,7 +140,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
     errors: [
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'ExampleRequest schema name should end in "Response". http://go/ipa/104',
+        message: 'The request schema must reference a schema with a Response suffix. http://go/ipa/104',
         path: [
           'paths',
           '/resource/{id}',
@@ -121,14 +148,50 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
           'responses',
           '200',
           'content',
-          'application/vnd.atlas.2024-08-05+json',
+          'application/vnd.atlas.2023-01-01+json',
         ],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'ExampleRequest schema name should end in "Response". http://go/ipa/104',
-        path: ['paths', '/singleton', 'get', 'responses', '200', 'content', 'application/vnd.atlas.2024-08-05+json'],
+        message: 'The request schema must reference a schema with a Response suffix. http://go/ipa/104',
+        path: [
+          'paths',
+          '/resource/{id}',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-01+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
+        message: 'The request schema must reference a schema with a Response suffix. http://go/ipa/104',
+        path: [
+          'paths',
+          '/resource/{id}',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2025-01-01+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
+        message: 'The request schema must reference a schema with a Response suffix. http://go/ipa/104',
+        path: [
+          'paths',
+          '/resource/{id}/singleton',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-08-05+json',
+        ],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -142,12 +205,31 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
             responses: {
               200: {
                 content: {
-                  'application/vnd.atlas.2024-08-05+json': {
+                  'application/vnd.atlas.2023-01-01+json': {
                     'x-xgen-IPA-exception': {
                       'xgen-IPA-104-get-method-returns-response-suffixed-object': 'reason',
                     },
                     schema: {
-                      $ref: '#/components/schemas/ExampleRequest',
+                      $ref: '#/components/schemas/Schema',
+                    },
+                  },
+                  'application/vnd.atlas.2024-01-01+json': {
+                    'x-xgen-IPA-exception': {
+                      'xgen-IPA-104-get-method-returns-response-suffixed-object': 'reason',
+                    },
+                    schema: {
+                      $ref: '#/components/schemas/Schema',
+                    },
+                  },
+                  'application/vnd.atlas.2025-01-01+json': {
+                    'x-xgen-IPA-exception': {
+                      'xgen-IPA-104-get-method-returns-response-suffixed-object': 'reason',
+                    },
+                    schema: {
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/Schema',
+                      },
                     },
                   },
                 },
@@ -155,7 +237,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
             },
           },
         },
-        '/singleton': {
+        '/resource/{id}/singleton': {
           get: {
             responses: {
               200: {
@@ -165,7 +247,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
                       'xgen-IPA-104-get-method-returns-response-suffixed-object': 'reason',
                     },
                     schema: {
-                      $ref: '#/components/schemas/ExampleRequest',
+                      $ref: '#/components/schemas/Schema',
                     },
                   },
                 },

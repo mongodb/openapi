@@ -2,6 +2,7 @@ import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
+import { getSchemaRef } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object';
 const ERROR_MESSAGE_SCHEMA_NAME = 'The response body schema must reference a schema with a Request suffix.';
@@ -23,25 +24,15 @@ export default (input, _, { path, documentInventory }) => {
   }
 
   if (contentPerMediaType.schema) {
+    console.log(contentPerMediaType);
     const schema = contentPerMediaType.schema;
-    if (schema.type === 'array' && schema.items) {
-      let schemaItems = schema.items;
-      if (!schemaItems.$ref) {
-        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
-      }
-      if (!schemaItems.$ref.endsWith('Request')) {
-        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
-      }
-    } else {
-      if (!schema.$ref) {
-        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
-      }
-
-      if (!schema.$ref.endsWith('Request')) {
-        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
-      }
+    const schemaName = getSchemaRef(schema);
+    if (!schemaName) {
+      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
     }
-
+    if (!schemaName.endsWith('Request')) {
+      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
+    }
     collectAdoption(path, RULE_NAME);
   }
 };

@@ -1,48 +1,46 @@
 import {
   isSingleResourceIdentifier,
-  isCustomMethodIdentifier,
   isSingletonResource,
   getResourcePathItems,
+  isResourceCollectionIdentifier,
 } from './utils/resourceEvaluation.js';
-import { getAllSuccessfulResponseSchemaNames } from './utils/methodUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { getSchemaRef } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-104-get-method-returns-response-suffixed-object';
-const ERROR_MESSAGE = 'schema name should end in "Response".';
+const ERROR_MESSAGE_SCHEMA_NAME = 'The request schema must reference a schema with a Response suffix.';
+const ERROR_MESSAGE_SCHEMA_REF = 'The response body schema is defined inline and must reference a predefined schema.';
 
-export default (input, _, { path, document }) => {
+export default (input, _, { path, documentInventory }) => {
   const resourcePath = path[1];
-  const oas = document.data;
+  const responseCode = path[4];
+  const oas = documentInventory.unresolved;
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
   if (
-    isCustomMethodIdentifier(resourcePath) ||
-    (!isSingleResourceIdentifier(resourcePath) && !isSingletonResource(resourcePaths))
+    responseCode.startsWith('2') ||
+    isResourceCollectionIdentifier(resourcePath) ||
+    (isSingleResourceIdentifier(resourcePath) && isSingletonResource(resourcePaths))
   ) {
-    return;
-  }
+    const contentPerMediaType = resolveObject(oas, path);
 
-  const errors = [];
-
-  const responseSchemaNames = getAllSuccessfulResponseSchemaNames(oas.paths[resourcePath].get);
-  responseSchemaNames.forEach(({ schemaName, schemaPath }) => {
-    const fullPath = path.concat(schemaPath);
-    const responseObject = resolveObject(oas, fullPath);
-
-    if (hasException(responseObject, RULE_NAME)) {
-      collectException(responseObject, RULE_NAME, fullPath);
-    } else if (!schemaName.endsWith('Response')) {
-      collectAndReturnViolation(fullPath, RULE_NAME, `${schemaName} ${ERROR_MESSAGE}`);
-      errors.push({
-        path: fullPath,
-        message: `${schemaName} ${ERROR_MESSAGE}`,
-      });
-    } else {
-      collectAdoption(fullPath, RULE_NAME);
+    if (hasException(contentPerMediaType, RULE_NAME)) {
+      collectException(contentPerMediaType, RULE_NAME, path);
+      return;
     }
-  });
 
-  return errors;
+    if (contentPerMediaType.schema) {
+      const schema = contentPerMediaType.schema;
+      const schemaName = getSchemaRef(schema);
+      if (!schemaName) {
+        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
+      }
+      if (!schemaName.endsWith('Response')) {
+        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
+      }
+      collectAdoption(path, RULE_NAME);
+    }
+  }
 };
