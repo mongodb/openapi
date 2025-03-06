@@ -33,7 +33,7 @@ export function getAllSuccessfulResponseSchemas(operationObject) {
 /**
  * Gets the schema reference for a schema object. If the schema does not have a reference, undefined is returned.
  *
- * @param {object} schema the schema object
+ * @param {object} schema the unresolved schema object
  * @returns {string} the schema ref
  */
 export function getSchemaRef(schema) {
