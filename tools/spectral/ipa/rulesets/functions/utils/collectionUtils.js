@@ -37,7 +37,7 @@ export function collectAdoption(jsonPath, ruleName) {
  * Collects an exception entry.
  *
  * @param object the object to evaluate
- * @param {Array<string>} path - The JSON path for the object where the rule exception occurred.
+ * @param {Array<string>} jsonPath - The JSON path array for the object where the rule violation occurred. Example: ["paths","./pets","get"]
  * @param {string} ruleName - The name of the rule that the exception is defined for.
  */
 export function collectException(object, ruleName, jsonPath) {
