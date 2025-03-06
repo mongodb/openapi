@@ -184,10 +184,20 @@ jobs:
         branch: ${{ inputs.branch }}
         foascli_version: ${{ inputs.foascli_version }}
 
-  failure-handler: 
-    name: Failure Handler
+  retry-handler:
     needs: [ release, release-postman, release-changelog]
-    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.api_bot_pat }}
+        run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
+
+  failure-handler:
+    name: Failure Handler
+    needs: [retry-handler, release, release-postman, release-changelog]
+    if: ${{ always() && contains(needs.*.result, 'failure') && needs.retry-handler.result == 'skipped' }}
     uses: ./.github/workflows/failure-handler.yml
     with:
       env: ${{ inputs.env }}
