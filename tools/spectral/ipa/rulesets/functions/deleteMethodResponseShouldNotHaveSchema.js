@@ -22,15 +22,16 @@ export default (input, _, { path }) => {
   }
 
   const responses = deleteOp.responses;
-  for (const [status, response] of Object.entries(responses)) {
-    if (status === '204' && response.content) {
-      for (const contentType of Object.keys(response.content)) {
-        if (response.content[contentType].schema) {
+  if (responses && responses['204']) {
+    const successResponse = responses['204'];
+    if (successResponse.content) {
+      for (const contentType of Object.keys(successResponse.content)) {
+        // Check if the response has a schema property
+        if (successResponse.content[contentType] && successResponse.content[contentType].schema) {
           return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
         }
       }
     }
+    collectAdoption(path, RULE_NAME);
   }
-
-  collectAdoption(path, RULE_NAME);
 };
