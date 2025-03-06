@@ -26,7 +26,7 @@ export function collectAndReturnViolation(jsonPath, ruleName, errorData) {
 /**
  * Collects an adoption entry.
  *
- * @param {Array<string>} path - The JSON path for the object where the rule adoption occurred.
+ * @param {Array<string>} jsonPath - The JSON path array for the object where the rule violation occurred. Example: ["paths","./pets","get"]
  * @param {string} ruleName - The name of the rule that was adopted.
  */
 export function collectAdoption(jsonPath, ruleName) {
