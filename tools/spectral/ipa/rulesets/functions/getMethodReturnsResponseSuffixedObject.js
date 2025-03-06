@@ -1,4 +1,9 @@
-import { isChild, isCustomMethod, isSingletonResource, getResourcePaths } from './utils/resourceEvaluation.js';
+import {
+  isSingleResourceIdentifier,
+  isCustomMethodIdentifier,
+  isSingletonResource,
+  getResourcePathItems,
+} from './utils/resourceEvaluation.js';
 import { getAllSuccessfulResponseSchemaNames } from './utils/methodUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
@@ -10,9 +15,12 @@ const ERROR_MESSAGE = 'schema name should end in "Response".';
 export default (input, _, { path, document }) => {
   const resourcePath = path[1];
   const oas = document.data;
-  const resourcePaths = getResourcePaths(resourcePath, Object.keys(oas.paths));
+  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
-  if (isCustomMethod(resourcePath) || (!isChild(resourcePath) && !isSingletonResource(resourcePaths))) {
+  if (
+    isCustomMethodIdentifier(resourcePath) ||
+    (!isSingleResourceIdentifier(resourcePath) && !isSingletonResource(resourcePaths))
+  ) {
     return;
   }
 

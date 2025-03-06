@@ -1,4 +1,4 @@
-import { getCustomMethodName, isCustomMethod } from './utils/resourceEvaluation.js';
+import { getCustomMethodName, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
 import { casing } from '@stoplight/spectral-functions';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
@@ -9,7 +9,9 @@ export default (input, opts, { path }) => {
   // Extract the path key (e.g., '/a/{exampleId}:method') from the JSONPath.
   let pathKey = path[1];
 
-  if (!isCustomMethod(pathKey)) return;
+  if (!isCustomMethodIdentifier(pathKey)) {
+    return;
+  }
 
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);

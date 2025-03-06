@@ -43,9 +43,6 @@ testRule('xgen-IPA-104-resource-has-GET', [
         '/custom:method': {
           post: {},
         },
-        '/singleton': {
-          get: {},
-        },
       },
     },
     errors: [],
@@ -87,8 +84,8 @@ testRule('xgen-IPA-104-resource-has-GET', [
         '/custom:method': {
           post: {},
         },
-        '/singleton': {
-          patch: {},
+        '/standardWithoutSubResource': {
+          get: {},
         },
       },
     },
@@ -120,7 +117,7 @@ testRule('xgen-IPA-104-resource-has-GET', [
       {
         code: 'xgen-IPA-104-resource-has-GET',
         message: 'APIs must provide a get method for resources. http://go/ipa/104',
-        path: ['paths', '/singleton'],
+        path: ['paths', '/standardWithoutSubResource'],
         severity: DiagnosticSeverity.Warning,
       },
     ],

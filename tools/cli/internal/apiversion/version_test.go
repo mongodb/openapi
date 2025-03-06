@@ -312,6 +312,18 @@ func TestApiVersion_GreaterThan(t *testing.T) {
 			version2: "2023-01-02",
 			expected: false,
 		},
+		{
+			name:     "not greater",
+			version1: "preview",
+			version2: "preview",
+			expected: false,
+		},
+		{
+			name:     "not greater",
+			version1: "private-preview-charts-dashboards",
+			version2: "private-preview-charts-dashboards",
+			expected: false,
+		},
 	}
 
 	for _, tt := range testCases {
