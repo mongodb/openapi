@@ -2947,6 +2947,13 @@ components:
             type: string
             x-xgen-IPA-exception:
                 xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
+        ApiStreamsGCPRegionView:
+            description: Atlas Streams GCP Regions.
+            enum:
+                - US_CENTRAL1
+                - EUROPE_WEST1
+                - US_EAST4
+            type: string
         ApiUserEventTypeViewForNdsGroup:
             description: Unique identifier of event type.
             enum:
@@ -6056,6 +6063,7 @@ components:
             oneOf:
                 - $ref: '#/components/schemas/ApiStreamsAWSRegionView'
                 - $ref: '#/components/schemas/ApiStreamsAzureRegionView'
+                - $ref: '#/components/schemas/ApiStreamsGCPRegionView'
             type: object
         BasicBSONList:
             description: List that contains the search criteria that the query uses. To use the values in key-value pairs in these predicates requires **Project Data Access Read Only** permissions or greater. Otherwise, MongoDB Cloud redacts these values.
@@ -9135,6 +9143,7 @@ components:
             description: Event type that triggers an alert.
             enum:
                 - CLUSTER_MONGOS_IS_MISSING
+                - CLUSTER_AGENT_IN_CRASH_LOOP
             example: CLUSTER_MONGOS_IS_MISSING
             title: Cluster Event Types
             type: string
@@ -9143,6 +9152,7 @@ components:
             enum:
                 - CLUSTER_MONGOS_IS_PRESENT
                 - CLUSTER_MONGOS_IS_MISSING
+                - CLUSTER_AGENT_IN_CRASH_LOOP
             example: CLUSTER_MONGOS_IS_PRESENT
             title: Cluster Event Types
             type: string
@@ -15140,6 +15150,7 @@ components:
                 - enum:
                     - CLUSTER_MONGOS_IS_PRESENT
                     - CLUSTER_MONGOS_IS_MISSING
+                    - CLUSTER_AGENT_IN_CRASH_LOOP
                   title: Cluster Event Types
                   type: string
                 - enum:
@@ -34908,7 +34919,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: b1ce1ea6977c846c56bb1da2a2585cdd19ca5671
+    x-xgen-sha: 9ec4f83b0a96556dd26721b09b3e11d5ba03a394
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -34954,8 +34965,6 @@ paths:
                                 items:
                                     $ref: '#/components/schemas/MatcherFieldView'
                                 type: array
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -34985,8 +34994,6 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedOrgGroupView'
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -34998,6 +35005,8 @@ paths:
                 - Clusters
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listClustersForAllProjects
             x-xgen-owner-team: Intel I
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/eventTypes:
         get:
             description: Returns a list of all event types, along with a description and additional metadata about each event.
@@ -35014,8 +35023,6 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedEventTypeDetailsResponse'
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -35027,6 +35034,8 @@ paths:
                 - Events
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Events/operation/listEventTypes
             x-xgen-owner-team: CAP
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/example/info:
         get:
             description: Returns some text dummy data for test purposes.
@@ -37517,7 +37526,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedLegacyClusterView'
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             schema:
@@ -37725,7 +37734,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/LegacyAtlasCluster'
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             schema:
@@ -37789,7 +37798,7 @@ paths:
                 "202":
                     content:
                         application/vnd.atlas.2023-01-01+json:
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             x-xgen-version: "2023-02-01"
@@ -37835,7 +37844,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/LegacyAtlasCluster'
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             schema:
@@ -37898,7 +37907,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/LegacyAtlasCluster'
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             schema:
@@ -38828,8 +38837,6 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedCloudBackupShardedClusterSnapshotView'
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -38900,7 +38907,6 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restore:
         post:
             description: |-
@@ -38954,7 +38960,6 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restores:
         get:
             description: |-
@@ -39394,7 +39399,6 @@ paths:
             x-xgen-owner-team: Intel I
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes:
         post:
             deprecated: true
@@ -39485,8 +39489,6 @@ paths:
                                     $ref: '#/components/schemas/ClusterSearchIndex'
                                 type: array
                             x-sunset: "2026-11-30"
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "404":
@@ -39669,7 +39671,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/GeoSharding'
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             schema:
@@ -39714,7 +39716,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/GeoSharding'
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             schema:
@@ -39772,7 +39774,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/GeoSharding'
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             schema:
@@ -39832,7 +39834,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/GeoSharding'
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             schema:
@@ -39892,7 +39894,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/GeoSharding'
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             schema:
@@ -39919,7 +39921,6 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index:
         post:
             description: Creates an index on the cluster identified by its name in a rolling manner. Creating the index in this way allows index builds on one replica set member as a standalone at a time, starting with the secondary members. Creating indexes in this way requires at least one replica set election. To use this resource, the requesting API Key must have the Project Data Access Admin role.
@@ -40444,7 +40445,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cluster-Outage-Simulation/operation/startOutageSimulation
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
-            xgen-IPA-113-singleton-must-not-have-id: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/performanceAdvisor/dropIndexSuggestions:
         get:
             description: Returns the indexes that the Performance Advisor suggests to drop. The Performance Advisor suggests dropping unused, redundant, and hidden indexes to improve write performance and increase storage space. To use this resource, the requesting API Key must have the Project Read Only role.
@@ -40702,7 +40703,7 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2023-01-01+json:
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+json:
                             x-xgen-version: "2023-02-01"
@@ -41172,8 +41173,6 @@ paths:
                                 items:
                                     $ref: '#/components/schemas/SearchIndexResponse'
                                 type: array
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2024-05-30"
                     description: OK
                 "400":
@@ -42026,7 +42025,7 @@ paths:
                                 description: Compressed (.gz) log file that contains a range of log messages for the specified host for the specified project
                                 format: binary
                                 type: string
-                            x-sunset: "2025-06-01"
+                            x-sunset: "2026-11-30"
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-02-01+gzip:
                             schema:
@@ -42083,8 +42082,6 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiAtlasProviderRegionsView'
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -42143,7 +42140,6 @@ paths:
             x-xgen-owner-team: Atlas
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/tenantUpgradeToServerless:
         post:
             deprecated: true
@@ -42194,7 +42190,6 @@ paths:
             x-xgen-owner-team: Atlas
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/collStats/metrics:
         get:
             description: Returns all available Coll Stats Latency metric names and their respective units for the specified project at the time of request.
@@ -42440,8 +42435,6 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedCloudProviderContainerView'
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -43089,8 +43082,6 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiAtlasDatabaseUserView'
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -43232,6 +43223,8 @@ paths:
                 - Database Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/createDatabaseUser
             x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}:
         delete:
             description: Removes one database user from the specified project. To use this resource, the requesting API Key must have the Project Owner role, the Project Stream Processing Owner role, or the Project Database Access Admin role.
@@ -43429,8 +43422,6 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedUserCertView'
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -43498,6 +43489,8 @@ paths:
                 - X.509 Authentication
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/X.509-Authentication/operation/createDatabaseUserCertificate
             x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}:
         get:
             description: Returns the access logs of one cluster identified by the cluster's name. Access logs contain a list of authentication requests made against your cluster. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting API Key must have the Project Monitoring Admin role or the Project Database Access Admin role.
@@ -44228,7 +44221,6 @@ paths:
             x-xgen-owner-team: Atlas Serverless II
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/restoreJobs:
         get:
             description: Returns all restore jobs for one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
@@ -45727,7 +45719,6 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/maintenanceWindow/defer:
         post:
             description: Defers the maintenance window for the specified project. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. To use this resource, the requesting API Key must have the Project Owner role.
@@ -45754,7 +45745,6 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/managedSlowMs:
         get:
             description: Get whether the Managed Slow MS feature is enabled.
@@ -45809,7 +45799,6 @@ paths:
             x-xgen-owner-team: Intel II
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/managedSlowMs/enable:
         post:
             description: Enables MongoDB Cloud to use its slow operation threshold for the specified project. The threshold determines which operations the Performance Advisor and Query Profiler considers slow. When enabled, MongoDB Cloud uses the average execution time for operations on your cluster to determine slow-running queries. As a result, the threshold is more pertinent to your cluster workload. The slow operation threshold is enabled by default for dedicated clusters (M10+). When disabled, MongoDB Cloud considers any operation that takes longer than 100 milliseconds to be slow. To use this resource, the requesting API Key must have the Project Owner role.
@@ -45837,7 +45826,6 @@ paths:
             x-xgen-owner-team: Intel II
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/mongoDBVersions:
         get:
             description: Returns the MongoDB Long Term Support Major Versions available to new clusters in this project.
@@ -46940,7 +46928,6 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/privateEndpoint/regionalMode:
         get:
             description: Checks whether each region in the specified cloud service provider can create multiple private endpoints per region. The cloud service provider manages the private endpoint for the project. To use this resource, the requesting API Key must have the Project Read Only role.
@@ -48440,6 +48427,8 @@ paths:
                 - Push-Based Log Export
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/createPushBasedLogConfiguration
             x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/sampleDatasetLoad/{name}:
         post:
             description: Requests loading the MongoDB sample dataset into the specified cluster. To use this resource, the requesting API Key must have the Project Owner role.
@@ -50513,7 +50502,6 @@ paths:
             x-xgen-owner-team: Atlas Streams
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/streams/vpcPeeringConnections/{id}:
         delete:
             description: Deletes an incoming VPC Peering connection.
@@ -50916,7 +50904,6 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/userSecurity/ldap/userToDNMapping:
         delete:
             description: Removes the current LDAP Distinguished Name mapping captured in the ``userToDNMapping`` document from the LDAP configuration for the specified project. To use this resource, the requesting API Key must have the Project Owner role.
@@ -50944,7 +50931,6 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/userSecurity/ldap/verify:
         post:
             description: Verifies the LDAP configuration for the specified project. To use this resource, the requesting API Key must have the Project Owner role.
@@ -52731,8 +52717,6 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiInvoiceView'
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "401":
@@ -52764,8 +52748,6 @@ paths:
                                 items:
                                     $ref: '#/components/schemas/LiveImportAvailableProject'
                                 type: array
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":
@@ -52842,7 +52824,6 @@ paths:
             x-xgen-owner-team: Atlas Migrations
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/orgs/{orgId}/nonCompliantResources:
         get:
             description: Return all non-compliant resources for an org.
