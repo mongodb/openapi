@@ -2,7 +2,7 @@ import { collectAdoption, collectAndReturnViolation, collectException } from './
 import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-108-delete-method-return-204-response';
-const ERROR_MESSAGE = 'DELETE method should return 204 No Content status code';
+const ERROR_MESSAGE = 'DELETE method should return 204 No Content status code.';
 
 /**
  * Delete method should return 204 No Content status code
@@ -13,17 +13,15 @@ const ERROR_MESSAGE = 'DELETE method should return 204 No Content status code';
  */
 export default (input, _, { path }) => {
   const deleteOp = input;
-  if (!deleteOp) return;
-
   if (hasException(deleteOp, RULE_NAME)) {
     collectException(deleteOp, RULE_NAME, path);
     return;
   }
 
-  const responses = deleteOp.responses || {};
-  if (!responses['204']) {
-    return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+  if (deleteOp.responses) {
+    if (!deleteOp.responses['204']) {
+      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+    }
+    return collectAdoption(path, RULE_NAME);
   }
-
-  collectAdoption(path, RULE_NAME);
 };
