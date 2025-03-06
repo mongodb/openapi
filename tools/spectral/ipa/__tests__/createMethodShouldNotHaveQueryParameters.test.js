@@ -7,6 +7,22 @@ const componentSchemas = {
       type: 'object',
     },
   },
+  parameters: {
+    QueryParam: {
+      name: 'query-param',
+      in: 'query',
+      schema: {
+        type: 'string'
+      },
+    },
+    PathParam: {
+      name: 'resource-id',
+      in: 'path',
+      schema: {
+        type: 'string'
+      },
+    }
+  }
 };
 
 testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
@@ -30,6 +46,9 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
                   $ref: '#/components/schemas/Schema',
                 },
               },
+              {
+                $ref: '#/components/parameters/PathParam',
+              }
             ],
           },
         },
@@ -67,12 +86,8 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
                 schema: { type: 'string' },
               },
               {
-                name: 'query-param',
-                in: 'query',
-                schema: {
-                  $ref: '#/components/schemas/Schema',
-                },
-              },
+                $ref: '#/components/parameters/QueryParam',
+              }
             ],
           },
         },
@@ -116,12 +131,8 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
           post: {
             parameters: [
               {
-                name: 'query-param',
-                in: 'query',
-                schema: {
-                  $ref: '#/components/schemas/Schema',
-                },
-              },
+                $ref: '#/components/parameters/QueryParam',
+              }
             ],
             'x-xgen-IPA-exception': {
               'xgen-IPA-106-create-method-should-not-have-query-parameters': 'Reason',
