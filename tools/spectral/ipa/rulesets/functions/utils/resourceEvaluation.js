@@ -150,3 +150,43 @@ function removePrefix(path) {
   }
   return path;
 }
+
+/**
+ * Checks if resource has Get method
+ * @param {string} mediaType the media type to check for
+ * @param {string} pathForResourceCollection the path for the collection of resources
+ * @param {Object} oas the OpenAPI document
+ */
+export function getResponseOfGetMethodByMediaType(mediaType, pathForResourceCollection, oas) {
+  const resourcePathItems = getResourcePathItems(pathForResourceCollection, oas.paths);
+  const resourcePaths = Object.keys(resourcePathItems);
+  if (resourcePaths.length === 1) {
+    return null;
+  }
+  let singleResourcePath = resourcePaths.find(
+    (path) => !isCustomMethodIdentifier(path) && path !== pathForResourceCollection
+  );
+  if (singleResourcePath.length === 0) {
+    return null;
+  }
+  const singleResourcePathObject = resourcePathItems[singleResourcePath];
+  if (!hasGetMethod(singleResourcePathObject)) {
+    return null;
+  }
+
+  const getMethodObject = singleResourcePathObject.get;
+  if (!getMethodObject.responses) {
+    return null;
+  }
+
+  const response = getMethodObject.responses['200'];
+  if (!response) {
+    return null;
+  }
+
+  const schema = response.content[mediaType];
+  if (!schema) {
+    return null;
+  }
+  return schema;
+}
