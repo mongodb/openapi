@@ -30,10 +30,10 @@ For rule definitions, see [IPA-104.yaml](https://github.com/mongodb/openapi/blob
 
 | Rule Name                                                | Description                                                                                | Severity |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------ | -------- |
-| xgen-IPA-104-resource-has-GET                            | APIs must provide a get method for resources. http://go/ipa/104                            | warn     |
-| xgen-IPA-104-get-method-returns-single-resource          | The purpose of the get method is to return data from a single resource. http://go/ipa/104  | warn     |
+| xgen-IPA-104-resource-has-GET                            | APIs must provide a Get method for resources. http://go/ipa/104                            | warn     |
+| xgen-IPA-104-get-method-returns-single-resource          | The purpose of the Get method is to return data from a single resource. http://go/ipa/104  | warn     |
 | xgen-IPA-104-get-method-response-code-is-200             | The Get method must return a 200 OK response. http://go/ipa/104                            | warn     |
-| xgen-IPA-104-get-method-returns-response-suffixed-object | The get method of a resource should return a "Response" suffixed object. http://go/ipa/104 | warn     |
+| xgen-IPA-104-get-method-returns-response-suffixed-object | The Get method of a resource should return a "Response" suffixed object. http://go/ipa/104 | warn     |
 
 ### IPA-106
 
