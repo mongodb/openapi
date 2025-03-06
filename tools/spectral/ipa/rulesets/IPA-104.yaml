@@ -4,11 +4,12 @@
 functions:
   - eachResourceHasGetMethod
   - getMethodReturnsSingleResource
+  - getMethodReturnsResponseSuffixedObject
   - getResponseCodeShouldBe200OK
 
 rules:
   xgen-IPA-104-resource-has-GET:
-    description: 'APIs must provide a get method for resources. http://go/ipa/104'
+    description: 'APIs must provide a Get method for resources. http://go/ipa/104'
     message: '{{error}} http://go/ipa/104'
     severity: warn
     given: '$.paths'
@@ -16,7 +17,7 @@ rules:
       field: '@key'
       function: 'eachResourceHasGetMethod'
   xgen-IPA-104-get-method-returns-single-resource:
-    description: 'The purpose of the get method is to return data from a single resource. http://go/ipa/104'
+    description: 'The purpose of the Get method is to return data from a single resource. http://go/ipa/104'
     message: '{{error}} http://go/ipa/104'
     severity: warn
     given: '$.paths[*].get'
@@ -29,3 +30,11 @@ rules:
     given: '$.paths[*].get'
     then:
       function: 'getResponseCodeShouldBe200OK'
+  xgen-IPA-104-get-method-returns-response-suffixed-object:
+    description: 'The Get method of a resource should return a "Response" suffixed object. http://go/ipa/104'
+    message: '{{error}} http://go/ipa/104'
+    severity: warn
+    given: '$.paths[*].get.responses[*].content'
+    then:
+      field: '@key'
+      function: 'getMethodReturnsResponseSuffixedObject'
