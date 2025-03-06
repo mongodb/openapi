@@ -13,13 +13,15 @@ const ERROR_MESSAGE =
  */
 export default (input, _, { path }) => {
   const deleteOp = input;
-
+if(!deleteOp.responses || deleteOp.responses.length === 0) {
+    return; 
+}
   if (hasException(deleteOp, RULE_NAME)) {
     collectException(deleteOp, RULE_NAME, path);
     return;
   }
 
-  const responses = deleteOp.responses || {};
+  const responses = deleteOp.responses;
   for (const [status, response] of Object.entries(responses)) {
     if (status === '204' && response.content) {
       for (const contentType of Object.keys(response.content)) {
