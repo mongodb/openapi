@@ -20,9 +20,9 @@ export default (input, _, { path, documentInventory }) => {
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
   if (
-    responseCode.startsWith('2') ||
-    isResourceCollectionIdentifier(resourcePath) ||
-    (isSingleResourceIdentifier(resourcePath) && isSingletonResource(resourcePaths))
+    responseCode.startsWith('2') &&
+    (isResourceCollectionIdentifier(resourcePath) ||
+      (isSingleResourceIdentifier(resourcePath) && isSingletonResource(resourcePaths)))
   ) {
     const contentPerMediaType = resolveObject(oas, path);
 
