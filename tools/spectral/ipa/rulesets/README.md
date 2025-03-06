@@ -41,6 +41,7 @@ For rule definitions, see [IPA-106.yaml](https://github.com/mongodb/openapi/blob
 | Rule Name                                                          | Description                                                                      | Severity |
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------- | -------- |
 | xgen-IPA-106-create-method-request-body-is-request-suffixed-object | The Create method request should be a Request suffixed object. http://go/ipa/106 | warn     |
+| xgen-IPA-106-create-method-should-not-have-query-parameters        | Create operations should not use query parameters. http://go/ipa/xxx             | warn     |
 
 ### IPA-109
 
