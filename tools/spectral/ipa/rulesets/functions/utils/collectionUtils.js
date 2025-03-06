@@ -4,7 +4,7 @@ import { EXCEPTION_EXTENSION } from './exceptions.js';
 /**
  * Collects a violation entry and returns formatted error data.
  *
- * @param {Array<string>} jsonPath - The JSON path for the object where the rule violation occurred. Example: 'paths./pets.get])
+ * @param {Array<string>} jsonPath - The JSON path array for the object where the rule violation occurred. Example: ["paths","./pets","get"]
  * @param {string} ruleName - The name of the rule that was violated.
  * @param {string|Array<Object>} errorData - The error information. Can be either a string message or an array of error objects.
  * @returns {Array<Object>} An array of error objects. Each object has a 'message' property.
