@@ -22,6 +22,14 @@ const componentSchemas = {
         type: 'string',
       },
     },
+    envelope: {
+      name: 'envelope',
+      in: 'query',
+    },
+    pretty: {
+      name: 'pretty',
+      in: 'query',
+    },
   },
 };
 
@@ -48,6 +56,12 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
               },
               {
                 $ref: '#/components/parameters/PathParam',
+              },
+              {
+                $ref: '#/components/parameters/envelope',
+              },
+              {
+                $ref: '#/components/parameters/pretty',
               },
             ],
           },
