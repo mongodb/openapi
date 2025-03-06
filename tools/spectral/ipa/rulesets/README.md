@@ -54,6 +54,7 @@ For rule definitions, see [IPA-108.yaml](https://github.com/mongodb/openapi/blob
 | ---------------------------------------------- | ------------------------------------------------------------------------------------ | -------- |
 | xgen-IPA-108-delete-response-should-be-empty   | Delete method response should not have schema reference to object. http://go/ipa/108 | warn     |
 | xgen-IPA-108-delete-method-return-204-response | DELETE method must return 204 No Content. http://go/ipa/108                          | warn     |
+| xgen-IPA-108-delete-include-404-response       | DELETE method must include 404 response and return it when resource not found        | warn     |
 
 ### IPA-109
 

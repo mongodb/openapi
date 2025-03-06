@@ -21,6 +21,44 @@ testRule('xgen-IPA-108-delete-include-404-response', [
     errors: [],
   },
   {
+    name: 'invalid DELETE with no responses',
+    document: {
+      paths: {
+        '/resource/{id}': {
+          delete: {},
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-108-delete-include-404-response',
+        message: 'DELETE method should include 404 status code for not found resources. http://go/ipa/108',
+        path: ['paths', '/resource/{id}', 'delete'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid empty responses',
+    document: {
+      paths: {
+        '/resource/{id}': {
+          delete: {
+            responses: {},
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-108-delete-include-404-response',
+        message: 'DELETE method should include 404 status code for not found resources. http://go/ipa/108',
+        path: ['paths', '/resource/{id}', 'delete'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
     name: 'invalid DELETE missing 404',
     document: {
       paths: {
@@ -36,7 +74,7 @@ testRule('xgen-IPA-108-delete-include-404-response', [
     errors: [
       {
         code: 'xgen-IPA-108-delete-include-404-response',
-        message: 'DELETE method should include 404 status code for not found resources http://go/ipa/108',
+        message: 'DELETE method should include 404 status code for not found resources. http://go/ipa/108',
         path: ['paths', '/resource/{id}', 'delete'],
         severity: DiagnosticSeverity.Warning,
       },
