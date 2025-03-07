@@ -57,9 +57,22 @@ export function compareSchemas(postSchema, getSchema) {
       continue;
     }
 
+    if(postProps[prop].type !== getProps[prop].type) {
+      inconsistentFields.push(prop);
+      continue;
+    }
+
     // For objects, compare nested properties
-    if (postProps[prop].type === 'object' && getProps[prop].type === 'object') {
+    if (postProps[prop].type === 'object') {
       const nestedInconsistencies = compareSchemas(postProps[prop], getProps[prop]);
+      if (nestedInconsistencies.length > 0) {
+        // Prefix nested fields with their parent name
+        inconsistentFields.push(...nestedInconsistencies.map((field) => `${prop}.${field}`));
+      }
+    }
+
+    if(postProps[prop].type === 'array') {
+      const nestedInconsistencies = compareSchemas(postProps[prop].items, getProps[prop].items);
       if (nestedInconsistencies.length > 0) {
         // Prefix nested fields with their parent name
         inconsistentFields.push(...nestedInconsistencies.map((field) => `${prop}.${field}`));
