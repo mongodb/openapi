@@ -41,7 +41,13 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	filteredOAS, err := filter.ApplyFilters(specInfo.Spec, filter.NewMetadata(nil, o.env), filter.FiltersWithoutVersioning)
+	// If a version is provided, versioning filters will also be applied.
+	filters := filter.FiltersWithoutVersioning
+	if o.version != "" {
+		filters = filter.DefaultFilters
+	}
+
+	filteredOAS, err := filter.ApplyFilters(specInfo.Spec, filter.NewMetadata(nil, o.env), filters)
 	if err != nil {
 		return err
 	}
@@ -66,7 +72,7 @@ func Builder() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "filter -s spec ",
-		Short: "Filter Open API specification given a list of filters.",
+		Short: "Filter Open API specification removing hidden endpoints and extension metadata. If a version is provided, versioning filters will also be applied.",
 		Args:  cobra.NoArgs,
 		PreRunE: func(_ *cobra.Command, args []string) error {
 			return opts.PreRunE(args)
@@ -78,10 +84,13 @@ func Builder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "-", usage.Spec)
 	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
-	cmd.Flags().StringVar(&opts.version, flag.Version, "", usage.Version)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
-	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.JSON, usage.Format)
-	_ = cmd.MarkFlagRequired(flag.Output)
+	cmd.Flags().StringVar(&opts.version, flag.Version, "", usage.Version)
+	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.ALL, usage.Format)
 
+	// Required flags
+	_ = cmd.MarkFlagRequired(flag.Output)
+	_ = cmd.MarkFlagRequired(flag.Spec)
+	_ = cmd.MarkFlagRequired(flag.Environment)
 	return cmd
 }
