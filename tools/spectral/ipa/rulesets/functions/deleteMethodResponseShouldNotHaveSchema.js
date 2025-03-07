@@ -25,7 +25,7 @@ export default (input, _, { path }) => {
 
   // 3. Validation
   const errors = checkViolations(deleteOp.responses);
-  if (errors) {
+  if (errors.length > 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
 
@@ -35,14 +35,14 @@ export default (input, _, { path }) => {
 /**
  * Check if the operation has validation issues
  * @param {object} input - The  object to vefify
- * @return {Array<string>|undefined} - The content types that have a schema
+ * @return {Array<string>} - errors array (empty if no errors)
  */
 function checkViolations(input) {
+  const errors = [];
   try {
     if (input && input['204']) {
       const successResponse = input['204'];
       if (successResponse.content) {
-        const errors = [];
         for (const contentType of Object.keys(successResponse.content)) {
           if (successResponse.content[contentType] && successResponse.content[contentType].schema) {
             errors.push({
@@ -50,12 +50,10 @@ function checkViolations(input) {
             });
           }
         }
-        return errors.length > 0 ? errors : undefined;
       }
     }
   } catch (e) {
-    return ['Internal Rule Error without reporting violation' + e];
+    return [`${RULE_NAME} Internal Rule Error: ${e} Please report issue in https://github.com/mongodb/openapi/issues`];
   }
-  // No errors returning undefined
-  return undefined;
+  return errors;
 }
