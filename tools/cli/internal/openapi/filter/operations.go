@@ -23,7 +23,7 @@ type OperationsFilter struct {
 	oas *openapi3.T
 }
 
-func (f *OperationsFilter) ValidateMetadata() error {
+func (_ *OperationsFilter) ValidateMetadata() error {
 	return nil
 }
 

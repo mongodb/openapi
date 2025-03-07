@@ -40,8 +40,7 @@ func TestValidateMetadata(t *testing.T) {
 
 	t.Run("Nil metadata", func(t *testing.T) {
 		err := validateMetadata(nil)
-		assert.Error(t, err)
-		assert.Equal(t, "metadata is nil", err.Error())
+		require.ErrorContains(t, err, "metadata is nil")
 	})
 }
 
@@ -71,19 +70,17 @@ func TestApplyFilters(t *testing.T) {
 
 	t.Run("Nil document", func(t *testing.T) {
 		_, err := ApplyFilters(nil, metadata, DefaultFilters)
-		assert.Error(t, err)
-		assert.Equal(t, "openapi document is nil", err.Error())
+		require.ErrorContains(t, err, "openapi document is nil")
 	})
 
 	t.Run("Nil metadata", func(t *testing.T) {
 		_, err := ApplyFilters(doc, nil, DefaultFilters)
-		assert.Error(t, err)
-		assert.Equal(t, "metadata is nil", err.Error())
+		require.ErrorContains(t, err, "metadata is nil")
 	})
 
 	t.Run("Invalid metadata", func(t *testing.T) {
 		_, err := ApplyFilters(doc, metadata, DefaultFilters)
-		assert.Equal(t, "target environment is empty", err.Error())
+		require.ErrorContains(t, err, "target environment is empty")
 	})
 
 	t.Run("Missing versioning metadata", func(t *testing.T) {
@@ -91,7 +88,7 @@ func TestApplyFilters(t *testing.T) {
 			targetEnv: "dev",
 		}
 		_, err := ApplyFilters(doc, metadata, DefaultFilters)
-		assert.Equal(t, "failed to validate metadata for filter *filter.VersioningExtensionFilter with: target version is nil", err.Error())
+		require.ErrorContains(t, err, "failed to validate metadata for filter *filter.VersioningExtensionFilter with: target version is nil")
 	})
 
 	t.Run("Valid metadata for default filters", func(t *testing.T) {
