@@ -50,7 +50,7 @@ func (o *Opts) Run() error {
 	}
 
 	for _, version := range versions {
-		filteredOAS, err := filter.FilterForVersion(specInfo.Spec, version, o.env)
+		filteredOAS, err := filter.ByVersion(specInfo.Spec, version, o.env)
 		if err != nil {
 			return err
 		}

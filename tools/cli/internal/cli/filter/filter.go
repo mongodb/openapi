@@ -47,7 +47,7 @@ func (o *Opts) Run() error {
 	var filteredOAS *openapi3.T
 	// If a version is provided, versioning filters will also be applied.
 	if o.version != "" {
-		filteredOAS, err = FilterForVersion(specInfo.Spec, o.version, o.env)
+		filteredOAS, err = ByVersion(specInfo.Spec, o.version, o.env)
 	} else {
 		filters := filter.FiltersWithoutVersioning
 		metadata := filter.NewMetadata(nil, o.env)
@@ -61,7 +61,7 @@ func (o *Opts) Run() error {
 	return openapi.Save(o.outputPath, filteredOAS, o.format, o.fs)
 }
 
-func FilterForVersion(oas *openapi3.T, version string, env string) (result *openapi3.T, err error) {
+func ByVersion(oas *openapi3.T, version string, env string) (result *openapi3.T, err error) {
 	log.Printf("Filtering OpenAPI document by version %q", version)
 	apiVersion, err := apiversion.New(apiversion.WithVersion(version))
 	if err != nil {
@@ -87,9 +87,10 @@ func Builder() *cobra.Command {
 	}
 
 	cmd := &cobra.Command{
-		Use:   "filter -s spec ",
-		Short: "Filter Open API specification removing hidden endpoints and extension metadata. If a version is provided, versioning filters will also be applied.",
-		Args:  cobra.NoArgs,
+		Use: "filter -s spec ",
+		Short: `Filter Open API specification removing hidden endpoints and extension metadata. 
+If a version is provided, versioning filters will also be applied.`,
+		Args: cobra.NoArgs,
 		PreRunE: func(_ *cobra.Command, args []string) error {
 			return opts.PreRunE(args)
 		},
