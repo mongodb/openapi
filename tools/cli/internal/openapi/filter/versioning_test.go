@@ -214,14 +214,15 @@ func Test_FilterOperations_moveSunsetToOperationAndMarkDeprecated(t *testing.T) 
 	}
 
 	// Assert the sunset to be filtered exists
-	require.Contains(t, f.oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content["application/vnd.atlas.2023-01-01+json"].Extensions, "x-sunset")
+	content := f.oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content["application/vnd.atlas.2023-01-01+json"]
+	require.Contains(t, content.Extensions, "x-sunset")
 	require.False(t, f.oas.Paths.Find("/path").Get.Deprecated)
 	require.NoError(t, f.Apply())
 
 	// Assert sunset was moved to operation
 	require.Contains(t, f.oas.Paths.Find("/path").Get.Extensions, "x-sunset")
 	require.NotContains(t, f.oas.Paths.Find("/path").Get.Responses.Map()["200"].Extensions, "x-sunset")
-	require.NotContains(t, f.oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content["application/vnd.atlas.2023-01-01+json"].Extensions, "x-sunset")
+	require.NotContains(t, content.Extensions, "x-sunset")
 	require.True(t, f.oas.Paths.Find("/path").Get.Deprecated)
 
 	// Assert oas was not updated
