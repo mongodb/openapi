@@ -49,4 +49,6 @@ const (
 	To                       = "to"
 	StabilityLevel           = "stability-level"
 	StabilityLevelShort      = "l"
+	Version                  = "version"
+	VersionShort             = "v"
 )

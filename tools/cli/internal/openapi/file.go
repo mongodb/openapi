@@ -131,10 +131,26 @@ func Save(path string, oas *openapi3.T, format string, fs afero.Fs) error {
 	return SaveToFile(path, format, newSpec(oas), fs)
 }
 
-// ValidateFormat validates the format of files supported.
-func ValidateFormat(format string) error {
+// ValidateFormatAndOutput validates the format and output file match.
+func ValidateFormatAndOutput(format, output string) error {
 	if format != JSON && format != YAML && format != ALL {
 		return fmt.Errorf("format must be either 'json', 'yaml' or 'all', got '%s'", format)
+	}
+
+	if output != "" && !strings.Contains(output, DotJSON) && !strings.Contains(output, DotYAML) {
+		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", output)
+	}
+
+	if format == ALL || output == "" {
+		return nil
+	}
+
+	if format == JSON && !strings.Contains(output, DotJSON) {
+		return fmt.Errorf("output file and format mistmatch got format '%s' and output '%s'", format, output)
+	}
+
+	if format == YAML && !strings.Contains(output, DotYAML) {
+		return fmt.Errorf("output file and format mistmatch got format '%s' and output '%s'", format, output)
 	}
 
 	return nil

@@ -83,6 +83,14 @@ func (f *VersioningFilter) Apply() error {
 			continue
 		}
 
+		for _, operation := range pathItem.Operations() {
+			if operation == nil {
+				continue
+			}
+
+			moveSunsetExtensionToOperation(operation)
+		}
+
 		newPaths.Set(k, pathItem)
 	}
 	f.oas.Paths = newPaths
@@ -302,4 +310,32 @@ func isVersionedContent(content map[string]*openapi3.MediaType) bool {
 		}
 	}
 	return false
+}
+
+// moveSunsetExtensionToOperation moves the x-sunset extension from the media type to the operation.
+func moveSunsetExtensionToOperation(operation *openapi3.Operation) {
+	if operation.Responses == nil {
+		return
+	}
+	// search for sunset in content responses
+	for _, response := range operation.Responses.Map() {
+		if response == nil || response.Value == nil || response.Value.Content == nil {
+			continue
+		}
+
+		for _, mediaType := range response.Value.Content {
+			if mediaType == nil || mediaType.Extensions == nil {
+				continue
+			}
+
+			if sunset, ok := mediaType.Extensions["x-sunset"]; ok {
+				if operation.Extensions == nil {
+					operation.Extensions = make(map[string]any)
+				}
+				operation.Extensions[sunsetExtension] = sunset
+				delete(mediaType.Extensions, sunsetExtension)
+				operation.Deprecated = true
+			}
+		}
+	}
 }
