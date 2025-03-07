@@ -5,6 +5,8 @@ import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 const RULE_NAME = 'xgen-IPA-106-create-method-should-not-have-query-parameters';
 const ERROR_MESSAGE = 'Create operations should not have query parameters.';
 
+const ignoredParameters = ['envelope', 'pretty'];
+
 export default (input, _, { path }) => {
   const resourcePath = path[1];
 
@@ -23,7 +25,7 @@ export default (input, _, { path }) => {
   }
 
   for (const parameter of postMethod.parameters) {
-    if (parameter.in === 'query') {
+    if (parameter.in === 'query' && !ignoredParameters.includes(parameter.name)) {
       return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
     }
   }
