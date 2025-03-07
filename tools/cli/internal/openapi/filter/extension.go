@@ -18,7 +18,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// Filter: ExtensionFilter is a filter that removes the x-xgen-IPA-exception extension from the OpenAPI spec.
+// ExtensionFilter: is a filter that removes the x-xgen-IPA-exception extension from the OpenAPI spec.
 type ExtensionFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata

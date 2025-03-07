@@ -20,13 +20,13 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// InfoFilter is a filter that modifies the Info object in the OpenAPI spec.
-type InfoFilter struct {
+// InfoVersioningFilter: Filter that modifies the Info object in the OpenAPI spec with the target version.
+type InfoVersioningFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
 }
 
-func (f *InfoFilter) Apply() error {
+func (f *InfoVersioningFilter) Apply() error {
 	if f.oas.Info == nil {
 		return nil
 	}

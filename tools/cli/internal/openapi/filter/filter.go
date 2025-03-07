@@ -52,7 +52,17 @@ func DefaultFilters(oas *openapi3.T, metadata *Metadata) []Filter {
 		&ExtensionFilter{oas: oas, metadata: metadata},
 		&VersioningExtensionFilter{oas: oas, metadata: metadata},
 		&VersioningFilter{oas: oas, metadata: metadata},
-		&InfoFilter{oas: oas, metadata: metadata},
+		&InfoVersioningFilter{oas: oas, metadata: metadata},
+		&HiddenEnvsFilter{oas: oas, metadata: metadata},
+		&TagsFilter{oas: oas},
+		&OperationsFilter{oas: oas},
+	}
+}
+
+func FiltersWithoutVersioning(oas *openapi3.T, metadata *Metadata) []Filter {
+	return []Filter{
+		&ExtensionFilter{oas: oas, metadata: metadata},
+		&InfoVersioningFilter{oas: oas, metadata: metadata},
 		&HiddenEnvsFilter{oas: oas, metadata: metadata},
 		&TagsFilter{oas: oas},
 		&OperationsFilter{oas: oas},

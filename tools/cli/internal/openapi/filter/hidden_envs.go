@@ -25,7 +25,7 @@ const (
 	hiddenEnvsExtKey    = "envs"
 )
 
-// Filter: HiddenEnvsFilter is a filter that removes paths, operations,
+// HiddenEnvsFilter: is a filter that removes paths, operations,
 // request/response bodies and content types that are hidden for the target environment.
 type HiddenEnvsFilter struct {
 	oas      *openapi3.T
