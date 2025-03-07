@@ -16,7 +16,10 @@ package filter
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
@@ -41,18 +44,31 @@ func (o *Opts) Run() error {
 		return err
 	}
 
+	var filteredOAS *openapi3.T
 	// If a version is provided, versioning filters will also be applied.
-	filters := filter.FiltersWithoutVersioning
 	if o.version != "" {
-		filters = filter.DefaultFilters
+		filteredOAS, err = FilterForVersion(specInfo.Spec, o.version, o.env)
+	} else {
+		filters := filter.FiltersWithoutVersioning
+		metadata := filter.NewMetadata(nil, o.env)
+		filteredOAS, err = filter.ApplyFilters(specInfo.Spec, metadata, filters)
 	}
 
-	filteredOAS, err := filter.ApplyFilters(specInfo.Spec, filter.NewMetadata(nil, o.env), filters)
 	if err != nil {
 		return err
 	}
 
 	return openapi.Save(o.outputPath, filteredOAS, o.format, o.fs)
+}
+
+func FilterForVersion(oas *openapi3.T, version string, env string) (result *openapi3.T, err error) {
+	log.Printf("Filtering OpenAPI document by version %q", version)
+	apiVersion, err := apiversion.New(apiversion.WithVersion(version))
+	if err != nil {
+		return nil, err
+	}
+
+	return filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, env), filter.DefaultFilters)
 }
 
 func (o *Opts) PreRunE(_ []string) error {

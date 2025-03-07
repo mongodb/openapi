@@ -20,11 +20,10 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/filter"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
@@ -51,7 +50,7 @@ func (o *Opts) Run() error {
 	}
 
 	for _, version := range versions {
-		filteredOAS, err := o.filter(specInfo.Spec, version)
+		filteredOAS, err := filter.FilterForVersion(specInfo.Spec, version, o.env)
 		if err != nil {
 			return err
 		}
@@ -72,16 +71,6 @@ func (o *Opts) Run() error {
 	}
 
 	return nil
-}
-
-func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err error) {
-	log.Printf("Filtering OpenAPI document by version %q", version)
-	apiVersion, err := apiversion.New(apiversion.WithVersion(version))
-	if err != nil {
-		return nil, err
-	}
-
-	return filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, o.env), filter.DefaultFilters)
 }
 
 func (o *Opts) saveVersionedOas(oas *openapi3.T, version string) error {

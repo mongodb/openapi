@@ -27,6 +27,7 @@ import (
 
 func TestSuccessfulFilter_Run(t *testing.T) {
 	fs := afero.NewMemMapFs()
+	t.Parallel()
 
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec.json",
@@ -42,14 +43,37 @@ func TestSuccessfulFilter_Run(t *testing.T) {
 	newSpec, err := loadRunResultOas(fs, opts.outputPath)
 	require.NoError(t, err)
 
-	// // check all paths are kept
+	// check all paths are kept
 	for _, pathItem := range newSpec.Spec.Paths.Map() {
-		// method
 		for _, operation := range pathItem.Operations() {
-			// check extension is removed
+			// check extensions are removed at the operation level
 			require.Nil(t, operation.Extensions)
 		}
 	}
+}
+
+func TestSuccessfulFilterWithVersion_Run(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	t.Parallel()
+
+	opts := &Opts{
+		basePath:   "../../../test/data/base_spec.json",
+		outputPath: "filtered-oas.yaml",
+		fs:         fs,
+		env:        "dev",
+		version:    "2023-01-01",
+	}
+
+	if err := opts.Run(); err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+
+	s, err := loadRunResultOas(fs, opts.outputPath)
+	require.NoError(t, err)
+	// assert /api/atlas/v2/groups/{groupId}:migrate does not exist in filtered spec as it is from a newer version
+	paths := s.Spec.Paths.Map()
+	require.Contains(t, paths, "/api/atlas/v2/groups")
+	require.NotContains(t, paths, "/api/atlas/v2/groups/{groupId}:migrate")
 }
 
 func TestOpts_PreRunE(t *testing.T) {
