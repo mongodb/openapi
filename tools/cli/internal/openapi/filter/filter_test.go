@@ -33,7 +33,9 @@ func TestNewMetadata(t *testing.T) {
 
 func TestValidateMetadata(t *testing.T) {
 	t.Run("Valid metadata", func(t *testing.T) {
-		metadata := &Metadata{}
+		metadata := &Metadata{
+			targetEnv: "dev",
+		}
 		err := validateMetadata(metadata)
 		assert.NoError(t, err)
 	})
