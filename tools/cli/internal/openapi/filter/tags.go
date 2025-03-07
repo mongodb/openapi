@@ -25,7 +25,7 @@ type TagsFilter struct {
 	oas *openapi3.T
 }
 
-func (_ *TagsFilter) ValidateMetadata() error {
+func (*TagsFilter) ValidateMetadata() error {
 	return nil
 }
 
