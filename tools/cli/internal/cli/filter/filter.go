@@ -16,10 +16,7 @@ package filter
 
 import (
 	"fmt"
-	"log"
-	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
@@ -44,7 +41,7 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	filteredOAS, err := o.filter(specInfo.Spec)
+	filteredOAS, err := filter.ApplyFilters(specInfo.Spec, filter.NewMetadata(nil, o.env), filter.FiltersWithoutVersioning)
 	if err != nil {
 		return err
 	}
@@ -52,29 +49,12 @@ func (o *Opts) Run() error {
 	return openapi.Save(o.outputPath, filteredOAS, o.format, o.fs)
 }
 
-func (o *Opts) filter(oas *openapi3.T) (result *openapi3.T, err error) {
-	log.Printf("Filtering OpenAPI document")
-	return filter.ApplyFilters(oas, filter.NewMetadata(nil, o.env), filter.FiltersWithoutVersioning)
-}
-
 func (o *Opts) PreRunE(_ []string) error {
 	if o.basePath == "" {
 		return fmt.Errorf("no OAS detected. Please, use the flag %s to include the base OAS", flag.Base)
 	}
 
-	if o.outputPath != "" && !strings.Contains(o.outputPath, openapi.DotJSON) && !strings.Contains(o.outputPath, openapi.DotYAML) {
-		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
-	}
-
-	if o.format != openapi.JSON && o.format != openapi.YAML {
-		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
-	}
-
-	if strings.Contains(o.basePath, openapi.DotYAML) {
-		o.format = openapi.YAML
-	}
-
-	return nil
+	return openapi.ValidateFormatAndOutput(o.format, o.outputPath)
 }
 
 // Builder builds the filter command with the following signature:

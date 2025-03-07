@@ -25,21 +25,9 @@ import (
 	"github.com/tufin/oasdiff/load"
 )
 
-func TestSuccessfulfilter_Run(t *testing.T) {
+func TestSuccessfulFilter_Run(t *testing.T) {
 	fs := afero.NewMemMapFs()
-	opts := &Opts{
-		basePath:   "../../../test/data/base_spec.json",
-		outputPath: "foas.yaml",
-		fs:         fs,
-	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-}
-
-func TestFilterMulitplePreviewsRun(t *testing.T) {
-	fs := afero.NewMemMapFs()
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec.json",
 		outputPath: "filtered-oas.yaml",
@@ -51,12 +39,17 @@ func TestFilterMulitplePreviewsRun(t *testing.T) {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
 
-	// private preview feature 1
-	info, err := loadRunResultOas(fs, "filtered-oas.yaml")
+	newSpec, err := loadRunResultOas(fs, opts.outputPath)
 	require.NoError(t, err)
 
-	// check all paths are kept
-	require.Len(t, info.Spec.Paths.Map(), 231)
+	// // check all paths are kept
+	for _, pathItem := range newSpec.Spec.Paths.Map() {
+		// method
+		for _, operation := range pathItem.Operations() {
+			// check extension is removed
+			require.Nil(t, operation.Extensions)
+		}
+	}
 }
 
 func TestOpts_PreRunE(t *testing.T) {
@@ -96,13 +89,14 @@ func TestInvalidFormat_PreRun(t *testing.T) {
 
 	err := opts.PreRunE(nil)
 	require.Error(t, err)
-	require.EqualError(t, err, "output format must be either 'json' or 'yaml', got html")
+	require.EqualError(t, err, "format must be either 'json', 'yaml' or 'all', got 'html'")
 }
 
 func TestInvalidPath_PreRun(t *testing.T) {
 	opts := &Opts{
 		outputPath: "foas.html",
 		basePath:   "base.json",
+		format:     "all",
 	}
 
 	err := opts.PreRunE(nil)

@@ -109,11 +109,7 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("no OAS detected. Please, use the flag %s to include the base OAS", flag.Base)
 	}
 
-	if o.outputPath != "" && !strings.Contains(o.outputPath, openapi.DotJSON) && !strings.Contains(o.outputPath, openapi.DotYAML) {
-		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
-	}
-
-	return openapi.ValidateFormat(o.format)
+	return openapi.ValidateFormatAndOutput(o.format, o.outputPath)
 }
 
 // Builder builds the split command with the following signature:
