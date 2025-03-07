@@ -184,6 +184,7 @@ func TestInvalidPath_PreRun(t *testing.T) {
 	opts := &Opts{
 		outputPath: "foas.html",
 		basePath:   "base.json",
+		format:     "all",
 	}
 
 	err := opts.PreRunE(nil)
