@@ -6,6 +6,7 @@ functions:
   - getMethodReturnsSingleResource
   - getMethodReturnsResponseSuffixedObject
   - getResponseCodeShouldBe200OK
+  - getMethodResponseHasNoInputFields
   - getMethodHasNoRequestBody
 
 rules:
@@ -39,6 +40,14 @@ rules:
     then:
       field: '@key'
       function: 'getMethodReturnsResponseSuffixedObject'
+  xgen-IPA-104-get-method-response-has-no-input-fields:
+    description: 'The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields). http://go/ipa/104'
+    message: '{{error}} http://go/ipa/104'
+    severity: warn
+    given: '$.paths[*].get.responses[*].content'
+    then:
+      field: '@key'
+      function: 'getMethodResponseHasNoInputFields'
   xgen-IPA-104-get-method-no-request-body:
     description: 'The Get method request must not include a body. http://go/ipa/104'
     message: '{{error}} http://go/ipa/104'
