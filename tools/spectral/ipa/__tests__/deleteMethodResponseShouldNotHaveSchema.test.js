@@ -66,7 +66,7 @@ testRule('xgen-IPA-108-delete-response-should-be-empty', [
         code: 'xgen-IPA-108-delete-response-should-be-empty',
         message:
           'Error found for application/vnd.atlas.2023-01-01+json: DELETE method should return an empty response. The response should not have a schema property. http://go/ipa/108',
-        path: ['paths', '/resource/{id}', 'delete'],
+        path: ['paths', '/resource/{id}', 'delete', 'responses', '204'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -77,13 +77,13 @@ testRule('xgen-IPA-108-delete-response-should-be-empty', [
       paths: {
         '/resource/{id}': {
           delete: {
-            'x-xgen-IPA-exception': {
-              'xgen-IPA-108-delete-response-should-be-empty': 'Legacy API',
-            },
             responses: {
               204: {
-                content: {
-                  'application/vnd.atlas.2023-01-01+json': {
+                'application/vnd.atlas.2023-01-01+json': {
+                  'x-xgen-IPA-exception': {
+                    'xgen-IPA-108-delete-response-should-be-empty': 'Legacy API',
+                  },
+                  content: {
                     schema: { type: 'object' },
                   },
                 },
