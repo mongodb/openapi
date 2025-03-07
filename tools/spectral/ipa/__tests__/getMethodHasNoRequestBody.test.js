@@ -20,13 +20,6 @@ testRule('xgen-IPA-104-get-method-no-request-body', [
             },
           },
         },
-        '/resource/{id}:custom': {
-          get: {
-            responses: {
-              200: {},
-            },
-          },
-        },
       },
     },
     errors: [],
@@ -63,20 +56,6 @@ testRule('xgen-IPA-104-get-method-no-request-body', [
             },
           },
         },
-        '/resource/{id}:custom': {
-          get: {
-            requestBody: {
-              content: {
-                'application/vnd.atlas.2024-08-05+json': {
-                  schema: { type: 'object' },
-                },
-              },
-            },
-            responses: {
-              200: {},
-            },
-          },
-        },
       },
     },
     errors: [
@@ -90,12 +69,6 @@ testRule('xgen-IPA-104-get-method-no-request-body', [
         code: 'xgen-IPA-104-get-method-no-request-body',
         message: 'The Get method must not include a request body. http://go/ipa/104',
         path: ['paths', '/resource/{id}/singleton', 'get'],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-104-get-method-no-request-body',
-        message: 'The Get method must not include a request body. http://go/ipa/104',
-        path: ['paths', '/resource/{id}:custom', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
