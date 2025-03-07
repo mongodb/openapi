@@ -18,7 +18,7 @@ export default (input, _, { path }) => {
     return;
   }
 
-  if (!responses['204']) {
+  if (!responses || !responses['204']) {
     return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
   }
   return collectAdoption(path, RULE_NAME);
