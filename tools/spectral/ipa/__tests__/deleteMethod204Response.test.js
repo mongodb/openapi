@@ -20,7 +20,7 @@ testRule('xgen-IPA-108-delete-method-return-204-response', [
     errors: [],
   },
   {
-    name: 'valid DELETE with no responses',
+    name: 'invalid DELETE with no responses',
     document: {
       paths: {
         '/resource/{id}': {
