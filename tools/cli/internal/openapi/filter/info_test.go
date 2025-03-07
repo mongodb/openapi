@@ -39,7 +39,7 @@ func TestInfoFilter(t *testing.T) {
 		},
 	}
 
-	filter := &InfoFilter{
+	filter := &InfoVersioningFilter{
 		metadata: NewMetadata(targetVersion, "test"),
 		oas:      oas,
 	}

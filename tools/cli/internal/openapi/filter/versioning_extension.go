@@ -22,7 +22,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// Filter: VersioningExtensionFilter is a filter that updates the x-sunset and x-xgen-version extensions to a date string
+// VersioningExtensionFilter: is a filter that updates the x-sunset and x-xgen-version extensions to a date string
 // and deletes the x-sunset extension if the latest matched version is deprecated by hidden versions
 // for the target environment.
 type VersioningExtensionFilter struct {
@@ -34,6 +34,10 @@ const (
 	sunsetExtension = "x-sunset"
 	xGenExtension   = "x-xgen-version"
 )
+
+func (f *VersioningExtensionFilter) ValidateMetadata() error {
+	return validateMetadataWithVersion(f.metadata)
+}
 
 func (f *VersioningExtensionFilter) Apply() error {
 	for _, pathItem := range f.oas.Paths.Map() {
