@@ -61,7 +61,7 @@ func (o *Opts) Run() error {
 	return openapi.Save(o.outputPath, filteredOAS, o.format, o.fs)
 }
 
-func ByVersion(oas *openapi3.T, version string, env string) (result *openapi3.T, err error) {
+func ByVersion(oas *openapi3.T, version, env string) (result *openapi3.T, err error) {
 	log.Printf("Filtering OpenAPI document by version %q", version)
 	apiVersion, err := apiversion.New(apiversion.WithVersion(version))
 	if err != nil {
