@@ -22,7 +22,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// Filter: VersioningFilter is a filter that modifies the OpenAPI spec by removing operations and responses
+// VersioningFilter: is a filter that modifies the OpenAPI spec by removing operations and responses
 // that are not supported by the target version.
 type VersioningFilter struct {
 	oas      *openapi3.T
@@ -57,7 +57,15 @@ func newOperationConfig(op *openapi3.Operation) *OperationConfig {
 	}
 }
 
+func (f *VersioningFilter) ValidateMetadata() error {
+	return validateMetadataWithVersion(f.metadata)
+}
+
 func (f *VersioningFilter) Apply() error {
+	if f.oas.Paths == nil {
+		return nil
+	}
+
 	newPaths := &openapi3.Paths{
 		Extensions: f.oas.Paths.Extensions,
 	}

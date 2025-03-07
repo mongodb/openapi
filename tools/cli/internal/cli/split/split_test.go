@@ -31,6 +31,7 @@ func TestSuccessfulSplit_Run(t *testing.T) {
 		basePath:   "../../../test/data/base_spec.json",
 		outputPath: "foas.yaml",
 		fs:         fs,
+		env:        "dev",
 	}
 
 	if err := opts.Run(); err != nil {
@@ -44,6 +45,7 @@ func TestSplitPublicPreviewRun(t *testing.T) {
 		basePath:   "../../../test/data/base_spec_with_public_preview.json",
 		outputPath: "foas.yaml",
 		fs:         fs,
+		env:        "dev",
 	}
 
 	if err := opts.Run(); err != nil {
@@ -64,6 +66,7 @@ func TestSplitPrivatePreviewRun(t *testing.T) {
 		basePath:   "../../../test/data/base_spec_with_private_preview.json",
 		outputPath: "foas.yaml",
 		fs:         fs,
+		env:        "dev",
 	}
 
 	if err := opts.Run(); err != nil {
@@ -83,6 +86,7 @@ func TestSplitMulitplePreviewsRun(t *testing.T) {
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec_with_multiple_private_and_public_previews.json",
 		outputPath: "foas.yaml",
+		env:        "dev",
 		fs:         fs,
 	}
 
@@ -122,6 +126,7 @@ func TestInjectSha_Run(t *testing.T) {
 		outputPath: "foas.yaml",
 		fs:         fs,
 		gitSha:     "123456",
+		env:        "dev",
 	}
 
 	if err := opts.Run(); err != nil {
