@@ -34,6 +34,7 @@ For rule definitions, see [IPA-104.yaml](https://github.com/mongodb/openapi/blob
 | xgen-IPA-104-get-method-returns-single-resource          | The purpose of the Get method is to return data from a single resource. http://go/ipa/104  | warn     |
 | xgen-IPA-104-get-method-response-code-is-200             | The Get method must return a 200 OK response. http://go/ipa/104                            | warn     |
 | xgen-IPA-104-get-method-returns-response-suffixed-object | The Get method of a resource should return a "Response" suffixed object. http://go/ipa/104 | warn     |
+| xgen-IPA-104-get-method-no-request-body                  | The Get method request must not include a body. http://go/ipa/104                          | warn     |
 
 ### IPA-106
 
