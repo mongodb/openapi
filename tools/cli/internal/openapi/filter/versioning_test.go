@@ -176,6 +176,59 @@ func TestPathFilter_removeResponses(t *testing.T) {
 	assert.Equal(t, 1, oas.Paths.Find("/path").Get.Responses.Len())
 }
 
+func Test_FilterOperations_moveSunsetToOperationAndMarkDeprecated(t *testing.T) {
+	response := &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: openapi3.Content{
+				"application/vnd.atlas.2023-01-01+json": &openapi3.MediaType{
+					Extensions: map[string]any{
+						"x-sunset":       "2024-01-01",
+						"x-xgen-version": "2023-01-01",
+					},
+				},
+			},
+		},
+	}
+	responses := openapi3.Responses{}
+	responses.Set("200", response)
+
+	operation := &openapi3.Operation{
+		Responses:   &responses,
+		Summary:     "summary",
+		Description: "description",
+	}
+
+	paths := openapi3.Paths{}
+	paths.Set("/path", &openapi3.PathItem{Get: operation})
+
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
+
+	f := &VersioningFilter{
+		oas: &openapi3.T{
+			Paths: &paths,
+		},
+		metadata: &Metadata{
+			targetVersion: version,
+		},
+	}
+
+	// Assert the sunset to be filtered exists
+	require.Contains(t, f.oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content["application/vnd.atlas.2023-01-01+json"].Extensions, "x-sunset")
+	require.False(t, f.oas.Paths.Find("/path").Get.Deprecated)
+	require.NoError(t, f.Apply())
+
+	// Assert sunset was moved to operation
+	require.Contains(t, f.oas.Paths.Find("/path").Get.Extensions, "x-sunset")
+	require.NotContains(t, f.oas.Paths.Find("/path").Get.Responses.Map()["200"].Extensions, "x-sunset")
+	require.NotContains(t, f.oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content["application/vnd.atlas.2023-01-01+json"].Extensions, "x-sunset")
+	require.True(t, f.oas.Paths.Find("/path").Get.Deprecated)
+
+	// Assert oas was not updated
+	require.Contains(t, f.oas.Paths.Find("/path").Get.Summary, "summary")
+	require.Contains(t, f.oas.Paths.Find("/path").Get.Description, "description")
+}
+
 func getOasWithPaths() *openapi3.T {
 	oas := &openapi3.T{}
 	oas.Paths = &openapi3.Paths{
