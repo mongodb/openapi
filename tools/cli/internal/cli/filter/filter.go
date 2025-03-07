@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
@@ -34,8 +33,8 @@ type Opts struct {
 	basePath   string
 	outputPath string
 	env        string
+	version    string
 	format     string
-	gitSha     string
 }
 
 func (o *Opts) Run() error {
@@ -45,53 +44,17 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	versions, err := openapi.ExtractVersionsWithEnv(specInfo.Spec, o.env)
+	filteredOAS, err := o.filter(specInfo.Spec)
 	if err != nil {
 		return err
 	}
 
-	for _, version := range versions {
-		filteredOAS, err := o.filter(specInfo.Spec, version)
-		if err != nil {
-			return err
-		}
-
-		if o.gitSha != "" {
-			filteredOAS.Info.Extensions = map[string]any{
-				"x-xgen-sha": o.gitSha,
-			}
-		}
-
-		if err := o.saveVersionedOas(filteredOAS, version); err != nil {
-			return err
-		}
-
-		if err := filteredOAS.Validate(loader.Loader.Context); err != nil {
-			log.Printf("[WARN] OpenAPI document is invalid: %v", err)
-		}
-	}
-
-	return nil
+	return openapi.Save(o.outputPath, filteredOAS, o.format, o.fs)
 }
 
-func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err error) {
-	log.Printf("Filtering OpenAPI document by version %q", version)
-	apiVersion, err := apiversion.New(apiversion.WithVersion(version))
-	if err != nil {
-		return nil, err
-	}
-
-	return filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, o.env), filter.DefaultFilters)
-}
-
-func (o *Opts) saveVersionedOas(oas *openapi3.T, version string) error {
-	path := o.basePath
-	if o.outputPath != "" {
-		path = o.outputPath
-	}
-
-	path = strings.Replace(path, "."+o.format, fmt.Sprintf("-%s.%s", version, o.format), 1)
-	return openapi.Save(path, oas, o.format, o.fs)
+func (o *Opts) filter(oas *openapi3.T) (result *openapi3.T, err error) {
+	log.Printf("Filtering OpenAPI document")
+	return filter.ApplyFilters(oas, filter.NewMetadata(nil, o.env), filter.FiltersWithoutVersioning)
 }
 
 func (o *Opts) PreRunE(_ []string) error {
@@ -115,7 +78,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 // Builder builds the filter command with the following signature:
-// filter -b base-oas -o output-oas.json.
+// filter -s oas -o output-oas.json.
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
@@ -135,10 +98,9 @@ func Builder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "-", usage.Spec)
 	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
+	cmd.Flags().StringVar(&opts.version, flag.Version, "", usage.Version)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.JSON, usage.Format)
-	cmd.Flags().StringVar(&opts.gitSha, flag.GitSha, "", usage.GitSha)
-
 	_ = cmd.MarkFlagRequired(flag.Output)
 
 	return cmd

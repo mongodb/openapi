@@ -38,52 +38,13 @@ func TestSuccessfulfilter_Run(t *testing.T) {
 	}
 }
 
-func TestfilterPublicPreviewRun(t *testing.T) {
+func TestFilterMulitplePreviewsRun(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
-		basePath:   "../../../test/data/base_spec_with_public_preview.json",
-		outputPath: "foas.yaml",
+		basePath:   "../../../test/data/base_spec.json",
+		outputPath: "filtered-oas.yaml",
 		fs:         fs,
-	}
-
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
-	info, err := loadRunResultOas(fs, "foas-preview.yaml")
-	require.NoError(t, err)
-
-	// check paths has only one
-	require.Len(t, info.Spec.Paths.Map(), 1)
-	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups")
-}
-
-func TestfilterPrivatePreviewRun(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	opts := &Opts{
-		basePath:   "../../../test/data/base_spec_with_private_preview.json",
-		outputPath: "foas.yaml",
-		fs:         fs,
-	}
-
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
-	info, err := loadRunResultOas(fs, "foas-private-preview-new-feature.yaml")
-	require.NoError(t, err)
-
-	// check paths has only one
-	require.Len(t, info.Spec.Paths.Map(), 1)
-	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups")
-}
-
-func TestfilterMulitplePreviewsRun(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	opts := &Opts{
-		basePath:   "../../../test/data/base_spec_with_multiple_private_and_public_previews.json",
-		outputPath: "foas.yaml",
-		fs:         fs,
+		env:        "dev",
 	}
 
 	if err := opts.Run(); err != nil {
@@ -91,48 +52,11 @@ func TestfilterMulitplePreviewsRun(t *testing.T) {
 	}
 
 	// private preview feature 1
-	info, err := loadRunResultOas(fs, "foas-private-preview-new-feature.yaml")
+	info, err := loadRunResultOas(fs, "filtered-oas.yaml")
 	require.NoError(t, err)
 
-	// check paths has only one
-	require.Len(t, info.Spec.Paths.Map(), 1)
-	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups")
-
-	// private preview feature 2
-	info, err = loadRunResultOas(fs, "foas-private-preview-secrets-feature.yaml")
-	require.NoError(t, err)
-
-	// check paths has only one
-	require.Len(t, info.Spec.Paths.Map(), 1)
-	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets")
-
-	// public preview
-	info, err = loadRunResultOas(fs, "foas-preview.yaml")
-	require.NoError(t, err)
-
-	// check paths has only one
-	require.Len(t, info.Spec.Paths.Map(), 1)
-	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups/{groupId}/serviceAccounts")
-}
-
-func TestInjectSha_Run(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	opts := &Opts{
-		basePath:   "../../../test/data/base_spec.json",
-		outputPath: "foas.yaml",
-		fs:         fs,
-		gitSha:     "123456",
-	}
-
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
-	result, err := loadRunResultOas(fs, "foas-2023-01-01.yaml")
-	require.NoError(t, err)
-	// check sha
-	require.Contains(t, result.Spec.Info.Extensions, "x-xgen-sha")
-	require.Equal(t, "123456", result.Spec.Info.Extensions["x-xgen-sha"])
+	// check all paths are kept
+	require.Len(t, info.Spec.Paths.Map(), 231)
 }
 
 func TestOpts_PreRunE(t *testing.T) {
