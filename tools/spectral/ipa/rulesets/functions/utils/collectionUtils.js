@@ -46,3 +46,17 @@ export function collectException(object, ruleName, jsonPath) {
     collector.add(EntryType.EXCEPTION, jsonPath, ruleName, exceptionReason);
   }
 }
+
+/**
+ * Creates internal rule error entry for the collector in order to not fail validation process.
+ * @param {Array<string>} jsonPathArray - The JSON path for the object where the rule exception occurred.
+ * @param {string} ruleName - The name of the rule that was adopted.
+ */
+export function handleInternalError(ruleName, jsonPathArray, error) {
+  return [
+    {
+      path: jsonPathArray,
+      message: `${ruleName} Internal Rule Error: ${error} Please report issue in https://github.com/mongodb/openapi/issues`,
+    },
+  ];
+}
