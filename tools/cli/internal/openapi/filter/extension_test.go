@@ -24,59 +24,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestXSunsetFilter_removeSunset(t *testing.T) {
-	tests := []struct {
-		name       string
-		oas        *openapi3.T
-		version    string
-		sunsetDate string
-	}{
-		{
-			name:       "sunset 2023-01-01",
-			oas:        getOasSunset(),
-			version:    "2023-01-01",
-			sunsetDate: "2024-05-30",
-		},
-		{
-			name:       "sunset 2024-05-30",
-			oas:        getOasSunset(),
-			version:    "2024-05-30",
-			sunsetDate: "",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			version, err := apiversion.New(apiversion.WithVersion(tt.version))
-			require.NoError(t, err)
-			oas := tt.oas
-
-			filter := &ExtensionFilter{
-				oas:      oas,
-				metadata: &Metadata{targetVersion: version, targetEnv: "dev"},
-			}
-
-			contentKey := fmt.Sprintf("application/vnd.atlas.%s+json", tt.version)
-			require.NoError(t, filter.Apply())
-			assert.NotNil(t, oas.Paths.Find("/path").Get)
-			assert.NotEmpty(t, oas.Paths.Find("/path").Get.Responses)
-			assert.NotNil(t, oas.Paths.Find("/path").Get.Responses.Map()["200"])
-
-			versionExtension := oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey).Extensions[xGenExtension]
-			assert.Equal(t, tt.version, versionExtension)
-
-			if tt.sunsetDate == "" {
-				assert.Empty(t, oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey).Extensions[sunsetExtension])
-				return
-			}
-
-			assert.NotNil(t, oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey))
-			contentExtensions := oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey).Extensions
-			assert.Contains(t, contentExtensions, sunsetExtension)
-			assert.Equal(t, tt.sunsetDate, contentExtensions[sunsetExtension])
-		})
-	}
-}
-
 func TestExtensionFilter_removeIpaException(t *testing.T) {
 	oas := getOasIpaExceptions()
 	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
@@ -194,74 +141,6 @@ func TestExtensionFilter_removeIpaException(t *testing.T) {
 			assert.Nil(t, tt.extension)
 		})
 	}
-}
-
-func getOasSunset() *openapi3.T {
-	oas := &openapi3.T{}
-	oas.Paths = &openapi3.Paths{}
-
-	operation := &openapi3.Operation{
-		Responses: &openapi3.Responses{},
-	}
-
-	operation.Responses.Set("200", &openapi3.ResponseRef{
-		Value: &openapi3.Response{
-			Content: map[string]*openapi3.MediaType{
-				"application/vnd.atlas.2023-01-01+json": {
-					Schema: &openapi3.SchemaRef{
-						Value: &openapi3.Schema{
-							Description: "description",
-						},
-					},
-					Extensions: map[string]any{
-						"x-sunset":    "2024-05-30T00:00:00Z",
-						xGenExtension: "2023-01-01T00:00:00Z",
-					},
-				},
-				"application/vnd.atlas.2024-02-30+json": {
-					Schema: &openapi3.SchemaRef{
-						Value: &openapi3.Schema{
-							Description: "description",
-						},
-					},
-					Extensions: map[string]any{
-						"x-sunset":    "2024-04-10",
-						xGenExtension: "2024-02-30T00:00:00Z",
-					},
-				},
-				"application/vnd.atlas.2025-01-01+json": {
-					Schema: &openapi3.SchemaRef{
-						Value: &openapi3.Schema{
-							Description: "description",
-						},
-						Extensions: map[string]any{
-							"x-sunset":    "2025-01-01T00:00:00Z",
-							xGenExtension: "2025-01-01",
-						},
-					},
-					Extensions: map[string]any{
-						hiddenEnvsExtension: map[string]any{
-							"envs": "dev,qa,prod,stage",
-						},
-					},
-				},
-				"application/vnd.atlas.2024-05-30+json": {
-					Schema: &openapi3.SchemaRef{
-						Value: &openapi3.Schema{
-							Description: "description",
-						},
-					},
-					Extensions: map[string]any{
-						"x-sunset":    "2025-01-01T00:00:00Z",
-						xGenExtension: "2024-05-30",
-					},
-				},
-			},
-		},
-	})
-
-	oas.Paths.Set("/path", &openapi3.PathItem{Get: operation})
-	return oas
 }
 
 func getOasIpaExceptions() *openapi3.T {

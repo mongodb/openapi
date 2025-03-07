@@ -15,34 +15,29 @@
 package filter
 
 import (
-	"log"
-	"time"
-
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// Filter: ExtensionFilter is a filter that updates the x-sunset and x-xgen-version extensions to a date string
-// and deletes the x-sunset extension if the latest matched version is deprecated by hidden versions
-// for the target environment.
+// ExtensionFilter: is a filter that removes the x-xgen-IPA-exception extension from the OpenAPI spec.
 type ExtensionFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
 }
 
 const (
-	sunsetExtension       = "x-sunset"
-	xGenExtension         = "x-xgen-version"
 	ipaExceptionExtension = "x-xgen-IPA-exception"
 	format                = "2006-01-02T15:04:05Z07:00"
 )
+
+func (f *ExtensionFilter) ValidateMetadata() error {
+	return validateMetadata(f.metadata)
+}
 
 func (f *ExtensionFilter) Apply() error {
 	for _, pathItem := range f.oas.Paths.Map() {
 		if pathItem == nil {
 			continue
 		}
-		updateExtensionToDateString(pathItem.Extensions)
 		deleteIpaExceptionExtension(pathItem.Extensions)
 
 		for _, operation := range pathItem.Operations() {
@@ -50,7 +45,6 @@ func (f *ExtensionFilter) Apply() error {
 				continue
 			}
 
-			updateExtensionToDateString(operation.Extensions)
 			deleteIpaExceptionExtension(operation.Extensions)
 
 			if operation.Parameters != nil {
@@ -59,37 +53,28 @@ func (f *ExtensionFilter) Apply() error {
 
 			updateExtensionsForRequestBody(operation.RequestBody)
 
-			latestVersionMatch := apiversion.FindLatestContentVersionMatched(operation, f.metadata.targetVersion)
-
 			for _, response := range operation.Responses.Map() {
 				if response == nil {
 					continue
 				}
 
-				updateExtensionToDateString(response.Extensions)
 				deleteIpaExceptionExtension(response.Extensions)
 
 				if response.Value == nil {
 					continue
 				}
 
-				updateExtensionToDateString(response.Value.Extensions)
 				deleteIpaExceptionExtension(response.Value.Extensions)
 
 				if response.Value.Content == nil {
 					continue
 				}
-
-				f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, response.Value.Content)
-				updateToDateString(response.Value.Content)
 			}
 
 			request := operation.RequestBody
 			if request == nil || request.Value == nil || request.Value.Content == nil {
 				continue
 			}
-			updateToDateString(request.Value.Content)
-			f.deleteSunsetIfDeprecatedByHiddenVersions(latestVersionMatch, request.Value.Content)
 		}
 	}
 	if f.oas.Tags != nil {
@@ -195,77 +180,4 @@ func deleteIpaExceptionExtension(extensions map[string]any) {
 	}
 
 	delete(extensions, ipaExceptionExtension)
-}
-
-func updateExtensionToDateString(extensions map[string]any) {
-	if extensions == nil {
-		return
-	}
-
-	for k, v := range extensions {
-		if k != sunsetExtension && k != xGenExtension {
-			continue
-		}
-		date, err := time.Parse(format, v.(string))
-		if err != nil {
-			continue
-		}
-		extensions[k] = date.Format("2006-01-02")
-	}
-}
-
-func updateToDateString(content openapi3.Content) {
-	for _, mediaType := range content {
-		if mediaType.Extensions == nil {
-			continue
-		}
-
-		updateExtensionToDateString(mediaType.Extensions)
-	}
-}
-
-// deleteSunsetIfDeprecatedByHiddenVersions deletes the sunset extension if the latest matched version is deprecated by hidden versions.
-func (f *ExtensionFilter) deleteSunsetIfDeprecatedByHiddenVersions(latestMatchedVersion *apiversion.APIVersion, content openapi3.Content) {
-	versions, versionToContentType := getVersionsInContentType(content)
-
-	deprecatedByHiddenVersions := make([]*apiversion.APIVersion, 0)
-	deprecatedByVersions := make([]*apiversion.APIVersion, 0)
-
-	for _, v := range versions {
-		if v.GreaterThan(latestMatchedVersion) {
-			if value, ok := versionToContentType[v.String()]; ok {
-				if isContentTypeHiddenForEnv(value, f.metadata.targetEnv) {
-					deprecatedByHiddenVersions = append(deprecatedByHiddenVersions, v)
-					continue
-				}
-				deprecatedByVersions = append(deprecatedByVersions, v)
-			}
-		}
-	}
-
-	// If the exact requested version is marked for sunset for a list of hidden versions
-	if value, ok := versionToContentType[latestMatchedVersion.String()]; ok {
-		if len(deprecatedByHiddenVersions) > 0 && len(deprecatedByVersions) == 0 && value.Extensions != nil {
-			delete(value.Extensions, sunsetExtension)
-		}
-	}
-}
-
-func getVersionsInContentType(content map[string]*openapi3.MediaType) (
-	versions []*apiversion.APIVersion, contentsInVersion map[string]*openapi3.MediaType) {
-	contentsInVersion = make(map[string]*openapi3.MediaType)
-	versionsInContentType := make(map[string]*apiversion.APIVersion)
-
-	for contentType, contentValue := range content {
-		v, err := apiversion.New(apiversion.WithFullContent(contentType, contentValue))
-		if err != nil {
-			log.Printf("Ignoring invalid content type: %s", contentType)
-			continue
-		}
-		versions = append(versions, v)
-		versionsInContentType[v.String()] = v
-		contentsInVersion[v.String()] = content[contentType]
-	}
-
-	return versions, contentsInVersion
 }

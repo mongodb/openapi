@@ -29,3 +29,16 @@ export function getAllSuccessfulResponseSchemas(operationObject) {
   });
   return result;
 }
+
+/**
+ * Gets the schema reference for a schema object. If the schema does not have a reference, undefined is returned.
+ *
+ * @param {object} schema the unresolved schema object
+ * @returns {string} the schema ref
+ */
+export function getSchemaRef(schema) {
+  if (schema.type === 'array' && schema.items) {
+    return schema.items.$ref;
+  }
+  return schema.$ref;
+}

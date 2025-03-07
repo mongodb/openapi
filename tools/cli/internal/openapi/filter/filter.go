@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	reflect "reflect"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
@@ -25,6 +26,7 @@ import (
 //go:generate mockgen -destination=../filter/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi/filter Filter
 type Filter interface {
 	Apply() error
+	ValidateMetadata() error
 }
 
 type Metadata struct {
@@ -39,9 +41,27 @@ func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metada
 	}
 }
 
+// validateMetadata validates the metadata object, ensuring its not nil and has a target env.
 func validateMetadata(metadata *Metadata) error {
 	if metadata == nil {
 		return errors.New("metadata is nil")
+	}
+
+	if metadata.targetEnv == "" {
+		return errors.New("target environment is empty")
+	}
+
+	return nil
+}
+
+// validateMetadataWithVersion validates the metadata object, ensuring its not nil and has a target version.
+func validateMetadataWithVersion(metadata *Metadata) error {
+	if err := validateMetadata(metadata); err != nil {
+		return err
+	}
+
+	if metadata.targetVersion == nil {
+		return errors.New("target version is nil")
 	}
 
 	return nil
@@ -50,8 +70,19 @@ func validateMetadata(metadata *Metadata) error {
 func DefaultFilters(oas *openapi3.T, metadata *Metadata) []Filter {
 	return []Filter{
 		&ExtensionFilter{oas: oas, metadata: metadata},
+		&VersioningExtensionFilter{oas: oas, metadata: metadata},
 		&VersioningFilter{oas: oas, metadata: metadata},
-		&InfoFilter{oas: oas, metadata: metadata},
+		&InfoVersioningFilter{oas: oas, metadata: metadata},
+		&HiddenEnvsFilter{oas: oas, metadata: metadata},
+		&TagsFilter{oas: oas},
+		&OperationsFilter{oas: oas},
+	}
+}
+
+func FiltersWithoutVersioning(oas *openapi3.T, metadata *Metadata) []Filter {
+	return []Filter{
+		&ExtensionFilter{oas: oas, metadata: metadata},
+		&InfoVersioningFilter{oas: oas, metadata: metadata},
 		&HiddenEnvsFilter{oas: oas, metadata: metadata},
 		&TagsFilter{oas: oas},
 		&OperationsFilter{oas: oas},
@@ -70,10 +101,6 @@ func ApplyFilters(doc *openapi3.T, metadata *Metadata, filters func(oas *openapi
 		return nil, errors.New("openapi document is nil")
 	}
 
-	if err := validateMetadata(metadata); err != nil {
-		return nil, err
-	}
-
 	// make a copy of the oas to avoid modifying the original document when applying filters
 	oas, err := duplicateOas(doc)
 	if err != nil {
@@ -81,6 +108,10 @@ func ApplyFilters(doc *openapi3.T, metadata *Metadata, filters func(oas *openapi
 	}
 
 	for _, filter := range filters(oas, metadata) {
+		if err := filter.ValidateMetadata(); err != nil {
+			s := reflect.TypeOf(filter)
+			return nil, fmt.Errorf("failed to validate metadata for filter %s with: %w", s, err)
+		}
 		if err := filter.Apply(); err != nil {
 			return nil, err
 		}
