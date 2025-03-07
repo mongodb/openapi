@@ -50,14 +50,6 @@ For rule definitions, see [IPA-106.yaml](https://github.com/mongodb/openapi/blob
 
 For rule definitions, see [IPA-108.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-108.yaml).
 
-| Rule Name                                    | Description                                                                          | Severity |
-| -------------------------------------------- | ------------------------------------------------------------------------------------ | -------- |
-| xgen-IPA-108-delete-response-should-be-empty | Delete method response should not have schema reference to object. http://go/ipa/108 | warn     |
-
-### IPA-108
-
-For rule definitions, see [IPA-108.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-108.yaml).
-
 | Rule Name                                      | Description                                                                          | Severity |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------ | -------- |
 | xgen-IPA-108-delete-response-should-be-empty   | Delete method response should not have schema reference to object. http://go/ipa/108 | warn     |
