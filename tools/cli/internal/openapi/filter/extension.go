@@ -29,6 +29,10 @@ const (
 	format                = "2006-01-02T15:04:05Z07:00"
 )
 
+func (f *ExtensionFilter) ValidateMetadata() error {
+	return validateMetadata(f.metadata)
+}
+
 func (f *ExtensionFilter) Apply() error {
 	for _, pathItem := range f.oas.Paths.Map() {
 		if pathItem == nil {

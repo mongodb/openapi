@@ -26,6 +26,10 @@ type InfoVersioningFilter struct {
 	metadata *Metadata
 }
 
+func (f *InfoVersioningFilter) ValidateMetadata() error {
+	return validateMetadataWithVersion(f.metadata)
+}
+
 func (f *InfoVersioningFilter) Apply() error {
 	if f.oas.Info == nil {
 		return nil

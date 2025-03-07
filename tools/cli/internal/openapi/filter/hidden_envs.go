@@ -32,6 +32,10 @@ type HiddenEnvsFilter struct {
 	metadata *Metadata
 }
 
+func (f *HiddenEnvsFilter) ValidateMetadata() error {
+	return validateMetadata(f.metadata)
+}
+
 func (f *HiddenEnvsFilter) Apply() error {
 	// delete hidden paths first before processing
 	for pathName, pathItem := range f.oas.Paths.Map() {

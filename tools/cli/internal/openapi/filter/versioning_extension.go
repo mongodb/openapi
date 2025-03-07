@@ -35,6 +35,10 @@ const (
 	xGenExtension   = "x-xgen-version"
 )
 
+func (f *VersioningExtensionFilter) ValidateMetadata() error {
+	return validateMetadataWithVersion(f.metadata)
+}
+
 func (f *VersioningExtensionFilter) Apply() error {
 	for _, pathItem := range f.oas.Paths.Map() {
 		if pathItem == nil {

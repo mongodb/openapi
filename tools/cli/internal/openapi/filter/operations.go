@@ -23,6 +23,10 @@ type OperationsFilter struct {
 	oas *openapi3.T
 }
 
+func (f *OperationsFilter) ValidateMetadata() error {
+	return nil
+}
+
 func (f *OperationsFilter) Apply() error {
 	if f.oas.Paths == nil {
 		return nil
