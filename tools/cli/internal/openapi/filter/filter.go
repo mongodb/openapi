@@ -17,10 +17,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-<<<<<<< HEAD
 	"log"
-=======
->>>>>>> origin/main
 	reflect "reflect"
 
 	"github.com/getkin/kin-openapi/openapi3"
