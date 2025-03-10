@@ -19,7 +19,7 @@ To run the IPA validation locally, install necessary dependencies with `npm inst
 npm run ipa-validation
 ```
 
-This command will run Spectral CLI for the ruleset [ipa-spectral.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/ipa-spectral.yaml) on the raw [v2.yaml](https://github.com/mongodb/openapi/blob/main/openapi/.raw/v2.json) OpenAPI spec.
+This command will run Spectral CLI for the ruleset [ipa-spectral.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/ipa-spectral.yaml) on the raw [v2.yaml](https://github.com/mongodb/openapi/blob/main/openapi/.raw/v2.yaml) OpenAPI spec.
 
 The Spectral CLI can also be used to run the validation on any valid OpenAPI file (`json` or `yaml`).
 
