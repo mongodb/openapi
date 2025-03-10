@@ -12,12 +12,12 @@ const ERROR_MESSAGE = 'DELETE method should return 204 No Content status code.';
  * @param {object} context - The context object containing the path
  */
 export default (input, _, { path }) => {
-  const responses = input.responses;
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
     return;
   }
 
+  const responses = input.responses;
   if (!responses || !responses['204']) {
     return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
   }
