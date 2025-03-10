@@ -23,6 +23,7 @@ For rule definitions, see [IPA-102.yaml](https://github.com/mongodb/openapi/blob
 | Rule Name                                            | Description                                                                                                             | Severity |
 | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------- |
 | xgen-IPA-102-path-alternate-resource-name-path-param | Paths should alternate between resource names and path params. http://go/ipa/102                                        | error    |
+| xgen-IPA-102-collection-identifier-camelCase         | Collection identifiers must be in camelCase. http://go/ipa/102                                                          | warn     |
 | xgen-IPA-102-collection-identifier-pattern           | Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers. http://go/ipa/102 | warn     |
 
 ### IPA-104
