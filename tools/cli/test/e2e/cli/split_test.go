@@ -113,6 +113,7 @@ func versionInFuture(t *testing.T, version string) bool {
 }
 
 func TestSplitVersionsFilteredOASes_All(t *testing.T) {
+	t.Parallel()
 	cliPath := NewBin(t)
 	env := "dev"
 	folder := env
@@ -153,6 +154,7 @@ func TestSplitVersionsFilteredOASes_All(t *testing.T) {
 }
 
 func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
+	t.Parallel()
 	folder := "dev"
 	cliPath := NewBin(t)
 	base, err := filepath.Abs("../../data/split/" + folder + "/openapi-api-registry.json")

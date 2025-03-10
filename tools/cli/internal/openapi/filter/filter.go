@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	reflect "reflect"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -82,7 +83,6 @@ func DefaultFilters(oas *openapi3.T, metadata *Metadata) []Filter {
 func FiltersWithoutVersioning(oas *openapi3.T, metadata *Metadata) []Filter {
 	return []Filter{
 		&ExtensionFilter{oas: oas, metadata: metadata},
-		&InfoVersioningFilter{oas: oas, metadata: metadata},
 		&HiddenEnvsFilter{oas: oas, metadata: metadata},
 		&TagsFilter{oas: oas},
 		&OperationsFilter{oas: oas},
@@ -108,9 +108,10 @@ func ApplyFilters(doc *openapi3.T, metadata *Metadata, filters func(oas *openapi
 	}
 
 	for _, filter := range filters(oas, metadata) {
+		filterName := reflect.TypeOf(filter)
+		log.Printf("Applying filter %s", filterName)
 		if err := filter.ValidateMetadata(); err != nil {
-			s := reflect.TypeOf(filter)
-			return nil, fmt.Errorf("failed to validate metadata for filter %s with: %w", s, err)
+			return nil, fmt.Errorf("failed to validate metadata for filter %s with: %w", filterName, err)
 		}
 		if err := filter.Apply(); err != nil {
 			return nil, err

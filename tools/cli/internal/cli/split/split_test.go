@@ -26,6 +26,7 @@ import (
 )
 
 func TestSuccessfulSplit_Run(t *testing.T) {
+	t.Parallel()
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec.json",
@@ -34,12 +35,11 @@ func TestSuccessfulSplit_Run(t *testing.T) {
 		env:        "dev",
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
+	require.NoError(t, opts.Run())
 }
 
 func TestSplitPublicPreviewRun(t *testing.T) {
+	t.Parallel()
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec_with_public_preview.json",
@@ -48,9 +48,7 @@ func TestSplitPublicPreviewRun(t *testing.T) {
 		env:        "dev",
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
+	require.NoError(t, opts.Run())
 
 	info, err := loadRunResultOas(fs, "foas-preview.yaml")
 	require.NoError(t, err)
@@ -61,6 +59,7 @@ func TestSplitPublicPreviewRun(t *testing.T) {
 }
 
 func TestSplitPrivatePreviewRun(t *testing.T) {
+	t.Parallel()
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec_with_private_preview.json",
@@ -69,9 +68,7 @@ func TestSplitPrivatePreviewRun(t *testing.T) {
 		env:        "dev",
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
+	require.NoError(t, opts.Run())
 
 	info, err := loadRunResultOas(fs, "foas-private-preview-new-feature.yaml")
 	require.NoError(t, err)
@@ -81,7 +78,8 @@ func TestSplitPrivatePreviewRun(t *testing.T) {
 	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups")
 }
 
-func TestSplitMulitplePreviewsRun(t *testing.T) {
+func TestSplitMultiplePreviewsRun(t *testing.T) {
+	t.Parallel()
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec_with_multiple_private_and_public_previews.json",
@@ -90,9 +88,7 @@ func TestSplitMulitplePreviewsRun(t *testing.T) {
 		fs:         fs,
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
+	require.NoError(t, opts.Run())
 
 	// private preview feature 1
 	info, err := loadRunResultOas(fs, "foas-private-preview-new-feature.yaml")
@@ -120,6 +116,7 @@ func TestSplitMulitplePreviewsRun(t *testing.T) {
 }
 
 func TestInjectSha_Run(t *testing.T) {
+	t.Parallel()
 	fs := afero.NewMemMapFs()
 	opts := &Opts{
 		basePath:   "../../../test/data/base_spec.json",
@@ -129,10 +126,7 @@ func TestInjectSha_Run(t *testing.T) {
 		env:        "dev",
 	}
 
-	if err := opts.Run(); err != nil {
-		t.Fatalf("Run() unexpected error: %v", err)
-	}
-
+	require.NoError(t, opts.Run())
 	result, err := loadRunResultOas(fs, "foas-2023-01-01.yaml")
 	require.NoError(t, err)
 	// check sha
@@ -159,6 +153,7 @@ func TestOpts_PreRunE(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			o := &Opts{
 				basePath: tt.basePath,
 				format:   "json",
@@ -169,6 +164,7 @@ func TestOpts_PreRunE(t *testing.T) {
 }
 
 func TestInvalidFormat_PreRun(t *testing.T) {
+	t.Parallel()
 	opts := &Opts{
 		outputPath: "foas.json",
 		basePath:   "base.json",
@@ -181,9 +177,11 @@ func TestInvalidFormat_PreRun(t *testing.T) {
 }
 
 func TestInvalidPath_PreRun(t *testing.T) {
+	t.Parallel()
 	opts := &Opts{
 		outputPath: "foas.html",
 		basePath:   "base.json",
+		format:     "all",
 	}
 
 	err := opts.PreRunE(nil)
