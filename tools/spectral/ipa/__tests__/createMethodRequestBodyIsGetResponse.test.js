@@ -3,14 +3,44 @@ import { DiagnosticSeverity } from '@stoplight/types';
 
 const componentSchemas = {
   schemas: {
-    SchemaRequest: {
-      type: 'object',
+    SchemaOne: {
+      type: 'string',
     },
-    Schema: {
+    SchemaTwo: {
       type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          readOnly: true,
+        },
+      },
+    },
+    SchemaThree: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+        },
+        someArray: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+    },
+    SchemaFour: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          writeOnly: true,
+        },
+      },
     },
   },
 };
+
 testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
   {
     name: 'valid methods',
@@ -23,12 +53,12 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaRequest',
+                    $ref: '#/components/schemas/SchemaOne',
                   },
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaRequest',
+                    $ref: '#/components/schemas/SchemaOne',
                   },
                 },
               },
@@ -42,7 +72,73 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
-                      $ref: '#/components/schemas/Schema',
+                      $ref: '#/components/schemas/SchemaOne',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceTwo': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaTwo',
+                  },
+                },
+                'application/vnd.atlas.2024-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaTwo',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceTwo/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaFour',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceThree': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaThree',
+                  },
+                },
+                'application/vnd.atlas.2024-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaThree',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceThree/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaThree',
                     },
                   },
                 },
@@ -56,19 +152,19 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/Schema',
+                    $ref: '#/components/schemas/SchemaOne',
                   },
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaRequest',
+                    $ref: '#/components/schemas/SchemaOne',
                   },
                 },
               },
             },
           },
         },
-      }
+      },
     },
     errors: [],
   },
@@ -83,38 +179,93 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/Schema',
-                  },
-                },
-              },
-            },
-          },
-        },
-        '/resource2': {
-          post: {
-            requestBody: {
-              content: {
-                'application/vnd.atlas.2023-01-01+json': {
-                  schema: {
-                    $ref: '#/components/schemas/Schema',
+                    $ref: '#/components/schemas/SchemaOne',
                   },
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/Schema',
+                    $ref: '#/components/schemas/SchemaOne',
                   },
                 },
               },
             },
           },
         },
-        '/resource3': {
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaTwo',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceTwo': {
           post: {
             requestBody: {
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    type: 'object',
+                    $ref: '#/components/schemas/SchemaTwo',
+                  },
+                },
+                'application/vnd.atlas.2024-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaTwo',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceTwo/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaThree',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceThree': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaOne',
+                  },
+                },
+                'application/vnd.atlas.2024-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaThree',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceThree/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaThree',
+                    },
                   },
                 },
               },
@@ -126,32 +277,23 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
+        message:
+          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
-        path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
+        message:
+          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
-        path: ['paths', '/resource2', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
-        path: ['paths', '/resource2', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The response body schema is defined inline and must reference a predefined schema. http://go/ipa/106',
-        path: ['paths', '/resource3', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        message:
+          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        path: ['paths', '/resourceThree', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -167,7 +309,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/Schema',
+                    $ref: '#/components/schemas/SchemaOne',
                   },
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
@@ -175,26 +317,35 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    type: 'array',
-                    items: {
-                      $ref: '#/components/schemas/Schema',
+                    $ref: '#/components/schemas/SchemaOne',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaTwo',
                     },
                   },
-                  'x-xgen-IPA-exception': {
-                    'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
-                  },
                 },
               },
             },
           },
         },
-        '/resource2': {
+        '/resourceTwo': {
           post: {
             requestBody: {
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/Schema',
+                    $ref: '#/components/schemas/SchemaTwo',
                   },
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
@@ -202,26 +353,58 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/Schema',
-                  },
-                  'x-xgen-IPA-exception': {
-                    'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
+                    $ref: '#/components/schemas/SchemaTwo',
                   },
                 },
               },
             },
           },
         },
-        '/resource3': {
+        '/resourceTwo/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaThree',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceThree': {
           post: {
             requestBody: {
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    type: 'object',
+                    $ref: '#/components/schemas/SchemaOne',
                   },
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
+                  },
+                },
+                'application/vnd.atlas.2024-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaThree',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceThree/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaThree',
+                    },
                   },
                 },
               },

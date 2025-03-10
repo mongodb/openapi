@@ -1,6 +1,7 @@
 import { getResponseOfGetMethodByMediaType, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { compareSchemas } from './utils/schemaUtils.js';
+import { isEqual } from 'lodash';
+import omitDeep from 'omit-deep-lodash';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 
@@ -11,32 +12,56 @@ const ERROR_MESSAGE =
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const resourcePath = path[1];
+  let mediaType = input;
+  if (isCustomMethodIdentifier(resourcePath) || !mediaType.endsWith('json')) {
+    return;
+  }
 
-  if (isCustomMethodIdentifier(resourcePath)) {
+  const getMethodResponseContentPerMediaType = getResponseOfGetMethodByMediaType(mediaType, resourcePath, oas);
+  if (!getMethodResponseContentPerMediaType || !getMethodResponseContentPerMediaType.schema) {
     return;
   }
 
   const postMethodRequestContentPerMediaType = resolveObject(oas, path);
-
+  if (!postMethodRequestContentPerMediaType.schema) {
+    return;
+  }
   if (hasException(postMethodRequestContentPerMediaType, RULE_NAME)) {
     collectException(postMethodRequestContentPerMediaType, RULE_NAME, path);
     return;
   }
 
-  let mediaType = input;
-  const getMethodResponseContentPerMediaType = getResponseOfGetMethodByMediaType(mediaType, resourcePath, oas);
-  if (!getMethodResponseContentPerMediaType) {
-    return;
-  }
-
-  const inconsistentFields = compareSchemas(
-    postMethodRequestContentPerMediaType.schema,
-    getMethodResponseContentPerMediaType.schema
+  const errors = checkViolationsAndReturnErrors(
+    path,
+    postMethodRequestContentPerMediaType,
+    getMethodResponseContentPerMediaType
   );
-  if (inconsistentFields.length === 0) {
-    collectAdoption(path, RULE_NAME);
-  } else {
+
+  if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
   }
 
+  collectAdoption(path, RULE_NAME);
 };
+
+function checkViolationsAndReturnErrors(
+  path,
+  postMethodRequestContentPerMediaType,
+  getMethodResponseContentPerMediaType
+) {
+  const errors = [];
+
+  if (
+    !isEqual(
+      omitDeep(postMethodRequestContentPerMediaType.schema, 'readOnly', 'writeOnly'),
+      omitDeep(getMethodResponseContentPerMediaType.schema, 'readOnly', 'writeOnly')
+    )
+  ) {
+    errors.push({
+      path: path,
+      message: ERROR_MESSAGE,
+    });
+  }
+
+  return errors;
+}

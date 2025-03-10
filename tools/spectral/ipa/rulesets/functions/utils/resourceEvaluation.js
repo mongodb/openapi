@@ -152,10 +152,18 @@ function removePrefix(path) {
 }
 
 /**
- * Checks if resource has Get method
- * @param {string} mediaType the media type to check for
- * @param {string} pathForResourceCollection the path for the collection of resources
- * @param {Object} oas the OpenAPI document
+ * Retrieves the response schema of the GET method for a resource by media type
+ *
+ * This function:
+ * 1. Finds all path items related to the resource collection
+ * 2. Identifies the single resource path (e.g., '/resource/{id}')
+ * 3. Checks if the single resource has a GET method
+ * 4. Returns the response schema for the specified media type if available
+ *
+ * @param {string} mediaType - The media type to retrieve the schema for (e.g., 'application/vnd.atlas.2023-01-01+json')
+ * @param {string} pathForResourceCollection - The path for the collection of resources (e.g., '/resource')
+ * @param {Object} oas - The resolved OpenAPI document
+ * @returns {Object|null} - The response schema for the specified media type, or null if not found
  */
 export function getResponseOfGetMethodByMediaType(mediaType, pathForResourceCollection, oas) {
   const resourcePathItems = getResourcePathItems(pathForResourceCollection, oas.paths);
@@ -163,12 +171,14 @@ export function getResponseOfGetMethodByMediaType(mediaType, pathForResourceColl
   if (resourcePaths.length === 1) {
     return null;
   }
-  let singleResourcePath = resourcePaths.find(
+
+  const singleResourcePath = resourcePaths.find(
     (path) => !isCustomMethodIdentifier(path) && path !== pathForResourceCollection
   );
-  if (singleResourcePath.length === 0) {
+  if (!singleResourcePath) {
     return null;
   }
+
   const singleResourcePathObject = resourcePathItems[singleResourcePath];
   if (!hasGetMethod(singleResourcePathObject)) {
     return null;
