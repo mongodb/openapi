@@ -23,7 +23,7 @@ export default (input, _, { path }) => {
   }
 
   // 2. Validation
-  const errors = checkViolations(input, path);
+  const errors = checkViolationsAndReturnErrors(input, path);
   if (errors.length > 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
@@ -37,7 +37,7 @@ export default (input, _, { path }) => {
  * @param {object} jsonPathArray - The jsonPathArray covering location in the OpenAPI schema
  * @return {Array<string>} - errors array ()
  */
-function checkViolations(input, jsonPathArray) {
+function checkViolationsAndReturnErrors(input, jsonPathArray) {
   const errors = [];
   try {
     const successResponse = input;
