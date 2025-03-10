@@ -3,10 +3,11 @@ import {
   isSingleResourceIdentifier,
   isCustomMethodIdentifier,
   isSingletonResource,
+  isResourceCollectionIdentifier,
 } from './utils/resourceEvaluation.js';
 import {
-  generateOperationIdForCustomMethod,
-  generateOperationIdForStandardMethod,
+  generateOperationIdForCustomMethod_inflector,
+  generateOperationIdForStandardMethod_inflector,
 } from './utils/generateOperationId.js';
 
 const BASE_PATH = '/api/atlas/v2';
@@ -31,7 +32,7 @@ export default (input, _, { path, documentInventory }) => {
   }
 
   if (isCustomMethodIdentifier(operationPath)) {
-    const expectedOperationId = generateOperationIdForCustomMethod(operationPath);
+    const expectedOperationId = generateOperationIdForCustomMethod_inflector(operationPath);
     if (operationId !== expectedOperationId) {
       return [
         {
@@ -45,23 +46,35 @@ export default (input, _, { path, documentInventory }) => {
   let expectedOperationId = '';
   switch (method) {
     case 'get':
-      if (isSingleResourceIdentifier(operationPath) || isSingletonResource(resourcePathItems)) {
-        expectedOperationId = generateOperationIdForStandardMethod(operationPath, 'get');
+      if (isResourceCollectionIdentifier(operationPath)) {
+        if (isSingletonResource(resourcePathItems)) {
+          expectedOperationId = generateOperationIdForStandardMethod_inflector(operationPath, 'get', false);
+        } else {
+          expectedOperationId = generateOperationIdForStandardMethod_inflector(operationPath, 'list', false);
+        }
       } else {
-        expectedOperationId = generateOperationIdForStandardMethod(operationPath, 'list');
+        expectedOperationId = generateOperationIdForStandardMethod_inflector(
+          operationPath,
+          'get',
+          isSingleResourceIdentifier(operationPath)
+        );
       }
       break;
     case 'post':
-      expectedOperationId = generateOperationIdForStandardMethod(operationPath, 'create');
+      expectedOperationId = generateOperationIdForStandardMethod_inflector(operationPath, 'create', true);
       break;
     case 'patch':
-      expectedOperationId = generateOperationIdForStandardMethod(operationPath, 'update');
+      expectedOperationId = generateOperationIdForStandardMethod_inflector(
+        operationPath,
+        'update',
+        !isSingletonResource(resourcePathItems)
+      );
       break;
     case 'put':
-      expectedOperationId = generateOperationIdForStandardMethod(operationPath, 'update');
+      expectedOperationId = generateOperationIdForStandardMethod_inflector(operationPath, 'update', true);
       break;
     case 'delete':
-      expectedOperationId = generateOperationIdForStandardMethod(operationPath, 'delete');
+      expectedOperationId = generateOperationIdForStandardMethod_inflector(operationPath, 'delete', true);
       break;
   }
   if (!expectedOperationId) {

@@ -1,4 +1,9 @@
+//import { singularize } from 'active-inflector'; // No "exports" main defined in /node_modules/active-inflector/package.json
+//import { singularize } from 'ember-inflector'; // Cannot use import statement outside a module (from ember-inflector)
+import Inflector from 'inflector-js';
+
 const PATH_PREFIX = '/api/atlas/v2/';
+const PATH_UNAUTH_PREFIX = '/api/atlas/v2/unauth/';
 const lowerCasePattern = new RegExp('^[a-z]+$');
 
 // Method should be get, delete, update or create
@@ -41,6 +46,90 @@ export function generateOperationIdForCustomMethod(path) {
   operationId += remainingCustomMethodName;
 
   return operationId;
+}
+
+// Method should be get, delete, update or create
+export function generateOperationIdForStandardMethod_inflector(path, method, transformLastWordToSingular) {
+  let remainingPath = removePathPrefix(path).split('/');
+
+  // Start with the method, for example, 'get' or 'list'
+  let operationId = method;
+
+  // Add the rest of the words from the path
+  operationId += getOperationIdFromPathSections_inflector(remainingPath, transformLastWordToSingular);
+
+  return operationId;
+}
+
+export function generateOperationIdForCustomMethod_inflector(path) {
+  const resourcePath = path.split(':')[0];
+  const customMethodName = path.split(':')[1];
+
+  let remainingPath = removePathPrefix(resourcePath).split('/');
+  let operationId = '';
+
+  // Get custom verb to start the operationId
+  // invite -> invite
+  // addNode -> add
+  let customVerb;
+  let remainingCustomMethodName = '';
+  if (lowerCasePattern.test(customMethodName)) {
+    customVerb = customMethodName;
+  } else {
+    customVerb = getFirstWordFromCamelCase(customMethodName);
+    remainingCustomMethodName = customMethodName.substring(customVerb.length);
+  }
+  operationId += customVerb;
+
+  operationId += getOperationIdFromPathSections_inflector(remainingPath, resourcePath.endsWith('}'));
+
+  // Add any remaining words from the custom name to the end
+  // /orgs/{orgId}/users/{userId}:addRole -> add + Org + User + Role
+  operationId += remainingCustomMethodName;
+
+  return operationId;
+}
+
+function getOperationIdFromPathSections_inflector(resourcePathSections, transformLastWordToSingular) {
+  // lastWordIsPlural: true -> for collection custom and list
+  // lastWordIsPlural: false -> for singular custom and create, get, update, delete
+
+  // /orgs/{orgId}/serviceAccounts
+  // /orgs/{orgId}/serviceAccounts/{clientId}
+  // createOrgServiceAccount (singular + singular)
+  // listOrgServiceAccounts (singular + plural)
+  // getOrgServiceAccount (singular + singular)
+  // updateOrgServiceAccount (singular + singular)
+  // deleteOrgServiceAccount (singular + singular)
+
+  // /orgs/{orgId}/serviceAccounts/{clientId}:invite
+  // inviteOrgServiceAccount (singular + singular)
+
+  // /orgs/{orgId}/serviceAccounts:search
+  // searchOrgServiceAccounts (singular + plural)
+
+  let operationId = '';
+  resourcePathSections.forEach((pathSection, index) => {
+    if (!pathSection.startsWith('{')) {
+      if (index === resourcePathSections.length - 1) {
+        if (transformLastWordToSingular) {
+          operationId += capitalizeFirstLetter(singularizeCamelCase(pathSection));
+        } else {
+          operationId += capitalizeFirstLetter(pathSection);
+        }
+      } else {
+        operationId += capitalizeFirstLetter(singularizeCamelCase(pathSection));
+      }
+    }
+  });
+  return operationId;
+}
+
+function singularizeCamelCase(string) {
+  const words = getWordsFromCamelCase(string);
+
+  const lastWord = Inflector.singularize(words[words.length - 1]);
+  return words.slice(0, words.length - 1).join() + capitalizeFirstLetter(lastWord);
 }
 
 function getOperationIdFromPathSections(remainingPath) {
@@ -143,11 +232,21 @@ function getFirstWordFromCamelCase(string) {
  * Removed the last word from a camelCase string, for example, 'camelCaseWord' returns 'camelCase'.
  *
  * @param string the string to get the first word from
- * @returns {string} the first word from the passed string
+ * @returns {string} the the passed string without the last word
  */
 function removeLastWordFromCamelCase(string) {
   const words = string.split(/(?=[A-Z][^A-Z]+$)/);
   return words.slice(0, words.length - 1).join();
+}
+
+/**
+ * Get the words in camel case string as an array of words
+ *
+ * @param string the camel case string
+ * @returns {string[]} the words split into an array
+ */
+function getWordsFromCamelCase(string) {
+  return string.split(/(?=[A-Z][^A-Z]+$)/);
 }
 
 /**
@@ -161,7 +260,9 @@ function capitalizeFirstLetter(string) {
 }
 
 function removePathPrefix(path) {
-  if (path.startsWith(PATH_PREFIX)) {
+  if (path.startsWith(PATH_UNAUTH_PREFIX)) {
+    return path.split(PATH_UNAUTH_PREFIX)[1];
+  } else if (path.startsWith(PATH_PREFIX)) {
     return path.split(PATH_PREFIX)[1];
   } else {
     console.error('There is another prefix', path);
