@@ -1,5 +1,10 @@
 import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+  collectException,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { getSchemaRef } from './utils/methodUtils.js';
@@ -11,28 +16,37 @@ const ERROR_MESSAGE_SCHEMA_REF = 'The response body schema is defined inline and
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
-  const contentMediaType = path[path.length - 1];
+  const contentPerMediaType = resolveObject(oas, path);
 
-  if (isCustomMethodIdentifier(resourcePath) || !contentMediaType.endsWith('json')) {
+  if (isCustomMethodIdentifier(resourcePath) || !input.endsWith('json') || !contentPerMediaType.schema) {
     return;
   }
-
-  const contentPerMediaType = resolveObject(oas, path);
 
   if (hasException(contentPerMediaType, RULE_NAME)) {
     collectException(contentPerMediaType, RULE_NAME, path);
     return;
   }
 
-  if (contentPerMediaType.schema) {
+  const errors = checkViolationsAndReturnErrors(contentPerMediaType, path);
+  if (errors.length !== 0) {
+    return collectAndReturnViolation(path, RULE_NAME, errors);
+  }
+  collectAdoption(path, RULE_NAME);
+};
+
+function checkViolationsAndReturnErrors(contentPerMediaType, path) {
+  try {
     const schema = contentPerMediaType.schema;
     const schemaRef = getSchemaRef(schema);
+
     if (!schemaRef) {
-      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_REF);
+      return [{ path, message: ERROR_MESSAGE_SCHEMA_REF }];
     }
     if (!schemaRef.endsWith('Request')) {
-      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE_SCHEMA_NAME);
+      return [{ path, message: ERROR_MESSAGE_SCHEMA_NAME }];
     }
-    collectAdoption(path, RULE_NAME);
+    return [];
+  } catch (e) {
+    handleInternalError(RULE_NAME, path, e);
   }
-};
+}

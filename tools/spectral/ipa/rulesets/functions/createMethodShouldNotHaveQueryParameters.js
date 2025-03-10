@@ -1,5 +1,10 @@
 import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+  collectException,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-should-not-have-query-parameters';
@@ -24,11 +29,26 @@ export default (input, _, { path }) => {
     return;
   }
 
-  for (const parameter of postMethod.parameters) {
-    if (parameter.in === 'query' && !ignoredParameters.includes(parameter.name)) {
-      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
-    }
+  const errors = checkViolationsAndReturnErrors(postMethod.parameters, path);
+  if (errors.length !== 0) {
+    return collectAndReturnViolation(path, RULE_NAME, errors);
   }
-
   collectAdoption(path, RULE_NAME);
 };
+
+function checkViolationsAndReturnErrors(postMethodParameters, path) {
+  const errors = [];
+  try {
+    for (const parameter of postMethodParameters) {
+      if (parameter.in === 'query' && !ignoredParameters.includes(parameter.name)) {
+        errors.push({
+          path: path,
+          message: `Input parameter [${parameter.name}]: ${ERROR_MESSAGE}`,
+        });
+      }
+    }
+    return errors;
+  } catch (e) {
+    handleInternalError(RULE_NAME, path, e);
+  }
+}

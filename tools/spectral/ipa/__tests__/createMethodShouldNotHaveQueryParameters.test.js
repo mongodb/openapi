@@ -15,6 +15,13 @@ const componentSchemas = {
         type: 'string',
       },
     },
+    QueryParam2: {
+      name: 'query-param-2',
+      in: 'query',
+      schema: {
+        type: 'string',
+      },
+    },
     PathParam: {
       name: 'resource-id',
       in: 'path',
@@ -102,6 +109,9 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
               {
                 $ref: '#/components/parameters/QueryParam',
               },
+              {
+                $ref: '#/components/parameters/QueryParam2',
+              },
             ],
           },
         },
@@ -110,13 +120,20 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-should-not-have-query-parameters',
-        message: 'Create operations should not have query parameters. http://go/ipa/106',
+        message: 'Input parameter [filter]: Create operations should not have query parameters. http://go/ipa/106',
         path: ['paths', '/resource', 'post'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-should-not-have-query-parameters',
-        message: 'Create operations should not have query parameters. http://go/ipa/106',
+        message: 'Input parameter [query-param]: Create operations should not have query parameters. http://go/ipa/106',
+        path: ['paths', '/resource2', 'post'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-106-create-method-should-not-have-query-parameters',
+        message:
+          'Input parameter [query-param-2]: Create operations should not have query parameters. http://go/ipa/106',
         path: ['paths', '/resource2', 'post'],
         severity: DiagnosticSeverity.Warning,
       },

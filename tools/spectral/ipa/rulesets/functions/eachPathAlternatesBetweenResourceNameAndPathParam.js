@@ -1,6 +1,11 @@
 import { isPathParam } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+  collectException,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { AUTH_PREFIX, UNAUTH_PREFIX } from './utils/resourceEvaluation.js';
 
 const RULE_NAME = 'xgen-IPA-102-path-alternate-resource-name-path-param';
@@ -25,10 +30,6 @@ const validatePathStructure = (elements) => {
 
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
-  if (hasException(oas.paths[input], RULE_NAME)) {
-    collectException(oas.paths[input], RULE_NAME, path);
-    return;
-  }
 
   const prefix = getPrefix(input);
   if (!prefix) {
@@ -40,11 +41,27 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  let suffix = suffixWithLeadingSlash.slice(1);
-  let elements = suffix.split('/');
-  if (!validatePathStructure(elements)) {
-    return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+  if (hasException(oas.paths[input], RULE_NAME)) {
+    collectException(oas.paths[input], RULE_NAME, path);
+    return;
   }
 
+  const errors = checkViolationsAndReturnErrors(suffixWithLeadingSlash, path);
+  if (errors.length !== 0) {
+    return collectAndReturnViolation(path, RULE_NAME, errors);
+  }
   collectAdoption(path, RULE_NAME);
 };
+
+function checkViolationsAndReturnErrors(suffixWithLeadingSlash, path) {
+  try {
+    let suffix = suffixWithLeadingSlash.slice(1);
+    let elements = suffix.split('/');
+    if (!validatePathStructure(elements)) {
+      return [{ path, message: ERROR_MESSAGE }];
+    }
+    return [];
+  } catch (e) {
+    handleInternalError(RULE_NAME, path, e);
+  }
+}
