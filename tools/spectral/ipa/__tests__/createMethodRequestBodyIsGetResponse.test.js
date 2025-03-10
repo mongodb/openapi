@@ -38,6 +38,52 @@ const componentSchemas = {
         },
       },
     },
+    SchemaCircularOne: {
+      type: 'object',
+      properties: {
+        thing: {
+          $ref: '#/components/schemas/SchemaCircularTwo',
+        },
+      },
+    },
+    SchemaCircularTwo: {
+      type: 'object',
+      properties: {
+        otherThing: {
+          $ref: '#/components/schemas/SchemaCircularOne',
+        },
+      },
+    },
+  },
+};
+
+const animals = {
+  schemas: {
+    Animal: {
+      type: 'object',
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Dog',
+        },
+        {
+          $ref: '#/components/schemas/Cat',
+        },
+      ],
+    },
+    Dog: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/Animal',
+        },
+      ],
+    },
+    Cat: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/Animal',
+        },
+      ],
+    },
   },
 };
 
@@ -272,6 +318,39 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
             },
           },
         },
+        '/resourceCircular': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaCircularOne',
+                  },
+                },
+                'application/vnd.atlas.2024-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaCircularOne',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceCircular/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaCircularTwo',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
     errors: [
@@ -294,6 +373,63 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
         message:
           'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
         path: ['paths', '/resourceThree', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
+        message:
+          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        path: ['paths', '/resourceCircular', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid oneOf case',
+    document: {
+      components: animals,
+      paths: {
+        '/animalResource': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/Animal',
+                  },
+                },
+                'application/vnd.atlas.2024-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/Animal',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/animalResource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/Dog',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
+        message:
+          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        path: ['paths', '/animalResource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
