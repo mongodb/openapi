@@ -15,9 +15,11 @@
 package apiversion
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -30,9 +32,8 @@ type APIVersion struct {
 }
 
 const (
-	dateFormat            = "2006-01-02"
-	StableStabilityLevel  = "STABLE"
-	PreviewStabilityLevel = "PREVIEW"
+	dateFormat  = "2006-01-02"
+	previewDate = "3000-01-01"
 )
 
 var contentPattern = regexp.MustCompile(`application/vnd\.atlas\.((\d{4})-(\d{2})-(\d{2})|preview)\+(.+)`)
@@ -51,6 +52,16 @@ func New(opts ...Option) (*APIVersion, error) {
 	return version, nil
 }
 
+func (v *APIVersion) newVersion(version string, date time.Time) {
+	v.version = version
+	v.stabilityVersion = StableStabilityLevel
+	v.versionDate = date
+
+	if IsPreviewStabilityLevel(version) {
+		v.stabilityVersion = PreviewStabilityLevel
+	}
+}
+
 // WithVersion sets the version on the APIVersion.
 func WithVersion(version string) Option {
 	return func(v *APIVersion) error {
@@ -59,8 +70,7 @@ func WithVersion(version string) Option {
 			return err
 		}
 
-		v.version = version
-		v.versionDate = versionDate
+		v.newVersion(version, versionDate)
 		return nil
 	}
 }
@@ -68,42 +78,54 @@ func WithVersion(version string) Option {
 // WithDate sets the version on the APIVersion.
 func WithDate(date time.Time) Option {
 	return func(v *APIVersion) error {
-		v.version = date.Format(dateFormat)
-		v.versionDate = date
-		v.stabilityVersion = StableStabilityLevel
+		v.newVersion(date.Format(dateFormat), date)
 		return nil
 	}
 }
 
-// WithContent returns an Option to generate a new APIVersion given the contentType.
-func WithContent(contentType string) Option {
+// withContent returns an Option to generate a new APIVersion given the contentType.
+func withContent(contentType string) Option {
 	return func(v *APIVersion) error {
 		version, err := Parse(contentType)
 		if err != nil {
 			return err
 		}
 
-		v.version = version
-		v.stabilityVersion = StableStabilityLevel
-		if version == PreviewStabilityLevel {
-			v.stabilityVersion = PreviewStabilityLevel
-			return nil
-		}
-
-		v.versionDate, err = DateFromVersion(version)
+		versionDate, err := DateFromVersion(version)
 		if err != nil {
 			return err
 		}
+
+		v.newVersion(version, versionDate)
 		return nil
 	}
 }
 
+// WithFullContent returns an Option to generate a new APIVersion given the contentType and contentValue.
+func WithFullContent(contentType string, contentValue *openapi3.MediaType) Option {
+	return func(v *APIVersion) error {
+		if !strings.Contains(contentType, PreviewStabilityLevel) {
+			return withContent(contentType)(v)
+		}
+
+		name, err := GetPreviewVersionName(contentValue)
+		if err != nil {
+			return err
+		}
+		// version will be based on the name, either 'preview' or 'private-preview-<name>'
+		return WithVersion(name)(v)
+	}
+}
+
 func DateFromVersion(version string) (time.Time, error) {
+	if IsPreviewStabilityLevel(version) {
+		return time.Parse(dateFormat, previewDate)
+	}
 	return time.Parse(dateFormat, version)
 }
 
 func (v *APIVersion) Equal(v2 *APIVersion) bool {
-	return v.version == v2.version
+	return strings.EqualFold(v.version, v2.version)
 }
 
 func (v *APIVersion) GreaterThan(v2 *APIVersion) bool {
@@ -128,6 +150,26 @@ func (v *APIVersion) String() string {
 
 func (v *APIVersion) Date() time.Time {
 	return v.versionDate
+}
+
+func (v *APIVersion) StabilityLevel() string {
+	return v.stabilityVersion
+}
+
+func (v *APIVersion) ExactMatchOnly() bool {
+	return v.IsPreview()
+}
+
+func (v *APIVersion) IsPreview() bool {
+	return IsPreviewStabilityLevel(v.version)
+}
+
+func (v *APIVersion) IsPrivatePreview() bool {
+	return strings.Contains(v.version, PrivatePreviewStabilityLevel)
+}
+
+func (v *APIVersion) IsPublicPreview() bool {
+	return v.IsPreview() && !v.IsPrivatePreview()
 }
 
 func FindMatchesFromContentType(contentType string) []string {
@@ -160,6 +202,7 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 			 op response:
 			   "200":
 				  content: application/vnd.atlas.2023-01-01+json
+				  content: application/vnd.atlas.preview+json
 			   "201":
 				  content: application/vnd.atlas.2023-12-01+json
 				  content: application/vnd.atlas.2025-01-01+json
@@ -175,18 +218,27 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 			continue
 		}
 
-		for contentType := range response.Value.Content {
-			contentVersion, err := New(WithContent(contentType))
+		for contentType, contentValue := range response.Value.Content {
+			contentVersion, err := New(WithFullContent(contentType, contentValue))
 			if err != nil {
 				log.Printf("Ignoring invalid content type: %q", contentType)
-				continue
-			}
-			if contentVersion.GreaterThan(requestedVersion) {
 				continue
 			}
 
 			if contentVersion.Equal(requestedVersion) {
 				return contentVersion
+			}
+
+			if requestedVersion.ExactMatchOnly() {
+				// for private preview, we will need to match with "preview" and x-xgen-preview name extension
+				if privatePreviewContentMatch(contentVersion, contentValue, requestedVersion) {
+					return contentVersion
+				}
+				continue
+			}
+
+			if contentVersion.GreaterThan(requestedVersion) {
+				continue
 			}
 
 			if latestVersionMatch == nil || contentVersion.GreaterThan(latestVersionMatch) {
@@ -202,6 +254,21 @@ func FindLatestContentVersionMatched(op *openapi3.Operation, requestedVersion *A
 	return latestVersionMatch
 }
 
+func privatePreviewContentMatch(contentVersion *APIVersion, contentValue *openapi3.MediaType, requestedVersion *APIVersion) bool {
+	log.Printf("trying to match in case one of the versions is private preview")
+	if !contentVersion.IsPrivatePreview() && !requestedVersion.IsPrivatePreview() {
+		return false
+	}
+
+	name, err := GetPreviewVersionName(contentValue)
+	if err != nil {
+		log.Printf("failed to parse preview version name for content=%v err=%v", contentVersion.version, err)
+		return false
+	}
+
+	return strings.EqualFold(name, requestedVersion.version)
+}
+
 // Sort versions.
 func Sort(versions []*APIVersion) {
 	for i := 0; i < len(versions); i++ {
@@ -211,4 +278,81 @@ func Sort(versions []*APIVersion) {
 			}
 		}
 	}
+}
+
+// GetPreviewVersionName returns the preview version name.
+func GetPreviewVersionName(contentTypeValue *openapi3.MediaType) (name string, err error) {
+	public, name, err := parsePreviewExtensionData(contentTypeValue)
+	if err != nil {
+		return "", err
+	}
+
+	if public {
+		return "preview", nil
+	}
+
+	if !public && name != "" {
+		return "private-preview-" + name, nil
+	}
+
+	return "", errors.New("no preview extension found")
+}
+
+func parsePreviewExtensionData(contentTypeValue *openapi3.MediaType) (public bool, name string, err error) {
+	// Expected formats:
+	//
+	//   "x-xgen-preview": {
+	// 		"name": "api-registry-private-preview"
+	//   }
+	//
+	//   "x-xgen-preview": {
+	// 		"public": "true"
+	//   }
+
+	name = ""
+	public = false
+
+	if contentTypeValue.Extensions == nil {
+		return false, "", errors.New("no preview extension found")
+	}
+
+	previewExtension, ok := contentTypeValue.Extensions["x-xgen-preview"]
+	if !ok {
+		return false, "", errors.New("no preview extension found")
+	}
+
+	previewExtensionMap, ok := previewExtension.(map[string]any)
+	if !ok {
+		return false, "", errors.New("no preview extension found")
+	}
+
+	// Reading if it's public or not
+	publicV, ok := previewExtensionMap["public"].(string)
+	if ok {
+		public = strings.EqualFold(publicV, "true")
+	}
+
+	// Reading the name
+	nameV, ok := previewExtensionMap["name"].(string)
+	if ok {
+		name = nameV
+	}
+
+	if err := validatePreviewExtensionData(name, publicV); err != nil {
+		return false, "", err
+	}
+
+	return public, name, nil
+}
+
+func validatePreviewExtensionData(name, public string) error {
+	if name != "" && (public == "true") {
+		return errors.New("both name and public = true fields are set, only one is allowed")
+	}
+
+	if name == "" && public != "true" && public != "false" {
+		return errors.New("invalid value for 'public' field, only 'true' or 'false' are allowed")
+	}
+
+	return nil
 }

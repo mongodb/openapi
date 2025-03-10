@@ -20,16 +20,16 @@ Process of updating involves:
 
 ```mermaid
 flowchart TD
-    A[Fetch the OpenAPI\nSpecification] --> B[Apply OpenAPI\nTransformations]
-    B --> C[Convert to\nPostman Collection]
-    C --> D[Apply JSON\ntransformations]
-    D --> E[Upload Collection\nto Postman]
+    A[Fetch the OpenAPI Specification] --> B[Apply OpenAPI Transformations]
+    B --> C[Convert to Postman Collection]
+    C --> D[Apply JSON transformations]
+    D --> E[Upload Collection to Postman]
 
-    style A width:160px,height:60px,text-align:center;
-    style B width:160px,height:60px,text-align:center;
-    style C width:160px,height:60px,text-align:center;
-    style D width:160px,height:60px,text-align:center;
-    style E width:160px,height:60px,text-align:center;
+    style A width:260px,height:60px,text-align:center;
+    style B width:260px,height:60px,text-align:center;
+    style C width:260px,height:60px,text-align:center;
+    style D width:260px,height:60px,text-align:center;
+    style E width:260px,height:60px,text-align:center;
 ```
 
 1. **Fetch the OpenAPI Specification**: Fetch the most recent version of the OpenAPI file.

@@ -17,7 +17,6 @@ package merge
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
@@ -71,12 +70,8 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("no external OAS detected. Please, use the flag %s to include at least one OAS", flag.External)
 	}
 
-	if o.outputPath != "" && !strings.Contains(o.outputPath, ".json") && !strings.Contains(o.outputPath, ".yaml") {
-		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
-	}
-
-	if o.format != "json" && o.format != "yaml" {
-		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
+	if err := openapi.ValidateFormatAndOutput(o.format, o.outputPath); err != nil {
+		return err
 	}
 
 	m, err := openapi.NewOasDiff(o.basePath, o.excludePrivatePaths)

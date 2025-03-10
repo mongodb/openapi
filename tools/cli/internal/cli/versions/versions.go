@@ -35,7 +35,7 @@ type Opts struct {
 	outputPath     string
 	format         string
 	env            string
-	stabilityLevel string
+	stabilityLevel []string
 }
 
 func (o *Opts) Run() error {
@@ -70,21 +70,30 @@ func (o *Opts) Run() error {
 }
 
 func (o *Opts) filterStabilityLevelVersions(apiVersions []string) []string {
-	if o.stabilityLevel == "" || apiVersions == nil {
+	if len(o.stabilityLevel) == 0 || apiVersions == nil {
 		return apiVersions
 	}
 
 	var out []string
 	for _, v := range apiVersions {
-		if o.stabilityLevel == apiversion.PreviewStabilityLevel && strings.Contains(v, "preview") {
-			out = append(out, v)
-		}
+		for _, stabilityLevel := range o.stabilityLevel {
+			if (apiversion.IsStableStabilityLevel(stabilityLevel)) && !apiversion.IsPreviewStabilityLevel(v) {
+				out = append(out, v)
+			}
 
-		if o.stabilityLevel == apiversion.StableStabilityLevel && !strings.Contains(v, "preview") {
-			out = append(out, v)
+			if (apiversion.IsPrivatePreviewStabilityLevel(stabilityLevel)) && apiversion.IsPrivatePreviewStabilityLevel(v) {
+				out = append(out, v)
+			}
+
+			if (apiversion.IsPublicPreviewStabilityLevel(stabilityLevel)) && apiversion.IsPublicPreviewStabilityLevel(v) {
+				out = append(out, v)
+			}
 		}
 	}
 
+	if len(out) == 0 {
+		return []string{}
+	}
 	return out
 }
 
@@ -112,9 +121,12 @@ func (o *Opts) versionsAsBytes(versions []string) ([]byte, error) {
 }
 
 func (o *Opts) PreRunE(_ []string) error {
-	o.stabilityLevel = strings.ToUpper(o.stabilityLevel)
-	if o.stabilityLevel != "" && o.stabilityLevel != apiversion.PreviewStabilityLevel && o.stabilityLevel != apiversion.StableStabilityLevel {
-		return fmt.Errorf("stability level must be %q or %q, got %q", apiversion.PreviewStabilityLevel, apiversion.StableStabilityLevel, o.stabilityLevel)
+	for i, v := range o.stabilityLevel {
+		o.stabilityLevel[i] = strings.ToLower(v)
+
+		if err := apiversion.ValidateStabilityLevel(o.stabilityLevel[i]); err != nil {
+			return err
+		}
 	}
 
 	if o.basePath == "" {
@@ -154,7 +166,7 @@ func Builder() *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "", usage.Spec)
 	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
-	cmd.Flags().StringVarP(&opts.stabilityLevel, flag.StabilityLevel, flag.StabilityLevelShort, "", usage.StabilityLevel)
+	cmd.Flags().StringArrayVar(&opts.stabilityLevel, flag.StabilityLevel, nil, usage.StabilityLevel)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 	return cmd

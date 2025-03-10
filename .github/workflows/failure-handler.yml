@@ -10,6 +10,10 @@ on:
         description: 'Name of the release.'
         required: true
         type: string
+      team_id:
+        description: 'ID of Jira Team'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       jira_api_token:
         required: true
@@ -72,6 +76,7 @@ jobs:
                 JIRA_API_TOKEN: ${{ secrets.jira_api_token }}
                 JIRA_TICKET_TITLE: "(${{inputs.env}}) The ${{inputs.release_name}} release has failed. GH Issue: ${{steps.create-issue.outputs.number}}"
                 JIRA_TICKET_DESCRIPTION: "The release process ${{inputs.release_name}} in [mongodb/openapi|https://github.com/mongodb/openapi] has failed. Please, look at the [issue-${{steps.create-issue.outputs.number}}|https://github.com/mongodb/openapi/issues/${{steps.create-issue.outputs.number}}] for more details."
+                JIRA_TEAM_ID: ${{ inputs.team_id }}
               run: .github/scripts/create_jira_ticket.sh
             - name: Add comment to GH Issue
               if: ${{ steps.create-issue.outputs.number != null }}

@@ -18,7 +18,7 @@ const (
 	Base                = "Base OAS. The command will merge other OASes into it."
 	External            = "OASes that will be merged into the base OAS."
 	Output              = "File name or path where the command will store the output."
-	Format              = "Output format. Supported values are 'json' and 'yaml'."
+	Format              = "Output format. Supported values are 'json', 'yaml' or 'all' which will generate one file for each supported format."
 	Versions            = "Boolean flag that defines wether to split the OAS into multiple versions."
 	VersionsChangelog   = "List of versions to consider when generating the changelog. (Format: YYYY-MM-DD)"
 	Spec                = "Path to the OAS file."
@@ -37,5 +37,6 @@ const (
 	SlackChannelID      = "Slack Channel ID."
 	From                = "Date in the format YYYY-MM-DD that indicates the start of a date range"
 	To                  = "Date in the format YYYY-MM-DD that indicates the end of a date range"
-	StabilityLevel      = "Stability level related to the API Version. Valid values: [STABLE, PREVIEW]"
+	StabilityLevel      = "Stability level related to the API Version. Valid values: [STABLE, PUBLIC-PREVIEW, PRIVATE-PREVIEW]"
+	Version             = "Version of the API."
 )

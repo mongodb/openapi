@@ -112,7 +112,49 @@ func versionInFuture(t *testing.T, version string) bool {
 	return v.Date().After(time.Now())
 }
 
+func TestSplitVersionsFilteredOASes_All(t *testing.T) {
+	t.Parallel()
+	cliPath := NewBin(t)
+	env := "dev"
+	folder := env
+	base := getInputPath(t, "filtered", "json", folder)
+	jsonOutputPath := getOutputFolder(t, folder) + "/filtered-dev-output.json"
+	cmd := exec.Command(cliPath,
+		"split",
+		"-s",
+		base,
+		"-o",
+		jsonOutputPath,
+		"--env",
+		"dev",
+		"--format",
+		"all",
+	)
+
+	var o, e bytes.Buffer
+	cmd.Stdout = &o
+	cmd.Stderr = &e
+	require.NoError(t, cmd.Run(), e.String())
+
+	versions := getVersions(t, cliPath, base, folder)
+	for _, version := range versions {
+		if slices.Contains(skipVersions, version) {
+			continue
+		}
+		if env == "prod" && !versionInFuture(t, version) {
+			continue
+		}
+		fmt.Printf("Validating version: %s\n", version)
+		noExtensionOutputPath := strings.Replace(jsonOutputPath, ".json", "", 1)
+		versionedOutputPath := noExtensionOutputPath + "-" + version + ".json"
+		ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version, folder), versionedOutputPath)
+		versionedOutputPath = noExtensionOutputPath + "-" + version + ".yaml"
+		ValidateVersionedSpec(t, NewValidAtlasSpecPath(t, version, folder), versionedOutputPath)
+	}
+}
+
 func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
+	t.Parallel()
 	folder := "dev"
 	cliPath := NewBin(t)
 	base, err := filepath.Abs("../../data/split/" + folder + "/openapi-api-registry.json")

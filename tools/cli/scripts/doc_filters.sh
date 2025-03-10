@@ -4,7 +4,7 @@ echo "# List of filters applied to the OpenAPI specification"
 echo "These examples are automatically generated from filters docs."
 
 # Expected format:
-# // Filter: InfoFilter is a filter that modifies the Info object in the OpenAPI spec.
+# // PlaceHolderFilter: is a filter that modifies the Info object in the OpenAPI spec.
 
 echo "# OpenAPI Filters"
 
@@ -19,5 +19,4 @@ echo " - Filtering per version, so that only the endpoints that are available in
 echo "## What filters are available?"
 
 echo "### List of filters"
-grep -n '// Filter:' internal/openapi/filter/*.go | sort -u -k2 | sed -n "s/\([^0-9]*\):\([0-9]*\):\/\/ Filter: \(.*\)/[\3](\.\.\/\1?plain=1#L\2)  /p" | sort
-
+grep -n '// .*Filter: .*' internal/openapi/filter/*.go | sort -u -k2 | sed -n "s/\([^0-9]*\):\([0-9]*\):\/\/ \(.*Filter: .*\)/[\3](\.\.\/\1?plain=1#L\2)  /p" | sort

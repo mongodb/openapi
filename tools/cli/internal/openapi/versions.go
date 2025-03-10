@@ -15,6 +15,7 @@
 package openapi
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -53,11 +54,22 @@ func extractVersions(oas *openapi3.T) ([]string, error) {
 				if response.Value == nil || response.Value.Content == nil {
 					continue
 				}
-				for contentType := range response.Value.Content {
+				for contentType, contentTypeValue := range response.Value.Content {
 					version, err := apiversion.Parse(contentType)
-					if err == nil {
-						versions[version] = struct{}{}
+					if err != nil {
+						continue
 					}
+
+					if apiversion.IsPreviewStabilityLevel(version) {
+						// parse if it is public or not
+						version, err = apiversion.GetPreviewVersionName(contentTypeValue)
+						if err != nil {
+							fmt.Printf("failed to parse preview version name: %v\n", err)
+							return nil, err
+						}
+					}
+
+					versions[version] = struct{}{}
 				}
 			}
 		}

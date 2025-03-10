@@ -3,10 +3,9 @@ import {
   extractTeamOwnership,
   getSeverityPerRule,
   loadCollectorResults,
-  loadOpenAPIFile,
-  loadRuleset,
   merge,
 } from './utils/metricCollectionUtils.js';
+import { loadJsonFile, loadRuleset } from '../utils.js';
 
 export async function runMetricCollectionJob(
   {
@@ -18,7 +17,7 @@ export async function runMetricCollectionJob(
 ) {
   try {
     console.log(`Loading OpenAPI file: ${oasFilePath}`);
-    const oasContent = loadOpenAPIFile(oasFilePath);
+    const oasContent = loadJsonFile(oasFilePath);
 
     console.log('Extracting team ownership data...');
     const ownershipData = extractTeamOwnership(oasContent);

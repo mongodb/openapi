@@ -70,6 +70,32 @@ func TestChangelog(t *testing.T) {
 		require.NoError(t, cmd.Run(), e.String())
 		checkChangelogFilesAreTheSame(t, commandOut, NewChangelogOutputPathSameAPIVersion(t))
 	})
+
+	t.Run("Generate Changelog with new Preview API Version", func(t *testing.T) {
+		base := newChangelogBasePathNewPreviewAPIVersion(t)
+		revision := newChangelogRevisionPathNewPreviewAPIVersion(t)
+		exemptions := newChangelogExepmtionFilePathNewPreviewAPIVersion(t)
+		commandOut := getOutputFolder(t, "changelog")
+
+		cmd := exec.Command(cliPath,
+			"changelog",
+			"create",
+			"-b",
+			base,
+			"-r",
+			revision,
+			"-e",
+			exemptions,
+			"-o",
+			commandOut,
+		)
+
+		var o, e bytes.Buffer
+		cmd.Stdout = &o
+		cmd.Stderr = &e
+		require.NoError(t, cmd.Run(), e.String())
+		checkChangelogFilesAreTheSame(t, commandOut, newChangelogOutputPathNewPreviewAPIVersion(t))
+	})
 }
 
 func checkChangelogFilesAreTheSame(t *testing.T, cmdOutput, testOutput string) {

@@ -87,15 +87,23 @@ jobs:
       - name: Run ESLint on JS files
         run: |
           npm run lint-js
+      - name: Check IPA docs up-to-date
+        run: |
+          npm run gen-ipa-docs
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "IPA docs not up to date, please run 'npm run gen-ipa-docs' and commit the changes"
+            exit 1
+          fi
+          exit 0
       - name: Install Go
         uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34
         with:
           go-version-file: 'tools/cli/go.mod'
           cache: false # see https://github.com/golangci/golangci-lint-action/issues/807
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@e60da84bfae8c7920a47be973d75e15710aa8bd7
+        uses: golangci/golangci-lint-action@2226d7cb06a077cd73e56eedd38eecad18e5d837
         with:
-          version: v1.60.3
+          version: v1.64.5
           working-directory: tools/cli
       - name: Checkout GitHub actions
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332

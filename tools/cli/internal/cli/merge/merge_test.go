@@ -150,7 +150,7 @@ func TestInvalidFormat_PreRun(t *testing.T) {
 
 	err := opts.PreRunE(nil)
 	require.Error(t, err)
-	require.EqualError(t, err, "output format must be either 'json' or 'yaml', got html")
+	require.EqualError(t, err, "format must be either 'json', 'yaml' or 'all', got 'html'")
 }
 
 func TestInvalidPath_PreRun(t *testing.T) {
@@ -159,6 +159,7 @@ func TestInvalidPath_PreRun(t *testing.T) {
 		outputPath:    "foas.html",
 		externalPaths: externalPaths,
 		basePath:      "base.json",
+		format:        "json",
 	}
 
 	err := opts.PreRunE(nil)

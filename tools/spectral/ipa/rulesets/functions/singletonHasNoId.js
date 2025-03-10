@@ -1,12 +1,11 @@
 import {
-  getResourcePaths,
+  getResourcePathItems,
   hasGetMethod,
-  isChild,
-  isCustomMethod,
   isSingletonResource,
+  isResourceCollectionIdentifier,
 } from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
-import { getAllSuccessfulGetResponseSchemas } from './utils/methodUtils.js';
+import { getAllSuccessfulResponseSchemas } from './utils/methodUtils.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-113-singleton-must-not-have-id';
@@ -15,26 +14,26 @@ const ERROR_MESSAGE = 'Singleton resources must not have a user-provided or syst
 export default (input, opts, { path, documentInventory }) => {
   const resourcePath = path[1];
 
-  if (isCustomMethod(resourcePath) || isChild(resourcePath)) {
-    return;
-  }
-
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
+  if (!isResourceCollectionIdentifier(resourcePath)) {
     return;
   }
 
   const oas = documentInventory.resolved;
-  const resourcePaths = getResourcePaths(resourcePath, Object.keys(oas.paths));
+  const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
 
-  if (isSingletonResource(resourcePaths) && hasGetMethod(input)) {
-    const resourceSchemas = getAllSuccessfulGetResponseSchemas(input);
-    if (resourceSchemas.some((schema) => schemaHasIdProperty(schema))) {
-      return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+  if (isSingletonResource(resourcePathItems)) {
+    if (hasException(input, RULE_NAME)) {
+      collectException(input, RULE_NAME, path);
+      return;
+    }
+    if (hasGetMethod(input)) {
+      const resourceSchemas = getAllSuccessfulResponseSchemas(input['get']);
+      if (resourceSchemas.some(({ schema }) => schemaHasIdProperty(schema))) {
+        return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+      }
+      collectAdoption(path, RULE_NAME);
     }
   }
-
-  collectAdoption(path, RULE_NAME);
 };
 
 function schemaHasIdProperty(schema) {

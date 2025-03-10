@@ -11,7 +11,7 @@ mkdir -p changelog/revision
 cp openapi/v2/openapi-*.json changelog/revision/
 
 echo "Generating revision metadata file"
-revision_version=$(< openapi/v2/versions.json jq -r '.[]' | paste -sd ',' -)
+revision_version=$(< openapi/v2/versions.json jq -r '.[]' | paste -sd ',' - | sed "s/,preview//")
 RELEASE_SHA=$(< foas-metadata.json jq -r '.services[] | select(.name=="mms") | .sha')
 foascli changelog metadata create --sha "${RELEASE_SHA}" --versions="${revision_version}" > changelog/revision/metadata.json
 cat changelog/revision/metadata.json

@@ -25,11 +25,15 @@ const (
 	hiddenEnvsExtKey    = "envs"
 )
 
-// Filter: HiddenEnvsFilter is a filter that removes paths, operations,
+// HiddenEnvsFilter: is a filter that removes paths, operations,
 // request/response bodies and content types that are hidden for the target environment.
 type HiddenEnvsFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
+}
+
+func (f *HiddenEnvsFilter) ValidateMetadata() error {
+	return validateMetadata(f.metadata)
 }
 
 func (f *HiddenEnvsFilter) Apply() error {
@@ -165,19 +169,6 @@ func (f *HiddenEnvsFilter) isResponseHiddenForEnv(response *openapi3.ResponseRef
 	return false
 }
 
-func isContentTypeHiddenForEnv(contentType *openapi3.MediaType, targetEnv string) bool {
-	if contentType == nil {
-		return false
-	}
-
-	if extension, ok := contentType.Extensions[hiddenEnvsExtension]; ok {
-		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
-		return isHiddenExtensionEqualToTargetEnv(extension, targetEnv)
-	}
-
-	return false
-}
-
 func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.RequestBodyRef) bool {
 	if requestBody == nil {
 		return false
@@ -206,5 +197,19 @@ func isHiddenExtensionEqualToTargetEnv(extension any, target string) bool {
 			return strings.Contains(v, target)
 		}
 	}
+	return false
+}
+
+// isContentTypeHiddenForEnv returns true if the content type is hidden for the target environment.
+func isContentTypeHiddenForEnv(contentType *openapi3.MediaType, targetEnv string) bool {
+	if contentType == nil {
+		return false
+	}
+
+	if extension, ok := contentType.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
+		return isHiddenExtensionEqualToTargetEnv(extension, targetEnv)
+	}
+
 	return false
 }

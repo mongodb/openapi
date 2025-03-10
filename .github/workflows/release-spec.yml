@@ -103,7 +103,7 @@ jobs:
             ref: ${{ inputs.branch }}
             token: ${{secrets.api_bot_pat}}
         - name: Upload current Specs and Changelog files
-          uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+          uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
           with:
             name: base-${{ inputs.env }}
             retention-days: 1
@@ -184,13 +184,24 @@ jobs:
         branch: ${{ inputs.branch }}
         foascli_version: ${{ inputs.foascli_version }}
 
-  failure-handler: 
-    name: Failure Handler
+  retry-handler:
     needs: [ release, release-postman, release-changelog]
-    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.api_bot_pat }}
+        run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
+
+  failure-handler:
+    name: Failure Handler
+    needs: [retry-handler, release, release-postman, release-changelog]
+    if: ${{ always() && contains(needs.*.result, 'failure') && needs.retry-handler.result == 'skipped' }}
     uses: ./.github/workflows/failure-handler.yml
     with:
       env: ${{ inputs.env }}
       release_name: "OpenAPI Spec"
+      team_id: ${{ vars.JIRA_TEAM_ID_APIX_2 }}
     secrets:
       jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
