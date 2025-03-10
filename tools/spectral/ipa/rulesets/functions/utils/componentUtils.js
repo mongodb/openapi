@@ -19,7 +19,6 @@ export function isCamelCase(str) {
   return true;
 }
 
-
 /**
  * Checks if a string belongs to a path parameter or a path parameter with a custom method.
  *

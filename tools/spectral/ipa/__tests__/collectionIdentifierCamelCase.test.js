@@ -9,7 +9,7 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
         '/resources': {},
         '/users': {},
         '/resourceGroups': {},
-        '/userProfiles': {}
+        '/userProfiles': {},
       },
     },
     errors: [],
@@ -29,7 +29,7 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     document: {
       paths: {
         '/resources:createResource': {},
-        '/users/{userId}:activateUser': {},
+        '/users/{userId}/data/:activateUser': {},
       },
     },
     errors: [],
@@ -44,8 +44,9 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     errors: [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
-        message: "Collection identifiers must be in camelCase. Path segment 'Resources' in path '/Resources' is not in camelCase. http://go/ipa/102",
-        path: ['paths'],
+        message:
+          "Collection identifiers must be in camelCase. Path segment 'Resources' in path '/Resources' is not in camelCase. http://go/ipa/102",
+        path: ['paths', '/Resources'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -60,8 +61,9 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     errors: [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
-        message: "Collection identifiers must be in camelCase. Path segment 'resource_groups' in path '/resource_groups' is not in camelCase. http://go/ipa/102",
-        path: ['paths'],
+        message:
+          "Collection identifiers must be in camelCase. Path segment 'resource_groups' in path '/resource_groups' is not in camelCase. http://go/ipa/102",
+        path: ['paths', '/resource_groups'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -76,8 +78,9 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     errors: [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
-        message: "Collection identifiers must be in camelCase. Path segment 'resource-groups' in path '/resource-groups' is not in camelCase. http://go/ipa/102",
-        path: ['paths'],
+        message:
+          "Collection identifiers must be in camelCase. Path segment 'resource-groups' in path '/resource-groups' is not in camelCase. http://go/ipa/102",
+        path: ['paths', '/resource-groups'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -92,8 +95,9 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     errors: [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
-        message: "Collection identifiers must be in camelCase. Custom method 'CREATE_RESOURCE' in path '/resources:CREATE_RESOURCE' is not in camelCase. http://go/ipa/102",
-        path: ['paths'],
+        message:
+          "Collection identifiers must be in camelCase. Custom method 'CREATE_RESOURCE' in path '/resources:CREATE_RESOURCE' is not in camelCase. http://go/ipa/102",
+        path: ['paths', '/resources:CREATE_RESOURCE'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -108,8 +112,9 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     errors: [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
-        message: "Collection identifiers must be in camelCase. Path segment 'resourcesAPI' in path '/resourcesAPI' is not in camelCase. http://go/ipa/102",
-        path: ['paths'],
+        message:
+          "Collection identifiers must be in camelCase. Path segment 'resourcesAPI' in path '/resourcesAPI' is not in camelCase. http://go/ipa/102",
+        path: ['paths', '/resourcesAPI'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -120,8 +125,8 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       paths: {
         '/resource_groups': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed'
-          }
+            'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+          },
         },
       },
     },
