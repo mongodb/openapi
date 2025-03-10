@@ -10,7 +10,7 @@ echo "Running FOAS CLI split command with the following --env=${target_env:?} an
 foascli split -s openapi-foas.json --env "${target_env:?}" -o ./openapi/v2/openapi.json --format all
 
 # Filters out the current foas, removing all extensions that are not related with versioning
-foascli filter -s openapi-foas.json --env "${target_env:?}" -o ./openapi/v2/v2.json --format all
+foascli filter -s openapi-foas.json --env "${target_env:?}" -o ./openapi/v2.json --format all
 
 # Moves the unfiltered OAS to the raw folder
 mv -f "openapi-foas.json" "./openapi/.raw/v2.json"
