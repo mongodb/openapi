@@ -172,9 +172,7 @@ export function getResponseOfGetMethodByMediaType(mediaType, pathForResourceColl
     return null;
   }
 
-  const singleResourcePath = resourcePaths.find(
-    (path) => !isCustomMethodIdentifier(path) && path !== pathForResourceCollection
-  );
+  const singleResourcePath = resourcePaths.find((path) => isSingleResourceIdentifier(path));
   if (!singleResourcePath) {
     return null;
   }
