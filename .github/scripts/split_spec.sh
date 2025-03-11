@@ -13,6 +13,7 @@ foascli split -s openapi-foas.json --env "${target_env:?}" -o ./openapi/v2/opena
 foascli filter -s openapi-foas.json --env "${target_env:?}" -o ./openapi/v2.json --format all
 
 # Moves the unfiltered OAS to the raw folder
+mkdir -p ./openapi/.raw
 mv -f "openapi-foas.json" "./openapi/.raw/v2.json"
 mv -f "openapi-foas.yaml" "./openapi/.raw/v2.yaml"
 
