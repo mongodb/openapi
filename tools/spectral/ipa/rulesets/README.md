@@ -46,6 +46,7 @@ For rule definitions, see [IPA-105.yaml](https://github.com/mongodb/openapi/blob
 | --------------------------------------------- | ------------------------------------------------------------------ | -------- |
 | xgen-IPA-105-list-method-response-code-is-200 | The List method must return a 200 OK response. http://go/ipa/105   | warn     |
 | xgen-IPA-105-list-method-no-request-body      | The List method request must not include a body. http://go/ipa/105 | warn     |
+| xgen-IPA-105-resource-has-list                | APIs must provide a List method for resources. http://go/ipa/105   | warn     |
 
 ### IPA-106
 
