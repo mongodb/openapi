@@ -2,6 +2,7 @@
 
 /**
  * Deep equality check between two values
+ * Does not handle circular references
  * @param {*} value1 First value to compare
  * @param {*} value2 Second value to compare
  * @returns {boolean} Whether the values are deeply equal
