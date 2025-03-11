@@ -6,7 +6,7 @@
  * @param {*} value2 Second value to compare
  * @returns {boolean} Whether the values are deeply equal
  */
-export function isEqual(value1, value2) {
+export function isDeepEqual(value1, value2) {
   // If the values are strictly equal (including handling null/undefined)
   if (value1 === value2) return true;
 
@@ -26,7 +26,7 @@ export function isEqual(value1, value2) {
     if (!keys2.includes(key)) return false;
 
     // Recursive equality check for nested objects
-    if (!isEqual(value1[key], value2[key])) return false;
+    if (!isDeepEqual(value1[key], value2[key])) return false;
   }
 
   return true;

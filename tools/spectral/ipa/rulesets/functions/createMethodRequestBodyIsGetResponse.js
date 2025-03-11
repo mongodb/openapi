@@ -1,6 +1,6 @@
 import { getResponseOfGetMethodByMediaType, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { isEqual, omitDeep } from './utils/compareUtils.js';
+import { isDeepEqual, omitDeep } from './utils/compareUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 
@@ -54,7 +54,7 @@ function checkViolationsAndReturnErrors(
 
   const ignoredValues = opts?.ignoredValues || [];
   if (
-    !isEqual(
+    !isDeepEqual(
       omitDeep(postMethodRequestContentPerMediaType.schema, ...ignoredValues),
       omitDeep(getMethodResponseContentPerMediaType.schema, ...ignoredValues)
     )
