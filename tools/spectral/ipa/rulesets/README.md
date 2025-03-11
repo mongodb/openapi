@@ -42,9 +42,10 @@ For rule definitions, see [IPA-104.yaml](https://github.com/mongodb/openapi/blob
 
 For rule definitions, see [IPA-105.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-105.yaml).
 
-| Rule Name                                     | Description                                                      | Severity |
-| --------------------------------------------- | ---------------------------------------------------------------- | -------- |
-| xgen-IPA-105-list-method-response-code-is-200 | The List method must return a 200 OK response. http://go/ipa/105 | warn     |
+| Rule Name                                     | Description                                                        | Severity |
+| --------------------------------------------- | ------------------------------------------------------------------ | -------- |
+| xgen-IPA-105-list-method-response-code-is-200 | The List method must return a 200 OK response. http://go/ipa/105   | warn     |
+| xgen-IPA-105-list-method-no-request-body      | The List method request must not include a body. http://go/ipa/105 | warn     |
 
 ### IPA-106
 
