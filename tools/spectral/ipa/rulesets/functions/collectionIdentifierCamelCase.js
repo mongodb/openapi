@@ -42,9 +42,23 @@ export default (input, options, { path, documentInventory }) => {
 function checkViolations(pathKey, path, ignoredValues = []) {
   const violations = [];
   try {
+    // Don't filter out empty segments - they should be treated as violations
     const pathSegments = pathKey.split('/');
 
+    // Check if there are consecutive slashes (empty segments)
+    if (pathKey.includes('//')) {
+      violations.push({
+        message: `${ERROR_MESSAGE} Path '${pathKey}' contains double slashes (//) which is not allowed.`,
+        path: [...path, pathKey],
+      });
+    }
+
     pathSegments.forEach((segment) => {
+      // Skip validation for ignored values
+      if (ignoredValues.includes(segment)) {
+        return;
+      }
+
       // Skip path parameter validation if it matches the expected format
       if (isPathParam(segment)) {
         // Extract parameter name without brackets
@@ -59,11 +73,6 @@ function checkViolations(pathKey, path, ignoredValues = []) {
         return;
       }
 
-      // Skip validation for ignored values
-      if (ignoredValues.includes(segment)) {
-        return;
-      }
-
       // For regular path segments, check if they contain custom method indicators
       // If they do, only validate the identifier part (before the colon)
       const colonIndex = segment.indexOf(':');
@@ -74,7 +83,16 @@ function checkViolations(pathKey, path, ignoredValues = []) {
         identifier = segment.substring(0, colonIndex);
       }
 
-      // Skip empty identifiers
+      // Empty identifiers (from double slashes) should be reported as violations
+      if (identifier.length === 0 && segment !== '') {
+        violations.push({
+          message: `${ERROR_MESSAGE} Path '${pathKey}' contains an empty segment which is not valid.`,
+          path: [...path, pathKey],
+        });
+        return;
+      }
+
+      // Skip empty segments at the beginning/end (these are not from double slashes)
       if (identifier.length === 0) {
         return;
       }
