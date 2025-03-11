@@ -4,31 +4,29 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ATLAS_ADMIN_API_V2_DOC = 'atlas-admin-api-v2';
 
 const SPEC_MAPPING = [
   {
-    doc: 'atlas-admin-api-v1',
+    doc: 'f929d2d7-27d7-4591-b22f-6c2e543a7874',
     file: 'openapi/v1-deprecated/v1.json',
     branch: 'main',
-  },
-  // Need to programmatically handle resource versions separately
-  {
-    doc: ATLAS_ADMIN_API_V2_DOC,
-    file: 'openapi/v2.json',
-    branch: 'latest',
   },
 ];
 
 /**
  * Handles the resource versions for Atlas Admin API v2
  */
-function handleResourceVersions() {
+function handleAdminAPIv2() {
+  const docId = '2accf4b8-a543-426c-94c3-794ae26b68be';
   const directory = 'openapi/v2';
   const filePath = path.join(__dirname, `../../${directory}/versions.json`);
   const versions = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
-  for (const version of versions) {
+  if (!versions || !Array.isArray(versions)) {
+    return;
+  }
+
+  for (const [index, version] of versions.entries()) {
     const openapiFilename = `openapi-${version}.json`;
     const openapiFilePath = path.join(path.dirname(filePath), openapiFilename);
 
@@ -36,13 +34,24 @@ function handleResourceVersions() {
       continue;
     }
 
+    const file = `${directory}/${openapiFilename}`;
     SPEC_MAPPING.push({
-      doc: ATLAS_ADMIN_API_V2_DOC,
-      file: `${directory}/${openapiFilename}`,
+      doc: docId,
+      file,
       branch: version,
     });
+
+    // We want the latest version to have its own version AND be the latest/default branch
+    if (index === versions.length - 1) {
+      SPEC_MAPPING.push({
+        doc: docId,
+        file,
+        branch: 'latest',
+      });
+    }
   }
 }
 
-handleResourceVersions();
+handleAdminAPIv2();
+// Output to GH action
 console.log(JSON.stringify(SPEC_MAPPING));
