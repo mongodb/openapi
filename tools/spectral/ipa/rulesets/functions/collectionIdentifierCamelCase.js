@@ -1,6 +1,7 @@
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { hasException } from './utils/exceptions.js';
-import { isCamelCase } from './utils/componentUtils.js';
+import { isPathParam } from './utils/componentUtils.js';
+import { casing } from '@stoplight/spectral-functions';
 
 const RULE_NAME = 'xgen-IPA-102-collection-identifier-camelCase';
 const ERROR_MESSAGE = 'Collection identifiers must be in camelCase.';
@@ -38,12 +39,12 @@ function checkViolations(pathKey, path) {
     // Skip empty segments
     if (!segment) return;
 
-    // Handle path parameters - extract parameter name from {paramName}
-    if (segment.startsWith('{') && segment.endsWith('}')) {
+    // Skip path parameter validation if it matches the expected format
+    if (isPathParam(segment)) {
       // Extract parameter name without brackets
-      const paramName = segment.slice(1, -1);
+      const paramName = segment.slice(1, segment.indexOf('}'));
       // Check if it's a valid camelCase parameter name
-      if (!isCamelCase(paramName)) {
+      if (casing(paramName, { type: 'camel', disallowDigits: true })) {
         violations.push({
           message: `${ERROR_MESSAGE} Path parameter '${paramName}' in path '${pathKey}' is not in camelCase.`,
           path: [...path, pathKey],
@@ -52,32 +53,27 @@ function checkViolations(pathKey, path) {
       return;
     }
 
-    // Check for custom methods
-    const parts = segment.split(':');
-    const identifier = parts[0];
+    // For regular path segments, check if they contain custom method indicators
+    // If they do, only validate the identifier part (before the colon)
+    const colonIndex = segment.indexOf(':');
+    let identifier = segment;
+
+    if (colonIndex !== -1) {
+      // Only check the identifier part before the colon
+      identifier = segment.substring(0, colonIndex);
+    }
 
     // Skip empty identifiers
     if (identifier.length === 0) {
       return;
     }
 
-    // Check if it's in camelCase
-    if (!isCamelCase(identifier)) {
+    // Check if it's in camelCase using the casing function
+    if (casing(identifier, { type: 'camel', disallowDigits: true })) {
       violations.push({
         message: `${ERROR_MESSAGE} Path segment '${identifier}' in path '${pathKey}' is not in camelCase.`,
         path: [...path, pathKey],
       });
-    }
-
-    // If there's a custom method, check that too
-    if (parts.length > 1 && parts[1].length > 0) {
-      const methodName = parts[1];
-      if (!isCamelCase(methodName)) {
-        violations.push({
-          message: `${ERROR_MESSAGE} Custom method '${methodName}' in path '${pathKey}' is not in camelCase.`,
-          path: [...path, pathKey],
-        });
-      }
     }
   });
 

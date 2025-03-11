@@ -25,11 +25,11 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     errors: [],
   },
   {
-    name: 'valid camelCase custom methods',
+    name: 'valid paths with custom methods (only checking identifier part)',
     document: {
       paths: {
-        '/resources:createResource': {},
-        '/users/{userId}/data/:activateUser': {},
+        '/resources:any_Custom_Method': {},
+        '/users/{userId}/data/:AnyOtherMethod': {},
       },
     },
     errors: [],
@@ -86,18 +86,18 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     ],
   },
   {
-    name: 'invalid custom method not in camelCase',
+    name: 'invalid resource path with invalid casing but valid custom method',
     document: {
       paths: {
-        '/resources:CREATE_RESOURCE': {},
+        '/Resources:createResource': {},
       },
     },
     errors: [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Custom method 'CREATE_RESOURCE' in path '/resources:CREATE_RESOURCE' is not in camelCase. http://go/ipa/102",
-        path: ['paths', '/resources:CREATE_RESOURCE'],
+          "Collection identifiers must be in camelCase. Path segment 'Resources' in path '/Resources:createResource' is not in camelCase. http://go/ipa/102",
+        path: ['paths', '/Resources:createResource'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
