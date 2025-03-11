@@ -19,8 +19,9 @@ export default (input, _, { path, documentInventory }) => {
   const contentPerMediaType = resolveObject(oas, path);
 
   if (
-    !contentPerMediaType.schema ||
     !responseCode.startsWith('2') ||
+    !contentPerMediaType ||
+    !contentPerMediaType.schema ||
     !input.endsWith('json') ||
     (!isSingleResourceIdentifier(resourcePath) &&
       !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths)))

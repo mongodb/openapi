@@ -87,6 +87,9 @@ gen-mocks: ## Generate mocks
 	@echo "==> Generating mocks"
 	go generate ./internal...
 
+.PHONY: pre-commit
+pre-commit: fmt lint unit-test ## Run pre-commit checks
+
 .PHONY: help
 .DEFAULT_GOAL := help
 help:
