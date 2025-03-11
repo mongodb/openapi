@@ -1,25 +1,4 @@
 /**
- * Checks if a string is in camelCase format
- * @param {string} str - The string to check
- * @returns {boolean} - True if the string is in camelCase, false otherwise
- */
-export function isCamelCase(str) {
-  // Must start with lowercase letter
-  if (!/^[a-z]/.test(str)) {
-    return false;
-  }
-  // Should not contain underscores or hyphens
-  if (/[-_]/.test(str)) {
-    return false;
-  }
-  // Should not have consecutive uppercase letters (not typical in camelCase)
-  if (/[A-Z]{2,}/.test(str)) {
-    return false;
-  }
-  return true;
-}
-
-/**
  * Checks if a string belongs to a path parameter or a path parameter with a custom method.
  *
  * A path parameter has the format: `{paramName}`
