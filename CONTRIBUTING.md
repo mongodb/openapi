@@ -7,6 +7,7 @@
 - Node.js v20 or later
 - npm v8 or later
 - Git
+- Go 1.21 or later (for CLI development)
 
 ### Installation
 
@@ -21,9 +22,15 @@
    npm install
    ```
 
-3. Set up Git hooks (optional):
+3. Set up Git hooks (recommended):
    ```bash
    npm run precommit
+   ```
+
+4. If working on the Go CLI, set up the Go environment:
+   ```bash
+   cd tools/cli
+   make setup
    ```
 
 This will install Husky, which manages Git hooks for the project. The hooks ensure code quality by automatically running various checks before commits.
@@ -34,16 +41,27 @@ This will install Husky, which manages Git hooks for the project. The hooks ensu
 
 This project uses the following Git hooks:
 
-- **pre-commit**: Automatically formats your code using Prettier and runs tests for staged JavaScript files to ensure code quality before each commit.
+- **pre-commit**: 
+  - Automatically formats your code using Prettier and runs tests for staged JavaScript files 
+  - For Go files, runs formatting, linting, and tests using the project's Makefile
 
 ### Available Scripts
 
+#### JavaScript/Node.js
 - `npm run format` - Format all files with Prettier
 - `npm run format-check` - Check formatting without modifying files
 - `npm run lint-js` - Lint JavaScript files
 - `npm run test` - Run all tests
 
 #### IPA specific targets
-
 - `npm run gen-ipa-docs` - Generate IPA ruleset documentation (see `./tools` folder for more information)
 - `npm run ipa-validation` - Run OpenAPI validation with Spectral
+
+#### Go OpenAPI CLI (internal) 
+When working in the `tools/cli` directory:
+- `make fmt` - Format Go code
+- `make lint` - Run golangci-lint
+- `make unit-test` - Run Go unit tests
+- `make e2e-test` - Run end-to-end tests
+- `make build` - Build the CLI binary
+- `make gen-docs` - Generate CLI documentation
