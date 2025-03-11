@@ -43,6 +43,7 @@ This project uses the following Git hooks:
 
 - **pre-commit**: 
   - Automatically formats your code using Prettier and runs tests for staged JavaScript files 
+  - If you get the message `hint: The '.husky/pre-commit' hook was ignored because it's not set as executable.` during the commit, you can run `chmod ug+x .husky/*` to make it executable.
   - For Go files, runs formatting, linting, and tests using the project's Makefile
 
 ### Available Scripts
