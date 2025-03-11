@@ -1,6 +1,6 @@
 /**
  * Checks if the object has results property
- * @param {*} schema
+ * @param {Object} schema
  * @returns true if schema object returns results property (pagination), false otherwise
  */
 export function schemaIsPaginated(schema) {
@@ -11,7 +11,7 @@ export function schemaIsPaginated(schema) {
 /**
  * Checks if schema is an array type of schema
  *
- * @param {*} schema
+ * @param {Object} schema
  * @returns
  */
 export function schemaIsArray(schema) {
