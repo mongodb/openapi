@@ -38,6 +38,14 @@ For rule definitions, see [IPA-104.yaml](https://github.com/mongodb/openapi/blob
 | xgen-IPA-104-get-method-response-has-no-input-fields     | The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields). http://go/ipa/104 | warn     |
 | xgen-IPA-104-get-method-no-request-body                  | The Get method request must not include a body. http://go/ipa/104                                                                                                 | warn     |
 
+### IPA-105
+
+For rule definitions, see [IPA-105.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-105.yaml).
+
+| Rule Name                                     | Description                                                      | Severity |
+| --------------------------------------------- | ---------------------------------------------------------------- | -------- |
+| xgen-IPA-105-list-method-response-code-is-200 | The List method must return a 200 OK response. http://go/ipa/105 | warn     |
+
 ### IPA-106
 
 For rule definitions, see [IPA-106.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-106.yaml).
