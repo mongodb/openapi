@@ -4,8 +4,12 @@ import {
   isSingleResourceIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { getAllSuccessfulResponseSchemas } from './utils/methodUtils.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+  collectException,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { schemaIsArray, schemaIsPaginated } from './utils/schemaUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
@@ -19,36 +23,49 @@ const ERROR_MESSAGE_SINGLETON_RESOURCE =
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const resourcePath = path[1];
+  const responseCode = path[4];
+  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
+  const contentPerMediaType = resolveObject(oas, path);
 
   const isSingleResource = isSingleResourceIdentifier(resourcePath);
-  const isSingleton =
-    isResourceCollectionIdentifier(resourcePath) && isSingletonResource(getResourcePathItems(resourcePath, oas.paths));
+  const isSingleton = isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths);
 
-  if (isSingleResource || isSingleton) {
-    const errors = [];
-
-    const responseSchemas = getAllSuccessfulResponseSchemas(input);
-    responseSchemas.forEach(({ schemaPath, schema }) => {
-      const fullPath = path.concat(schemaPath);
-      const responseObject = resolveObject(oas, fullPath);
-
-      if (hasException(responseObject, RULE_NAME)) {
-        collectException(responseObject, RULE_NAME, fullPath);
-      } else if (schemaIsPaginated(schema) || schemaIsArray(schema)) {
-        collectAndReturnViolation(
-          fullPath,
-          RULE_NAME,
-          isSingleton ? ERROR_MESSAGE_SINGLETON_RESOURCE : ERROR_MESSAGE_STANDARD_RESOURCE
-        );
-        errors.push({
-          path: fullPath,
-          message: isSingleton ? ERROR_MESSAGE_SINGLETON_RESOURCE : ERROR_MESSAGE_STANDARD_RESOURCE,
-        });
-      } else {
-        collectAdoption(fullPath, RULE_NAME);
-      }
-    });
-
-    return errors;
+  if (
+    !responseCode.startsWith('2') ||
+    !contentPerMediaType ||
+    !contentPerMediaType.schema ||
+    !input.endsWith('json') ||
+    (!isSingleResource && !isSingleton)
+  ) {
+    return;
   }
+
+  if (hasException(contentPerMediaType, RULE_NAME)) {
+    collectException(contentPerMediaType, RULE_NAME, path);
+    return;
+  }
+
+  const errors = checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton);
+
+  if (errors.length !== 0) {
+    return collectAndReturnViolation(path, RULE_NAME, errors);
+  }
+  return collectAdoption(path, RULE_NAME);
 };
+
+function checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton) {
+  try {
+    const schema = contentPerMediaType.schema;
+    if (schemaIsPaginated(schema) || schemaIsArray(schema)) {
+      return [
+        {
+          path,
+          message: isSingleton ? ERROR_MESSAGE_SINGLETON_RESOURCE : ERROR_MESSAGE_STANDARD_RESOURCE,
+        },
+      ];
+    }
+    return [];
+  } catch (e) {
+    handleInternalError(RULE_NAME, path, e);
+  }
+}

@@ -20,9 +20,10 @@ For rule definitions, see [IPA-005.yaml](https://github.com/mongodb/openapi/blob
 
 For rule definitions, see [IPA-102.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-102.yaml).
 
-| Rule Name                                            | Description                                                                      | Severity |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------- | -------- |
-| xgen-IPA-102-path-alternate-resource-name-path-param | Paths should alternate between resource names and path params. http://go/ipa/102 | error    |
+| Rule Name                                            | Description                                                                                                             | Severity |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------- |
+| xgen-IPA-102-path-alternate-resource-name-path-param | Paths should alternate between resource names and path params. http://go/ipa/102                                        | error    |
+| xgen-IPA-102-collection-identifier-pattern           | Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers. http://go/ipa/102 | warn     |
 
 ### IPA-104
 
@@ -37,6 +38,15 @@ For rule definitions, see [IPA-104.yaml](https://github.com/mongodb/openapi/blob
 | xgen-IPA-104-get-method-response-has-no-input-fields     | The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields). http://go/ipa/104 | warn     |
 | xgen-IPA-104-get-method-no-request-body                  | The Get method request must not include a body. http://go/ipa/104                                                                                                 | warn     |
 
+### IPA-105
+
+For rule definitions, see [IPA-105.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-105.yaml).
+
+| Rule Name                                     | Description                                                        | Severity |
+| --------------------------------------------- | ------------------------------------------------------------------ | -------- |
+| xgen-IPA-105-list-method-response-code-is-200 | The List method must return a 200 OK response. http://go/ipa/105   | warn     |
+| xgen-IPA-105-list-method-no-request-body      | The List method request must not include a body. http://go/ipa/105 | warn     |
+
 ### IPA-106
 
 For rule definitions, see [IPA-106.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-106.yaml).
@@ -45,6 +55,7 @@ For rule definitions, see [IPA-106.yaml](https://github.com/mongodb/openapi/blob
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------- | -------- |
 | xgen-IPA-106-create-method-request-body-is-request-suffixed-object | The Create method request should be a Request suffixed object. http://go/ipa/106 | warn     |
 | xgen-IPA-106-create-method-should-not-have-query-parameters        | Create operations should not use query parameters. http://go/ipa/xxx             | warn     |
+| xgen-IPA-106-create-method-request-body-is-get-method-response     | The Create method request should be a Get method response. http://go/ipa/106     | warn     |
 
 ### IPA-108
 
