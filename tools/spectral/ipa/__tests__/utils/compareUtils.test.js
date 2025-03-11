@@ -1,6 +1,6 @@
 // compareUtils.it.js
 import { describe, expect, it } from '@jest/globals';
-import { isDeepEqual, omitDeep } from './compareUtils.js';
+import { isDeepEqual, omitDeep } from '../../rulesets/functions/utils/compareUtils';
 
 describe('isDeepEqual', () => {
   it('handles primitive values', () => {
