@@ -5,7 +5,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(dirname, '../../../../');
 
 const config = {
-  defaultOasFilePath: path.join(rootDir, 'openapi', 'v2.json'),
+  defaultOasFilePath: path.join(rootDir, 'openapi', '.raw', 'v2.json'),
   defaultRulesetFilePath: path.join(dirname, '..', 'ipa-spectral.yaml'),
   defaultCollectorResultsFilePath: path.join(dirname, 'scripts', 'ipa-collector-results-combined.log'),
   defaultOutputsDir: path.join(dirname, 'outputs'),
