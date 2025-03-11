@@ -31,9 +31,7 @@ export default (input, _, { path }) => {
 
 function checkViolationsAndReturnErrors(input, path) {
   try {
-    console.log(input);
     const responses = input.responses;
-    console.log(responses);
     // If there is no 204 response, return a violation
     if (!responses || !responses['204']) {
       return [{ path, message: ERROR_MESSAGE }];
