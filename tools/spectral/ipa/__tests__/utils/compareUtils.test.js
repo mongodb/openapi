@@ -1,4 +1,3 @@
-// compareUtils.it.js
 import { describe, expect, it } from '@jest/globals';
 import { isDeepEqual, omitDeep } from '../../rulesets/functions/utils/compareUtils';
 
