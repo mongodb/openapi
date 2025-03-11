@@ -15,7 +15,7 @@ import {
 import { getSchemaRef } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-104-get-method-returns-response-suffixed-object';
-const ERROR_MESSAGE_SCHEMA_NAME = 'The request schema must reference a schema with a Response suffix.';
+const ERROR_MESSAGE_SCHEMA_NAME = 'The response body schema must reference a schema with a Response suffix.';
 const ERROR_MESSAGE_SCHEMA_REF = 'The response body schema is defined inline and must reference a predefined schema.';
 
 export default (input, _, { path, documentInventory }) => {
@@ -26,8 +26,9 @@ export default (input, _, { path, documentInventory }) => {
   const contentPerMediaType = resolveObject(oas, path);
 
   if (
-    !contentPerMediaType.schema ||
     !responseCode.startsWith('2') ||
+    !contentPerMediaType ||
+    !contentPerMediaType.schema ||
     !input.endsWith('json') ||
     (!isSingleResourceIdentifier(resourcePath) &&
       !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths)))

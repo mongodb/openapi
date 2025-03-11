@@ -31,8 +31,9 @@ export default (input, _, { path, documentInventory }) => {
   const isSingleton = isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths);
 
   if (
-    !contentPerMediaType.schema ||
     !responseCode.startsWith('2') ||
+    !contentPerMediaType ||
+    !contentPerMediaType.schema ||
     !input.endsWith('json') ||
     (!isSingleResource && !isSingleton)
   ) {

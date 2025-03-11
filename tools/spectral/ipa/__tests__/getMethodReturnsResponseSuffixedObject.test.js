@@ -9,6 +9,15 @@ const componentSchemas = {
     Schema: {
       type: 'object',
     },
+    BadRequest: {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'string',
+          },
+        },
+      },
+    },
   },
 };
 
@@ -41,6 +50,9 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
                     },
                   },
                 },
+              },
+              401: {
+                $ref: '#/components/schemas/BadRequest',
               },
               400: {
                 content: {
@@ -140,7 +152,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
     errors: [
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'The request schema must reference a schema with a Response suffix. http://go/ipa/104',
+        message: 'The response body schema must reference a schema with a Response suffix. http://go/ipa/104',
         path: [
           'paths',
           '/resource/{id}',
@@ -154,7 +166,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'The request schema must reference a schema with a Response suffix. http://go/ipa/104',
+        message: 'The response body schema must reference a schema with a Response suffix. http://go/ipa/104',
         path: [
           'paths',
           '/resource/{id}',
@@ -168,7 +180,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'The request schema must reference a schema with a Response suffix. http://go/ipa/104',
+        message: 'The response body schema must reference a schema with a Response suffix. http://go/ipa/104',
         path: [
           'paths',
           '/resource/{id}',
@@ -182,7 +194,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'The request schema must reference a schema with a Response suffix. http://go/ipa/104',
+        message: 'The response body schema must reference a schema with a Response suffix. http://go/ipa/104',
         path: [
           'paths',
           '/resource/{id}/singleton',
