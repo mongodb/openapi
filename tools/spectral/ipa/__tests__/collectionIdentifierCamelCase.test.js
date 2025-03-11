@@ -6,10 +6,11 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     name: 'valid camelCase identifiers',
     document: {
       paths: {
-        '/resources': {},
+        '/api/v2/atlas/test': {},
         '/users': {},
         '/resourceGroups': {},
         '/userProfiles': {},
+        '/api/v1/test': {},
       },
     },
     errors: [],
