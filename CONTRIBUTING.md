@@ -35,6 +35,7 @@ This will install Husky, which manages Git hooks for the project. The hooks ensu
 This project uses the following Git hooks:
 
 - **pre-commit**: Automatically formats your code using Prettier and runs tests for staged JavaScript files to ensure code quality before each commit.
+  - If you get the message `hint: The '.husky/pre-commit' hook was ignored because it's not set as executable.` during the commit, you can run `chmod ug+x .husky/*` to make it executable.
 
 ### Available Scripts
 
