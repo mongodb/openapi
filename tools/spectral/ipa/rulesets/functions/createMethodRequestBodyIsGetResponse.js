@@ -1,7 +1,9 @@
 import {
   getResourcePathItems,
   getResponseOfGetMethodByMediaType,
-  isCustomMethodIdentifier, isResourceCollectionIdentifier, isSingletonResource,
+  isCustomMethodIdentifier,
+  isResourceCollectionIdentifier,
+  isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { isDeepEqual, omitDeep } from './utils/compareUtils.js';
@@ -19,11 +21,7 @@ export default (input, opts, { path, documentInventory }) => {
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
   const isResourceCollection = isResourceCollectionIdentifier(resourcePath) && !isSingletonResource(resourcePaths);
-  if (
-    isCustomMethodIdentifier(resourcePath) ||
-    !isResourceCollection ||
-    !mediaType.endsWith('json')
-  ) {
+  if (isCustomMethodIdentifier(resourcePath) || !isResourceCollection || !mediaType.endsWith('json')) {
     return;
   }
 
