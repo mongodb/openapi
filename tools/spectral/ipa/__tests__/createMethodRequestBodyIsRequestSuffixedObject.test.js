@@ -49,12 +49,12 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaRequest',
+                    $ref: '#/components/schemas/Schema',
                   },
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaRequest',
+                    $ref: '#/components/schemas/Schema',
                   },
                 },
               },
@@ -109,7 +109,10 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
             },
           },
         },
-        '/resource2': {
+        '/resource/{id}': {
+          get: {},
+        },
+        '/resourceTwo': {
           post: {
             requestBody: {
               content: {
@@ -127,7 +130,10 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
             },
           },
         },
-        '/resource3': {
+        '/resourceTwo/{id}': {
+          get: {},
+        },
+        '/resourceThree': {
           post: {
             requestBody: {
               content: {
@@ -139,6 +145,9 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
               },
             },
           },
+        },
+        '/resourceThree/{id}': {
+          get: {},
         },
       },
     },
@@ -158,19 +167,19 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object',
         message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
-        path: ['paths', '/resource2', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object',
         message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
-        path: ['paths', '/resource2', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
+        path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object',
         message: 'The response body schema is defined inline and must reference a predefined schema. http://go/ipa/106',
-        path: ['paths', '/resource3', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        path: ['paths', '/resourceThree', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -207,7 +216,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
             },
           },
         },
-        '/resource2': {
+        '/resourceTwo': {
           post: {
             requestBody: {
               content: {
@@ -231,7 +240,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
             },
           },
         },
-        '/resource3': {
+        '/resourceThree': {
           post: {
             requestBody: {
               content: {

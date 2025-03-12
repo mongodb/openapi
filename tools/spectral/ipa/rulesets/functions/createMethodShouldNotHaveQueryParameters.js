@@ -5,17 +5,25 @@ import {
   collectException,
   handleInternalError,
 } from './utils/collectionUtils.js';
-import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
+import {
+  getResourcePathItems,
+  isCustomMethodIdentifier,
+  isResourceCollectionIdentifier,
+  isSingletonResource,
+} from './utils/resourceEvaluation.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-should-not-have-query-parameters';
 const ERROR_MESSAGE = 'Create operations should not have query parameters.';
 
 const ignoredParameters = ['envelope', 'pretty'];
 
-export default (input, _, { path }) => {
+export default (input, _, { path, documentInventory }) => {
   const resourcePath = path[1];
+  const oas = documentInventory.resolved;
+  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
-  if (isCustomMethodIdentifier(resourcePath)) {
+  const isResourceCollection = isResourceCollectionIdentifier(resourcePath) && !isSingletonResource(resourcePaths);
+  if (isCustomMethodIdentifier(resourcePath) || !isResourceCollection) {
     return;
   }
 
