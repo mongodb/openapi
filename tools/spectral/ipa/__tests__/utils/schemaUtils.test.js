@@ -17,15 +17,15 @@ describe('findPropertiesByAttribute', () => {
   it('detects direct attribute match', () => {
     const schema = {
       type: 'string',
-      readOnly: true
+      readOnly: true,
     };
-    
+
     const errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
-    
+
     expect(errors).toHaveLength(1);
     expect(errors[0]).toEqual({
       path: mockPath,
-      message: `${errorMessage} Found readOnly property at one of the inline schemas.`
+      message: `${errorMessage} Found readOnly property at one of the inline schemas.`,
     });
   });
 
@@ -35,23 +35,23 @@ describe('findPropertiesByAttribute', () => {
       properties: {
         id: {
           type: 'string',
-          readOnly: true
+          readOnly: true,
         },
         name: {
-          type: 'string'
+          type: 'string',
         },
         password: {
           type: 'string',
-          writeOnly: true
-        }
-      }
+          writeOnly: true,
+        },
+      },
     };
-    
+
     // Testing readOnly detection
     let errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
     expect(errors[0].message).toContain('Found readOnly property at: id.');
-    
+
     // Testing writeOnly detection
     errors = findPropertiesByAttribute(schema, 'writeOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
@@ -66,28 +66,28 @@ describe('findPropertiesByAttribute', () => {
           type: 'object',
           properties: {
             id: {
-              type: 'string', 
-              readOnly: true
+              type: 'string',
+              readOnly: true,
             },
             credentials: {
               type: 'object',
               properties: {
                 password: {
                   type: 'string',
-                  writeOnly: true
-                }
-              }
-            }
-          }
-        }
-      }
+                  writeOnly: true,
+                },
+              },
+            },
+          },
+        },
+      },
     };
-    
+
     // Testing deep readOnly detection
     let errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
     expect(errors[0].message).toContain('Found readOnly property at: user.id.');
-    
+
     // Testing deep writeOnly detection
     errors = findPropertiesByAttribute(schema, 'writeOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
@@ -105,23 +105,23 @@ describe('findPropertiesByAttribute', () => {
             properties: {
               id: {
                 type: 'string',
-                readOnly: true
+                readOnly: true,
               },
               secret: {
                 type: 'string',
-                writeOnly: true
-              }
-            }
-          }
-        }
-      }
+                writeOnly: true,
+              },
+            },
+          },
+        },
+      },
     };
-    
+
     // Testing readOnly in array items
     let errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
     expect(errors[0].message).toContain('Found readOnly property at: items.items.id.');
-    
+
     // Testing writeOnly in array items
     errors = findPropertiesByAttribute(schema, 'writeOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
@@ -136,10 +136,10 @@ describe('findPropertiesByAttribute', () => {
           properties: {
             id: {
               type: 'string',
-              readOnly: true
-            }
-          }
-        }
+              readOnly: true,
+            },
+          },
+        },
       ],
       anyOf: [
         {
@@ -147,33 +147,33 @@ describe('findPropertiesByAttribute', () => {
           properties: {
             key: {
               type: 'string',
-              writeOnly: true
-            }
-          }
-        }
+              writeOnly: true,
+            },
+          },
+        },
       ],
       oneOf: [
         {
-          type: 'object'
+          type: 'object',
         },
         {
           type: 'object',
           properties: {
             token: {
               type: 'string',
-              readOnly: true
-            }
-          }
-        }
-      ]
+              readOnly: true,
+            },
+          },
+        },
+      ],
     };
-    
+
     // Testing readOnly in combiners
     let errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(2);
     expect(errors[0].message).toContain('Found readOnly property at: allOf.0.id.');
     expect(errors[1].message).toContain('Found readOnly property at: oneOf.1.token.');
-    
+
     // Testing writeOnly in combiners
     errors = findPropertiesByAttribute(schema, 'writeOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
@@ -186,28 +186,28 @@ describe('findPropertiesByAttribute', () => {
       properties: {
         id: {
           type: 'string',
-          readOnly: true
+          readOnly: true,
         },
         nested: {
           type: 'object',
           properties: {
             innerId: {
               type: 'string',
-              readOnly: true
-            }
-          }
+              readOnly: true,
+            },
+          },
         },
         items: {
           type: 'array',
           items: {
-            readOnly: true
-          }
-        }
-      }
+            readOnly: true,
+          },
+        },
+      },
     };
-    
+
     const errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
-    
+
     expect(errors).toHaveLength(3);
     expect(errors[0].message).toContain('Found readOnly property at: id.');
     expect(errors[1].message).toContain('Found readOnly property at: nested.innerId.');
@@ -229,18 +229,18 @@ describe('findPropertiesByAttribute', () => {
         nested: {
           type: 'object',
           properties: {
-            value: { type: 'number' }
-          }
+            value: { type: 'number' },
+          },
         },
         items: {
           type: 'array',
           items: {
-            type: 'string'
-          }
-        }
-      }
+            type: 'string',
+          },
+        },
+      },
     };
-    
+
     const errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(0);
   });

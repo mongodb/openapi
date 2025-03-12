@@ -8,23 +8,23 @@ const componentSchemas = {
       properties: {
         id: {
           type: 'string',
-          readOnly: true
+          readOnly: true,
         },
         name: {
-          type: 'string'
-        }
-      }
+          type: 'string',
+        },
+      },
     },
     SchemaWithoutReadOnly: {
       type: 'object',
       properties: {
         name: {
-          type: 'string'
+          type: 'string',
         },
         description: {
-          type: 'string'
-        }
-      }
+          type: 'string',
+        },
+      },
     },
     NestedSchemaWithReadOnly: {
       type: 'object',
@@ -34,14 +34,14 @@ const componentSchemas = {
           properties: {
             userId: {
               type: 'string',
-              readOnly: true
+              readOnly: true,
             },
             username: {
-              type: 'string'
-            }
-          }
-        }
-      }
+              type: 'string',
+            },
+          },
+        },
+      },
     },
     ArraySchemaWithReadOnly: {
       type: 'object',
@@ -53,17 +53,17 @@ const componentSchemas = {
             properties: {
               itemId: {
                 type: 'string',
-                readOnly: true
+                readOnly: true,
               },
               itemName: {
-                type: 'string'
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
@@ -78,21 +78,21 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaWithoutReadOnly'
-                  }
+                    $ref: '#/components/schemas/SchemaWithoutReadOnly',
+                  },
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    type: "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    errors: []
+    errors: [],
   },
   {
     name: 'valid methods - custom method can have readOnly fields',
@@ -105,16 +105,16 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaWithReadOnly'
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    $ref: '#/components/schemas/SchemaWithReadOnly',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    errors: []
+    errors: [],
   },
   {
     name: 'invalid methods - direct readOnly field',
@@ -127,35 +127,37 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaWithReadOnly'
-                  }
+                    $ref: '#/components/schemas/SchemaWithReadOnly',
+                  },
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    type: "string",
-                    readOnly: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    type: 'string',
+                    readOnly: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
-        message: 'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: id. http://go/ipa/106',
+        message:
+          'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: id. http://go/ipa/106',
         path: ['paths', '/invalid-resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
-        message: 'The Create method request object must not include input fields (readOnly properties). Found readOnly property at one of the inline schemas. http://go/ipa/106',
+        message:
+          'The Create method request object must not include input fields (readOnly properties). Found readOnly property at one of the inline schemas. http://go/ipa/106',
         path: ['paths', '/invalid-resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
-      }
-    ]
+      },
+    ],
   },
   {
     name: 'invalid methods - nested readOnly field',
@@ -168,23 +170,31 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/NestedSchemaWithReadOnly'
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    $ref: '#/components/schemas/NestedSchemaWithReadOnly',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
-        message: 'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: user.userId. http://go/ipa/106',
-        path: ['paths', '/nested-invalid-resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        message:
+          'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: user.userId. http://go/ipa/106',
+        path: [
+          'paths',
+          '/nested-invalid-resource',
+          'post',
+          'requestBody',
+          'content',
+          'application/vnd.atlas.2023-01-01+json',
+        ],
         severity: DiagnosticSeverity.Warning,
-      }
-    ]
+      },
+    ],
   },
   {
     name: 'invalid methods - array with readOnly field',
@@ -197,23 +207,31 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/ArraySchemaWithReadOnly'
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    $ref: '#/components/schemas/ArraySchemaWithReadOnly',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
-        message: 'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: items.items.itemId. http://go/ipa/106',
-        path: ['paths', '/array-invalid-resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        message:
+          'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: items.items.itemId. http://go/ipa/106',
+        path: [
+          'paths',
+          '/array-invalid-resource',
+          'post',
+          'requestBody',
+          'content',
+          'application/vnd.atlas.2023-01-01+json',
+        ],
         severity: DiagnosticSeverity.Warning,
-      }
-    ]
+      },
+    ],
   },
   {
     name: 'methods with exceptions',
@@ -226,18 +244,18 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaWithReadOnly'
+                    $ref: '#/components/schemas/SchemaWithReadOnly',
                   },
                   'x-xgen-IPA-exception': {
-                    'xgen-IPA-106-create-method-request-has-no-readonly-fields': 'Reason'
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    'xgen-IPA-106-create-method-request-has-no-readonly-fields': 'Reason',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    errors: []
-  }
+    errors: [],
+  },
 ]);
