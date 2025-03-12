@@ -4541,7 +4541,6 @@
             "description": "Flag that indicates whether to return linked invoices in the linkedInvoices field.",
             "schema": {
               "type": "boolean",
-              "example": true,
               "default": true
             }
           },
@@ -9333,8 +9332,7 @@
             "description": "Date and time after which MongoDB Cloud created the snapshot. If specified, MongoDB Cloud returns available backup snapshots created after this time and date only. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "schema": {
               "type": "string",
-              "format": "date-time",
-              "example": "2022-01-01T00:00:00Z"
+              "format": "date-time"
             }
           },
           {
@@ -9404,8 +9402,7 @@
             "description": "If specified, Atlas returns only Data Lake Pipeline runs initiated before this time and date.",
             "schema": {
               "type": "string",
-              "format": "date-time",
-              "example": "2022-01-01T00:00:00Z"
+              "format": "date-time"
             }
           },
           {
@@ -20342,12 +20339,117 @@
         },
         "description": "Billing event identifies different activities related to billing, payment or financial status change of an organization."
       },
+      "ChartsAudit": {
+        "required": ["created", "eventTypeName", "id"],
+        "type": "object",
+        "properties": {
+          "apiKeyId": {
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "description": "Unique 24-hexadecimal digit string that identifies the API Key that triggered the event. If this resource returns this parameter, it doesn't return the **userId** parameter.",
+            "readOnly": true,
+            "example": "32b6e34b3d91647abb20e7b8"
+          },
+          "created": {
+            "type": "string",
+            "description": "Date and time when this event occurred. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            }
+          },
+          "eventTypeName": {
+            "$ref": "#/components/schemas/ChartsAuditTypeView"
+          },
+          "groupId": {
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "description": "Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The **eventId** identifies the specific event.",
+            "readOnly": true,
+            "example": "32b6e34b3d91647abb20e7b8"
+          },
+          "id": {
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "description": "Unique 24-hexadecimal digit string that identifies the event.",
+            "readOnly": true,
+            "example": "32b6e34b3d91647abb20e7b8"
+          },
+          "isGlobalAdmin": {
+            "type": "boolean",
+            "description": "Flag that indicates whether a MongoDB employee triggered the specified event.",
+            "readOnly": true,
+            "default": false
+          },
+          "links": {
+            "type": "array",
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "readOnly": true,
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "orgId": {
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "description": "Unique 24-hexadecimal digit string that identifies the organization to which these events apply.",
+            "readOnly": true,
+            "example": "32b6e34b3d91647abb20e7b8"
+          },
+          "publicKey": {
+            "type": "string",
+            "description": "Public part of the API Key that triggered the event. If this resource returns this parameter, it doesn't return the **username** parameter.",
+            "format": "email",
+            "readOnly": true,
+            "externalDocs": {
+              "url": "https://dochub.mongodb.org/core/atlas-create-prog-api-key"
+            }
+          },
+          "raw": {
+            "$ref": "#/components/schemas/raw"
+          },
+          "remoteAddress": {
+            "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
+            "type": "string",
+            "description": "IPv4 or IPv6 address from which the user triggered this event.",
+            "readOnly": true,
+            "example": "216.172.40.186"
+          },
+          "userId": {
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "description": "Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.",
+            "readOnly": true,
+            "example": "32b6e34b3d91647abb20e7b8"
+          },
+          "username": {
+            "type": "string",
+            "description": "Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.",
+            "format": "email",
+            "readOnly": true
+          }
+        },
+        "description": "Audit events related to Atlas Charts"
+      },
+      "ChartsAuditTypeView": {
+        "title": "Charts Api Call Audit Types",
+        "type": "string",
+        "description": "Unique identifier of event type.",
+        "example": "CHARTS_API_SUCCESS",
+        "enum": ["CHARTS_API_SUCCESS", "CHARTS_API_FAILURE"]
+      },
       "ClusterEventTypeViewForNdsGroup": {
         "title": "Cluster Event Types",
         "type": "string",
         "description": "Unique identifier of event type.",
         "example": "CLUSTER_MONGOS_IS_PRESENT",
-        "enum": ["CLUSTER_MONGOS_IS_PRESENT", "CLUSTER_MONGOS_IS_MISSING"]
+        "enum": ["CLUSTER_MONGOS_IS_PRESENT", "CLUSTER_MONGOS_IS_MISSING", "CLUSTER_AGENT_IN_CRASH_LOOP"]
       },
       "ClusterEventViewForNdsGroup": {
         "title": "Cluster Events",
@@ -21008,7 +21110,9 @@
                   "ALL_USERS_HAVE_MULTI_FACTOR_AUTH",
                   "USERS_WITHOUT_MULTI_FACTOR_AUTH",
                   "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_DENIED",
-                  "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_RESTORED"
+                  "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_RESTORED",
+                  "ENCRYPTION_AT_REST_CONFIG_NO_LONGER_VALID",
+                  "ENCRYPTION_AT_REST_CONFIG_IS_VALID"
                 ]
               },
               {
@@ -21166,8 +21270,8 @@
                 "type": "string",
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
-                  "STREAM_PROCESSOR_KAFKA_LAG_BEHIND",
-                  "STREAM_PROCESSOR_KAFKA_LAG_CURRENT"
+                  "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
+                  "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ]
               },
               {
@@ -21373,6 +21477,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamProcessorEventViewForNdsGroup"
+          },
+          {
+            "$ref": "#/components/schemas/ChartsAudit"
           }
         ]
       },
@@ -22503,7 +22610,10 @@
           "COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE",
           "COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS",
           "DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL",
-          "DISK_AUTO_SCALE_OPLOG_FAIL"
+          "DISK_AUTO_SCALE_OPLOG_FAIL",
+          "PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE",
+          "PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE",
+          "PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE"
         ]
       },
       "NDSAutoScalingAuditViewForNdsGroup": {
@@ -23536,8 +23646,8 @@
         "example": "STREAM_PROCESSOR_STATE_IS_FAILED",
         "enum": [
           "STREAM_PROCESSOR_STATE_IS_FAILED",
-          "STREAM_PROCESSOR_KAFKA_LAG_BEHIND",
-          "STREAM_PROCESSOR_KAFKA_LAG_CURRENT"
+          "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
+          "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
         ]
       },
       "StreamProcessorEventViewForNdsGroup": {
@@ -24290,7 +24400,7 @@
           {
             "title": "Cluster Event Types",
             "type": "string",
-            "enum": ["CLUSTER_MONGOS_IS_PRESENT", "CLUSTER_MONGOS_IS_MISSING"]
+            "enum": ["CLUSTER_MONGOS_IS_PRESENT", "CLUSTER_MONGOS_IS_MISSING", "CLUSTER_AGENT_IN_CRASH_LOOP"]
           },
           {
             "title": "Cps Backup Event Types",
@@ -24435,7 +24545,9 @@
               "ALL_USERS_HAVE_MULTI_FACTOR_AUTH",
               "USERS_WITHOUT_MULTI_FACTOR_AUTH",
               "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_DENIED",
-              "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_RESTORED"
+              "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_RESTORED",
+              "ENCRYPTION_AT_REST_CONFIG_NO_LONGER_VALID",
+              "ENCRYPTION_AT_REST_CONFIG_IS_VALID"
             ]
           },
           {
@@ -24752,7 +24864,10 @@
               "COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE",
               "COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS",
               "DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL",
-              "DISK_AUTO_SCALE_OPLOG_FAIL"
+              "DISK_AUTO_SCALE_OPLOG_FAIL",
+              "PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE",
+              "PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE",
+              "PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE"
             ]
           },
           {
@@ -24919,8 +25034,8 @@
             "type": "string",
             "enum": [
               "STREAM_PROCESSOR_STATE_IS_FAILED",
-              "STREAM_PROCESSOR_KAFKA_LAG_BEHIND",
-              "STREAM_PROCESSOR_KAFKA_LAG_CURRENT"
+              "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
+              "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
             ]
           },
           {
@@ -24995,6 +25110,11 @@
             "title": "Access Event Types",
             "type": "string",
             "enum": ["EMPLOYEE_DOWNLOADED_CLUSTER_LOGS"]
+          },
+          {
+            "title": "Charts Api Call Audit Types",
+            "type": "string",
+            "enum": ["CHARTS_API_SUCCESS", "CHARTS_API_FAILURE"]
           }
         ]
       },
@@ -25818,7 +25938,8 @@
           "ORG_SERVICE_ACCOUNT_SECRETS_NO_LONGER_EXPIRING",
           "ORG_MONGODB_VERSION_EOL_EXTENSION_ACCEPTED",
           "ORG_MONGODB_VERSION_EOL_EXTENSION_PENDING",
-          "ORG_MONGODB_VERSION_EOL_EXTENSION_CANCELLED"
+          "ORG_MONGODB_VERSION_EOL_EXTENSION_CANCELLED",
+          "GROUP_MOVED_FROM_ORG"
         ]
       },
       "OrgEventViewForOrg": {
@@ -26692,7 +26813,8 @@
               "ORG_SERVICE_ACCOUNT_SECRETS_NO_LONGER_EXPIRING",
               "ORG_MONGODB_VERSION_EOL_EXTENSION_ACCEPTED",
               "ORG_MONGODB_VERSION_EOL_EXTENSION_PENDING",
-              "ORG_MONGODB_VERSION_EOL_EXTENSION_CANCELLED"
+              "ORG_MONGODB_VERSION_EOL_EXTENSION_CANCELLED",
+              "GROUP_MOVED_FROM_ORG"
             ]
           },
           {
@@ -27055,7 +27177,7 @@
         "type": "string",
         "description": "Event type that triggers an alert.",
         "example": "CLUSTER_MONGOS_IS_MISSING",
-        "enum": ["CLUSTER_MONGOS_IS_MISSING"]
+        "enum": ["CLUSTER_MONGOS_IS_MISSING", "CLUSTER_AGENT_IN_CRASH_LOOP"]
       },
       "DataMetricAlertView": {
         "required": ["alertConfigId", "created", "eventTypeName", "id", "status", "updated"],
@@ -27307,7 +27429,11 @@
               {
                 "title": "Group Event Types",
                 "type": "string",
-                "enum": ["USERS_WITHOUT_MULTI_FACTOR_AUTH", "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_DENIED"]
+                "enum": [
+                  "USERS_WITHOUT_MULTI_FACTOR_AUTH",
+                  "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_DENIED",
+                  "ENCRYPTION_AT_REST_CONFIG_NO_LONGER_VALID"
+                ]
               },
               {
                 "title": "NDS Audit Types",
@@ -27374,7 +27500,7 @@
               {
                 "title": "Stream Processor Event Types",
                 "type": "string",
-                "enum": ["STREAM_PROCESSOR_STATE_IS_FAILED", "STREAM_PROCESSOR_KAFKA_LAG_BEHIND"]
+                "enum": ["STREAM_PROCESSOR_STATE_IS_FAILED", "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"]
               },
               {
                 "title": "NDS Auto Scaling Audit Types",
@@ -27390,7 +27516,10 @@
                   "COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS",
                   "DISK_AUTO_SCALE_INITIATED",
                   "DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL",
-                  "DISK_AUTO_SCALE_OPLOG_FAIL"
+                  "DISK_AUTO_SCALE_OPLOG_FAIL",
+                  "PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE",
+                  "PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE",
+                  "PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE"
                 ]
               },
               {
@@ -29734,7 +29863,11 @@
               {
                 "title": "Group Event Types",
                 "type": "string",
-                "enum": ["USERS_WITHOUT_MULTI_FACTOR_AUTH", "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_DENIED"]
+                "enum": [
+                  "USERS_WITHOUT_MULTI_FACTOR_AUTH",
+                  "ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_DENIED",
+                  "ENCRYPTION_AT_REST_CONFIG_NO_LONGER_VALID"
+                ]
               },
               {
                 "title": "NDS Audit Types",
@@ -29782,7 +29915,7 @@
               {
                 "title": "Stream Processor Event Types",
                 "type": "string",
-                "enum": ["STREAM_PROCESSOR_STATE_IS_FAILED", "STREAM_PROCESSOR_KAFKA_LAG_BEHIND"]
+                "enum": ["STREAM_PROCESSOR_STATE_IS_FAILED", "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"]
               },
               {
                 "title": "NDS Auto Scaling Audit Types",
@@ -29798,7 +29931,10 @@
                   "COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS",
                   "DISK_AUTO_SCALE_INITIATED",
                   "DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL",
-                  "DISK_AUTO_SCALE_OPLOG_FAIL"
+                  "DISK_AUTO_SCALE_OPLOG_FAIL",
+                  "PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE",
+                  "PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE",
+                  "PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE"
                 ]
               }
             ]
@@ -30343,6 +30479,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamProcessorAlertConfigViewForNdsGroup"
+          },
+          {
+            "$ref": "#/components/schemas/StreamProcessorMetricAlertConfigViewForNdsGroup"
           }
         ]
       },
@@ -31882,7 +32021,7 @@
             "default": false
           },
           "eventTypeName": {
-            "$ref": "#/components/schemas/StreamProcessorEventTypeViewAlertable"
+            "$ref": "#/components/schemas/StreamProcessorEventTypeViewAlertableNoThreshold"
           },
           "groupId": {
             "pattern": "^([a-f0-9]{24})$",
@@ -31937,12 +32076,175 @@
         },
         "description": "Host metric alert configuration allows to select which Atlas streams processors trigger alerts and how users are notified."
       },
-      "StreamProcessorEventTypeViewAlertable": {
+      "StreamProcessorEventTypeViewAlertableNoThreshold": {
         "title": "Stream Processor Event Types",
         "type": "string",
         "description": "Event type that triggers an alert.",
         "example": "STREAM_PROCESSOR_STATE_IS_FAILED",
-        "enum": ["STREAM_PROCESSOR_STATE_IS_FAILED", "STREAM_PROCESSOR_KAFKA_LAG_BEHIND"]
+        "enum": ["STREAM_PROCESSOR_STATE_IS_FAILED"]
+      },
+      "StreamProcessorEventTypeViewAlertableWithThreshold": {
+        "title": "Stream Processor Event Types",
+        "type": "string",
+        "description": "Event type that triggers an alert.",
+        "example": "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
+        "enum": ["OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"]
+      },
+      "StreamProcessorMetricAlertConfigViewForNdsGroup": {
+        "title": "Stream Processor Metric Alert Configuration",
+        "required": ["eventTypeName", "notifications"],
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "string",
+            "description": "Date and time when MongoDB Cloud created the alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Flag that indicates whether someone enabled this alert configuration for the specified project.",
+            "default": false
+          },
+          "eventTypeName": {
+            "$ref": "#/components/schemas/StreamProcessorEventTypeViewAlertableWithThreshold"
+          },
+          "groupId": {
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "description": "Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.",
+            "readOnly": true,
+            "example": "32b6e34b3d91647abb20e7b8"
+          },
+          "id": {
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string",
+            "description": "Unique 24-hexadecimal digit string that identifies this alert configuration.",
+            "readOnly": true,
+            "example": "32b6e34b3d91647abb20e7b8"
+          },
+          "links": {
+            "type": "array",
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "readOnly": true,
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "matchers": {
+            "type": "array",
+            "description": "List of rules that determine whether MongoDB Cloud checks an object for the alert configuration.",
+            "items": {
+              "$ref": "#/components/schemas/StreamsMatcher"
+            }
+          },
+          "notifications": {
+            "type": "array",
+            "description": "List that contains the targets that MongoDB Cloud sends notifications.",
+            "items": {
+              "$ref": "#/components/schemas/AlertsNotificationRootForGroup"
+            }
+          },
+          "threshold": {
+            "$ref": "#/components/schemas/StreamProcessorMetricThreshold"
+          },
+          "updated": {
+            "type": "string",
+            "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            }
+          }
+        },
+        "description": "Stream Processor threshold alert configuration allows to select thresholds on metrics which trigger alerts and how users are notified."
+      },
+      "StreamProcessorMetricThreshold": {
+        "title": "Stream Processor Metric Threshold",
+        "required": ["metricName"],
+        "type": "object",
+        "properties": {
+          "metricName": {
+            "type": "string",
+            "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured **metricThreshold.threshold**."
+          },
+          "mode": {
+            "type": "string",
+            "description": "MongoDB Cloud computes the current metric value as an average.",
+            "enum": ["AVERAGE"]
+          },
+          "operator": {
+            "type": "string",
+            "description": "Comparison operator to apply when checking the current metric value.",
+            "enum": ["LESS_THAN", "GREATER_THAN"]
+          },
+          "threshold": {
+            "type": "number",
+            "description": "Value of metric that, when exceeded, triggers an alert.",
+            "format": "double"
+          },
+          "units": {
+            "type": "string",
+            "description": "Element used to express the quantity. This can be an element of time, storage capacity, and the like.",
+            "enum": [
+              "bits",
+              "Kbits",
+              "Mbits",
+              "Gbits",
+              "bytes",
+              "KB",
+              "MB",
+              "GB",
+              "TB",
+              "PB",
+              "nsec",
+              "msec",
+              "sec",
+              "min",
+              "hours",
+              "million minutes",
+              "days",
+              "requests",
+              "1000 requests",
+              "GB seconds",
+              "GB hours",
+              "GB days",
+              "RPU",
+              "thousand RPU",
+              "million RPU",
+              "WPU",
+              "thousand WPU",
+              "million WPU",
+              "count",
+              "thousand",
+              "million",
+              "billion"
+            ],
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-123-enum-values-must-be-upper-snake-case": "Schema predates IPA validation"
+            }
+          }
+        },
+        "description": "Threshold for the metric that, when exceeded, triggers an alert. The metric threshold pertains to event types which reflects changes of measurements and metrics in stream processors.",
+        "discriminator": {
+          "propertyName": "metricName",
+          "mapping": {
+            "STREAM_PROCESSOR_KAFKA_LAG": "#/components/schemas/RawMetricThresholdView",
+            "STREAM_PROCESSOR_CHANGE_STREAM_LAG": "#/components/schemas/TimeMetricThresholdView",
+            "STREAM_PROCESSOR_DLQ_MESSAGE_COUNT": "#/components/schemas/RawMetricThresholdView",
+            "STREAM_PROCESSOR_OUTPUT_MESSAGE_COUNT": "#/components/schemas/RawMetricThresholdView"
+          }
+        }
       },
       "StreamsMatcher": {
         "title": "Matchers",
@@ -35443,7 +35745,6 @@
               "PARTIAL_PAID",
               "CANCELLED",
               "INVOICED",
-              "ERROR",
               "FAILED_AUTHENTICATION",
               "PROCESSING",
               "PENDING_REVERSAL",
@@ -35642,6 +35943,11 @@
               "ATLAS_AWS_SEARCH_INSTANCE_S90_MEMORY_NVME",
               "ATLAS_AWS_SEARCH_INSTANCE_S100_MEMORY_NVME",
               "ATLAS_AWS_SEARCH_INSTANCE_S110_MEMORY_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S40_STORAGE_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S50_STORAGE_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S60_STORAGE_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S80_STORAGE_NVME",
+              "ATLAS_AWS_SEARCH_INSTANCE_S90_STORAGE_NVME",
               "ATLAS_AWS_STORAGE_PROVISIONED",
               "ATLAS_AWS_STORAGE_STANDARD",
               "ATLAS_AWS_STORAGE_STANDARD_GP3",
@@ -36500,6 +36806,7 @@
             "description": "List of roles to grant this API key. If you provide this list, provide a minimum of one role and ensure each role applies to this project.",
             "items": {
               "type": "string",
+              "description": "Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.",
               "enum": [
                 "ORG_MEMBER",
                 "ORG_READ_ONLY",
@@ -37966,6 +38273,9 @@
               "url": "https://dochub.mongodb.org/core/regional-outage-reconfigure-replica-set"
             }
           },
+          "advancedConfiguration": {
+            "$ref": "#/components/schemas/ApiAtlasClusterAdvancedConfigurationView"
+          },
           "backupEnabled": {
             "type": "boolean",
             "description": "Flag that indicates whether the cluster can perform backups. If set to `true`, the cluster can perform backups. You must set this value to `true` for NVMe clusters. Backup uses [Cloud Backups](https://docs.atlas.mongodb.com/backup/cloud-backup/overview/) for dedicated clusters and [Shared Cluster Backups](https://docs.atlas.mongodb.com/backup/shared-tier/overview/) for tenant clusters. If set to `false`, the cluster doesn't use backups.",
@@ -38180,7 +38490,7 @@
         "properties": {
           "enabled": {
             "type": "boolean",
-            "description": "Flag that indicates whether someone enabled instance size auto-scaling.\n\n- Set to `true` to enable instance size auto-scaling. If enabled, you must specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.maxInstanceSize**.\n- Set to `false` to disable instance size automatic scaling."
+            "description": "Flag that indicates whether instance size reactive auto-scaling is enabled.\n\n- Set to `true` to enable instance size reactive auto-scaling. If enabled, you must specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.maxInstanceSize**.\n- Set to `false` to disable instance size reactive auto-scaling."
           },
           "maxInstanceSize": {
             "$ref": "#/components/schemas/BaseCloudProviderInstanceSize"
@@ -38188,12 +38498,48 @@
           "minInstanceSize": {
             "$ref": "#/components/schemas/BaseCloudProviderInstanceSize"
           },
+          "predictiveEnabled": {
+            "type": "boolean",
+            "description": "Flag that indicates whether predictive instance size auto-scaling is enabled.\n\n- Set to `true` to enable predictive instance size auto-scaling. MongoDB Cloud requires **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** to be `true` in order to enable this feature.\n- Set to `false` to disable predictive instance size auto-scaling."
+          },
           "scaleDownEnabled": {
             "type": "boolean",
-            "description": "Flag that indicates whether the instance size may scale down. MongoDB Cloud requires this parameter if `\"replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled\" : true`. If you enable this option, specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.minInstanceSize**."
+            "description": "Flag that indicates whether the instance size may scale down via reactive auto-scaling. MongoDB Cloud requires this parameter if **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.minInstanceSize**."
           }
         },
         "description": "Options that determine how this cluster handles CPU scaling."
+      },
+      "ApiAtlasClusterAdvancedConfigurationView": {
+        "type": "object",
+        "properties": {
+          "customOpensslCipherConfigTls12": {
+            "type": "array",
+            "description": "The custom OpenSSL cipher suite list for TLS 1.2. This field is only valid when `tlsCipherConfigMode` is set to `CUSTOM`.",
+            "externalDocs": {
+              "description": "This option corresponds to the `opensslCipherConfig` `mongod` configuration file option.",
+              "url": "https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.opensslCipherConfig"
+            },
+            "items": {
+              "type": "string",
+              "enum": ["TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"]
+            }
+          },
+          "minimumEnabledTlsProtocol": {
+            "type": "string",
+            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections. Clusters using TLS 1.0 or 1.1 should consider setting TLS 1.2 as the minimum TLS protocol version.",
+            "externalDocs": {
+              "description": "This option corresponds to the `net.ssl.disabledProtocols` `mongod` configuration file option.",
+              "url": "https://docs.mongodb.com/upcoming/reference/configuration-options/#mongodb-setting-net.ssl.disabledProtocols"
+            },
+            "enum": ["TLS1_0", "TLS1_1", "TLS1_2"]
+          },
+          "tlsCipherConfigMode": {
+            "type": "string",
+            "description": "The TLS cipher suite configuration mode. The default mode uses the default cipher suites. The custom mode allows you to specify custom cipher suites for both TLS 1.2 and TLS 1.3.",
+            "enum": ["CUSTOM", "DEFAULT"]
+          }
+        },
+        "description": "Group of settings that configures a subset of the advanced configuration details."
       },
       "AzureHardwareSpec": {
         "type": "object",
@@ -39155,8 +39501,7 @@
             "type": "string",
             "description": "Date and time when MongoDB Cloud started the regional outage simulation.",
             "format": "date-time",
-            "readOnly": true,
-            "example": "2022-01-01T00:00:00Z"
+            "readOnly": true
           },
           "state": {
             "type": "string",
@@ -42221,6 +42566,14 @@
           "azureKeyVault": {
             "$ref": "#/components/schemas/AzureKeyVault"
           },
+          "enabledForSearchNodes": {
+            "type": "boolean",
+            "description": "Flag that indicates whether Encryption at Rest for Dedicated Search Nodes is enabled in the specified project.",
+            "nullable": true,
+            "x-xgen-hidden-env": {
+              "envs": "qa,prod,stage"
+            }
+          },
           "googleCloudKms": {
             "$ref": "#/components/schemas/GoogleCloudKMS"
           }
@@ -43702,12 +44055,17 @@
         "properties": {
           "enabled": {
             "type": "boolean",
-            "description": "Flag that indicates whether cluster tier auto-scaling is enabled. Set to `true` to enable cluster tier auto-scaling. If enabled, you must specify a value for **providerSettings.autoScaling.compute.maxInstanceSize** also. Set to `false` to disable cluster tier auto-scaling.",
+            "description": "Flag that indicates whether instance size reactive auto-scaling is enabled.\n\n- Set to `true` to enable instance size reactive auto-scaling. If enabled, you must specify a value for **providerSettings.autoScaling.compute.maxInstanceSize**.\n- Set to `false` to disable instance size reactive auto-scaling.",
+            "default": false
+          },
+          "predictiveEnabled": {
+            "type": "boolean",
+            "description": "Flag that indicates whether predictive instance size auto-scaling is enabled.\n\n- Set to `true` to enable predictive instance size auto-scaling. MongoDB Cloud requires **autoScaling.compute.enabled** is `true` in order to enable this feature.\n- Set to `false` to disable predictive instance size auto-scaling.",
             "default": false
           },
           "scaleDownEnabled": {
             "type": "boolean",
-            "description": "Flag that indicates whether the cluster tier can scale down. This is required if **autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **providerSettings.autoScaling.compute.minInstanceSize**.",
+            "description": "Flag that indicates whether the cluster tier can scale down via reactive auto-scaling. This is required if **autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **providerSettings.autoScaling.compute.minInstanceSize**.",
             "default": false
           }
         },
@@ -43921,6 +44279,9 @@
               "description": "Reconfiguring a Replica Set during a regional outage",
               "url": "https://dochub.mongodb.org/core/regional-outage-reconfigure-replica-set"
             }
+          },
+          "advancedConfiguration": {
+            "$ref": "#/components/schemas/ApiAtlasClusterAdvancedConfigurationView"
           },
           "autoScaling": {
             "$ref": "#/components/schemas/ClusterAutoScalingSettings"
@@ -44475,6 +44836,9 @@
               "description": "Reconfiguring a Replica Set during a regional outage",
               "url": "https://dochub.mongodb.org/core/regional-outage-reconfigure-replica-set"
             }
+          },
+          "advancedConfiguration": {
+            "$ref": "#/components/schemas/ApiAtlasClusterAdvancedConfigurationView"
           },
           "autoScaling": {
             "$ref": "#/components/schemas/ClusterAutoScalingSettings"
