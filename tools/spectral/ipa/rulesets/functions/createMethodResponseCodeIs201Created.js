@@ -1,4 +1,7 @@
-import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
+import {
+  getResourcePathItems,
+  isCustomMethodIdentifier, isResourceCollectionIdentifier, isSingletonResource,
+} from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
 import {
   collectAdoption,
@@ -11,11 +14,13 @@ const RULE_NAME = 'xgen-IPA-106-create-method-response-code-is-201';
 const ERROR_MESSAGE =
   'The Create method must return a 201 Created response. This method either lacks a 201 Created response or defines a different 2xx status code.';
 
-export default (input, _, { path }) => {
+export default (input, _, { path, documentInventory }) => {
+  const oas = documentInventory.resolved;
   const resourcePath = path[1];
+  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
-  // Skip custom methods
-  if (isCustomMethodIdentifier(resourcePath)) {
+  const isResourceCollection = isResourceCollectionIdentifier(resourcePath) && !isSingletonResource(resourcePaths);
+  if (isCustomMethodIdentifier(resourcePath) || !isResourceCollection) {
     return;
   }
 
