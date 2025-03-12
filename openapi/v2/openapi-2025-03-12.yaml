@@ -34715,7 +34715,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.2024-10-23+json" \
+          --header "Accept: application/vnd.atlas.2025-03-12+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -36741,6 +36741,33 @@ paths:
                 - Cloud Backups
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getExportBucket
     /api/atlas/v2/groups/{groupId}/backupCompliancePolicy:
+        delete:
+            description: Disables the Backup Compliance Policy settings with the specified project. As a prerequisite, a support ticket needs to be file first, instructions in https://www.mongodb.com/docs/atlas/backup/cloud-backup/backup-compliance-policy/. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: disableDataProtectionSettings
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-11-13"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Disable the Backup Compliance Policy settings
+            tags:
+                - Cloud Backups
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/disableDataProtectionSettings
         get:
             description: 'Returns the Backup Compliance Policy settings with the specified project. To use this resource, the requesting API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
             operationId: getDataProtectionSettings
@@ -40032,8 +40059,7 @@ paths:
                 - Atlas Search
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteAtlasSearchDeployment
         get:
-            deprecated: true
-            description: 'Returns the Search Nodes for the specified cluster. Deprecated versions: v2-{2023-01-01}'
+            description: 'Returns the Search Nodes for the specified cluster. Deprecated versions: v2-{2024-05-30}, v2-{2023-01-01}'
             operationId: getAtlasSearchDeployment
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -40049,10 +40075,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2024-05-30+json:
+                        application/vnd.atlas.2025-03-12+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
-                            x-xgen-version: "2024-05-30"
+                            x-xgen-version: "2025-03-12"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -40063,7 +40089,6 @@ paths:
             summary: Return Search Nodes
             tags:
                 - Atlas Search
-            x-sunset: "2026-03-12"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getAtlasSearchDeployment
         patch:
             description: 'Updates the Search Nodes for the specified cluster. Deprecated versions: v2-{2023-01-01}'
@@ -43008,6 +43033,461 @@ paths:
             tags:
                 - Events
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Events/operation/getProjectEvent
+    /api/atlas/v2/groups/{groupId}/flexClusters:
+        get:
+            description: Returns details for all flex clusters in the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listFlexClusters
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedFlexClusters20241113'
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Flex Clusters from One Project
+            tags:
+                - Flex Clusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/listFlexClusters
+        post:
+            description: Creates one flex cluster in the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: createFlexCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-11-13+json:
+                        schema:
+                            $ref: '#/components/schemas/FlexClusterDescriptionCreate20241113'
+                description: Create One Flex Cluster in One Project.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/FlexClusterDescription20241113'
+                            x-xgen-version: "2024-11-13"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Flex Cluster in One Project
+            tags:
+                - Flex Clusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/createFlexCluster
+    /api/atlas/v2/groups/{groupId}/flexClusters/{name}:
+        delete:
+            description: Removes one flex cluster from the specified project. The flex cluster must have termination protection disabled in order to be deleted. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: deleteFlexCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-11-13"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Flex Cluster from One Project
+            tags:
+                - Flex Clusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/deleteFlexCluster
+        get:
+            description: Returns details for one flex cluster in the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getFlexCluster
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/FlexClusterDescription20241113'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Flex Cluster from One Project
+            tags:
+                - Flex Clusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/getFlexCluster
+        patch:
+            description: Updates one flex cluster in the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: updateFlexCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-11-13+json:
+                        schema:
+                            $ref: '#/components/schemas/FlexClusterDescriptionUpdate20241113'
+                description: Update One Flex Cluster in One Project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/FlexClusterDescription20241113'
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "409":
+                    $ref: '#/components/responses/conflict'
+            summary: Update One Flex Cluster in One Project
+            tags:
+                - Flex Clusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/updateFlexCluster
+    /api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/download:
+        post:
+            description: Requests one snapshot for the specified flex cluster. This resource returns a `snapshotURL` that you can use to download the snapshot. This `snapshotURL` remains active for four hours after you make the request. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: downloadFlexBackup
+            parameters:
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-11-13+json:
+                        schema:
+                            $ref: '#/components/schemas/FlexBackupSnapshotDownloadCreate20241113'
+                description: Snapshot to be downloaded.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/FlexBackupRestoreJob20241113'
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Download One Flex Cluster Snapshot
+            tags:
+                - Flex Snapshots
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/downloadFlexBackup
+    /api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/restoreJobs:
+        get:
+            description: Returns all restore jobs for one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: listFlexBackupRestoreJobs
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasFlexBackupRestoreJob20241113View'
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Restore Jobs for One Flex Cluster
+            tags:
+                - Flex Restore Jobs
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/listFlexBackupRestoreJobs
+        post:
+            description: Restores one snapshot of one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: createFlexBackupRestoreJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the flex cluster whose snapshot you want to restore.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-11-13+json:
+                        schema:
+                            $ref: '#/components/schemas/FlexBackupRestoreJobCreate20241113'
+                description: Restores one snapshot of one flex cluster from the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/FlexBackupRestoreJob20241113'
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Restore One Snapshot of One Flex Cluster
+            tags:
+                - Flex Restore Jobs
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/createFlexBackupRestoreJob
+    /api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/restoreJobs/{restoreJobId}:
+        get:
+            description: Returns one restore job for one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: getFlexBackupRestoreJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the restore job to return.
+                  in: path
+                  name: restoreJobId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/FlexBackupRestoreJob20241113'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Restore Job for One Flex Cluster
+            tags:
+                - Flex Restore Jobs
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/getFlexBackupRestoreJob
+    /api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/snapshots:
+        get:
+            description: Returns all snapshots of one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listFlexBackups
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasFlexBackupSnapshot20241113View'
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Snapshots of One Flex Cluster
+            tags:
+                - Flex Snapshots
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/listFlexBackups
+    /api/atlas/v2/groups/{groupId}/flexClusters/{name}/backup/snapshots/{snapshotId}:
+        get:
+            description: Returns one snapshot of one flex cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getFlexBackup
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: name
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/FlexBackupSnapshot20241113'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Snapshot of One Flex Cluster
+            tags:
+                - Flex Snapshots
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/getFlexBackup
+    /api/atlas/v2/groups/{groupId}/flexClusters:tenantUpgrade:
+        post:
+            description: Upgrades a flex cluster to a dedicated cluster (M10+) in the specified project. To use this resource, the requesting API key must have the Project Cluster Manager role.
+            operationId: upgradeFlexCluster
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-11-13+json:
+                        schema:
+                            $ref: '#/components/schemas/AtlasTenantClusterUpgradeRequest20240805'
+                description: Details of the flex cluster upgrade in the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/FlexClusterDescription20241113'
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Upgrade One Flex Cluster
+            tags:
+                - Flex Clusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/upgradeFlexCluster
     /api/atlas/v2/groups/{groupId}/hosts/{processId}/fts/metrics:
         get:
             description: Returns all Atlas Search metric types available for one process in the specified project. You must have the Project Read Only or higher role to view the Atlas Search metric types.
@@ -48624,6 +49104,65 @@ paths:
             tags:
                 - Streams
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/listStreamProcessors
+    /api/atlas/v2/groups/{groupId}/streams/accountDetails:
+        get:
+            description: Returns the Account ID, and the VPC ID for the group and region specified.
+            operationId: getAccountDetails
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: One of "aws", "azure" or "gcp".
+                  in: query
+                  name: cloudProvider
+                  required: true
+                  schema:
+                    type: string
+                - description: The cloud provider specific region name, i.e. "US_EAST_1" for cloud provider "aws".
+                  in: query
+                  name: regionName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/AWSAccountDetails'
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Returns the Account ID, and the VPC ID for the group and region specified.
+            tags:
+                - Streams
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/getAccountDetails
+    /api/atlas/v2/groups/{groupId}/streams/activeVpcPeeringConnections:
+        get:
+            description: Returns a list of active incoming VPC Peering Connections.
+            operationId: getActiveVpcPeeringConnections
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            x-xgen-version: "2024-11-13"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Returns all the active incoming VPC Peering Connections.
+            tags:
+                - Streams
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/getActiveVpcPeeringConnections
     /api/atlas/v2/groups/{groupId}/streams/privateLinkConnections:
         get:
             description: Returns all Private Link connections for the specified project.To use this resource, the requesting API Key must have the Project Data Access roles, Project Owner role or Project Stream Processing Owner role.
@@ -49257,13 +49796,12 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/getLdapConfigurationStatus
     /api/atlas/v2/groups/{groupId}/users:
         get:
-            deprecated: true
             description: |-
                 Returns details about the pending and active MongoDB Cloud users associated with the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
 
                 **Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
 
-                **Note**: To return both pending and active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users will be returned.
+                **Note**: To return both pending and active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users will be returned. Deprecated versions: v2-{2023-01-01}
             operationId: listProjectUsers
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -49299,10 +49837,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedAppUserView'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/PaginatedGroupUserView'
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "401":
                     $ref: '#/components/responses/unauthorized'
@@ -49311,17 +49849,53 @@ paths:
             summary: Return All MongoDB Cloud Users in One Project
             tags:
                 - MongoDB Cloud Users
-            x-sunset: "2044-01-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listProjectUsers
+        post:
+            description: "Adds one MongoDB Cloud user to one project. To use this resource, the requesting API Key must have the Project Owner role. \n- If the user has a pending invitation to join the project's organization, MongoDB Cloud modifies it and grants project access. \n- If the user doesn't have an invitation to join the organization, MongoDB Cloud sends a new invitation that grants the user organization and project access. \n- If the user is already active in the project's organization, MongoDB Cloud grants access to the project. \n"
+            operationId: addProjectUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-02-19+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupUserRequest'
+                description: The active or pending MongoDB Cloud user that you want to add to the specified project.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One MongoDB Cloud User to One Project
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addProjectUser
     /api/atlas/v2/groups/{groupId}/users/{userId}:
         delete:
-            deprecated: true
             description: |-
                 Removes one MongoDB Cloud user from the specified project. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Project Owner role.
 
                 **Note**: This resource cannot be used to remove pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
 
-                **Note**: To remove pending or active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users can be removed.
+                **Note**: To remove pending or active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users can be removed. Deprecated versions: v2-{2023-01-01}
             operationId: removeProjectUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -49337,8 +49911,10 @@ paths:
             responses:
                 "204":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
-                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2025-02-19"
                     description: This endpoint does not return a response body.
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -49351,8 +49927,48 @@ paths:
             summary: Remove One MongoDB Cloud User from One Project
             tags:
                 - MongoDB Cloud Users
-            x-sunset: "2026-07-31"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeProjectUser
+        get:
+            description: |-
+                Returns information about the specified MongoDB Cloud user within the context of the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                **Note**: You can only use this resource to fetch information about MongoDB Cloud human users. To return information about an API Key, use the [Return One Organization API Key](#tag/Programmatic-API-Keys/operation/getApiKey) endpoint.
+
+                **Note**: This resource does not return information about pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: getProjectUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Project resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One MongoDB Cloud User in One Project
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getProjectUser
     /api/atlas/v2/groups/{groupId}/users/{userId}/roles:
         put:
             deprecated: true
@@ -49397,6 +50013,104 @@ paths:
                 - Projects
             x-sunset: "2026-07-31"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateProjectRoles
+    /api/atlas/v2/groups/{groupId}/users/{userId}:addRole:
+        post:
+            description: |-
+                Adds one project-level role to the MongoDB Cloud user. You can add a role to an active user or a user that has been invited to join the project. To use this resource, the requesting API Key must have the Project Owner role.
+
+                **Note**: This resource cannot be used to add a role to users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: addProjectRole
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Project resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-02-19+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveGroupRole'
+                description: Project-level role to assign to the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One Project Role to One MongoDB Cloud User
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addProjectRole
+    /api/atlas/v2/groups/{groupId}/users/{userId}:removeRole:
+        post:
+            description: |-
+                Removes one project-level role from the MongoDB Cloud user. You can remove a role from an active user or a user that has been invited to join the project. To replace a user's only role, add the new role before removing the old role. A user must have at least one role at all times. To use this resource, the requesting API Key must have the Project Owner role.
+
+                **Note**: This resource cannot be used to remove a role from users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: removeProjectRole
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Project resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-02-19+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveGroupRole'
+                description: Project-level role to remove from the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Project Role from One MongoDB Cloud User
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeProjectRole
     /api/atlas/v2/groups/{groupId}:migrate:
         post:
             description: Migrates a project from its current organization to another organization. All project users and their roles will be copied to the same project in the destination organization. You must include an organization API key with the Organization Owner role for the destination organization to verify access to the destination organization when you authenticate with Programmatic API Keys. Otherwise, the requesting user must have the Organization Owner role in both organizations. To use this resource, the requesting API Key must have the Organization Owner role.
@@ -51784,13 +52498,12 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/renameTeam
     /api/atlas/v2/orgs/{orgId}/teams/{teamId}/users:
         get:
-            deprecated: true
             description: |-
                 Returns details about the pending and active MongoDB Cloud users associated with the specified team in the organization. Teams enable you to grant project access roles to MongoDB Cloud users. To use this resource, the requesting API Key must have the Organization Member role.
 
                 **Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
 
-                **Note**: To return both pending and active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users will be returned.
+                **Note**: To return both pending and active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users will be returned. Deprecated versions: v2-{2023-01-01}
             externalDocs:
                 description: Manage Organization Teams
                 url: https://docs.atlas.mongodb.com/access/manage-teams-in-orgs/#std-label-manage-teams
@@ -51823,10 +52536,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedAppUserView'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/PaginatedOrgUserView'
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -51841,7 +52554,6 @@ paths:
             summary: Return All MongoDB Cloud Users Assigned to One Team
             tags:
                 - MongoDB Cloud Users
-            x-sunset: "2044-01-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listTeamUsers
         post:
             deprecated: true
@@ -51944,6 +52656,100 @@ paths:
                 - Teams
             x-sunset: "2026-07-31"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/removeTeamUser
+    /api/atlas/v2/orgs/{orgId}/teams/{teamId}:addUser:
+        post:
+            description: |-
+                Adds one MongoDB Cloud user to one team. You can add an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This resource cannot be used to add a user invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: addUserToTeam
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the team to add the MongoDB Cloud user to.
+                  in: path
+                  name: teamId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-02-19+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveUserFromTeam'
+                description: The active or pending MongoDB Cloud user that you want to add to the specified team.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One MongoDB Cloud User to One Team
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addUserToTeam
+    /api/atlas/v2/orgs/{orgId}/teams/{teamId}:removeUser:
+        post:
+            description: |-
+                Removes one MongoDB Cloud user from one team. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This resource cannot be used to remove a user invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: removeUserFromTeam
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the team to remove the MongoDB user from.
+                  in: path
+                  name: teamId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-02-19+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveUserFromTeam'
+                description: The id of the active or pending MongoDB Cloud user that you want to remove from the specified team.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One MongoDB Cloud User from One Team
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeUserFromTeam
     /api/atlas/v2/orgs/{orgId}/teams/byName/{teamName}:
         get:
             description: Returns one team that you identified using its human-readable name. This team belongs to one organization. Teams enable you to grant project access roles to MongoDB Cloud users. To use this resource, the requesting API Key must have the Organization Member role.
@@ -51983,13 +52789,12 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/getTeamByName
     /api/atlas/v2/orgs/{orgId}/users:
         get:
-            deprecated: true
             description: |-
                 Returns details about the pending and active MongoDB Cloud users associated with the specified organization. To use this resource, the requesting API Key must have the Organization Member role.
 
                 **Note**: This resource cannot be used to view details about users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
 
-                **Note**: To return both pending and active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users will be returned.
+                **Note**: To return both pending and active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users will be returned. Deprecated versions: v2-{2023-01-01}
             operationId: listOrganizationUsers
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -52013,10 +52818,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedAppUserView'
-                            x-xgen-version: "2023-01-01"
+                                $ref: '#/components/schemas/PaginatedOrgUserView'
+                            x-xgen-version: "2025-02-19"
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -52029,17 +52834,56 @@ paths:
             summary: Return All MongoDB Cloud Users in One Organization
             tags:
                 - MongoDB Cloud Users
-            x-sunset: "2026-07-31"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listOrganizationUsers
+        post:
+            description: |-
+                Invites one new or existing MongoDB Cloud user to join the organization. The invitation to join the organization will be sent to the username provided and must be accepted within 30 days. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: If the user does not have an existing MongoDB Cloud account, they will be prompted to finish setting up an account upon accepting the invitation. If the user already has an account, they will still receive an invitation to access the organization.
+            operationId: createOrganizationUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-02-19+json:
+                        schema:
+                            $ref: '#/components/schemas/OrgUserRequest'
+                description: Represents the MongoDB Cloud user to be created within the organization.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One MongoDB Cloud User to One Organization
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/createOrganizationUser
     /api/atlas/v2/orgs/{orgId}/users/{userId}:
         delete:
-            deprecated: true
             description: |-
                 Removes one MongoDB Cloud user in the specified organization. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
 
                 **Note**: This resource cannot be used to remove pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
 
-                **Note**: To remove pending or active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users can be removed.
+                **Note**: To remove pending or active users, use v2-{2025-02-19} or later. If using a deprecated version, only active users can be removed. Deprecated versions: v2-{2023-01-01}
             operationId: removeOrganizationUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -52055,10 +52899,10 @@ paths:
             responses:
                 "204":
                     content:
-                        application/vnd.atlas.2023-01-01+json:
+                        application/vnd.atlas.2025-02-19+json:
                             schema:
                                 $ref: '#/components/schemas/NoBody'
-                            x-xgen-version: "2023-01-01"
+                            x-xgen-version: "2025-02-19"
                     description: This endpoint does not return a response body.
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -52073,8 +52917,96 @@ paths:
             summary: Remove One MongoDB Cloud User From One Organization
             tags:
                 - MongoDB Cloud Users
-            x-sunset: "2026-07-31"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrganizationUser
+        get:
+            description: |-
+                Returns information about the specified MongoDB Cloud user within the context of the specified organization. To use this resource, the requesting API Key must have the Organization Member role.
+
+                **Note**: This resource can only be used to fetch information about MongoDB Cloud human users. To return information about an API Key, use the [Return One Organization API Key](#tag/Programmatic-API-Keys/operation/getApiKey) endpoint.
+
+                **Note**: This resource does not return information about pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: getOrganizationUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One MongoDB Cloud User in One Organization
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getOrganizationUser
+        patch:
+            description: |-
+                Updates one MongoDB Cloud user in the specified organization. You can update an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: Only include the fields you wish to update in the request body. Supplying a field with an empty value will reset that field on the user.
+
+                **Note**: This resource cannot be used to update pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: updateOrganizationUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-02-19+json:
+                        schema:
+                            $ref: '#/components/schemas/OrgUserUpdateRequest'
+                description: Represents the roles and teams to assign the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One MongoDB Cloud User in One Organization
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/updateOrganizationUser
     /api/atlas/v2/orgs/{orgId}/users/{userId}/roles:
         put:
             deprecated: true
@@ -52119,6 +53051,106 @@ paths:
                 - Organizations
             x-sunset: "2026-07-31"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrganizationRoles
+    /api/atlas/v2/orgs/{orgId}/users/{userId}:addRole:
+        post:
+            description: |-
+                Adds one organization-level role to the MongoDB Cloud user. You can add a role to an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This operation is atomic.
+
+                **Note**: This resource cannot be used to add a role to users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: addOrganizationRole
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-02-19+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveOrgRole'
+                description: Organization-level role to assign to the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One Organization Role to One MongoDB Cloud User
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/addOrganizationRole
+    /api/atlas/v2/orgs/{orgId}/users/{userId}:removeRole:
+        post:
+            description: |-
+                Removes one organization-level role from the MongoDB Cloud user. You can remove a role from an active user or a user that has not yet accepted the invitation to join the organization. To replace a user's only role, add the new role before removing the old role. A user must have at least one role at all times. To use this resource, the requesting API Key must have the Organization Owner role.
+
+                **Note**: This operation is atomic.
+
+                **Note**: This resource cannot be used to remove a role from users invited using the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: removeOrganizationRole
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the organization. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Organization resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-02-19+json:
+                        schema:
+                            $ref: '#/components/schemas/AddOrRemoveOrgRole'
+                description: Organization-level role to remove from the MongoDB Cloud user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-02-19+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUserResponse'
+                            x-xgen-version: "2025-02-19"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Organization Role from One MongoDB Cloud User
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrganizationRole
     /api/atlas/v2/unauth/controlPlaneIPAddresses:
         get:
             description: Returns all control plane IP addresses.
@@ -52298,6 +53330,12 @@ tags:
       name: Events
     - description: Returns, adds, edits, and removes federation-related features such as role mappings and connected organization configurations.
       name: Federated Authentication
+    - description: Returns, adds, edits, and removes flex clusters.
+      name: Flex Clusters
+    - description: Returns and adds restore jobs for flex database deployments.
+      name: Flex Restore Jobs
+    - description: Returns and requests to download flex database deployment snapshots.
+      name: Flex Snapshots
     - description: |-
         Returns, adds, and removes Global Cluster managed namespaces and custom zone mappings. Each collection in a Global Cluster is associated with a managed namespace. When you create a managed namespace for a Global Cluster, MongoDB Cloud creates an empty collection for that namespace. Creating a managed namespace doesn't populate a collection with data. Similarly, deleting a managed namespace doesn't delete the associated collection.
         MongoDB Cloud shards the empty collection using the required location field and a custom shard key. For example, if your custom shard key is `city`, the compound shard key is `location, city`. Each Global Cluster is also associated with one or more Global Writes Zones. When a user creates a Global Cluster, MongoDB Cloud automatically maps each location code to the closest geographical zone. Custom zone mappings allow administrators to override these automatic mappings. For example, a use case might require mapping a location code to a geographically distant zone. Administrators can manage custom zone mappings with the APIs below and the **Global Cluster Configuration** pane when you create or modify your Global Cluster.
