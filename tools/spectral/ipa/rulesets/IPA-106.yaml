@@ -5,6 +5,7 @@ functions:
   - createMethodRequestBodyIsRequestSuffixedObject
   - createMethodShouldNotHaveQueryParameters
   - createMethodRequestBodyIsGetResponse
+  - createMethodRequestHasNoReadonlyFields
   - createMethodResponseCodeIs201Created
 
 rules:
@@ -35,6 +36,14 @@ rules:
       function: 'createMethodRequestBodyIsGetResponse'
       functionOptions:
         ignoredValues: ['readOnly', 'writeOnly']
+  xgen-IPA-106-create-method-request-has-no-readonly-fields:
+    description: 'Create method Request object must not include fields with readOnly:true. http://go/ipa/106'
+    message: '{{error}} http://go/ipa/106'
+    severity: warn
+    given: '$.paths[*].post.requestBody.content'
+    then:
+      field: '@key'
+      function: 'createMethodRequestHasNoReadonlyFields'
   xgen-IPA-106-create-method-response-code-is-201:
     description: 'Create methods must return a 201 Created response code. http://go/ipa/106'
     message: '{{error}} http://go/ipa/106'

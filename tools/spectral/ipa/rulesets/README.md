@@ -60,6 +60,7 @@ For rule definitions, see [IPA-106.yaml](https://github.com/mongodb/openapi/blob
 | xgen-IPA-106-create-method-request-body-is-get-method-response     | Request body content of the Create method and response content of the Get method should refer to the same resource.
 readOnly/writeOnly properties will be ignored.  http://go/ipa/106
  | warn     |
+| xgen-IPA-106-create-method-request-has-no-readonly-fields          | Create method Request object must not include fields with readOnly:true. http://go/ipa/106                                                                                             | warn     |
 | xgen-IPA-106-create-method-response-code-is-201                    | Create methods must return a 201 Created response code. http://go/ipa/106                                                                                                              | warn     |
 
 ### IPA-108
