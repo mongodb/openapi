@@ -47,7 +47,8 @@ export function findPropertiesByAttribute(schema, attributeName, path, errors = 
   if (schema[attributeName] === true) {
     errors.push({
       path,
-      message: `${errorMessage} Found ${attributeName} property at: ${propPath.join('.')}`,
+      message: propPath.length > 0 ? `${errorMessage} Found ${attributeName} property at: ${propPath.join('.')}.`:
+        `${errorMessage} Found ${attributeName} property at one of the inline schemas.`,
     });
     return errors;
   }

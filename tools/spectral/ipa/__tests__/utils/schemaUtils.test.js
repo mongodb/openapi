@@ -25,7 +25,7 @@ describe('findPropertiesByAttribute', () => {
     expect(errors).toHaveLength(1);
     expect(errors[0]).toEqual({
       path: mockPath,
-      message: `${errorMessage} Found readOnly property at: `
+      message: `${errorMessage} Found readOnly property at one of the inline schemas.`
     });
   });
 
@@ -50,12 +50,12 @@ describe('findPropertiesByAttribute', () => {
     // Testing readOnly detection
     let errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toContain('Found readOnly property at: id');
+    expect(errors[0].message).toContain('Found readOnly property at: id.');
     
     // Testing writeOnly detection
     errors = findPropertiesByAttribute(schema, 'writeOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toContain('Found writeOnly property at: password');
+    expect(errors[0].message).toContain('Found writeOnly property at: password.');
   });
 
   it('detects nested properties with the specified attribute', () => {
@@ -86,12 +86,12 @@ describe('findPropertiesByAttribute', () => {
     // Testing deep readOnly detection
     let errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toContain('Found readOnly property at: user.id');
+    expect(errors[0].message).toContain('Found readOnly property at: user.id.');
     
     // Testing deep writeOnly detection
     errors = findPropertiesByAttribute(schema, 'writeOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toContain('Found writeOnly property at: user.credentials.password');
+    expect(errors[0].message).toContain('Found writeOnly property at: user.credentials.password.');
   });
 
   it('detects properties in array items', () => {
@@ -120,12 +120,12 @@ describe('findPropertiesByAttribute', () => {
     // Testing readOnly in array items
     let errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toContain('Found readOnly property at: items.items.id');
+    expect(errors[0].message).toContain('Found readOnly property at: items.items.id.');
     
     // Testing writeOnly in array items
     errors = findPropertiesByAttribute(schema, 'writeOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toContain('Found writeOnly property at: items.items.secret');
+    expect(errors[0].message).toContain('Found writeOnly property at: items.items.secret.');
   });
 
   it('detects properties in schema combiners', () => {
@@ -171,13 +171,13 @@ describe('findPropertiesByAttribute', () => {
     // Testing readOnly in combiners
     let errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(2);
-    expect(errors[0].message).toContain('Found readOnly property at: allOf.0.id');
-    expect(errors[1].message).toContain('Found readOnly property at: oneOf.1.token');
+    expect(errors[0].message).toContain('Found readOnly property at: allOf.0.id.');
+    expect(errors[1].message).toContain('Found readOnly property at: oneOf.1.token.');
     
     // Testing writeOnly in combiners
     errors = findPropertiesByAttribute(schema, 'writeOnly', mockPath, [], errorMessage);
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toContain('Found writeOnly property at: anyOf.0.key');
+    expect(errors[0].message).toContain('Found writeOnly property at: anyOf.0.key.');
   });
 
   it('correctly accumulates multiple errors', () => {
@@ -209,9 +209,9 @@ describe('findPropertiesByAttribute', () => {
     const errors = findPropertiesByAttribute(schema, 'readOnly', mockPath, [], errorMessage);
     
     expect(errors).toHaveLength(3);
-    expect(errors[0].message).toContain('Found readOnly property at: id');
-    expect(errors[1].message).toContain('Found readOnly property at: nested.innerId');
-    expect(errors[2].message).toContain('Found readOnly property at: items.items');
+    expect(errors[0].message).toContain('Found readOnly property at: id.');
+    expect(errors[1].message).toContain('Found readOnly property at: nested.innerId.');
+    expect(errors[2].message).toContain('Found readOnly property at: items.items.');
   });
 
   it('handles empty objects', () => {
