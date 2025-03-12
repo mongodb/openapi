@@ -1,6 +1,8 @@
 import {
   getResourcePathItems,
-  isCustomMethodIdentifier, isResourceCollectionIdentifier, isSingletonResource,
+  isCustomMethodIdentifier,
+  isResourceCollectionIdentifier,
+  isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
 import {
