@@ -73,7 +73,7 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
             ],
           },
         },
-        '/resource2': {
+        '/resourceTwo': {
           post: {
             parameters: [],
           },
@@ -98,7 +98,7 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
             ],
           },
         },
-        '/resource2': {
+        '/resourceTwo': {
           post: {
             parameters: [
               {
@@ -127,14 +127,14 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
       {
         code: 'xgen-IPA-106-create-method-should-not-have-query-parameters',
         message: 'Input parameter [query-param]: Create operations should not have query parameters. http://go/ipa/106',
-        path: ['paths', '/resource2', 'post'],
+        path: ['paths', '/resourceTwo', 'post'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-should-not-have-query-parameters',
         message:
           'Input parameter [query-param-2]: Create operations should not have query parameters. http://go/ipa/106',
-        path: ['paths', '/resource2', 'post'],
+        path: ['paths', '/resourceTwo', 'post'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -158,7 +158,7 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
             },
           },
         },
-        '/resource2': {
+        '/resourceTwo': {
           post: {
             parameters: [
               {

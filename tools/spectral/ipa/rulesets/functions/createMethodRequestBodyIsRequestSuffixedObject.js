@@ -5,7 +5,12 @@ import {
   collectException,
   handleInternalError,
 } from './utils/collectionUtils.js';
-import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
+import {
+  getResourcePathItems,
+  isCustomMethodIdentifier,
+  isResourceCollectionIdentifier,
+  isSingletonResource,
+} from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { getSchemaRef } from './utils/methodUtils.js';
 
@@ -17,8 +22,15 @@ export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
   const contentPerMediaType = resolveObject(oas, path);
+  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
-  if (isCustomMethodIdentifier(resourcePath) || !input.endsWith('json') || !contentPerMediaType.schema) {
+  const isResourceCollection = isResourceCollectionIdentifier(resourcePath) && !isSingletonResource(resourcePaths);
+  if (
+    isCustomMethodIdentifier(resourcePath) ||
+    !isResourceCollection ||
+    !input.endsWith('json') ||
+    !contentPerMediaType.schema
+  ) {
     return;
   }
 
