@@ -134,7 +134,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
-        message: 'The create method request object must not include input fields (readOnly properties). Found readOnly property at: id http://go/ipa/106',
+        message: 'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: id http://go/ipa/106',
         path: ['paths', '/invalid-resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       }
@@ -163,7 +163,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
-        message: 'The create method request object must not include input fields (readOnly properties). Found readOnly property at: user.userId http://go/ipa/106',
+        message: 'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: user.userId http://go/ipa/106',
         path: ['paths', '/nested-invalid-resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       }
@@ -192,7 +192,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
-        message: 'The create method request object must not include input fields (readOnly properties). Found readOnly property at: items.items.itemId http://go/ipa/106',
+        message: 'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: items.items.itemId http://go/ipa/106',
         path: ['paths', '/array-invalid-resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       }

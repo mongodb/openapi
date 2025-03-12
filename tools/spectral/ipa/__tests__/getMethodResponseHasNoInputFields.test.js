@@ -131,7 +131,7 @@ testRule('xgen-IPA-104-get-method-response-has-no-input-fields', [
       {
         code: 'xgen-IPA-104-get-method-response-has-no-input-fields',
         message:
-          'The get method response object must not include output fields (writeOnly properties). http://go/ipa/104',
+          'The get method response object must not include output fields (writeOnly properties). Found writeOnly property at: name http://go/ipa/104',
         path: [
           'paths',
           '/resource/{id}',
@@ -146,7 +146,7 @@ testRule('xgen-IPA-104-get-method-response-has-no-input-fields', [
       {
         code: 'xgen-IPA-104-get-method-response-has-no-input-fields',
         message:
-          'The get method response object must not include output fields (writeOnly properties). http://go/ipa/104',
+          'The get method response object must not include output fields (writeOnly properties). Found writeOnly property at: name http://go/ipa/104',
         path: [
           'paths',
           '/resource/{id}/singleton',
