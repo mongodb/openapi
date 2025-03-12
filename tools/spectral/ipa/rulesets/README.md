@@ -20,10 +20,11 @@ For rule definitions, see [IPA-005.yaml](https://github.com/mongodb/openapi/blob
 
 For rule definitions, see [IPA-102.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-102.yaml).
 
-| Rule Name                                            | Description                                                                                                             | Severity |
-| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------- |
-| xgen-IPA-102-path-alternate-resource-name-path-param | Paths should alternate between resource names and path params. http://go/ipa/102                                        | error    |
-| xgen-IPA-102-collection-identifier-pattern           | Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers. http://go/ipa/102 | warn     |
+| Rule Name                                            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Severity |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| xgen-IPA-102-path-alternate-resource-name-path-param | Paths should alternate between resource names and path params. http://go/ipa/102                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | error    |
+| xgen-IPA-102-collection-identifier-camelCase         | Collection identifiers must be in camelCase. Logic includes:<br/> - All path segments that are not path parameters<br/> - Only the resource identifier part before any colon in custom method paths (e.g., `resource` in `/resource:customMethod`)<br/> - Path parameters should also follow camelCase naming<br/> - Certain values can be exempted via the ignoredValues configuration (e.g., 'v1', 'v2') that can be supplied as `ignoredValues`  argument to the rule<br/> - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation<br/> - Double slashes (//) are not allowed in paths<br/> http://go/ipa/102 | warn     |
+| xgen-IPA-102-collection-identifier-pattern           | Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers. http://go/ipa/102                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | warn     |
 
 ### IPA-104
 
@@ -52,11 +53,13 @@ For rule definitions, see [IPA-105.yaml](https://github.com/mongodb/openapi/blob
 
 For rule definitions, see [IPA-106.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/IPA-106.yaml).
 
-| Rule Name                                                          | Description                                                                      | Severity |
-| ------------------------------------------------------------------ | -------------------------------------------------------------------------------- | -------- |
-| xgen-IPA-106-create-method-request-body-is-request-suffixed-object | The Create method request should be a Request suffixed object. http://go/ipa/106 | warn     |
-| xgen-IPA-106-create-method-should-not-have-query-parameters        | Create operations should not use query parameters. http://go/ipa/xxx             | warn     |
-| xgen-IPA-106-create-method-request-body-is-get-method-response     | The Create method request should be a Get method response. http://go/ipa/106     | warn     |
+| Rule Name                                                          | Description                                                                                                                                                                            | Severity |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| xgen-IPA-106-create-method-request-body-is-request-suffixed-object | The Create method request should be a Request suffixed object. http://go/ipa/106                                                                                                       | warn     |
+| xgen-IPA-106-create-method-should-not-have-query-parameters        | Create operations should not use query parameters. http://go/ipa/106                                                                                                                   | warn     |
+| xgen-IPA-106-create-method-request-body-is-get-method-response     | Request body content of the Create method and response content of the Get method should refer to the same resource.
+readOnly/writeOnly properties will be ignored.  http://go/ipa/106
+ | warn     |
 
 ### IPA-108
 
