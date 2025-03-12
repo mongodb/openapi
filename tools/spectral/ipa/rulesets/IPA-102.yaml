@@ -2,6 +2,27 @@
 # http://go/ipa/102
 
 rules:
+  xgen-IPA-102-collection-identifier-camelCase:
+    description: >-
+      Collection identifiers must be in camelCase. Logic includes:<br/>
+      - All path segments that are not path parameters<br/>
+      - Only the resource identifier part before any colon in custom method paths (e.g., `resource` in `/resource:customMethod`)<br/>
+      - Path parameters should also follow camelCase naming<br/>
+      - Certain values can be exempted via the ignoredValues configuration (e.g., 'v1', 'v2') that can be supplied as `ignoredValues` 
+      argument to the rule<br/>
+      - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation<br/>
+      - Double slashes (//) are not allowed in paths<br/>
+      http://go/ipa/102
+    message: '{{error}} http://go/ipa/102'
+    severity: warn
+    given: $.paths
+    then:
+      field: '@key'
+      function: collectionIdentifierCamelCase
+      functionOptions:
+        # Contains list of ignored path params
+        ignoredValues: ['v2', 'v1']
+
   xgen-IPA-102-path-alternate-resource-name-path-param:
     description: 'Paths should alternate between resource names and path params. http://go/ipa/102'
     message: '{{error}} http://go/ipa/102'
@@ -23,3 +44,4 @@ rules:
 functions:
   - collectionIdentifierPattern
   - eachPathAlternatesBetweenResourceNameAndPathParam
+  - collectionIdentifierCamelCase
