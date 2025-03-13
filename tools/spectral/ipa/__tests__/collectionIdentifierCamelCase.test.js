@@ -45,7 +45,7 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'Resources' in path '/Resources' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'Resources' in path '/Resources' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/Resources'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -62,7 +62,7 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'resource_groups' in path '/resource_groups' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'resource_groups' in path '/resource_groups' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/resource_groups'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -79,7 +79,7 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'resource-groups' in path '/resource-groups' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'resource-groups' in path '/resource-groups' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/resource-groups'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -96,7 +96,7 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'Resources' in path '/Resources:createResource' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'Resources' in path '/Resources:createResource' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/Resources:createResource'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -113,7 +113,7 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'resourcesAPI' in path '/resourcesAPI' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'resourcesAPI' in path '/resourcesAPI' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/resourcesAPI'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -145,21 +145,21 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path '/api//users' contains double slashes (//) which is not allowed. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path '/api//users' contains double slashes (//) which is not allowed. http://go/ipa-spectral",
         path: ['paths', '/api//users'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path '/resources///{resourceId}' contains double slashes (//) which is not allowed. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path '/resources///{resourceId}' contains double slashes (//) which is not allowed. http://go/ipa-spectral",
         path: ['paths', '/resources///{resourceId}'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path '//doubleSlashAtStart' contains double slashes (//) which is not allowed. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path '//doubleSlashAtStart' contains double slashes (//) which is not allowed. http://go/ipa-spectral",
         path: ['paths', '//doubleSlashAtStart'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -186,21 +186,21 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'API' in path '/API/Resource_groups/{userId}/User-profiles' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'API' in path '/API/Resource_groups/{userId}/User-profiles' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/API/Resource_groups/{userId}/User-profiles'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'Resource_groups' in path '/API/Resource_groups/{userId}/User-profiles' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'Resource_groups' in path '/API/Resource_groups/{userId}/User-profiles' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/API/Resource_groups/{userId}/User-profiles'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'User-profiles' in path '/API/Resource_groups/{userId}/User-profiles' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'User-profiles' in path '/API/Resource_groups/{userId}/User-profiles' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/API/Resource_groups/{userId}/User-profiles'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -217,14 +217,14 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'Valid' in path '/api/Valid/Invalid_resource/{id}:validCustomMethod' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'Valid' in path '/api/Valid/Invalid_resource/{id}:validCustomMethod' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/api/Valid/Invalid_resource/{id}:validCustomMethod'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'Invalid_resource' in path '/api/Valid/Invalid_resource/{id}:validCustomMethod' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'Invalid_resource' in path '/api/Valid/Invalid_resource/{id}:validCustomMethod' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/api/Valid/Invalid_resource/{id}:validCustomMethod'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -241,14 +241,14 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path '/api//Invalid_segment//resources' contains double slashes (//) which is not allowed. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path '/api//Invalid_segment//resources' contains double slashes (//) which is not allowed. http://go/ipa-spectral",
         path: ['paths', '/api//Invalid_segment//resources'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-102-collection-identifier-camelCase',
         message:
-          "Collection identifiers must be in camelCase. Path segment 'Invalid_segment' in path '/api//Invalid_segment//resources' is not in camelCase. http://go/ipa/102",
+          "Collection identifiers must be in camelCase. Path segment 'Invalid_segment' in path '/api//Invalid_segment//resources' is not in camelCase. http://go/ipa-spectral",
         path: ['paths', '/api//Invalid_segment//resources'],
         severity: DiagnosticSeverity.Warning,
       },
