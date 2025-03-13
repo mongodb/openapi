@@ -98,7 +98,12 @@ function getIpaNumbers(ruleNames) {
 }
 
 function getIpaRulesetUrl(ipaNumber) {
-  return `[http://go/ipa/${ipaNumber}](http://go/ipa/${ipaNumber})`;
+  const parts = ipaNumber.split('-');
+  if (parts.length > 1) {
+    parts[1] = parts[1].replace(/^0+/, '');
+  }
+  const ipaNumberFormatted = parts.join('-');
+  return `[http://go/ipa/${ipaNumberFormatted}](http://go/ipa/${ipaNumberFormatted})`;
 }
 
 function filterRulesByIpaNumber(ipaNumber, rules) {

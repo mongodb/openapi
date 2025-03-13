@@ -10,7 +10,7 @@ Below is a list of all available rules, their descriptions and severity levels.
 
 ### IPA-005
 
-Rule is based on [http://go/ipa/IPA-005](http://go/ipa/IPA-005).
+Rule is based on [http://go/ipa/IPA-5](http://go/ipa/IPA-5).
 
 #### xgen-IPA-005-exception-extension-format
 
