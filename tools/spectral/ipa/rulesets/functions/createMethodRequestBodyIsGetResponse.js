@@ -1,9 +1,10 @@
-import { getResponseOfGetMethodByMediaType, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
+import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { isEqual } from 'lodash';
 import omitDeep from 'omit-deep-lodash';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-get-method-response';
 const ERROR_MESSAGE =

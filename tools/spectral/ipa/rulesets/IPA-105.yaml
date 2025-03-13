@@ -5,6 +5,7 @@ functions:
   - listResponseCodeShouldBe200OK
   - listMethodHasNoRequestBody
   - eachResourceHasListMethod
+  - listMethodResponseIsGetMethodResponse
 
 rules:
   xgen-IPA-105-list-method-response-code-is-200:
@@ -29,3 +30,18 @@ rules:
     then:
       field: '@key'
       function: 'eachResourceHasListMethod'
+  xgen-IPA-105-list-method-response-is-get-method-response:
+    description: >-
+      The response body of the List method should consist of the same resource object returned by the Get method. Validation checks that the List method results items reference the same schema as the Get method response.<br/>
+      - Validation applies to List methods for resource collections only<br/>
+      - Validation applies to json response content only<br/>
+      - Validation ignores responses without schema and non-paginated responses<br/>
+      - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation<br/>
+      http://go/ipa/105
+    message: '{{error}} http://go/ipa/105'
+    severity: warn
+    given: '$.paths[*].get.responses[*].content'
+    then:
+      field: '@key'
+      function: 'listMethodResponseIsGetMethodResponse'
+
