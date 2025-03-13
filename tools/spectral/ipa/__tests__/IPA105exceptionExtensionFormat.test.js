@@ -51,25 +51,25 @@ testRule('xgen-IPA-005-exception-extension-format', [
     errors: [
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa/5',
+        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa-spectral#IPA-102',
         path: ['paths', '/path1', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa/5',
+        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa-spectral#IPA-102',
         path: ['paths', '/path2', 'x-xgen-IPA-exception', 'xgen-IPA-100-rule-name'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa/5',
+        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa-spectral#IPA-102',
         path: ['paths', '/path3', 'x-xgen-IPA-exception', 'invalid-rule-name'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa/5',
+        message: 'IPA exceptions must have a valid rule name and a reason. http://go/ipa-spectral#IPA-102',
         path: ['paths', '/path4', 'x-xgen-IPA-exception', 'xgen-IPA-100-rule-name'],
         severity: DiagnosticSeverity.Warning,
       },

@@ -17,6 +17,13 @@ Rule is based on [http://go/ipa/IPA-5](http://go/ipa/IPA-5).
  ![error](https://img.shields.io/badge/error-red) 
 IPA exception extensions must follow the correct format. http://go/ipa/5
 
+##### Implementation details
+Rule checks for the following conditions:
+  - Exception rule names must start with 'xgen-IPA-' prefix
+  - Each exception must include a non-empty reason as a string
+  - This rule itself does not allow exceptions
+
+
 
 
 ### IPA-102
