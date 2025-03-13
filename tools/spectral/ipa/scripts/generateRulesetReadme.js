@@ -60,7 +60,7 @@ function generateRulesetSections(rules) {
 
   sortedRuleEntries.forEach((rule) => {
     const severityFormatted = formatSeverity(rule.severity);
-    sections += `#### ${rule.name}\n\n ${severityFormatted}  ${rule.description}\n\n`;
+    sections += `#### ${rule.name}\n\n ${severityFormatted} \n${rule.description}\n\n`;
   });
 
   return sections;
@@ -69,11 +69,11 @@ function generateRulesetSections(rules) {
 function formatSeverity(severity) {
   switch (severity.toLowerCase()) {
     case 'info':
-      return '💡 ![](https://img.shields.io/badge/info-green)';
+      return '![](https://img.shields.io/badge/info-green)';
     case 'warn':
-      return '⚠️ ![](https://img.shields.io/badge/warning-yellow)';
+      return '![](https://img.shields.io/badge/warning-yellow)';
     case 'error':
-      return '❌ ![](https://img.shields.io/badge/error-red)';
+      return '![](https://img.shields.io/badge/error-red)';
     default:
       return `\`${severity}\``;
   }
@@ -98,7 +98,7 @@ function getIpaNumbers(ruleNames) {
 }
 
 function getIpaRulesetUrl(ipaNumber) {
-  return `[http://go/ipa-spectral#${ipaNumber}](http://go/ipa-spectral#${ipaNumber})`;
+  return `[http://go/ipa/${ipaNumber}](http://go/ipa/${ipaNumber})`;
 }
 
 function filterRulesByIpaNumber(ipaNumber, rules) {
