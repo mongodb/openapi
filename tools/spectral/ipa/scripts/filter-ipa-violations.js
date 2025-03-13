@@ -1,9 +1,6 @@
 import fs from 'node:fs/promises';
 import { execSync } from 'child_process';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function filterIpaViolations() {
   try {
