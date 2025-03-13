@@ -1,4 +1,9 @@
-import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
+import {
+  getResourcePathItems,
+  isCustomMethodIdentifier,
+  isResourceCollectionIdentifier,
+  isSingletonResource,
+} from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
@@ -10,9 +15,12 @@ const ERROR_MESSAGE = 'The Create method request object must not include input f
 export default (input, _, { path, documentInventory }) => {
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
+  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
   let mediaType = input;
 
-  if (isCustomMethodIdentifier(resourcePath) || !mediaType.endsWith('json')) {
+  const isResourceCollection = isResourceCollectionIdentifier(resourcePath) && !isSingletonResource(resourcePaths);
+
+  if (isCustomMethodIdentifier(resourcePath) || !isResourceCollection || !mediaType.endsWith('json')) {
     return;
   }
 
