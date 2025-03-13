@@ -14,7 +14,7 @@ Rule is based on [http://go/ipa/IPA-5](http://go/ipa/IPA-5).
 
 #### xgen-IPA-005-exception-extension-format
 
- ![](https://img.shields.io/badge/error-red) 
+ ![error](https://img.shields.io/badge/error-red) 
 IPA exception extensions must follow the correct format. http://go/ipa/5
 
 
@@ -25,12 +25,12 @@ Rule is based on [http://go/ipa/IPA-102](http://go/ipa/IPA-102).
 
 #### xgen-IPA-102-path-alternate-resource-name-path-param
 
- ![](https://img.shields.io/badge/error-red) 
+ ![error](https://img.shields.io/badge/error-red) 
 Paths should alternate between resource names and path params. http://go/ipa/102
 
 #### xgen-IPA-102-collection-identifier-camelCase
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Collection identifiers must be in camelCase.
 
  ##### Implementation details
@@ -47,7 +47,7 @@ Collection identifiers must be in camelCase.
 
 #### xgen-IPA-102-collection-identifier-pattern
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers. http://go/ipa/102
 
 
@@ -58,32 +58,32 @@ Rule is based on [http://go/ipa/IPA-104](http://go/ipa/IPA-104).
 
 #### xgen-IPA-104-resource-has-GET
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 APIs must provide a Get method for resources. http://go/ipa/104
 
 #### xgen-IPA-104-get-method-returns-single-resource
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The purpose of the Get method is to return data from a single resource. http://go/ipa/104
 
 #### xgen-IPA-104-get-method-response-code-is-200
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method must return a 200 OK response. http://go/ipa/104
 
 #### xgen-IPA-104-get-method-returns-response-suffixed-object
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method of a resource should return a "Response" suffixed object. http://go/ipa/104
 
 #### xgen-IPA-104-get-method-response-has-no-input-fields
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields). http://go/ipa/104
 
 #### xgen-IPA-104-get-method-no-request-body
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method request must not include a body. http://go/ipa/104
 
 
@@ -94,17 +94,17 @@ Rule is based on [http://go/ipa/IPA-105](http://go/ipa/IPA-105).
 
 #### xgen-IPA-105-list-method-response-code-is-200
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The List method must return a 200 OK response. http://go/ipa/105
 
 #### xgen-IPA-105-list-method-no-request-body
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The List method request must not include a body. http://go/ipa/105
 
 #### xgen-IPA-105-resource-has-list
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 APIs must provide a List method for resources. http://go/ipa/105
 
 
@@ -115,27 +115,27 @@ Rule is based on [http://go/ipa/IPA-106](http://go/ipa/IPA-106).
 
 #### xgen-IPA-106-create-method-request-body-is-request-suffixed-object
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The Create method request should be a Request suffixed object. http://go/ipa/106 This rule applies only to POST requests targeting resource collection URIs.
 
 #### xgen-IPA-106-create-method-should-not-have-query-parameters
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Create operations should not use query parameters. http://go/ipa/106 This rule applies only to POST requests targeting resource collection URIs.
 
 #### xgen-IPA-106-create-method-request-body-is-get-method-response
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Request body content of the Create method and response content of the Get method should refer to the same resource. http://go/ipa/106 readOnly/writeOnly properties will be ignored.   This rule applies only to POST requests targeting resource collection URIs.
 
 #### xgen-IPA-106-create-method-request-has-no-readonly-fields
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Create method Request object must not include fields with readOnly:true. http://go/ipa/106 This rule applies only to POST requests targeting resource collection URIs.
 
 #### xgen-IPA-106-create-method-response-code-is-201
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Create methods must return a 201 Created response code. http://go/ipa/106 This rule applies only to POST requests targeting resource collection URIs.
 
 
@@ -146,22 +146,22 @@ Rule is based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
 
 #### xgen-IPA-108-delete-response-should-be-empty
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Delete method response should not have schema reference to object. http://go/ipa/108
 
 #### xgen-IPA-108-delete-method-return-204-response
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 DELETE method must return 204 No Content. http://go/ipa/108
 
 #### xgen-IPA-108-delete-include-404-response
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 DELETE method must include 404 response and return it when resource not found. http://go/ipa/108
 
 #### xgen-IPA-108-delete-request-no-body
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 DELETE method must not have request body. http://go/ipa/108
 
 
@@ -172,12 +172,12 @@ Rule is based on [http://go/ipa/IPA-109](http://go/ipa/IPA-109).
 
 #### xgen-IPA-109-custom-method-must-be-GET-or-POST
 
- ![](https://img.shields.io/badge/error-red) 
+ ![error](https://img.shields.io/badge/error-red) 
 The HTTP method for custom methods must be GET or POST. http://go/ipa/109
 
 #### xgen-IPA-109-custom-method-must-use-camel-case
 
- ![](https://img.shields.io/badge/error-red) 
+ ![error](https://img.shields.io/badge/error-red) 
 The custom method must use camelCase format. http://go/ipa/109
 
 
@@ -188,7 +188,7 @@ Rule is based on [http://go/ipa/IPA-113](http://go/ipa/IPA-113).
 
 #### xgen-IPA-113-singleton-must-not-have-id
 
- ![](https://img.shields.io/badge/warning-yellow) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Singleton resources must not have a user-provided or system-generated ID. http://go/ipa/113
 
 
@@ -199,7 +199,7 @@ Rule is based on [http://go/ipa/IPA-123](http://go/ipa/IPA-123).
 
 #### xgen-IPA-123-enum-values-must-be-upper-snake-case
 
- ![](https://img.shields.io/badge/error-red) 
+ ![error](https://img.shields.io/badge/error-red) 
 Enum values must be UPPER_SNAKE_CASE. http://go/ipa/123
 
 

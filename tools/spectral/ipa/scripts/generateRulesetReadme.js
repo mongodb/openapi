@@ -69,11 +69,11 @@ function generateRulesetSections(rules) {
 function formatSeverity(severity) {
   switch (severity.toLowerCase()) {
     case 'info':
-      return '![](https://img.shields.io/badge/info-green)';
+      return '![info](https://img.shields.io/badge/info-green)';
     case 'warn':
-      return '![](https://img.shields.io/badge/warning-yellow)';
+      return '![warn](https://img.shields.io/badge/warning-yellow)';
     case 'error':
-      return '![](https://img.shields.io/badge/error-red)';
+      return '![error](https://img.shields.io/badge/error-red)';
     default:
       return `\`${severity}\``;
   }
