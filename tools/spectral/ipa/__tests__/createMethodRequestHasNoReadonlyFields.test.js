@@ -72,7 +72,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
     document: {
       components: componentSchemas,
       paths: {
-        '/valid-resource': {
+        '/resource': {
           post: {
             requestBody: {
               content: {
@@ -89,6 +89,9 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
               },
             },
           },
+        },
+        '/resource/{id}': {
+          get: {},
         },
       },
     },
@@ -121,7 +124,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
     document: {
       components: componentSchemas,
       paths: {
-        '/invalid-resource': {
+        '/resource': {
           post: {
             requestBody: {
               content: {
@@ -140,6 +143,9 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
             },
           },
         },
+        '/resource/{id}': {
+          get: {},
+        },
       },
     },
     errors: [
@@ -147,14 +153,14 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
         message:
           'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: id. http://go/ipa/106',
-        path: ['paths', '/invalid-resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
         message:
           'The Create method request object must not include input fields (readOnly properties). Found readOnly property at one of the inline schemas. http://go/ipa/106',
-        path: ['paths', '/invalid-resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
+        path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -164,7 +170,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
     document: {
       components: componentSchemas,
       paths: {
-        '/nested-invalid-resource': {
+        '/resource': {
           post: {
             requestBody: {
               content: {
@@ -177,6 +183,9 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
             },
           },
         },
+        '/resource/{id}': {
+          get: {},
+        },
       },
     },
     errors: [
@@ -184,14 +193,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
         message:
           'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: user.userId. http://go/ipa/106',
-        path: [
-          'paths',
-          '/nested-invalid-resource',
-          'post',
-          'requestBody',
-          'content',
-          'application/vnd.atlas.2023-01-01+json',
-        ],
+        path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -201,7 +203,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
     document: {
       components: componentSchemas,
       paths: {
-        '/array-invalid-resource': {
+        '/resource': {
           post: {
             requestBody: {
               content: {
@@ -214,6 +216,9 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
             },
           },
         },
+        '/resource/{id}': {
+          get: {},
+        },
       },
     },
     errors: [
@@ -221,14 +226,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
         message:
           'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: items.items.itemId. http://go/ipa/106',
-        path: [
-          'paths',
-          '/array-invalid-resource',
-          'post',
-          'requestBody',
-          'content',
-          'application/vnd.atlas.2023-01-01+json',
-        ],
+        path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -238,7 +236,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
     document: {
       components: componentSchemas,
       paths: {
-        '/excepted-resource': {
+        '/resource': {
           post: {
             requestBody: {
               content: {
@@ -253,6 +251,9 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
               },
             },
           },
+        },
+        '/resource/{id}': {
+          get: {},
         },
       },
     },
