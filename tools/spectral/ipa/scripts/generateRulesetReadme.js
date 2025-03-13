@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import spectral from '@stoplight/spectral-core';
-import { markdownTable } from 'markdown-table';
 import { loadRuleset } from '../utils.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -26,7 +25,7 @@ fs.writeFile(readmeFilePath, fileContent, (error) => {
 
 async function getRulesetsSection() {
   let content =
-    '## Rulesets\n\n' + 'The tables below lists all available rules, their descriptions and severity level.\n\n';
+    '## Rulesets\n\n' + 'Below is a list of all available rules, their descriptions and severity levels.\n\n';
 
   const rules = await getAllRules();
   const ruleNames = Object.keys(rules);
@@ -34,27 +33,50 @@ async function getRulesetsSection() {
 
   ipaNumbers.forEach((ipaNumber) => {
     const ipaRules = filterRulesByIpaNumber(ipaNumber, rules);
-    const table = generateRulesetTable(ipaRules);
-    content +=
-      `### ${ipaNumber}\n\n` + `For rule definitions, see ${getIpaRulesetUrl(ipaNumber)}.\n\n` + `${table}\n\n`;
+    const sections = generateRulesetSections(ipaRules);
+    content += `### ${ipaNumber}\n\n` + `Rule is based on ${getIpaRulesetUrl(ipaNumber)}.\n\n` + `${sections}\n\n`;
   });
 
   return content;
 }
 
-function generateRulesetTable(rules) {
-  const table = [['Rule Name', 'Description', 'Severity']];
-  const tableRows = [];
-
+function generateRulesetSections(rules) {
+  let sections = '';
   const ruleNames = Object.keys(rules);
-  ruleNames.forEach((ruleName) => {
-    const rule = rules[ruleName];
-    tableRows.push([ruleName, rule.description, rule.definition.severity]);
+  const sortedRuleEntries = ruleNames
+    .map((ruleName) => ({
+      name: ruleName,
+      description: rules[ruleName].description,
+      severity: rules[ruleName].definition.severity,
+    }))
+    .sort((a, b) => {
+      if (a.severity < b.severity) {
+        return -1;
+      } else if (a.severity > b.severity) {
+        return 1;
+      }
+      return 0;
+    });
+
+  sortedRuleEntries.forEach((rule) => {
+    const severityFormatted = formatSeverity(rule.severity);
+    sections += `#### ${rule.name}\n\n ${severityFormatted} \n${rule.description}\n\n`;
   });
 
-  tableRows.sort(sortBySeverity);
-  tableRows.forEach((row) => table.push(row));
-  return markdownTable(table);
+  return sections;
+}
+
+function formatSeverity(severity) {
+  switch (severity.toLowerCase()) {
+    case 'info':
+      return '![info](https://img.shields.io/badge/info-green)';
+    case 'warn':
+      return '![warn](https://img.shields.io/badge/warning-yellow)';
+    case 'error':
+      return '![error](https://img.shields.io/badge/error-red)';
+    default:
+      return `\`${severity}\``;
+  }
 }
 
 async function getAllRules() {
@@ -76,7 +98,12 @@ function getIpaNumbers(ruleNames) {
 }
 
 function getIpaRulesetUrl(ipaNumber) {
-  return `[${ipaNumber}.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/${ipaNumber}.yaml)`;
+  const parts = ipaNumber.split('-');
+  if (parts.length > 1) {
+    parts[1] = parts[1].replace(/^0+/, '');
+  }
+  const ipaNumberFormatted = parts.join('-');
+  return `[http://go/ipa/${ipaNumberFormatted}](http://go/ipa/${ipaNumberFormatted})`;
 }
 
 function filterRulesByIpaNumber(ipaNumber, rules) {
@@ -88,13 +115,4 @@ function filterRulesByIpaNumber(ipaNumber, rules) {
         [key]: rules[key],
       };
     }, {});
-}
-
-function sortBySeverity(a, b) {
-  if (a[2] < b[2]) {
-    return -1;
-  } else if (a[2] > b[2]) {
-    return 1;
-  }
-  return 0;
 }

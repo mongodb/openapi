@@ -5,10 +5,14 @@ functions:
   - createMethodRequestBodyIsRequestSuffixedObject
   - createMethodShouldNotHaveQueryParameters
   - createMethodRequestBodyIsGetResponse
+  - createMethodRequestHasNoReadonlyFields
+  - createMethodResponseCodeIs201Created
 
 rules:
   xgen-IPA-106-create-method-request-body-is-request-suffixed-object:
-    description: 'The Create method request should be a Request suffixed object. http://go/ipa/106'
+    description: >-
+      The Create method request should be a Request suffixed object. http://go/ipa/106
+      This rule applies only to POST requests targeting resource collection URIs.
     message: '{{error}} http://go/ipa/106'
     severity: warn
     given: '$.paths[*].post.requestBody.content'
@@ -16,17 +20,43 @@ rules:
       field: '@key'
       function: 'createMethodRequestBodyIsRequestSuffixedObject'
   xgen-IPA-106-create-method-should-not-have-query-parameters:
-    description: 'Create operations should not use query parameters. http://go/ipa/xxx'
+    description: >-
+      Create operations should not use query parameters. http://go/ipa/106
+      This rule applies only to POST requests targeting resource collection URIs.
     message: '{{error}} http://go/ipa/106'
     severity: warn
     given: '$.paths[*].post'
     then:
       function: 'createMethodShouldNotHaveQueryParameters'
   xgen-IPA-106-create-method-request-body-is-get-method-response:
-    description: 'The Create method request should be a Get method response. http://go/ipa/106'
+    description: >-
+      Request body content of the Create method and response content of the Get method should refer to the same resource. http://go/ipa/106
+      readOnly/writeOnly properties will be ignored.  
+      This rule applies only to POST requests targeting resource collection URIs.
     message: '{{error}} http://go/ipa/106'
     severity: warn
     given: '$.paths[*].post.requestBody.content'
     then:
       field: '@key'
       function: 'createMethodRequestBodyIsGetResponse'
+      functionOptions:
+        ignoredValues: ['readOnly', 'writeOnly']
+  xgen-IPA-106-create-method-request-has-no-readonly-fields:
+    description: >-
+      Create method Request object must not include fields with readOnly:true. http://go/ipa/106
+      This rule applies only to POST requests targeting resource collection URIs.
+    message: '{{error}} http://go/ipa/106'
+    severity: warn
+    given: '$.paths[*].post.requestBody.content'
+    then:
+      field: '@key'
+      function: 'createMethodRequestHasNoReadonlyFields'
+  xgen-IPA-106-create-method-response-code-is-201:
+    description: >-
+      Create methods must return a 201 Created response code. http://go/ipa/106
+      This rule applies only to POST requests targeting resource collection URIs.
+    message: '{{error}} http://go/ipa/106'
+    severity: warn
+    given: '$.paths[*].post'
+    then:
+      function: 'createMethodResponseCodeIs201Created'

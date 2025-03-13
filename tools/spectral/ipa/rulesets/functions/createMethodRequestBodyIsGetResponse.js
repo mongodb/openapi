@@ -1,7 +1,11 @@
-import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
+import {
+  getResourcePathItems,
+  isCustomMethodIdentifier,
+  isResourceCollectionIdentifier,
+  isSingletonResource,
+} from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { isEqual } from 'lodash';
-import omitDeep from 'omit-deep-lodash';
+import { isDeepEqual, omitDeep } from './utils/compareUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
@@ -10,11 +14,14 @@ const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-get-method-respons
 const ERROR_MESSAGE =
   'The request body schema properties must match the response body schema properties of the Get method.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, opts, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const resourcePath = path[1];
   let mediaType = input;
-  if (isCustomMethodIdentifier(resourcePath) || !mediaType.endsWith('json')) {
+  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
+
+  const isResourceCollection = isResourceCollectionIdentifier(resourcePath) && !isSingletonResource(resourcePaths);
+  if (isCustomMethodIdentifier(resourcePath) || !isResourceCollection || !mediaType.endsWith('json')) {
     return;
   }
 
@@ -35,7 +42,8 @@ export default (input, _, { path, documentInventory }) => {
   const errors = checkViolationsAndReturnErrors(
     path,
     postMethodRequestContentPerMediaType,
-    getMethodResponseContentPerMediaType
+    getMethodResponseContentPerMediaType,
+    opts
   );
 
   if (errors.length !== 0) {
@@ -48,14 +56,16 @@ export default (input, _, { path, documentInventory }) => {
 function checkViolationsAndReturnErrors(
   path,
   postMethodRequestContentPerMediaType,
-  getMethodResponseContentPerMediaType
+  getMethodResponseContentPerMediaType,
+  opts
 ) {
   const errors = [];
 
+  const ignoredValues = opts?.ignoredValues || [];
   if (
-    !isEqual(
-      omitDeep(postMethodRequestContentPerMediaType.schema, 'readOnly', 'writeOnly'),
-      omitDeep(getMethodResponseContentPerMediaType.schema, 'readOnly', 'writeOnly')
+    !isDeepEqual(
+      omitDeep(postMethodRequestContentPerMediaType.schema, ...ignoredValues),
+      omitDeep(getMethodResponseContentPerMediaType.schema, ...ignoredValues)
     )
   ) {
     errors.push({
