@@ -241,7 +241,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         description: 'single identifier child',
         path: '/resource/{id}/child/{id}',
         isSingleResourceIdentifier: true,
-      }
+      },
     ];
 
     testCases.forEach((testCase) => {
