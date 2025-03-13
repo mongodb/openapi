@@ -1,0 +1,308 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/onlineArchives:
+        get:
+            description: Returns details of all online archives. This archive stores data from one cluster within one project. To use this resource, the requesting API Key must have the Project Read Only role.
+            externalDocs:
+                description: Online Archive
+                url: https://docs.atlas.mongodb.com/online-archive/manage-online-archive/#std-label-manage-online-archive
+            operationId: listOnlineArchives
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster that contains the collection for which you want to return the online archives.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOnlineArchiveView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Online Archives for One Cluster
+            tags:
+                - Online Archive
+            x-xgen-owner-team: Atlas Online Archive II
+        post:
+            description: Creates one online archive. This archive stores data from one cluster within one project. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Online Archive
+                url: https://docs.atlas.mongodb.com/online-archive/manage-online-archive/#std-label-manage-online-archive
+            operationId: createOnlineArchive
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster that contains the collection for which you want to create one online archive.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/BackupOnlineArchiveCreate'
+                description: Creates one online archive.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/BackupOnlineArchive'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Online Archive
+            tags:
+                - Online Archive
+            x-xgen-changelog:
+                "2023-08-02": If 'criteria':'DATE' is specified, then you must specify 'DATE' values in partition fields
+            x-xgen-owner-team: Atlas Online Archive II
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/onlineArchives/{archiveId}:
+        delete:
+            description: Removes one online archive. This archive stores data from one cluster within one project. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Online Archive
+                url: https://docs.atlas.mongodb.com/online-archive/manage-online-archive/#std-label-manage-online-archive
+            operationId: deleteOnlineArchive
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the online archive to delete.
+                  in: path
+                  name: archiveId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: Human-readable label that identifies the cluster that contains the collection from which you want to remove an online archive.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Online Archive
+            tags:
+                - Online Archive
+            x-xgen-owner-team: Atlas Online Archive II
+        get:
+            description: Returns one online archive for one cluster. This archive stores data from one cluster within one project. To use this resource, the requesting API Key must have the Project Read Only role.
+            externalDocs:
+                description: Online Archive
+                url: https://docs.atlas.mongodb.com/online-archive/manage-online-archive/#std-label-manage-online-archive
+            operationId: getOnlineArchive
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the online archive to return.
+                  in: path
+                  name: archiveId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: Human-readable label that identifies the cluster that contains the specified collection from which Application created the online archive.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/BackupOnlineArchive'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Online Archive
+            tags:
+                - Online Archive
+            x-xgen-owner-team: Atlas Online Archive II
+        patch:
+            description: Updates, pauses, or resumes one online archive. This archive stores data from one cluster within one project. To use this resource, the requesting API Key must have the Project Data Access Admin role.
+            externalDocs:
+                description: Online Archive
+                url: https://docs.atlas.mongodb.com/online-archive/manage-online-archive/#std-label-manage-online-archive
+            operationId: updateOnlineArchive
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the online archive to update.
+                  in: path
+                  name: archiveId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: Human-readable label that identifies the cluster that contains the specified collection from which Application created the online archive.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/BackupOnlineArchive'
+                description: Updates, pauses, or resumes one online archive.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/BackupOnlineArchive'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Online Archive
+            tags:
+                - Online Archive
+            x-xgen-owner-team: Atlas Online Archive II
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/onlineArchives/queryLogs.gz:
+        get:
+            description: 'Downloads query logs for the specified online archive. To use this resource, the requesting API Key must have the Project Data Access Read Only or higher role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: "Accept: application/vnd.atlas.YYYY-MM-DD+gzip".'
+            externalDocs:
+                description: Online Archive
+                url: https://docs.atlas.mongodb.com/online-archive/manage-online-archive/#std-label-manage-online-archive
+            operationId: downloadOnlineArchiveQueryLogs
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Date and time that specifies the starting point for the range of log messages to return. This resource expresses this value in the number of seconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+                  in: query
+                  name: startDate
+                  schema:
+                    example: 1.636481348e+09
+                    format: int64
+                    minimum: 1.1991456e+09
+                    type: integer
+                - description: Date and time that specifies the end point for the range of log messages to return. This resource expresses this value in the number of seconds that have elapsed since the [UNIX epoch](https://en.wikipedia.org/wiki/Unix_time).
+                  in: query
+                  name: endDate
+                  schema:
+                    example: 1.636481348e+09
+                    format: int64
+                    minimum: 1.1991456e+09
+                    type: integer
+                - description: Human-readable label that identifies the cluster that contains the collection for which you want to return the query logs from one online archive.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Flag that indicates whether to download logs for queries against your online archive only or both your online archive and cluster.
+                  in: query
+                  name: archiveOnly
+                  schema:
+                    default: false
+                    type: boolean
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+gzip:
+                            schema:
+                                description: This resource downloads a compressed log file to your current working directory. You can specify its name using the `--output` option or use the default filename using the `-OJ` option. The default filename varies based on whether you download logs for queries of your online archive only or both your online archive and cluster.
+                                format: binary
+                                type: string
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Download Online Archive Query Logs
+            tags:
+                - Online Archive
+            x-xgen-owner-team: Atlas Online Archive II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

@@ -1,0 +1,1105 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups:
+        get:
+            description: Returns details about all projects. Projects group clusters into logical collections that support an application environment, workload, or both. Each project can have its own users, teams, security, tags, and alert settings. To use this resource, the requesting API Key must have the Organization Read Only role or higher.
+            operationId: listProjects
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAtlasGroupView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Projects
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        post:
+            description: Creates one project. Projects group clusters into logical collections that support an application environment, workload, or both. Each project can have its own users, teams, security, tags, and alert settings. To use this resource, the requesting API Key must have the Read Write role.
+            operationId: createProject
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the MongoDB Cloud user to whom to grant the Project Owner role on the specified project. If you set this parameter, it overrides the default value of the oldest Organization Owner.
+                  in: query
+                  name: projectOwnerId
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/Group'
+                description: Creates one project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/Group'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}:
+        delete:
+            description: Removes the specified project. Projects group clusters into logical collections that support an application environment, workload, or both. Each project can have its own users, teams, security, tags, and alert settings. You can delete a project only if there are no Online Archives for the clusters in the project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: deleteProject
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        get:
+            description: Returns details about the specified project. Projects group clusters into logical collections that support an application environment, workload, or both. Each project can have its own users, teams, security, tags, and alert settings. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getProject
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/Group'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        patch:
+            description: Updates the human-readable label that identifies the specified project, or the tags associated with the project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: updateProject
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupUpdate'
+                description: Project to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/Group'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/access:
+        post:
+            description: Adds one MongoDB Cloud user to the specified project. If the MongoDB Cloud user is not a member of the project's organization, then the user must accept their invitation to the organization to access information within the specified project. If the MongoDB Cloud User is already a member of the project's organization, then they will be added to the project immediately and an invitation will not be returned by this resource. To use this resource, the requesting API Key must have the Group User Admin role.
+            operationId: addUserToProject
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-02-01+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupInvitationRequest'
+                description: Adds one MongoDB Cloud user to the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationInvitation'
+                            x-xgen-version: "2023-02-01"
+                    description: OK
+                "204":
+                    content:
+                        application/vnd.atlas.2023-02-01+json:
+                            x-xgen-version: "2023-02-01"
+                    description: No Content
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One MongoDB Cloud User to One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/invites:
+        get:
+            deprecated: true
+            description: Returns all pending invitations to the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: listProjectInvitations
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Email address of the user account invited to this project.
+                  in: query
+                  name: username
+                  schema:
+                    format: email
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/GroupInvitation'
+                                type: array
+                            x-sunset: "2026-07-31"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Project Invitations
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        patch:
+            deprecated: true
+            description: Updates the details of one pending invitation to the specified project. To specify which invitation to update, provide the username of the invited user. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: updateProjectInvitation
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupInvitationRequest'
+                description: Updates the details of one pending invitation to the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupInvitation'
+                            x-sunset: "2026-07-31"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Project Invitation
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        post:
+            deprecated: true
+            description: Invites one MongoDB Cloud user to join the specified project. The MongoDB Cloud user must accept the invitation to access information within the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: createProjectInvitation
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupInvitationRequest'
+                description: Invites one MongoDB Cloud user to join the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupInvitation'
+                            x-sunset: "2026-07-31"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Invite One MongoDB Cloud User to Join One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/invites/{invitationId}:
+        delete:
+            deprecated: true
+            description: Cancels one pending invitation sent to the specified MongoDB Cloud user to join a project. You can't cancel an invitation that the user accepted. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: deleteProjectInvitation
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Unique 24-hexadecimal digit string that identifies the invitation.
+                  in: path
+                  name: invitationId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-sunset: "2026-07-31"
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Cancel One Project Invitation
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        get:
+            deprecated: true
+            description: Returns the details of one pending invitation to the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: getProjectInvitation
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the invitation.
+                  in: path
+                  name: invitationId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupInvitation'
+                            x-sunset: "2026-07-31"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Project Invitation
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        patch:
+            deprecated: true
+            description: Updates the details of one pending invitation to the specified project. To specify which invitation to update, provide the unique identification string for that invitation. Use the Return All Project Invitations endpoint to retrieve IDs for all pending project invitations. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: updateProjectInvitationById
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Unique 24-hexadecimal digit string that identifies the invitation.
+                  in: path
+                  name: invitationId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupInvitationUpdateRequest'
+                description: Updates the details of one pending invitation to the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupInvitation'
+                            x-sunset: "2026-07-31"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Project Invitation by Invitation ID
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/ipAddresses:
+        get:
+            description: Returns all IP addresses for this project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: returnAllIpAddresses
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupIPAddresses'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All IP Addresses for One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: Atlas Clusters Security II
+    /api/atlas/v2/groups/{groupId}/limits:
+        get:
+            description: Returns all the limits for the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listProjectLimits
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/DataFederationLimit'
+                                type: array
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Limits for One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/limits/{limitName}:
+        delete:
+            description: Removes the specified project limit. Depending on the limit, Atlas either resets the limit to its default value or removes the limit entirely. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: deleteProjectLimit
+            parameters:
+                - description: |
+                    Human-readable label that identifies this project limit.
+
+                    | Limit Name | Description | Default | API Override Limit |
+                    | --- | --- | --- | --- |
+                    | atlas.project.deployment.clusters | Limit on the number of clusters in this project if the org is not sales-sold (If org is sales-sold, the limit is 100) | 25 | 90 |
+                    | atlas.project.deployment.nodesPerPrivateLinkRegion | Limit on the number of nodes per Private Link region in this project | 50 | 90 |
+                    | atlas.project.security.databaseAccess.customRoles | Limit on the number of custom roles in this project | 100 | 1400 |
+                    | atlas.project.security.databaseAccess.users | Limit on the number of database users in this project | 100 | 900 |
+                    | atlas.project.security.networkAccess.crossRegionEntries | Limit on the number of cross-region network access entries in this project | 40 | 220 |
+                    | atlas.project.security.networkAccess.entries | Limit on the number of network access entries in this project | 200 | 20 |
+                    | dataFederation.bytesProcessed.query | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |
+                    | dataFederation.bytesProcessed.daily | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |
+                    | dataFederation.bytesProcessed.weekly | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |
+                    | dataFederation.bytesProcessed.monthly | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |
+                    | atlas.project.deployment.privateServiceConnectionsPerRegionGroup | Number of Private Service Connections per Region Group | 50 | 100|
+                    | atlas.project.deployment.privateServiceConnectionsSubnetMask | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|
+                    | atlas.project.deployment.salesSoldM0s | Limit on the number of M0 clusters in this project if the org is sales-sold | 100 | 100 |
+                  in: path
+                  name: limitName
+                  required: true
+                  schema:
+                    enum:
+                        - atlas.project.security.databaseAccess.users
+                        - atlas.project.deployment.clusters
+                        - atlas.project.deployment.serverlessMTMs
+                        - atlas.project.security.databaseAccess.customRoles
+                        - atlas.project.security.networkAccess.entries
+                        - atlas.project.security.networkAccess.crossRegionEntries
+                        - atlas.project.deployment.nodesPerPrivateLinkRegion
+                        - dataFederation.bytesProcessed.query
+                        - dataFederation.bytesProcessed.daily
+                        - dataFederation.bytesProcessed.weekly
+                        - dataFederation.bytesProcessed.monthly
+                        - atlas.project.deployment.privateServiceConnectionsPerRegionGroup
+                        - atlas.project.deployment.privateServiceConnectionsSubnetMask
+                        - atlas.project.deployment.salesSoldM0s
+                    type: string
+                    x-xgen-IPA-exception:
+                        xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Project Limit
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        get:
+            description: Returns the specified limit for the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getProjectLimit
+            parameters:
+                - description: |
+                    Human-readable label that identifies this project limit.
+
+                    | Limit Name | Description | Default | API Override Limit |
+                    | --- | --- | --- | --- |
+                    | atlas.project.deployment.clusters | Limit on the number of clusters in this project if the org is not sales-sold (If org is sales-sold, the limit is 100) | 25 | 90 |
+                    | atlas.project.deployment.nodesPerPrivateLinkRegion | Limit on the number of nodes per Private Link region in this project | 50 | 90 |
+                    | atlas.project.security.databaseAccess.customRoles | Limit on the number of custom roles in this project | 100 | 1400 |
+                    | atlas.project.security.databaseAccess.users | Limit on the number of database users in this project | 100 | 900 |
+                    | atlas.project.security.networkAccess.crossRegionEntries | Limit on the number of cross-region network access entries in this project | 40 | 220 |
+                    | atlas.project.security.networkAccess.entries | Limit on the number of network access entries in this project | 200 | 20 |
+                    | dataFederation.bytesProcessed.query | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |
+                    | dataFederation.bytesProcessed.daily | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |
+                    | dataFederation.bytesProcessed.weekly | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |
+                    | dataFederation.bytesProcessed.monthly | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |
+                    | atlas.project.deployment.privateServiceConnectionsPerRegionGroup | Number of Private Service Connections per Region Group | 50 | 100|
+                    | atlas.project.deployment.privateServiceConnectionsSubnetMask | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|
+                    | atlas.project.deployment.salesSoldM0s | Limit on the number of M0 clusters in this project if the org is sales-sold | 100 | 100 |
+                  in: path
+                  name: limitName
+                  required: true
+                  schema:
+                    enum:
+                        - atlas.project.security.databaseAccess.users
+                        - atlas.project.deployment.clusters
+                        - atlas.project.deployment.serverlessMTMs
+                        - atlas.project.security.databaseAccess.customRoles
+                        - atlas.project.security.networkAccess.entries
+                        - atlas.project.security.networkAccess.crossRegionEntries
+                        - atlas.project.deployment.nodesPerPrivateLinkRegion
+                        - dataFederation.bytesProcessed.query
+                        - dataFederation.bytesProcessed.daily
+                        - dataFederation.bytesProcessed.weekly
+                        - dataFederation.bytesProcessed.monthly
+                        - atlas.project.deployment.privateServiceConnectionsPerRegionGroup
+                        - atlas.project.deployment.privateServiceConnectionsSubnetMask
+                        - atlas.project.deployment.salesSoldM0s
+                    type: string
+                    x-xgen-IPA-exception:
+                        xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DataFederationLimit'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Limit for One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        patch:
+            description: |-
+                Sets the specified project limit. To use this resource, the requesting API Key must have the Project Owner role.
+
+                **NOTE**: Increasing the following configuration limits might lead to slower response times in the MongoDB Cloud UI or increased user management overhead leading to authentication or authorization re-architecture. If possible, we recommend that you create additional projects to gain access to more of these resources for a more sustainable growth pattern.
+            operationId: setProjectLimit
+            parameters:
+                - description: |
+                    Human-readable label that identifies this project limit.
+
+                    | Limit Name | Description | Default | API Override Limit |
+                    | --- | --- | --- | --- |
+                    | atlas.project.deployment.clusters | Limit on the number of clusters in this project if the org is not sales-sold (If org is sales-sold, the limit is 100) | 25 | 90 |
+                    | atlas.project.deployment.nodesPerPrivateLinkRegion | Limit on the number of nodes per Private Link region in this project | 50 | 90 |
+                    | atlas.project.security.databaseAccess.customRoles | Limit on the number of custom roles in this project | 100 | 1400 |
+                    | atlas.project.security.databaseAccess.users | Limit on the number of database users in this project | 100 | 900 |
+                    | atlas.project.security.networkAccess.crossRegionEntries | Limit on the number of cross-region network access entries in this project | 40 | 220 |
+                    | atlas.project.security.networkAccess.entries | Limit on the number of network access entries in this project | 200 | 20 |
+                    | dataFederation.bytesProcessed.query | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |
+                    | dataFederation.bytesProcessed.daily | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |
+                    | dataFederation.bytesProcessed.weekly | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |
+                    | dataFederation.bytesProcessed.monthly | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |
+                    | atlas.project.deployment.privateServiceConnectionsPerRegionGroup | Number of Private Service Connections per Region Group | 50 | 100|
+                    | atlas.project.deployment.privateServiceConnectionsSubnetMask | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|
+                    | atlas.project.deployment.salesSoldM0s | Limit on the number of M0 clusters in this project if the org is sales-sold | 100 | 100 |
+                  in: path
+                  name: limitName
+                  required: true
+                  schema:
+                    enum:
+                        - atlas.project.security.databaseAccess.users
+                        - atlas.project.deployment.clusters
+                        - atlas.project.deployment.serverlessMTMs
+                        - atlas.project.security.databaseAccess.customRoles
+                        - atlas.project.security.networkAccess.entries
+                        - atlas.project.security.networkAccess.crossRegionEntries
+                        - atlas.project.deployment.nodesPerPrivateLinkRegion
+                        - dataFederation.bytesProcessed.query
+                        - dataFederation.bytesProcessed.daily
+                        - dataFederation.bytesProcessed.weekly
+                        - dataFederation.bytesProcessed.monthly
+                        - atlas.project.deployment.privateServiceConnectionsPerRegionGroup
+                        - atlas.project.deployment.privateServiceConnectionsSubnetMask
+                        - atlas.project.deployment.salesSoldM0s
+                    type: string
+                    x-xgen-IPA-exception:
+                        xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/DataFederationLimit'
+                description: Limit to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DataFederationLimit'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Set One Project Limit
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/mongoDBVersions:
+        get:
+            description: Returns the MongoDB Long Term Support Major Versions available to new clusters in this project.
+            operationId: getProjectLtsVersions
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Filter results to only one cloud provider.
+                  in: query
+                  name: cloudProvider
+                  schema:
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                        - TENANT
+                    type: string
+                - description: Filter results to only one instance size.
+                  in: query
+                  name: instanceSize
+                  schema:
+                    example: M10
+                    type: string
+                - description: Filter results to only the default values per tier. This value must be DEFAULT.
+                  in: query
+                  name: defaultStatus
+                  schema:
+                    enum:
+                        - DEFAULT
+                    type: string
+                - description: Number of items that the response returns per page.
+                  in: query
+                  name: itemsPerPage
+                  schema:
+                    default: 100
+                    example: 100
+                    format: int64
+                    minimum: 1
+                    type: integer
+                - $ref: '#/components/parameters/pageNum'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAvailableVersionView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Available MongoDB LTS Versions for clusters in One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/settings:
+        get:
+            description: Returns details about the specified project's settings. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getProjectSettings
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupSettings'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Project Settings
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        patch:
+            description: Updates the settings of the specified project. You can update any of the options available. MongoDB cloud only updates the options provided in the request. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: updateProjectSettings
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupSettings'
+                description: Settings to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupSettings'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Project Settings
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/users:
+        get:
+            description: Returns details about all users in the specified project. Users belong to an organization. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listProjectUsers
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: 'Flag that indicates whether the returned list should include users who belong to a team with a role in this project. You might not have assigned the individual users a role in this project. If `"flattenTeams" : false`, this resource returns only users with a role in the project.  If `"flattenTeams" : true`, this resource returns both users with roles in the project and users who belong to teams with roles in the project.'
+                  in: query
+                  name: flattenTeams
+                  schema:
+                    default: false
+                    type: boolean
+                - description: 'Flag that indicates whether the returned list should include users with implicit access to the project, the Organization Owner or Organization Read Only role. You might not have assigned the individual users a role in this project. If `"includeOrgUsers": false`, this resource returns only users with a role in the project. If `"includeOrgUsers": true`, this resource returns both users with roles in the project and users who have implicit access to the project through their organization role.'
+                  in: query
+                  name: includeOrgUsers
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Flag that indicates whether to filter the returned list by users organization membership status. If you exclude this parameter, this resource returns both pending and active users.
+                  in: query
+                  name: orgMembershipStatus
+                  schema:
+                    example: ACTIVE
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAppUserView'
+                            x-sunset: "2044-01-01"
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Users in One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        post:
+            description: "Adds one MongoDB Cloud user to one project. To use this resource, the requesting API Key must have the Project Owner role. \n- If the user has a pending invitation to join the project's organization, MongoDB Cloud modifies it and grants project access. \n- If the user doesn't have an invitation to join the organization, MongoDB Cloud sends a new invitation that grants the user organization and project access. \n- If the user is already active in the project's organization, MongoDB Cloud grants access to the project. \n"
+            operationId: addProjectUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2043-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupUserRequest'
+                description: The active or pending MongoDB Cloud user that you want to add to the specified project.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One MongoDB Cloud User to One Project
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/users/{userId}:
+        delete:
+            description: Removes the specified user from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: removeProjectUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal string that identifies MongoDB Cloud user you want to remove from the specified project. To return a application user's ID using their application username, use the Get All application users in One Project endpoint.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-sunset: "2044-01-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-hidden-env:
+                                envs: qa,stage,prod
+                            x-xgen-version: "2043-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One User from One Project
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        get:
+            description: |-
+                Returns information about the specified MongoDB Cloud user within the context of the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                **Note**: You can only use this resource to fetch information about MongoDB Cloud human users. To return information about an API Key, use the [Return One Organization API Key](#tag/Programmatic-API-Keys/operation/getApiKey) endpoint.
+
+                **Note**: This resource does not return information about pending users invited via the deprecated [Invite One MongoDB Cloud User to Join One Project](#tag/Projects/operation/createProjectInvitation) endpoint.
+            operationId: getProjectUser
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the pending or active user in the project. If you need to lookup a user's userId or verify a user's status in the organization, use the Return All MongoDB Cloud Users in One Project resource and filter by username.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2043-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupUserResponse'
+                            x-xgen-version: "2043-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One MongoDB Cloud User in One Project
+            tags:
+                - MongoDB Cloud Users
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/{groupId}/users/{userId}/roles:
+        put:
+            description: Updates the roles of the specified user in the specified project. To specify the user to update, provide the unique 24-hexadecimal digit string that identifies the user in the specified project. To use this resource, the requesting API Key must have the Group User Admin role.
+            operationId: updateProjectRoles
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique 24-hexadecimal digit string that identifies the user to modify.
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateGroupRolesForUser'
+                description: Roles to update for the specified user.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/UpdateGroupRolesForUser'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update Project Roles for One MongoDB Cloud User
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}:migrate:
+        post:
+            description: Migrates a project from its current organization to another organization. All project users and their roles will be copied to the same project in the destination organization. You must include an organization API key with the Organization Owner role for the destination organization to verify access to the destination organization when you authenticate with Programmatic API Keys. Otherwise, the requesting user must have the Organization Owner role in both organizations. To use this resource, the requesting API Key must have the Organization Owner role.
+            operationId: migrateProjectToAnotherOrg
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupMigrationRequest'
+                description: Migrates a project from its current organization to another organization.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/Group'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Migrate One Project to Another Organization
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/groups/byName/{groupName}:
+        get:
+            description: Returns details about the specified project. Projects group clusters into logical collections that support an application environment, workload, or both. Each project can have its own users, teams, security, tags, and alert settings. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getProjectByName
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies this project.
+                  in: path
+                  name: groupName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/Group'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Project using Its Name
+            tags:
+                - Projects
+            x-xgen-owner-team: IAM
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

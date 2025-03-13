@@ -1,0 +1,1349 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/backup/exportBuckets:
+        get:
+            description: Returns all Export Buckets associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listExportBuckets
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedBackupSnapshotExportBucketView'
+                            x-sunset: "2026-05-30"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedBackupSnapshotExportBucketsView'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Snapshot Export Buckets
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        post:
+            description: Creates a Snapshot Export Bucket for an AWS S3 Bucket or Azure Blob Storage Container. Once created, an snapshots can be exported to the Export Bucket and its referenced AWS S3 Bucket or Azure Blob Storage Container. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: createExportBucket
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        examples:
+                            AWS:
+                                description: AWS
+                                value:
+                                    bucketName: export-bucket
+                                    cloudProvider: AWS
+                                    iamRoleId: 668c5f0ed436263134491592
+                        schema:
+                            $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketRequest'
+                        x-sunset: "2025-05-30"
+                        x-xgen-version: "2023-01-01"
+                    application/vnd.atlas.2024-05-30+json:
+                        examples:
+                            AWS:
+                                description: AWS
+                                value:
+                                    bucketName: export-bucket
+                                    cloudProvider: AWS
+                                    iamRoleId: 668c5f0ed436263134491592
+                            Azure:
+                                description: Azure
+                                value:
+                                    cloudProvider: AZURE
+                                    roleId: 668c5f0ed436263134491592
+                                    serviceUrl: https://examplestorageaccount.blob.core.windows.net/examplecontainer
+                        schema:
+                            $ref: '#/components/schemas/DiskBackupSnapshotExportBucketRequest'
+                        x-xgen-version: "2024-05-30"
+                description: Specifies the role and AWS S3 Bucket or Azure Blob Storage Container that the Export Bucket should reference.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            examples:
+                                AWS:
+                                    description: AWS
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-bucket
+                                        cloudProvider: AWS
+                                        iamRoleId: 668c5f0ed436263134491592
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
+                            x-sunset: "2026-05-30"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-05-30+json:
+                            examples:
+                                AWS:
+                                    description: AWS
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-bucket
+                                        cloudProvider: AWS
+                                        iamRoleId: 668c5f0ed436263134491592
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                Azure:
+                                    description: Azure
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: exportcontainer
+                                        cloudProvider: AZURE
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                        roleId: 668c5f0ed436263134491592
+                                        serviceUrl: https://examplestorageaccount.blob.core.windows.net/examplecontainer
+                                        tenantId: 4297fc77-1592-4de8-a6d5-a8c32401df87
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotExportBucketResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Snapshot Export Bucket
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}:
+        delete:
+            description: Deletes an Export Bucket. Auto export must be disabled on all clusters in this Project exporting to this Export Bucket before revoking access. To use this resource, the requesting API Key must have the Project Backup Manager role.
+            operationId: deleteExportBucket
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique 24-hexadecimal character string that identifies the Export Bucket.
+                  in: path
+                  name: exportBucketId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Snapshot Export Bucket
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        get:
+            description: Returns one Export Bucket associated with the specified Project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getExportBucket
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique 24-hexadecimal character string that identifies the Export Bucket.
+                  in: path
+                  name: exportBucketId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            examples:
+                                AWS:
+                                    description: AWS
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-bucket
+                                        cloudProvider: AWS
+                                        iamRoleId: 668c5f0ed436263134491592
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
+                            x-sunset: "2026-05-30"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-05-30+json:
+                            examples:
+                                AWS:
+                                    description: AWS
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: export-bucket
+                                        cloudProvider: AWS
+                                        iamRoleId: 668c5f0ed436263134491592
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                Azure:
+                                    description: Azure
+                                    value:
+                                        _id: 32b6e34b3d91647abb20e7b8
+                                        bucketName: exportcontainer
+                                        cloudProvider: AZURE
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                        roleId: 668c5f0ed436263134491592
+                                        serviceUrl: https://examplestorageaccount.blob.core.windows.net/examplecontainer
+                                        tenantId: 4297fc77-1592-4de8-a6d5-a8c32401df87
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotExportBucketResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Snapshot Export Bucket
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/backupCompliancePolicy:
+        delete:
+            description: Disables the Backup Compliance Policy settings with the specified project. As a prerequisite, a support ticket needs to be file first, instructions in https://www.mongodb.com/docs/atlas/backup/cloud-backup/backup-compliance-policy/. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: disableDataProtectionSettings
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2024-11-13"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Disable the Backup Compliance Policy settings
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        get:
+            description: Returns the Backup Compliance Policy settings with the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: getDataProtectionSettings
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DataProtectionSettings'
+                            x-sunset: "2026-10-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-10-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DataProtectionSettings20231001'
+                            x-xgen-version: "2023-10-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return the Backup Compliance Policy settings
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        put:
+            description: Updates the Backup Compliance Policy settings for the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: updateDataProtectionSettings
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Flag that indicates whether to overwrite non complying backup policies with the new data protection settings or not.
+                  in: query
+                  name: overwriteBackupPolicies
+                  schema:
+                    default: true
+                    type: boolean
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/DataProtectionSettings'
+                        x-sunset: "2024-10-01"
+                        x-xgen-version: "2023-01-01"
+                    application/vnd.atlas.2023-10-01+json:
+                        schema:
+                            $ref: '#/components/schemas/DataProtectionSettings20231001'
+                        x-xgen-version: "2023-10-01"
+                description: The new Backup Compliance Policy settings.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DataProtectionSettings'
+                            x-sunset: "2025-10-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-10-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DataProtectionSettings20231001'
+                            x-xgen-version: "2023-10-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update or enable the Backup Compliance Policy settings
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/exports:
+        get:
+            description: Returns all Cloud Backup Snapshot Export Jobs associated with the specified Atlas cluster. To use this resource, the requesting API Key must have the Project Atlas Admin role.
+            operationId: listBackupExportJobs
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupExportJobView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Snapshot Export Jobs
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        post:
+            description: Exports one backup Snapshot for dedicated Atlas cluster using Cloud Backups to an Export Bucket. To use this resource, the requesting API Key must have the Project Atlas Admin role.
+            operationId: createBackupExportJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/DiskBackupExportJobRequest'
+                description: Information about the Cloud Backup Snapshot Export Job to create.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupExportJob'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Snapshot Export Job
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/exports/{exportId}:
+        get:
+            description: Returns one Cloud Backup Snapshot Export Job associated with the specified Atlas cluster. To use this resource, the requesting API Key must have the Project Atlas Admin role.
+            operationId: getBackupExportJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal character string that identifies the Export Job.
+                  in: path
+                  name: exportId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupExportJob'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Snapshot Export Job
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/restoreJobs:
+        get:
+            description: Returns all cloud backup restore jobs for one cluster from the specified project. To use this resource, the requesting API Key must have the Project Backup Manager role.
+            operationId: listBackupRestoreJobs
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster with the restore jobs you want to return.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedCloudBackupRestoreJobView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Restore Jobs for One Cluster
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        post:
+            description: |-
+                Restores one snapshot of one cluster from the specified project. Atlas takes on-demand snapshots immediately and scheduled snapshots at regular intervals. If an on-demand snapshot with a status of **queued** or **inProgress** exists, before taking another snapshot, wait until Atlas completes completes processing the previously taken on-demand snapshot.
+
+                 To use this resource, the requesting API Key must have the Project Backup Manager role.
+            operationId: createBackupRestoreJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/DiskBackupSnapshotRestoreJob'
+                description: Restores one snapshot of one cluster from the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotRestoreJob'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Restore One Snapshot of One Cluster
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/restoreJobs/{restoreJobId}:
+        delete:
+            description: Cancels one cloud backup restore job of one cluster from the specified project. To use this resource, the requesting API Key must have the Project Backup Manager role.
+            operationId: cancelBackupRestoreJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the restore job to remove.
+                  in: path
+                  name: restoreJobId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "405":
+                    $ref: '#/components/responses/methodNotAllowed'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Cancel One Restore Job of One Cluster
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        get:
+            description: Returns one cloud backup restore job for one cluster from the specified project. To use this resource, the requesting API Key must have the Project Backup Manager role.
+            operationId: getBackupRestoreJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster with the restore jobs you want to return.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the restore job to return.
+                  in: path
+                  name: restoreJobId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotRestoreJob'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Restore Job of One Cluster
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/schedule:
+        delete:
+            description: Removes all cloud backup schedules for the specified cluster. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Atlas Admin role.
+            operationId: deleteAllBackupSchedules
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
+                            x-sunset: "2026-05-30"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove All Cloud Backup Schedules
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        get:
+            description: Returns the cloud backup schedule for the specified cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getBackupSchedule
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
+                            x-sunset: "2026-05-30"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Cloud Backup Schedule
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        patch:
+            description: Updates the cloud backup schedule for one cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: updateBackupSchedule
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
+                    application/vnd.atlas.2024-08-05+json:
+                        schema:
+                            $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                description: |-
+                    Updates the cloud backup schedule for one cluster within the specified project.
+
+                    **Note**: In the request body, provide only the fields that you want to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule'
+                            x-sunset: "2026-05-30"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-08-05+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotSchedule20240805'
+                            x-xgen-version: "2024-08-05"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update Cloud Backup Schedule for One Cluster
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots:
+        get:
+            description: Returns all snapshots of one cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role or Project Backup Manager role.
+            operationId: listReplicaSetBackups
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedCloudBackupReplicaSetView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Replica Set Cloud Backups
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        post:
+            description: |-
+                Takes one on-demand snapshot for the specified cluster. Atlas takes on-demand snapshots immediately and scheduled snapshots at regular intervals. If an on-demand snapshot with a status of **queued** or **inProgress** exists, before taking another snapshot, wait until Atlas completes completes processing the previously taken on-demand snapshot.
+
+                 To use this resource, the requesting API Key must have the Project Backup Manager role.
+            operationId: takeSnapshot
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/DiskBackupOnDemandSnapshotRequest'
+                description: Takes one on-demand snapshot.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshot'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Take One On-Demand Snapshot
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}:
+        delete:
+            description: Removes the specified snapshot. To use this resource, the requesting API Key must have the Project Backup Manager role.
+            operationId: deleteReplicaSetBackup
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Replica Set Cloud Backup
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        get:
+            description: Returns one snapshot from the specified cluster. To use this resource, the requesting API Key must have the Project Read Only role or Project Backup Manager role.
+            operationId: getReplicaSetBackup
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupReplicaSet'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Replica Set Cloud Backup
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        patch:
+            description: Changes the expiration date for one cloud backup snapshot for one cluster in the specified project, the requesting API Key must have the Project Backup Manager role.
+            operationId: updateSnapshotRetention
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/BackupSnapshotRetention'
+                description: Changes the expiration date for one cloud backup snapshot for one cluster in the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupReplicaSet'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Change Expiration Date for One Cloud Backup
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedCluster/{snapshotId}:
+        delete:
+            description: Removes one snapshot of one sharded cluster from the specified project. To use this resource, the requesting API Key must have the Project Backup Manager role.
+            operationId: deleteShardedClusterBackup
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Sharded Cluster Cloud Backup
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        get:
+            description: Returns one snapshot of one sharded cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role or Project Backup Manager role.
+            operationId: getShardedClusterBackup
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupShardedClusterSnapshot'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Sharded Cluster Cloud Backup
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedClusters:
+        get:
+            description: Returns all snapshots of one sharded cluster from the specified project. To use this resource, the requesting API Key must have the Project Read Only role or Project Backup Manager role.
+            operationId: listShardedClusterBackups
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedCloudBackupShardedClusterSnapshotView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Sharded Cluster Cloud Backups
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Atlas
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs:
+        get:
+            description: Returns all restore jobs for one serverless instance from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: listServerlessBackupRestoreJobs
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the serverless instance.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasServerlessBackupRestoreJobView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Restore Jobs for One Serverless Instance
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Private Cloud
+        post:
+            description: Restores one snapshot of one serverless instance from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: createServerlessBackupRestoreJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the serverless instance whose snapshot you want to restore.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ServerlessBackupRestoreJob'
+                description: Restores one snapshot of one serverless instance from the specified project.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessBackupRestoreJob'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Restore One Snapshot of One Serverless Instance
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Private Cloud
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs/{restoreJobId}:
+        get:
+            description: Returns one restore job for one serverless instance from the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: getServerlessBackupRestoreJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the serverless instance.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the restore job to return.
+                  in: path
+                  name: restoreJobId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessBackupRestoreJob'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Restore Job for One Serverless Instance
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Private Cloud
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/snapshots:
+        get:
+            description: Returns all snapshots of one serverless instance from the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: listServerlessBackups
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - description: Human-readable label that identifies the serverless instance.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasServerlessBackupSnapshotView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Snapshots of One Serverless Instance
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Private Cloud
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/snapshots/{snapshotId}:
+        get:
+            description: Returns one snapshot of one serverless instance from the specified project. To use this resource, the requesting API Key must have the Project Read Only role.
+            operationId: getServerlessBackup
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the serverless instance.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessBackupSnapshot'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Snapshot of One Serverless Instance
+            tags:
+                - Cloud Backups
+            x-xgen-owner-team: Backup - Private Cloud
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

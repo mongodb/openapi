@@ -1,0 +1,177 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/alertConfigs/{alertConfigId}/alerts:
+        get:
+            description: |-
+                Returns all open alerts that the specified alert configuration triggers. These alert configurations apply to the specified project only. Alert configurations define the triggers and notification methods for alerts. Open alerts have been triggered but remain unacknowledged. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                This resource remains under revision and may change.
+            operationId: listAlertsByAlertConfigurationId
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the alert configuration. Use the [/alertConfigs](#tag/Alert-Configurations/operation/listAlertConfigurations) endpoint to retrieve all alert configurations to which the authenticated user has access.
+                  in: path
+                  name: alertConfigId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAlertView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Open Alerts for Alert Configuration
+            tags:
+                - Alerts
+            x-xgen-owner-team: CAP
+    /api/atlas/v2/groups/{groupId}/alerts:
+        get:
+            description: |-
+                Returns all alerts. These alerts apply to all components in one project. You receive an alert when a monitored component meets or exceeds a value you set. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                This resource remains under revision and may change.
+            operationId: listAlerts
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Status of the alerts to return. Omit to return all alerts in all statuses.
+                  in: query
+                  name: status
+                  schema:
+                    enum:
+                        - OPEN
+                        - TRACKING
+                        - CLOSED
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAlertView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Alerts from One Project
+            tags:
+                - Alerts
+            x-xgen-owner-team: CAP
+    /api/atlas/v2/groups/{groupId}/alerts/{alertId}:
+        get:
+            description: |-
+                Returns one alert. This alert applies to any component in one project. You receive an alert when a monitored component meets or exceeds a value you set. To use this resource, the requesting API Key must have the Project Read Only role.
+
+                This resource remains under revision and may change.
+            operationId: getAlert
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the alert. Use the [/alerts](#tag/Alerts/operation/listAlerts) endpoint to retrieve all alerts to which the authenticated user has access.
+                  in: path
+                  name: alertId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/AlertViewForNdsGroup'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Alert from One Project
+            tags:
+                - Alerts
+            x-xgen-owner-team: CAP
+        patch:
+            description: |-
+                Confirms receipt of one existing alert. This alert applies to any component in one project. Acknowledging an alert prevents successive notifications. You receive an alert when a monitored component meets or exceeds a value you set until you acknowledge the alert. To use this resource, the requesting API Key must have the Organization Owner or Project Owner role.
+
+                This resource remains under revision and may change.
+            operationId: acknowledgeAlert
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the alert. Use the [/alerts](#tag/Alerts/operation/listAlerts) endpoint to retrieve all alerts to which the authenticated user has access.
+                  in: path
+                  name: alertId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AlertView'
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/AcknowledgeAlert'
+                description: Acknowledges or unacknowledges one alert.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/AlertViewForNdsGroup'
+                            x-sunset: "2025-05-30"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/AlertViewForNdsGroup'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Acknowledge One Alert from One Project
+            tags:
+                - Alerts
+            x-xgen-owner-team: CAP

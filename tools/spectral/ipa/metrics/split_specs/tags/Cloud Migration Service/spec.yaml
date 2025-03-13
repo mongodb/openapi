@@ -1,0 +1,298 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/liveMigrations:
+        post:
+            description: |-
+                Migrate one cluster that Cloud or Ops Manager manages to MongoDB Atlas.
+
+                 Please make sure to [validate](#tag/Cloud-Migration-Service/operation/validateMigration) your migration before initiating it.
+
+                 You can use this API endpoint for push live migrations only. Your API Key must have the Organization Owner role to successfully call this resource.
+
+                 **NOTE**: Migrating time-series collections is not yet supported on MongoDB 6.0 or higher. Migrations on MongoDB 6.0 or higher will skip any time-series collections on the source cluster.
+            operationId: createPushMigration
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/LiveMigrationRequest'
+                        x-sunset: "2025-05-30"
+                        x-xgen-version: "2023-01-01"
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/LiveMigrationRequest20240530'
+                        x-xgen-version: "2024-05-30"
+                description: One migration to be created.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LiveMigrationResponse'
+                            x-sunset: "2025-05-30"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/LiveMigrationResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Migrate One Local Managed Cluster to MongoDB Atlas
+            tags:
+                - Cloud Migration Service
+            x-xgen-owner-team: Atlas Migrations
+    /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}:
+        get:
+            description: Return details of one cluster migration job. Each push live migration job uses one migration host. Your API Key must have the Organization Member role to successfully call this resource.
+            operationId: getPushMigration
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/liveMigrationId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LiveMigrationResponse'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Migration Job
+            tags:
+                - Cloud Migration Service
+            x-xgen-owner-team: Atlas Migrations
+    /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}/cutover:
+        put:
+            description: Cut over the migrated cluster to MongoDB Atlas. Confirm when the cut over completes. When the cut over completes, MongoDB Atlas completes the live migration process and stops synchronizing with the source cluster. Your API Key must have the Organization Owner role to successfully call this resource.
+            operationId: cutoverMigration
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/liveMigrationId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-xgen-version: "2023-01-01"
+                    description: Accepted.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Cut Over the Migrated Cluster
+            tags:
+                - Cloud Migration Service
+            x-xgen-owner-team: Atlas Migrations
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/liveMigrations/validate:
+        post:
+            description: Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource.
+            operationId: validateMigration
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/LiveMigrationRequest'
+                        x-sunset: "2025-05-30"
+                        x-xgen-version: "2023-01-01"
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/LiveMigrationRequest20240530'
+                        x-xgen-version: "2024-05-30"
+                description: One migration to be validated.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LiveImportValidation'
+                            x-sunset: "2025-05-30"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/LiveImportValidation'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Validate One Migration Request
+            tags:
+                - Cloud Migration Service
+            x-xgen-owner-team: Atlas Migrations
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}:
+        get:
+            description: Return the status of one migration validation job. Your API Key must have the Organization Owner role to successfully call this resource.
+            operationId: getValidationStatus
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique 24-hexadecimal digit string that identifies the validation job.
+                  in: path
+                  name: validationId
+                  required: true
+                  schema:
+                    example: 507f1f77bcf86cd799439011
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LiveImportValidation'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Migration Validation Job
+            tags:
+                - Cloud Migration Service
+            x-xgen-owner-team: Atlas Migrations
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects:
+        get:
+            description: Return all projects that you can migrate to the specified organization.
+            operationId: listSourceProjects
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/LiveImportAvailableProject'
+                                type: array
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Projects Available for Migration
+            tags:
+                - Cloud Migration Service
+            x-xgen-owner-team: Atlas Migrations
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens:
+        delete:
+            description: Remove one organization link and its associated public API key. MongoDB Atlas uses the link-token for push live migrations only. Live migrations (push) let you securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.
+            operationId: deleteLinkToken
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Link-Token
+            tags:
+                - Cloud Migration Service
+            x-xgen-owner-team: Atlas Migrations
+        post:
+            description: Create one link-token that contains all the information required to complete the link. MongoDB Atlas uses the link-token for push live migrations only. Live migration (push) allows you to securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.
+            operationId: createLinkToken
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/TargetOrgRequest'
+                description: IP address access list entries associated with the migration.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/TargetOrg'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Link-Token
+            tags:
+                - Cloud Migration Service
+            x-xgen-owner-team: Atlas Migrations
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
