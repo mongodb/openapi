@@ -20,8 +20,10 @@ export function isResourceCollectionIdentifier(path) {
 /**
  * Checks if a path represents a single resource. For example:
  * '/resource/{id}' returns true
+ * '/resource/{resourceId}/child/{childId}' returns true
  * '/resource/{id}/child' returns false
- * '/resource/{id}/{id}' returns false
+ * '/resource' returns false
+ * '/resource/child/{id}' returns false
  *
  * @param {string} path the path to evaluate
  * @returns {boolean} true if the path represents a single resource, false otherwise
