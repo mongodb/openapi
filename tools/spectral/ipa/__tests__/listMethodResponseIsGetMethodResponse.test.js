@@ -333,6 +333,33 @@ testRule('xgen-IPA-105-list-method-response-is-get-method-response', [
             },
           },
         },
+        // Get without schema
+        '/resourceTwo': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/PaginatedResourceSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceTwo/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-05+json': {},
+                },
+              },
+            },
+          },
+        },
       },
       components: componentSchemas,
     },
@@ -357,6 +384,13 @@ testRule('xgen-IPA-105-list-method-response-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-105-list-method-response-is-get-method-response',
+        message:
+          'Could not validate that the List method returns the same resource object as the Get method. The Get method does not have a schema. http://go/ipa/105',
+        path: ['paths', '/resourceTwo', 'get', 'responses', '200', 'content', 'application/vnd.atlas.2024-01-05+json'],
         severity: DiagnosticSeverity.Warning,
       },
     ],

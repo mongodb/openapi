@@ -39,7 +39,7 @@ export default (input, _, { path, documentInventory }) => {
   );
 
   if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+    return collectAndReturnViolation(path, RULE_NAME, errors);
   }
 
   collectAdoption(path, RULE_NAME);

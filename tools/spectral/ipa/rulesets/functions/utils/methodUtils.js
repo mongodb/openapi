@@ -61,12 +61,13 @@ export function getSchemaNameFromRef(schemaRef) {
 /**
  * Retrieves the response schema of the Get method for a resource by media type.
  * If the OAS is unresolved, the returning schema may contain a reference to a schema definition.
+ * If there is no response with the exact media type version, the latest version before the passed one is returned, otherwise null
  *
  * This function:
  * 1. Finds all path items related to the resource collection
  * 2. Identifies the single resource path (e.g., '/resource/{id}')
  * 3. Checks if the single resource has a GET method
- * 4. Returns the response schema for the specified media type if available
+ * 4. Returns the response schema for the specified media type if available, or the latest version
  *
  * @param {string} mediaType - The media type to retrieve the schema for (e.g., 'application/vnd.atlas.2023-01-01+json')
  * @param {string} pathForResourceCollection - The path for the collection of resources (e.g., '/resource')
@@ -93,6 +94,7 @@ export function getResponseOfGetMethodByMediaType(mediaType, pathForResourceColl
 /**
  * Retrieves the 200 response schema of the List method for a resource by media type.
  * If the OAS is unresolved, the returning schema may contain a reference to a schema definition.
+ * If there is no response with the exact media type version, the latest version before the passed one is returned, otherwise null.
  *
  * @param {string} mediaType - The media type to retrieve the schema for (e.g., 'application/vnd.atlas.2023-01-01+json')
  * @param {string} pathForResourceCollection - The path for the collection of resources (e.g., '/resource')
@@ -110,7 +112,7 @@ export function getResponseOfListMethodByMediaType(mediaType, pathForResourceCol
 
 /**
  * Returns the schema for the 200 response of the GET method for a path item by media type.
- * If there is no response with the exact media type version, the latest version before the passed one is returned.
+ * If there is no response with the exact media type version, the latest version before the passed one is returned, otherwise null.
  *
  * @param {Object} pathItem The path item to extract the GET response from
  * @param {string} mediaType The media type
@@ -139,9 +141,11 @@ function getGETMethodResponseSchemaFromPathItem(pathItem, mediaType) {
     }
     return schema;
   }
-  const latestVersion = versions.sort().reverse()[0];
-  if (latestVersion < mediaType) {
-    const schema = response.content[latestVersion];
+
+  const orderedVersions = versions.sort().reverse();
+  const latestVersionMatch = orderedVersions.find((version) => version < mediaType);
+  if (latestVersionMatch) {
+    const schema = response.content[latestVersionMatch];
     if (!schema) {
       return null;
     }

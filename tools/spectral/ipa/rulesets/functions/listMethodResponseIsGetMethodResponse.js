@@ -5,12 +5,17 @@ import {
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+  collectException,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import {
   getResponseOfListMethodByMediaType,
-  getResponseOfGetMethodByMediaType,
   getSchemaRef,
   getSchemaNameFromRef,
+  getResponseOfGetMethodByMediaType,
 } from './utils/methodUtils.js';
 import { schemaIsPaginated } from './utils/schemaUtils.js';
 
@@ -39,6 +44,11 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
+  if (hasException(listMethodResponse, RULE_NAME)) {
+    collectException(listMethodResponse, RULE_NAME, path);
+    return;
+  }
+
   // Get list response schema from ref or inline schema
   let resolvedListSchema;
   const listSchemaRef = getSchemaRef(listMethodResponse.schema);
@@ -54,36 +64,46 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  // Ignore if there is no matching Get method response, or if it does not have a schema
-  const getMethodRequestContentPerMediaType = getResponseOfGetMethodByMediaType(mediaType, resourcePath, oas);
-  if (!getMethodRequestContentPerMediaType || !getMethodRequestContentPerMediaType.schema) {
-    return;
-  }
-
-  if (hasException(listMethodResponse, RULE_NAME)) {
-    collectException(listMethodResponse, RULE_NAME, path);
+  // Ignore if there is no matching Get method
+  const getMethodResponseContentPerMediaType = getResponseOfGetMethodByMediaType(mediaType, resourcePath, oas);
+  if (!getMethodResponseContentPerMediaType) {
     return;
   }
 
   const errors = checkViolationsAndReturnErrors(
     path,
     resolvedListSchema.properties.results.items,
-    getMethodRequestContentPerMediaType.schema
+    getMethodResponseContentPerMediaType
   );
 
   if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+    return collectAndReturnViolation(path, RULE_NAME, errors);
   }
 
   collectAdoption(path, RULE_NAME);
 };
 
-function checkViolationsAndReturnErrors(path, listMethodResultItemsSchema, getMethodSchema) {
-  const listMethodSchemaRef = getSchemaRef(listMethodResultItemsSchema);
-  const getMethodSchemaRef = getSchemaRef(getMethodSchema);
+function checkViolationsAndReturnErrors(path, listMethodResultItems, getMethodResponseContent) {
+  try {
+    // Error if the Get method does not have a schema
+    if (!getMethodResponseContent.schema) {
+      return [
+        {
+          path,
+          message: `Could not validate that the List method returns the same resource object as the Get method. The Get method does not have a schema.`,
+        },
+      ];
+    }
 
-  if (getMethodSchemaRef !== listMethodSchemaRef) {
-    return [{ path, message: ERROR_MESSAGE }];
+    const listMethodSchemaRef = getSchemaRef(listMethodResultItems);
+    const getMethodSchemaRef = getSchemaRef(getMethodResponseContent.schema);
+
+    // Error if the get method resource is not the same as the list method resource
+    if (getMethodSchemaRef !== listMethodSchemaRef) {
+      return [{ path, message: ERROR_MESSAGE }];
+    }
+    return [];
+  } catch (e) {
+    handleInternalError(RULE_NAME, path, e);
   }
-  return [];
 }
