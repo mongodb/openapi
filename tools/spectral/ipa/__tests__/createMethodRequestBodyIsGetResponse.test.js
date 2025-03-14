@@ -15,7 +15,7 @@ const componentSchemas = {
         },
         otherThing: {
           type: 'string',
-        }
+        },
       },
     },
     SchemaThree: {
@@ -41,7 +41,7 @@ const componentSchemas = {
         },
         otherThing: {
           type: 'string',
-        }
+        },
       },
     },
     SchemaCircularOne: {
