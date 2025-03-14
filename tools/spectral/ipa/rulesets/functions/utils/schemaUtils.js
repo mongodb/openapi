@@ -5,7 +5,11 @@
  */
 export function schemaIsPaginated(schema) {
   const fields = Object.keys(schema);
-  return fields.includes('properties') && Object.keys(schema['properties']).includes('results');
+  return (
+    fields.includes('properties') &&
+    Object.keys(schema['properties']).includes('results') &&
+    schema.properties.results.type === 'array'
+  );
 }
 
 /**

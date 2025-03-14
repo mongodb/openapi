@@ -117,6 +117,7 @@ Validation checks that the List method response contains items property with ref
   - Validation applies to List methods for resource collections only
   - Validation applies to json response content only
   - Validation ignores responses without schema and non-paginated responses
+    - A response is considered paginated if it contains an array property named `results`
   - Validation ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
