@@ -82,26 +82,67 @@ Rule is based on [http://go/ipa/IPA-104](http://go/ipa/IPA-104).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 APIs must provide a Get method for resources.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only applies to resource collection identifiers
+  - For singleton resources, verifies the resource has a GET method
+  - For regular resources, verifies there is a single resource path with a GET method
+
 #### xgen-IPA-104-get-method-returns-single-resource
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The purpose of the Get method is to return data from a single resource.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to 2xx responses of GET methods on single resources or singleton resources
+  - Verifies the response is not an array or paginated result
+  - Different error messages are provided for standard vs singleton resources
+
 #### xgen-IPA-104-get-method-response-code-is-200
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method must return a 200 OK response.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on single resources or singleton resources
+  - Verifies the 200 OK response code is present
+  - Fails if the method lacks a 200 OK response or defines a different 2xx status code
+
 #### xgen-IPA-104-get-method-returns-response-suffixed-object
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method of a resource should return a "Response" suffixed object.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to 2xx responses of GET methods on single resources or singleton resources
+  - Verifies the schema references a predefined schema (not inline)
+  - Confirms the referenced schema name ends with "Response" suffix
+
 #### xgen-IPA-104-get-method-response-has-no-input-fields
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields).
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to 2xx responses of GET methods on single resources or singleton resources
+  - Searches through the schema to find any properties marked with writeOnly attribute
+  - Fails if any writeOnly properties are found in the response schema
+
 #### xgen-IPA-104-get-method-no-request-body
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method request must not include a body.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on single resources or singleton resources
+  - Verifies that the operation object does not contain a requestBody property
+
 
 
 ### IPA-105
