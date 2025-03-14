@@ -1,6 +1,5 @@
 import {
   getResourcePathItems,
-  getResponseOfGetMethodByMediaType,
   isCustomMethodIdentifier,
   isResourceCollectionIdentifier,
   isSingletonResource,
@@ -9,6 +8,7 @@ import { resolveObject } from './utils/componentUtils.js';
 import { isDeepEqual, omitDeep } from './utils/compareUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-get-method-response';
 const ERROR_MESSAGE =
@@ -26,7 +26,7 @@ export default (input, opts, { path, documentInventory }) => {
   }
 
   const getMethodResponseContentPerMediaType = getResponseOfGetMethodByMediaType(mediaType, resourcePath, oas);
-  if (!getMethodResponseContentPerMediaType || !getMethodResponseContentPerMediaType.schema) {
+  if (!getMethodResponseContentPerMediaType) {
     return;
   }
 
@@ -47,7 +47,7 @@ export default (input, opts, { path, documentInventory }) => {
   );
 
   if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+    return collectAndReturnViolation(path, RULE_NAME, errors);
   }
 
   collectAdoption(path, RULE_NAME);
@@ -62,6 +62,14 @@ function checkViolationsAndReturnErrors(
   const errors = [];
 
   const ignoredValues = opts?.ignoredValues || [];
+  if (!getMethodResponseContentPerMediaType.schema) {
+    return [
+      {
+        path,
+        message: `Could not validate that the Create request body schema matches the response schema of the Get method. The Get method does not have a schema.`,
+      },
+    ];
+  }
   if (
     !isDeepEqual(
       omitDeep(postMethodRequestContentPerMediaType.schema, ...ignoredValues),
@@ -69,7 +77,7 @@ function checkViolationsAndReturnErrors(
     )
   ) {
     errors.push({
-      path: path,
+      path,
       message: ERROR_MESSAGE,
     });
   }
