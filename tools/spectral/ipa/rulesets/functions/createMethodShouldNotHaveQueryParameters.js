@@ -15,9 +15,14 @@ import {
 const RULE_NAME = 'xgen-IPA-106-create-method-should-not-have-query-parameters';
 const ERROR_MESSAGE = 'Create operations should not have query parameters.';
 
-const ignoredParameters = ['envelope', 'pretty'];
-
-export default (input, _, { path, documentInventory }) => {
+/**
+ * Create operations should not have query parameters.
+ *
+ * @param {object} input - The create operation object
+ * @param {{ignoredValues: string[]}} opts - Array of ignored query parameters
+ * @param {object} context - The context object containing the path and document
+ */
+export default (input, opts, { path, documentInventory }) => {
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
@@ -37,21 +42,23 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(postMethod.parameters, path);
+  const errors = checkViolationsAndReturnErrors(postMethod.parameters, path, opts);
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
   collectAdoption(path, RULE_NAME);
 };
 
-function checkViolationsAndReturnErrors(postMethodParameters, path) {
+function checkViolationsAndReturnErrors(postMethodParameters, path, opts) {
   const errors = [];
   try {
+    const ignoredValues = opts?.ignoredValues || [];
+
     for (const parameter of postMethodParameters) {
-      if (parameter.in === 'query' && !ignoredParameters.includes(parameter.name)) {
+      if (parameter.in === 'query' && !ignoredValues.includes(parameter.name)) {
         errors.push({
           path: path,
-          message: `Input parameter [${parameter.name}]: ${ERROR_MESSAGE}`,
+          message: `${ERROR_MESSAGE}. Found [${parameter.name}] `,
         });
       }
     }
