@@ -318,50 +318,30 @@ Validation checks the PATCH method for single resource paths and [singleton reso
 
 Rule is based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
 
-#### xgen-IPA-108-delete-response-should-be-empty
+#### xgen-IPA-108-custom-method-must-be-GET-or-POST
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
-Delete method response should not have schema reference to object.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies to 204 responses of DELETE methods
-  - Verifies that the response does not contain a schema property
-  - Fails if any content type in the response includes a schema definition
-
-#### xgen-IPA-108-delete-method-return-204-response
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-DELETE method must return 204 No Content.
+ ![error](https://img.shields.io/badge/error-red) 
+The HTTP method for custom methods must be GET or POST.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to all DELETE methods
-  - Verifies that the operation includes a 204 response
-  - Ensures there are no other 2xx response codes defined
-  - Fails if 204 is missing or if other 2xx responses exist
+  - Applies only to paths containing custom method identifiers (with colon format)
+  - Verifies the HTTP methods used are either GET or POST
+  - Fails if any other HTTP methods are used (PUT, DELETE, PATCH, etc.)
+  - Fails if multiple valid methods are defined for the same custom method endpoint
 
-#### xgen-IPA-108-delete-include-404-response
+#### xgen-IPA-108-custom-method-must-use-camel-case
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
-DELETE method must include 404 response and return it when resource not found.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies to all DELETE methods
-  - Verifies that the operation includes a 404 response
-  - Fails if the 404 status code is not defined in the responses object
-
-#### xgen-IPA-108-delete-request-no-body
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-DELETE method must not have request body.
+ ![error](https://img.shields.io/badge/error-red) 
+The custom method must use camelCase format.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to all DELETE methods
-  - Verifies that the operation does not contain a requestBody property
-  - Fails if a requestBody is defined for the DELETE operation
+  - Applies only to paths containing custom method identifiers (with colon format)
+  - Extracts the method name portion following the colon
+  - Verifies the method name is not empty or blank
+  - Validates that the method name uses proper camelCase formatting
+  - Fails if the method name contains invalid casing (such as snake_case, PascalCase, etc.)
 
 
 
@@ -397,6 +377,14 @@ Rule is based on [http://go/ipa/IPA-123](http://go/ipa/IPA-123).
 
  ![error](https://img.shields.io/badge/error-red) 
 Enum values must be UPPER_SNAKE_CASE.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all enum value arrays defined in the OpenAPI schema
+  - Resolves the schema object that contains the enum values
+  - Validates each enum value individually against the UPPER_SNAKE_CASE pattern
+  - Skips validation if the schema has an exception defined for this rule
+
 
 
 
