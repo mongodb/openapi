@@ -5,17 +5,19 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Add new specs to be deployed to Bump here
+// Standalone specs can be added directly to the mapping. Any spec that requires displaying a version dropdown
+// will need to map its different versions to a separate Bump "branch". For example, a new resource version
+// for Atlas Admin API v2 will lead to a new entry in the array with its own Bump branch.
 const SPEC_MAPPING = [
   {
-    doc: 'f929d2d7-27d7-4591-b22f-6c2e543a7874',
+    doc: process.env.ATLAS_ADMIN_V1_DOC_ID,
     file: 'openapi/v1-deprecated/v1.json',
     branch: 'main',
   },
 ];
 
 function handleAdminAPIv2() {
-  const docId = '2accf4b8-a543-426c-94c3-794ae26b68be';
+  const docId = process.env.ATLAS_ADMIN_V2_DOC_ID;
   const directory = 'openapi/v2';
   const filePath = path.join(__dirname, `../../${directory}/versions.json`);
   const versions = JSON.parse(fs.readFileSync(filePath, 'utf8'));
