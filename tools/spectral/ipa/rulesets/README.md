@@ -104,7 +104,6 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method must return a 200 OK response.
-
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to GET methods on single resources or singleton resources
@@ -115,7 +114,6 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method of a resource should return a "Response" suffixed object.
-
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to 2xx responses of GET methods on single resources or singleton resources
@@ -126,7 +124,6 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields).
-
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to 2xx responses of GET methods on single resources or singleton resources
@@ -137,7 +134,6 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method request must not include a body.
-
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to GET methods on single resources or singleton resources
@@ -206,49 +202,76 @@ Rule is based on [http://go/ipa/IPA-106](http://go/ipa/IPA-106).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Create method request should be a Request suffixed object.
+
 ##### Implementation details
-Validation checks the POST method for resource collection paths.
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to JSON content types
+  - Verifies the schema references a predefined schema (not inline)
+  - Confirms the referenced schema name ends with "Request" suffix
+
 #### xgen-IPA-106-create-method-should-not-have-query-parameters
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Create operations should not use query parameters.
+
 ##### Implementation details
-Validation checks the POST method for resource collection paths.
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Verifies the operation does not contain query parameters
+  - Ignores specified parameters like 'pretty' and 'envelope' via configuration
+
 #### xgen-IPA-106-create-method-request-body-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Request body content of the Create method and response content of the Get method should refer to the same resource.
+
 ##### Implementation details
+
 Validation checks the POST method for resource collection paths.
   - Validation ignores resources without a Get method.
   - `readOnly:true` properties of Get method response will be ignored. 
   - `writeOnly:true` properties of Create method request will be ignored.
   - Property comparison is based on `type` and `name` matching.
   - `oneOf` and `discriminator` definitions must match exactly.
+
 #### xgen-IPA-106-create-method-request-has-no-readonly-fields
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Create method Request object must not include fields with readOnly:true.
+
 ##### Implementation details
-Validation checks the POST method for resource collection paths.
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to JSON content types
+  - Searches through the schema to find any properties marked with readOnly attribute
+  - Fails if any readOnly properties are found in the request schema
+
 #### xgen-IPA-106-create-method-response-code-is-201
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Create methods must return a 201 Created response code.
+
 ##### Implementation details
-Validation checks the POST method for resource collection paths.
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Verifies the 201 Created response code is present
+  - Fails if the method lacks a 201 Created response or defines a different 2xx status code
+
 #### xgen-IPA-106-create-method-response-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The response body of the Create method should consist of the same resource object returned by the Get method.
-##### Implementation details
-Validation checks that the Create method 201 Created response contains reference to the same schema as the Get method response.
 
-  - Validation applies to Create methods for resource collections only
-  - Validation applies to json response content only
-  - Validation ignores responses without schema
-  - Validation ignores resources without a Get method
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths
+  - Applies only to JSON response content types
+  - Verifies that both Create and Get methods have schema references
+  - Confirms that the Create method 201 response schema reference matches the Get method response schema reference
+  - Ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 
 
 ### IPA-107
@@ -299,18 +322,47 @@ Rule is based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Delete method response should not have schema reference to object.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to 204 responses of DELETE methods
+  - Verifies that the response does not contain a schema property
+  - Fails if any content type in the response includes a schema definition
+
 #### xgen-IPA-108-delete-method-return-204-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 DELETE method must return 204 No Content.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods
+  - Verifies that the operation includes a 204 response
+  - Ensures there are no other 2xx response codes defined
+  - Fails if 204 is missing or if other 2xx responses exist
+
 #### xgen-IPA-108-delete-include-404-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 DELETE method must include 404 response and return it when resource not found.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods
+  - Verifies that the operation includes a 404 response
+  - Fails if the 404 status code is not defined in the responses object
+
 #### xgen-IPA-108-delete-request-no-body
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 DELETE method must not have request body.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods
+  - Verifies that the operation does not contain a requestBody property
+  - Fails if a requestBody is defined for the DELETE operation
+
 
 
 ### IPA-109
