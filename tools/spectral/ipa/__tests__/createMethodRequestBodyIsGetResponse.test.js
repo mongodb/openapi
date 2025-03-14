@@ -318,6 +318,31 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
             },
           },
         },
+        // Missing schema for Get method
+        '/resourceFour': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaOne',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resourceFour/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {},
+                },
+              },
+            },
+          },
+        },
         '/resourceCircular': {
           post: {
             requestBody: {
@@ -365,7 +390,21 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
         message:
           'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
+        message:
+          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
         path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
+        message:
+          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
@@ -378,8 +417,22 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
         message:
+          'Could not validate that the Create request body schema matches the response schema of the Get method. The Get method does not have a schema. http://go/ipa/106',
+        path: ['paths', '/resourceFour', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
+        message:
           'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
         path: ['paths', '/resourceCircular', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
+        message:
+          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        path: ['paths', '/resourceCircular', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -432,6 +485,13 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
         path: ['paths', '/animalResource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
+      {
+        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
+        message:
+          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        path: ['paths', '/animalResource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
+        severity: DiagnosticSeverity.Warning,
+      },
     ],
   },
   {
@@ -454,6 +514,9 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
                     $ref: '#/components/schemas/SchemaOne',
+                  },
+                  'x-xgen-IPA-exception': {
+                    'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
                   },
                 },
               },
@@ -490,6 +553,9 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
                     $ref: '#/components/schemas/SchemaTwo',
+                  },
+                  'x-xgen-IPA-exception': {
+                    'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
                   },
                 },
               },
