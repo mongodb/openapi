@@ -181,7 +181,7 @@ Validation checks the PATCH method for single resource paths and singleton resou
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Update method response status code should be 200 OK.
 ##### Implementation details
-Validation checks the PUT method for single resource paths and singleton resources.
+Validation checks the PUT method for single resource paths and [singleton resources](https://go/ipa/113).
 
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 #### xgen-IPA-107-patch-method-response-code-is-200
@@ -189,7 +189,7 @@ Validation checks the PUT method for single resource paths and singleton resourc
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Update method response status code should be 200 OK.
 ##### Implementation details
-Validation checks the PATCH method for single resource paths and singleton resources.
+Validation checks the PATCH method for single resource paths and [singleton resources](https://go/ipa/113).
 
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 
