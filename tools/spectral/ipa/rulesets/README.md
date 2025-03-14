@@ -113,7 +113,12 @@ APIs must provide a List method for resources. http://go/ipa/105
 The response body of the List method should consist of the same resource object returned by the Get method. http://go/ipa/105
 ##### Implementation details
 Validation checks that the List method response contains items property with reference to the same schema as the Get method response.
-- Validation applies to List methods for resource collections only - Validation applies to json response content only - Validation ignores responses without schema and non-paginated responses - Validation ignores resources without a Get method - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+  - Validation applies to List methods for resource collections only
+  - Validation applies to json response content only
+  - Validation ignores responses without schema and non-paginated responses
+  - Validation ignores resources without a Get method
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 
 
