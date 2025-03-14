@@ -392,36 +392,31 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceThree', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -434,15 +429,13 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceCircular', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceCircular', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -491,15 +484,13 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/animalResource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/animalResource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
