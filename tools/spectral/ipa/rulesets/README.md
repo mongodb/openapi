@@ -137,7 +137,9 @@ Validation checks the POST method for resource collection paths.
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Request body content of the Create method and response content of the Get method should refer to the same resource. http://go/ipa/106
 ##### Implementation details
-Validation checks the POST method for resource collection paths. - `readOnly:true` properties of Get method response will be ignored.  - `writeOnly:true` properties of Create method request will be ignored.
+Validation checks the POST method for resource collection paths.
+  - `readOnly:true` properties of Get method response will be ignored. 
+  - `writeOnly:true` properties of Create method request will be ignored.
 #### xgen-IPA-106-create-method-request-has-no-readonly-fields
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
