@@ -33,7 +33,7 @@ testRule('xgen-IPA-108-delete-method-return-204-response', [
     errors: [
       {
         code: 'xgen-IPA-108-delete-method-return-204-response',
-        message: 'DELETE method should return 204 No Content status code. http://go/ipa/108',
+        message: 'DELETE method should return 204 No Content status code.',
         path: ['paths', '/resource/{id}', 'delete'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -51,7 +51,7 @@ testRule('xgen-IPA-108-delete-method-return-204-response', [
     errors: [
       {
         code: 'xgen-IPA-108-delete-method-return-204-response',
-        message: 'DELETE method should return 204 No Content status code. http://go/ipa/108',
+        message: 'DELETE method should return 204 No Content status code.',
         path: ['paths', '/resource/{id}', 'delete'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -75,7 +75,7 @@ testRule('xgen-IPA-108-delete-method-return-204-response', [
     errors: [
       {
         code: 'xgen-IPA-108-delete-method-return-204-response',
-        message: 'DELETE method should return 204 No Content status code. http://go/ipa/108',
+        message: 'DELETE method should return 204 No Content status code.',
         path: ['paths', '/resource/{id}', 'delete'],
         severity: DiagnosticSeverity.Warning,
       },

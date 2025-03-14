@@ -61,13 +61,13 @@ testRule('xgen-IPA-104-get-method-no-request-body', [
     errors: [
       {
         code: 'xgen-IPA-104-get-method-no-request-body',
-        message: 'The Get method must not include a request body. http://go/ipa/104',
+        message: 'The Get method must not include a request body.',
         path: ['paths', '/resource/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-get-method-no-request-body',
-        message: 'The Get method must not include a request body. http://go/ipa/104',
+        message: 'The Get method must not include a request body.',
         path: ['paths', '/resource/{id}/singleton', 'get'],
         severity: DiagnosticSeverity.Warning,
       },

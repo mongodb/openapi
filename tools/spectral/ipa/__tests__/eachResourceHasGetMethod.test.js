@@ -92,31 +92,31 @@ testRule('xgen-IPA-104-resource-has-GET', [
     errors: [
       {
         code: 'xgen-IPA-104-resource-has-GET',
-        message: 'APIs must provide a get method for resources. http://go/ipa/104',
+        message: 'APIs must provide a get method for resources.',
         path: ['paths', '/standard'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-resource-has-GET',
-        message: 'APIs must provide a get method for resources. http://go/ipa/104',
+        message: 'APIs must provide a get method for resources.',
         path: ['paths', '/standard/{exampleId}/nested'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-resource-has-GET',
-        message: 'APIs must provide a get method for resources. http://go/ipa/104',
+        message: 'APIs must provide a get method for resources.',
         path: ['paths', '/standard/{exampleId}/nestedSingleton'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-resource-has-GET',
-        message: 'APIs must provide a get method for resources. http://go/ipa/104',
+        message: 'APIs must provide a get method for resources.',
         path: ['paths', '/custom'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-resource-has-GET',
-        message: 'APIs must provide a get method for resources. http://go/ipa/104',
+        message: 'APIs must provide a get method for resources.',
         path: ['paths', '/standardWithoutSubResource'],
         severity: DiagnosticSeverity.Warning,
       },
