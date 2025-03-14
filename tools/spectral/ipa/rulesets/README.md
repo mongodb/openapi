@@ -101,7 +101,6 @@ The List method request must not include a body. http://go/ipa/105
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 APIs must provide a List method for resources. http://go/ipa/105
-
 #### xgen-IPA-105-list-method-response-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
