@@ -5,6 +5,7 @@ import {
   isResourceCollectionIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
+import { checkResponseCodeAndReturnErrors } from './utils/validations.js';
 
 const RULE_NAME = 'xgen-IPA-105-list-method-response-code-is-200';
 const ERROR_MESSAGE =
@@ -25,27 +26,10 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path);
+  const errors = checkResponseCodeAndReturnErrors(input, '200', path, RULE_NAME, ERROR_MESSAGE);
 
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
   return collectAdoption(path, RULE_NAME);
 };
-
-function checkViolationsAndReturnErrors(input, path) {
-  if (input['responses']) {
-    const responses = input['responses'];
-
-    // If there is no 200 response, return a violation
-    if (!responses['200']) {
-      return [{ path, message: ERROR_MESSAGE }];
-    }
-
-    // If there are other 2xx responses that are not 200, return a violation
-    if (Object.keys(responses).some((key) => key.startsWith('2') && key !== '200')) {
-      return [{ path, message: ERROR_MESSAGE }];
-    }
-  }
-  return [];
-}

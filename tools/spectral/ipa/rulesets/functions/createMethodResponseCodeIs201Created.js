@@ -5,12 +5,8 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { checkResponseCodeAndReturnErrors } from './utils/validations.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-response-code-is-201';
 const ERROR_MESSAGE =
@@ -31,29 +27,9 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path);
+  const errors = checkResponseCodeAndReturnErrors(input, '201', path, RULE_NAME, ERROR_MESSAGE);
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
   collectAdoption(path, RULE_NAME);
 };
-
-function checkViolationsAndReturnErrors(input, path) {
-  try {
-    const responses = input.responses;
-
-    // If there is no 201 response, return a violation
-    if (!responses || !responses['201']) {
-      return [{ path, message: ERROR_MESSAGE }];
-    }
-
-    // If there are other 2xx responses that are not 201, return a violation
-    if (Object.keys(responses).some((key) => key.startsWith('2') && key !== '201')) {
-      return [{ path, message: ERROR_MESSAGE }];
-    }
-
-    return [];
-  } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
-  }
-}

@@ -158,11 +158,27 @@ Validation checks the PUT method for single resource paths and singleton resourc
 #### xgen-IPA-107-patch-must-not-have-query-params
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Update operations must not accept query parameters. 
+Update operations must not accept query parameters.
 ##### Implementation details
 Validation checks the PATCH method for single resource paths and singleton resources.
 
   - Query parameters `envelope` and `pretty` are exempt from this rule
+  - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+#### xgen-IPA-107-put-method-response-code-is-200
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Update method response status code should be 200 OK.
+##### Implementation details
+Validation checks the PUT method for single resource paths and singleton resources.
+
+  - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+#### xgen-IPA-107-patch-method-response-code-is-200
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Update method response status code should be 200 OK.
+##### Implementation details
+Validation checks the PATCH method for single resource paths and singleton resources.
+
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 
