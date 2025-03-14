@@ -13,9 +13,6 @@ export default (ruleName, tests) => {
         const doc = testCase.document instanceof Document ? testCase.document : JSON.stringify(testCase.document);
         const errors = await s.run(doc);
 
-        if (testCase.name === 'invalid methods' && errors.length !== testCase.errors.length) {
-          console.log('Errors:', errors);
-        }
         expect(errors.length).toEqual(testCase.errors.length);
 
         errors.forEach((error, index) => {
