@@ -26,7 +26,7 @@ export default (input, opts, { path, documentInventory }) => {
   }
 
   const getMethodResponseContentPerMediaType = getResponseOfGetMethodByMediaType(mediaType, resourcePath, oas);
-  if (!getMethodResponseContentPerMediaType || !getMethodResponseContentPerMediaType.schema) {
+  if (!getMethodResponseContentPerMediaType) {
     return;
   }
 
@@ -62,6 +62,14 @@ function checkViolationsAndReturnErrors(
   const errors = [];
 
   const ignoredValues = opts?.ignoredValues || [];
+  if (!getMethodResponseContentPerMediaType.schema) {
+    return [
+      {
+        path,
+        message: `Could not validate that the Create request body schema matches the response schema of the Get method. The Get method does not have a schema.`,
+      },
+    ];
+  }
   if (
     !isDeepEqual(
       omitDeep(postMethodRequestContentPerMediaType.schema, ...ignoredValues),
@@ -69,7 +77,7 @@ function checkViolationsAndReturnErrors(
     )
   ) {
     errors.push({
-      path: path,
+      path,
       message: ERROR_MESSAGE,
     });
   }
