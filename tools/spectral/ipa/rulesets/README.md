@@ -123,23 +123,33 @@ Rule is based on [http://go/ipa/IPA-106](http://go/ipa/IPA-106).
 #### xgen-IPA-106-create-method-request-body-is-request-suffixed-object
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-The Create method request should be a Request suffixed object. http://go/ipa/106 This rule applies only to POST requests targeting resource collection URIs.
+The Create method request should be a Request suffixed object. http://go/ipa/106
+##### Implementation details
+Validation checks the POST method for resource collection paths.
 #### xgen-IPA-106-create-method-should-not-have-query-parameters
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Create operations should not use query parameters. http://go/ipa/106 This rule applies only to POST requests targeting resource collection URIs.
+Create operations should not use query parameters. http://go/ipa/106
+##### Implementation details
+Validation checks the POST method for resource collection paths.
 #### xgen-IPA-106-create-method-request-body-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Request body content of the Create method and response content of the Get method should refer to the same resource. http://go/ipa/106 readOnly:true properties of Get method response will be ignored.  writeOnly:true properties of Create method request will be ignored. This rule applies only to POST requests targeting resource collection URIs.
+Request body content of the Create method and response content of the Get method should refer to the same resource. http://go/ipa/106
+##### Implementation details
+Validation checks the POST method for resource collection paths. - `readOnly:true` properties of Get method response will be ignored.  - `writeOnly:true` properties of Create method request will be ignored.
 #### xgen-IPA-106-create-method-request-has-no-readonly-fields
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Create method Request object must not include fields with readOnly:true. http://go/ipa/106 This rule applies only to POST requests targeting resource collection URIs.
+Create method Request object must not include fields with readOnly:true. http://go/ipa/106
+##### Implementation details
+Validation checks the POST method for resource collection paths.
 #### xgen-IPA-106-create-method-response-code-is-201
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Create methods must return a 201 Created response code. http://go/ipa/106 This rule applies only to POST requests targeting resource collection URIs.
+Create methods must return a 201 Created response code. http://go/ipa/106
+##### Implementation details
+Validation checks the POST method for resource collection paths.
 
 
 ### IPA-108
