@@ -8,14 +8,14 @@ import {
 } from './utils/resourceEvaluation.js';
 import { checkResponseCodeAndReturnErrors } from './utils/validations.js';
 
-const RULE_NAME = 'xgen-IPA-104-get-method-response-code-is-200';
 const ERROR_MESSAGE =
-  'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.';
+  'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
+  const ruleName = rule.name;
 
   if (
     !isSingleResourceIdentifier(resourcePath) &&
@@ -24,14 +24,14 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
+  if (hasException(input, ruleName)) {
+    collectException(input, ruleName, path);
     return;
   }
 
-  const errors = checkResponseCodeAndReturnErrors(input, '200', path, RULE_NAME, ERROR_MESSAGE);
+  const errors = checkResponseCodeAndReturnErrors(input, '200', path, ruleName, ERROR_MESSAGE);
   if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
+    return collectAndReturnViolation(path, ruleName, errors);
   }
-  collectAdoption(path, RULE_NAME);
+  collectAdoption(path, ruleName);
 };
