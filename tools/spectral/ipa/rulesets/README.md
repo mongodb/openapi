@@ -33,6 +33,15 @@ Rule is based on [http://go/ipa/IPA-102](http://go/ipa/IPA-102).
 
  ![error](https://img.shields.io/badge/error-red) 
 Paths should alternate between resource names and path params.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Paths must follow a pattern where resource names and path parameters strictly alternate
+  - Even-indexed path segments should be resource names (not path parameters)
+  - Odd-indexed path segments should be path parameters
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 #### xgen-IPA-102-collection-identifier-camelCase
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
@@ -53,6 +62,16 @@ Collection identifiers must be in camelCase.
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - All path segments that are not path parameters must match pattern `/^[a-z][a-zA-Z0-9]*$/`
+  - Path parameters (inside curly braces) are excluded from validation
+  - Custom methods (segments containing colons) are excluded from validation
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+  - Each non-parameter path segment must start with a lowercase letter followed by any combination of ASCII letters and numbers
+
 
 
 ### IPA-104
