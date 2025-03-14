@@ -21,11 +21,9 @@ const ERROR_MESSAGE =
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
-  const responseCode = path[4];
   const mediaType = input;
 
   if (
-    responseCode !== '200' ||
     !mediaType.endsWith('json') ||
     !isResourceCollectionIdentifier(resourcePath) ||
     (isResourceCollectionIdentifier(resourcePath) && isSingletonResource(getResourcePathItems(resourcePath, oas.paths)))

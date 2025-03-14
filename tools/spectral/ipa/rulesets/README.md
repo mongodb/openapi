@@ -106,7 +106,7 @@ APIs must provide a List method for resources.
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The response body of the List method should consist of the same resource object returned by the Get method.
 ##### Implementation details
-Validation checks that the List method response contains items property with reference to the same schema as the Get method response.
+Validation checks that the List method 200 OK response contains items property with reference to the same schema as the Get method response.
 
   - Validation applies to List methods for resource collections only
   - Validation applies to json response content only
@@ -152,6 +152,18 @@ Validation checks the POST method for resource collection paths.
 Create methods must return a 201 Created response code.
 ##### Implementation details
 Validation checks the POST method for resource collection paths.
+#### xgen-IPA-106-create-method-response-is-get-method-response
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The response body of the Create method should consist of the same resource object returned by the Get method.
+##### Implementation details
+Validation checks that the Create method 201 Created response contains reference to the same schema as the Get method response.
+
+  - Validation applies to Create methods for resource collections only
+  - Validation applies to json response content only
+  - Validation ignores responses without schema
+  - Validation ignores resources without a Get method
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 
 ### IPA-107
