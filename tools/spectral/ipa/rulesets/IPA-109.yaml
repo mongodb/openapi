@@ -7,7 +7,15 @@ functions:
 
 rules:
   xgen-IPA-109-custom-method-must-be-GET-or-POST:
-    description: 'The HTTP method for custom methods must be GET or POST.'
+    description: |
+      The HTTP method for custom methods must be GET or POST.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to paths containing custom method identifiers (with colon format)
+        - Verifies the HTTP methods used are either GET or POST
+        - Fails if any other HTTP methods are used (PUT, DELETE, PATCH, etc.)
+        - Fails if multiple valid methods are defined for the same custom method endpoint
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-109-custom-method-must-be-GET-or-POST'
     severity: error
     given: '$.paths[*]'
@@ -15,7 +23,16 @@ rules:
       function: 'IPA109EachCustomMethodMustBeGetOrPost'
 
   xgen-IPA-109-custom-method-must-use-camel-case:
-    description: 'The custom method must use camelCase format.'
+    description: |
+      The custom method must use camelCase format.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to paths containing custom method identifiers (with colon format)
+        - Extracts the method name portion following the colon
+        - Verifies the method name is not empty or blank
+        - Validates that the method name uses proper camelCase formatting
+        - Fails if the method name contains invalid casing (such as snake_case, PascalCase, etc.)
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-109-custom-method-must-use-camel-case'
     severity: error
     given: '$.paths[*]'
