@@ -120,13 +120,15 @@ testRule('xgen-IPA-106-create-method-should-not-have-query-parameters', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-should-not-have-query-parameters',
-        message: 'Input parameter [filter]: Create operations should not have query parameters. http://go/ipa-spectral#IPA-106',
+        message:
+          'Input parameter [filter]: Create operations should not have query parameters. http://go/ipa-spectral#IPA-106',
         path: ['paths', '/resource', 'post'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-should-not-have-query-parameters',
-        message: 'Input parameter [query-param]: Create operations should not have query parameters. http://go/ipa-spectral#IPA-106',
+        message:
+          'Input parameter [query-param]: Create operations should not have query parameters. http://go/ipa-spectral#IPA-106',
         path: ['paths', '/resourceTwo', 'post'],
         severity: DiagnosticSeverity.Warning,
       },
