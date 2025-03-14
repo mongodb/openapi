@@ -1,5 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
-import { isDeepEqual, omitDeep } from '../../rulesets/functions/utils/compareUtils';
+import {
+  isDeepEqual,
+  omitDeep,
+  removePropertyByFlag,
+  removeReadOnlyProperties,
+  removeWriteOnlyProperties,
+} from '../../rulesets/functions/utils/compareUtils';
 
 describe('isDeepEqual', () => {
   it('handles primitive values', () => {
@@ -55,84 +61,152 @@ describe('isDeepEqual', () => {
   });
 });
 
-describe('omitDeep', () => {
-  it('handles primitives', () => {
-    expect(omitDeep(1, 'any')).toBe(1);
-    expect(omitDeep('hello', 'any')).toBe('hello');
-    expect(omitDeep(null, 'any')).toBe(null);
-    expect(omitDeep(undefined, 'any')).toBe(undefined);
+describe('removePropertyByFlag', () => {
+  it('handles primitive values', () => {
+    expect(removePropertyByFlag(1, 'readOnly')).toBe(1);
+    expect(removePropertyByFlag('hello', 'readOnly')).toBe('hello');
+    expect(removePropertyByFlag(true, 'readOnly')).toBe(true);
+    expect(removePropertyByFlag(null, 'readOnly')).toBe(null);
+    expect(removePropertyByFlag(undefined, 'readOnly')).toBe(undefined);
   });
 
-  it('handles shallow objects', () => {
-    expect(omitDeep({ a: 1, b: 2 }, 'a')).toEqual({ b: 2 });
-    expect(omitDeep({ a: 1, b: 2 }, 'c')).toEqual({ a: 1, b: 2 });
-    expect(omitDeep({ a: 1, b: 2 }, 'a', 'b')).toEqual({});
+  it('handles empty objects', () => {
+    expect(removePropertyByFlag({}, 'readOnly')).toEqual({});
   });
 
-  it('handles arrays', () => {
-    expect(
-      omitDeep(
-        [
-          { a: 1, b: 2 },
-          { a: 3, b: 4 },
-        ],
-        'a'
-      )
-    ).toEqual([{ b: 2 }, { b: 4 }]);
-  });
-
-  it('handles nested objects', () => {
+  it('removes properties with flagged attributes', () => {
     const input = {
-      a: 1,
-      b: {
-        c: 2,
-        d: 3,
-        e: {
-          f: 4,
-          g: 5,
-        },
+      type: 'object',
+      properties: {
+        id: { type: 'string', readOnly: true },
+        name: { type: 'string' },
+        password: { type: 'string', test: true },
       },
-      h: 6,
     };
 
-    const expected = {
-      a: 1,
-      b: {
-        d: 3,
-        e: {
-          g: 5,
-        },
-      },
-      h: 6,
-    };
-
-    expect(omitDeep(input, 'c', 'f')).toEqual(expected);
-  });
-
-  it('handles deeply nested arrays', () => {
-    const input = {
-      items: [
-        { id: 1, name: 'item1', metadata: { created: '2023', readOnly: true } },
-        { id: 2, name: 'item2', metadata: { created: '2023', readOnly: true } },
-      ],
-    };
-
-    const expected = {
-      items: [
-        { id: 1, name: 'item1', metadata: { created: '2023' } },
-        { id: 2, name: 'item2', metadata: { created: '2023' } },
-      ],
-    };
-
-    expect(omitDeep(input, 'readOnly')).toEqual(expected);
-  });
-
-  it('handles complex schemas', () => {
-    const schema = {
+    const expectedReadOnly = {
       type: 'object',
       properties: {
         name: { type: 'string' },
+        password: { type: 'string', test: true },
+      },
+    };
+
+    const expectedTest = {
+      type: 'object',
+      properties: {
         id: { type: 'string', readOnly: true },
+        name: { type: 'string' },
+      },
+    };
+
+    expect(removePropertyByFlag(input, 'readOnly')).toEqual(expectedReadOnly);
+    expect(removePropertyByFlag(input, 'test')).toEqual(expectedTest);
+  });
+
+  it('processes nested objects', () => {
+    const input = {
+      type: 'object',
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', readOnly: true },
+            name: { type: 'string' },
+            metadata: {
+              type: 'object',
+              properties: {
+                createdAt: { type: 'string', readOnly: true },
+                updatedAt: { type: 'string', readOnly: true },
+                notes: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const expected = {
+      type: 'object',
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            metadata: {
+              type: 'object',
+              properties: {
+                notes: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(removePropertyByFlag(input, 'readOnly')).toEqual(expected);
+  });
+
+  it('processes arrays', () => {
+    const input = {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', readOnly: true },
+          name: { type: 'string' },
+        },
+      },
+    };
+
+    const expected = {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+    };
+
+    expect(removePropertyByFlag(input, 'readOnly')).toEqual(expected);
+  });
+
+  it('handles array of objects', () => {
+    const input = [
+      { id: 1, readOnly: true },
+      { id: 2, name: 'test' },
+      {
+        id: 3,
+        properties: {
+          secret: { type: 'string', readOnly: true },
+          visible: { type: 'string' },
+        },
+      },
+    ];
+
+    const expected = [
+      { id: 1 },
+      { id: 2, name: 'test' },
+      {
+        id: 3,
+        properties: {
+          visible: { type: 'string' },
+        },
+      },
+    ];
+
+    expect(removePropertyByFlag(input, 'readOnly')).toEqual(expected);
+  });
+});
+
+describe('removeReadOnlyProperties', () => {
+  it('removes readOnly properties from schema', () => {
+    const input = {
+      type: 'object',
+      properties: {
+        id: { type: 'string', readOnly: true },
+        name: { type: 'string' },
         details: {
           type: 'object',
           properties: {
@@ -140,14 +214,38 @@ describe('omitDeep', () => {
             description: { type: 'string' },
           },
         },
-        items: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              itemId: { type: 'string', readOnly: true },
-              itemName: { type: 'string' },
-            },
+      },
+    };
+
+    const expected = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        details: {
+          type: 'object',
+          properties: {
+            description: { type: 'string' },
+          },
+        },
+      },
+    };
+
+    expect(removeReadOnlyProperties(input)).toEqual(expected);
+  });
+});
+
+describe('removeWriteOnlyProperties', () => {
+  it('removes writeOnly properties from schema', () => {
+    const input = {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        password: { type: 'string', writeOnly: true },
+        details: {
+          type: 'object',
+          properties: {
+            secretKey: { type: 'string', writeOnly: true },
+            description: { type: 'string' },
           },
         },
       },
@@ -156,53 +254,63 @@ describe('omitDeep', () => {
     const expected = {
       type: 'object',
       properties: {
-        name: { type: 'string' },
         id: { type: 'string' },
         details: {
           type: 'object',
           properties: {
-            createdAt: { type: 'string' },
             description: { type: 'string' },
           },
         },
-        items: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              itemId: { type: 'string' },
-              itemName: { type: 'string' },
-            },
-          },
-        },
       },
     };
 
-    expect(omitDeep(schema, 'readOnly')).toEqual(expected);
+    expect(removeWriteOnlyProperties(input)).toEqual(expected);
   });
+});
 
-  it('handles multiple keys to omit', () => {
-    const input = {
-      a: 1,
-      b: 2,
-      c: {
-        d: 3,
-        e: 4,
-        f: {
-          g: 5,
-          h: 6,
-        },
+describe('schema compatibility use cases', () => {
+  it('request and response schema comparison', () => {
+    const requestSchema = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        email: { type: 'string' },
+        password: { type: 'string', writeOnly: true },
       },
+      required: ['name', 'email', 'password'],
     };
 
-    expect(omitDeep(input, 'a', 'e', 'g')).toEqual({
-      b: 2,
-      c: {
-        d: 3,
-        f: {
-          h: 6,
-        },
+    const responseSchema = {
+      type: 'object',
+      properties: {
+        id: { type: 'string', readOnly: true },
+        name: { type: 'string' },
+        email: { type: 'string' },
+        createdAt: { type: 'string', readOnly: true },
       },
+      required: ['id', 'name', 'email', 'createdAt'],
+    };
+
+    const filteredRequest = removeWriteOnlyProperties(requestSchema);
+    const filteredResponse = removeReadOnlyProperties(responseSchema);
+
+    // Verify filtered schemas
+    expect(filteredRequest).toEqual({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        email: { type: 'string' },
+      },
+      required: ['name', 'email', 'password'],
+    });
+
+    expect(filteredResponse).toEqual({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        email: { type: 'string' },
+      },
+      required: ['id', 'name', 'email', 'createdAt'],
     });
   });
 });

@@ -101,7 +101,6 @@ The List method request must not include a body. http://go/ipa/105
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 APIs must provide a List method for resources. http://go/ipa/105
-
 #### xgen-IPA-105-list-method-response-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
@@ -132,7 +131,7 @@ Create operations should not use query parameters. http://go/ipa/106 This rule a
 #### xgen-IPA-106-create-method-request-body-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Request body content of the Create method and response content of the Get method should refer to the same resource. http://go/ipa/106 readOnly/writeOnly properties will be ignored.   This rule applies only to POST requests targeting resource collection URIs.
+Request body content of the Create method and response content of the Get method should refer to the same resource. http://go/ipa/106 readOnly:true properties of Get method response will be ignored.  writeOnly:true properties of Create method request will be ignored. This rule applies only to POST requests targeting resource collection URIs.
 #### xgen-IPA-106-create-method-request-has-no-readonly-fields
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
