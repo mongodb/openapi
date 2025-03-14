@@ -353,10 +353,27 @@ Rule is based on [http://go/ipa/IPA-109](http://go/ipa/IPA-109).
 
  ![error](https://img.shields.io/badge/error-red) 
 The HTTP method for custom methods must be GET or POST.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths containing custom method identifiers (with colon format)
+  - Verifies the HTTP methods used are either GET or POST
+  - Fails if any other HTTP methods are used (PUT, DELETE, PATCH, etc.)
+  - Fails if multiple valid methods are defined for the same custom method endpoint
+
 #### xgen-IPA-109-custom-method-must-use-camel-case
 
  ![error](https://img.shields.io/badge/error-red) 
 The custom method must use camelCase format.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths containing custom method identifiers (with colon format)
+  - Extracts the method name portion following the colon
+  - Verifies the method name is not empty or blank
+  - Validates that the method name uses proper camelCase formatting
+  - Fails if the method name contains invalid casing (such as snake_case, PascalCase, etc.)
+
 
 
 ### IPA-113
@@ -367,6 +384,15 @@ Rule is based on [http://go/ipa/IPA-113](http://go/ipa/IPA-113).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Singleton resources must not have a user-provided or system-generated ID.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to singleton resources that are identified as resource collection identifiers
+  - Checks that the resource has a GET method defined
+  - Examines all 2xx response schemas from the GET method
+  - Verifies that no schema contains 'id' or '_id' properties in their object definitions
+  - Fails if any response schema contains these identifier properties
+
 
 
 ### IPA-123
