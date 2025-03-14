@@ -1,6 +1,6 @@
 //import { singularize } from 'active-inflector'; // No "exports" main defined in /node_modules/active-inflector/package.json
-//import { singularize } from 'ember-inflector'; // Cannot use import statement outside a module (from ember-inflector)
-import Inflector from 'inflector-js';
+import {singularize} from 'ember-inflector';
+//import Inflector from 'inflector-js';
 
 const PATH_PREFIX = '/api/atlas/v2/';
 const PATH_UNAUTH_PREFIX = '/api/atlas/v2/unauth/';
@@ -128,7 +128,7 @@ function getOperationIdFromPathSections_inflector(resourcePathSections, transfor
 function singularizeCamelCase(string) {
   const words = getWordsFromCamelCase(string);
 
-  const lastWord = Inflector.singularize(words[words.length - 1]);
+  const lastWord = singularize(words[words.length - 1]);
   return words.slice(0, words.length - 1).join() + capitalizeFirstLetter(lastWord);
 }
 
