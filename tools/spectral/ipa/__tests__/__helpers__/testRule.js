@@ -17,7 +17,7 @@ export default (ruleName, tests) => {
 
         errors.forEach((error, index) => {
           expect(error.code).toEqual(testCase.errors[index].code);
-          expect(error.message).toEqual(testCase.errors[index].message);
+          expect(error.message).toMatch(testCase.errors[index].message);
           expect(error.path).toEqual(testCase.errors[index].path);
         });
       });

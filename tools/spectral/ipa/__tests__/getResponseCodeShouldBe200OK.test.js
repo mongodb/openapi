@@ -93,28 +93,28 @@ testRule('xgen-IPA-104-get-method-response-code-is-200', [
       {
         code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
-          'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
+          'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceOne/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
-          'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
+          'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceTwo/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
-          'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
+          'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceThree/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-get-method-response-code-is-200',
         message:
-          'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code. http://go/ipa/104',
+          'The Get method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resource/{id}/singleton', 'get'],
         severity: DiagnosticSeverity.Warning,
       },

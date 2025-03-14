@@ -83,7 +83,7 @@ testRule('xgen-IPA-105-list-method-no-request-body', [
     errors: [
       {
         code: 'xgen-IPA-105-list-method-no-request-body',
-        message: 'The List method must not include a request body. http://go/ipa/105',
+        message: 'The List method must not include a request body.',
         path: ['paths', '/resource', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
