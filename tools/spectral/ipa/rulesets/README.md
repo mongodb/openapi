@@ -15,7 +15,7 @@ Rule is based on [http://go/ipa/IPA-5](http://go/ipa/IPA-5).
 #### xgen-IPA-005-exception-extension-format
 
  ![error](https://img.shields.io/badge/error-red) 
-IPA exception extensions must follow the correct format. http://go/ipa/5
+IPA exception extensions must follow the correct format.
 
 ##### Implementation details
 Rule checks for the following conditions:
@@ -101,11 +101,10 @@ The List method request must not include a body. http://go/ipa/105
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 APIs must provide a List method for resources. http://go/ipa/105
-
 #### xgen-IPA-105-list-method-response-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-The response body of the List method should consist of the same resource object returned by the Get method. http://go/ipa/105
+The response body of the List method should consist of the same resource object returned by the Get method.
 ##### Implementation details
 Validation checks that the List method response contains items property with reference to the same schema as the Get method response.
 
@@ -150,7 +149,7 @@ Rule is based on [http://go/ipa/IPA-107](http://go/ipa/IPA-107).
 #### xgen-IPA-107-put-must-not-have-query-params
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Update operations must not accept query parameters. http://go/ipa/107
+Update operations must not accept query parameters.
 ##### Implementation details
 Validation checks the PUT method for single resource paths and singleton resources.
 
@@ -159,7 +158,7 @@ Validation checks the PUT method for single resource paths and singleton resourc
 #### xgen-IPA-107-patch-must-not-have-query-params
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Update operations must not accept query parameters. http://go/ipa/107
+Update operations must not accept query parameters. 
 ##### Implementation details
 Validation checks the PATCH method for single resource paths and singleton resources.
 
