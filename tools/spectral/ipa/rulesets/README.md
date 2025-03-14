@@ -148,11 +148,21 @@ Rule is based on [http://go/ipa/IPA-107](http://go/ipa/IPA-107).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Update operations must not accept query parameters. http://go/ipa/107
+##### Implementation details
+Validation checks the PUT method for single resource paths and singleton resources.
+
+  - Query parameters `envelope` and `pretty` are exempt from this rule
+  - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-107-patch-must-not-have-query-params
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Update operations must not accept query parameters. http://go/ipa/107
+##### Implementation details
+Validation checks the PATCH method for single resource paths and singleton resources.
+
+  - Query parameters `envelope` and `pretty` are exempt from this rule
+  - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 
 

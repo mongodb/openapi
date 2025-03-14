@@ -58,7 +58,7 @@ function checkViolationsAndReturnErrors(postMethodParameters, path, opts) {
       if (parameter.in === 'query' && !ignoredValues.includes(parameter.name)) {
         errors.push({
           path: path,
-          message: `${ERROR_MESSAGE}. Found [${parameter.name}] `,
+          message: `${ERROR_MESSAGE} Found [${parameter.name}].`,
         });
       }
     }

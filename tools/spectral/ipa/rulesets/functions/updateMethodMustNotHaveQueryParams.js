@@ -25,10 +25,11 @@ export default (input, opts, { path, documentInventory, rule }) => {
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
   const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
+  const ruleName = rule.name;
 
   if (
-    !isSingleResourceIdentifier(resourcePath) ||
-    (isResourceCollectionIdentifier(resourcePath) && !isSingletonResource(resourcePathItems))
+    !isSingleResourceIdentifier(resourcePath) &&
+    !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePathItems))
   ) {
     return;
   }
@@ -37,19 +38,19 @@ export default (input, opts, { path, documentInventory, rule }) => {
     return;
   }
 
-  if (hasException(input, rule)) {
-    collectException(input, rule, path);
+  if (hasException(input, ruleName)) {
+    collectException(input, ruleName, path);
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input.parameters, path, rule, opts);
+  const errors = checkViolationsAndReturnErrors(input.parameters, path, ruleName, opts);
   if (errors.length !== 0) {
-    return collectAndReturnViolation(path, rule, errors);
+    return collectAndReturnViolation(path, ruleName, errors);
   }
-  collectAdoption(path, rule);
+  collectAdoption(path, ruleName);
 };
 
-function checkViolationsAndReturnErrors(postMethodParameters, path, rule, opts) {
+function checkViolationsAndReturnErrors(postMethodParameters, path, ruleName, opts) {
   const errors = [];
   try {
     const ignoredValues = opts?.ignoredValues || [];
@@ -58,12 +59,12 @@ function checkViolationsAndReturnErrors(postMethodParameters, path, rule, opts) 
       if (parameter.in === 'query' && !ignoredValues.includes(parameter.name)) {
         errors.push({
           path: path,
-          message: `${ERROR_MESSAGE}. Found [${parameter.name}] `,
+          message: `${ERROR_MESSAGE} Found [${parameter.name}].`,
         });
       }
     }
     return errors;
   } catch (e) {
-    handleInternalError(rule, path, e);
+    handleInternalError(ruleName, path, e);
   }
 }
