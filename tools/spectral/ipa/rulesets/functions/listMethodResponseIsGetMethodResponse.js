@@ -11,12 +11,7 @@ import {
   collectException,
   handleInternalError,
 } from './utils/collectionUtils.js';
-import {
-  getResponseOfListMethodByMediaType,
-  getSchemaRef,
-  getSchemaNameFromRef,
-  getResponseOfGetMethodByMediaType,
-} from './utils/methodUtils.js';
+import { getSchemaRef, getSchemaNameFromRef, getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
 import { schemaIsPaginated } from './utils/schemaUtils.js';
 
 const RULE_NAME = 'xgen-IPA-105-list-method-response-is-get-method-response';
@@ -39,7 +34,8 @@ export default (input, _, { path, documentInventory }) => {
   }
 
   // Ignore if the List method does not have a response schema
-  const listMethodResponse = getResponseOfListMethodByMediaType(mediaType, resourcePath, oas);
+  const listMethodResponse = oas.paths[resourcePath].get.responses['200'].content[mediaType];
+
   if (!listMethodResponse || !listMethodResponse.schema) {
     return;
   }
@@ -97,6 +93,16 @@ function checkViolationsAndReturnErrors(path, listMethodResultItems, getMethodRe
 
     const listMethodSchemaRef = getSchemaRef(listMethodResultItems);
     const getMethodSchemaRef = getSchemaRef(getMethodResponseContent.schema);
+
+    // Error if the Get method does not have a schema ref
+    if (!getMethodSchemaRef) {
+      return [
+        {
+          path,
+          message: `Could not validate that the List method returns the same resource object as the Get method. The Get method does not have a schema reference.`,
+        },
+      ];
+    }
 
     // Error if the get method resource is not the same as the list method resource
     if (getMethodSchemaRef !== listMethodSchemaRef) {
