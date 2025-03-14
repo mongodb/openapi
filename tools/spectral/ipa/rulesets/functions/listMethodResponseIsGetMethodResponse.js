@@ -34,7 +34,7 @@ export default (input, _, { path, documentInventory }) => {
   }
 
   // Ignore if the List method does not have a response schema
-  const listMethodResponse = oas.paths[resourcePath].get.responses['200'].content[mediaType];
+  const listMethodResponse = resolveObject(oas, path);
 
   if (!listMethodResponse || !listMethodResponse.schema) {
     return;
