@@ -153,26 +153,48 @@ Rule is based on [http://go/ipa/IPA-105](http://go/ipa/IPA-105).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The List method must return a 200 OK response.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on resource collection paths
+  - Ignores singleton resources
+  - Verifies the 200 OK response code is present
+  - Fails if the method lacks a 200 OK response or defines a different 2xx status code
+
 #### xgen-IPA-105-list-method-no-request-body
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The List method request must not include a body.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on resource collection paths
+  - Ignores singleton resources
+  - Verifies that the operation object does not contain a requestBody property
+
 #### xgen-IPA-105-resource-has-list
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 APIs must provide a List method for resources.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to resource collection paths
+  - Ignores singleton resources
+  - Verifies the resource path has a GET method
+  - Fails if the resource path does not have a GET method
+
 #### xgen-IPA-105-list-method-response-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The response body of the List method should consist of the same resource object returned by the Get method.
-##### Implementation details
-Validation checks that the List method 200 OK response contains items property with reference to the same schema as the Get method response.
-
-  - Validation applies to List methods for resource collections only
-  - Validation applies to json response content only
-  - Validation ignores responses without schema and non-paginated responses
-    - A response is considered paginated if it contains an array property named `results`
-  - Validation ignores resources without a Get method
+##### Implementation details Rule checks for the following conditions:
+  - Applies only to resource collection paths with JSON content types
+  - Ignores singleton resources
+  - Ignores responses without a schema or non-paginated responses
+  - A response is considered paginated if it has a schema with a 'results' array property
+  - Verifies that the schema of items in the 'results' array matches the schema used in the Get method response
+  - Fails if the Get method doesn't have a schema reference or if the schemas don't match
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 
