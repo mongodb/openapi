@@ -53,13 +53,13 @@ testRule('xgen-IPA-105-resource-has-list', [
     errors: [
       {
         code: 'xgen-IPA-105-resource-has-list',
-        message: 'APIs must provide a List method for resources. http://go/ipa/105',
+        message: 'APIs must provide a List method for resources.',
         path: ['paths', '/standard'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-105-resource-has-list',
-        message: 'APIs must provide a List method for resources. http://go/ipa/105',
+        message: 'APIs must provide a List method for resources.',
         path: ['paths', '/standard/{exampleId}/nested'],
         severity: DiagnosticSeverity.Warning,
       },

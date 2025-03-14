@@ -40,7 +40,7 @@ testRule('xgen-IPA-108-delete-request-no-body', [
     errors: [
       {
         code: 'xgen-IPA-108-delete-request-no-body',
-        message: 'DELETE method should not have a request body. http://go/ipa/108',
+        message: 'DELETE method should not have a request body.',
         path: ['paths', '/resource/{id}', 'delete'],
         severity: DiagnosticSeverity.Warning,
       },

@@ -45,37 +45,37 @@ testRule('xgen-IPA-109-custom-method-must-use-camel-case', [
     errors: [
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'MethodName must use camelCase format. http://go/ipa/109',
+        message: 'MethodName must use camelCase format.',
         path: ['paths', '/a/{exampleId}:MethodName'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'MethodName must use camelCase format. http://go/ipa/109',
+        message: 'MethodName must use camelCase format.',
         path: ['paths', '/a:MethodName'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'method_name must use camelCase format. http://go/ipa/109',
+        message: 'method_name must use camelCase format.',
         path: ['paths', '/a/{exampleId}:method_name'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'method_name must use camelCase format. http://go/ipa/109',
+        message: 'method_name must use camelCase format.',
         path: ['paths', '/a:method_name'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'Custom method name cannot be empty or blank. http://go/ipa/109',
+        message: 'Custom method name cannot be empty or blank.',
         path: ['paths', '/a/{exampleId}:'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-109-custom-method-must-use-camel-case',
-        message: 'Custom method name cannot be empty or blank. http://go/ipa/109',
+        message: 'Custom method name cannot be empty or blank.',
         path: ['paths', '/a:'],
         severity: DiagnosticSeverity.Warning,
       },
