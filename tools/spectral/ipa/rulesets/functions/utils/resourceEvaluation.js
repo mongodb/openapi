@@ -20,15 +20,33 @@ export function isResourceCollectionIdentifier(path) {
 /**
  * Checks if a path represents a single resource. For example:
  * '/resource/{id}' returns true
+ * '/resource/{resourceId}/child/{childId}' returns true
  * '/resource/{id}/child' returns false
- * '/resource/{id}/{id}' returns false
+ * '/resource' returns false
+ * '/resource/child/{id}' returns false
  *
  * @param {string} path the path to evaluate
  * @returns {boolean} true if the path represents a single resource, false otherwise
  */
 export function isSingleResourceIdentifier(path) {
-  const pattern = new RegExp(`^.*/[a-zA-Z]+/{[a-zA-Z]+}$`);
-  return pattern.test(path);
+  const p = removePrefix(path);
+
+  // Check if the path ends with /{paramName} pattern
+  const endsWithParamPattern = /\/\{[a-zA-Z][a-zA-Z0-9]*}$/;
+
+  if (!endsWithParamPattern.test(p)) {
+    return false;
+  }
+
+  // Extract the part before the final parameter
+  const lastSlashBeforeParam = p.lastIndexOf('/');
+  if (lastSlashBeforeParam === -1) {
+    return false;
+  }
+
+  // Check if the preceding part is a valid resource collection identifier
+  const collectionPath = p.substring(0, lastSlashBeforeParam);
+  return isResourceCollectionIdentifier(collectionPath);
 }
 
 export function isCustomMethodIdentifier(path) {
