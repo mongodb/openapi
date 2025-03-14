@@ -140,6 +140,22 @@ Create methods must return a 201 Created response code. http://go/ipa/106 This r
 
 
 
+### IPA-107
+
+Rule is based on [http://go/ipa/IPA-107](http://go/ipa/IPA-107).
+
+#### xgen-IPA-107-put-must-not-have-query-params
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Update operations must not accept query parameters. http://go/ipa/107
+
+#### xgen-IPA-107-patch-must-not-have-query-params
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Update operations must not accept query parameters. http://go/ipa/107
+
+
+
 ### IPA-108
 
 Rule is based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
