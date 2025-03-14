@@ -60,7 +60,7 @@ function generateRulesetSections(rules) {
 
   sortedRuleEntries.forEach((rule) => {
     const severityFormatted = formatSeverity(rule.severity);
-    sections += `#### ${rule.name}\n\n ${severityFormatted} \n${rule.description}\n\n`;
+    sections += `#### ${rule.name}\n\n ${severityFormatted} \n${rule.description}\n`;
   });
 
   return sections;
