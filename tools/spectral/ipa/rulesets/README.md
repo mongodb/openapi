@@ -318,30 +318,50 @@ Validation checks the PATCH method for single resource paths and [singleton reso
 
 Rule is based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
 
-#### xgen-IPA-108-custom-method-must-be-GET-or-POST
+#### xgen-IPA-108-delete-response-should-be-empty
 
- ![error](https://img.shields.io/badge/error-red) 
-The HTTP method for custom methods must be GET or POST.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies only to paths containing custom method identifiers (with colon format)
-  - Verifies the HTTP methods used are either GET or POST
-  - Fails if any other HTTP methods are used (PUT, DELETE, PATCH, etc.)
-  - Fails if multiple valid methods are defined for the same custom method endpoint
-
-#### xgen-IPA-108-custom-method-must-use-camel-case
-
- ![error](https://img.shields.io/badge/error-red) 
-The custom method must use camelCase format.
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Delete method response should not have schema reference to object.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to paths containing custom method identifiers (with colon format)
-  - Extracts the method name portion following the colon
-  - Verifies the method name is not empty or blank
-  - Validates that the method name uses proper camelCase formatting
-  - Fails if the method name contains invalid casing (such as snake_case, PascalCase, etc.)
+  - Applies to 204 responses in DELETE methods
+  - Verifies that the response does not contain a schema property
+  - Fails if any content type in the response has a defined schema as reference
+
+#### xgen-IPA-108-delete-method-return-204-response
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+DELETE method must return 204 No Content.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods
+  - Verifies that the method includes a 204 response code
+  - Ensures no other 2xx response codes are defined
+  - Fails if the 204 status code is missing or if other 2xx responses exist
+
+#### xgen-IPA-108-delete-include-404-response
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+DELETE method must include 404 response and return it when resource not found.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods
+  - Verifies that the method includes a 404 response code
+  - Fails if the 404 status code is missing from the responses
+
+#### xgen-IPA-108-delete-request-no-body
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+DELETE method must not have request body.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods
+  - Verifies that the operation object does not contain a requestBody property
+  - Fails if any requestBody is defined for the DELETE method
 
 
 
