@@ -34,31 +34,57 @@ export function isDeepEqual(value1, value2) {
 }
 
 /**
- * Deep clone an object while omitting specific properties
- * @param {object} obj Object to clone and omit properties from
- * @param {...string} keys Properties to omit
- * @returns {object} New object without the specified properties
+ * Recursively removes properties with given flags from schema
+ * @param {object} schema The schema to process
+ * @param {string} propertyToRemove The property type to remove (boolean property)
+ * @returns {object} New schema with specified properties removed
  */
-export function omitDeep(obj, ...keys) {
-  if (!obj || typeof obj !== 'object') return obj;
+export function removePropertyByFlag(schema, propertyToRemove) {
+  if (!schema || typeof schema !== 'object') return schema;
 
-  // Handle arrays
-  if (Array.isArray(obj)) {
-    return obj.map((item) => omitDeep(item, ...keys));
+  if (Array.isArray(schema)) {
+    return schema.map((item) => removePropertyByFlag(item, propertyToRemove));
   }
 
-  // Handle regular objects
-  return Object.entries(obj).reduce((result, [key, value]) => {
-    // Skip properties that should be omitted
-    if (keys.includes(key)) return result;
+  const result = {};
 
-    // Handle nested objects/arrays recursively
-    if (value && typeof value === 'object') {
-      result[key] = omitDeep(value, ...keys);
+  // Handle regular object properties
+  for (const [key, value] of Object.entries(schema)) {
+    // Skip this property if it's marked with the flag we're removing
+    if (key === propertyToRemove && value === true) continue;
+
+    // Handle properties object specially
+    if (key === 'properties' && typeof value === 'object') {
+      result[key] = {};
+      for (const [propName, propValue] of Object.entries(value)) {
+        // Skip properties marked with the flag we're removing
+        if (propValue[propertyToRemove] === true) continue;
+        result[key][propName] = removePropertyByFlag(propValue, propertyToRemove);
+      }
+    } else if (typeof value === 'object') {
+      result[key] = removePropertyByFlag(value, propertyToRemove);
     } else {
       result[key] = value;
     }
+  }
 
-    return result;
-  }, {});
+  return result;
+}
+
+/**
+ * Recursively removes properties with readOnly: true flag from schema
+ * @param {object} schema The schema to process
+ * @returns {object} New schema with readOnly properties removed
+ */
+export function removeReadOnlyProperties(schema) {
+  return removePropertyByFlag(schema, 'readOnly');
+}
+
+/**
+ * Recursively removes properties with writeOnly: true flag from schema
+ * @param {object} schema The schema to process
+ * @returns {object} New schema with writeOnly properties removed
+ */
+export function removeWriteOnlyProperties(schema) {
+  return removePropertyByFlag(schema, 'writeOnly');
 }

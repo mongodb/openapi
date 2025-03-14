@@ -120,21 +120,19 @@ testRule('xgen-IPA-107-put-must-not-have-query-params', [
     errors: [
       {
         code: 'xgen-IPA-107-put-must-not-have-query-params',
-        message: 'Update operations must not have query parameters. Found [filter]. http://go/ipa-spectral#IPA-107',
+        message: 'Update operations must not have query parameters. Found [filter].',
         path: ['paths', '/resource/{id}', 'put'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-107-put-must-not-have-query-params',
-        message:
-          'Update operations must not have query parameters. Found [query-param]. http://go/ipa-spectral#IPA-107',
+        message: 'Update operations must not have query parameters. Found [query-param].',
         path: ['paths', '/resource/{id}/singleton', 'put'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-107-put-must-not-have-query-params',
-        message:
-          'Update operations must not have query parameters. Found [query-param-2]. http://go/ipa-spectral#IPA-107',
+        message: 'Update operations must not have query parameters. Found [query-param-2].',
         path: ['paths', '/resource/{id}/singleton', 'put'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -257,21 +255,19 @@ testRule('xgen-IPA-107-patch-must-not-have-query-params', [
     errors: [
       {
         code: 'xgen-IPA-107-patch-must-not-have-query-params',
-        message: 'Update operations must not have query parameters. Found [filter]. http://go/ipa-spectral#IPA-107',
+        message: 'Update operations must not have query parameters. Found [filter].',
         path: ['paths', '/resource/{id}', 'patch'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-107-patch-must-not-have-query-params',
-        message:
-          'Update operations must not have query parameters. Found [query-param]. http://go/ipa-spectral#IPA-107',
+        message: 'Update operations must not have query parameters. Found [query-param].',
         path: ['paths', '/resource/{id}/singleton', 'patch'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-107-patch-must-not-have-query-params',
-        message:
-          'Update operations must not have query parameters. Found [query-param-2]. http://go/ipa-spectral#IPA-107',
+        message: 'Update operations must not have query parameters. Found [query-param-2].',
         path: ['paths', '/resource/{id}/singleton', 'patch'],
         severity: DiagnosticSeverity.Warning,
       },

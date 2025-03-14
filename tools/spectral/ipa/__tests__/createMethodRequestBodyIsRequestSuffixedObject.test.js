@@ -154,31 +154,31 @@ testRule('xgen-IPA-106-create-method-request-body-is-request-suffixed-object', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object',
-        message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
+        message: 'The response body schema must reference a schema with a Request suffix. ',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object',
-        message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
+        message: 'The response body schema must reference a schema with a Request suffix. ',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object',
-        message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
+        message: 'The response body schema must reference a schema with a Request suffix. ',
         path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object',
-        message: 'The response body schema must reference a schema with a Request suffix. http://go/ipa/106',
+        message: 'The response body schema must reference a schema with a Request suffix. ',
         path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object',
-        message: 'The response body schema is defined inline and must reference a predefined schema. http://go/ipa/106',
+        message: 'The response body schema is defined inline and must reference a predefined schema. ',
         path: ['paths', '/resourceThree', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },

@@ -6,12 +6,15 @@ const componentSchemas = {
     SchemaOne: {
       type: 'string',
     },
-    SchemaTwo: {
+    SchemaTwoRequest: {
       type: 'object',
       properties: {
         name: {
           type: 'string',
-          readOnly: true,
+          writeOnly: true,
+        },
+        otherThing: {
+          type: 'string',
         },
       },
     },
@@ -29,12 +32,15 @@ const componentSchemas = {
         },
       },
     },
-    SchemaFour: {
+    SchemaTwoResponse: {
       type: 'object',
       properties: {
         name: {
           type: 'string',
-          writeOnly: true,
+          readOnly: true,
+        },
+        otherThing: {
+          type: 'string',
         },
       },
     },
@@ -132,12 +138,12 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaTwo',
+                    $ref: '#/components/schemas/SchemaTwoRequest',
                   },
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaTwo',
+                    $ref: '#/components/schemas/SchemaTwoRequest',
                   },
                 },
               },
@@ -151,7 +157,12 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
-                      $ref: '#/components/schemas/SchemaFour',
+                      $ref: '#/components/schemas/SchemaTwoResponse',
+                    },
+                  },
+                  'application/vnd.atlas.2024-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaTwoResponse',
                     },
                   },
                 },
@@ -244,7 +255,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
-                      $ref: '#/components/schemas/SchemaTwo',
+                      $ref: '#/components/schemas/SchemaTwoRequest',
                     },
                   },
                 },
@@ -258,12 +269,12 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaTwo',
+                    $ref: '#/components/schemas/SchemaTwoResponse',
                   },
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaTwo',
+                    $ref: '#/components/schemas/SchemaTwoResponse',
                   },
                 },
               },
@@ -381,57 +392,50 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceThree', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
         message:
-          'Could not validate that the Create request body schema matches the response schema of the Get method. The Get method does not have a schema. http://go/ipa/106',
+          'Could not validate that the Create request body schema matches the response schema of the Get method. The Get method does not have a schema.',
         path: ['paths', '/resourceFour', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceCircular', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/resourceCircular', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -480,15 +484,13 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/animalResource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message:
-          'The request body schema properties must match the response body schema properties of the Get method. http://go/ipa/106',
+        message: 'The request body schema properties must match the response body schema properties of the Get method.',
         path: ['paths', '/animalResource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -511,14 +513,6 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                     'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
                   },
                 },
-                'application/vnd.atlas.2024-01-01+json': {
-                  schema: {
-                    $ref: '#/components/schemas/SchemaOne',
-                  },
-                  'x-xgen-IPA-exception': {
-                    'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
-                  },
-                },
               },
             },
           },
@@ -530,7 +524,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
-                      $ref: '#/components/schemas/SchemaTwo',
+                      $ref: '#/components/schemas/SchemaThree',
                     },
                   },
                 },
@@ -544,7 +538,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaTwo',
+                    $ref: '#/components/schemas/SchemaTwoRequest',
                   },
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
@@ -552,7 +546,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaTwo',
+                    $ref: '#/components/schemas/SchemaTwoRequest',
                   },
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
@@ -569,43 +563,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
-                      $ref: '#/components/schemas/SchemaThree',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        '/resourceThree': {
-          post: {
-            requestBody: {
-              content: {
-                'application/vnd.atlas.2023-01-01+json': {
-                  schema: {
-                    $ref: '#/components/schemas/SchemaOne',
-                  },
-                  'x-xgen-IPA-exception': {
-                    'xgen-IPA-106-create-method-request-body-is-get-method-response': 'reason',
-                  },
-                },
-                'application/vnd.atlas.2024-01-01+json': {
-                  schema: {
-                    $ref: '#/components/schemas/SchemaThree',
-                  },
-                },
-              },
-            },
-          },
-        },
-        '/resourceThree/{id}': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2023-01-01+json': {
-                    schema: {
-                      $ref: '#/components/schemas/SchemaThree',
+                      $ref: '#/components/schemas/SchemaTwoResponse',
                     },
                   },
                 },
