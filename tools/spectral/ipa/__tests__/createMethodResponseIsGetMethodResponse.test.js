@@ -227,7 +227,7 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
       {
         code: 'xgen-IPA-106-create-method-response-is-get-method-response',
         message:
-          'Could not validate that the Create method returns the same resource object as the Get method. The Get method does not have a schema. http://go/ipa-spectral#IPA-106',
+          'Could not validate that the Create method returns the same resource object as the Get method. The Get method does not have a schema.',
         path: [
           'paths',
           '/resourcesOne',
@@ -242,7 +242,7 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
       {
         code: 'xgen-IPA-106-create-method-response-is-get-method-response',
         message:
-          'Could not validate that the Create method returns the same resource object as the Get method. The Get method does not have a schema reference. http://go/ipa-spectral#IPA-106',
+          'Could not validate that the Create method returns the same resource object as the Get method. The Get method does not have a schema reference.',
         path: [
           'paths',
           '/resourcesTwo',
@@ -296,8 +296,7 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-response-is-get-method-response',
-        message:
-          'The schema in the Create method response must be the same schema as the response of the Get method. http://go/ipa-spectral#IPA-106',
+        message: 'The schema in the Create method response must be the same schema as the response of the Get method.',
         path: ['paths', '/resources', 'post', 'responses', '201', 'content', 'application/vnd.atlas.2024-08-05+json'],
         severity: DiagnosticSeverity.Warning,
       },

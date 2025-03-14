@@ -69,7 +69,6 @@ function checkViolationsAndReturnErrors(path, createMethodResponseContent, getMe
       ];
     }
 
-    console.log(getMethodResponseContent);
     const createMethodSchemaRef = getSchemaRef(createMethodResponseContent.schema);
     const getMethodSchemaRef = getSchemaRef(getMethodResponseContent.schema);
 
