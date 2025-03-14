@@ -17,7 +17,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// OperationsFilter: is a filter that removes the x-xgen-owner-team and x-xgen-changelog extension from operations.
+// OperationsFilter: is a filter that removes the x-xgen-owner-team extension from operations.
 type OperationsFilter struct {
 	oas *openapi3.T
 }
@@ -35,7 +35,6 @@ func (f *OperationsFilter) Apply() error {
 		for _, operation := range pathItem.Operations() {
 			if operation.Extensions != nil {
 				delete(operation.Extensions, "x-xgen-owner-team")
-				delete(operation.Extensions, "x-xgen-changelog")
 			}
 		}
 	}
