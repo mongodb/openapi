@@ -1,33 +1,64 @@
 // utils/compareUtils.js
 
 /**
- * Deep equality check between two values
+ * Deep schema structure equality check between two values
+ * Compares property names and types, but not specific values
  * Does not handle circular references
- * @param {*} value1 First value to compare
- * @param {*} value2 Second value to compare
- * @returns {boolean} Whether the values are deeply equal
+ * @param {*} object1 First schema to compare
+ * @param {*} object2 Second schema to compare
+ * @returns {boolean} Whether the schemas have identical structure
  */
-export function isDeepEqual(value1, value2) {
-  // If the values are strictly equal (including handling null/undefined)
-  if (value1 === value2) return true;
-
-  // If either value is null or not an object, they're not equal (we already checked strict equality)
-  if (value1 == null || value2 == null || typeof value1 !== 'object' || typeof value2 !== 'object') {
-    return false;
+export function isDeepEqual(object1, object2) {
+  if (object1 === object2) {
+    return true;
   }
 
-  const keys1 = Object.keys(value1);
-  const keys2 = Object.keys(value2);
+  if (typeof object1 !== 'object' || typeof object2 !== 'object') {
+    return typeof object1 === typeof object2;
+  }
 
-  // Different number of properties
-  if (keys1.length !== keys2.length) return false;
+  if (object1.properties && object2.properties) {
+    const propKeys1 = Object.keys(object1.properties);
+    const propKeys2 = Object.keys(object2.properties);
 
-  // Check that all properties in value1 exist in value2 and are equal
+    if (propKeys1.length !== propKeys2.length) return false;
+
+    for (const key of propKeys1) {
+      if (!propKeys2.includes(key)) return false;
+
+      // Check if the types match for each property
+      if (object1.properties[key].type !== object2.properties[key].type) return false;
+
+      // Recursively check nested objects
+      if (typeof object1.properties[key] === 'object' && typeof object2.properties[key] === 'object') {
+        if (!isDeepEqual(object1.properties[key], object2.properties[key])) return false;
+      }
+    }
+  }
+
+  if (object1.type !== object2.type) return false;
+
+  const getRelevantKeys = (obj) => {
+    return Object.keys(obj).filter((key) => {
+      const polymorphismProps = ['allOf', 'anyOf', 'oneOf', 'discriminator'];
+      return polymorphismProps.includes(key);
+    });
+  };
+  const keys1 = getRelevantKeys(object1);
+  const keys2 = getRelevantKeys(object2);
   for (const key of keys1) {
     if (!keys2.includes(key)) return false;
 
-    // Recursive equality check for nested objects
-    if (!isDeepEqual(value1[key], value2[key])) return false;
+    if (
+      typeof object1[key] === 'object' &&
+      object1[key] !== null &&
+      typeof object2[key] === 'object' &&
+      object2[key] !== null
+    ) {
+      if (!isDeepEqual(object1[key], object2[key])) return false;
+    } else if (object1.type !== object2.type) {
+      return false;
+    }
   }
 
   return true;
@@ -39,12 +70,8 @@ export function isDeepEqual(value1, value2) {
  * @param {string} propertyToRemove The property type to remove (boolean property)
  * @returns {object} New schema with specified properties removed
  */
-export function removePropertyByFlag(schema, propertyToRemove) {
+export function removePropertiesByFlag(schema, propertyToRemove) {
   if (!schema || typeof schema !== 'object') return schema;
-
-  if (Array.isArray(schema)) {
-    return schema.map((item) => removePropertyByFlag(item, propertyToRemove));
-  }
 
   const result = {};
 
@@ -59,10 +86,10 @@ export function removePropertyByFlag(schema, propertyToRemove) {
       for (const [propName, propValue] of Object.entries(value)) {
         // Skip properties marked with the flag we're removing
         if (propValue[propertyToRemove] === true) continue;
-        result[key][propName] = removePropertyByFlag(propValue, propertyToRemove);
+        result[key][propName] = removePropertiesByFlag(propValue, propertyToRemove);
       }
     } else if (typeof value === 'object') {
-      result[key] = removePropertyByFlag(value, propertyToRemove);
+      result[key] = removePropertiesByFlag(value, propertyToRemove);
     } else {
       result[key] = value;
     }
@@ -72,19 +99,46 @@ export function removePropertyByFlag(schema, propertyToRemove) {
 }
 
 /**
- * Recursively removes properties with readOnly: true flag from schema
+ * Recursively removes specific property keys from schema
+ * @param {object} schema The schema to process
+ * @param {...string} propertyNames Property names to remove
+ * @returns {object} New schema with specified property keys removed
+ */
+export function removePropertyKeys(schema, ...propertyNames) {
+  if (!schema || typeof schema !== 'object') return schema;
+
+  const result = {};
+
+  // Handle regular object properties
+  for (const [key, value] of Object.entries(schema)) {
+    // Skip this property if it's in the list of properties to remove
+    if (propertyNames.includes(key)) continue;
+
+    if (typeof value === 'object') {
+      result[key] = removePropertyKeys(value, ...propertyNames);
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+/**
+ * Recursively removes properties for Response schemas
  * @param {object} schema The schema to process
  * @returns {object} New schema with readOnly properties removed
  */
-export function removeReadOnlyProperties(schema) {
-  return removePropertyByFlag(schema, 'readOnly');
+export function removeResponseProperties(schema) {
+  let result = removePropertiesByFlag(schema, 'readOnly');
+  return removePropertyKeys(result, 'title', 'description', 'required');
 }
 
 /**
- * Recursively removes properties with writeOnly: true flag from schema
+ * Recursively removes properties for Request schemas
  * @param {object} schema The schema to process
  * @returns {object} New schema with writeOnly properties removed
  */
-export function removeWriteOnlyProperties(schema) {
-  return removePropertyByFlag(schema, 'writeOnly');
+export function removeRequestProperties(schema) {
+  let result = removePropertiesByFlag(schema, 'writeOnly');
+  return removePropertyKeys(result, 'title', 'description', 'required');
 }
