@@ -8,7 +8,7 @@ import { resolveObject } from './utils/componentUtils.js';
 import { isDeepEqual, removeRequestProperties, removeResponseProperties } from './utils/compareUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { getResponseOfGetMethodByMediaType, getSchemaNameFromRef, getSchemaRef } from './utils/methodUtils.js';
+import { getResponseOfGetMethodByMediaType, getSchemaRef } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-get-method-response';
 const ERROR_MESSAGE =
@@ -85,9 +85,7 @@ function checkViolationsAndReturnErrors(
   const getResponseSchemaRef = getSchemaRef(getResponseContentPerMediaTypeUnresolved.schema);
 
   if (postRequestSchemaRef && getResponseSchemaRef) {
-    const postRequestSchemaName = getSchemaNameFromRef(postRequestSchemaRef);
-    const getResponseSchemaName = getSchemaNameFromRef(getResponseSchemaRef);
-    if (postRequestSchemaName === getResponseSchemaName) {
+    if (postRequestSchemaRef === getResponseSchemaRef) {
       return [];
     }
   }
