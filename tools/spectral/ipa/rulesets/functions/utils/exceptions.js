@@ -13,3 +13,23 @@ export function hasException(object, ruleName) {
   }
   return false;
 }
+
+/**
+ * Checks if every HTTP method in the path item has an exception for the specified rule
+ * Only considers methods that actually exist in the path item
+ *
+ * @param {object} pathItem - The path item object containing HTTP methods
+ * @param {string} ruleName - The name of the rule to check for exceptions
+ * @returns {boolean} true if every HTTP method has an exception for the rule, otherwise false
+ */
+export function hasExceptionInEveryHttpMethod(pathItem, ruleName) {
+  if (!pathItem) return false;
+  const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
+  const existingMethods = httpMethods.filter((method) => pathItem[method]);
+
+  // If no HTTP methods exist, return false
+  if (existingMethods.length === 0) return false;
+
+  // Check if every existing HTTP method has the exception
+  return existingMethods.every((method) => hasException(pathItem[method], ruleName));
+}

@@ -124,13 +124,66 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
     document: {
       paths: {
         '/resource_groups': {
-          'x-xgen-IPA-exception': {
-            'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+          get: {
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+            },
+          },
+          delete: {
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+            },
           },
         },
       },
     },
     errors: [],
+  },
+  {
+    name: 'valid with all methods having exceptions (every method needs exception)',
+    document: {
+      paths: {
+        '/resource_groups': {
+          get: {
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+            },
+          },
+          delete: {
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid when not all methods have exceptions',
+    document: {
+      paths: {
+        '/resource_groups': {
+          get: {
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+            },
+          },
+          post: {
+            description: 'This method has no exception',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-102-collection-identifier-camelCase',
+        message:
+          "Collection identifiers must be in camelCase. Path segment 'resource_groups' in path '/resource_groups' is not in camelCase.",
+        path: ['paths', '/resource_groups'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
   },
   {
     name: 'reports violations for paths with double slashes',
