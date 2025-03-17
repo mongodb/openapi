@@ -88,12 +88,11 @@ async function filterIpaViolations() {
     // Generate markdown content
     let markdownContent = `# ${ruleId} Violations Checklist\n\n`;
     markdownContent += `Generated on: ${new Date().toLocaleString()}\n\n`;
-
     Object.keys(groupedBySource).forEach((source) => {
       const violations = groupedBySource[source];
 
       violations.forEach((violation) => {
-        markdownContent += `## ${violation.source}\n\n`;
+        markdownContent += `## ${violation.message}\n\n`;
         markdownContent += `Path: \`${violation.path.join('/')}\`\n\n`;
         markdownContent += `- [ ] Fixed\n\n`;
       });
