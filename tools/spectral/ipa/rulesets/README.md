@@ -198,8 +198,11 @@ Validation checks the POST method for resource collection paths.
 Request body content of the Create method and response content of the Get method should refer to the same resource.
 ##### Implementation details
 Validation checks the POST method for resource collection paths.
+  - Validation ignores resources without a Get method.
   - `readOnly:true` properties of Get method response will be ignored. 
   - `writeOnly:true` properties of Create method request will be ignored.
+  - Property comparison is based on `type` and `name` matching.
+  - `oneOf` and `discriminator` definitions must match exactly.
 #### xgen-IPA-106-create-method-request-has-no-readonly-fields
 
  ![warn](https://img.shields.io/badge/warning-yellow) 

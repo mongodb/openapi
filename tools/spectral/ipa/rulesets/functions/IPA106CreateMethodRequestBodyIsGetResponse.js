@@ -5,10 +5,10 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { isDeepEqual, removeReadOnlyProperties, removeWriteOnlyProperties } from './utils/compareUtils.js';
+import { isDeepEqual, removeRequestProperties, removeResponseProperties } from './utils/compareUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
+import { getResponseOfGetMethodByMediaType, getSchemaRef } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-get-method-response';
 const ERROR_MESSAGE =
@@ -16,6 +16,7 @@ const ERROR_MESSAGE =
 
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
+  const unresolvedOas = documentInventory.unresolved;
   const resourcePath = path[1];
   let mediaType = input;
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
@@ -25,24 +26,34 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const getMethodResponseContentPerMediaType = getResponseOfGetMethodByMediaType(mediaType, resourcePath, oas);
-  if (!getMethodResponseContentPerMediaType) {
+  const getResponseContentPerMediaType = getResponseOfGetMethodByMediaType(mediaType, resourcePath, oas);
+  if (!getResponseContentPerMediaType) {
     return;
   }
 
-  const postMethodRequestContentPerMediaType = resolveObject(oas, path);
-  if (!postMethodRequestContentPerMediaType.schema) {
+  const postRequestContentPerMediaType = resolveObject(oas, path);
+  if (!postRequestContentPerMediaType.schema) {
     return;
   }
-  if (hasException(postMethodRequestContentPerMediaType, RULE_NAME)) {
-    collectException(postMethodRequestContentPerMediaType, RULE_NAME, path);
+
+  if (hasException(postRequestContentPerMediaType, RULE_NAME)) {
+    collectException(postRequestContentPerMediaType, RULE_NAME, path);
     return;
   }
+
+  const postRequestContentPerMediaTypeUnresolved = resolveObject(unresolvedOas, path);
+  const getResponseContentPerMediaTypeUnresolved = getResponseOfGetMethodByMediaType(
+    mediaType,
+    resourcePath,
+    unresolvedOas
+  );
 
   const errors = checkViolationsAndReturnErrors(
     path,
-    postMethodRequestContentPerMediaType,
-    getMethodResponseContentPerMediaType
+    postRequestContentPerMediaType,
+    getResponseContentPerMediaType,
+    postRequestContentPerMediaTypeUnresolved,
+    getResponseContentPerMediaTypeUnresolved
   );
 
   if (errors.length !== 0) {
@@ -54,12 +65,14 @@ export default (input, _, { path, documentInventory }) => {
 
 function checkViolationsAndReturnErrors(
   path,
-  postMethodRequestContentPerMediaType,
-  getMethodResponseContentPerMediaType
+  postRequestContentPerMediaType,
+  getResponseContentPerMediaType,
+  postRequestContentPerMediaTypeUnresolved,
+  getResponseContentPerMediaTypeUnresolved
 ) {
   const errors = [];
 
-  if (!getMethodResponseContentPerMediaType.schema) {
+  if (!getResponseContentPerMediaType.schema) {
     return [
       {
         path,
@@ -68,9 +81,17 @@ function checkViolationsAndReturnErrors(
     ];
   }
 
-  // Create filtered versions of schemas by removing properties with appropriate flags
-  const filteredCreateRequestSchema = removeWriteOnlyProperties(postMethodRequestContentPerMediaType);
-  const filteredGetResponseSchema = removeReadOnlyProperties(getMethodResponseContentPerMediaType);
+  const postRequestSchemaRef = getSchemaRef(postRequestContentPerMediaTypeUnresolved.schema);
+  const getResponseSchemaRef = getSchemaRef(getResponseContentPerMediaTypeUnresolved.schema);
+
+  if (postRequestSchemaRef && getResponseSchemaRef) {
+    if (postRequestSchemaRef === getResponseSchemaRef) {
+      return [];
+    }
+  }
+
+  const filteredCreateRequestSchema = removeRequestProperties(postRequestContentPerMediaType.schema);
+  const filteredGetResponseSchema = removeResponseProperties(getResponseContentPerMediaType.schema);
 
   if (!isDeepEqual(filteredCreateRequestSchema, filteredGetResponseSchema)) {
     errors.push({
