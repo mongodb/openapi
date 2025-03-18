@@ -23,6 +23,7 @@ function handleAdminAPIv2() {
   const versions = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
   if (!versions || !Array.isArray(versions)) {
+    console.error(`No versions found for Atlas Admin API v2 at ${filePath}`);
     return;
   }
 
@@ -31,6 +32,7 @@ function handleAdminAPIv2() {
     const openapiFilePath = path.join(path.dirname(filePath), openapiFilename);
 
     if (!fs.existsSync(openapiFilePath)) {
+      console.error(`Could not find resource version "${version}" at ${openapiFilePath}`);
       continue;
     }
 
