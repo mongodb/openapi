@@ -62,7 +62,7 @@ testRule('xgen-IPA-109-custom-method-identifier-format', [
       {
         code: 'xgen-IPA-109-custom-method-identifier-format',
         message:
-          "The path /resources/:customMethod contains a '/' before a custom method. Custom methods should not start with a '/'.",
+          "The path /resources/:customMethod contains a '/' before the custom method name. Custom method paths should not have a '/' before the ':'.",
         path: ['paths', '/resources/:customMethod'],
         severity: DiagnosticSeverity.Error,
       },
@@ -81,14 +81,14 @@ testRule('xgen-IPA-109-custom-method-identifier-format', [
       {
         code: 'xgen-IPA-109-custom-method-identifier-format',
         message:
-          "The path /:customMethod contains a '/' before a custom method. Custom methods should not start with a '/'.",
+          "The path /:customMethod contains a '/' before the custom method name. Custom method paths should not have a '/' before the ':'.",
         path: ['paths', '/:customMethod'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-109-custom-method-identifier-format',
         message:
-          "The path /resources/{resourceId}/:customMethod contains a \'/\' before a custom method. Custom methods should not start with a \'/\'.",
+          "The path /resources/{resourceId}/:customMethod contains a '/' before the custom method name. Custom method paths should not have a '/' before the ':'.",
         path: ['paths', '/resources/{resourceId}/:customMethod'],
         severity: DiagnosticSeverity.Error,
       },

@@ -52,7 +52,7 @@ function checkViolationsAndReturnErrors(pathKey, path) {
       return [
         {
           path,
-          message: `The path ${pathKey} contains a '/' before a custom method. Custom methods should not start with a '/'.`,
+          message: `The path ${pathKey} contains a '/' before the custom method name. Custom method paths should not have a '/' before the ':'.`,
         },
       ];
     }
