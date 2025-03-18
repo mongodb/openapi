@@ -745,6 +745,7 @@ func TestApply(t *testing.T) {
 	assert.NotContains(t, oas.Paths.Map(), "/api/atlas/v2/groups/{groupId}/streams")
 	assert.Contains(t, oas.Paths.Map(), "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs")
 	assert.NotContains(t, oas.Components.Schemas, "test")
+	assert.Contains(t, oas.Components.Schemas, "testKeep")
 	assert.Contains(t, oas.Components.Schemas, "test2")
 	assert.NotContains(t, oas.Components.Schemas["test2"].Value.Properties, "testP")
 }
@@ -797,6 +798,14 @@ func getApplyOas() *openapi3.T {
 							},
 						},
 					},
+				},
+			},
+		},
+		"testKeep": {
+			Ref: "#/components/schemas/testKeep",
+			Extensions: map[string]any{
+				hiddenEnvsExtension: map[string]any{
+					"envs": "qa",
 				},
 			},
 		},

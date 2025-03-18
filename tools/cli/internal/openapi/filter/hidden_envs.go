@@ -51,68 +51,110 @@ func (f *HiddenEnvsFilter) Apply() error {
 		}
 	}
 
-	return f.applyOnSchemas()
-}
-
-func (f *HiddenEnvsFilter) applyOnSchemas() error {
 	if f.oas.Components == nil || f.oas.Components.Schemas == nil {
 		return nil
 	}
 
-	if len(f.oas.Components.Schemas) == 0 {
-		return nil
-	}
+	return f.applyOnSchemas(f.oas.Components.Schemas)
+}
 
-	for name, schema := range f.oas.Components.Schemas {
-		if err := f.removeSchemaIfHiddenForEnv(name, schema); err != nil {
+func (f *HiddenEnvsFilter) applyOnSchemas(schemas openapi3.Schemas) error {
+	for name, schema := range schemas {
+		if err := f.removeSchemaIfHiddenForEnv(name, schema, schemas); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *openapi3.SchemaRef) error {
+func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *openapi3.SchemaRef, schemas openapi3.Schemas) error {
 	if schema == nil {
 		return nil
 	}
 
-	if schema.Value == nil {
-		return nil
-	}
+	// if name == "ApiSearchDeploymentResponseView" {
+	// 	log.Printf("Schema: %s", schema)
+	// 	log.Printf("Schema: %s", schema.Value)
+	// 	log.Printf("Schema: %s", schema.Value.Properties)
+	// }
 
+	f.removePropertiesIfHiddenFromEnv(schema)
+	f.removeItemsIfHiddenForEnv(schema)
 	if extension, ok := schema.Extensions[hiddenEnvsExtension]; ok {
 		log.Printf("Found x-hidden-envs in schema: K: %q, V: %q", hiddenEnvsExtension, extension)
 		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
 			log.Printf("Removing schema: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
-			delete(f.oas.Components.Schemas, name)
+			delete(schemas, name)
+		} else {
+			// Remove the Hidden extension from the final OAS
+			delete(schema.Extensions, hiddenEnvsExtension)
+		}
+	}
+
+	if schema.Value == nil || schema.Value.Extensions == nil {
+		return nil
+	}
+
+	if extension, ok := schema.Value.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs in schema: K: %q, V: %q", hiddenEnvsExtension, extension)
+		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
+			log.Printf("Removing schema: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
+			delete(schemas, name)
 		} else {
 			// Remove the Hidden extension from the final OAS
 			delete(schema.Value.Extensions, hiddenEnvsExtension)
 		}
 	}
-
-	if schema.Value.Properties != nil {
-		for name, property := range schema.Value.Properties {
-			if extension, ok := property.Extensions[hiddenEnvsExtension]; ok {
-				log.Printf("Found x-hidden-envs in property: K: %q, V: %q", hiddenEnvsExtension, extension)
-				if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
-					log.Printf("Removing property: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
-					delete(schema.Value.Properties, name)
-				} else {
-					// Remove the Hidden extension from the final OAS
-					delete(property.Extensions, hiddenEnvsExtension)
-				}
-			}
-		}
-	}
-
-	if schema.Value.Items != nil {
-		if err := f.removeSchemaIfHiddenForEnv("items", schema.Value.Items); err != nil {
-			return err
-		}
-	}
-
 	return nil
+}
+
+func (f *HiddenEnvsFilter) removePropertiesIfHiddenFromEnv(schema *openapi3.SchemaRef) {
+	if schema.Value == nil || schema.Value.Properties == nil {
+		return
+	}
+
+	f.applyOnSchemas(schema.Value.Properties)
+	// for propertyName, property := range schema.Value.Properties {
+	// 	if propertyName == "hiddenPropertyTest" {
+	// 		log.Printf("Property: %s", property)
+	// 		log.Printf("Property: %s", property.Extensions)
+	// 		log.Printf("Property: %s", property.Value)
+	// 		log.Printf("Property: %s", property.Value.Extensions)
+
+	// 	}
+	// 	if extension, ok := property.Extensions[hiddenEnvsExtension]; ok {
+	// 		log.Printf("Found x-hidden-envs in property: K: %q, V: %q", hiddenEnvsExtension, extension)
+	// 		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
+	// 			log.Printf("Removing property: %q because is hidden for target env: %q", propertyName, f.metadata.targetEnv)
+	// 			delete(schema.Value.Properties, propertyName)
+	// 		} else {
+	// 			// Remove the Hidden extension from the final OAS
+	// 			delete(property.Extensions, hiddenEnvsExtension)
+	// 		}
+	// 	}
+
+	// 	if property.Value == nil || property.Value.Properties == nil {
+	// 		continue
+	// 	}
+	// 	f.removeSchemaIfHiddenForEnv(property.Value.Properties)
+	// }
+}
+
+func (f *HiddenEnvsFilter) removeItemsIfHiddenForEnv(schema *openapi3.SchemaRef) {
+	if schema.Value == nil || schema.Value.Items == nil {
+		return
+	}
+
+	if extension, ok := schema.Value.Items.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs in items: K: %q, V: %q", hiddenEnvsExtension, extension)
+		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
+			log.Printf("Removing items because is hidden for target env: %q", f.metadata.targetEnv)
+			schema.Value.Items = nil
+		} else {
+			// Remove the Hidden extension from the final OAS
+			delete(schema.Value.Items.Extensions, hiddenEnvsExtension)
+		}
+	}
 }
 
 func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem) error {
