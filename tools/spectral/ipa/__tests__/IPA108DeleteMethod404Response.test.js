@@ -98,4 +98,41 @@ testRule('xgen-IPA-108-delete-include-404-response', [
     },
     errors: [],
   },
+  {
+    name: 'skipped for collection endpoint (no path parameter)',
+    document: {
+      paths: {
+        '/resources': {
+          delete: {
+            responses: {
+              204: {},
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'applied for single resource endpoint (with path parameter)',
+    document: {
+      paths: {
+        '/resources/{resourceId}': {
+          delete: {
+            responses: {
+              204: {},
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-108-delete-include-404-response',
+        message: 'DELETE method should include 404 status code for not found resources.',
+        path: ['paths', '/resources/{resourceId}', 'delete'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
 ]);

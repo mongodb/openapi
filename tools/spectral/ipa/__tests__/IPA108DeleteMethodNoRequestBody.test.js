@@ -68,4 +68,49 @@ testRule('xgen-IPA-108-delete-request-no-body', [
     },
     errors: [],
   },
+  {
+    name: 'skipped for collection endpoint (no path parameter)',
+    document: {
+      paths: {
+        '/resources': {
+          delete: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { type: 'object' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'applied for single resource endpoint (with path parameter)',
+    document: {
+      paths: {
+        '/resources/{resourceId}': {
+          delete: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { type: 'object' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-108-delete-request-no-body',
+        message: 'DELETE method should not have a request body.',
+        path: ['paths', '/resources/{resourceId}', 'delete'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
 ]);

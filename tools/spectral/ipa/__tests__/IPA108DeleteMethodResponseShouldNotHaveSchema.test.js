@@ -95,4 +95,54 @@ testRule('xgen-IPA-108-delete-response-should-be-empty', [
     },
     errors: [],
   },
+  {
+    name: 'skipped for collection endpoint (no path parameter)',
+    document: {
+      paths: {
+        '/resources': {
+          delete: {
+            responses: {
+              204: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: { type: 'object' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'applied for single resource endpoint (with path parameter)',
+    document: {
+      paths: {
+        '/resources/{resourceId}': {
+          delete: {
+            responses: {
+              204: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: { type: 'object' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-108-delete-response-should-be-empty',
+        message:
+          'Error found for application/vnd.atlas.2023-01-01+json: DELETE method should return an empty response. The response should not have a schema property.',
+        path: ['paths', '/resources/{resourceId}', 'delete', 'responses', '204'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
 ]);

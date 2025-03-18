@@ -101,4 +101,45 @@ testRule('xgen-IPA-108-delete-method-return-204-response', [
     },
     errors: [],
   },
+  {
+    name: 'skipped for collection endpoint (no path parameter)',
+    document: {
+      paths: {
+        '/resources': {
+          delete: {
+            responses: {
+              200: {
+                description: 'Resource deleted',
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'applied for single resource endpoint (with path parameter)',
+    document: {
+      paths: {
+        '/resources/{resourceId}': {
+          delete: {
+            responses: {
+              200: {
+                description: 'Resource deleted',
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-108-delete-method-return-204-response',
+        message: 'DELETE method should return 204 No Content status code.',
+        path: ['paths', '/resources/{resourceId}', 'delete'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
 ]);

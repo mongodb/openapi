@@ -4,6 +4,7 @@ import {
   collectException,
   handleInternalError,
 } from './utils/collectionUtils.js';
+import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-108-delete-method-return-204-response';
@@ -17,6 +18,17 @@ const ERROR_MESSAGE = 'DELETE method should return 204 No Content status code.';
  * @param {object} context - The context object containing the path
  */
 export default (input, _, { path }) => {
+  // Check if the path is for a single resource (e.g., has path parameter)
+  // Extract the path from context.path which is an array
+  const pathString = path[1]; // Assuming path is ['paths', '/resource/{id}', 'delete']
+  if (!isSingleResourceIdentifier(pathString)) {
+    return;
+  }
+
+  if (!input || typeof input !== 'object') {
+    return;
+  }
+
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
     return;
