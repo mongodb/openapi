@@ -73,12 +73,10 @@ func (f *HiddenEnvsFilter) applyOnSchemas() error {
 
 func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *openapi3.SchemaRef) error {
 	if schema == nil {
-		delete(f.oas.Components.Schemas, name)
 		return nil
 	}
 
 	if schema.Value == nil {
-		delete(f.oas.Components.Schemas, name)
 		return nil
 	}
 
