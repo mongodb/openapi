@@ -22,26 +22,11 @@ const componentSchemas = {
   },
 };
 
-testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
+testRule('xgen-IPA-107-update-method-response-is-get-method-response', [
   {
-    name: 'valid create responses',
+    name: 'valid update responses',
     document: {
       paths: {
-        '/resources': {
-          post: {
-            responses: {
-              201: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: {
-                      $ref: '#/components/schemas/ResourceSchema',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
         '/resources/{id}': {
           get: {
             responses: {
@@ -56,12 +41,25 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
               },
             },
           },
+          patch: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-08-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/ResourceSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         // Multiple versions
-        '/versionedResources': {
-          post: {
+        '/versionedResources/{id}': {
+          get: {
             responses: {
-              201: {
+              200: {
                 content: {
                   'application/vnd.atlas.2024-08-05+json': {
                     schema: {
@@ -77,9 +75,7 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
               },
             },
           },
-        },
-        '/versionedResources/{id}': {
-          get: {
+          patch: {
             responses: {
               200: {
                 content: {
@@ -108,10 +104,10 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
     document: {
       paths: {
         // Path not ending in collection
-        '/not/a/collection/resource': {
-          post: {
+        '/not/a/collection/resource/{id}': {
+          patch: {
             responses: {
-              201: {
+              200: {
                 content: {
                   'application/vnd.atlas.2024-08-05+json': {
                     schema: {
@@ -125,14 +121,11 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
               },
             },
           },
-        },
-        // Version mismatch but will be ignored
-        '/versionMismatchResources': {
-          post: {
+          get: {
             responses: {
-              201: {
+              200: {
                 content: {
-                  'application/vnd.atlas.2024-01-05+json': {
+                  'application/vnd.atlas.2024-08-05+json': {
                     schema: {
                       $ref: '#/components/schemas/ResourceSchema',
                     },
@@ -142,6 +135,7 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
             },
           },
         },
+        // Version mismatch but will be ignored
         '/versionMismatchResources/{id}': {
           get: {
             responses: {
@@ -156,21 +150,9 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
               },
             },
           },
-        },
-      },
-      components: componentSchemas,
-    },
-    errors: [],
-  },
-  {
-    name: 'invalid create responses',
-    document: {
-      paths: {
-        // Get without schema
-        '/resourcesOne': {
-          post: {
+          patch: {
             responses: {
-              201: {
+              200: {
                 content: {
                   'application/vnd.atlas.2024-01-05+json': {
                     schema: {
@@ -182,7 +164,48 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
             },
           },
         },
-        '/resourcesOne/{id}': {
+        // Non-200 will be ignored
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-08-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/ResourceSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          patch: {
+            responses: {
+              202: {
+                requestBody: {
+                  content: {
+                    'application/vnd.atlas.2024-01-05+json': {
+                      schema: {
+                        $ref: '#/components/schemas/OtherSchema',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: componentSchemas,
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid update responses',
+    document: {
+      paths: {
+        // Get without schema - Patch
+        '/resourceOne/{id}': {
           get: {
             responses: {
               200: {
@@ -192,12 +215,9 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
               },
             },
           },
-        },
-        // Get without schema ref
-        '/resourcesTwo': {
-          post: {
+          patch: {
             responses: {
-              201: {
+              200: {
                 content: {
                   'application/vnd.atlas.2024-01-05+json': {
                     schema: {
@@ -209,7 +229,33 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
             },
           },
         },
-        '/resourcesTwo/{id}': {
+        // Get without schema - Put
+        '/resourceTwo/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-05+json': {},
+                },
+              },
+            },
+          },
+          put: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/ResourceSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        // Get without schema ref
+        '/resourceThree/{id}': {
           get: {
             responses: {
               200: {
@@ -223,53 +269,11 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
               },
             },
           },
-        },
-      },
-      components: componentSchemas,
-    },
-    errors: [
-      {
-        code: 'xgen-IPA-106-create-method-response-is-get-method-response',
-        message:
-          'Could not validate that the Create method returns the same resource object as the Get method. The Get method does not have a schema.',
-        path: [
-          'paths',
-          '/resourcesOne',
-          'post',
-          'responses',
-          '201',
-          'content',
-          'application/vnd.atlas.2024-01-05+json',
-        ],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-106-create-method-response-is-get-method-response',
-        message:
-          'Could not validate that the Create method returns the same resource object as the Get method. The Get method does not have a schema reference.',
-        path: [
-          'paths',
-          '/resourcesTwo',
-          'post',
-          'responses',
-          '201',
-          'content',
-          'application/vnd.atlas.2024-01-05+json',
-        ],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
-  },
-  {
-    name: 'invalid with version mismatch',
-    document: {
-      paths: {
-        '/resources': {
-          post: {
+          patch: {
             responses: {
-              201: {
+              200: {
                 content: {
-                  'application/vnd.atlas.2024-08-05+json': {
+                  'application/vnd.atlas.2024-01-05+json': {
                     schema: {
                       $ref: '#/components/schemas/ResourceSchema',
                     },
@@ -279,8 +283,22 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
             },
           },
         },
-        '/resources/{id}': {
+        // Schema mismatch
+        '/resourceFour/{id}': {
           get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/ResourceSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          patch: {
             responses: {
               200: {
                 content: {
@@ -299,9 +317,114 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
     },
     errors: [
       {
-        code: 'xgen-IPA-106-create-method-response-is-get-method-response',
-        message: 'The schema in the Create method response must be the same schema as the response of the Get method.',
-        path: ['paths', '/resources', 'post', 'responses', '201', 'content', 'application/vnd.atlas.2024-08-05+json'],
+        code: 'xgen-IPA-107-update-method-response-is-get-method-response',
+        message:
+          'Could not validate that the Update method returns the same resource object as the Get method. The Get method does not have a schema.',
+        path: [
+          'paths',
+          '/resourceOne/{id}',
+          'patch',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-05+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-107-update-method-response-is-get-method-response',
+        message:
+          'Could not validate that the Update method returns the same resource object as the Get method. The Get method does not have a schema.',
+        path: [
+          'paths',
+          '/resourceTwo/{id}',
+          'put',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-05+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-107-update-method-response-is-get-method-response',
+        message:
+          'Could not validate that the Update method returns the same resource object as the Get method. The Get method does not have a schema reference.',
+        path: [
+          'paths',
+          '/resourceThree/{id}',
+          'patch',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-05+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-107-update-method-response-is-get-method-response',
+        message: 'The schema in the Update method response must be the same schema as the response of the Get method.',
+        path: [
+          'paths',
+          '/resourceFour/{id}',
+          'patch',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-05+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid with version mismatch',
+    document: {
+      paths: {
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/OtherSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          patch: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-08-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/ResourceSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: componentSchemas,
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-107-update-method-response-is-get-method-response',
+        message: 'The schema in the Update method response must be the same schema as the response of the Get method.',
+        path: [
+          'paths',
+          '/resource/{id}',
+          'patch',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-08-05+json',
+        ],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -310,14 +433,27 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
     name: 'invalid with exception',
     document: {
       paths: {
-        '/resources': {
-          post: {
+        '/resource/{id}': {
+          get: {
             responses: {
-              201: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-08-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/ResourceSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          patch: {
+            responses: {
+              200: {
                 content: {
                   'application/vnd.atlas.2024-08-05+json': {
                     'x-xgen-IPA-exception': {
-                      'xgen-IPA-106-create-method-response-is-get-method-response': 'Exception reason',
+                      'xgen-IPA-107-update-method-response-is-get-method-response': 'Exception reason',
                     },
                     schema: {
                       type: 'object',
@@ -331,7 +467,7 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
             },
           },
         },
-        '/resources/{id}': {
+        '/resourceTwo/{id}': {
           get: {
             responses: {
               200: {
@@ -339,6 +475,22 @@ testRule('xgen-IPA-106-create-method-response-is-get-method-response', [
                   'application/vnd.atlas.2024-08-05+json': {
                     schema: {
                       $ref: '#/components/schemas/ResourceSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          patch: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-08-05+json': {
+                    'x-xgen-IPA-exception': {
+                      'xgen-IPA-107-update-method-response-is-get-method-response': 'Exception reason',
+                    },
+                    schema: {
+                      $ref: '#/components/schemas/OtherSchema',
                     },
                   },
                 },

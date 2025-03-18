@@ -313,6 +313,16 @@ The Update method response status code should be 200 OK.
 Validation checks the PATCH method for single resource paths and [singleton resources](https://go/ipa/113).
 
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+#### xgen-IPA-107-update-method-response-is-get-method-response
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The response body of the Update method should consist of the same resource object returned by the Get method.
+##### Implementation details Rule checks for the following conditions:
+  - Applies only to single resource paths with JSON content types
+  - Ignores singleton resources and responses without a schema 
+  - Validation ignores resources without a Get method
+  - Fails if the Get method doesn't have a schema reference or if the schemas don't match
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 
 ### IPA-108

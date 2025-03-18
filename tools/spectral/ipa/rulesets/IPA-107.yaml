@@ -4,6 +4,7 @@
 functions:
   - IPA107UpdateMethodMustNotHaveQueryParams
   - IPA107UpdateResponseCodeShouldBe200OK
+  - IPA107UpdateMethodResponseIsGetMethodResponse
 
 rules:
   xgen-IPA-107-put-must-not-have-query-params:
@@ -68,3 +69,20 @@ rules:
     given: '$.paths[*].patch'
     then:
       function: 'IPA107UpdateResponseCodeShouldBe200OK'
+  xgen-IPA-107-update-method-response-is-get-method-response:
+    description: >-
+      The response body of the Update method should consist of the same resource object returned by the Get method.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to single resource paths with JSON content types
+        - Ignores singleton resources and responses without a schema 
+        - Validation ignores resources without a Get method
+        - Fails if the Get method doesn't have a schema reference or if the schemas don't match
+        - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-method-response-is-get-method-response'
+    severity: warn
+    given: '$.paths[*][put,patch].responses.200.content'
+    then:
+      field: '@key'
+      function: 'IPA107UpdateMethodResponseIsGetMethodResponse'

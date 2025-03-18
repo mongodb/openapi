@@ -118,7 +118,7 @@ export function getResponseOfListMethodByMediaType(mediaType, pathForResourceCol
  * @param {string} mediaType The media type
  * @returns {Object|null} The schema object, or null if not found
  */
-function getGETMethodResponseSchemaFromPathItem(pathItem, mediaType) {
+export function getGETMethodResponseSchemaFromPathItem(pathItem, mediaType) {
   if (!hasGetMethod(pathItem)) {
     return null;
   }
