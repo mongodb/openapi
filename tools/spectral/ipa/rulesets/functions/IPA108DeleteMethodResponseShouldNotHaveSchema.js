@@ -5,6 +5,7 @@ import {
   collectException,
   handleInternalError,
 } from './utils/collectionUtils.js';
+import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
 
 const RULE_NAME = 'xgen-IPA-108-delete-response-should-be-empty';
 const ERROR_MESSAGE = 'DELETE method should return an empty response. The response should not have a schema property.';
@@ -16,6 +17,11 @@ const ERROR_MESSAGE = 'DELETE method should return an empty response. The respon
  * @param {object} context - The context object containing the path
  */
 export default (input, _, { path }) => {
+  const pathString = path[1]; // Extract the resource path
+  if (!isSingleResourceIdentifier(pathString)) {
+    return;
+  }
+
   // 1. Handle exception on OpenAPI schema
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
