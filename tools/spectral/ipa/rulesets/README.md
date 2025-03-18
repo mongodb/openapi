@@ -338,7 +338,8 @@ DELETE method must return 204 No Content.
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies to all DELETE methods
-  - Verifies that the method includes a 204 response code
+   - Verifies the 204 No Content response code is present
+  - Fails if the method lacks a 204 No Content response or defines a different 2xx status code
   - Ensures no other 2xx response codes are defined
   - Fails if the 204 status code is missing or if other 2xx responses exist
 
