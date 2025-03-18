@@ -729,6 +729,230 @@ func TestRemoveResponseIfHiddenForEnv(t *testing.T) {
 	}
 }
 
+func TestApplyOnSchemas(t *testing.T) {
+	tests := []struct {
+		name      string
+		schemas   openapi3.Schemas
+		targetEnv string
+		expected  openapi3.Schemas
+	}{
+		{
+			name: "Remove schema hidden for target environment",
+			schemas: openapi3.Schemas{
+				"schema1": {
+					Extensions: map[string]any{
+						hiddenEnvsExtension: map[string]any{
+							"envs": "prod",
+						},
+					},
+				},
+				"schema2": {
+					Extensions: map[string]any{
+						hiddenEnvsExtension: map[string]any{
+							"envs": "dev",
+						},
+					},
+				},
+			},
+			targetEnv: "prod",
+			expected: openapi3.Schemas{
+				"schema2": {
+					Extensions: map[string]any{},
+				},
+			},
+		},
+		{
+			name: "Remove properties hidden for target environment",
+			schemas: openapi3.Schemas{
+				"schema1": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property1": {
+								Extensions: map[string]any{
+									hiddenEnvsExtension: map[string]any{
+										"envs": "prod",
+									},
+								},
+							},
+							"property2": {
+								Extensions: map[string]any{
+									hiddenEnvsExtension: map[string]any{
+										"envs": "dev",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			targetEnv: "prod",
+			expected: openapi3.Schemas{
+				"schema1": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property2": {
+								Extensions: map[string]any{},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Remove properties of properties hidden for target environment",
+			schemas: openapi3.Schemas{
+				"schema1": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property1": {
+								Value: &openapi3.Schema{
+									Properties: map[string]*openapi3.SchemaRef{
+										"subProperty1": {
+											Extensions: map[string]any{
+												hiddenEnvsExtension: map[string]any{
+													"envs": "prod",
+												},
+											},
+										},
+										"subProperty2": {
+											Extensions: map[string]any{
+												hiddenEnvsExtension: map[string]any{
+													"envs": "dev",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			targetEnv: "prod",
+			expected: openapi3.Schemas{
+				"schema1": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property1": {
+								Value: &openapi3.Schema{
+									Properties: map[string]*openapi3.SchemaRef{
+										"subProperty2": {
+											Extensions: map[string]any{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Retain schemas and properties not hidden for target environment",
+			schemas: openapi3.Schemas{
+				"schema1": {
+					Extensions: map[string]any{
+						hiddenEnvsExtension: map[string]any{
+							"envs": "dev",
+						},
+					},
+				},
+				"schema2": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property1": {
+								Extensions: map[string]any{
+									hiddenEnvsExtension: map[string]any{
+										"envs": "dev",
+									},
+								},
+							},
+							"property2": {
+								Extensions: map[string]any{},
+							},
+						},
+					},
+				},
+			},
+			targetEnv: "prod",
+			expected: openapi3.Schemas{
+				"schema1": {
+					Extensions: map[string]any{},
+				},
+				"schema2": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property1": {
+								Extensions: map[string]any{},
+							},
+							"property2": {
+								Extensions: map[string]any{},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Remove hidden environment extension from final OAS",
+			schemas: openapi3.Schemas{
+				"schema1": {
+					Extensions: map[string]any{
+						hiddenEnvsExtension: map[string]any{
+							"envs": "prod",
+						},
+					},
+				},
+				"schema2": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property1": {
+								Extensions: map[string]any{
+									hiddenEnvsExtension: map[string]any{
+										"envs": "prod",
+									},
+								},
+							},
+							"property2": {
+								Extensions: map[string]any{},
+							},
+						},
+					},
+				},
+			},
+			targetEnv: "dev",
+			expected: openapi3.Schemas{
+				"schema1": {
+					Extensions: map[string]any{},
+				},
+				"schema2": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property1": {
+								Extensions: map[string]any{},
+							},
+							"property2": {
+								Extensions: map[string]any{},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			filter := HiddenEnvsFilter{
+				metadata: &Metadata{targetEnv: tt.targetEnv},
+			}
+			err := filter.applyOnSchemas(tt.schemas)
+			require.NoError(t, err)
+			assert.Equal(t, tt.expected, tt.schemas)
+		})
+	}
+}
+
 func TestApply(t *testing.T) {
 	metadata := &Metadata{
 		targetEnv: "prod",

@@ -72,39 +72,37 @@ func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *opena
 		return nil
 	}
 
-	// if name == "ApiSearchDeploymentResponseView" {
-	// 	log.Printf("Schema: %s", schema)
-	// 	log.Printf("Schema: %s", schema.Value)
-	// 	log.Printf("Schema: %s", schema.Value.Properties)
-	// }
-
-	f.removePropertiesIfHiddenFromEnv(schema)
-	f.removeItemsIfHiddenForEnv(schema)
+	// Remove the schema if it is hidden for the target environment
 	if extension, ok := schema.Extensions[hiddenEnvsExtension]; ok {
 		log.Printf("Found x-hidden-envs in schema: K: %q, V: %q", hiddenEnvsExtension, extension)
 		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
 			log.Printf("Removing schema: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
 			delete(schemas, name)
-		} else {
-			// Remove the Hidden extension from the final OAS
-			delete(schema.Extensions, hiddenEnvsExtension)
+			return nil
 		}
+
+		// Remove the Hidden extension from the final OAS
+		delete(schema.Extensions, hiddenEnvsExtension)
 	}
 
-	if schema.Value == nil || schema.Value.Extensions == nil {
-		return nil
-	}
+	if schema.Value != nil && schema.Value.Extensions != nil {
+		if extension, ok := schema.Value.Extensions[hiddenEnvsExtension]; ok {
+			log.Printf("Found x-hidden-envs in schema: K: %q, V: %q", hiddenEnvsExtension, extension)
+			if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
+				log.Printf("Removing schema: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
+				delete(schemas, name)
+				return nil
+			}
 
-	if extension, ok := schema.Value.Extensions[hiddenEnvsExtension]; ok {
-		log.Printf("Found x-hidden-envs in schema: K: %q, V: %q", hiddenEnvsExtension, extension)
-		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
-			log.Printf("Removing schema: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
-			delete(schemas, name)
-		} else {
 			// Remove the Hidden extension from the final OAS
 			delete(schema.Value.Extensions, hiddenEnvsExtension)
 		}
 	}
+
+	// Remove properties and items if they are hidden for the target environment
+	f.removePropertiesIfHiddenFromEnv(schema)
+	f.removeItemsIfHiddenForEnv(schema)
+
 	return nil
 }
 
