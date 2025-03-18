@@ -319,10 +319,22 @@ Validation checks the PATCH method for single resource paths and [singleton reso
 The response body of the Update method should consist of the same resource object returned by the Get method.
 ##### Implementation details Rule checks for the following conditions:
   - Applies only to single resource paths with JSON content types
-  - Ignores singleton resources and responses without a schema 
+  - Ignores singleton resources and responses without a schema
   - Validation ignores resources without a Get method
   - Fails if the Get method doesn't have a schema reference or if the schemas don't match
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+#### xgen-IPA-107-update-method-request-has-no-readonly-fields
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Update method Request object must not include fields with readOnly:true.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to Update methods on single resource paths
+  - Applies only to JSON content types
+  - Searches through the request schema to find any properties marked with readOnly attribute
+  - Fails if any readOnly properties are found in the request schema
+
 
 
 ### IPA-108

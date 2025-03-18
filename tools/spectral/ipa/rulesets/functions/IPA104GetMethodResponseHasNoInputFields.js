@@ -7,7 +7,7 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { findPropertiesByAttribute } from './utils/schemaUtils.js';
+import { checkForbiddenPropertyAttributesAndReturnErrors } from './utils/validations.js';
 
 const RULE_NAME = 'xgen-IPA-104-get-method-response-has-no-input-fields';
 const ERROR_MESSAGE = 'The get method response object must not include output fields (writeOnly properties).';
@@ -35,14 +35,16 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(contentPerMediaType, path);
+  const errors = checkForbiddenPropertyAttributesAndReturnErrors(
+    contentPerMediaType.schema,
+    'writeOnly',
+    path,
+    [],
+    ERROR_MESSAGE
+  );
 
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
   return collectAdoption(path, RULE_NAME);
 };
-
-function checkViolationsAndReturnErrors(contentPerMediaType, path) {
-  return findPropertiesByAttribute(contentPerMediaType.schema, 'writeOnly', path, [], ERROR_MESSAGE);
-}
