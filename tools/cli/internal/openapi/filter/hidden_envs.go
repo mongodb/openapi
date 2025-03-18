@@ -85,7 +85,11 @@ func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *opena
 		delete(schema.Extensions, hiddenEnvsExtension)
 	}
 
-	if schema.Value != nil && schema.Value.Extensions != nil {
+	if schema.Value == nil {
+		return nil
+	}
+
+	if schema.Value.Extensions != nil {
 		if extension, ok := schema.Value.Extensions[hiddenEnvsExtension]; ok {
 			log.Printf("Found x-hidden-envs in schema: K: %q, V: %q", hiddenEnvsExtension, extension)
 			if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
@@ -100,42 +104,12 @@ func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *opena
 	}
 
 	// Remove properties and items if they are hidden for the target environment
-	f.removePropertiesIfHiddenFromEnv(schema)
-	f.removeItemsIfHiddenForEnv(schema)
-
-	return nil
-}
-
-func (f *HiddenEnvsFilter) removePropertiesIfHiddenFromEnv(schema *openapi3.SchemaRef) {
-	if schema.Value == nil || schema.Value.Properties == nil {
-		return
+	if schema.Value.Properties != nil {
+		f.applyOnSchemas(schema.Value.Properties)
 	}
 
-	f.applyOnSchemas(schema.Value.Properties)
-	// for propertyName, property := range schema.Value.Properties {
-	// 	if propertyName == "hiddenPropertyTest" {
-	// 		log.Printf("Property: %s", property)
-	// 		log.Printf("Property: %s", property.Extensions)
-	// 		log.Printf("Property: %s", property.Value)
-	// 		log.Printf("Property: %s", property.Value.Extensions)
-
-	// 	}
-	// 	if extension, ok := property.Extensions[hiddenEnvsExtension]; ok {
-	// 		log.Printf("Found x-hidden-envs in property: K: %q, V: %q", hiddenEnvsExtension, extension)
-	// 		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
-	// 			log.Printf("Removing property: %q because is hidden for target env: %q", propertyName, f.metadata.targetEnv)
-	// 			delete(schema.Value.Properties, propertyName)
-	// 		} else {
-	// 			// Remove the Hidden extension from the final OAS
-	// 			delete(property.Extensions, hiddenEnvsExtension)
-	// 		}
-	// 	}
-
-	// 	if property.Value == nil || property.Value.Properties == nil {
-	// 		continue
-	// 	}
-	// 	f.removeSchemaIfHiddenForEnv(property.Value.Properties)
-	// }
+	f.removeItemsIfHiddenForEnv(schema)
+	return nil
 }
 
 func (f *HiddenEnvsFilter) removeItemsIfHiddenForEnv(schema *openapi3.SchemaRef) {

@@ -939,6 +939,68 @@ func TestApplyOnSchemas(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "Remove hidden environment extension from final OAS",
+			schemas: openapi3.Schemas{
+				"schema1": {
+					Extensions: map[string]any{
+						hiddenEnvsExtension: map[string]any{
+							"envs": "prod",
+						},
+					},
+				},
+				"schema2": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property1": {
+								Extensions: map[string]any{
+									hiddenEnvsExtension: map[string]any{
+										"envs": "prod",
+									},
+								},
+							},
+							"property2": {
+								Extensions: map[string]any{},
+							},
+						},
+					},
+				},
+			},
+			targetEnv: "dev",
+			expected: openapi3.Schemas{
+				"schema1": {
+					Extensions: map[string]any{},
+				},
+				"schema2": {
+					Value: &openapi3.Schema{
+						Properties: map[string]*openapi3.SchemaRef{
+							"property1": {
+								Extensions: map[string]any{},
+							},
+							"property2": {
+								Extensions: map[string]any{},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Remove schema.Value.Extensions hidden for target environment",
+			schemas: openapi3.Schemas{
+				"schema1": {
+					Value: &openapi3.Schema{
+						Extensions: map[string]any{
+							hiddenEnvsExtension: map[string]any{
+								"envs": "prod",
+							},
+						},
+					},
+				},
+			},
+			targetEnv: "prod",
+			expected:  openapi3.Schemas{},
+		},
 	}
 
 	for _, tt := range tests {
