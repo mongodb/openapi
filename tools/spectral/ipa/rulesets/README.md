@@ -326,9 +326,10 @@ Delete method response should not have schema reference to object.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to 204 responses in DELETE methods
+  - Applies to 204 responses in DELETE methods for single resource endpoints (with path parameters)
   - Verifies that the response does not contain a schema property
   - Fails if any content type in the response has a defined schema as reference
+  - Skips validation for collection endpoints (without path parameters)
 
 #### xgen-IPA-108-delete-method-return-204-response
 
@@ -337,11 +338,12 @@ DELETE method must return 204 No Content.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to all DELETE methods
-   - Verifies the 204 No Content response code is present
+  - Applies to all DELETE methods for single resource endpoints (with path parameters)
+  - Verifies the 204 No Content response code is present
   - Fails if the method lacks a 204 No Content response or defines a different 2xx status code
   - Ensures no other 2xx response codes are defined
   - Fails if the 204 status code is missing or if other 2xx responses exist
+  - Skips validation for collection endpoints (without path parameters)
 
 #### xgen-IPA-108-delete-include-404-response
 
@@ -350,9 +352,10 @@ DELETE method must include 404 response and return it when resource not found.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to all DELETE methods
+  - Applies to all DELETE methods for single resource endpoints (with path parameters)
   - Verifies that the method includes a 404 response code
   - Fails if the 404 status code is missing from the responses
+  - Skips validation for collection endpoints (without path parameters)
 
 #### xgen-IPA-108-delete-request-no-body
 
@@ -361,9 +364,10 @@ DELETE method must not have request body.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to all DELETE methods
+  - Applies to all DELETE methods for single resource endpoints (with path parameters)
   - Verifies that the operation object does not contain a requestBody property
   - Fails if any requestBody is defined for the DELETE method
+  - Skips validation for collection endpoints (without path parameters)
 
 
 
