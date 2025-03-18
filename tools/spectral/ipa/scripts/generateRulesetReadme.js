@@ -34,7 +34,7 @@ async function getRulesetsSection() {
   ipaNumbers.forEach((ipaNumber) => {
     const ipaRules = filterRulesByIpaNumber(ipaNumber, rules);
     const sections = generateRulesetSections(ipaRules);
-    content += `### ${ipaNumber}\n\n` + `Rule is based on ${getIpaRulesetUrl(ipaNumber)}.\n\n` + `${sections}\n\n`;
+    content += `### ${ipaNumber}\n\n` + `Rules are based on ${getIpaRulesetUrl(ipaNumber)}.\n\n` + `${sections}\n\n`;
   });
 
   return content;

@@ -10,7 +10,7 @@ Below is a list of all available rules, their descriptions and severity levels.
 
 ### IPA-005
 
-Rule is based on [http://go/ipa/IPA-5](http://go/ipa/IPA-5).
+Rules are based on [http://go/ipa/IPA-5](http://go/ipa/IPA-5).
 
 #### xgen-IPA-005-exception-extension-format
 
@@ -27,7 +27,7 @@ Rule checks for the following conditions:
 
 ### IPA-102
 
-Rule is based on [http://go/ipa/IPA-102](http://go/ipa/IPA-102).
+Rules are based on [http://go/ipa/IPA-102](http://go/ipa/IPA-102).
 
 #### xgen-IPA-102-path-alternate-resource-name-path-param
 
@@ -76,7 +76,7 @@ Rule checks for the following conditions:
 
 ### IPA-104
 
-Rule is based on [http://go/ipa/IPA-104](http://go/ipa/IPA-104).
+Rules are based on [http://go/ipa/IPA-104](http://go/ipa/IPA-104).
 
 #### xgen-IPA-104-resource-has-GET
 
@@ -143,7 +143,7 @@ Rule checks for the following conditions:
 
 ### IPA-105
 
-Rule is based on [http://go/ipa/IPA-105](http://go/ipa/IPA-105).
+Rules are based on [http://go/ipa/IPA-105](http://go/ipa/IPA-105).
 
 #### xgen-IPA-105-list-method-response-code-is-200
 
@@ -197,7 +197,7 @@ The response body of the List method should consist of the same resource object 
 
 ### IPA-106
 
-Rule is based on [http://go/ipa/IPA-106](http://go/ipa/IPA-106).
+Rules are based on [http://go/ipa/IPA-106](http://go/ipa/IPA-106).
 
 #### xgen-IPA-106-create-method-request-body-is-request-suffixed-object
 
@@ -277,7 +277,7 @@ Rule checks for the following conditions:
 
 ### IPA-107
 
-Rule is based on [http://go/ipa/IPA-107](http://go/ipa/IPA-107).
+Rules are based on [http://go/ipa/IPA-107](http://go/ipa/IPA-107).
 
 #### xgen-IPA-107-put-must-not-have-query-params
 
@@ -317,7 +317,7 @@ Validation checks the PATCH method for single resource paths and [singleton reso
 
 ### IPA-108
 
-Rule is based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
+Rules are based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
 
 #### xgen-IPA-108-delete-response-should-be-empty
 
@@ -369,7 +369,7 @@ Rule checks for the following conditions:
 
 ### IPA-109
 
-Rule is based on [http://go/ipa/IPA-109](http://go/ipa/IPA-109).
+Rules are based on [http://go/ipa/IPA-109](http://go/ipa/IPA-109).
 
 #### xgen-IPA-109-custom-method-must-be-GET-or-POST
 
@@ -400,7 +400,7 @@ Rule checks for the following conditions:
 
 ### IPA-113
 
-Rule is based on [http://go/ipa/IPA-113](http://go/ipa/IPA-113).
+Rules are based on [http://go/ipa/IPA-113](http://go/ipa/IPA-113).
 
 #### xgen-IPA-113-singleton-must-not-have-id
 
@@ -419,7 +419,7 @@ Rule checks for the following conditions:
 
 ### IPA-123
 
-Rule is based on [http://go/ipa/IPA-123](http://go/ipa/IPA-123).
+Rules are based on [http://go/ipa/IPA-123](http://go/ipa/IPA-123).
 
 #### xgen-IPA-123-enum-values-must-be-upper-snake-case
 
