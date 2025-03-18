@@ -25,10 +25,6 @@ export default (input, _, { path }) => {
     return;
   }
 
-  if (!input || typeof input !== 'object') {
-    return;
-  }
-
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
     return;

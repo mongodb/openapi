@@ -17,20 +17,8 @@ const ERROR_MESSAGE = 'DELETE method should return an empty response. The respon
  * @param {object} context - The context object containing the path
  */
 export default (input, _, { path }) => {
-  // Since this rule is applied to the response object (204 response),
-  // we need to extract the path from the context.path array differently
-  // Assuming path is like ['paths', '/resource/{id}', 'delete', 'responses', '204']
-
-  if (path.length < 3) {
-    return;
-  }
-
   const pathString = path[1]; // Extract the resource path
   if (!isSingleResourceIdentifier(pathString)) {
-    return;
-  }
-
-  if (!input || typeof input !== 'object') {
     return;
   }
 
