@@ -105,7 +105,9 @@ func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *opena
 
 	// Remove properties and items if they are hidden for the target environment
 	if schema.Value.Properties != nil {
-		f.applyOnSchemas(schema.Value.Properties)
+		if err := f.applyOnSchemas(schema.Value.Properties); err != nil {
+			return err
+		}
 	}
 
 	f.removeItemsIfHiddenForEnv(schema)
