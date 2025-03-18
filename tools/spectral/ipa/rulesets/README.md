@@ -396,6 +396,20 @@ Rule checks for the following conditions:
   - Validates that the method name uses proper camelCase formatting
   - Fails if the method name contains invalid casing (such as snake_case, PascalCase, etc.)
 
+#### xgen-IPA-109-custom-method-identifier-format
+
+ ![error](https://img.shields.io/badge/error-red) 
+Custom methods must be defined using a colon followed by the method name.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Identifies paths containing a colon (potential custom methods)
+  - Validates that the path follows proper custom method format
+  - Does not validate after the colon (xgen-IPA-109-custom-method-must-use-camel-case rule validates the method name)
+  - Fails if a slash appears before a colon
+  - Fails if multiple colons appear in the path
+  - Fails if other than an alphabetical character or a closing curly brace appears before a colon
+
 
 
 ### IPA-113
