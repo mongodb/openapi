@@ -51,10 +51,7 @@ func (f *HiddenEnvsFilter) Apply() error {
 		}
 	}
 
-	if err := f.applyOnSchemas(); err != nil {
-		return err
-	}
-	return nil
+	return f.applyOnSchemas()
 }
 
 func (f *HiddenEnvsFilter) applyOnSchemas() error {
@@ -115,7 +112,6 @@ func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *opena
 		if err := f.removeSchemaIfHiddenForEnv("items", schema.Value.Items); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
