@@ -9,21 +9,44 @@ functions:
 
 rules:
   xgen-IPA-105-list-method-response-code-is-200:
-    description: 'The List method must return a 200 OK response.'
+    description: |
+      The List method must return a 200 OK response.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to GET methods on resource collection paths
+        - Ignores singleton resources
+        - Verifies the 200 OK response code is present
+        - Fails if the method lacks a 200 OK response or defines a different 2xx status code
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-105-list-method-response-code-is-200'
     severity: warn
     given: '$.paths[*].get'
     then:
       function: 'IPA105ListResponseCodeShouldBe200OK'
   xgen-IPA-105-list-method-no-request-body:
-    description: 'The List method request must not include a body.'
+    description: |
+      The List method request must not include a body.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to GET methods on resource collection paths
+        - Ignores singleton resources
+        - Verifies that the operation object does not contain a requestBody property
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-105-list-method-no-request-body'
     severity: warn
     given: '$.paths[*].get'
     then:
       function: 'IPA105ListMethodHasNoRequestBody'
   xgen-IPA-105-resource-has-list:
-    description: 'APIs must provide a List method for resources.'
+    description: |
+      APIs must provide a List method for resources.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to resource collection paths
+        - Ignores singleton resources
+        - Verifies the resource path has a GET method
+        - Fails if the resource path does not have a GET method
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-105-resource-has-list'
     severity: warn
     given: '$.paths'
@@ -35,13 +58,13 @@ rules:
       The response body of the List method should consist of the same resource object returned by the Get method.
 
       ##### Implementation details
-
-      Validation checks that the List method 200 OK response contains items property with reference to the same schema as the Get method response.
-
-        - Validation applies to List methods for resource collections only
-        - Validation applies to json response content only
-        - Validation ignores responses without schema and non-paginated responses
-          - A response is considered paginated if it contains an array property named `results`
+      Rule checks for the following conditions:
+        - Applies only to resource collection paths with JSON content types
+        - Ignores singleton resources
+        - Ignores responses without a schema or non-paginated responses
+        - A response is considered paginated if it has a schema with a 'results' array property
+        - Verifies that the schema of items in the 'results' array matches the schema used in the Get method response
+        - Fails if the Get method doesn't have a schema reference or if the schemas don't match
         - Validation ignores resources without a Get method
         - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-105-list-method-response-is-get-method-response'

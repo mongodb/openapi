@@ -104,7 +104,6 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method must return a 200 OK response.
-
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to GET methods on single resources or singleton resources
@@ -115,7 +114,6 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method of a resource should return a "Response" suffixed object.
-
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to 2xx responses of GET methods on single resources or singleton resources
@@ -126,7 +124,6 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields).
-
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to 2xx responses of GET methods on single resources or singleton resources
@@ -137,7 +134,6 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Get method request must not include a body.
-
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to GET methods on single resources or singleton resources
@@ -153,25 +149,48 @@ Rule is based on [http://go/ipa/IPA-105](http://go/ipa/IPA-105).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The List method must return a 200 OK response.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on resource collection paths
+  - Ignores singleton resources
+  - Verifies the 200 OK response code is present
+  - Fails if the method lacks a 200 OK response or defines a different 2xx status code
+
 #### xgen-IPA-105-list-method-no-request-body
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The List method request must not include a body.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on resource collection paths
+  - Ignores singleton resources
+  - Verifies that the operation object does not contain a requestBody property
+
 #### xgen-IPA-105-resource-has-list
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 APIs must provide a List method for resources.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to resource collection paths
+  - Ignores singleton resources
+  - Verifies the resource path has a GET method
+  - Fails if the resource path does not have a GET method
+
 #### xgen-IPA-105-list-method-response-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The response body of the List method should consist of the same resource object returned by the Get method.
-##### Implementation details
-Validation checks that the List method 200 OK response contains items property with reference to the same schema as the Get method response.
-
-  - Validation applies to List methods for resource collections only
-  - Validation applies to json response content only
-  - Validation ignores responses without schema and non-paginated responses
-    - A response is considered paginated if it contains an array property named `results`
+##### Implementation details Rule checks for the following conditions:
+  - Applies only to resource collection paths with JSON content types
+  - Ignores singleton resources
+  - Ignores responses without a schema or non-paginated responses
+  - A response is considered paginated if it has a schema with a 'results' array property
+  - Verifies that the schema of items in the 'results' array matches the schema used in the Get method response
+  - Fails if the Get method doesn't have a schema reference or if the schemas don't match
   - Validation ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
@@ -184,49 +203,76 @@ Rule is based on [http://go/ipa/IPA-106](http://go/ipa/IPA-106).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The Create method request should be a Request suffixed object.
+
 ##### Implementation details
-Validation checks the POST method for resource collection paths.
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to JSON content types
+  - Verifies the schema references a predefined schema (not inline)
+  - Confirms the referenced schema name ends with "Request" suffix
+
 #### xgen-IPA-106-create-method-should-not-have-query-parameters
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Create operations should not use query parameters.
+
 ##### Implementation details
-Validation checks the POST method for resource collection paths.
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Verifies the operation does not contain query parameters
+  - Ignores specified parameters like 'pretty' and 'envelope' via configuration
+
 #### xgen-IPA-106-create-method-request-body-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Request body content of the Create method and response content of the Get method should refer to the same resource.
+
 ##### Implementation details
+
 Validation checks the POST method for resource collection paths.
   - Validation ignores resources without a Get method.
   - `readOnly:true` properties of Get method response will be ignored. 
   - `writeOnly:true` properties of Create method request will be ignored.
   - Property comparison is based on `type` and `name` matching.
   - `oneOf` and `discriminator` definitions must match exactly.
+
 #### xgen-IPA-106-create-method-request-has-no-readonly-fields
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Create method Request object must not include fields with readOnly:true.
+
 ##### Implementation details
-Validation checks the POST method for resource collection paths.
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to JSON content types
+  - Searches through the request schema to find any properties marked with readOnly attribute
+  - Fails if any readOnly properties are found in the request schema
+
 #### xgen-IPA-106-create-method-response-code-is-201
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Create methods must return a 201 Created response code.
+
 ##### Implementation details
-Validation checks the POST method for resource collection paths.
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Verifies the 201 Created response code is present
+  - Fails if the method lacks a 201 Created response or defines a different 2xx status code
+
 #### xgen-IPA-106-create-method-response-is-get-method-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The response body of the Create method should consist of the same resource object returned by the Get method.
-##### Implementation details
-Validation checks that the Create method 201 Created response contains reference to the same schema as the Get method response.
 
-  - Validation applies to Create methods for resource collections only
-  - Validation applies to json response content only
-  - Validation ignores responses without schema
-  - Validation ignores resources without a Get method
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths
+  - Applies only to JSON response content types
+  - Verifies that both Create and Get methods have schema references
+  - Confirms that the Create method 201 response schema reference matches the Get method response schema reference
+  - Ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 
 
 ### IPA-107
@@ -277,18 +323,48 @@ Rule is based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Delete method response should not have schema reference to object.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to 204 responses in DELETE methods
+  - Verifies that the response does not contain a schema property
+  - Fails if any content type in the response has a defined schema as reference
+
 #### xgen-IPA-108-delete-method-return-204-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 DELETE method must return 204 No Content.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods
+   - Verifies the 204 No Content response code is present
+  - Fails if the method lacks a 204 No Content response or defines a different 2xx status code
+  - Ensures no other 2xx response codes are defined
+  - Fails if the 204 status code is missing or if other 2xx responses exist
+
 #### xgen-IPA-108-delete-include-404-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 DELETE method must include 404 response and return it when resource not found.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods
+  - Verifies that the method includes a 404 response code
+  - Fails if the 404 status code is missing from the responses
+
 #### xgen-IPA-108-delete-request-no-body
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 DELETE method must not have request body.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods
+  - Verifies that the operation object does not contain a requestBody property
+  - Fails if any requestBody is defined for the DELETE method
+
 
 
 ### IPA-109
@@ -299,10 +375,27 @@ Rule is based on [http://go/ipa/IPA-109](http://go/ipa/IPA-109).
 
  ![error](https://img.shields.io/badge/error-red) 
 The HTTP method for custom methods must be GET or POST.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths containing custom method identifiers (with colon format)
+  - Verifies the HTTP methods used are either GET or POST
+  - Fails if any other HTTP methods are used (PUT, DELETE, PATCH, etc.)
+  - Fails if multiple valid methods are defined for the same custom method endpoint
+
 #### xgen-IPA-109-custom-method-must-use-camel-case
 
  ![error](https://img.shields.io/badge/error-red) 
 The custom method must use camelCase format.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths containing custom method identifiers (with colon format)
+  - Extracts the method name portion following the colon
+  - Verifies the method name is not empty or blank
+  - Validates that the method name uses proper camelCase formatting
+  - Fails if the method name contains invalid casing (such as snake_case, PascalCase, etc.)
+
 
 
 ### IPA-113
@@ -314,6 +407,15 @@ Rule is based on [http://go/ipa/IPA-113](http://go/ipa/IPA-113).
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Singleton resources must not have a user-provided or system-generated ID.
 
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to singleton resources that are identified as resource collection identifiers
+  - Checks that the resource has a GET method defined
+  - Examines all 2xx response schemas from the GET method
+  - Verifies that no schema contains 'id' or '_id' properties in their object definitions
+  - Fails if any response schema contains these identifier properties
+
+
 
 ### IPA-123
 
@@ -323,6 +425,14 @@ Rule is based on [http://go/ipa/IPA-123](http://go/ipa/IPA-123).
 
  ![error](https://img.shields.io/badge/error-red) 
 Enum values must be UPPER_SNAKE_CASE.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all enum value arrays defined in the OpenAPI schema
+  - Resolves the schema object that contains the enum values
+  - Validates each enum value individually against the UPPER_SNAKE_CASE pattern
+  - Skips validation if the schema has an exception defined for this rule
+
 
 
 
