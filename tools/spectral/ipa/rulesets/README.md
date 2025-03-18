@@ -189,8 +189,8 @@ The response body of the List method should consist of the same resource object 
   - Ignores singleton resources
   - Ignores responses without a schema or non-paginated responses
   - A response is considered paginated if it has a schema with a 'results' array property
-  - Verifies that the schema of items in the 'results' array matches the schema used in the Get method response
-  - Fails if the Get method doesn't have a schema reference or if the schemas don't match
+  - Verifies that the schema of items in the 'results' array is the same schema used in the Get method response
+  - Fails if the Get method doesn't have a schema reference or if the methods don't reference the same schema
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 
@@ -205,7 +205,7 @@ The Create method request should be a Request suffixed object.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to POST methods on resource collection paths (non-singleton resources and non-custom methods)
   - Applies only to JSON content types
   - Verifies the schema references a predefined schema (not inline)
   - Confirms the referenced schema name ends with "Request" suffix
@@ -217,9 +217,9 @@ Create operations should not use query parameters.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to POST methods on resource collection paths (non-singleton resources and non-custom methods)
   - Verifies the operation does not contain query parameters
-  - Ignores specified parameters like 'pretty' and 'envelope' via configuration
+  - Ignores specified parameters `pretty` and `envelope` via configuration
 
 #### xgen-IPA-106-create-method-request-body-is-get-method-response
 
@@ -242,10 +242,10 @@ Create method Request object must not include fields with readOnly:true.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to POST methods on resource collection paths (non-singleton resources and non-custom methods)
   - Applies only to JSON content types
-  - Searches through the schema to find any properties marked with readOnly attribute
-  - Fails if any readOnly properties are found in the request schema
+  - Searches through the schema to find any properties marked with `readOnly` attribute
+  - Fails if any `readOnly` properties are found in the request schema
 
 #### xgen-IPA-106-create-method-response-code-is-201
 
@@ -254,7 +254,7 @@ Create methods must return a 201 Created response code.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to POST methods on resource collection paths (non-singleton resources and non-custom methods)
   - Verifies the 201 Created response code is present
   - Fails if the method lacks a 201 Created response or defines a different 2xx status code
 
@@ -332,7 +332,7 @@ Rule checks for the following conditions:
 #### xgen-IPA-108-delete-method-return-204-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-DELETE method must return 204 No Content.
+Delete methods must return 204 No Content.
 
 ##### Implementation details
 Rule checks for the following conditions:
@@ -344,7 +344,7 @@ Rule checks for the following conditions:
 #### xgen-IPA-108-delete-include-404-response
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-DELETE method must include 404 response and return it when resource not found.
+Delete methods must include 404 response and return it when resource not found.
 
 ##### Implementation details
 Rule checks for the following conditions:
@@ -355,7 +355,7 @@ Rule checks for the following conditions:
 #### xgen-IPA-108-delete-request-no-body
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-DELETE method must not have request body.
+Delete methods must not have request body.
 
 ##### Implementation details
 Rule checks for the following conditions:
@@ -410,7 +410,7 @@ Rule checks for the following conditions:
   - Applies only to singleton resources that are identified as resource collection identifiers
   - Checks that the resource has a GET method defined
   - Examines all 2xx response schemas from the GET method
-  - Verifies that no schema contains 'id' or '_id' properties in their object definitions
+  - Verifies that no schema contains `id` or `_id` properties in their object definitions
   - Fails if any response schema contains these identifier properties
 
 
