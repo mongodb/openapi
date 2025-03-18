@@ -2,57 +2,94 @@
 # http://go/ipa/104
 
 functions:
-  - eachResourceHasGetMethod
-  - getMethodReturnsSingleResource
-  - getMethodReturnsResponseSuffixedObject
-  - getResponseCodeShouldBe200OK
-  - getMethodResponseHasNoInputFields
-  - getMethodHasNoRequestBody
+  - IPA104EachResourceHasGetMethod
+  - IPA104GetMethodReturnsSingleResource
+  - IPA104GetMethodReturnsResponseSuffixedObject
+  - IPA104GetResponseCodeShouldBe200OK
+  - IPA104GetMethodResponseHasNoInputFields
+  - IPA104GetMethodHasNoRequestBody
 
 rules:
   xgen-IPA-104-resource-has-GET:
-    description: 'APIs must provide a Get method for resources. http://go/ipa/104'
-    message: '{{error}} http://go/ipa/104'
+    description: |
+      APIs must provide a Get method for resources.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to resource collection identifiers
+        - For singleton resources, verifies the resource has a GET method
+        - For regular resources, verifies there is a single resource path with a GET method
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-resource-has-GET'
     severity: warn
     given: '$.paths'
     then:
       field: '@key'
-      function: 'eachResourceHasGetMethod'
+      function: 'IPA104EachResourceHasGetMethod'
   xgen-IPA-104-get-method-returns-single-resource:
-    description: 'The purpose of the Get method is to return data from a single resource. http://go/ipa/104'
-    message: '{{error}} http://go/ipa/104'
+    description: |
+      The purpose of the Get method is to return data from a single resource.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to 2xx responses of GET methods on single resources or singleton resources
+        - Verifies the response is not an array or paginated result
+        - Different error messages are provided for standard vs singleton resources
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-returns-single-resource'
     severity: warn
     given: '$.paths[*].get.responses[*].content'
     then:
       field: '@key'
-      function: 'getMethodReturnsSingleResource'
+      function: 'IPA104GetMethodReturnsSingleResource'
   xgen-IPA-104-get-method-response-code-is-200:
-    description: 'The Get method must return a 200 OK response. http://go/ipa/104'
-    message: '{{error}} http://go/ipa/104'
+    description: |
+      The Get method must return a 200 OK response.
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to GET methods on single resources or singleton resources
+        - Verifies the 200 OK response code is present
+        - Fails if the method lacks a 200 OK response or defines a different 2xx status code
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-response-code-is-200'
     severity: warn
     given: '$.paths[*].get'
     then:
-      function: 'getResponseCodeShouldBe200OK'
+      function: 'IPA104GetResponseCodeShouldBe200OK'
   xgen-IPA-104-get-method-returns-response-suffixed-object:
-    description: 'The Get method of a resource should return a "Response" suffixed object. http://go/ipa/104'
-    message: '{{error}} http://go/ipa/104'
+    description: |
+      The Get method of a resource should return a "Response" suffixed object.
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to 2xx responses of GET methods on single resources or singleton resources
+        - Verifies the schema references a predefined schema (not inline)
+        - Confirms the referenced schema name ends with "Response" suffix
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-returns-response-suffixed-object'
     severity: warn
     given: '$.paths[*].get.responses[*].content'
     then:
       field: '@key'
-      function: 'getMethodReturnsResponseSuffixedObject'
+      function: 'IPA104GetMethodReturnsResponseSuffixedObject'
   xgen-IPA-104-get-method-response-has-no-input-fields:
-    description: 'The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields). http://go/ipa/104'
-    message: '{{error}} http://go/ipa/104'
+    description: |
+      The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields).
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to 2xx responses of GET methods on single resources or singleton resources
+        - Searches through the schema to find any properties marked with writeOnly attribute
+        - Fails if any writeOnly properties are found in the response schema
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-response-has-no-input-fields'
     severity: warn
     given: '$.paths[*].get.responses[*].content'
     then:
       field: '@key'
-      function: 'getMethodResponseHasNoInputFields'
+      function: 'IPA104GetMethodResponseHasNoInputFields'
   xgen-IPA-104-get-method-no-request-body:
-    description: 'The Get method request must not include a body. http://go/ipa/104'
-    message: '{{error}} http://go/ipa/104'
+    description: |
+      The Get method request must not include a body.
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to GET methods on single resources or singleton resources
+        - Verifies that the operation object does not contain a requestBody property
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-no-request-body'
     severity: warn
     given: '$.paths[*].get'
     then:
-      function: 'getMethodHasNoRequestBody'
+      function: 'IPA104GetMethodHasNoRequestBody'

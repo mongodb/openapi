@@ -16,13 +16,16 @@ while IFS= read -r version; do
     versions+=("$version")
 done < <(jq -r '.[]' versions.json)
 
-all_urls=(
-   "https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2.json"
-   "https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2.yaml"
-)
+all_urls=()
 
 # Fetch and append file URLs from each version
 for version in "${versions[@]}"; do
+    if [[ "${version}" == *"private"* ]]; then
+        all_urls+=("https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2/private/openapi-${version}.json")
+        all_urls+=("https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2/private/openapi-${version}.yaml")
+        continue
+    fi
+
     all_urls+=("https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2/openapi-${version}.json")
     all_urls+=("https://raw.githubusercontent.com/mongodb/openapi/${branch_name:?}/openapi/v2/openapi-${version}.yaml")
 done

@@ -1,152 +1,191 @@
 import { describe, expect, it } from '@jest/globals';
-import { isDeepEqual, omitDeep } from '../../rulesets/functions/utils/compareUtils';
+import {
+  isDeepEqual,
+  removePropertiesByFlag,
+  removePropertyKeys,
+  removeRequestProperties,
+  removeResponseProperties,
+} from '../../rulesets/functions/utils/compareUtils.js';
 
 describe('isDeepEqual', () => {
-  it('handles primitive values', () => {
-    expect(isDeepEqual(1, 1)).toBe(true);
-    expect(isDeepEqual('hello', 'hello')).toBe(true);
+  it('should return true for identical primitive values', () => {
+    expect(isDeepEqual('string', 'string')).toBe(true);
+    expect(isDeepEqual(42, 42)).toBe(true);
     expect(isDeepEqual(true, true)).toBe(true);
     expect(isDeepEqual(null, null)).toBe(true);
+  });
+
+  it('should return true for same type primitives', () => {
+    expect(isDeepEqual('string1', 'string2')).toBe(true);
+    expect(isDeepEqual(42, 100)).toBe(true);
+  });
+
+  it('should return false for different type primitives', () => {
+    expect(isDeepEqual('string', 42)).toBe(false);
+    expect(isDeepEqual(42, true)).toBe(false);
+    expect(isDeepEqual(null, 'string')).toBe(false);
+  });
+
+  it('should handle null/undefined correctly', () => {
+    expect(isDeepEqual(null, null)).toBe(true);
     expect(isDeepEqual(undefined, undefined)).toBe(true);
-
-    expect(isDeepEqual(1, 2)).toBe(false);
-    expect(isDeepEqual('hello', 'world')).toBe(false);
-    expect(isDeepEqual(true, false)).toBe(false);
-    expect(isDeepEqual(null, undefined)).toBe(false);
-    expect(isDeepEqual(1, '1')).toBe(false);
   });
 
-  it('handles simple objects', () => {
-    expect(isDeepEqual({}, {})).toBe(true);
-    expect(isDeepEqual({ a: 1 }, { a: 1 })).toBe(true);
-    expect(isDeepEqual({ a: 1, b: 2 }, { a: 1, b: 2 })).toBe(true);
-
-    expect(isDeepEqual({ a: 1 }, { a: 2 })).toBe(false);
-    expect(isDeepEqual({ a: 1 }, { b: 1 })).toBe(false);
-    expect(isDeepEqual({ a: 1 }, { a: 1, b: 2 })).toBe(false);
+  it('should compare object types correctly', () => {
+    expect(isDeepEqual({ type: 'string' }, { type: 'string' })).toBe(true);
+    expect(isDeepEqual({ type: 'string' }, { type: 'number' })).toBe(false);
   });
 
-  it('handles arrays', () => {
-    expect(isDeepEqual([], [])).toBe(true);
-    expect(isDeepEqual([1, 2], [1, 2])).toBe(true);
+  it('should ignore validation constraints', () => {
+    expect(isDeepEqual({ type: 'string', minLength: 5 }, { type: 'string', maxLength: 10 })).toBe(true);
 
-    expect(isDeepEqual([1, 2], [2, 1])).toBe(false);
-    expect(isDeepEqual([1, 2], [1, 2, 3])).toBe(false);
+    expect(isDeepEqual({ type: 'array', minItems: 1 }, { type: 'array' })).toBe(true);
   });
 
-  it('handles nested objects', () => {
-    expect(isDeepEqual({ a: 1, b: { c: 2 } }, { a: 1, b: { c: 2 } })).toBe(true);
+  it('should compare schema properties structure', () => {
+    const schema1 = {
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' },
+      },
+      type: 'object',
+    };
 
-    expect(isDeepEqual({ a: 1, b: { c: 2 } }, { a: 1, b: { c: 3 } })).toBe(false);
+    const schema2 = {
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' },
+      },
+      type: 'object',
+    };
 
-    expect(isDeepEqual({ a: 1, b: { c: 2, d: 3 } }, { a: 1, b: { c: 2 } })).toBe(false);
+    expect(isDeepEqual(schema1, schema2)).toBe(true);
   });
 
-  it('handles nested arrays', () => {
-    expect(isDeepEqual({ a: [1, 2, { b: 3 }] }, { a: [1, 2, { b: 3 }] })).toBe(true);
+  it('should detect different properties structure', () => {
+    const schema1 = {
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' },
+      },
+      type: 'object',
+    };
 
-    expect(isDeepEqual({ a: [1, 2, { b: 3 }] }, { a: [1, 2, { b: 4 }] })).toBe(false);
+    const schema2 = {
+      properties: {
+        name: { type: 'string' },
+        height: { type: 'number' },
+      },
+      type: 'object',
+    };
+
+    expect(isDeepEqual(schema1, schema2)).toBe(false);
   });
 
-  it('handles mixed types', () => {
-    expect(isDeepEqual({ a: 1 }, [1])).toBe(false);
-    expect(isDeepEqual({ a: 1 }, null)).toBe(false);
-    expect(isDeepEqual(null, { a: 1 })).toBe(false);
+  it('should compare nested schema structures', () => {
+    const schema1 = {
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            details: {
+              type: 'object',
+              properties: {
+                age: { type: 'number' },
+              },
+            },
+          },
+        },
+      },
+      type: 'object',
+    };
+
+    const schema2 = {
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            details: {
+              type: 'object',
+              properties: {
+                age: { type: 'number' },
+              },
+            },
+          },
+        },
+      },
+      type: 'object',
+    };
+
+    expect(isDeepEqual(schema1, schema2)).toBe(true);
+  });
+
+  it('should handle example from the prompt', () => {
+    const schema1 = {
+      properties: {
+        desc: { maxLength: 250, minLength: 1, type: 'string' },
+        roles: { items: {}, minItems: 1, type: 'array' },
+      },
+      type: 'object',
+    };
+
+    const schema2 = {
+      properties: {
+        desc: { maxLength: 250, minLength: 1, type: 'string' },
+        roles: { items: {}, type: 'array' },
+      },
+      type: 'object',
+    };
+
+    expect(isDeepEqual(schema1, schema2)).toBe(true);
   });
 });
 
-describe('omitDeep', () => {
-  it('handles primitives', () => {
-    expect(omitDeep(1, 'any')).toBe(1);
-    expect(omitDeep('hello', 'any')).toBe('hello');
-    expect(omitDeep(null, 'any')).toBe(null);
-    expect(omitDeep(undefined, 'any')).toBe(undefined);
+describe('removePropertiesByFlag', () => {
+  it('should return primitives unchanged', () => {
+    expect(removePropertiesByFlag('string', 'readOnly')).toBe('string');
+    expect(removePropertiesByFlag(42, 'readOnly')).toBe(42);
+    expect(removePropertiesByFlag(null, 'readOnly')).toBe(null);
   });
 
-  it('handles shallow objects', () => {
-    expect(omitDeep({ a: 1, b: 2 }, 'a')).toEqual({ b: 2 });
-    expect(omitDeep({ a: 1, b: 2 }, 'c')).toEqual({ a: 1, b: 2 });
-    expect(omitDeep({ a: 1, b: 2 }, 'a', 'b')).toEqual({});
-  });
-
-  it('handles arrays', () => {
-    expect(
-      omitDeep(
-        [
-          { a: 1, b: 2 },
-          { a: 3, b: 4 },
-        ],
-        'a'
-      )
-    ).toEqual([{ b: 2 }, { b: 4 }]);
-  });
-
-  it('handles nested objects', () => {
+  it('should remove flagged properties from schema properties', () => {
     const input = {
-      a: 1,
-      b: {
-        c: 2,
-        d: 3,
-        e: {
-          f: 4,
-          g: 5,
-        },
-      },
-      h: 6,
-    };
-
-    const expected = {
-      a: 1,
-      b: {
-        d: 3,
-        e: {
-          g: 5,
-        },
-      },
-      h: 6,
-    };
-
-    expect(omitDeep(input, 'c', 'f')).toEqual(expected);
-  });
-
-  it('handles deeply nested arrays', () => {
-    const input = {
-      items: [
-        { id: 1, name: 'item1', metadata: { created: '2023', readOnly: true } },
-        { id: 2, name: 'item2', metadata: { created: '2023', readOnly: true } },
-      ],
-    };
-
-    const expected = {
-      items: [
-        { id: 1, name: 'item1', metadata: { created: '2023' } },
-        { id: 2, name: 'item2', metadata: { created: '2023' } },
-      ],
-    };
-
-    expect(omitDeep(input, 'readOnly')).toEqual(expected);
-  });
-
-  it('handles complex schemas', () => {
-    const schema = {
       type: 'object',
       properties: {
         name: { type: 'string' },
         id: { type: 'string', readOnly: true },
-        details: {
+        email: { type: 'string' },
+      },
+    };
+
+    const expected = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        email: { type: 'string' },
+      },
+    };
+
+    expect(removePropertiesByFlag(input, 'readOnly')).toEqual(expected);
+  });
+
+  it('should handle nested objects recursively', () => {
+    const input = {
+      type: 'object',
+      properties: {
+        user: {
           type: 'object',
           properties: {
-            createdAt: { type: 'string', readOnly: true },
-            description: { type: 'string' },
-          },
-        },
-        items: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              itemId: { type: 'string', readOnly: true },
-              itemName: { type: 'string' },
+            name: { type: 'string' },
+            id: { type: 'string', readOnly: true },
+            details: {
+              type: 'object',
+              properties: {
+                age: { type: 'number' },
+                createdAt: { type: 'string', readOnly: true },
+              },
             },
           },
         },
@@ -156,53 +195,137 @@ describe('omitDeep', () => {
     const expected = {
       type: 'object',
       properties: {
-        name: { type: 'string' },
-        id: { type: 'string' },
-        details: {
+        user: {
           type: 'object',
           properties: {
-            createdAt: { type: 'string' },
-            description: { type: 'string' },
-          },
-        },
-        items: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              itemId: { type: 'string' },
-              itemName: { type: 'string' },
+            name: { type: 'string' },
+            details: {
+              type: 'object',
+              properties: {
+                age: { type: 'number' },
+              },
             },
           },
         },
       },
     };
 
-    expect(omitDeep(schema, 'readOnly')).toEqual(expected);
+    expect(removePropertiesByFlag(input, 'readOnly')).toEqual(expected);
+  });
+});
+
+describe('removePropertyKeys', () => {
+  it('should return primitives unchanged', () => {
+    expect(removePropertyKeys('string', 'title')).toBe('string');
+    expect(removePropertyKeys(42, 'title')).toBe(42);
+    expect(removePropertyKeys(null, 'title')).toBe(null);
   });
 
-  it('handles multiple keys to omit', () => {
+  it('should remove specified top-level properties', () => {
     const input = {
-      a: 1,
-      b: 2,
-      c: {
-        d: 3,
-        e: 4,
-        f: {
-          g: 5,
-          h: 6,
+      title: 'User',
+      description: 'User schema',
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+      },
+    };
+
+    const expected = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+      },
+    };
+
+    expect(removePropertyKeys(input, 'title', 'description')).toEqual(expected);
+  });
+
+  it('should remove properties recursively', () => {
+    const input = {
+      title: 'User',
+      type: 'object',
+      properties: {
+        user: {
+          title: 'User details',
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              title: 'User name',
+              description: 'Full name of the user',
+            },
+          },
         },
       },
     };
 
-    expect(omitDeep(input, 'a', 'e', 'g')).toEqual({
-      b: 2,
-      c: {
-        d: 3,
-        f: {
-          h: 6,
+    const expected = {
+      type: 'object',
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+            },
+          },
         },
       },
-    });
+    };
+
+    expect(removePropertyKeys(input, 'title', 'description')).toEqual(expected);
+  });
+});
+
+describe('removeResponseProperties', () => {
+  it('should remove readOnly properties and metadata', () => {
+    const input = {
+      title: 'User Response',
+      description: 'User data returned by the API',
+      required: ['name'],
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        id: { type: 'string', readOnly: true },
+        email: { type: 'string' },
+      },
+    };
+
+    const expected = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        email: { type: 'string' },
+      },
+    };
+
+    expect(removeResponseProperties(input)).toEqual(expected);
+  });
+});
+
+describe('removeRequestProperties', () => {
+  it('should remove writeOnly properties and metadata', () => {
+    const input = {
+      title: 'User Request',
+      description: 'User data sent to the API',
+      required: ['name', 'password'],
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        password: { type: 'string', writeOnly: true },
+        email: { type: 'string' },
+      },
+    };
+
+    const expected = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        email: { type: 'string' },
+      },
+    };
+
+    expect(removeRequestProperties(input)).toEqual(expected);
   });
 });

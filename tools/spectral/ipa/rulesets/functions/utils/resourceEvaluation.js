@@ -20,15 +20,33 @@ export function isResourceCollectionIdentifier(path) {
 /**
  * Checks if a path represents a single resource. For example:
  * '/resource/{id}' returns true
+ * '/resource/{resourceId}/child/{childId}' returns true
  * '/resource/{id}/child' returns false
- * '/resource/{id}/{id}' returns false
+ * '/resource' returns false
+ * '/resource/child/{id}' returns false
  *
  * @param {string} path the path to evaluate
  * @returns {boolean} true if the path represents a single resource, false otherwise
  */
 export function isSingleResourceIdentifier(path) {
-  const pattern = new RegExp(`^.*/[a-zA-Z]+/{[a-zA-Z]+}$`);
-  return pattern.test(path);
+  const p = removePrefix(path);
+
+  // Check if the path ends with /{paramName} pattern
+  const endsWithParamPattern = /\/\{[a-zA-Z][a-zA-Z0-9]*}$/;
+
+  if (!endsWithParamPattern.test(p)) {
+    return false;
+  }
+
+  // Extract the part before the final parameter
+  const lastSlashBeforeParam = p.lastIndexOf('/');
+  if (lastSlashBeforeParam === -1) {
+    return false;
+  }
+
+  // Check if the preceding part is a valid resource collection identifier
+  const collectionPath = p.substring(0, lastSlashBeforeParam);
+  return isResourceCollectionIdentifier(collectionPath);
 }
 
 export function isCustomMethodIdentifier(path) {
@@ -141,6 +159,7 @@ function resourceBelongsToSingleParent(resourcePath) {
   return isPathParam(parentResourceSection);
 }
 
+// TODO move prefixes to be rule arguments
 function removePrefix(path) {
   if (path.startsWith(AUTH_PREFIX)) {
     return path.slice(AUTH_PREFIX.length);
@@ -149,52 +168,4 @@ function removePrefix(path) {
     return path.slice(UNAUTH_PREFIX.length);
   }
   return path;
-}
-
-/**
- * Retrieves the response schema of the GET method for a resource by media type
- *
- * This function:
- * 1. Finds all path items related to the resource collection
- * 2. Identifies the single resource path (e.g., '/resource/{id}')
- * 3. Checks if the single resource has a GET method
- * 4. Returns the response schema for the specified media type if available
- *
- * @param {string} mediaType - The media type to retrieve the schema for (e.g., 'application/vnd.atlas.2023-01-01+json')
- * @param {string} pathForResourceCollection - The path for the collection of resources (e.g., '/resource')
- * @param {Object} oas - The resolved OpenAPI document
- * @returns {Object|null} - The response schema for the specified media type, or null if not found
- */
-export function getResponseOfGetMethodByMediaType(mediaType, pathForResourceCollection, oas) {
-  const resourcePathItems = getResourcePathItems(pathForResourceCollection, oas.paths);
-  const resourcePaths = Object.keys(resourcePathItems);
-  if (resourcePaths.length === 1) {
-    return null;
-  }
-
-  const singleResourcePath = resourcePaths.find((path) => isSingleResourceIdentifier(path));
-  if (!singleResourcePath) {
-    return null;
-  }
-
-  const singleResourcePathObject = resourcePathItems[singleResourcePath];
-  if (!hasGetMethod(singleResourcePathObject)) {
-    return null;
-  }
-
-  const getMethodObject = singleResourcePathObject.get;
-  if (!getMethodObject.responses) {
-    return null;
-  }
-
-  const response = getMethodObject.responses['200'];
-  if (!response) {
-    return null;
-  }
-
-  const schema = response.content[mediaType];
-  if (!schema) {
-    return null;
-  }
-  return schema;
 }

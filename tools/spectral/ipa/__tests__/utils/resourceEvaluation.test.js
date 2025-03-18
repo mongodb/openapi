@@ -228,6 +228,11 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         isSingleResourceIdentifier: false,
       },
       {
+        description: 'invalid single identifier',
+        path: '/resource/resource/{id}',
+        isSingleResourceIdentifier: false,
+      },
+      {
         description: 'single identifier',
         path: '/resource/{id}',
         isSingleResourceIdentifier: true,
