@@ -3703,6 +3703,109 @@ components:
             required:
                 - name
             type: object
+        AtlasResourcePolicyAuditForNdsGroup:
+            description: Atlas resource policy audits indicate org level changes to resource policies
+            properties:
+                apiKeyId:
+                    description: Unique 24-hexadecimal digit string that identifies the API Key that triggered the event. If this resource returns this parameter, it doesn't return the **userId** parameter.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                created:
+                    description: Date and time when this event occurred. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+                eventTypeName:
+                    description: Unique identifier of event type.
+                    enum:
+                        - RESOURCE_POLICY_VIOLATED
+                    example: RESOURCE_POLICY_VIOLATED
+                    title: Atlas Resource Policy Audit Types
+                    type: string
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The **eventId** identifies the specific event.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies the event.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                isGlobalAdmin:
+                    default: false
+                    description: Flag that indicates whether a MongoDB employee triggered the specified event.
+                    readOnly: true
+                    type: boolean
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                orgId:
+                    description: Unique 24-hexadecimal digit string that identifies the organization to which these events apply.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                publicKey:
+                    description: Public part of the API Key that triggered the event. If this resource returns this parameter, it doesn't return the **username** parameter.
+                    externalDocs:
+                        url: https://dochub.mongodb.org/core/atlas-create-prog-api-key
+                    format: email
+                    readOnly: true
+                    type: string
+                raw:
+                    $ref: '#/components/schemas/raw'
+                remoteAddress:
+                    description: IPv4 or IPv6 address from which the user triggered this event.
+                    example: 216.172.40.186
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    readOnly: true
+                    type: string
+                resourcePolicyId:
+                    description: Unique 24-hexadecimal character string that identifies the resource policy.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                userId:
+                    description: Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                username:
+                    description: Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.
+                    format: email
+                    readOnly: true
+                    type: string
+                violatedPolicies:
+                    description: String representation of the violated resource policy ids.
+                    items:
+                        type: string
+                    type: array
+                violationAction:
+                    description: Resource policy action taken by the user and evaluated against the currently active policies.
+                    readOnly: true
+                    type: string
+            required:
+                - created
+                - eventTypeName
+                - id
+            title: Atlas Resource Policy Audits For NDS Group
+            type: object
         AtlasResourcePolicyAuditForOrg:
             description: Atlas resource policy audits indicate org level changes to resource policies
             properties:
@@ -3726,6 +3829,7 @@ components:
                         - RESOURCE_POLICY_CREATED
                         - RESOURCE_POLICY_MODIFIED
                         - RESOURCE_POLICY_DELETED
+                        - RESOURCE_POLICY_VIOLATED
                     example: RESOURCE_POLICY_CREATED
                     title: Atlas Resource Policy Audit Types
                     type: string
@@ -12146,6 +12250,7 @@ components:
                         - FLUSH_ROUTER_CONFIG
                         - ENABLE_SHARDING
                         - CHECK_METADATA_CONSISTENCY
+                        - MOVE_CHUNK
                         - GET_STREAM_PROCESSOR
                         - CREATE_STREAM_PROCESSOR
                         - PROCESS_STREAM_PROCESSOR
@@ -12549,6 +12654,10 @@ components:
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                           title: NDS Auto Scaling Audit Types
                           type: string
+                        - enum:
+                            - RESOURCE_POLICY_VIOLATED
+                          title: Atlas Resource Policy Audit Types
+                          type: string
                     type: object
                 groupId:
                     description: Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.
@@ -12768,6 +12877,10 @@ components:
                             - CPS_DATA_PROTECTION_DISABLED
                             - CPS_DATA_PROTECTION_APPROVED_FOR_DISABLEMENT
                           title: Data Protection Event Types
+                          type: string
+                        - enum:
+                            - RESOURCE_POLICY_VIOLATED
+                          title: Atlas Resource Policy Audit Types
                           type: string
                     readOnly: true
                     type: object
@@ -15792,6 +15905,10 @@ components:
                     - CHARTS_API_FAILURE
                   title: Charts Api Call Audit Types
                   type: string
+                - enum:
+                    - RESOURCE_POLICY_VIOLATED
+                  title: Atlas Resource Policy Audit Types
+                  type: string
             type: object
         EventTypeForOrg:
             oneOf:
@@ -16073,6 +16190,7 @@ components:
                     - RESOURCE_POLICY_CREATED
                     - RESOURCE_POLICY_MODIFIED
                     - RESOURCE_POLICY_DELETED
+                    - RESOURCE_POLICY_VIOLATED
                   title: Atlas Resource Policy Audit Types
                   type: string
             type: object
@@ -16104,6 +16222,7 @@ components:
                 - $ref: '#/components/schemas/StreamsEventViewForNdsGroup'
                 - $ref: '#/components/schemas/StreamProcessorEventViewForNdsGroup'
                 - $ref: '#/components/schemas/ChartsAudit'
+                - $ref: '#/components/schemas/AtlasResourcePolicyAuditForNdsGroup'
             type: object
         EventViewForOrg:
             oneOf:
@@ -34942,7 +35061,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 01709fe6a044b108c853f88787d8451afb445452
+    x-xgen-sha: 24c87d12dbfe294f133c421fab179da3ac8b461f
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
