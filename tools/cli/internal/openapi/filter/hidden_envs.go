@@ -50,6 +50,74 @@ func (f *HiddenEnvsFilter) Apply() error {
 			f.oas.Paths.Delete(path)
 		}
 	}
+
+	if err := f.applyOnSchemas(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (f *HiddenEnvsFilter) applyOnSchemas() error {
+	if f.oas.Components == nil || f.oas.Components.Schemas == nil {
+		return nil
+	}
+
+	if len(f.oas.Components.Schemas) == 0 {
+		return nil
+	}
+
+	for name, schema := range f.oas.Components.Schemas {
+		if err := f.removeSchemaIfHiddenForEnv(name, schema); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *openapi3.SchemaRef) error {
+	if schema == nil {
+		delete(f.oas.Components.Schemas, name)
+		return nil
+	}
+
+	if schema.Value == nil {
+		delete(f.oas.Components.Schemas, name)
+		return nil
+	}
+
+	if extension, ok := schema.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs in schema: K: %q, V: %q", hiddenEnvsExtension, extension)
+		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
+			log.Printf("Removing schema: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
+			delete(f.oas.Components.Schemas, name)
+		} else {
+			// Remove the Hidden extension from the final OAS
+			delete(schema.Value.Extensions, hiddenEnvsExtension)
+		}
+	}
+
+	if schema.Value.Properties != nil {
+		for name, property := range schema.Value.Properties {
+			if extension, ok := property.Extensions[hiddenEnvsExtension]; ok {
+				log.Printf("Found x-hidden-envs in property: K: %q, V: %q", hiddenEnvsExtension, extension)
+				if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
+					log.Printf("Removing property: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
+					delete(schema.Value.Properties, name)
+				} else {
+					// Remove the Hidden extension from the final OAS
+					delete(property.Extensions, hiddenEnvsExtension)
+				}
+			}
+		}
+	}
+
+	if schema.Value.Items != nil {
+		if err := f.removeSchemaIfHiddenForEnv("items", schema.Value.Items); err != nil {
+			return err
+		}
+
+	}
+
 	return nil
 }
 

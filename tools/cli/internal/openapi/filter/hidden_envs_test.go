@@ -728,6 +728,7 @@ func TestRemoveResponseIfHiddenForEnv(t *testing.T) {
 		})
 	}
 }
+
 func TestApply(t *testing.T) {
 	metadata := &Metadata{
 		targetEnv: "prod",
@@ -743,6 +744,9 @@ func TestApply(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotContains(t, oas.Paths.Map(), "/api/atlas/v2/groups/{groupId}/streams")
 	assert.Contains(t, oas.Paths.Map(), "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs")
+	assert.NotContains(t, oas.Components.Schemas, "test")
+	assert.Contains(t, oas.Components.Schemas, "test2")
+	assert.NotContains(t, oas.Components.Schemas["test2"].Value.Properties, "testP")
 }
 
 func getApplyOas() *openapi3.T {
@@ -772,6 +776,31 @@ func getApplyOas() *openapi3.T {
 
 	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams", hiddenFromProd)
 	oas.Paths.Set("/api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs", hiddenFromDev)
+	oas.Components = &openapi3.Components{}
+	oas.Components.Schemas = map[string]*openapi3.SchemaRef{
+		"test": {
+			Value: &openapi3.Schema{},
+			Extensions: map[string]any{
+				hiddenEnvsExtension: map[string]any{
+					"envs": "prod",
+				},
+			},
+		},
+		"test2": {
+			Value: &openapi3.Schema{
+				Properties: map[string]*openapi3.SchemaRef{
+					"testP": {
+						Value: &openapi3.Schema{},
+						Extensions: map[string]any{
+							hiddenEnvsExtension: map[string]any{
+								"envs": "prod",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
 
 	return oas
 }
