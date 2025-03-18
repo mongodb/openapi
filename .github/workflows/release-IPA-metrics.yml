@@ -40,11 +40,16 @@ jobs:
         working-directory: tools/spectral/ipa/metrics/scripts
         run: node runMetricCollection.js "${{ github.workspace }}/v2.json"
 
+      - name: aws configure
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.IPA_METRIC_COLLECTION_AWS_S3_ROLE_TO_ASSUME_STAGING}}
+          aws-region: ${{ vars.AWS_DEFAULT_REGION}}
+
       - name: Dump Metric Collection Job Data to S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_PROD_USERNAME }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_PROD_PASSWORD }}
-          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_PROD_PREFIX }}
+        with:
+          AWS_REGION: ${{ vars.AWS_DEFAULT_REGION}}
+          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_STAGING_PREFIX}}
         working-directory: tools/spectral/ipa/metrics/scripts
         run: node dataDump.js
 

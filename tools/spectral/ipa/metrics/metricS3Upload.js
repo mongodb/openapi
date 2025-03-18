@@ -2,7 +2,10 @@ import { PutObjectCommand, S3ServiceException } from '@aws-sdk/client-s3';
 import config from './config.js';
 import path from 'path';
 import fs from 'node:fs';
-import { getS3Client, getS3FilePath } from './utils/dataDumpUtils.js';
+import {
+  getS3FilePath,
+  getS3Client
+} from './utils/dataDumpUtils.js';
 
 /**
  * Upload IPA product metrics to Data Warehouse S3
