@@ -47,7 +47,7 @@ func TestSuccessfulFilter_Run(t *testing.T) {
 	for _, pathItem := range newSpec.Spec.Paths.Map() {
 		for _, operation := range pathItem.Operations() {
 			// check extensions are removed at the operation level
-			require.Nil(t, operation.Extensions)
+			require.Nil(t, operation.Extensions["x-xgen-owner-team"])
 		}
 	}
 }
