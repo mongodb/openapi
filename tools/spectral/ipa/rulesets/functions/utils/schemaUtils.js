@@ -35,7 +35,7 @@ export function getSchemaPathFromEnumPath(path) {
  * Split camelCase string into words
  * Example: "myProjectId" becomes ["my", "Project", "Id"]
  * @param str {string} camelCase string
- * @returns {*}
+ * @returns {string[]}
  */
 export function splitCamelCase(str) {
   if (!str) return [''];
