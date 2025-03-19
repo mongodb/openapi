@@ -4,8 +4,8 @@
  * Deep schema structure equality check between two values
  * Compares property names and types, but not specific values
  * Does not handle circular references
- * @param {*} object1 First schema to compare
- * @param {*} object2 Second schema to compare
+ * @param {object} object1 First schema to compare
+ * @param {object} object2 Second schema to compare
  * @returns {boolean} Whether the schemas have identical structure
  */
 export function isDeepEqual(object1, object2) {
@@ -27,11 +27,15 @@ export function isDeepEqual(object1, object2) {
       if (!propKeys2.includes(key)) return false;
 
       // Check if the types match for each property
-      if (object1.properties[key].type !== object2.properties[key].type) return false;
+      if (object1.properties[key].type !== object2.properties[key].type) {
+        return false;
+      }
 
       // Recursively check nested objects
       if (typeof object1.properties[key] === 'object' && typeof object2.properties[key] === 'object') {
-        if (!isDeepEqual(object1.properties[key], object2.properties[key])) return false;
+        if (!isDeepEqual(object1.properties[key], object2.properties[key])) {
+          return false;
+        }
       }
     }
   }
@@ -123,6 +127,7 @@ export function removePropertyKeys(schema, ...propertyNames) {
 
   return result;
 }
+
 /**
  * Recursively removes properties for Response schemas
  * @param {object} schema The schema to process
