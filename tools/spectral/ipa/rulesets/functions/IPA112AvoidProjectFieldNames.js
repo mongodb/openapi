@@ -6,6 +6,7 @@ import {
   handleInternalError,
 } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
+import { splitCamelCase } from './utils/schemaUtils.js';
 
 const RULE_NAME = 'xgen-IPA-112-avoid-project-field-names';
 
@@ -28,18 +29,20 @@ export default (input, options, { path, documentInventory }) => {
 function checkViolationsAndReturnErrors(input, options, path) {
   try {
     const prohibitedFieldNames = options?.prohibitedFieldNames || [];
-    const lowerPropertyName = input.toLowerCase();
+
+    // Split the field name into words assuming camelCase
+    const words = splitCamelCase(input);
 
     // Check if the property name includes any of the prohibited terms
     for (const prohibitedItem of prohibitedFieldNames) {
       const prohibitedName = prohibitedItem.name || '';
       const alternative = prohibitedItem.alternative || '';
 
-      if (lowerPropertyName.includes(prohibitedName.toLowerCase())) {
+      if (words.some((word) => word.toLowerCase() === prohibitedName)) {
         return [
           {
             path,
-            message: `Field name "${input}" should be avoided. Consider using ${alternative.map((alt) => `"${alt}"`)} instead.`,
+            message: `Field name "${input}" should be avoided. Consider using "${alternative}" instead.`,
           },
         ];
       }
