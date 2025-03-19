@@ -435,6 +435,24 @@ Rule checks for the following conditions:
 
 
 
+### IPA-112
+
+Rules are based on [http://go/ipa/IPA-112](http://go/ipa/IPA-112).
+
+#### xgen-IPA-112-avoid-project-field-names
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Schema field names should avoid using "project", "projects", or "projectId".
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Searches through all schemas in the API definition
+  - Identifies property names that match "project" (case-insensitive)
+  - Reports any instances where these field names are used
+  - Suggests using "group", "groups", or "groupId" as alternatives
+
+
+
 ### IPA-113
 
 Rules are based on [http://go/ipa/IPA-113](http://go/ipa/IPA-113).
