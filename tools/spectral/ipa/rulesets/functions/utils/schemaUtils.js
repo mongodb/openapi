@@ -30,3 +30,18 @@ export function getSchemaPathFromEnumPath(path) {
   }
   return path.slice(0, enumIndex);
 }
+
+/**
+ * Split camelCase string into words
+ * Example: "myProjectId" becomes ["my", "Project", "Id"]
+ * @param str {string} camelCase string
+ * @returns {string[]}
+ */
+export function splitCamelCase(str) {
+  if (!str) return [''];
+
+  // Special handling for single words
+  if (!/[A-Z]/.test(str)) return [str];
+
+  return str.split(/(?=[A-Z])/).map((word) => word.toLowerCase());
+}

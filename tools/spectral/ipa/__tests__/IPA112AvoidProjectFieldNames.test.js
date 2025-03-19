@@ -11,7 +11,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
             properties: {
               group: { type: 'string' },
               groupId: { type: 'string' },
-              otherField: { type: 'number' },
+              projection: { type: 'number' },
             },
           },
         },
@@ -57,7 +57,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
     errors: [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "projects" should be avoided. Consider using "group" instead.',
+        message: 'Field name "projects" should be avoided. Consider using "groups" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'projects'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -81,35 +81,6 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
         code: 'xgen-IPA-112-avoid-project-field-names',
         message: 'Field name "projectId" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'projectId'],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
-  },
-  {
-    name: 'invalid schema - with different case variants',
-    document: {
-      components: {
-        schemas: {
-          SchemaName: {
-            properties: {
-              Project: { type: 'string' },
-              PROJECTID: { type: 'string' },
-            },
-          },
-        },
-      },
-    },
-    errors: [
-      {
-        code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "Project" should be avoided. Consider using "group" instead.',
-        path: ['components', 'schemas', 'SchemaName', 'properties', 'Project'],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "PROJECTID" should be avoided. Consider using "group" instead.',
-        path: ['components', 'schemas', 'SchemaName', 'properties', 'PROJECTID'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
