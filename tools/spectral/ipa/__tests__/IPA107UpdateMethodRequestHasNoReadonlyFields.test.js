@@ -151,6 +151,30 @@ testRule('xgen-IPA-107-update-method-request-has-no-readonly-fields', [
             },
           },
         },
+        '/resource/{id}/singleton': {
+          patch: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaWithReadOnly',
+                  },
+                },
+              },
+            },
+          },
+          put: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaWithReadOnly',
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
     errors: [
@@ -180,6 +204,34 @@ testRule('xgen-IPA-107-update-method-request-has-no-readonly-fields', [
         message:
           'The Update method request object must not include input fields (readOnly properties). Found readOnly property at one of the inline schemas. ',
         path: ['paths', '/resource/{id}', 'put', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-107-update-method-request-has-no-readonly-fields',
+        message:
+          'The Update method request object must not include input fields (readOnly properties). Found readOnly property at: id. ',
+        path: [
+          'paths',
+          '/resource/{id}/singleton',
+          'patch',
+          'requestBody',
+          'content',
+          'application/vnd.atlas.2023-01-01+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-107-update-method-request-has-no-readonly-fields',
+        message:
+          'The Update method request object must not include input fields (readOnly properties). Found readOnly property at: id. ',
+        path: [
+          'paths',
+          '/resource/{id}/singleton',
+          'put',
+          'requestBody',
+          'content',
+          'application/vnd.atlas.2023-01-01+json',
+        ],
         severity: DiagnosticSeverity.Warning,
       },
     ],

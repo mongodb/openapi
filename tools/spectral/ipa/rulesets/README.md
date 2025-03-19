@@ -284,7 +284,7 @@ Rules are based on [http://go/ipa/IPA-107](http://go/ipa/IPA-107).
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Update operations must not accept query parameters.
 ##### Implementation details
-Validation checks the PATCH/PUT methods for single resource paths and singleton resources.
+Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
 
   - Query parameters `envelope` and `pretty` are exempt from this rule
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
@@ -301,7 +301,7 @@ Validation checks the PATCH/PUT methods for single resource paths and [singleton
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The response body of the Update method should consist of the same resource object returned by the Get method.
 ##### Implementation details Rule checks for the following conditions:
-  - Applies only to single resource paths with JSON content types
+  - Applies only to single resource paths and singleton resources with JSON content types
   - Ignores singleton resources and responses without a schema
   - Validation ignores resources without a Get method
   - Fails if the Get method doesn't have a schema reference or if the schemas don't match
@@ -313,7 +313,7 @@ Update method Request object must not include fields with readOnly:true.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to Update methods on single resource paths
+  - Applies only to Update methods on single resource paths or singleton resources
   - Applies only to JSON content types
   - Searches through the request schema to find any properties marked with readOnly attribute
   - Fails if any readOnly properties are found in the request schema
@@ -325,7 +325,7 @@ The request body must contain the resource being updated, i.e. the resource or p
 
 ##### Implementation details
 
-Validation checks the PATCH/PUT methods for single resource paths.
+Validation checks the PATCH/PUT methods for single resource paths and singleton resources.
   - Validation ignores resources without a Get method.
   - `readOnly:true` properties of Get method response will be ignored. 
   - `writeOnly:true` properties of Update method request will be ignored.
