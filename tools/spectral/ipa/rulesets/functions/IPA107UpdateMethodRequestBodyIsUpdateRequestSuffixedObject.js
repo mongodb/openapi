@@ -1,28 +1,27 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { resolveObject } from './utils/componentUtils.js';
 import {
   getResourcePathItems,
-  isCustomMethodIdentifier,
   isResourceCollectionIdentifier,
+  isSingleResourceIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { resolveObject } from './utils/componentUtils.js';
 import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations.js';
 
-const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object';
+const RULE_NAME = 'xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object';
 
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
   const contentPerMediaType = resolveObject(oas, path);
-  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
+  const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
 
-  const isResourceCollection = isResourceCollectionIdentifier(resourcePath) && !isSingletonResource(resourcePaths);
   if (
-    isCustomMethodIdentifier(resourcePath) ||
-    !isResourceCollection ||
     !input.endsWith('json') ||
-    !contentPerMediaType.schema
+    !contentPerMediaType.schema ||
+    (!isSingleResourceIdentifier(resourcePath) &&
+      !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePathItems)))
   ) {
     return;
   }
@@ -32,8 +31,7 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'Request', RULE_NAME);
-
+  const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'UpdateRequest', RULE_NAME);
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }

@@ -7,6 +7,7 @@ functions:
   - IPA107UpdateMethodResponseIsGetMethodResponse
   - IPA107UpdateMethodRequestHasNoReadonlyFields
   - IPA107UpdateMethodRequestBodyIsGetResponse
+  - IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject
 
 rules:
   xgen-IPA-107-update-must-not-have-query-params:
@@ -81,7 +82,7 @@ rules:
 
       Validation checks the PATCH/PUT methods for single resource paths.
         - Validation ignores resources without a Get method.
-        - `readOnly:true` properties of Get method response will be ignored. 
+        - `readOnly:true` properties of Get method response will be ignored.
         - `writeOnly:true` properties of Update method request will be ignored.
         - Property comparison is based on `type` and `name` matching.
         - `oneOf` and `discriminator` definitions must match exactly.
@@ -91,3 +92,19 @@ rules:
     then:
       field: '@key'
       function: 'IPA107UpdateMethodRequestBodyIsGetResponse'
+  xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object:
+    description: |
+      The Update method request should be a `UpdateRequest` suffixed object.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to PUT/PATCH methods on single resource paths and singleton resources
+        - Applies only to JSON content types
+        - Validation only applies to schema references to a predefined schema (not inline)
+        - Confirms the referenced schema name ends with "Request" suffix
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object'
+    severity: warn
+    given: '$.paths[*][put,patch].requestBody.content'
+    then:
+      field: '@key'
+      function: 'IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject'
