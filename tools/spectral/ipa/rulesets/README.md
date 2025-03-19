@@ -80,7 +80,7 @@ Rules are based on [http://go/ipa/IPA-104](http://go/ipa/IPA-104).
 
 #### xgen-IPA-104-resource-has-GET
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 APIs must provide a Get method for resources.
 
 ##### Implementation details
@@ -91,7 +91,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-returns-single-resource
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The purpose of the Get method is to return data from a single resource.
 
 ##### Implementation details
@@ -102,7 +102,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-response-code-is-200
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Get method must return a 200 OK response.
 ##### Implementation details
 Rule checks for the following conditions:
@@ -112,7 +112,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-returns-response-suffixed-object
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Get method of a resource should return a "Response" suffixed object.
 ##### Implementation details
 Rule checks for the following conditions:
@@ -122,7 +122,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-response-has-no-input-fields
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields).
 ##### Implementation details
 Rule checks for the following conditions:
@@ -132,7 +132,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-no-request-body
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Get method request must not include a body.
 ##### Implementation details
 Rule checks for the following conditions:
@@ -147,7 +147,7 @@ Rules are based on [http://go/ipa/IPA-105](http://go/ipa/IPA-105).
 
 #### xgen-IPA-105-list-method-response-code-is-200
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The List method must return a 200 OK response.
 
 ##### Implementation details
@@ -159,7 +159,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-105-list-method-no-request-body
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The List method request must not include a body.
 
 ##### Implementation details
@@ -170,7 +170,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-105-resource-has-list
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 APIs must provide a List method for resources.
 
 ##### Implementation details
@@ -182,7 +182,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-105-list-method-response-is-get-method-response
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The response body of the List method should consist of the same resource object returned by the Get method.
 ##### Implementation details Rule checks for the following conditions:
   - Applies only to resource collection paths with JSON content types
@@ -201,7 +201,7 @@ Rules are based on [http://go/ipa/IPA-106](http://go/ipa/IPA-106).
 
 #### xgen-IPA-106-create-method-request-body-is-request-suffixed-object
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Create method request should be a Request suffixed object.
 
 ##### Implementation details
@@ -213,7 +213,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-106-create-method-should-not-have-query-parameters
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Create operations should not use query parameters.
 
 ##### Implementation details
@@ -221,6 +221,29 @@ Rule checks for the following conditions:
   - Applies only to POST methods on resource collection paths (non-singleton resources)
   - Verifies the operation does not contain query parameters
   - Ignores specified parameters like 'pretty' and 'envelope' via configuration
+
+#### xgen-IPA-106-create-method-request-has-no-readonly-fields
+
+ ![error](https://img.shields.io/badge/error-red) 
+Create method Request object must not include fields with readOnly:true.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to JSON content types
+  - Searches through the request schema to find any properties marked with readOnly attribute
+  - Fails if any readOnly properties are found in the request schema
+
+#### xgen-IPA-106-create-method-response-code-is-201
+
+ ![error](https://img.shields.io/badge/error-red) 
+Create methods must return a 201 Created response code.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Verifies the 201 Created response code is present
+  - Fails if the method lacks a 201 Created response or defines a different 2xx status code
 
 #### xgen-IPA-106-create-method-request-body-is-get-method-response
 
@@ -235,29 +258,6 @@ Validation checks the POST method for resource collection paths.
   - `writeOnly:true` properties of Create method request will be ignored.
   - Property comparison is based on `type` and `name` matching.
   - `oneOf` and `discriminator` definitions must match exactly.
-
-#### xgen-IPA-106-create-method-request-has-no-readonly-fields
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-Create method Request object must not include fields with readOnly:true.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies only to POST methods on resource collection paths (non-singleton resources)
-  - Applies only to JSON content types
-  - Searches through the request schema to find any properties marked with readOnly attribute
-  - Fails if any readOnly properties are found in the request schema
-
-#### xgen-IPA-106-create-method-response-code-is-201
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-Create methods must return a 201 Created response code.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies only to POST methods on resource collection paths (non-singleton resources)
-  - Verifies the 201 Created response code is present
-  - Fails if the method lacks a 201 Created response or defines a different 2xx status code
 
 #### xgen-IPA-106-create-method-response-is-get-method-response
 
