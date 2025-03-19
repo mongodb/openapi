@@ -1,0 +1,23 @@
+# IPA-112: Field Names
+# http://go/ipa/112
+
+functions:
+  - IPA112AvoidProjectFieldNames
+
+rules:
+  xgen-IPA-112-avoid-project-field-names:
+    description: |
+      Schema field names should avoid using "project", "projects", or "projectId".
+      
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Searches through all schemas in the API definition
+        - Identifies property names that match "group", "groups", or "groupId" (case-insensitive)
+        - Reports any instances where these field names are used
+        - Suggests using "group", "groups", or "groupId" as alternatives
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-112-avoid-project-field-names'
+    severity: warn
+    given: '$..[?(@.properties)]'
+    then:
+      field: @key
+      function: 'IPA112AvoidProjectFieldNames'
