@@ -32,14 +32,14 @@ function checkViolationsAndReturnErrors(input, options, path) {
 
     // Check if the property name includes any of the prohibited terms
     for (const prohibitedItem of prohibitedFieldNames) {
-      const prohibitedName = prohibitedItem.name || "";
-      const alternative = prohibitedItem.alternative || "";
+      const prohibitedName = prohibitedItem.name || '';
+      const alternative = prohibitedItem.alternative || '';
 
       if (lowerPropertyName.includes(prohibitedName.toLowerCase())) {
         return [
           {
             path,
-            message: `Field name "${input}" should be avoided. Consider using ${alternative.map(alt => `"${alt}"`)} instead.`,
+            message: `Field name "${input}" should be avoided. Consider using ${alternative.map((alt) => `"${alt}"`)} instead.`,
           },
         ];
       }

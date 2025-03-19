@@ -150,8 +150,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
     errors: [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
-        message:
-          'Field name "myProjectDetails" should be avoided. Consider using "group" instead.',
+        message: 'Field name "myProjectDetails" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'myProjectDetails'],
         severity: DiagnosticSeverity.Warning,
       },
