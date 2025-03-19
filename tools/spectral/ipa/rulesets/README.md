@@ -318,6 +318,20 @@ Rule checks for the following conditions:
   - Searches through the request schema to find any properties marked with readOnly attribute
   - Fails if any readOnly properties are found in the request schema
 
+#### xgen-IPA-107-update-method-request-body-is-get-method-response
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The request body must contain the resource being updated, i.e. the resource or parts of the resource returned by the Get method.
+
+##### Implementation details
+
+Validation checks the PATCH/PUT methods for single resource paths.
+  - Validation ignores resources without a Get method.
+  - `readOnly:true` properties of Get method response will be ignored. 
+  - `writeOnly:true` properties of Update method request will be ignored.
+  - Property comparison is based on `type` and `name` matching.
+  - `oneOf` and `discriminator` definitions must match exactly.
+
 
 
 ### IPA-108

@@ -10,7 +10,7 @@ const ERROR_MESSAGE = 'The Update method request object must not include input f
 /**
  * Update method (PUT, PATCH) request objects must not include input fields (readOnly properties).
  *
- * @param {object} input - An update operation request content version
+ * @param {string} input - An update operation request content version
  * @param {object} _ - Unused
  * @param {{ path: string[], documentInventory: object}} context - The context object containing the path and document
  */
