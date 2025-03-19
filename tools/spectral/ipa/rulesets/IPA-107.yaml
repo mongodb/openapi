@@ -6,68 +6,38 @@ functions:
   - IPA107UpdateResponseCodeShouldBe200OK
   - IPA107UpdateMethodResponseIsGetMethodResponse
   - IPA107UpdateMethodRequestHasNoReadonlyFields
+  - IPA107UpdateMethodRequestBodyIsGetResponse
 
 rules:
-  xgen-IPA-107-put-must-not-have-query-params:
+  xgen-IPA-107-update-must-not-have-query-params:
     description: >-
       Update operations must not accept query parameters.
 
       ##### Implementation details
 
-      Validation checks the PUT method for single resource paths and singleton resources.
+      Validation checks the PATCH/PUT methods for single resource paths and singleton resources.
 
         - Query parameters `envelope` and `pretty` are exempt from this rule
         - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
-    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-put-must-not-have-query-params'
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-must-not-have-query-params'
     severity: warn
-    given: '$.paths[*].put'
+    given: '$.paths[*][put,patch]'
     then:
       function: 'IPA107UpdateMethodMustNotHaveQueryParams'
       functionOptions:
         ignoredValues: ['pretty', 'envelope']
-  xgen-IPA-107-patch-must-not-have-query-params:
-    description: >-
-      Update operations must not accept query parameters.
-
-      ##### Implementation details
-
-      Validation checks the PATCH method for single resource paths and singleton resources.
-
-        - Query parameters `envelope` and `pretty` are exempt from this rule
-        - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
-    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-patch-must-not-have-query-params'
-    severity: warn
-    given: '$.paths[*].patch'
-    then:
-      function: 'IPA107UpdateMethodMustNotHaveQueryParams'
-      functionOptions:
-        ignoredValues: ['pretty', 'envelope']
-  xgen-IPA-107-put-method-response-code-is-200:
+  xgen-IPA-107-update-method-response-code-is-200:
     description: >-
       The Update method response status code should be 200 OK.
 
       ##### Implementation details
 
-      Validation checks the PUT method for single resource paths and [singleton resources](https://go/ipa/113).
+      Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
 
         - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
-    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-put-method-response-code-is-200'
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-method-response-code-is-200'
     severity: warn
-    given: '$.paths[*].put'
-    then:
-      function: 'IPA107UpdateResponseCodeShouldBe200OK'
-  xgen-IPA-107-patch-method-response-code-is-200:
-    description: >-
-      The Update method response status code should be 200 OK.
-
-      ##### Implementation details
-
-      Validation checks the PATCH method for single resource paths and [singleton resources](https://go/ipa/113).
-
-        - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
-    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-patch-method-response-code-is-200'
-    severity: warn
-    given: '$.paths[*].patch'
+    given: '$.paths[*][put,patch]'
     then:
       function: 'IPA107UpdateResponseCodeShouldBe200OK'
   xgen-IPA-107-update-method-response-is-get-method-response:
@@ -103,3 +73,21 @@ rules:
     then:
       field: '@key'
       function: 'IPA107UpdateMethodRequestHasNoReadonlyFields'
+  xgen-IPA-107-update-method-request-body-is-get-method-response:
+    description: |
+      The request body must contain the resource being updated, i.e. the resource or parts of the resource returned by the Get method.
+
+      ##### Implementation details
+
+      Validation checks the PATCH/PUT methods for single resource paths.
+        - Validation ignores resources without a Get method.
+        - `readOnly:true` properties of Get method response will be ignored. 
+        - `writeOnly:true` properties of Update method request will be ignored.
+        - Property comparison is based on `type` and `name` matching.
+        - `oneOf` and `discriminator` definitions must match exactly.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-method-request-body-is-get-method-response:'
+    severity: warn
+    given: '$.paths[*][put,patch].requestBody.content'
+    then:
+      field: '@key'
+      function: 'IPA107UpdateMethodRequestBodyIsGetResponse'

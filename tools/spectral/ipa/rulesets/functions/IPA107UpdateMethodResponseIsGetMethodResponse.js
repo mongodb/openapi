@@ -16,7 +16,7 @@ const ERROR_MESSAGE =
 /**
  * Update method (PUT, PATCH) responses should reference the same schema as the Get method.
  *
- * @param {object} input - An update operation 200 response content version
+ * @param {string} input - An update operation 200 response content version
  * @param {object} _ - Unused
  * @param {{ path: string[], documentInventory: object}} context - The context object containing the path and document
  */

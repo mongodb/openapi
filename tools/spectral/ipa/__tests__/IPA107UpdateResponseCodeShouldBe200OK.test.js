@@ -1,7 +1,8 @@
 import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
-testRule('xgen-IPA-107-put-method-response-code-is-200', [
+// Put
+testRule('xgen-IPA-107-update-method-response-code-is-200', [
   {
     name: 'valid methods',
     document: {
@@ -72,28 +73,28 @@ testRule('xgen-IPA-107-put-method-response-code-is-200', [
     },
     errors: [
       {
-        code: 'xgen-IPA-107-put-method-response-code-is-200',
+        code: 'xgen-IPA-107-update-method-response-code-is-200',
         message:
           'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceOne/{id}', 'put'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-107-put-method-response-code-is-200',
+        code: 'xgen-IPA-107-update-method-response-code-is-200',
         message:
           'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceTwo/{id}', 'put'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-107-put-method-response-code-is-200',
+        code: 'xgen-IPA-107-update-method-response-code-is-200',
         message:
           'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceThree/{id}', 'put'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-107-put-method-response-code-is-200',
+        code: 'xgen-IPA-107-update-method-response-code-is-200',
         message:
           'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resource/{id}/singleton', 'put'],
@@ -113,7 +114,7 @@ testRule('xgen-IPA-107-put-method-response-code-is-200', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-107-put-method-response-code-is-200': 'reason',
+              'xgen-IPA-107-update-method-response-code-is-200': 'reason',
             },
           },
         },
@@ -124,7 +125,7 @@ testRule('xgen-IPA-107-put-method-response-code-is-200', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-107-put-method-response-code-is-200': 'reason',
+              'xgen-IPA-107-update-method-response-code-is-200': 'reason',
             },
           },
         },
@@ -136,7 +137,7 @@ testRule('xgen-IPA-107-put-method-response-code-is-200', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-107-put-method-response-code-is-200': 'reason',
+              'xgen-IPA-107-update-method-response-code-is-200': 'reason',
             },
           },
         },
@@ -146,7 +147,8 @@ testRule('xgen-IPA-107-put-method-response-code-is-200', [
   },
 ]);
 
-testRule('xgen-IPA-107-patch-method-response-code-is-200', [
+// Patch
+testRule('xgen-IPA-107-update-method-response-code-is-200', [
   {
     name: 'valid methods',
     document: {
@@ -217,28 +219,28 @@ testRule('xgen-IPA-107-patch-method-response-code-is-200', [
     },
     errors: [
       {
-        code: 'xgen-IPA-107-patch-method-response-code-is-200',
+        code: 'xgen-IPA-107-update-method-response-code-is-200',
         message:
           'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceOne/{id}', 'patch'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-107-patch-method-response-code-is-200',
+        code: 'xgen-IPA-107-update-method-response-code-is-200',
         message:
           'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceTwo/{id}', 'patch'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-107-patch-method-response-code-is-200',
+        code: 'xgen-IPA-107-update-method-response-code-is-200',
         message:
           'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceThree/{id}', 'patch'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-107-patch-method-response-code-is-200',
+        code: 'xgen-IPA-107-update-method-response-code-is-200',
         message:
           'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resource/{id}/singleton', 'patch'],
@@ -258,7 +260,7 @@ testRule('xgen-IPA-107-patch-method-response-code-is-200', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-107-patch-method-response-code-is-200': 'reason',
+              'xgen-IPA-107-update-method-response-code-is-200': 'reason',
             },
           },
         },
@@ -269,7 +271,7 @@ testRule('xgen-IPA-107-patch-method-response-code-is-200', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-107-patch-method-response-code-is-200': 'reason',
+              'xgen-IPA-107-update-method-response-code-is-200': 'reason',
             },
           },
         },
@@ -281,7 +283,7 @@ testRule('xgen-IPA-107-patch-method-response-code-is-200', [
               500: {},
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-107-patch-method-response-code-is-200': 'reason',
+              'xgen-IPA-107-update-method-response-code-is-200': 'reason',
             },
           },
         },
