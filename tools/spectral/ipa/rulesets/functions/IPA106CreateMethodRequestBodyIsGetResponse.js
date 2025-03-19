@@ -5,15 +5,22 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { isDeepEqual, removeRequestProperties, removeResponseProperties } from './utils/compareUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { getResponseOfGetMethodByMediaType, getSchemaRef } from './utils/methodUtils.js';
+import { getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
+import { checkRequestResponseResourceEqualityAndReturnErrors } from './utils/validations.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-get-method-response';
 const ERROR_MESSAGE =
   'The request body schema properties must match the response body schema properties of the Get method.';
 
+/**
+ * Create method request body schema properties must match the response body schema properties of the Get method.
+ *
+ * @param {string} input - A create operation request content version
+ * @param {object} _ - Unused
+ * @param {{ path: string[], documentInventory: object}} context - The context object containing the path and document
+ */
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const unresolvedOas = documentInventory.unresolved;
@@ -48,12 +55,15 @@ export default (input, _, { path, documentInventory }) => {
     unresolvedOas
   );
 
-  const errors = checkViolationsAndReturnErrors(
+  const errors = checkRequestResponseResourceEqualityAndReturnErrors(
     path,
     postRequestContentPerMediaType,
     getResponseContentPerMediaType,
     postRequestContentPerMediaTypeUnresolved,
-    getResponseContentPerMediaTypeUnresolved
+    getResponseContentPerMediaTypeUnresolved,
+    'Create',
+    'Get',
+    ERROR_MESSAGE
   );
 
   if (errors.length !== 0) {
@@ -62,43 +72,3 @@ export default (input, _, { path, documentInventory }) => {
 
   collectAdoption(path, RULE_NAME);
 };
-
-function checkViolationsAndReturnErrors(
-  path,
-  postRequestContentPerMediaType,
-  getResponseContentPerMediaType,
-  postRequestContentPerMediaTypeUnresolved,
-  getResponseContentPerMediaTypeUnresolved
-) {
-  const errors = [];
-
-  if (!getResponseContentPerMediaType.schema) {
-    return [
-      {
-        path,
-        message: `Could not validate that the Create request body schema matches the response schema of the Get method. The Get method does not have a schema.`,
-      },
-    ];
-  }
-
-  const postRequestSchemaRef = getSchemaRef(postRequestContentPerMediaTypeUnresolved.schema);
-  const getResponseSchemaRef = getSchemaRef(getResponseContentPerMediaTypeUnresolved.schema);
-
-  if (postRequestSchemaRef && getResponseSchemaRef) {
-    if (postRequestSchemaRef === getResponseSchemaRef) {
-      return [];
-    }
-  }
-
-  const filteredCreateRequestSchema = removeRequestProperties(postRequestContentPerMediaType.schema);
-  const filteredGetResponseSchema = removeResponseProperties(getResponseContentPerMediaType.schema);
-
-  if (!isDeepEqual(filteredCreateRequestSchema, filteredGetResponseSchema)) {
-    errors.push({
-      path,
-      message: ERROR_MESSAGE,
-    });
-  }
-
-  return errors;
-}
