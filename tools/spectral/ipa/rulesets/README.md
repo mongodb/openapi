@@ -327,10 +327,22 @@ The request body must contain the resource being updated, i.e. the resource or p
 
 Validation checks the PATCH/PUT methods for single resource paths.
   - Validation ignores resources without a Get method.
-  - `readOnly:true` properties of Get method response will be ignored. 
+  - `readOnly:true` properties of Get method response will be ignored.
   - `writeOnly:true` properties of Update method request will be ignored.
   - Property comparison is based on `type` and `name` matching.
   - `oneOf` and `discriminator` definitions must match exactly.
+
+#### xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Update method request schema should reference an `UpdateRequest` suffixed object.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to PUT/PATCH methods on single resource paths and singleton resources
+  - Applies only to JSON content types
+  - Validation only applies to schema references to a predefined schema (not inline)
+  - Confirms the referenced schema name ends with "Request" suffix
 
 
 
