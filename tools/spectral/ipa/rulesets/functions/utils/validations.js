@@ -140,11 +140,11 @@ export function checkRequestResponseResourceEqualityAndReturnErrors(
     ];
   }
 
-  const postRequestSchemaRef = getSchemaRef(requestContentUnresolved.schema);
-  const getResponseSchemaRef = getSchemaRef(responseContentUnresolved.schema);
+  const requestSchemaRef = getSchemaRef(requestContentUnresolved.schema);
+  const responseSchemaRef = getSchemaRef(responseContentUnresolved.schema);
 
-  if (postRequestSchemaRef && getResponseSchemaRef) {
-    if (postRequestSchemaRef === getResponseSchemaRef) {
+  if (requestSchemaRef && responseSchemaRef) {
+    if (requestSchemaRef === responseSchemaRef) {
       return [];
     }
   }
