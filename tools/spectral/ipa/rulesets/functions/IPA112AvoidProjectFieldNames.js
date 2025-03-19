@@ -9,7 +9,8 @@ import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-112-avoid-project-field-names';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, options, { path, documentInventory }) => {
+
   const oas = documentInventory.resolved;
   const property = resolveObject(oas, path);
 
@@ -18,28 +19,26 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path);
+  const errors = checkViolationsAndReturnErrors(input, options, path);
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
-  collectAdoption(input, RULE_NAME);
+  collectAdoption(path, RULE_NAME);
+
 };
 
-function checkViolationsAndReturnErrors(input, path) {
-  const errors = [];
+function checkViolationsAndReturnErrors(input, options, path) {
   try {
-    const prohibitedName = "project";
-
+    const prohibitedFieldName = options?.prohibitedFieldName || "";
     const lowerPropertyName = input.toLowerCase();
-
-    if (lowerPropertyName.includes(prohibitedName)) {
-      errors.push({
+    if (lowerPropertyName.includes(prohibitedFieldName)) {
+      return [{
         path,
         message: `Field name "${input}" should be avoided. Consider using "group", "groups", or "groupId" instead.`
-      });
+      }];
     }
 
-    return errors;
+    return [];
   } catch (e) {
     handleInternalError(RULE_NAME, path, e);
   }

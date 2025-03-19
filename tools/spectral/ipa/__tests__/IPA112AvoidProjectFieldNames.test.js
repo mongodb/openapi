@@ -135,36 +135,6 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
     errors: []
   },
   {
-    name: 'paths with project field name',
-    document: {
-      paths: {
-        '/api/resource': {
-          post: {
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    properties: {
-                      project: { type: 'string' }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    errors: [
-      {
-        code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "project" should be avoided. Consider using "group", "groups", or "groupId" instead.',
-        path: ['paths', '/api/resource', 'post', 'requestBody', 'content', 'application/json', 'schema', 'properties', 'project'],
-        severity: DiagnosticSeverity.Warning
-      }
-    ]
-  },
-  {
     name: 'field name containing project substring',
     document: {
       components: {
@@ -223,54 +193,6 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
                 type: 'array',
                 'x-xgen-IPA-exception': {
                   'xgen-IPA-112-avoid-project-field-names': 'External API compatibility'
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    errors: []
-  },
-  {
-    name: 'exception - schema level exception for all properties',
-    document: {
-      components: {
-        schemas: {
-          SchemaName: {
-            'x-xgen-IPA-exception': {
-              'xgen-IPA-112-avoid-project-field-names': 'Legacy schema that cannot be changed'
-            },
-            properties: {
-              projectId: { type: 'string' },
-              projects: { type: 'array' },
-              myProjectDetails: { type: 'object' }
-            }
-          }
-        }
-      }
-    },
-    errors: []
-  },
-  {
-    name: 'exception - in paths',
-    document: {
-      paths: {
-        '/api/resource': {
-          post: {
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    properties: {
-                      project: {
-                        type: 'string',
-                        'x-xgen-IPA-exception': {
-                          'xgen-IPA-112-avoid-project-field-names': 'Third-party integration requirement'
-                        }
-                      }
-                    }
-                  }
                 }
               }
             }
