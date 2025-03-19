@@ -27,15 +27,22 @@ export default (input, options, { path, documentInventory }) => {
 
 function checkViolationsAndReturnErrors(input, options, path) {
   try {
-    const prohibitedFieldName = options?.prohibitedFieldName || '';
+    const prohibitedFieldNames = options?.prohibitedFieldNames || [];
     const lowerPropertyName = input.toLowerCase();
-    if (lowerPropertyName.includes(prohibitedFieldName)) {
-      return [
-        {
-          path,
-          message: `Field name "${input}" should be avoided. Consider using "group", "groups", or "groupId" instead.`,
-        },
-      ];
+
+    // Check if the property name includes any of the prohibited terms
+    for (const prohibitedItem of prohibitedFieldNames) {
+      const prohibitedName = prohibitedItem.name || "";
+      const alternative = prohibitedItem.alternative || "";
+
+      if (lowerPropertyName.includes(prohibitedName.toLowerCase())) {
+        return [
+          {
+            path,
+            message: `Field name "${input}" should be avoided. Consider using ${alternative.map(alt => `"${alt}"`)} instead.`,
+          },
+        ];
+      }
     }
 
     return [];

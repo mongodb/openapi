@@ -35,7 +35,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
     errors: [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "project" should be avoided. Consider using "group", "groups", or "groupId" instead.',
+        message: 'Field name "project" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'project'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -57,7 +57,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
     errors: [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "projects" should be avoided. Consider using "group", "groups", or "groupId" instead.',
+        message: 'Field name "projects" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'projects'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -79,7 +79,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
     errors: [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "projectId" should be avoided. Consider using "group", "groups", or "groupId" instead.',
+        message: 'Field name "projectId" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'projectId'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -102,13 +102,13 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
     errors: [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "Project" should be avoided. Consider using "group", "groups", or "groupId" instead.',
+        message: 'Field name "Project" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'Project'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "PROJECTID" should be avoided. Consider using "group", "groups", or "groupId" instead.',
+        message: 'Field name "PROJECTID" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'PROJECTID'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -151,7 +151,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
         message:
-          'Field name "myProjectDetails" should be avoided. Consider using "group", "groups", or "groupId" instead.',
+          'Field name "myProjectDetails" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'myProjectDetails'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -167,7 +167,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
               myProjectDetails: {
                 type: 'object',
                 'x-xgen-IPA-exception': {
-                  'xgen-IPA-112-avoid-project-field-names': 'Legacy field name that cannot be changed',
+                  'xgen-IPA-112-avoid-project-field-names': 'Reason',
                 },
               },
             },
@@ -187,13 +187,13 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
               projectId: {
                 type: 'string',
                 'x-xgen-IPA-exception': {
-                  'xgen-IPA-112-avoid-project-field-names': 'External API compatibility',
+                  'xgen-IPA-112-avoid-project-field-names': 'Reason',
                 },
               },
               projects: {
                 type: 'array',
                 'x-xgen-IPA-exception': {
-                  'xgen-IPA-112-avoid-project-field-names': 'External API compatibility',
+                  'xgen-IPA-112-avoid-project-field-names': 'Reason',
                 },
               },
             },
@@ -213,7 +213,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
               project: {
                 type: 'string',
                 'x-xgen-IPA-exception': {
-                  'xgen-IPA-112-avoid-project-field-names': 'Legacy field',
+                  'xgen-IPA-112-avoid-project-field-names': 'Reason',
                 },
               },
               projectId: { type: 'string' },
@@ -226,7 +226,7 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
     errors: [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "projectId" should be avoided. Consider using "group", "groups", or "groupId" instead.',
+        message: 'Field name "projectId" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'projectId'],
         severity: DiagnosticSeverity.Warning,
       },
