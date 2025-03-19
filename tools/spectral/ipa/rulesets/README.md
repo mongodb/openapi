@@ -335,7 +335,7 @@ Validation checks the PATCH/PUT methods for single resource paths.
 #### xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-The Update method request should be a `UpdateRequest` suffixed object.
+The Update method request schema should reference an `UpdateRequest` suffixed object.
 
 ##### Implementation details
 Rule checks for the following conditions:
