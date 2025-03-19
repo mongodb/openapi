@@ -38,5 +38,10 @@ export function getSchemaPathFromEnumPath(path) {
  * @returns {*}
  */
 export function splitCamelCase(str) {
-  return str.split(/(?=[A-Z])/);
+  if (!str) return [''];
+
+  // Special handling for single words
+  if (!/[A-Z]/.test(str)) return [str];
+
+  return str.split(/(?=[A-Z])/).map((word) => word.toLowerCase());
 }

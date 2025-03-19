@@ -38,7 +38,7 @@ function checkViolationsAndReturnErrors(input, options, path) {
       const prohibitedName = prohibitedItem.name || '';
       const alternative = prohibitedItem.alternative || '';
 
-      if (words.some((word) => word.toLowerCase() === prohibitedName)) {
+      if (words.some((word) => word === prohibitedName)) {
         return [
           {
             path,
