@@ -83,28 +83,28 @@ testRule('xgen-IPA-105-list-method-response-code-is-200', [
         message:
           'The List method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceOne', 'get'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-105-list-method-response-code-is-200',
         message:
           'The List method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceTwo', 'get'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-105-list-method-response-code-is-200',
         message:
           'The List method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceThree', 'get'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-105-list-method-response-code-is-200',
         message:
           'The List method must return a 200 OK response. This method either lacks a 200 OK response or defines a different 2xx status code.',
         path: ['paths', '/resourceFour', 'get'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

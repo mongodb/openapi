@@ -141,7 +141,7 @@ testRule('xgen-IPA-104-get-method-response-has-no-input-fields', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-response-has-no-input-fields',
@@ -156,7 +156,7 @@ testRule('xgen-IPA-104-get-method-response-has-no-input-fields', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
