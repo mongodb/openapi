@@ -508,7 +508,7 @@ Rules are based on [http://go/ipa/IPA-125](http://go/ipa/IPA-125).
 
 #### xgen-IPA-125-oneOf-must-have-discriminator
 
- ![error](https://img.shields.io/badge/error-red) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Each oneOf property must include a discriminator property to define the exact type.
 
 ##### Implementation details
@@ -538,7 +538,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-125-oneOf-no-base-types
 
- ![error](https://img.shields.io/badge/error-red) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 API producers should not use oneOf with base types like integer, string, boolean, or number.
 
 ##### Implementation details
