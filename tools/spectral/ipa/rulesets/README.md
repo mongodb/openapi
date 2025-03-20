@@ -502,4 +502,83 @@ Rule checks for the following conditions:
 
 
 
+### IPA-125
+
+Rules are based on [http://go/ipa/IPA-125](http://go/ipa/IPA-125).
+
+#### xgen-IPA-125-oneOf-must-have-discriminator
+
+ ![error](https://img.shields.io/badge/error-red) 
+Each oneOf property must include a discriminator property to define the exact type.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to schemas with `oneOf` containing references
+  - Ensures a `discriminator` property is present with a valid `propertyName`
+  - Validates that `discriminator.mapping` contains exactly the same number of entries as `oneOf` references
+  - Validates that each `discriminator.mapping` value matches a reference in the `oneOf` array
+  - Ignores `oneOf` definitions with inline schemas
+
+##### Matching Logic
+- The `discriminator.mapping` must have the same number of entries as there are references in the `oneOf` array
+- Each value in the `discriminator.mapping` must match one of the `$ref` values in the `oneOf` array
+- Each `$ref` in the `oneOf` array must have a corresponding entry in the `discriminator.mapping`
+- Example:
+  ```yaml
+  oneOf:
+    - $ref: '#/components/schemas/Dog'
+    - $ref: '#/components/schemas/Cat'
+  discriminator:
+    propertyName: type
+    mapping:
+      dog: '#/components/schemas/Dog'
+      cat: '#/components/schemas/Cat'
+  ```
+  This is valid because there are exactly 2 mappings for 2 oneOf references, and all values match.
+
+#### xgen-IPA-125-oneOf-no-base-types
+
+ ![error](https://img.shields.io/badge/error-red) 
+API producers should not use oneOf with base types like integer, string, boolean, or number.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to schemas with `oneOf` arrays
+  - Ensures no element within oneOf has a type property that is a primitive/base type
+  - Base types considered are: integer, string, boolean, number
+
+##### Rationale
+Using oneOf with primitive types can lead to ambiguity and validation problems. Clients may not 
+be able to properly determine which type to use in which context. Instead, use more specific 
+object types with clear discriminators.
+
+##### Example Violation
+```yaml
+# Incorrect - Using oneOf with base types
+type: object
+properties:
+  value:
+    oneOf:
+      - type: string
+      - type: integer
+```
+
+##### Example Compliance
+```yaml
+# Correct - Using oneOf with object types only
+type: object
+properties:
+  value:
+    oneOf:
+      - $ref: '#/components/schemas/StringValue'
+      - $ref: '#/components/schemas/IntegerValue'
+    discriminator:
+      propertyName: valueType
+      mapping:
+        string: '#/components/schemas/StringValue'
+        integer: '#/components/schemas/IntegerValue'
+```
+
+
+
 
