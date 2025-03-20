@@ -482,6 +482,16 @@ Rule checks for the following conditions:
   - Verifies that no schema contains 'id' or '_id' properties in their object definitions
   - Fails if any response schema contains these identifier properties
 
+#### xgen-IPA-113-singleton-must-not-have-delete-method
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Singleton resources must not define the Delete standard method
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to singleton resources
+  - Checks that the resource does not have a DELETE method defined
+
 
 
 ### IPA-123
