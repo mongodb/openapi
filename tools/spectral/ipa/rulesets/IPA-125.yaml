@@ -3,6 +3,7 @@
 
 functions:
   - IPA125OneOfMustHaveDiscriminator
+  - IPA125OneOfNoBaseTypes
 
 rules:
   xgen-IPA-125-oneOf-must-have-discriminator:
@@ -36,6 +37,54 @@ rules:
 
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-125-oneOf-must-have-discriminator'
     severity: error
-    given: '$..[?(@.oneOf)]'
+    given: '$.components.schemas[*]'
     then:
       function: 'IPA125OneOfMustHaveDiscriminator'
+
+  xgen-IPA-125-oneOf-no-base-types:
+    description: |
+      API producers should not use oneOf with base types like integer, string, boolean, or number.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to schemas with `oneOf` arrays
+        - Ensures no element within oneOf has a type property that is a primitive/base type
+        - Base types considered are: integer, string, boolean, number
+
+      ##### Rationale
+      Using oneOf with primitive types can lead to ambiguity and validation problems. Clients may not 
+      be able to properly determine which type to use in which context. Instead, use more specific 
+      object types with clear discriminators.
+
+      ##### Example Violation
+      ```yaml
+      # Incorrect - Using oneOf with base types
+      type: object
+      properties:
+        value:
+          oneOf:
+            - type: string
+            - type: integer
+      ```
+
+      ##### Example Compliance
+      ```yaml
+      # Correct - Using oneOf with object types only
+      type: object
+      properties:
+        value:
+          oneOf:
+            - $ref: '#/components/schemas/StringValue'
+            - $ref: '#/components/schemas/IntegerValue'
+          discriminator:
+            propertyName: valueType
+            mapping:
+              string: '#/components/schemas/StringValue'
+              integer: '#/components/schemas/IntegerValue'
+      ```
+
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-125-oneOf-no-base-types'
+    severity: error
+    given: '$.components.schemas[*]'
+    then:
+      function: 'IPA125OneOfNoBaseTypes'
