@@ -38,7 +38,7 @@ jobs:
       - name: Install npm dependencies
         run: npm install
       - name: Fetch OAS file from Dev Branch
-        run: curl -O "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/.raw/v2.yaml"
+        run: curl -o dev-oas.yaml "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/.raw/v2.yaml"
         working-directory: ${{ github.workspace }}
       - name: Spectral action
         uses: stoplightio/spectral-action@2ad0b9302e32a77c1caccf474a9b2191a8060d83
@@ -51,3 +51,7 @@ jobs:
         with:
           file_glob: ${{ github.workspace }}//v2.yaml
           spectral_ruleset: tools/spectral/ipa/ipa-spectral.yaml
+      - name: IPA validation
+        run: |
+          npx spectral lint dev-oas.yaml --ruleset=${{ github.workspace }}/tools/spectral/ipa/ipa-spectral.yaml
+
