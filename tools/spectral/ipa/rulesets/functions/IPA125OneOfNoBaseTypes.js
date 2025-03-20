@@ -3,7 +3,8 @@ import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-125-oneOf-no-base-types';
-const ERROR_MESSAGE = 'oneOf should not contain base types like integer, number, string, or boolean.';
+const ERROR_MESSAGE_MIXED = 'oneOf should not mix base types with references.';
+const ERROR_MESSAGE_MULTIPLE = 'oneOf should not contain multiple different base types.';
 
 export default (input, _, { path, documentInventory }) => {
   if (!input.oneOf || !Array.isArray(input.oneOf)) {
@@ -22,14 +23,30 @@ export default (input, _, { path, documentInventory }) => {
 };
 
 function checkViolationsAndReturnErrors(schema, path) {
-  // Check if any oneOf item is a base type
-  const baseTypes = ['integer', 'number', 'string', 'boolean'];
-  const hasBaseType = schema.oneOf.some(
-    (item) => typeof item === 'object' && item.type && baseTypes.includes(item.type)
-  );
+  const baseTypes = ['string', 'number', 'integer', 'boolean'];
+  const foundBaseTypes = new Set();
+  let hasRef = false;
+  let hasBaseType = false;
 
-  if (hasBaseType) {
-    return [{ path, message: ERROR_MESSAGE }];
+  // Check each oneOf item
+  for (const item of schema.oneOf) {
+    if (item.$ref) {
+      hasRef = true;
+      continue;
+    }
+
+    if (item.type && baseTypes.includes(item.type)) {
+      hasBaseType = true;
+      foundBaseTypes.add(item.type);
+    }
+  }
+
+  if (hasRef && hasBaseType) {
+    return [{ path, message: ERROR_MESSAGE_MIXED }];
+  }
+
+  if (foundBaseTypes.size > 1) {
+    return [{ path, message: ERROR_MESSAGE_MULTIPLE }];
   }
 
   return [];

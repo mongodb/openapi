@@ -70,9 +70,9 @@ testRule('xgen-IPA-125-oneOf-no-base-types', [
     errors: [
       {
         code: 'xgen-IPA-125-oneOf-no-base-types',
-        message: 'oneOf should not contain base types like integer, number, string, or boolean.',
+        message: 'oneOf should not mix base types with references.',
         path: ['components', 'schemas', 'MixedType'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -91,11 +91,28 @@ testRule('xgen-IPA-125-oneOf-no-base-types', [
     errors: [
       {
         code: 'xgen-IPA-125-oneOf-no-base-types',
-        message: 'oneOf should not contain base types like integer, number, string, or boolean.',
+        message: 'oneOf should not contain multiple different base types.',
         path: ['components', 'schemas', 'BaseTypes'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
+  },
+  {
+    name: 'valid oneOf with same base type multiple times',
+    document: {
+      components: {
+        schemas: {
+          ...componentSchemas,
+          SameBaseType: {
+            oneOf: [
+              { type: 'string', enum: ['one'] },
+              { type: 'string', enum: ['two'] },
+            ],
+          },
+        },
+      },
+    },
+    errors: [],
   },
   {
     name: 'oneOf with exception',
