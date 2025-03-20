@@ -12,6 +12,8 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
               group: { type: 'string' },
               groupId: { type: 'string' },
               projection: { type: 'number' },
+              gcpProjectId: { type: 'string' },
+              somethingWithGcpProjectId: { type: 'string' },
             },
           },
         },
