@@ -2,20 +2,18 @@ import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
 const componentSchemas = {
-  schemas: {
-    Dog: {
-      type: 'object',
-      properties: {
-        breed: { type: 'string' },
-        age: { type: 'integer' },
-      },
+  Dog: {
+    type: 'object',
+    properties: {
+      breed: { type: 'string' },
+      age: { type: 'integer' },
     },
-    Cat: {
-      type: 'object',
-      properties: {
-        color: { type: 'string' },
-        livesLeft: { type: 'integer' },
-      },
+  },
+  Cat: {
+    type: 'object',
+    properties: {
+      color: { type: 'string' },
+      livesLeft: { type: 'integer' },
     },
   },
 };
@@ -24,10 +22,12 @@ testRule('xgen-IPA-125-oneOf-no-base-types', [
   {
     name: 'valid oneOf with references only',
     document: {
-      components: componentSchemas,
-      schemas: {
-        Animal: {
-          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+      components: {
+        schemas: {
+          ...componentSchemas,
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+          },
         },
       },
     },
@@ -36,18 +36,20 @@ testRule('xgen-IPA-125-oneOf-no-base-types', [
   {
     name: 'valid oneOf with object schema',
     document: {
-      components: componentSchemas,
-      schemas: {
-        MixedObject: {
-          oneOf: [
-            {
-              type: 'object',
-              properties: {
-                name: { type: 'string' },
+      components: {
+        schemas: {
+          ...componentSchemas,
+          MixedObject: {
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
               },
-            },
-            { $ref: '#/components/schemas/Dog' },
-          ],
+              { $ref: '#/components/schemas/Dog' },
+            ],
+          },
         },
       },
     },
@@ -56,10 +58,12 @@ testRule('xgen-IPA-125-oneOf-no-base-types', [
   {
     name: 'invalid oneOf with string type',
     document: {
-      components: componentSchemas,
-      schemas: {
-        MixedType: {
-          oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Dog' }],
+      components: {
+        schemas: {
+          ...componentSchemas,
+          MixedType: {
+            oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Dog' }],
+          },
         },
       },
     },
@@ -67,7 +71,7 @@ testRule('xgen-IPA-125-oneOf-no-base-types', [
       {
         code: 'xgen-IPA-125-oneOf-no-base-types',
         message: 'oneOf should not contain base types like integer, number, string, or boolean.',
-        path: ['schemas', 'MixedType'],
+        path: ['components', 'schemas', 'MixedType'],
         severity: DiagnosticSeverity.Error,
       },
     ],
@@ -75,10 +79,12 @@ testRule('xgen-IPA-125-oneOf-no-base-types', [
   {
     name: 'invalid oneOf with multiple base types',
     document: {
-      components: componentSchemas,
-      schemas: {
-        BaseTypes: {
-          oneOf: [{ type: 'string' }, { type: 'integer' }, { type: 'boolean' }],
+      components: {
+        schemas: {
+          ...componentSchemas,
+          BaseTypes: {
+            oneOf: [{ type: 'string' }, { type: 'integer' }, { type: 'boolean' }],
+          },
         },
       },
     },
@@ -86,7 +92,7 @@ testRule('xgen-IPA-125-oneOf-no-base-types', [
       {
         code: 'xgen-IPA-125-oneOf-no-base-types',
         message: 'oneOf should not contain base types like integer, number, string, or boolean.',
-        path: ['schemas', 'BaseTypes'],
+        path: ['components', 'schemas', 'BaseTypes'],
         severity: DiagnosticSeverity.Error,
       },
     ],
@@ -94,12 +100,14 @@ testRule('xgen-IPA-125-oneOf-no-base-types', [
   {
     name: 'oneOf with exception',
     document: {
-      components: componentSchemas,
-      schemas: {
-        MixedType: {
-          oneOf: [{ type: 'string' }, { type: 'integer' }],
-          'x-xgen-IPA-exception': {
-            'xgen-IPA-125-oneOf-no-base-types': 'reason for exemption',
+      components: {
+        schemas: {
+          ...componentSchemas,
+          MixedType: {
+            oneOf: [{ type: 'string' }, { type: 'integer' }],
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-125-oneOf-no-base-types': 'reason for exemption',
+            },
           },
         },
       },

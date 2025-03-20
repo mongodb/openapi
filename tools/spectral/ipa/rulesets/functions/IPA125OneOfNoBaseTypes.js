@@ -6,18 +6,22 @@ const RULE_NAME = 'xgen-IPA-125-oneOf-no-base-types';
 const ERROR_MESSAGE = 'oneOf should not contain base types like integer, number, string, or boolean.';
 
 export default (input, _, { path, documentInventory }) => {
-  const oas = documentInventory.unresolved; // Use unresolved document to access raw $ref
-  const schema = resolveObject(oas, path);
-
-  if (!schema || !schema.oneOf || !Array.isArray(schema.oneOf)) {
+  if (!input.oneOf || !Array.isArray(input.oneOf)) {
     return;
   }
-
-  // Check for exception first
+  const schema = resolveObject(documentInventory.unresolved, path);
   if (hasException(schema, RULE_NAME)) {
     return;
   }
 
+  const errors = checkViolationsAndReturnErrors(schema, path);
+  if (errors.length !== 0) {
+    return collectAndReturnViolation(path, RULE_NAME, errors);
+  }
+  collectAdoption(path, RULE_NAME);
+};
+
+function checkViolationsAndReturnErrors(schema, path) {
   // Check if any oneOf item is a base type
   const baseTypes = ['integer', 'number', 'string', 'boolean'];
   const hasBaseType = schema.oneOf.some(
@@ -25,8 +29,8 @@ export default (input, _, { path, documentInventory }) => {
   );
 
   if (hasBaseType) {
-    return collectAndReturnViolation(path, RULE_NAME, [{ message: ERROR_MESSAGE }]);
+    return [{ path, message: ERROR_MESSAGE }];
   }
 
-  collectAdoption(path, RULE_NAME);
-};
+  return [];
+}

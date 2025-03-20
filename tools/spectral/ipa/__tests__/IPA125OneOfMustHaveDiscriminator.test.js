@@ -2,34 +2,32 @@ import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
 const componentSchemas = {
-  schemas: {
-    Dog: {
-      type: 'object',
-      properties: {
-        breed: { type: 'string' },
-        age: { type: 'integer' },
-      },
+  Dog: {
+    type: 'object',
+    properties: {
+      breed: { type: 'string' },
+      age: { type: 'integer' },
     },
-    Cat: {
-      type: 'object',
-      properties: {
-        color: { type: 'string' },
-        livesLeft: { type: 'integer' },
-      },
+  },
+  Cat: {
+    type: 'object',
+    properties: {
+      color: { type: 'string' },
+      livesLeft: { type: 'integer' },
     },
-    Bird: {
-      type: 'object',
-      properties: {
-        species: { type: 'string' },
-        wingspan: { type: 'number' },
-      },
+  },
+  Bird: {
+    type: 'object',
+    properties: {
+      species: { type: 'string' },
+      wingspan: { type: 'number' },
     },
-    Fish: {
-      type: 'object',
-      properties: {
-        species: { type: 'string' },
-        waterType: { type: 'string' },
-      },
+  },
+  Fish: {
+    type: 'object',
+    properties: {
+      species: { type: 'string' },
+      waterType: { type: 'string' },
     },
   },
 };
@@ -38,15 +36,17 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
   {
     name: 'valid oneOf with discriminator and matching mapping',
     document: {
-      components: componentSchemas,
-      schemas: {
-        Animal: {
-          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-          discriminator: {
-            propertyName: 'type',
-            mapping: {
-              dog: '#/components/schemas/Dog',
-              cat: '#/components/schemas/Cat',
+      components: {
+        schemas: {
+          ...componentSchemas,
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                dog: '#/components/schemas/Dog',
+                cat: '#/components/schemas/Cat',
+              },
             },
           },
         },
@@ -57,15 +57,17 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
   {
     name: 'invalid oneOf with discriminator but mismatched mapping',
     document: {
-      components: componentSchemas,
-      schemas: {
-        Animal: {
-          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-          discriminator: {
-            propertyName: 'type',
-            mapping: {
-              dog: '#/components/schemas/Dog',
-              bird: '#/components/schemas/Bird',
+      components: {
+        schemas: {
+          ...componentSchemas,
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                dog: '#/components/schemas/Dog',
+                bird: '#/components/schemas/Bird',
+              },
             },
           },
         },
@@ -76,7 +78,7 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
         code: 'xgen-IPA-125-oneOf-must-have-discriminator',
         message:
           'The discriminator mapping must match the oneOf references. Unmatched Discriminator mappings with oneOf references: #/components/schemas/Bird',
-        path: ['schemas', 'Animal'],
+        path: ['components', 'schemas', 'Animal'],
         severity: DiagnosticSeverity.Error,
       },
     ],
@@ -84,10 +86,12 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
   {
     name: 'invalid oneOf without discriminator',
     document: {
-      components: componentSchemas,
-      schemas: {
-        Animal: {
-          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+      components: {
+        schemas: {
+          ...componentSchemas,
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+          },
         },
       },
     },
@@ -95,7 +99,7 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
       {
         code: 'xgen-IPA-125-oneOf-must-have-discriminator',
         message: 'The schema has oneOf but no discriminator property.',
-        path: ['schemas', 'Animal'],
+        path: ['components', 'schemas', 'Animal'],
         severity: DiagnosticSeverity.Error,
       },
     ],
@@ -103,11 +107,13 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
   {
     name: 'invalid oneOf with non-object discriminator',
     document: {
-      components: componentSchemas,
-      schemas: {
-        Animal: {
-          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-          discriminator: "I'm a string, not an object!",
+      components: {
+        schemas: {
+          ...componentSchemas,
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+            discriminator: "I'm a string, not an object!",
+          },
         },
       },
     },
@@ -115,7 +121,7 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
       {
         code: 'xgen-IPA-125-oneOf-must-have-discriminator',
         message: 'Discriminator property is not an object.',
-        path: ['schemas', 'Animal'],
+        path: ['components', 'schemas', 'Animal'],
         severity: DiagnosticSeverity.Error,
       },
     ],
@@ -123,14 +129,16 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
   {
     name: 'invalid oneOf with discriminator but no propertyName',
     document: {
-      components: componentSchemas,
-      schemas: {
-        Animal: {
-          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-          discriminator: {
-            mapping: {
-              dog: '#/components/schemas/Dog',
-              cat: '#/components/schemas/Cat',
+      components: {
+        schemas: {
+          ...componentSchemas,
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+            discriminator: {
+              mapping: {
+                dog: '#/components/schemas/Dog',
+                cat: '#/components/schemas/Cat',
+              },
             },
           },
         },
@@ -140,7 +148,7 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
       {
         code: 'xgen-IPA-125-oneOf-must-have-discriminator',
         message: 'Discriminator has no propertyName defined.',
-        path: ['schemas', 'Animal'],
+        path: ['components', 'schemas', 'Animal'],
         severity: DiagnosticSeverity.Error,
       },
     ],
@@ -148,12 +156,14 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
   {
     name: 'invalid oneOf with discriminator but no mapping',
     document: {
-      components: componentSchemas,
-      schemas: {
-        Animal: {
-          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-          discriminator: {
-            propertyName: 'type',
+      components: {
+        schemas: {
+          ...componentSchemas,
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+            discriminator: {
+              propertyName: 'type',
+            },
           },
         },
       },
@@ -162,7 +172,7 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
       {
         code: 'xgen-IPA-125-oneOf-must-have-discriminator',
         message: 'Discriminator must have a mapping object.',
-        path: ['schemas', 'Animal'],
+        path: ['components', 'schemas', 'Animal'],
         severity: DiagnosticSeverity.Error,
       },
     ],
@@ -170,12 +180,14 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
   {
     name: 'oneOf with discriminator exemption',
     document: {
-      components: componentSchemas,
-      schemas: {
-        Animal: {
-          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-          'x-xgen-IPA-exception': {
-            'xgen-IPA-125-oneOf-must-have-discriminator': 'reason for exemption',
+      components: {
+        schemas: {
+          ...componentSchemas,
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-125-oneOf-must-have-discriminator': 'reason for exemption',
+            },
           },
         },
       },
