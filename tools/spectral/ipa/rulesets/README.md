@@ -482,6 +482,26 @@ Rule checks for the following conditions:
   - Verifies that no schema contains 'id' or '_id' properties in their object definitions
   - Fails if any response schema contains these identifier properties
 
+#### xgen-IPA-113-singleton-must-not-have-delete-method
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Singleton resources must not define the Delete standard method.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to singleton resources
+  - Checks that the resource does not have a DELETE method defined
+
+#### xgen-IPA-113-singleton-should-have-update-method
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Singleton resources should define the Update method. Validation for the presence of Get method is covered by IPA-104 (see [xgen-IPA-104-resource-has-GET](https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-resource-has-GET)).
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to singleton resources
+  - Checks that the resource has the PUT and/or PATCH methods defined
+
 
 
 ### IPA-123
