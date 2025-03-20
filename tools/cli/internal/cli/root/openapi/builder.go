@@ -16,17 +16,17 @@ package openapi
 
 import (
 	"fmt"
-	"runtime"
-
 	"github.com/mongodb/openapi/tools/cli/internal/cli/breakingchanges"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/filter"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/flatten"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/merge"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/split"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/sunset"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/versions"
 	"github.com/mongodb/openapi/tools/cli/internal/version"
 	"github.com/spf13/cobra"
+	"runtime"
 )
 
 const (
@@ -63,6 +63,7 @@ func Builder() *cobra.Command {
 		breakingchanges.Builder(),
 		sunset.Builder(),
 		filter.Builder(),
+		flatten.Builder(),
 	)
 	return rootCmd
 }
