@@ -162,7 +162,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
@@ -176,7 +176,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
           'content',
           'application/vnd.atlas.2024-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
@@ -190,7 +190,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
           'content',
           'application/vnd.atlas.2025-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
@@ -204,7 +204,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

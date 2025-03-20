@@ -26,6 +26,7 @@ export default (ruleName, tests) => {
           expect(error.code).toEqual(testCase.errors[index].code);
           expect(error.message).toMatch(testCase.errors[index].message);
           expect(error.path).toEqual(testCase.errors[index].path);
+          expect(error.severity).toEqual(testCase.errors[index].severity);
         });
       });
     }
