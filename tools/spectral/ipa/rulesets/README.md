@@ -460,6 +460,7 @@ Schema field names should avoid using "project", "projects", or "projectId".
 Rule checks for the following conditions:
   - Searches through all schemas in the API definition
   - Identifies property names that match "project" (case-insensitive)
+  - Ignores fields where prohibited words appear with specified words (e.g., "gcpProjectId")
   - Reports any instances where these field names are used
   - Suggests using "group", "groups", or "groupId" as alternatives
 
