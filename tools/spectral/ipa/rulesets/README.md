@@ -463,6 +463,17 @@ Rule checks for the following conditions:
   - Reports any instances where these field names are used
   - Suggests using "group", "groups", or "groupId" as alternatives
 
+#### xgen-IPA-112-field-names-are-camel-case
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Schema field names should be in camelCase format.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Searches through all schemas in the API definition
+  - Identifies property names that are not in camelCase format
+  - Reports any instances where these field names are not in camelCase format
+
 
 
 ### IPA-113
