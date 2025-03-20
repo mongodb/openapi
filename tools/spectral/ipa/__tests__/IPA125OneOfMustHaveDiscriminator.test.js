@@ -94,7 +94,74 @@ testRule('xgen-IPA-125-oneOf-must-have-discriminator', [
     errors: [
       {
         code: 'xgen-IPA-125-oneOf-must-have-discriminator',
-        message: 'Each oneOf property must include a discriminator property to define the exact type.',
+        message: 'The schema has oneOf but no discriminator property.',
+        path: ['schemas', 'Animal'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
+    name: 'invalid oneOf with non-object discriminator',
+    document: {
+      components: componentSchemas,
+      schemas: {
+        Animal: {
+          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+          discriminator: "I'm a string, not an object!",
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-125-oneOf-must-have-discriminator',
+        message: 'Discriminator property is not an object.',
+        path: ['schemas', 'Animal'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
+    name: 'invalid oneOf with discriminator but no propertyName',
+    document: {
+      components: componentSchemas,
+      schemas: {
+        Animal: {
+          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+          discriminator: {
+            mapping: {
+              dog: '#/components/schemas/Dog',
+              cat: '#/components/schemas/Cat',
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-125-oneOf-must-have-discriminator',
+        message: 'Discriminator has no propertyName defined.',
+        path: ['schemas', 'Animal'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
+    name: 'invalid oneOf with discriminator but no mapping',
+    document: {
+      components: componentSchemas,
+      schemas: {
+        Animal: {
+          oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+          discriminator: {
+            propertyName: 'type',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-125-oneOf-must-have-discriminator',
+        message: 'Discriminator must have a mapping object.',
         path: ['schemas', 'Animal'],
         severity: DiagnosticSeverity.Error,
       },

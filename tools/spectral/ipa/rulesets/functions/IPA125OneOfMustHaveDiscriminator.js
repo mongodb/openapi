@@ -3,7 +3,11 @@ import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-125-oneOf-must-have-discriminator';
-const ERROR_MESSAGE = 'Each oneOf property must include a discriminator property to define the exact type.';
+const GENERIC_ERROR_MESSAGE = 'Each oneOf property must include a discriminator property to define the exact type.';
+const MISSING_DISCRIMINATOR_MESSAGE = 'The schema has oneOf but no discriminator property.';
+const INVALID_DISCRIMINATOR_MESSAGE = 'Discriminator property is not an object.';
+const MISSING_PROPERTY_NAME_MESSAGE = 'Discriminator has no propertyName defined.';
+const MISSING_MAPPING_MESSAGE = 'Discriminator must have a mapping object.';
 const MAPPING_ERROR_MESSAGE =
   'The discriminator mapping must match the oneOf references. Unmatched Discriminator mappings with oneOf references:';
 
@@ -26,13 +30,21 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  // Validate the presence of a discriminator
-  if (!schema.discriminator || typeof schema.discriminator !== 'object' || !schema.discriminator.propertyName) {
-    return collectAndReturnViolation(path, RULE_NAME, [{ message: ERROR_MESSAGE }]);
+  // Validate the presence of a discriminator with more specific error messages
+  if (!schema.discriminator) {
+    return collectAndReturnViolation(path, RULE_NAME, [{ message: MISSING_DISCRIMINATOR_MESSAGE }]);
+  }
+
+  if (typeof schema.discriminator !== 'object') {
+    return collectAndReturnViolation(path, RULE_NAME, [{ message: INVALID_DISCRIMINATOR_MESSAGE }]);
+  }
+
+  if (!schema.discriminator.propertyName) {
+    return collectAndReturnViolation(path, RULE_NAME, [{ message: MISSING_PROPERTY_NAME_MESSAGE }]);
   }
 
   if (!schema.discriminator.mapping) {
-    return collectAndReturnViolation(path, RULE_NAME, [{ message: ERROR_MESSAGE }]);
+    return collectAndReturnViolation(path, RULE_NAME, [{ message: MISSING_MAPPING_MESSAGE }]);
   }
 
   const oneOfRefs = schema.oneOf.map((item) => item.$ref);
