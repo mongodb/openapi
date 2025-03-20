@@ -1,4 +1,9 @@
-import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
+import {
+  getResourcePathItems,
+  isResourceCollectionIdentifier,
+  isSingleResourceIdentifier,
+  isSingletonResource,
+} from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
 import {
@@ -24,8 +29,13 @@ export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
   const mediaType = input;
+  const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
 
-  if (!mediaType.endsWith('json') || !isSingleResourceIdentifier(resourcePath)) {
+  if (
+    !mediaType.endsWith('json') ||
+    (!isSingleResourceIdentifier(resourcePath) &&
+      !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePathItems)))
+  ) {
     return;
   }
 

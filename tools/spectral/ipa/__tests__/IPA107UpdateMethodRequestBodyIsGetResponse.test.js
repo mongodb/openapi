@@ -402,6 +402,32 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
             },
           },
         },
+        '/resource/{id}/singleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      $ref: '#/components/schemas/SchemaOne',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          patch: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: {
+                    $ref: '#/components/schemas/SchemaThree',
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
     errors: [
@@ -514,6 +540,20 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'requestBody',
           'content',
           'application/vnd.atlas.2024-01-01+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
+        message:
+          'The request body schema properties of the Update method must match the response body schema properties of the Get method.',
+        path: [
+          'paths',
+          '/resource/{id}/singleton',
+          'patch',
+          'requestBody',
+          'content',
+          'application/vnd.atlas.2023-01-01+json',
         ],
         severity: DiagnosticSeverity.Warning,
       },
