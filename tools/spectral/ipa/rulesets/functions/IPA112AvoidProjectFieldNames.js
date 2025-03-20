@@ -13,6 +13,7 @@ const RULE_NAME = 'xgen-IPA-112-avoid-project-field-names';
 export default (input, options, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const property = resolveObject(oas, path);
+  console.log(input);
 
   if (hasException(property, RULE_NAME)) {
     collectException(property, RULE_NAME, path);
