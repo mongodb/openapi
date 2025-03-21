@@ -560,45 +560,20 @@ Rule checks for the following conditions:
 #### xgen-IPA-125-oneOf-no-base-types
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-API producers should not use oneOf with base types like integer, string, boolean, or number.
+API producers should not use oneOf with different base types like integer, string, boolean, or number or references at the same time.
 
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies to schemas with `oneOf` arrays
-  - Ensures no element within oneOf has a type property that is a primitive/base type
+  - Ensures no mixing of base types with references
+  - Ensures no multiple different base types in the same oneOf
   - Base types considered are: integer, string, boolean, number
+  - Using the same base type multiple times is allowed (e.g., multiple string enums)
 
 ##### Rationale
-Using oneOf with primitive types can lead to ambiguity and validation problems. Clients may not 
+Using oneOf with multiple primitive types can lead to ambiguity and validation problems. Clients may not 
 be able to properly determine which type to use in which context. Instead, use more specific 
 object types with clear discriminators.
-
-##### Example Violation
-```yaml
-# Incorrect - Using oneOf with base types
-type: object
-properties:
-  value:
-    oneOf:
-      - type: string
-      - type: integer
-```
-
-##### Example Compliance
-```yaml
-# Correct - Using oneOf with object types only
-type: object
-properties:
-  value:
-    oneOf:
-      - $ref: '#/components/schemas/StringValue'
-      - $ref: '#/components/schemas/IntegerValue'
-    discriminator:
-      propertyName: valueType
-      mapping:
-        string: '#/components/schemas/StringValue'
-        integer: '#/components/schemas/IntegerValue'
-```
 
 
 
