@@ -35,6 +35,7 @@ type Spec struct {
 	Components   *openapi3.Components          `json:"components,omitempty" yaml:"components,omitempty"`
 	ExternalDocs *openapi3.ExternalDocs        `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
 }
+
 type Parser interface {
 	CreateOpenAPISpecFromPath(string) (*load.SpecInfo, error)
 }
