@@ -14,6 +14,11 @@ export default (input, options, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const property = resolveObject(oas, path);
 
+  const ignoreList = options?.ignore || [];
+  if (ignoreList.some((ignoreTerm) => input.toLowerCase().includes(ignoreTerm))) {
+    return;
+  }
+
   if (hasException(property, RULE_NAME)) {
     collectException(property, RULE_NAME, path);
     return;

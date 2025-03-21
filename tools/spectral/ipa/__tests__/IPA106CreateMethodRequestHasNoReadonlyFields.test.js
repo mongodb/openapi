@@ -154,14 +154,14 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
         message:
           'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: id. ',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-create-method-request-has-no-readonly-fields',
         message:
           'The Create method request object must not include input fields (readOnly properties). Found readOnly property at one of the inline schemas. ',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -194,7 +194,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
         message:
           'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: user.userId. ',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -227,7 +227,7 @@ testRule('xgen-IPA-106-create-method-request-has-no-readonly-fields', [
         message:
           'The Create method request object must not include input fields (readOnly properties). Found readOnly property at: items.items.itemId. ',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

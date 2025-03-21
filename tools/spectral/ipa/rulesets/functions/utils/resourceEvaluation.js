@@ -103,6 +103,36 @@ export function hasPostMethod(pathObject) {
 }
 
 /**
+ * Checks if a path object has a DELETE method
+ *
+ * @param pathObject the path object to evaluate
+ * @returns {boolean}
+ */
+export function hasDeleteMethod(pathObject) {
+  return Object.keys(pathObject).includes('delete');
+}
+
+/**
+ * Checks if a path object has a PUT method
+ *
+ * @param pathObject the path object to evaluate
+ * @returns {boolean}
+ */
+export function hasPutMethod(pathObject) {
+  return Object.keys(pathObject).includes('put');
+}
+
+/**
+ * Checks if a path object has a PATCH method
+ *
+ * @param pathObject the path object to evaluate
+ * @returns {boolean}
+ */
+export function hasPatchMethod(pathObject) {
+  return Object.keys(pathObject).includes('patch');
+}
+
+/**
  * Get all path items for a resource based on the path for the resource collection
  * For example, resource collection path '/resource' may return path items for ['/resource', '/resource{id}', '/resource{id}:customMethod']
  *

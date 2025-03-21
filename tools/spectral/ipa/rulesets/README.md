@@ -460,6 +460,7 @@ Schema field names should avoid using "project", "projects", or "projectId".
 Rule checks for the following conditions:
   - Searches through all schemas in the API definition
   - Identifies property names that match "project" (case-insensitive)
+  - Ignores fields where prohibited words appear with specified words (e.g., "gcpProjectId")
   - Reports any instances where these field names are used
   - Suggests using "group", "groups", or "groupId" as alternatives
 
@@ -493,6 +494,26 @@ Rule checks for the following conditions:
   - Verifies that no schema contains 'id' or '_id' properties in their object definitions
   - Fails if any response schema contains these identifier properties
 
+#### xgen-IPA-113-singleton-must-not-have-delete-method
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Singleton resources must not define the Delete standard method.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to singleton resources
+  - Checks that the resource does not have a DELETE method defined
+
+#### xgen-IPA-113-singleton-should-have-update-method
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Singleton resources should define the Update method. Validation for the presence of Get method is covered by IPA-104 (see [xgen-IPA-104-resource-has-GET](https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-resource-has-GET)).
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to singleton resources
+  - Checks that the resource has the PUT and/or PATCH methods defined
+
 
 
 ### IPA-123
@@ -519,7 +540,7 @@ Rules are based on [http://go/ipa/IPA-125](http://go/ipa/IPA-125).
 
 #### xgen-IPA-125-oneOf-must-have-discriminator
 
- ![error](https://img.shields.io/badge/error-red) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Each oneOf property must include a discriminator property to define the exact type.
 
 ##### Implementation details
@@ -549,46 +570,21 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-125-oneOf-no-base-types
 
- ![error](https://img.shields.io/badge/error-red) 
-API producers should not use oneOf with base types like integer, string, boolean, or number.
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+API producers should not use oneOf with different base types like integer, string, boolean, or number or references at the same time.
 
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies to schemas with `oneOf` arrays
-  - Ensures no element within oneOf has a type property that is a primitive/base type
+  - Ensures no mixing of base types with references
+  - Ensures no multiple different base types in the same oneOf
   - Base types considered are: integer, string, boolean, number
+  - Using the same base type multiple times is allowed (e.g., multiple string enums)
 
 ##### Rationale
-Using oneOf with primitive types can lead to ambiguity and validation problems. Clients may not 
+Using oneOf with multiple primitive types can lead to ambiguity and validation problems. Clients may not 
 be able to properly determine which type to use in which context. Instead, use more specific 
 object types with clear discriminators.
-
-##### Example Violation
-```yaml
-# Incorrect - Using oneOf with base types
-type: object
-properties:
-  value:
-    oneOf:
-      - type: string
-      - type: integer
-```
-
-##### Example Compliance
-```yaml
-# Correct - Using oneOf with object types only
-type: object
-properties:
-  value:
-    oneOf:
-      - $ref: '#/components/schemas/StringValue'
-      - $ref: '#/components/schemas/IntegerValue'
-    discriminator:
-      propertyName: valueType
-      mapping:
-        string: '#/components/schemas/StringValue'
-        integer: '#/components/schemas/IntegerValue'
-```
 
 
 
