@@ -6,8 +6,7 @@ import {
   handleInternalError,
 } from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-117-description-uppercase-period';
-const ERROR_MESSAGE_PERIOD = 'Descriptions must end with a full stop(.).';
+const RULE_NAME = 'xgen-IPA-117-description-starts-with-uppercase';
 const ERROR_MESSAGE_UPPER_CASE = 'Descriptions must start with Uppercase.';
 
 export default (input, opts, { path }) => {
@@ -29,17 +28,12 @@ export default (input, opts, { path }) => {
 
 function checkViolationsAndReturnErrors(description, path) {
   const upperCaseStart = new RegExp(`^[A-Z]`);
-  const periodEnd = new RegExp(`[.]$`);
-  const errors = [];
 
   try {
     if (!upperCaseStart.test(description)) {
-      errors.push({ path, message: ERROR_MESSAGE_UPPER_CASE });
+      return [{ path, message: ERROR_MESSAGE_UPPER_CASE }];
     }
-    if (!periodEnd.test(description)) {
-      errors.push({ path, message: ERROR_MESSAGE_PERIOD });
-    }
-    return errors;
+    return [];
   } catch (e) {
     handleInternalError(RULE_NAME, path, e);
   }
