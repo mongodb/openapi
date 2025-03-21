@@ -1,0 +1,32 @@
+# IPA-117: Documentation
+# http://go/ipa/117
+
+functions:
+  - IPA117HasDescription
+
+rules:
+  xgen-IPA-117-description:
+    description: |
+      API producers must provide descriptions for Properties, Operations and Parameters.
+
+      ##### Implementation details
+      Rule checks for description property in the following components:
+        - Info object
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+      The rule also fails if the description is an empty string.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description'
+    severity: warn
+    given:
+      - '$.info'
+      - '$.tags[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
+      - '$.components.schemas..properties[*]'
+      - '$.components.parameters[*]'
+    then:
+      function: 'IPA117HasDescription'
