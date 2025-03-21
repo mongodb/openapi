@@ -25,7 +25,7 @@ export default (input, opts, { path }) => {
 
 function checkViolationsAndReturnErrors(input, path) {
   try {
-    if (!Object.keys(input).includes('description') || input['description'] === '') {
+    if (!input['description']) {
       return [{ path, message: ERROR_MESSAGE }];
     }
     return [];
