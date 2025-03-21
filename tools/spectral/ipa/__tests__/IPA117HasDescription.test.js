@@ -124,6 +124,31 @@ testRule('xgen-IPA-117-description', [
     ],
   },
   {
+    name: 'invalid empty description',
+    document: {
+      components: {
+        schemas: {
+          Schema: {
+            properties: {
+              id: {
+                description: '',
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-117-description',
+        message:
+          'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
+        path: ['components', 'schemas', 'Schema', 'properties', 'id'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
     name: 'invalid array schema',
     document: {
       components: {
