@@ -11,7 +11,7 @@ const ERROR_MESSAGE_PERIOD = 'Descriptions must end with a full stop(.).';
 
 export default (input, opts, { path }) => {
   // Ignore missing descriptions or descriptions that ends with an inline table
-  if (!input['description'] || input['description'].endsWith('|')) {
+  if (!input['description'] || input['description'].endsWith('|') || input['description'].endsWith('|\n')) {
     return;
   }
 
