@@ -505,6 +505,27 @@ Rule checks for the following conditions:
 
 
 
+### IPA-117
+
+Rules are based on [http://go/ipa/IPA-117](http://go/ipa/IPA-117).
+
+#### xgen-IPA-117-description
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+API producers must provide descriptions for Properties, Operations and Parameters.
+
+##### Implementation details
+Rule checks for description property in the following components:
+  - Info object
+  - Tags
+  - Operation objects
+  - Inline schema properties for operation object requests and responses
+  - Parameter objects (in operations and components)
+  - Schema properties
+The rule also fails if the description is an empty string.
+
+
+
 ### IPA-123
 
 Rules are based on [http://go/ipa/IPA-123](http://go/ipa/IPA-123).
