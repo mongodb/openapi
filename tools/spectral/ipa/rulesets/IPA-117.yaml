@@ -3,6 +3,7 @@
 
 functions:
   - IPA117HasDescription
+  - IPA117DescriptionUpperCasePeriod
 
 rules:
   xgen-IPA-117-description:
@@ -30,3 +31,27 @@ rules:
       - '$.components.parameters[*]'
     then:
       function: 'IPA117HasDescription'
+  xgen-IPA-117-description-uppercase-period:
+    description: |
+      Descriptions must start with Uppercase and end with a full stop(.)
+
+      ##### Implementation details
+      Rule checks the format of the description property in the following components:
+        - Info object
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-uppercase-period'
+    severity: warn
+    given:
+      - '$.info'
+      - '$.tags[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
+      - '$.components.schemas..properties[*]'
+      - '$.components.parameters[*]'
+    then:
+      function: 'IPA117DescriptionUpperCasePeriod'

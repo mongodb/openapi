@@ -535,6 +535,20 @@ Rule checks for description property in the following components:
   - Schema properties
 The rule also fails if the description is an empty string.
 
+#### xgen-IPA-117-description-uppercase-period
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Descriptions must start with Uppercase and end with a full stop(.)
+
+##### Implementation details
+Rule checks the format of the description property in the following components:
+  - Info object
+  - Tags
+  - Operation objects
+  - Inline schema properties for operation object requests and responses
+  - Parameter objects (in operations and components)
+  - Schema properties
+
 
 
 ### IPA-123
