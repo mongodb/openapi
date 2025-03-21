@@ -18,6 +18,41 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
           },
         },
       },
+      paths: {
+        '/users': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2024-01-01+json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      group: { type: 'string' },
+                      groupId: { type: 'string' },
+                      gcpProjectId: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              201: {
+                content: {
+                  'application/vnd.atlas.2024-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        group: { type: 'string' },
+                        gcpProjectId: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     errors: [],
   },
@@ -29,6 +64,41 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
           SchemaName: {
             properties: {
               project: { type: 'string' },
+              projects: { type: 'array' },
+              projectId: { type: 'string' },
+              myProjectDetails: { type: 'object' },
+            },
+          },
+        },
+      },
+      paths: {
+        '/users': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2024-01-01+json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      projectId: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              201: {
+                content: {
+                  'application/vnd.atlas.2024-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        projectId: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -41,48 +111,55 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
         path: ['components', 'schemas', 'SchemaName', 'properties', 'project'],
         severity: DiagnosticSeverity.Warning,
       },
-    ],
-  },
-  {
-    name: 'invalid schema - with projects field name',
-    document: {
-      components: {
-        schemas: {
-          SchemaName: {
-            properties: {
-              projects: { type: 'array' },
-            },
-          },
-        },
-      },
-    },
-    errors: [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
         message: 'Field name "projects" should be avoided. Consider using "groups" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'projects'],
         severity: DiagnosticSeverity.Warning,
       },
-    ],
-  },
-  {
-    name: 'invalid schema - with projectId field name',
-    document: {
-      components: {
-        schemas: {
-          SchemaName: {
-            properties: {
-              projectId: { type: 'string' },
-            },
-          },
-        },
-      },
-    },
-    errors: [
       {
         code: 'xgen-IPA-112-avoid-project-field-names',
         message: 'Field name "projectId" should be avoided. Consider using "group" instead.',
         path: ['components', 'schemas', 'SchemaName', 'properties', 'projectId'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-avoid-project-field-names',
+        message: 'Field name "myProjectDetails" should be avoided. Consider using "group" instead.',
+        path: ['components', 'schemas', 'SchemaName', 'properties', 'myProjectDetails'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-avoid-project-field-names',
+        message: 'Field name "projectId" should be avoided. Consider using "group" instead.',
+        path: [
+          'paths',
+          '/users',
+          'post',
+          'requestBody',
+          'content',
+          'application/vnd.atlas.2024-01-01+json',
+          'schema',
+          'properties',
+          'projectId',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-avoid-project-field-names',
+        message: 'Field name "projectId" should be avoided. Consider using "group" instead.',
+        path: [
+          'paths',
+          '/users',
+          'post',
+          'responses',
+          '201',
+          'content',
+          'application/vnd.atlas.2024-01-01+json',
+          'schema',
+          'properties',
+          'projectId',
+        ],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -98,48 +175,6 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
                 type: 'string',
                 'x-xgen-IPA-exception': {
                   'xgen-IPA-112-avoid-project-field-names': 'reason',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    errors: [],
-  },
-  {
-    name: 'field name containing project substring',
-    document: {
-      components: {
-        schemas: {
-          SchemaName: {
-            properties: {
-              myProjectDetails: { type: 'object' },
-            },
-          },
-        },
-      },
-    },
-    errors: [
-      {
-        code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "myProjectDetails" should be avoided. Consider using "group" instead.',
-        path: ['components', 'schemas', 'SchemaName', 'properties', 'myProjectDetails'],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
-  },
-  {
-    name: 'exception - field with project substring',
-    document: {
-      components: {
-        schemas: {
-          SchemaName: {
-            properties: {
-              myProjectDetails: {
-                type: 'object',
-                'x-xgen-IPA-exception': {
-                  'xgen-IPA-112-avoid-project-field-names': 'Reason',
                 },
               },
             },
@@ -168,40 +203,17 @@ testRule('xgen-IPA-112-avoid-project-field-names', [
                   'xgen-IPA-112-avoid-project-field-names': 'Reason',
                 },
               },
+              myProjectDetails: {
+                type: 'object',
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-112-avoid-project-field-names': 'Reason',
+                },
+              },
             },
           },
         },
       },
     },
     errors: [],
-  },
-  {
-    name: 'mixed valid, invalid, and exception fields',
-    document: {
-      components: {
-        schemas: {
-          SchemaName: {
-            properties: {
-              project: {
-                type: 'string',
-                'x-xgen-IPA-exception': {
-                  'xgen-IPA-112-avoid-project-field-names': 'Reason',
-                },
-              },
-              projectId: { type: 'string' },
-              group: { type: 'string' },
-            },
-          },
-        },
-      },
-    },
-    errors: [
-      {
-        code: 'xgen-IPA-112-avoid-project-field-names',
-        message: 'Field name "projectId" should be avoided. Consider using "group" instead.',
-        path: ['components', 'schemas', 'SchemaName', 'properties', 'projectId'],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
   },
 ]);
