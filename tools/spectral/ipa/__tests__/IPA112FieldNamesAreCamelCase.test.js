@@ -461,4 +461,152 @@ testRule('xgen-IPA-112-field-names-are-camel-case', [
     },
     errors: [],
   },
+  {
+    name: 'schema with referenced property and nested objects',
+    document: {
+      components: {
+        schemas: {
+          Address: {
+            type: 'object',
+            properties: {
+              State_Name: { type: 'string' },
+              zipCode: { type: 'string' },
+            },
+          },
+          User: {
+            type: 'object',
+            properties: {
+              userId: { type: 'string' },
+              firstName: { type: 'string' },
+              Last_Name: { type: 'string' },
+              primary_address: { $ref: '#/components/schemas/Address' },
+              contactInfo: {
+                type: 'object',
+                properties: {
+                  email_address: { type: 'string' },
+                  phoneNumber: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        '/users/{userId}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        primary_user: { $ref: '#/components/schemas/User' },
+                        REQUEST_ID: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "State_Name" must use camelCase format.',
+        path: ['components', 'schemas', 'Address', 'properties', 'State_Name'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "Last_Name" must use camelCase format.',
+        path: ['components', 'schemas', 'User', 'properties', 'Last_Name'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "primary_address" must use camelCase format.',
+        path: ['components', 'schemas', 'User', 'properties', 'primary_address'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "email_address" must use camelCase format.',
+        path: ['components', 'schemas', 'User', 'properties', 'contactInfo', 'properties', 'email_address'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "primary_user" must use camelCase format.',
+        path: [
+          'paths',
+          '/users/{userId}',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-01+json',
+          'schema',
+          'properties',
+          'primary_user',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "REQUEST_ID" must use camelCase format.',
+        path: [
+          'paths',
+          '/users/{userId}',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-01+json',
+          'schema',
+          'properties',
+          'REQUEST_ID',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'schema with referenced property and exceptions',
+    document: {
+      components: {
+        schemas: {
+          ApiSettings: {
+            type: 'object',
+            properties: {
+              API_KEY: {
+                type: 'string',
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-112-field-names-are-camel-case': 'Reason',
+                },
+              },
+            },
+          },
+          UserProfile: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              email: { type: 'string' },
+              apiSettings: { $ref: '#/components/schemas/ApiSettings' },
+              User_Status: {
+                type: 'string',
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-112-field-names-are-camel-case': 'Reason',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
 ]);

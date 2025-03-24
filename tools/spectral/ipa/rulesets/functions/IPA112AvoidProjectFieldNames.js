@@ -11,8 +11,14 @@ import { splitCamelCase } from './utils/schemaUtils.js';
 const RULE_NAME = 'xgen-IPA-112-avoid-project-field-names';
 
 export default (input, options, { path, documentInventory }) => {
-  const oas = documentInventory.resolved;
+  const oas = documentInventory.unresolved;
   const property = resolveObject(oas, path);
+
+  // Skip schema references ($ref):
+  // Referenced schemas are validated separately to prevent duplicate violations
+  if (!property) {
+    return;
+  }
 
   const ignoreList = options?.ignore || [];
   if (ignoreList.some((ignoreTerm) => input.toLowerCase().includes(ignoreTerm))) {
