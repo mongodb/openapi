@@ -10,7 +10,7 @@ import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-112-field-names-are-camel-case';
 
-export default (input, options, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const property = resolveObject(oas, path);
 
