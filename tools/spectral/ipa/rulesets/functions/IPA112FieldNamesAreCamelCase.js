@@ -14,12 +14,6 @@ export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const property = resolveObject(oas, path);
 
-  // Skip schema references ($ref):
-  // Referenced schemas are validated separately to prevent duplicate violations
-  if (Object.keys(property).includes('$ref')) {
-    return;
-  }
-
   if (hasException(property, RULE_NAME)) {
     collectException(property, RULE_NAME, path);
     return;
