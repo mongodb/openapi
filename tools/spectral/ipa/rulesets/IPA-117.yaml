@@ -3,6 +3,8 @@
 
 functions:
   - IPA117HasDescription
+  - IPA117DescriptionStartsWithUpperCase
+  - IPA117DescriptionEndsWithPeriod
 
 rules:
   xgen-IPA-117-description:
@@ -30,3 +32,52 @@ rules:
       - '$.components.parameters[*]'
     then:
       function: 'IPA117HasDescription'
+  xgen-IPA-117-description-starts-with-uppercase:
+    description: |
+      Descriptions must start with Uppercase.
+
+      ##### Implementation details
+      Rule checks the format of the description property in the following components:
+        - Info object
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-starts-with-uppercase'
+    severity: warn
+    given:
+      - '$.info'
+      - '$.tags[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
+      - '$.components.schemas..properties[*]'
+      - '$.components.parameters[*]'
+    then:
+      function: 'IPA117DescriptionStartsWithUpperCase'
+  xgen-IPA-117-description-ends-with-period:
+    description: |
+      Descriptions must end with a full stop(.).
+
+      ##### Implementation details
+      Rule checks the format of the description property in the following components:
+        - Info object
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+      The rule ignores descriptions that end with `|`, i.e. inline markdown tables
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-ends-with-period'
+    severity: warn
+    given:
+      - '$.info'
+      - '$.tags[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
+      - '$.components.schemas..properties[*]'
+      - '$.components.parameters[*]'
+    then:
+      function: 'IPA117DescriptionEndsWithPeriod'
