@@ -1,4 +1,4 @@
-// Copyright 2024 MongoDB Inc
+// Copyright 2025 MongoDB Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,28 +16,53 @@ package filter
 
 import (
 	"github.com/getkin/kin-openapi/openapi3"
+	"strings"
 )
 
-// OperationsFilter: is a filter that removes the x-xgen-owner-team extension from operations.
-type OperationsFilter struct {
+const sunsetToBeDecided = "9999-12-31"
+
+// SunsetFilter removes the sunsetToBeDecided from the openapi specification
+type SunsetFilter struct {
 	oas *openapi3.T
 }
 
-func (*OperationsFilter) ValidateMetadata() error {
+func (f *SunsetFilter) ValidateMetadata() error {
 	return nil
 }
 
-func (f *OperationsFilter) Apply() error {
+func (f *SunsetFilter) Apply() error {
 	if f.oas.Paths == nil {
 		return nil
 	}
 
 	for _, pathItem := range f.oas.Paths.Map() {
 		for _, operation := range pathItem.Operations() {
-			if operation.Extensions != nil {
-				delete(operation.Extensions, "x-xgen-owner-team")
+			if operation.Responses == nil {
+				continue
 			}
+
+			applyOnOperation(operation)
 		}
 	}
 	return nil
+}
+
+func applyOnOperation(op *openapi3.Operation) {
+	//newResponses := make(map[string]*openapi3.ResponseRef, 1)
+	for key, response := range op.Responses.Map() {
+		if !strings.HasPrefix(key, "20") {
+			continue
+		}
+
+		for _, content := range response.Value.Content {
+			if v, ok := content.Extensions["x-sunset"]; ok {
+				if v != sunsetToBeDecided {
+					continue
+				}
+
+				delete(content.Extensions, "x-sunset")
+				//newResponses[key] = response
+			}
+		}
+	}
 }

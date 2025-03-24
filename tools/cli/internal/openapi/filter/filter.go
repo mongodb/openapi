@@ -77,6 +77,7 @@ func DefaultFilters(oas *openapi3.T, metadata *Metadata) []Filter {
 		&HiddenEnvsFilter{oas: oas, metadata: metadata},
 		&TagsFilter{oas: oas},
 		&OperationsFilter{oas: oas},
+		&SunsetFilter{oas: oas},
 	}
 }
 
