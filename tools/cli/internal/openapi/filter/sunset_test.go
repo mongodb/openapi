@@ -14,9 +14,10 @@
 package filter
 
 import (
+	"testing"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestSunsetFilter_Apply(t *testing.T) {
@@ -330,7 +331,7 @@ func TestSunsetFilter_Apply(t *testing.T) {
 			}
 
 			require.NoError(t, f.Apply())
-			require.EqualValues(t, f.oas, tc.wantedSpec)
+			require.EqualValues(t, tc.wantedSpec, f.oas)
 		})
 	}
 }

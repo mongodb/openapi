@@ -15,18 +15,19 @@
 package filter
 
 import (
-	"github.com/getkin/kin-openapi/openapi3"
 	"strings"
+
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 const sunsetToBeDecided = "9999-12-31"
 
-// SunsetFilter removes the sunsetToBeDecided from the openapi specification
+// SunsetFilter removes the sunsetToBeDecided from the openapi specification.
 type SunsetFilter struct {
 	oas *openapi3.T
 }
 
-func (f *SunsetFilter) ValidateMetadata() error {
+func (*SunsetFilter) ValidateMetadata() error {
 	return nil
 }
 
@@ -48,7 +49,6 @@ func (f *SunsetFilter) Apply() error {
 }
 
 func applyOnOperation(op *openapi3.Operation) {
-	//newResponses := make(map[string]*openapi3.ResponseRef, 1)
 	for key, response := range op.Responses.Map() {
 		if !strings.HasPrefix(key, "20") {
 			continue
@@ -59,9 +59,7 @@ func applyOnOperation(op *openapi3.Operation) {
 				if v != sunsetToBeDecided {
 					continue
 				}
-
 				delete(content.Extensions, "x-sunset")
-				//newResponses[key] = response
 			}
 		}
 	}
