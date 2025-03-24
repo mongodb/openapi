@@ -20,11 +20,6 @@ export default (input, options, { path, documentInventory }) => {
     return;
   }
 
-  if (input === 'mongoDBEmployeeAccessGrant') {
-    console.log(property);
-    console.log(path);
-  }
-
   if (hasException(property, RULE_NAME)) {
     collectException(property, RULE_NAME, path);
     return;
