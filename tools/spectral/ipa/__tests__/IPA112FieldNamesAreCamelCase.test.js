@@ -479,7 +479,7 @@ testRule('xgen-IPA-112-field-names-are-camel-case', [
               userId: { type: 'string' },
               firstName: { type: 'string' },
               Last_Name: { type: 'string' },
-              primaryAddress: { $ref: '#/components/schemas/Address' },
+              primary_address: { $ref: '#/components/schemas/Address' },
               contactInfo: {
                 type: 'object',
                 properties: {
@@ -501,7 +501,7 @@ testRule('xgen-IPA-112-field-names-are-camel-case', [
                     schema: {
                       type: 'object',
                       properties: {
-                        user: { $ref: '#/components/schemas/User' },
+                        primary_user: { $ref: '#/components/schemas/User' },
                         REQUEST_ID: { type: 'string' },
                       },
                     },
@@ -528,8 +528,31 @@ testRule('xgen-IPA-112-field-names-are-camel-case', [
       },
       {
         code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "primary_address" must use camelCase format.',
+        path: ['components', 'schemas', 'User', 'properties', 'primary_address'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
         message: 'Property "email_address" must use camelCase format.',
         path: ['components', 'schemas', 'User', 'properties', 'contactInfo', 'properties', 'email_address'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "primary_user" must use camelCase format.',
+        path: [
+          'paths',
+          '/users/{userId}',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-01+json',
+          'schema',
+          'properties',
+          'primary_user',
+        ],
         severity: DiagnosticSeverity.Warning,
       },
       {
