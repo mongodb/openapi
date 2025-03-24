@@ -475,6 +475,17 @@ Rule checks for the following conditions:
   - Identifies property names that are not in camelCase format
   - Reports any instances where these field names are not in camelCase format
 
+#### xgen-IPA-112-boolean-field-names-avoid-is-prefix
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Boolean field names should avoid the "is" prefix.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to properties with type 'boolean'
+  - Identifies property names that start with "is" followed by an uppercase letter
+  - Suggests using the direct adjective form instead (e.g., "disabled" instead of "isDisabled")
+
 
 
 ### IPA-113

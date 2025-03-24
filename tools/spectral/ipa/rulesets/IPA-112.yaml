@@ -4,6 +4,7 @@
 functions:
   - IPA112AvoidProjectFieldNames
   - IPA112FieldNamesAreCamelCase
+  - IPA112BooleanFieldNamesAvoidIsPrefix
 
 rules:
   xgen-IPA-112-avoid-project-field-names:
@@ -50,3 +51,20 @@ rules:
       - '$.paths..responses..content[?(@property.match(/json$/i))].schema..properties[*]~'
     then:
       function: 'IPA112FieldNamesAreCamelCase'
+  xgen-IPA-112-boolean-field-names-avoid-is-prefix:
+    description: |
+      Boolean field names should avoid the "is" prefix.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to properties with type 'boolean'
+        - Identifies property names that start with "is" followed by an uppercase letter
+        - Suggests using the direct adjective form instead (e.g., "disabled" instead of "isDisabled")
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-112-boolean-field-names-avoid-is-prefix'
+    severity: warn
+    given:
+      - '$.components.schemas..properties[*]~'
+      - '$.paths..requestBody.content[?(@property.match(/json$/i))].schema..properties[*]~'
+      - '$.paths..responses..content[?(@property.match(/json$/i))].schema..properties[*]~'
+    then:
+      function: 'IPA112BooleanFieldNamesAvoidIsPrefix'
