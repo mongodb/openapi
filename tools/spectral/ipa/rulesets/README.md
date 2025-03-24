@@ -451,19 +451,6 @@ Rule checks for the following conditions:
 
 Rules are based on [http://go/ipa/IPA-112](http://go/ipa/IPA-112).
 
-#### xgen-IPA-112-avoid-project-field-names
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-Schema field names should avoid using "project", "projects", or "projectId".
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Searches through all schemas in the API definition
-  - Identifies property names that match "project" (case-insensitive)
-  - Ignores fields where prohibited words appear with specified words (e.g., "gcpProjectId")
-  - Reports any instances where these field names are used
-  - Suggests using "group", "groups", or "groupId" as alternatives
-
 #### xgen-IPA-112-field-names-are-camel-case
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
@@ -474,17 +461,6 @@ Rule checks for the following conditions:
   - Searches through all schemas in the API definition
   - Identifies property names that are not in camelCase format
   - Reports any instances where these field names are not in camelCase format
-
-#### xgen-IPA-112-boolean-field-names-avoid-is-prefix
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-Boolean field names should avoid the "is" prefix.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies only to properties with type 'boolean'
-  - Identifies property names that start with "is" followed by an uppercase letter
-  - Suggests using the direct adjective form instead (e.g., "disabled" instead of "isDisabled")
 
 
 

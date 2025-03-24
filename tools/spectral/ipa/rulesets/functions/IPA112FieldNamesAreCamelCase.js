@@ -16,7 +16,7 @@ export default (input, _, { path, documentInventory }) => {
 
   // Skip schema references ($ref):
   // Referenced schemas are validated separately to prevent duplicate violations
-  if (!property) {
+  if (Object.keys(property).includes('$ref')) {
     return;
   }
 
