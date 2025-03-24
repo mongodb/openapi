@@ -177,4 +177,147 @@ testRule('xgen-IPA-112-boolean-field-names-avoid-is-prefix', [
     },
     errors: [],
   },
+  {
+    name: 'schema with referenced property types',
+    document: {
+      components: {
+        schemas: {
+          BooleanProperties: {
+            type: 'object',
+            properties: {
+              active: { type: 'boolean' },
+              isEnabled: { type: 'boolean' },
+              disabled: { type: 'boolean' },
+            },
+          },
+          User: {
+            type: 'object',
+            properties: {
+              userId: { type: 'string' },
+              name: { type: 'string' },
+              status: { $ref: '#/components/schemas/BooleanProperties' },
+              isAdmin: { type: 'boolean' },
+              preferences: {
+                type: 'object',
+                properties: {
+                  isEmailNotificationsEnabled: { type: 'boolean' },
+                  darkMode: { type: 'boolean' },
+                },
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        '/users/{userId}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        user: { $ref: '#/components/schemas/User' },
+                        isCached: { type: 'boolean' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        message: 'Boolean field "isEnabled" should not use the "is" prefix. Use "enabled" instead.',
+        path: ['components', 'schemas', 'BooleanProperties', 'properties', 'isEnabled'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        message: 'Boolean field "isAdmin" should not use the "is" prefix. Use "admin" instead.',
+        path: ['components', 'schemas', 'User', 'properties', 'isAdmin'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        message:
+          'Boolean field "isEmailNotificationsEnabled" should not use the "is" prefix. Use "emailNotificationsEnabled" instead.',
+        path: [
+          'components',
+          'schemas',
+          'User',
+          'properties',
+          'preferences',
+          'properties',
+          'isEmailNotificationsEnabled',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        message: 'Boolean field "isCached" should not use the "is" prefix. Use "cached" instead.',
+        path: [
+          'paths',
+          '/users/{userId}',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-01+json',
+          'schema',
+          'properties',
+          'isCached',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'schema with referenced property and exceptions',
+    document: {
+      components: {
+        schemas: {
+          UserSettings: {
+            type: 'object',
+            properties: {
+              isVerified: {
+                type: 'boolean',
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-112-boolean-field-names-avoid-is-prefix': 'Reason',
+                },
+              },
+              isMfaEnabled: { type: 'boolean' },
+            },
+          },
+          UserProfile: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              email: { type: 'string' },
+              settings: { $ref: '#/components/schemas/UserSettings' },
+              isPremiumUser: {
+                type: 'boolean',
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-112-boolean-field-names-avoid-is-prefix': 'Reason',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        message: 'Boolean field "isMfaEnabled" should not use the "is" prefix. Use "mfaEnabled" instead.',
+        path: ['components', 'schemas', 'UserSettings', 'properties', 'isMfaEnabled'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
 ]);

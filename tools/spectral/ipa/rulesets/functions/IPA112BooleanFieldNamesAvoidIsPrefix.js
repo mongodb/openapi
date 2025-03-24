@@ -6,15 +6,17 @@ const RULE_NAME = 'xgen-IPA-112-boolean-field-names-avoid-is-prefix';
 const IS_PREFIX_REGEX = /^is[A-Z]/;
 
 export default (input, options, { path, documentInventory }) => {
-  const oas = documentInventory.resolved;
+  const oas = documentInventory.unresolved;
   const property = resolveObject(oas, path);
 
-  if (hasException(property, RULE_NAME)) {
-    collectException(property, RULE_NAME, path);
+  // Skip schema references ($ref) and non-boolean fields:
+  // Referenced schemas are validated separately to prevent duplicate violations
+  if (!property || property.type !== 'boolean') {
     return;
   }
 
-  if (property.type !== 'boolean') {
+  if (hasException(property, RULE_NAME)) {
+    collectException(property, RULE_NAME, path);
     return;
   }
 

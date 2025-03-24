@@ -6,8 +6,14 @@ import { resolveObject } from './utils/componentUtils.js';
 const RULE_NAME = 'xgen-IPA-112-field-names-are-camel-case';
 
 export default (input, options, { path, documentInventory }) => {
-  const oas = documentInventory.resolved;
+  const oas = documentInventory.unresolved;
   const property = resolveObject(oas, path);
+
+  // Skip schema references ($ref):
+  // Referenced schemas are validated separately to prevent duplicate violations
+  if (!property) {
+    return;
+  }
 
   if (hasException(property, RULE_NAME)) {
     collectException(property, RULE_NAME, path);
