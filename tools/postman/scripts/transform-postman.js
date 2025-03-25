@@ -67,6 +67,35 @@ const transform = () => {
   console.log(`Adding baseUrl property ${BASE_URL}`);
   collection.collection.variable.push({ key: 'baseUrl', value: BASE_URL });
 
+  console.log('Removing redundant fields to reduce size');
+  _.forEach(collection.collection.item, (item) => {
+    if (item.request) {
+      delete item.request.description; // Remove request descriptions
+      delete item.request.auth; // Remove unused auth fields
+
+      if (item.request.body && item.request.body.mode === 'raw') {
+        delete item.request.body.raw; // Remove raw fields from body
+      }
+    }
+    if (item.response) {
+      item.response.forEach((response) => {
+        delete response.originalRequest; // Remove original request from responses
+        delete response._postman_previewlanguage; // Remove preview language metadata
+        delete response.header; // Remove headers from responses
+        response.body = ''; // Clear response body
+      });
+    }
+  });
+
+  console.log('Removing empty arrays and objects');
+  collection = JSON.parse(
+    JSON.stringify(collection, (key, value) => {
+      if (Array.isArray(value) && value.length === 0) return undefined;
+      if (value && typeof value === 'object' && Object.keys(value).length === 0) return undefined;
+      return value;
+    })
+  );
+
   if (TOGGLE_ADD_DOCS_LINKS) {
     console.log('Adding links to docs for each request');
 
@@ -119,7 +148,7 @@ function loadJsonFile(filePath) {
 }
 
 function saveJsonFile(filePath, json) {
-  fs.writeFileSync(filePath, JSON.stringify(json, null, 2), 'utf8');
+  fs.writeFileSync(filePath, JSON.stringify(json, null, 0), 'utf8');
 }
 
 // hack
