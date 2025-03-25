@@ -36,26 +36,29 @@ func (f *SchemasFilter) Apply() error {
 		return nil
 	}
 
-	schemasToDelete := make([]string, 0)
-	oasSpecAsBytes, err := f.oas.MarshalJSON()
+	oasPathsSpecAsBytes, err := f.oas.Paths.MarshalJSON()
 	if err != nil {
 		return err
 	}
+	spec := string(oasPathsSpecAsBytes)
+	for {
+		schemasToDelete := make([]string, 0)
+		for k := range f.oas.Components.Schemas {
+			ref := "#/components/schemas/" + k
+			if !strings.Contains(spec, ref) {
+				schemasToDelete = append(schemasToDelete, k)
+			}
+		}
 
-	spec := string(oasSpecAsBytes)
-	for k := range f.oas.Components.Schemas {
-		ref := "#/components/schemas/" + k
-		if !strings.Contains(spec, ref) {
-			schemasToDelete = append(schemasToDelete, k)
+		if len(schemasToDelete) == 0 {
+			return nil
+		}
+
+		for _, schemaToDelete := range schemasToDelete {
+			log.Printf("Deleting unused schema: '%s'", schemaToDelete)
+			maps.DeleteFunc(f.oas.Components.Schemas, func(k string, _ *openapi3.SchemaRef) bool {
+				return k == schemaToDelete
+			})
 		}
 	}
-
-	for _, schemaToDelete := range schemasToDelete {
-		log.Printf("Deleting unused schema: '%s'", schemaToDelete)
-		maps.DeleteFunc(f.oas.Components.Schemas, func(k string, _ *openapi3.SchemaRef) bool {
-			return k == schemaToDelete
-		})
-	}
-
-	return nil
 }
