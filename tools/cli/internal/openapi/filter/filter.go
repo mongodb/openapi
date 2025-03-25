@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package filter
 
 import (
@@ -77,6 +78,7 @@ func DefaultFilters(oas *openapi3.T, metadata *Metadata) []Filter {
 		&HiddenEnvsFilter{oas: oas, metadata: metadata},
 		&TagsFilter{oas: oas},
 		&OperationsFilter{oas: oas},
+		&SunsetFilter{oas: oas},
 	}
 }
 
