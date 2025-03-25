@@ -15,8 +15,6 @@
 package filter
 
 import (
-	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -47,9 +45,9 @@ func (f *SchemasFilter) Apply() error {
 		}
 	}
 
-	res2B, _ := json.Marshal(usedRefs)
-	fmt.Println("ANDREA:")
-	fmt.Println(string(res2B))
+	//res2B, _ := json.Marshal(usedRefs)
+	//fmt.Println("ANDREA:")
+	//fmt.Println(string(res2B))
 
 	filterComponentSchemasInRefs(f.oas, usedRefs)
 	return nil
@@ -67,6 +65,9 @@ func findRefs(oas *openapi3.T) map[string]bool {
 		for _, op := range v.Operations() {
 			for _, param := range op.Parameters {
 				refs[param.Ref] = true
+				if param.Value == nil {
+					continue
+				}
 				findRefsSchemaRef(refs, param.Value.Schema)
 			}
 
@@ -83,6 +84,9 @@ func findRefs(oas *openapi3.T) map[string]bool {
 
 			for _, resp := range op.Responses.Map() {
 				refs[resp.Ref] = true
+				if resp.Value == nil {
+					continue
+				}
 				for _, content := range resp.Value.Content {
 					if content.Schema != nil {
 						findRefsSchemaRef(refs, content.Schema)
@@ -142,8 +146,8 @@ func findRefsSchemaRef(refs map[string]bool, schema *openapi3.SchemaRef) {
 
 func filterComponentSchemasInRefs(oas *openapi3.T, usedRefs map[string]bool) {
 	schemasToDelete := make([]string, 0)
-	for k, v := range oas.Components.Schemas {
-		fmt.Printf("k: %s, v: %v", k, v)
+	for k, _ := range oas.Components.Schemas {
+		//fmt.Printf("k: %s, v: %v", k, v)
 		if ok := usedRefs[k]; !ok {
 			schemasToDelete = append(schemasToDelete, k)
 		}
