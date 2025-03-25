@@ -451,16 +451,26 @@ Rule checks for the following conditions:
 
 Rules are based on [http://go/ipa/IPA-110](http://go/ipa/IPA-110).
 
-#### xgen-IPA-110-collections-use-paginated-schema
+#### xgen-IPA-110-collections-use-paginated-prefix
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-APIs that return collections of resources must use a paginated response schema.
+APIs that return collections of resources must use a schema with the "Paginated" prefix.
 
 ##### Implementation details
 Rule checks for the following conditions:
   - Only applies to List methods (GET operations that return collections of resources)
   - Checks if List method has a response schema defined
-  - Checks that the 200 response schema references a schema with a "Paginated" prefix and contain both "totalCount" (integer) and "results" (array) fields
+  - Checks that the 200 response schema references a schema with a "Paginated" prefix
+
+#### xgen-IPA-110-collections-response-define-results-array
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The response for collections must define an array of results containing the paginated resource.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only applies to List methods (GET operations that return collections of resources)
+  - Verifies the 200 response schema has the required results fields
 
 
 

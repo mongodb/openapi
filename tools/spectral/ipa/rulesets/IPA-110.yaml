@@ -2,21 +2,36 @@
 # http://go/ipa/110
 
 functions:
-  - IPA110CollectionsUsePaginatedSchema
+  - IPA110CollectionsUsePaginatedPrefix
+  - IPA110CollectionsResponseDefineResultsArray
 
 rules:
-  xgen-IPA-110-collections-use-paginated-schema:
+  xgen-IPA-110-collections-use-paginated-prefix:
     description: |
-      APIs that return collections of resources must use a paginated response schema.
+      APIs that return collections of resources must use a schema with the "Paginated" prefix.
 
       ##### Implementation details
       Rule checks for the following conditions:
         - Only applies to List methods (GET operations that return collections of resources)
         - Checks if List method has a response schema defined
-        - Checks that the 200 response schema references a schema with a "Paginated" prefix and contain both "totalCount" (integer) and "results" (array) fields
-    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-list-methods-must-use-paginated-schema'
+        - Checks that the 200 response schema references a schema with a "Paginated" prefix
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-use-paginated-prefix'
     severity: warn
     given: '$.paths[*].get.responses.200.content'
     then:
       field: '@key'
-      function: 'IPA110CollectionsUsePaginatedSchema'
+      function: 'IPA110CollectionsUsePaginatedPrefix'
+  xgen-IPA-110-collections-response-define-results-array:
+    description: |
+      The response for collections must define an array of results containing the paginated resource.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET operations that return collections of resources)
+        - Verifies the 200 response schema has the required results fields
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-response-define-results-array'
+    severity: warn
+    given: '$.paths[*].get.responses.200.content'
+    then:
+      field: '@key'
+      function: 'IPA110CollectionsResponseDefineResultsArray'

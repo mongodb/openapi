@@ -12,9 +12,8 @@ import {
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { getSchemaNameFromRef } from './utils/methodUtils.js';
-import { schemaIsPaginated } from './utils/schemaUtils.js';
 
-const RULE_NAME = 'xgen-IPA-110-collections-use-paginated-schema';
+const RULE_NAME = 'xgen-IPA-110-collections-use-paginated-prefix';
 const ERROR_MESSAGE = 'List methods response must reference a paginated response schema.';
 
 export default (input, _, { path, documentInventory }) => {
@@ -78,15 +77,6 @@ function checkViolationsAndReturnErrors(listMethodResponse, oas, path) {
       ];
     }
 
-    const listResponseSchema = resolveObject(oas, ['components', 'schemas', schemaName]);
-    if (!schemaIsPaginated(listResponseSchema)) {
-      return [
-        {
-          path,
-          message: `${ERROR_MESSAGE} The response should reference a schema that contains both "totalCount" (integer) and "results" (array) fields.`,
-        },
-      ];
-    }
     return [];
   } catch (e) {
     handleInternalError(RULE_NAME, path, e);

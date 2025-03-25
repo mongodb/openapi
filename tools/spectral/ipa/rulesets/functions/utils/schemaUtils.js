@@ -4,12 +4,9 @@
  * @returns true if schema object returns results property (pagination), false otherwise
  */
 export function schemaIsPaginated(schema) {
-  const hasTotalCount =
-    schema.properties && schema.properties.totalCount && schema.properties.totalCount.type === 'integer';
-
   const hasResultsArray = schema.properties && schema.properties.results && schema.properties.results.type === 'array';
 
-  return hasTotalCount && hasResultsArray;
+  return hasResultsArray;
 }
 
 /**

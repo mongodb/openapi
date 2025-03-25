@@ -11,21 +11,14 @@ const componentSchemas = {
       },
     },
     PaginatedSchema: {
-      type: 'object',
-      properties: {
-        totalCount: {
-          type: 'integer',
-        },
-        results: {
-          type: 'array',
-          items: {
-            $ref: '#/components/schemas/Schema',
-          },
-        },
-      },
+      type: 'array',
     },
     ArraySchema: {
-      type: 'array',
+      properties: {
+        results: {
+          type: 'array',
+        },
+      },
     },
   },
 };

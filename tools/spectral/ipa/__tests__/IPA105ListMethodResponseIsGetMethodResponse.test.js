@@ -4,11 +4,7 @@ import { DiagnosticSeverity } from '@stoplight/types';
 const componentSchemas = {
   schemas: {
     PaginatedResourceSchema: {
-      type: 'object',
       properties: {
-        totalCount: {
-          type: 'integer',
-        },
         results: {
           type: 'array',
           items: {
@@ -21,11 +17,7 @@ const componentSchemas = {
       type: 'object',
     },
     PaginatedArraySchema: {
-      type: 'object',
       properties: {
-        totalCount: {
-          type: 'integer',
-        },
         results: {
           type: 'array',
           items: {
@@ -87,11 +79,7 @@ testRule('xgen-IPA-105-list-method-response-is-get-method-response', [
                 content: {
                   'application/vnd.atlas.2024-08-05+json': {
                     schema: {
-                      type: 'object',
                       properties: {
-                        totalCount: {
-                          type: 'integer',
-                        },
                         results: {
                           type: 'array',
                           items: {
@@ -314,10 +302,6 @@ testRule('xgen-IPA-105-list-method-response-is-get-method-response', [
                   'application/vnd.atlas.2024-08-05+json': {
                     schema: {
                       properties: {
-                        type: 'object',
-                        totalCount: {
-                          type: 'integer',
-                        },
                         results: {
                           type: 'array',
                           items: {
