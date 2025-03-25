@@ -80,7 +80,7 @@ Rules are based on [http://go/ipa/IPA-104](http://go/ipa/IPA-104).
 
 #### xgen-IPA-104-resource-has-GET
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 APIs must provide a Get method for resources.
 
 ##### Implementation details
@@ -91,7 +91,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-returns-single-resource
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The purpose of the Get method is to return data from a single resource.
 
 ##### Implementation details
@@ -102,7 +102,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-response-code-is-200
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Get method must return a 200 OK response.
 ##### Implementation details
 Rule checks for the following conditions:
@@ -112,7 +112,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-returns-response-suffixed-object
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Get method of a resource should return a "Response" suffixed object.
 ##### Implementation details
 Rule checks for the following conditions:
@@ -122,7 +122,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-response-has-no-input-fields
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields).
 ##### Implementation details
 Rule checks for the following conditions:
@@ -132,7 +132,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-get-method-no-request-body
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Get method request must not include a body.
 ##### Implementation details
 Rule checks for the following conditions:
@@ -147,7 +147,7 @@ Rules are based on [http://go/ipa/IPA-105](http://go/ipa/IPA-105).
 
 #### xgen-IPA-105-list-method-response-code-is-200
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The List method must return a 200 OK response.
 
 ##### Implementation details
@@ -159,7 +159,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-105-list-method-no-request-body
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The List method request must not include a body.
 
 ##### Implementation details
@@ -170,7 +170,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-105-resource-has-list
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 APIs must provide a List method for resources.
 
 ##### Implementation details
@@ -182,7 +182,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-105-list-method-response-is-get-method-response
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The response body of the List method should consist of the same resource object returned by the Get method.
 ##### Implementation details Rule checks for the following conditions:
   - Applies only to resource collection paths with JSON content types
@@ -201,7 +201,7 @@ Rules are based on [http://go/ipa/IPA-106](http://go/ipa/IPA-106).
 
 #### xgen-IPA-106-create-method-request-body-is-request-suffixed-object
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Create method request should be a Request suffixed object.
 
 ##### Implementation details
@@ -213,7 +213,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-106-create-method-should-not-have-query-parameters
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Create operations should not use query parameters.
 
 ##### Implementation details
@@ -221,6 +221,29 @@ Rule checks for the following conditions:
   - Applies only to POST methods on resource collection paths (non-singleton resources)
   - Verifies the operation does not contain query parameters
   - Ignores specified parameters like 'pretty' and 'envelope' via configuration
+
+#### xgen-IPA-106-create-method-request-has-no-readonly-fields
+
+ ![error](https://img.shields.io/badge/error-red) 
+Create method Request object must not include fields with readOnly:true.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Applies only to JSON content types
+  - Searches through the request schema to find any properties marked with readOnly attribute
+  - Fails if any readOnly properties are found in the request schema
+
+#### xgen-IPA-106-create-method-response-code-is-201
+
+ ![error](https://img.shields.io/badge/error-red) 
+Create methods must return a 201 Created response code.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths (non-singleton resources)
+  - Verifies the 201 Created response code is present
+  - Fails if the method lacks a 201 Created response or defines a different 2xx status code
 
 #### xgen-IPA-106-create-method-request-body-is-get-method-response
 
@@ -235,29 +258,6 @@ Validation checks the POST method for resource collection paths.
   - `writeOnly:true` properties of Create method request will be ignored.
   - Property comparison is based on `type` and `name` matching.
   - `oneOf` and `discriminator` definitions must match exactly.
-
-#### xgen-IPA-106-create-method-request-has-no-readonly-fields
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-Create method Request object must not include fields with readOnly:true.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies only to POST methods on resource collection paths (non-singleton resources)
-  - Applies only to JSON content types
-  - Searches through the request schema to find any properties marked with readOnly attribute
-  - Fails if any readOnly properties are found in the request schema
-
-#### xgen-IPA-106-create-method-response-code-is-201
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-Create methods must return a 201 Created response code.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies only to POST methods on resource collection paths (non-singleton resources)
-  - Verifies the 201 Created response code is present
-  - Fails if the method lacks a 201 Created response or defines a different 2xx status code
 
 #### xgen-IPA-106-create-method-response-is-get-method-response
 
@@ -284,7 +284,7 @@ Rules are based on [http://go/ipa/IPA-107](http://go/ipa/IPA-107).
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Update operations must not accept query parameters.
 ##### Implementation details
-Validation checks the PATCH/PUT methods for single resource paths and singleton resources.
+Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
 
   - Query parameters `envelope` and `pretty` are exempt from this rule
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
@@ -301,7 +301,7 @@ Validation checks the PATCH/PUT methods for single resource paths and [singleton
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The response body of the Update method should consist of the same resource object returned by the Get method.
 ##### Implementation details Rule checks for the following conditions:
-  - Applies only to single resource paths with JSON content types
+  - Applies only to single resource paths and singleton resources with JSON content types
   - Ignores singleton resources and responses without a schema
   - Validation ignores resources without a Get method
   - Fails if the Get method doesn't have a schema reference or if the schemas don't match
@@ -313,7 +313,7 @@ Update method Request object must not include fields with readOnly:true.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to Update methods on single resource paths
+  - Applies only to Update methods on single resource paths or singleton resources
   - Applies only to JSON content types
   - Searches through the request schema to find any properties marked with readOnly attribute
   - Fails if any readOnly properties are found in the request schema
@@ -325,12 +325,24 @@ The request body must contain the resource being updated, i.e. the resource or p
 
 ##### Implementation details
 
-Validation checks the PATCH/PUT methods for single resource paths.
+Validation checks the PATCH/PUT methods for single resource paths and singleton resources.
   - Validation ignores resources without a Get method.
-  - `readOnly:true` properties of Get method response will be ignored. 
+  - `readOnly:true` properties of Get method response will be ignored.
   - `writeOnly:true` properties of Update method request will be ignored.
   - Property comparison is based on `type` and `name` matching.
   - `oneOf` and `discriminator` definitions must match exactly.
+
+#### xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Update method request schema should reference an `UpdateRequest` suffixed object.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to PUT/PATCH methods on single resource paths and singleton resources
+  - Applies only to JSON content types
+  - Validation only applies to schema references to a predefined schema (not inline)
+  - Confirms the referenced schema name ends with "Request" suffix
 
 
 
@@ -435,6 +447,47 @@ Rule checks for the following conditions:
 
 
 
+### IPA-112
+
+Rules are based on [http://go/ipa/IPA-112](http://go/ipa/IPA-112).
+
+#### xgen-IPA-112-avoid-project-field-names
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Schema field names should avoid using "project", "projects", or "projectId".
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Searches through all schemas in the API definition
+  - Identifies property names that match "project" (case-insensitive)
+  - Ignores fields where prohibited words appear with specified words (e.g., "gcpProjectId")
+  - Reports any instances where these field names are used
+  - Suggests using "group", "groups", or "groupId" as alternatives
+
+#### xgen-IPA-112-field-names-are-camel-case
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Schema field names should be in camelCase format.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Searches through all schemas in the API definition
+  - Identifies property names that are not in camelCase format
+  - Reports any instances where these field names are not in camelCase format
+
+#### xgen-IPA-112-boolean-field-names-avoid-is-prefix
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Boolean field names should avoid the "is" prefix.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to properties with type 'boolean'
+  - Identifies property names that start with "is" followed by an uppercase letter
+  - Suggests using the direct adjective form instead (e.g., "disabled" instead of "isDisabled")
+
+
+
 ### IPA-113
 
 Rules are based on [http://go/ipa/IPA-113](http://go/ipa/IPA-113).
@@ -451,6 +504,76 @@ Rule checks for the following conditions:
   - Examines all 2xx response schemas from the GET method
   - Verifies that no schema contains 'id' or '_id' properties in their object definitions
   - Fails if any response schema contains these identifier properties
+
+#### xgen-IPA-113-singleton-must-not-have-delete-method
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Singleton resources must not define the Delete standard method.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to singleton resources
+  - Checks that the resource does not have a DELETE method defined
+
+#### xgen-IPA-113-singleton-should-have-update-method
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Singleton resources should define the Update method. Validation for the presence of Get method is covered by IPA-104 (see [xgen-IPA-104-resource-has-GET](https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-resource-has-GET)).
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to singleton resources
+  - Checks that the resource has the PUT and/or PATCH methods defined
+
+
+
+### IPA-117
+
+Rules are based on [http://go/ipa/IPA-117](http://go/ipa/IPA-117).
+
+#### xgen-IPA-117-description
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+API producers must provide descriptions for Properties, Operations and Parameters.
+
+##### Implementation details
+Rule checks for description property in the following components:
+  - Info object
+  - Tags
+  - Operation objects
+  - Inline schema properties for operation object requests and responses
+  - Parameter objects (in operations and components)
+  - Schema properties
+The rule also fails if the description is an empty string.
+
+#### xgen-IPA-117-description-starts-with-uppercase
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Descriptions must start with Uppercase.
+
+##### Implementation details
+Rule checks the format of the description property in the following components:
+  - Info object
+  - Tags
+  - Operation objects
+  - Inline schema properties for operation object requests and responses
+  - Parameter objects (in operations and components)
+  - Schema properties
+
+#### xgen-IPA-117-description-ends-with-period
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Descriptions must end with a full stop(.).
+
+##### Implementation details
+Rule checks the format of the description property in the following components:
+  - Info object
+  - Tags
+  - Operation objects
+  - Inline schema properties for operation object requests and responses
+  - Parameter objects (in operations and components)
+  - Schema properties
+The rule ignores descriptions that end with `|`, i.e. inline markdown tables
 
 
 
@@ -469,6 +592,60 @@ Rule checks for the following conditions:
   - Resolves the schema object that contains the enum values
   - Validates each enum value individually against the UPPER_SNAKE_CASE pattern
   - Skips validation if the schema has an exception defined for this rule
+
+
+
+### IPA-125
+
+Rules are based on [http://go/ipa/IPA-125](http://go/ipa/IPA-125).
+
+#### xgen-IPA-125-oneOf-must-have-discriminator
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Each oneOf property must include a discriminator property to define the exact type.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to schemas with `oneOf` containing references
+  - Ensures a `discriminator` property is present with a valid `propertyName`
+  - Validates that `discriminator.mapping` contains exactly the same number of entries as `oneOf` references
+  - Validates that each `discriminator.mapping` value matches a reference in the `oneOf` array
+  - Ignores `oneOf` definitions with inline schemas
+
+##### Matching Logic
+- The `discriminator.mapping` must have the same number of entries as there are references in the `oneOf` array
+- Each value in the `discriminator.mapping` must match one of the `$ref` values in the `oneOf` array
+- Each `$ref` in the `oneOf` array must have a corresponding entry in the `discriminator.mapping`
+- Example:
+  ```yaml
+  oneOf:
+    - $ref: '#/components/schemas/Dog'
+    - $ref: '#/components/schemas/Cat'
+  discriminator:
+    propertyName: type
+    mapping:
+      dog: '#/components/schemas/Dog'
+      cat: '#/components/schemas/Cat'
+  ```
+  This is valid because there are exactly 2 mappings for 2 oneOf references, and all values match.
+
+#### xgen-IPA-125-oneOf-no-base-types
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+API producers should not use oneOf with different base types like integer, string, boolean, or number or references at the same time.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to schemas with `oneOf` arrays
+  - Ensures no mixing of base types with references
+  - Ensures no multiple different base types in the same oneOf
+  - Base types considered are: integer, string, boolean, number
+  - Using the same base type multiple times is allowed (e.g., multiple string enums)
+
+##### Rationale
+Using oneOf with multiple primitive types can lead to ambiguity and validation problems. Clients may not 
+be able to properly determine which type to use in which context. Instead, use more specific 
+object types with clear discriminators.
 
 
 

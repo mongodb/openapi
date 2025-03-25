@@ -152,7 +152,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
     errors: [
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'The response body schema must reference a schema with a Response suffix.',
+        message: 'The schema must reference a schema with a Response suffix.',
         path: [
           'paths',
           '/resource/{id}',
@@ -162,11 +162,11 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'The response body schema must reference a schema with a Response suffix.',
+        message: 'The schema must reference a schema with a Response suffix.',
         path: [
           'paths',
           '/resource/{id}',
@@ -176,11 +176,11 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
           'content',
           'application/vnd.atlas.2024-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'The response body schema must reference a schema with a Response suffix.',
+        message: 'The schema must reference a schema with a Response suffix.',
         path: [
           'paths',
           '/resource/{id}',
@@ -190,11 +190,11 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
           'content',
           'application/vnd.atlas.2025-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-response-suffixed-object',
-        message: 'The response body schema must reference a schema with a Response suffix.',
+        message: 'The schema must reference a schema with a Response suffix.',
         path: [
           'paths',
           '/resource/{id}/singleton',
@@ -204,7 +204,7 @@ testRule('xgen-IPA-104-get-method-returns-response-suffixed-object', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

@@ -174,7 +174,7 @@ testRule('xgen-IPA-104-get-method-returns-single-resource', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-single-resource',
@@ -189,7 +189,7 @@ testRule('xgen-IPA-104-get-method-returns-single-resource', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-single-resource',
@@ -204,7 +204,7 @@ testRule('xgen-IPA-104-get-method-returns-single-resource', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-get-method-returns-single-resource',
@@ -219,7 +219,7 @@ testRule('xgen-IPA-104-get-method-returns-single-resource', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

@@ -1,10 +1,5 @@
 import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import {
   getResourcePathItems,
   isCustomMethodIdentifier,
@@ -12,11 +7,9 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { getSchemaRef } from './utils/methodUtils.js';
+import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object';
-const ERROR_MESSAGE_SCHEMA_NAME = 'The response body schema must reference a schema with a Request suffix.';
-const ERROR_MESSAGE_SCHEMA_REF = 'The response body schema is defined inline and must reference a predefined schema.';
 
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
@@ -39,26 +32,10 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(contentPerMediaType, path);
+  const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'Request', RULE_NAME);
+
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
   collectAdoption(path, RULE_NAME);
 };
-
-function checkViolationsAndReturnErrors(contentPerMediaType, path) {
-  try {
-    const schema = contentPerMediaType.schema;
-    const schemaRef = getSchemaRef(schema);
-
-    if (!schemaRef) {
-      return [{ path, message: ERROR_MESSAGE_SCHEMA_REF }];
-    }
-    if (!schemaRef.endsWith('Request')) {
-      return [{ path, message: ERROR_MESSAGE_SCHEMA_NAME }];
-    }
-    return [];
-  } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
-  }
-}

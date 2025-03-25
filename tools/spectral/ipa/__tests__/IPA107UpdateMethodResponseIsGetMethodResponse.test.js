@@ -312,6 +312,34 @@ testRule('xgen-IPA-107-update-method-response-is-get-method-response', [
             },
           },
         },
+        '/resourceFour/{id}/singleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/ResourceSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          patch: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2024-01-05+json': {
+                    schema: {
+                      $ref: '#/components/schemas/OtherSchema',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       components: componentSchemas,
     },
@@ -367,6 +395,20 @@ testRule('xgen-IPA-107-update-method-response-is-get-method-response', [
         path: [
           'paths',
           '/resourceFour/{id}',
+          'patch',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-01-05+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-107-update-method-response-is-get-method-response',
+        message: 'The schema in the Update method response must be the same schema as the response of the Get method.',
+        path: [
+          'paths',
+          '/resourceFour/{id}/singleton',
           'patch',
           'responses',
           '200',

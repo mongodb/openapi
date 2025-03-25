@@ -400,7 +400,7 @@ testRule('xgen-IPA-105-list-method-response-is-get-method-response', [
         message:
           'The schema of each result in the List method response must be the same schema as the response of the Get method.',
         path: ['paths', '/resource', 'get', 'responses', '200', 'content', 'application/vnd.atlas.2024-08-05+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-105-list-method-response-is-get-method-response',
@@ -415,14 +415,14 @@ testRule('xgen-IPA-105-list-method-response-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-105-list-method-response-is-get-method-response',
         message:
           'Could not validate that the List method returns the same resource object as the Get method. The Get method does not have a schema.',
         path: ['paths', '/resourceTwo', 'get', 'responses', '200', 'content', 'application/vnd.atlas.2024-01-05+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-105-list-method-response-is-get-method-response',
@@ -437,7 +437,7 @@ testRule('xgen-IPA-105-list-method-response-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-01-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -484,7 +484,7 @@ testRule('xgen-IPA-105-list-method-response-is-get-method-response', [
         message:
           'The schema of each result in the List method response must be the same schema as the response of the Get method.',
         path: ['paths', '/resource', 'get', 'responses', '200', 'content', 'application/vnd.atlas.2024-08-05+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
