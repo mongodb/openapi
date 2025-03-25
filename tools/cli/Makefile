@@ -50,6 +50,12 @@ build:
 	go build -ldflags "$(LINKER_FLAGS)" -o $(DESTINATION) $(SOURCE_FILES)
 
 
+.PHONY: run
+run:
+	@echo "==> Running foascli binary"
+	go run -ldflags "$(LINKER_FLAGS)" $(SOURCE_FILES)
+
+
 .PHONY: build-debug
 build-debug:
 	@echo "==> Building foascli binary for debugging"
