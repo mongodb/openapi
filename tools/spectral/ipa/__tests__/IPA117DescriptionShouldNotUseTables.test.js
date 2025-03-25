@@ -119,7 +119,7 @@ testRule('xgen-IPA-117-description-should-not-use-inline-tables', [
                 },
               },
               largeTable: {
-                description: '|Title|H1|H2|H3\n|-----|\n|Description|Description1|Description2|Description3|',
+                description: '|Title|H1|H2|H3\n|--------------|\n|Description|Description1|Description2|Description3|',
                 'x-xgen-IPA-exception': {
                   'xgen-IPA-117-description-should-not-use-inline-tables': 'reason',
                 },
