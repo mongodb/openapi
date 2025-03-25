@@ -15,6 +15,7 @@
 package filter
 
 import (
+	"maps"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -55,12 +56,9 @@ func applyOnOperation(op *openapi3.Operation) {
 		}
 
 		for _, content := range response.Value.Content {
-			if v, ok := content.Extensions["x-sunset"]; ok {
-				if v != sunsetToBeDecided {
-					continue
-				}
-				delete(content.Extensions, "x-sunset")
-			}
+			maps.DeleteFunc(content.Extensions, func(_ string, v any) bool {
+				return v == sunsetToBeDecided
+			})
 		}
 	}
 }
