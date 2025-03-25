@@ -2,37 +2,37 @@ import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
 const componentSchemas = {
-    Resource: {
-      type: 'object',
-    },
-    PaginatedResourceList: {
-      type: 'object',
-      properties: {
-        totalCount: {
-          type: 'integer',
-        },
-        results: {
-          type: 'array',
-          items: {
-            $ref: '#/components/schemas/Resource',
-          },
+  Resource: {
+    type: 'object',
+  },
+  PaginatedResourceList: {
+    type: 'object',
+    properties: {
+      totalCount: {
+        type: 'integer',
+      },
+      results: {
+        type: 'array',
+        items: {
+          $ref: '#/components/schemas/Resource',
         },
       },
     },
-    ResourceList: {
-      type: 'object',
-      properties: {
-        totalCount: {
-          type: 'integer',
-        },
-        results: {
-          type: 'array',
-          items: {
-            $ref: '#/components/schemas/Resource',
-          },
+  },
+  ResourceList: {
+    type: 'object',
+    properties: {
+      totalCount: {
+        type: 'integer',
+      },
+      results: {
+        type: 'array',
+        items: {
+          $ref: '#/components/schemas/Resource',
         },
       },
     },
+  },
   NonPaginatedList: {
     type: 'object',
     properties: {
@@ -86,7 +86,7 @@ testRule('xgen-IPA-110-collections-use-paginated-schema', [
         },
       },
       components: {
-        schemas: componentSchemas
+        schemas: componentSchemas,
       },
     },
     errors: [],
@@ -115,7 +115,7 @@ testRule('xgen-IPA-110-collections-use-paginated-schema', [
         },
       },
       components: {
-        schemas: componentSchemas
+        schemas: componentSchemas,
       },
     },
     errors: [],
@@ -144,8 +144,8 @@ testRule('xgen-IPA-110-collections-use-paginated-schema', [
         },
       },
       components: {
-        schemas : componentSchemas,
-      }
+        schemas: componentSchemas,
+      },
     },
     errors: [
       {
@@ -194,7 +194,7 @@ testRule('xgen-IPA-110-collections-use-paginated-schema', [
               },
             },
           },
-        }
+        },
       },
     },
     errors: [
@@ -288,7 +288,7 @@ testRule('xgen-IPA-110-collections-use-paginated-schema', [
         },
       },
       components: {
-        schemas: componentSchemas
+        schemas: componentSchemas,
       },
     },
     errors: [
@@ -328,7 +328,7 @@ testRule('xgen-IPA-110-collections-use-paginated-schema', [
         },
       },
       components: {
-        schemas: componentSchemas
+        schemas: componentSchemas,
       },
     },
     errors: [],

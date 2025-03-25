@@ -459,7 +459,8 @@ APIs that return collections of resources must use a paginated response schema.
 ##### Implementation details
 Rule checks for the following conditions:
   - Only applies to List methods (GET operations that return collections of resources)
-  - Checks that the 200 response schema references a schema with a name starting with "Paginated"
+  - Checks that the 200 response schema references a schema with a name starting with either a name starting with "Paginated" or contain both "totalCount" (integer) and "results" (array) fields
+  - If the referenced schema name has "Paginated" prefix, the rule assumes that the schema is paginated and does not check for "totalCount" and "results" fields
 
 
 
