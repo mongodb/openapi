@@ -54,7 +54,7 @@ function checkViolationsAndReturnErrors(listResponseSchema, oas, path) {
       return [
         {
           path,
-          message: `${ERROR_MESSAGE} The response should reference a schema that contains "results" (array) field.`,
+          message: `${ERROR_MESSAGE}`,
         },
       ];
     }

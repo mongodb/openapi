@@ -145,8 +145,7 @@ testRule('xgen-IPA-110-collections-response-define-results-array', [
     errors: [
       {
         code: 'xgen-IPA-110-collections-response-define-results-array',
-        message:
-          'The response for collections must define an array of results containing the paginated resource. The response should reference a schema that contains "results" (array) field.',
+        message: 'The response for collections must define an array of results containing the paginated resource.',
         path: ['paths', '/resources', 'get', 'responses', '200', 'content', 'application/json'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -191,5 +190,53 @@ testRule('xgen-IPA-110-collections-response-define-results-array', [
       },
     },
     errors: [],
+  },
+  {
+    name: 'invalid schema missing results with exceptions',
+    document: {
+      paths: {
+        '/resources': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/PaginatedMissingResults',
+                    },
+                    'x-xgen-IPA-exception': {
+                      'xgen-IPA-110-collections-response-define-results-array': 'Reason',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resources/{id}': {
+          get: {},
+        },
+      },
+      components: {
+        schemas: {
+          PaginatedMissingResults: {
+            type: 'object',
+            properties: {
+              totalCount: {
+                type: 'integer',
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-110-collections-response-define-results-array',
+        message: 'The response for collections must define an array of results containing the paginated resource.',
+        path: ['paths', '/resources', 'get', 'responses', '200', 'content', 'application/json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
   },
 ]);
