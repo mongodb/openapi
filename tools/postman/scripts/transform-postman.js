@@ -119,7 +119,7 @@ function loadJsonFile(filePath) {
 }
 
 function saveJsonFile(filePath, json) {
-  fs.writeFileSync(filePath, JSON.stringify(json, null, 2), 'utf8');
+  fs.writeFileSync(filePath, JSON.stringify(json, null, 0), 'utf8');
 }
 
 // hack
