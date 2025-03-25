@@ -56,7 +56,7 @@ func applyOnOperation(op *openapi3.Operation) {
 		}
 
 		for _, content := range response.Value.Content {
-			maps.DeleteFunc(content.Extensions, func(key string, v any) bool {
+			maps.DeleteFunc(content.Extensions, func(_ string, v any) bool {
 				return v == sunsetToBeDecided
 			})
 		}
