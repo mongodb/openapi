@@ -11,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 package filter
 
 import (
@@ -21,13 +20,17 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// InfoFilter is a filter that modifies the Info object in the OpenAPI spec.
-type InfoFilter struct {
+// InfoVersioningFilter: Filter that modifies the Info object in the OpenAPI spec with the target version.
+type InfoVersioningFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
 }
 
-func (f *InfoFilter) Apply() error {
+func (f *InfoVersioningFilter) ValidateMetadata() error {
+	return validateMetadataWithVersion(f.metadata)
+}
+
+func (f *InfoVersioningFilter) Apply() error {
 	if f.oas.Info == nil {
 		return nil
 	}
@@ -40,11 +43,11 @@ func (f *InfoFilter) Apply() error {
 }
 
 func replaceVersion(input string, v *apiversion.APIVersion) string {
-	matches := apiversion.ContentPattern.FindStringSubmatch(input)
+	matches := apiversion.FindMatchesFromContentType(input)
 	if matches == nil {
 		return input // No match found, return the original string
 	}
 
-	replacement := fmt.Sprintf("application/vnd.atlas.%s+%s", v.String(), matches[4])
-	return apiversion.ContentPattern.ReplaceAllString(input, replacement)
+	replacement := fmt.Sprintf("application/vnd.atlas.%s+%s", v.String(), matches[5])
+	return apiversion.ReplaceContentType(input, replacement)
 }

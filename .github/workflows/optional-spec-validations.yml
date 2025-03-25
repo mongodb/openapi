@@ -39,6 +39,11 @@ jobs:
           name: openapi-foas-${{ inputs.env }}
           github-token: ${{ secrets.api_bot_pat }}
           run-id: ${{ github.run_id }}
+      - name: Run IPA validation
+        id: ipa-spectral-validation
+        if: ${{ inputs.env == 'dev'}}
+        run: |
+          npx spectral lint openapi-foas.json --ruleset=./tools/spectral/ipa/ipa-spectral.yaml
       - name: Validate the FOAS can be used to generate Postman collection
         id: spectral-validation
         env:
@@ -49,7 +54,7 @@ jobs:
           make convert_to_collection
           npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ./tmp/collection.json --ruleset=./validation/spectral.yaml
           popd
-      - name: Create Issue
+      - name: Create Issue - Postman validation Failed
         if: ${{ failure() && steps.spectral-validation.outcome == 'failure' }}
         uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
         env:
@@ -57,5 +62,15 @@ jobs:
         with:
           labels: failed-release
           title: "(${{env.target_env}}) Optional Postman validation failed :scream_cat:"
+          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Issue - IPA validation Failed
+        if: ${{ failure() && steps.ipa-spectral-validation.outcome == 'failure' }}
+        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
+        env:
+          target_env: ${{ inputs.env }}
+        with:
+          labels: failed-release
+          title: "(${{env.target_env}}) Optional IPA validation failed :scream_cat:"
           body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           token: ${{ secrets.GITHUB_TOKEN }}

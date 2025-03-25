@@ -49,10 +49,10 @@ func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error
 	o.Loader.IsExternalRefsAllowed = o.IsExternalRefsAllowed
 
 	spec, err := load.NewSpecInfo(o.Loader, load.NewSource(path))
-	spec.Url = path
 	if err != nil {
 		return nil, err
 	}
+	spec.Url = path
 
 	if o.ExcludePrivatePaths {
 		removePrivatePaths(spec.Spec)

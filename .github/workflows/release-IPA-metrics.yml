@@ -1,0 +1,61 @@
+# This workflow will generate metrics about the IPA validation on the current OAS
+# (number of adoptions, violations and exceptions) and upload the data to an S3 bucket.
+name: IPA Validation Metrics Release
+on:
+  schedule:
+    - cron: '0 11 * * *'  # Runs daily at 11:00 UTC (11 AM UTC)
+  workflow_dispatch:
+permissions:
+  issues: write
+  contents: write
+
+jobs:
+  # Generates and uploads the IPA validation metrics to S3
+  release-IPA-metrics:
+    name: Release IPA Validation Metrics
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (scripts)
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          sparse-checkout: |
+            tools/spectral/ipa
+            package.json
+            package-lock.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Fetch OAS file from Dev Branch
+        run: curl -O "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/.raw/v2.json"
+        working-directory: ${{ github.workspace }}
+
+      - name: Run Metric Collection Job
+        working-directory: tools/spectral/ipa/metrics/scripts
+        run: node runMetricCollection.js "${{ github.workspace }}/v2.json"
+
+      - name: Dump Metric Collection Job Data to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.IPA_S3_BUCKET_DW_PROD_USERNAME }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.IPA_S3_BUCKET_DW_PROD_PASSWORD }}
+          S3_BUCKET_PREFIX: ${{ secrets.IPA_S3_BUCKET_DW_PROD_PREFIX }}
+        working-directory: tools/spectral/ipa/metrics/scripts
+        run: node dataDump.js
+
+  failure-handler:
+    name: Failure Handler
+    needs: [ release-IPA-metrics ]
+    if: ${{ failure() }}
+    uses: ./.github/workflows/failure-handler.yml
+    with:
+      env: 'dev'
+      release_name: "IPA Metrics"
+      team_id: ${{ vars.JIRA_TEAM_ID_APIX_1 }}
+    secrets:
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}

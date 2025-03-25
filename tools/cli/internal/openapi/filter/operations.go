@@ -18,10 +18,13 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// OperationsFilter is a filter that removes the x-xgen-owner-team extension from operations
-// and moves the x-sunset extension to the operation level.
+// OperationsFilter: is a filter that removes the x-xgen-owner-team extension from operations.
 type OperationsFilter struct {
 	oas *openapi3.T
+}
+
+func (*OperationsFilter) ValidateMetadata() error {
+	return nil
 }
 
 func (f *OperationsFilter) Apply() error {
@@ -34,35 +37,7 @@ func (f *OperationsFilter) Apply() error {
 			if operation.Extensions != nil {
 				delete(operation.Extensions, "x-xgen-owner-team")
 			}
-			moveSunsetExtensionToOperation(operation)
 		}
 	}
 	return nil
-}
-
-func moveSunsetExtensionToOperation(operation *openapi3.Operation) {
-	if operation.Responses == nil {
-		return
-	}
-	// search for sunset in content responses
-	for _, response := range operation.Responses.Map() {
-		if response == nil || response.Value == nil || response.Value.Content == nil {
-			continue
-		}
-
-		for _, mediaType := range response.Value.Content {
-			if mediaType == nil || mediaType.Extensions == nil {
-				continue
-			}
-
-			if sunset, ok := mediaType.Extensions["x-sunset"]; ok {
-				if operation.Extensions == nil {
-					operation.Extensions = make(map[string]interface{})
-				}
-				operation.Extensions[sunsetExtension] = sunset
-				delete(mediaType.Extensions, sunsetExtension)
-				operation.Deprecated = true
-			}
-		}
-	}
 }

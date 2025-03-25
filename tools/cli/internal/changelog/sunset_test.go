@@ -83,7 +83,7 @@ func TestNewOasDiffEntriesFromSunsetEndpoints(t *testing.T) {
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
 				Sunset:                 previousRunDate,
-				ManualChangelogEntries: map[string]interface{}{},
+				ManualChangelogEntries: map[string]any{},
 			},
 		},
 		"getCluster": {
@@ -93,7 +93,7 @@ func TestNewOasDiffEntriesFromSunsetEndpoints(t *testing.T) {
 				HTTPMethod:             "GET",
 				Tag:                    "Multi-Cloud Clusters",
 				Sunset:                 "",
-				ManualChangelogEntries: map[string]interface{}{},
+				ManualChangelogEntries: map[string]any{},
 			},
 		},
 		"listStreamInstances": {
@@ -103,7 +103,7 @@ func TestNewOasDiffEntriesFromSunsetEndpoints(t *testing.T) {
 				HTTPMethod:             "GET",
 				Tag:                    "Streams",
 				Sunset:                 runDate,
-				ManualChangelogEntries: map[string]interface{}{},
+				ManualChangelogEntries: map[string]any{},
 			},
 		},
 		"getStreamInstance": {
@@ -113,7 +113,7 @@ func TestNewOasDiffEntriesFromSunsetEndpoints(t *testing.T) {
 				HTTPMethod:             "GET",
 				Tag:                    "Streams",
 				Sunset:                 "2023-07-13",
-				ManualChangelogEntries: map[string]interface{}{},
+				ManualChangelogEntries: map[string]any{},
 			},
 		},
 	}

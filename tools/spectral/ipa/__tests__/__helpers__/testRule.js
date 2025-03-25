@@ -4,6 +4,7 @@ import { describe, expect, it } from '@jest/globals';
 import { Spectral, Document } from '@stoplight/spectral-core';
 import { httpAndFileResolver } from '@stoplight/spectral-ref-resolver';
 import { bundleAndLoadRuleset } from '@stoplight/spectral-ruleset-bundler/with-loader';
+import { fail } from 'node:assert';
 
 export default (ruleName, tests) => {
   describe(`Rule ${ruleName}`, () => {
@@ -13,12 +14,19 @@ export default (ruleName, tests) => {
         const doc = testCase.document instanceof Document ? testCase.document : JSON.stringify(testCase.document);
         const errors = await s.run(doc);
 
+        if (testCase.errors.length !== errors.length) {
+          fail(`Expected errors do not match actual errors
+            (${testCase.errors.length} !== ${errors.length})
+           Expected errors: ${JSON.stringify(testCase.errors, undefined, 2)}
+           Actual errors:  ${JSON.stringify(errors, undefined, 2)}`);
+        }
         expect(errors.length).toEqual(testCase.errors.length);
 
         errors.forEach((error, index) => {
           expect(error.code).toEqual(testCase.errors[index].code);
-          expect(error.message).toEqual(testCase.errors[index].message);
+          expect(error.message).toMatch(testCase.errors[index].message);
           expect(error.path).toEqual(testCase.errors[index].path);
+          expect(error.severity).toEqual(testCase.errors[index].severity);
         });
       });
     }

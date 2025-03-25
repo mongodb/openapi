@@ -1,6 +1,6 @@
 # A Self-Documenting Makefile: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 
-GOLANGCI_VERSION=v1.60.3
+GOLANGCI_VERSION=v1.64.5
 SOURCE_FILES?=./cmd
 BINARY_NAME=foascli
 VERSION=v0.0.1
@@ -12,8 +12,6 @@ CLI_E2E_BINARY?=../../../bin/${BINARY_NAME}
 E2E_TIMEOUT?=60m
 E2E_PARALLEL?=1
 E2E_EXTRA_ARGS?=
-
-
 
 LINKER_GH_SHA_FLAG=-s -w -X github.com/mongodb/openapi/tools/cli/internal/version.GitCommit=${GIT_SHA}
 LINKER_FLAGS=${LINKER_GH_SHA_FLAG} -X github.com/mongodb/openapi/tools/cli/internal/version.Version=${VERSION}
@@ -88,6 +86,9 @@ unit-test: ## Run unit-tests
 gen-mocks: ## Generate mocks
 	@echo "==> Generating mocks"
 	go generate ./internal...
+
+.PHONY: pre-commit
+pre-commit: fmt lint unit-test ## Run pre-commit checks
 
 .PHONY: help
 .DEFAULT_GOAL := help

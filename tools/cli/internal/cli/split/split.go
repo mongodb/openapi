@@ -20,11 +20,10 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/filter"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
@@ -35,6 +34,7 @@ type Opts struct {
 	outputPath string
 	env        string
 	format     string
+	gitSha     string
 }
 
 func (o *Opts) Run() error {
@@ -50,9 +50,15 @@ func (o *Opts) Run() error {
 	}
 
 	for _, version := range versions {
-		filteredOAS, err := o.filter(specInfo.Spec, version)
+		filteredOAS, err := filter.ByVersion(specInfo.Spec, version, o.env)
 		if err != nil {
 			return err
+		}
+
+		if o.gitSha != "" {
+			filteredOAS.Info.Extensions = map[string]any{
+				"x-xgen-sha": o.gitSha,
+			}
 		}
 
 		if err := o.saveVersionedOas(filteredOAS, version); err != nil {
@@ -67,24 +73,24 @@ func (o *Opts) Run() error {
 	return nil
 }
 
-func (o *Opts) filter(oas *openapi3.T, version string) (result *openapi3.T, err error) {
-	log.Printf("Filtering OpenAPI document by version %q", version)
-	apiVersion, err := apiversion.New(apiversion.WithVersion(version))
-	if err != nil {
-		return nil, err
-	}
-
-	return filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, o.env), filter.DefaultFilters)
-}
-
 func (o *Opts) saveVersionedOas(oas *openapi3.T, version string) error {
 	path := o.basePath
 	if o.outputPath != "" {
 		path = o.outputPath
 	}
 
-	path = strings.Replace(path, fmt.Sprintf(".%s", o.format), fmt.Sprintf("-%s.%s", version, o.format), 1)
+	path = getVersionPath(path, version)
 	return openapi.Save(path, oas, o.format, o.fs)
+}
+
+// getVersionPath replaces file path with version.
+// Example: 'path/path.to.file/file.<json|yaml|any>' to 'path/path.to.file/file-version.<json|yaml|any>'.
+func getVersionPath(path, version string) string {
+	extIndex := strings.LastIndex(path, ".")
+	if extIndex == -1 {
+		return fmt.Sprintf("%s-%s", path, version)
+	}
+	return fmt.Sprintf("%s-%s%s", path[:extIndex], version, path[extIndex:])
 }
 
 func (o *Opts) PreRunE(_ []string) error {
@@ -92,23 +98,11 @@ func (o *Opts) PreRunE(_ []string) error {
 		return fmt.Errorf("no OAS detected. Please, use the flag %s to include the base OAS", flag.Base)
 	}
 
-	if o.outputPath != "" && !strings.Contains(o.outputPath, openapi.DotJSON) && !strings.Contains(o.outputPath, openapi.DotYAML) {
-		return fmt.Errorf("output file must be either a JSON or YAML file, got %s", o.outputPath)
-	}
-
-	if o.format != openapi.JSON && o.format != openapi.YAML {
-		return fmt.Errorf("output format must be either 'json' or 'yaml', got %s", o.format)
-	}
-
-	if strings.Contains(o.basePath, openapi.DotYAML) {
-		o.format = openapi.YAML
-	}
-
-	return nil
+	return openapi.ValidateFormatAndOutput(o.format, o.outputPath)
 }
 
 // Builder builds the split command with the following signature:
-// split -b base-oas -o output-oas.json
+// split -b base-oas -o output-oas.json.
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
@@ -127,9 +121,10 @@ func Builder() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "-", usage.Spec)
-	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
+	cmd.Flags().StringVar(&opts.env, flag.Environment, "prod", usage.Environment)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
-	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.JSON, usage.Format)
+	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.ALL, usage.Format)
+	cmd.Flags().StringVar(&opts.gitSha, flag.GitSha, "", usage.GitSha)
 
 	_ = cmd.MarkFlagRequired(flag.Output)
 

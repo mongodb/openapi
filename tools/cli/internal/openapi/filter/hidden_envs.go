@@ -26,11 +26,15 @@ const (
 	hiddenEnvsExtKey    = "envs"
 )
 
-// HiddenEnvsFilter is a filter that removes paths, operations,
-// request/response bodies and content types that are hidden for the target environment
+// HiddenEnvsFilter: is a filter that removes paths, operations,
+// request/response bodies and content types that are hidden for the target environment.
 type HiddenEnvsFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
+}
+
+func (f *HiddenEnvsFilter) ValidateMetadata() error {
+	return validateMetadata(f.metadata)
 }
 
 func (f *HiddenEnvsFilter) Apply() error {
@@ -47,7 +51,85 @@ func (f *HiddenEnvsFilter) Apply() error {
 			f.oas.Paths.Delete(path)
 		}
 	}
+
+	if f.oas.Components == nil || f.oas.Components.Schemas == nil {
+		return nil
+	}
+
+	return f.applyOnSchemas(f.oas.Components.Schemas)
+}
+
+func (f *HiddenEnvsFilter) applyOnSchemas(schemas openapi3.Schemas) error {
+	for name, schema := range schemas {
+		if err := f.removeSchemaIfHiddenForEnv(name, schema, schemas); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+func (f *HiddenEnvsFilter) removeSchemaIfHiddenForEnv(name string, schema *openapi3.SchemaRef, schemas openapi3.Schemas) error {
+	if schema == nil {
+		return nil
+	}
+
+	// Remove the schema if it is hidden for the target environment
+	if extension, ok := schema.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs in schema: K: %q, V: %q", hiddenEnvsExtension, extension)
+		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
+			log.Printf("Removing schema: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
+			delete(schemas, name)
+			return nil
+		}
+
+		// Remove the Hidden extension from the final OAS
+		delete(schema.Extensions, hiddenEnvsExtension)
+	}
+
+	if schema.Value == nil {
+		return nil
+	}
+
+	if schema.Value.Extensions != nil {
+		if extension, ok := schema.Value.Extensions[hiddenEnvsExtension]; ok {
+			log.Printf("Found x-hidden-envs in schema: K: %q, V: %q", hiddenEnvsExtension, extension)
+			if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
+				log.Printf("Removing schema: %q because is hidden for target env: %q", name, f.metadata.targetEnv)
+				delete(schemas, name)
+				return nil
+			}
+
+			// Remove the Hidden extension from the final OAS
+			delete(schema.Value.Extensions, hiddenEnvsExtension)
+		}
+	}
+
+	// Remove properties and items if they are hidden for the target environment
+	if schema.Value.Properties != nil {
+		if err := f.applyOnSchemas(schema.Value.Properties); err != nil {
+			return err
+		}
+	}
+
+	f.removeItemsIfHiddenForEnv(schema)
+	return nil
+}
+
+func (f *HiddenEnvsFilter) removeItemsIfHiddenForEnv(schema *openapi3.SchemaRef) {
+	if schema.Value == nil || schema.Value.Items == nil {
+		return
+	}
+
+	if extension, ok := schema.Value.Items.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs in items: K: %q, V: %q", hiddenEnvsExtension, extension)
+		if isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv) {
+			log.Printf("Removing items because is hidden for target env: %q", f.metadata.targetEnv)
+			schema.Value.Items = nil
+		} else {
+			// Remove the Hidden extension from the final OAS
+			delete(schema.Value.Items.Extensions, hiddenEnvsExtension)
+		}
+	}
 }
 
 func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem) error {
@@ -166,19 +248,6 @@ func (f *HiddenEnvsFilter) isResponseHiddenForEnv(response *openapi3.ResponseRef
 	return false
 }
 
-func isContentTypeHiddenForEnv(contentType *openapi3.MediaType, targetEnv string) bool {
-	if contentType == nil {
-		return false
-	}
-
-	if extension, ok := contentType.Extensions[hiddenEnvsExtension]; ok {
-		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
-		return isHiddenExtensionEqualToTargetEnv(extension, targetEnv)
-	}
-
-	return false
-}
-
 func (f *HiddenEnvsFilter) isRequestBodyHiddenForEnv(requestBody *openapi3.RequestBodyRef) bool {
 	if requestBody == nil {
 		return false
@@ -200,12 +269,26 @@ func (f *HiddenEnvsFilter) isPathHiddenForEnv(pathItem *openapi3.PathItem) bool 
 	return false
 }
 
-func isHiddenExtensionEqualToTargetEnv(extension interface{}, target string) bool {
-	if envs, ok := extension.(map[string]interface{}); ok {
+func isHiddenExtensionEqualToTargetEnv(extension any, target string) bool {
+	if envs, ok := extension.(map[string]any); ok {
 		if v, ok := envs[hiddenEnvsExtKey].(string); ok {
 			log.Printf("Found x-hidden-envs: V: %q", v)
 			return strings.Contains(v, target)
 		}
 	}
+	return false
+}
+
+// isContentTypeHiddenForEnv returns true if the content type is hidden for the target environment.
+func isContentTypeHiddenForEnv(contentType *openapi3.MediaType, targetEnv string) bool {
+	if contentType == nil {
+		return false
+	}
+
+	if extension, ok := contentType.Extensions[hiddenEnvsExtension]; ok {
+		log.Printf("Found x-hidden-envs: K: %q, V: %q", hiddenEnvsExtension, extension)
+		return isHiddenExtensionEqualToTargetEnv(extension, targetEnv)
+	}
+
 	return false
 }

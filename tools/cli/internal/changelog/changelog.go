@@ -21,6 +21,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
@@ -33,14 +34,16 @@ const (
 	stabilityLevelStable  = "stable"
 )
 
-var breakingChangesAdditionalCheckers = []string{
-	"response-non-success-status-removed",
-	"api-operation-id-removed",
-	"api-tag-removed",
-	"response-property-enum-value-removed",
-	"response-mediatype-enum-value-removed",
-	"request-body-enum-value-removed",
-	"api-schema-removed",
+var breakingChangesAdditionalCheckers = map[string]checker.Level{
+	"response-non-success-status-removed":   checker.ERR,
+	"api-operation-id-removed":              checker.ERR,
+	"api-tag-removed":                       checker.ERR,
+	"response-property-enum-value-removed":  checker.ERR,
+	"response-mediatype-enum-value-removed": checker.ERR,
+	"request-body-enum-value-removed":       checker.ERR,
+	"api-schema-removed":                    checker.ERR,
+	"response-property-one-of-added":        checker.INFO,
+	"response-body-one-of-added":            checker.INFO,
 }
 
 type Changelog struct {
@@ -173,6 +176,11 @@ func NewEntries(basePath, revisionPath, exceptionFilePath string) ([]*Entry, err
 	}
 
 	for _, version := range changelog.RevisionMetadata.Versions {
+		// Skip preview versions
+		if apiversion.IsPreviewStabilityLevel(version) {
+			continue
+		}
+
 		changelog.RevisionMetadata.ActiveVersion = version
 		changelog.BaseMetadata.ActiveVersion = version
 		changelog.Revision, err = newOpeAPISpecFromPathAndVersion(changelog.RevisionMetadata.Path, version)
@@ -213,6 +221,10 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) (
 	entries := []*Entry{}
 	for idx, fromVersion := range revisionMetadata.Versions {
 		for _, toVersion := range revisionMetadata.Versions[idx+1:] {
+			// skip preview versions
+			if apiversion.IsPreviewStabilityLevel(fromVersion) || apiversion.IsPreviewStabilityLevel(toVersion) {
+				continue
+			}
 			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion, exceptionFilePath)
 			if err != nil {
 				return nil, err
@@ -323,7 +335,7 @@ func newChangelog(baseMetadata, revisionMetadata *Metadata, exceptionFilePath st
 	}
 
 	changelogConfig := checker.NewConfig(
-		checker.GetAllChecks()).WithOptionalChecks(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
+		checker.GetAllChecks()).WithSeverityLevels(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
 
 	return &Changelog{
 		BaseChangelog:     baseChangelog,
@@ -420,6 +432,9 @@ func latestVersionActiveOnDate(date string, versions []string) (string, error) {
 
 	activeVersions := []time.Time{}
 	for _, version := range versions {
+		if apiversion.IsPreviewStabilityLevel(version) {
+			continue
+		}
 		versionTime, err := newDateFromString(version)
 		if err != nil {
 			return "", err
@@ -474,7 +489,7 @@ func findChangelogEntry(changelog []*Entry, date, operationID, version, changeCo
 	return nil
 }
 
-func newStringFromStruct(data interface{}) string {
+func newStringFromStruct(data any) string {
 	bytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return ""
@@ -489,7 +504,7 @@ func newStringFromStruct(data interface{}) string {
 // 1. Remove all entries with hideFromChangelog
 // 2. Remove all empty versions
 // 3. Remove all empty paths
-// 4. Shift changelog entry if it turns out empty
+// 4. Shift changelog entry if it turns out empty.
 func NewNotHiddenEntries(changelog []*Entry) ([]*Entry, error) {
 	if len(changelog) == 0 {
 		return changelog, nil

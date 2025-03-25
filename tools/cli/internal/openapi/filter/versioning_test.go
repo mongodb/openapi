@@ -23,66 +23,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPathFilter_getLatestVersionMatch(t *testing.T) {
-	testCases := []struct {
-		name          string
-		targetVersion string
-		expectedMatch string
-	}{
-		{
-			name:          "exact match 2023-01-01",
-			targetVersion: "2023-01-01",
-			expectedMatch: "2023-01-01",
-		},
-		{
-			name:          "exact match 2023-11-15",
-			targetVersion: "2023-11-15",
-			expectedMatch: "2023-11-15",
-		},
-		{
-			name:          "exact match 2024-05-30",
-			targetVersion: "2024-05-30",
-			expectedMatch: "2024-05-30",
-		},
-		{
-			name:          "approx match 2023-01-01",
-			targetVersion: "2023-01-02",
-			expectedMatch: "2023-01-01",
-		},
-		{
-			name:          "approx match 2023-01-01",
-			targetVersion: "2023-01-31",
-			expectedMatch: "2023-01-01",
-		},
-		{
-			name:          "approx match 2023-02-01",
-			targetVersion: "2023-02-20",
-			expectedMatch: "2023-02-01",
-		},
-		{
-			name:          "future date",
-			targetVersion: "2030-02-20",
-			expectedMatch: "2024-05-30",
-		},
-		{
-			name:          "past date",
-			targetVersion: "1999-02-20",
-			expectedMatch: "1999-02-20",
-		},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			targetVersion, err := apiversion.New(apiversion.WithVersion(tt.targetVersion))
-			require.NoError(t, err)
-			r, err := apiversion.FindLatestContentVersionMatched(oasOperationAllVersions(), targetVersion)
-			require.NoError(t, err)
-			// transform time to str with format "2006-01-02"
-			assert.Equal(t, tt.expectedMatch, r.String())
-		})
-	}
-}
-
 func TestPathFilter_processPathItem(t *testing.T) {
 	version, err := apiversion.New(apiversion.WithVersion("2023-11-15"))
 	require.NoError(t, err)
@@ -92,7 +32,7 @@ func TestPathFilter_processPathItem(t *testing.T) {
 	}
 
 	path := oasPathAllVersions()
-	require.NoError(t, filter.apply(path))
+	require.NoError(t, filter.applyInternal(path))
 
 	assert.NotNil(t, path.Get)
 	assert.Equal(t, 1, path.Get.Responses.Len())
@@ -113,7 +53,7 @@ func TestPathFilter_moreThanOneResponse(t *testing.T) {
 	}
 
 	path := oasPathAllVersions()
-	err = filter.apply(path)
+	err = filter.applyInternal(path)
 
 	require.NoError(t, err)
 	assert.NotNil(t, path.Get)
@@ -149,7 +89,7 @@ func TestPathFilter_filterRequestBody(t *testing.T) {
 	}
 
 	path := oasPathAllVersions()
-	require.NoError(t, filter.apply(path))
+	require.NoError(t, filter.applyInternal(path))
 
 	assert.NotNil(t, path.Get)
 	assert.NotNil(t, path.Get.RequestBody)
@@ -236,10 +176,64 @@ func TestPathFilter_removeResponses(t *testing.T) {
 	assert.Equal(t, 1, oas.Paths.Find("/path").Get.Responses.Len())
 }
 
+func Test_FilterOperations_moveSunsetToOperationAndMarkDeprecated(t *testing.T) {
+	response := &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Content: openapi3.Content{
+				"application/vnd.atlas.2023-01-01+json": &openapi3.MediaType{
+					Extensions: map[string]any{
+						"x-sunset":       "2024-01-01",
+						"x-xgen-version": "2023-01-01",
+					},
+				},
+			},
+		},
+	}
+	responses := openapi3.Responses{}
+	responses.Set("200", response)
+
+	operation := &openapi3.Operation{
+		Responses:   &responses,
+		Summary:     "summary",
+		Description: "description",
+	}
+
+	paths := openapi3.Paths{}
+	paths.Set("/path", &openapi3.PathItem{Get: operation})
+
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
+
+	f := &VersioningFilter{
+		oas: &openapi3.T{
+			Paths: &paths,
+		},
+		metadata: &Metadata{
+			targetVersion: version,
+		},
+	}
+
+	// Assert the sunset to be filtered exists
+	content := f.oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content["application/vnd.atlas.2023-01-01+json"]
+	require.Contains(t, content.Extensions, "x-sunset")
+	require.False(t, f.oas.Paths.Find("/path").Get.Deprecated)
+	require.NoError(t, f.Apply())
+
+	// Assert sunset was moved to operation
+	require.Contains(t, f.oas.Paths.Find("/path").Get.Extensions, "x-sunset")
+	require.NotContains(t, f.oas.Paths.Find("/path").Get.Responses.Map()["200"].Extensions, "x-sunset")
+	require.NotContains(t, content.Extensions, "x-sunset")
+	require.True(t, f.oas.Paths.Find("/path").Get.Deprecated)
+
+	// Assert oas was not updated
+	require.Contains(t, f.oas.Paths.Find("/path").Get.Summary, "summary")
+	require.Contains(t, f.oas.Paths.Find("/path").Get.Description, "description")
+}
+
 func getOasWithPaths() *openapi3.T {
 	oas := &openapi3.T{}
 	oas.Paths = &openapi3.Paths{
-		Extensions: map[string]interface{}{
+		Extensions: map[string]any{
 			"x-sunset": "2025-01-10",
 		},
 	}

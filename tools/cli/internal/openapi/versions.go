@@ -15,6 +15,7 @@
 package openapi
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -22,18 +23,24 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 )
 
+// ExtractVersionsWithEnv extracts API version Content Type strings from the given OpenAPI specification and environment.
+// When env is not set, the function returns the API Versions from all the environments.
 func ExtractVersionsWithEnv(oas *openapi3.T, env string) ([]string, error) {
+	if env == "" {
+		return extractVersions(oas)
+	}
+
 	// We need to remove the version that are hidden for the given environment
 	doc, err := filter.ApplyFilters(oas, filter.NewMetadata(nil, env), filter.FiltersToGetVersions)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
-	return ExtractVersions(doc)
+	return extractVersions(doc)
 }
 
-// ExtractVersions extracts version strings from an OpenAPI specification.
-func ExtractVersions(oas *openapi3.T) ([]string, error) {
+// extractVersions extracts version strings from an OpenAPI specification.
+func extractVersions(oas *openapi3.T) ([]string, error) {
 	versions := make(map[string]struct{})
 	for _, pathItem := range oas.Paths.Map() {
 		if pathItem == nil {
@@ -47,11 +54,22 @@ func ExtractVersions(oas *openapi3.T) ([]string, error) {
 				if response.Value == nil || response.Value.Content == nil {
 					continue
 				}
-				for contentType := range response.Value.Content {
+				for contentType, contentTypeValue := range response.Value.Content {
 					version, err := apiversion.Parse(contentType)
-					if err == nil {
-						versions[version] = struct{}{}
+					if err != nil {
+						continue
 					}
+
+					if apiversion.IsPreviewStabilityLevel(version) {
+						// parse if it is public or not
+						version, err = apiversion.GetPreviewVersionName(contentTypeValue)
+						if err != nil {
+							fmt.Printf("failed to parse preview version name: %v\n", err)
+							return nil, err
+						}
+					}
+
+					versions[version] = struct{}{}
 				}
 			}
 		}

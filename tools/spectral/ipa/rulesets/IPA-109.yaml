@@ -2,22 +2,57 @@
 # http://go/ipa/109
 
 functions:
-  - eachCustomMethodMustBeGetOrPost
-  - eachCustomMethodMustUseCamelCase
+  - IPA109EachCustomMethodMustBeGetOrPost
+  - IPA109EachCustomMethodMustUseCamelCase
+  - IPA109CustomMethodIdentifierFormat
 
 rules:
   xgen-IPA-109-custom-method-must-be-GET-or-POST:
-    description: 'The HTTP method for custom methods must be GET or POST. http://go/ipa/109'
-    message: '{{error}} http://go/ipa/109'
-    severity: warn
+    description: |
+      The HTTP method for custom methods must be GET or POST.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to paths containing custom method identifiers (with colon format)
+        - Verifies the HTTP methods used are either GET or POST
+        - Fails if any other HTTP methods are used (PUT, DELETE, PATCH, etc.)
+        - Fails if multiple valid methods are defined for the same custom method endpoint
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-109-custom-method-must-be-GET-or-POST'
+    severity: error
     given: '$.paths[*]'
     then:
-      function: 'eachCustomMethodMustBeGetOrPost'
+      function: 'IPA109EachCustomMethodMustBeGetOrPost'
 
   xgen-IPA-109-custom-method-must-use-camel-case:
-    description: 'The custom method must use camelCase format. http://go/ipa/109'
-    message: '{{error}} http://go/ipa/109'
-    severity: warn
+    description: |
+      The custom method must use camelCase format.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to paths containing custom method identifiers (with colon format)
+        - Extracts the method name portion following the colon
+        - Verifies the method name is not empty or blank
+        - Validates that the method name uses proper camelCase formatting
+        - Fails if the method name contains invalid casing (such as snake_case, PascalCase, etc.)
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-109-custom-method-must-use-camel-case'
+    severity: error
     given: '$.paths[*]'
     then:
-      function: 'eachCustomMethodMustUseCamelCase'
+      function: 'IPA109EachCustomMethodMustUseCamelCase'
+  xgen-IPA-109-custom-method-identifier-format:
+    description: |
+      Custom methods must be defined using a colon followed by the method name.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Identifies paths containing a colon (potential custom methods)
+        - Validates that the path follows proper custom method format
+        - Does not validate after the colon (xgen-IPA-109-custom-method-must-use-camel-case rule validates the method name)
+        - Fails if a slash appears before a colon
+        - Fails if multiple colons appear in the path
+        - Fails if other than an alphabetical character or a closing curly brace appears before a colon
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-109-custom-method-identifier-format'
+    severity: error
+    given: '$.paths[*]'
+    then:
+      function: 'IPA109CustomMethodIdentifierFormat'

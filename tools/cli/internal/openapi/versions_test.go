@@ -27,11 +27,37 @@ func TestVersions(t *testing.T) {
 	assert.Equal(t, []string{"2023-01-01", "2023-02-01"}, versions)
 }
 
+func TestVersions_PrivatePreview(t *testing.T) {
+	versions, err := ExtractVersionsWithEnv(NewVersionedResponses(t), "dev")
+	require.NoError(t, err)
+	assert.ElementsMatch(t, []string{"2023-01-01", "2023-02-01", "private-preview-info-resource", "preview"}, versions)
+}
+
+func TestVersions_PublicPreview(t *testing.T) {
+	versions, err := ExtractVersionsWithEnv(NewVersionedResponses(t), "qa")
+	require.NoError(t, err)
+	assert.Equal(t, []string{"2023-01-01", "2023-02-01", "preview"}, versions)
+}
+
+func TestVersions_InvalidPreviewData(t *testing.T) {
+	r := NewVersionedResponses(t)
+	// override the extension so something invalid like "public": true
+	r.Paths.Find("pathBase4").Post.Responses.Map()["200"].Value.
+		Content.Get("application/vnd.atlas.preview+json").
+		Extensions["x-xgen-preview"] = map[string]any{
+		"public": true,
+	}
+
+	_, err := ExtractVersionsWithEnv(r, "qa")
+	require.Error(t, err)
+	require.ErrorContains(t, err, "nvalid value for 'public' field")
+}
+
 func NewVersionedResponses(t *testing.T) *openapi3.T {
 	t.Helper()
 	inputPath := &openapi3.Paths{}
 
-	extension := map[string]interface{}{
+	extension := map[string]any{
 		"x-xgen-version": "2023-01-01",
 	}
 	response := &openapi3.ResponseRef{
@@ -57,7 +83,7 @@ func NewVersionedResponses(t *testing.T) *openapi3.T {
 		},
 	})
 
-	extensionTwo := map[string]interface{}{
+	extensionTwo := map[string]any{
 		"x-xgen-version": "2023-02-01",
 	}
 
@@ -80,6 +106,85 @@ func NewVersionedResponses(t *testing.T) *openapi3.T {
 		Put: &openapi3.Operation{
 			Tags:      []string{"tag1"},
 			Responses: responsesTwo,
+		},
+	})
+
+	// private preview version
+	extensionThree := map[string]any{
+		"x-xgen-version": "preview",
+		"x-xgen-preview": map[string]any{
+			"name": "info-resource",
+		},
+	}
+
+	responseThree := &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Extensions: nil,
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.preview+json": {
+					Extensions: extensionThree,
+				},
+			},
+		},
+	}
+
+	hiddenEnvExtension := map[string]any{
+		"x-xgen-hidden-env": map[string]any{
+			"envs": "qa,prod",
+		},
+	}
+
+	responsesThree := &openapi3.Responses{}
+	responsesThree.Set("200", responseThree)
+
+	inputPath.Set("pathBase3", &openapi3.PathItem{
+		Extensions:  hiddenEnvExtension,
+		Ref:         "",
+		Summary:     "pathBase3",
+		Description: "pathBase3Description",
+		Delete: &openapi3.Operation{
+			Tags:      []string{"tag1"},
+			Responses: responsesThree,
+		},
+	})
+
+	// public preview version
+	extensionFour := map[string]any{
+		"x-xgen-version": "preview",
+		"x-xgen-preview": map[string]any{
+			"public": "true",
+		},
+	}
+
+	responseFour := &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Extensions: nil,
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.preview+json": {
+					Extensions: extensionFour,
+				},
+			},
+		},
+	}
+
+	hiddenEnvExtensionTwo := map[string]any{
+		"x-xgen-hidden-env": map[string]any{
+			"envs": "prod",
+		},
+	}
+
+	responsesFour := &openapi3.Responses{}
+	responsesFour.Set("200", responseFour)
+
+	inputPath.Set("pathBase4", &openapi3.PathItem{
+		Extensions:  hiddenEnvExtensionTwo,
+		Ref:         "",
+		Summary:     "pathBase4",
+		Description: "pathBase4Description",
+		Post: &openapi3.Operation{
+
+			Tags:      []string{"tag1"},
+			Responses: responsesFour,
 		},
 	})
 

@@ -3,52 +3,9 @@ name: 'Send a Slack Notification for APIs important events'
 on:
   workflow_dispatch: # Allow manual triggering
   schedule:
-    - cron: '0 9 * * 1-5' # Run once a day at 09:00 UTC between Monday and Friday
+    - cron: '0 9 * * 1' # at 9:00 UTC on Monday
 
 jobs:
-  new-api-version-reminder:
-    name: New API Version Release Reminder
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository (dev branch)
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-        with:
-          sparse-checkout:
-            .github/scripts/upcoming_api_releases.sh
-
-      - name: Install Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
-        with:
-          python-version: '3.12'
-
-      - name: Check if there are upcoming API versions releases
-        id: check-api-versions
-        run: .github/scripts/upcoming_api_releases.sh
-
-      # Create a JIRA ticket for the upcoming API versions only if the there is not already a ticket with the same title
-      - name: Create JIRA Ticket
-        id: create-jira-ticket
-        if: steps.check-api-versions.outputs.api_versions != null
-        env:
-          JIRA_API_TOKEN: ${{ secrets.jira_api_token }}
-          JIRA_TICKET_TITLE: "[API Platform] API Versions (${{steps.check-api-versions.outputs.api_versions}}) are about to be released"
-          JIRA_TICKET_DESCRIPTION: "The following API Versions are scheduled to be released in the next 3 weeks: ${{steps.check-api-versions.outputs.api_versions}}. Please follow https://wiki.corp.mongodb.com/display/MMS/API+eXperience+Production+Checklist#APIeXperienceProductionChecklist-APIVersionReleasechecks"
-        run: .github/scripts/create_jira_ticket.sh
-
-      # Send Slack notification only if the Jira ticket was created
-      - name: Send Slack Notification
-        if: steps.create-jira-ticket.outputs.jira-ticket-id != null
-        env:
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_APIX_2 }}
-          SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
-          API_VERSIONS: ${{ steps.check-api-versions.outputs.api_versions }}
-          JIRA_TICKET_ID: ${{ steps.create-jira-ticket.outputs.jira-ticket-id }}
-        run: |
-          message_id=$(curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
-          -H 'Content-type: application/json' \
-          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following API Versions are scheduled to be released in the next 3 weeks: '"${API_VERSIONS}"'. Jira Ticket: https://jira.mongodb.org/browse/'"${JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
-          echo "message_id=${message_id}"
-
   sunset-api-version-reminder:
     name: Sunset APIs Reminder
     runs-on: ubuntu-latest
@@ -57,7 +14,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Install Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
         with:
           python-version: '3.12'
 
@@ -74,7 +31,7 @@ jobs:
       - name: Retrieve Sunset APIs
         id: retrieve-sunset-apis
         env:
-          openapi_spec_url: "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/v2.json"
+          openapi_spec_url: "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/.raw/v2.json"
         run: |
           three_months_date=""
           
@@ -114,7 +71,8 @@ jobs:
         if: steps.retrieve-sunset-apis.outputs.hash_code_sunset_apis != null
         env:
           JIRA_API_TOKEN: ${{ secrets.jira_api_token }}
-          JIRA_TICKET_TITLE: "[API Platform] Some APIs are approaching their sunset date in the next 3 months. ID: ${{steps.retrieve-sunset-apis.outputs.hash_code_sunset_apis}}"
+          JIRA_TEAM_ID: ${{ vars.JIRA_TEAM_ID_APIX_2}}
+          JIRA_TICKET_TITLE: "Some APIs are approaching their sunset date in the next 3 months. ID: ${{steps.retrieve-sunset-apis.outputs.hash_code_sunset_apis}}"
         run: |
           sunset_apis=$(sed 's/"/\\"/g' sunset_apis.json)
           JIRA_TICKET_DESCRIPTION="The following APIs will be sunset in the next 3 months. Please follow our [wiki|https://wiki.corp.mongodb.com/display/MMS/API+eXperience+Production+Checklist#APIeXperienceProductionChecklist-APISunsetActionItems]. {noformat}${sunset_apis}{noformat}"
@@ -125,12 +83,13 @@ jobs:
       - name: Send Slack Notification
         if: steps.create-jira-ticket.outputs.jira-ticket-id != null
         env:
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_APIX_2 }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
           SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
+          SLACK_APIX_2_ONCALL_USER: ${{secrets.SLACK_APIX_2_ONCALL_USER}}
           JIRA_TICKET_ID: ${{ steps.create-jira-ticket.outputs.jira-ticket-id }}
         run: |
           echo "JIRA_TICKET_ID: ${JIRA_TICKET_ID}"
           message_id=$(curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
           -H 'Content-type: application/json' \
-          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following APIs are scheduled to be sunset in the next 3 months. See Jira Ticket: https://jira.mongodb.org/browse/'"${JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
+          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"The following APIs are scheduled to be sunset in the next 3 months ('"${SLACK_APIX_2_ONCALL_USER}"'). See Jira Ticket: https://jira.mongodb.org/browse/'"${JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
           echo "message_id=${message_id}"]

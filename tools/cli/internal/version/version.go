@@ -14,7 +14,7 @@
 
 package version
 
-// These variables are set at compilation time in the Makefile
+// These variables are set at compilation time in the Makefile.
 var (
 	Version   = "next" // Version for CLI.
 	GitCommit = "next" // GitCommit git sha of the build.
