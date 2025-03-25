@@ -24,8 +24,8 @@ const OPENAPI_FOLDER = process.env.OPENAPI_FOLDER || './openapi';
 const TMP_FOLDER = process.env.TMP_FOLDER || './tmp';
 const VERSION_FILE_NAME = process.env.VERSION_FILE_NAME || 'version.txt';
 const DESCRIPTION_FILE = process.env.DESCRIPTION_FILE || './collection-description.md';
-const TOGGLE_INCLUDE_BODY = process.env.TOGGLE_INCLUDE_BODY !== 'false';
-const TOGGLE_ADD_DOCS_LINKS = process.env.TOGGLE_ADD_DOCS_LINKS === 'true';
+const TOGGLE_INCLUDE_BODY = false;
+const TOGGLE_ADD_DOCS_LINKS = false;
 const TOKEN_URL_ENV = process.env.TOKEN_URL_ENV || '';
 const BASE_URL = process.env.BASE_URL || '';
 
