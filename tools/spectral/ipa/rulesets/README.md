@@ -602,6 +602,21 @@ Rule checks the format of the description property in the following components:
   - Schema properties
 The rule ignores descriptions that end with `|`, i.e. inline markdown tables
 
+#### xgen-IPA-117-description-must-not-use-html
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Descriptions must not use raw HTML.
+
+##### Implementation details
+Rule checks the format of the descriptions for components:
+  - Info object
+  - Tags
+  - Operation objects
+  - Inline schema properties for operation object requests and responses
+  - Parameter objects (in operations and components)
+  - Schema properties
+The rule validates that the description content does not include opening and/or closing HTML tags.
+
 
 
 ### IPA-123
