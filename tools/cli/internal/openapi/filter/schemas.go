@@ -22,7 +22,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// SchemasFilter removes components that are not used in the operations.
+// SchemasFilter removes schemas that are not used in operations.
 type SchemasFilter struct {
 	oas *openapi3.T
 }

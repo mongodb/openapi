@@ -120,7 +120,7 @@ func TestFiltersWithoutVersioning(t *testing.T) {
 	metadata := &Metadata{}
 	filters := FiltersWithoutVersioning(doc, metadata)
 
-	assert.Len(t, filters, 4)
+	assert.Len(t, filters, 5)
 }
 
 func TestFiltersToGetVersions(t *testing.T) {
