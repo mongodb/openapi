@@ -15,8 +15,7 @@ import { getSchemaNameFromRef } from './utils/methodUtils.js';
 import { schemaIsPaginated } from './utils/schemaUtils.js';
 
 const RULE_NAME = 'xgen-IPA-110-collections-use-paginated-schema';
-const ERROR_MESSAGE =
-  'List methods must use a paginated response schema. The response should reference a schema with either a name starting with "Paginated" or contain both "totalCount" (integer) and "results" (array) fields.';
+const ERROR_MESSAGE = 'List methods response must reference a paginated response schema.';
 
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
@@ -31,12 +30,7 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  // Ignore if the List method does not have a response schema
   const listMethodResponse = resolveObject(oas, path);
-
-  if (!listMethodResponse || !listMethodResponse.schema) {
-    return;
-  }
 
   if (hasException(listMethodResponse, RULE_NAME)) {
     collectException(listMethodResponse, RULE_NAME, path);
@@ -54,12 +48,20 @@ export default (input, _, { path, documentInventory }) => {
 
 function checkViolationsAndReturnErrors(listMethodResponse, oas, path) {
   try {
+    if (!listMethodResponse.schema) {
+      return [
+        {
+          path,
+          message: `${ERROR_MESSAGE} The List method response does not have a schema defined.`,
+        },
+      ];
+    }
+
     if (!listMethodResponse.schema.$ref) {
       return [
         {
           path,
-          message:
-            'The schema is defined inline and must reference a predefined schema with a name starting with "Paginated".',
+          message: `${ERROR_MESSAGE} The schema is defined inline and must reference a predefined paginated schema.`,
         },
       ];
     }
@@ -67,8 +69,13 @@ function checkViolationsAndReturnErrors(listMethodResponse, oas, path) {
     const schemaRef = listMethodResponse.schema.$ref;
     const schemaName = getSchemaNameFromRef(schemaRef);
 
-    if (schemaName.startsWith('Paginated')) {
-      return [];
+    if (!schemaName.startsWith('Paginated')) {
+      return [
+        {
+          path,
+          message: `${ERROR_MESSAGE} The response should reference a schema with "Paginated" prefix.`,
+        },
+      ];
     }
 
     const listResponseSchema = resolveObject(oas, ['components', 'schemas', schemaName]);
@@ -76,7 +83,7 @@ function checkViolationsAndReturnErrors(listMethodResponse, oas, path) {
       return [
         {
           path,
-          message: ERROR_MESSAGE,
+          message: `${ERROR_MESSAGE} The response should reference a schema that contains both "totalCount" (integer) and "results" (array) fields.`,
         },
       ];
     }
