@@ -112,7 +112,7 @@ func TestDefaultFilters(t *testing.T) {
 	metadata := &Metadata{}
 	filters := DefaultFilters(doc, metadata)
 
-	assert.Len(t, filters, 7)
+	assert.Len(t, filters, 8)
 }
 
 func TestFiltersWithoutVersioning(t *testing.T) {

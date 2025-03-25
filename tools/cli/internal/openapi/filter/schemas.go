@@ -27,9 +27,8 @@ type SchemasFilter struct {
 	oas *openapi3.T
 }
 
-func (f *SchemasFilter) ValidateMetadata() error {
-	//TODO implement me
-	panic("implement me")
+func (*SchemasFilter) ValidateMetadata() error {
+	return nil
 }
 
 func (f *SchemasFilter) Apply() error {
@@ -56,7 +55,7 @@ func (f *SchemasFilter) Apply() error {
 	return nil
 }
 
-// findRefs returns all the ref included in an openapi spec
+// findRefs returns all the ref included in an openapi spec.
 func findRefs(oas *openapi3.T) map[string]bool {
 	if oas == nil {
 		return nil
@@ -91,7 +90,6 @@ func findRefs(oas *openapi3.T) map[string]bool {
 				}
 			}
 		}
-
 	}
 
 	return refs
