@@ -44,7 +44,7 @@ testRule('xgen-IPA-117-description-starts-with-uppercase', [
     ],
   },
   {
-    name: 'invalid components with exceptions',
+    name: 'invalid description with exceptions',
     document: {
       components: {
         schemas: {

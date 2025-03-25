@@ -61,7 +61,7 @@ testRule('xgen-IPA-117-description-ends-with-period', [
     errors: [],
   },
   {
-    name: 'invalid components with exceptions',
+    name: 'invalid description with exceptions',
     document: {
       components: {
         schemas: {
