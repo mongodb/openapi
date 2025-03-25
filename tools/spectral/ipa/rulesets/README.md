@@ -447,6 +447,22 @@ Rule checks for the following conditions:
 
 
 
+### IPA-110
+
+Rules are based on [http://go/ipa/IPA-110](http://go/ipa/IPA-110).
+
+#### xgen-IPA-110-collections-use-paginated-schema
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+APIs that return collections of resources must use a paginated response schema.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only applies to List methods (GET operations that return collections of resources)
+  - Checks that the 200 response schema references a schema with a name starting with "Paginated"
+
+
+
 ### IPA-112
 
 Rules are based on [http://go/ipa/IPA-112](http://go/ipa/IPA-112).
