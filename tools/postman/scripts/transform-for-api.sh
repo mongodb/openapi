@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+## NOTE: Use JS script instead.
+## Script is kept only for backwards compatibilty
+
 #########################################################
 # Prepare collection for Postman API
 # Environment variables:
@@ -27,7 +30,6 @@ DESCRIPTION_FILE=${DESCRIPTION_FILE:-"../collection-description.md"}
 
 TOGGLE_INCLUDE_BODY=${TOGGLE_INCLUDE_BODY:-true}
 TOGGLE_ADD_DOCS_LINKS=${TOGGLE_ADD_DOCS_LINKS:-true}
-TOKEN_URL_ENV=${TOKEN_URL_ENV:-""}
 
 current_api_revision=$(<"$OPENAPI_FOLDER/$VERSION_FILE_NAME")
 
@@ -117,13 +119,10 @@ else
   cp intermediateCollectionWithLinks.json intermediateCollectionPostBody.json
 fi
 
-if [ "$TOKEN_URL_ENV" != "" ]; then
-  echo "Adding client credentials auth url variable $TOKEN_URL_ENV"
-  jq --arg token_url "$TOKEN_URL_ENV" '.collection.variable += [{"key": "clientCredentialsTokenUrl", "value": $token_url}]' \
-  intermediateCollectionPostBody.json > "$COLLECTION_TRANSFORMED_FILE_NAME"
-else
-  cp intermediateCollectionPostBody.json "$COLLECTION_TRANSFORMED_FILE_NAME"
-fi
+# Remove trailing whitespaces by reformatting the JSON
+echo "Removing trailing whitespaces from the final JSON file"
+jq '.' "$COLLECTION_TRANSFORMED_FILE_NAME" > tmp.json && mv tmp.json "$COLLECTION_TRANSFORMED_FILE_NAME"
+
 
 # Clean up temporary files
 echo "Removing temporary files"
