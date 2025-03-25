@@ -41,7 +41,7 @@ func (f *SchemasFilter) Apply() error {
 		if err != nil {
 			return err
 		}
-		
+
 		spec := string(oasSpecAsBytes)
 		schemasToDelete := make([]string, 0)
 		for k := range f.oas.Components.Schemas {
