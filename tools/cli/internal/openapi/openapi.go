@@ -16,7 +16,6 @@ package openapi
 
 //go:generate mockgen -destination=../openapi/mock_openapi.go -package=openapi github.com/mongodb/openapi/tools/cli/internal/openapi Parser,Merger
 import (
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 	"log"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -60,12 +59,6 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
 		o.external = spec
 		o.base, err = o.mergeSpecIntoBase()
 		if err != nil {
-			return nil, err
-		}
-	}
-
-	for _, f := range filter.FiltersToRemoveUnusedElements(o.base.Spec) {
-		if err := f.Apply(); err != nil {
 			return nil, err
 		}
 	}

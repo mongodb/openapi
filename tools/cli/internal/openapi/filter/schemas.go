@@ -17,13 +17,19 @@ package filter
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/getkin/kin-openapi/openapi3"
 	"strings"
+
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// SchemasFilter removes tags that are not used in the operations.
+// SchemasFilter removes components that are not used in the operations.
 type SchemasFilter struct {
 	oas *openapi3.T
+}
+
+func (f *SchemasFilter) ValidateMetadata() error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (f *SchemasFilter) Apply() error {

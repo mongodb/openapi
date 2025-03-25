@@ -47,7 +47,6 @@ func (o *OpenAPI3) WithExcludedPrivatePaths() *OpenAPI3 {
 
 func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
 	o.Loader.IsExternalRefsAllowed = o.IsExternalRefsAllowed
-
 	spec, err := load.NewSpecInfo(o.Loader, load.NewSource(path))
 	if err != nil {
 		return nil, err
@@ -57,7 +56,6 @@ func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error
 	if o.ExcludePrivatePaths {
 		removePrivatePaths(spec.Spec)
 	}
-
 	return spec, nil
 }
 
