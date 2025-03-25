@@ -36,12 +36,13 @@ func (f *SchemasFilter) Apply() error {
 		return nil
 	}
 
-	oasPathsSpecAsBytes, err := f.oas.Paths.MarshalJSON()
-	if err != nil {
-		return err
-	}
-	spec := string(oasPathsSpecAsBytes)
 	for {
+		oasSpecAsBytes, err := f.oas.MarshalJSON()
+		if err != nil {
+			return err
+		}
+		spec := string(oasSpecAsBytes)
+
 		schemasToDelete := make([]string, 0)
 		for k := range f.oas.Components.Schemas {
 			ref := "#/components/schemas/" + k
