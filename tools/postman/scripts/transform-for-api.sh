@@ -125,17 +125,21 @@ else
   cp intermediateCollectionPostBody.json "$COLLECTION_TRANSFORMED_FILE_NAME"
 fi
 
+# Remove trailing whitespaces by reformatting the JSON
+echo "Removing all whitespaces from the final JSON file"
+jq -c '.' "$COLLECTION_TRANSFORMED_FILE_NAME" > tmpnowhitespaces.json && mv tmpnowhitespaces.json "$COLLECTION_TRANSFORMED_FILE_NAME"
+
 # Clean up temporary files
 echo "Removing temporary files"
 rm intermediateCollectionWrapped.json \
-   intermediateCollectionDisableQueryParam.json \
-   intermediateCollectionNoPostmanID.json \
-   intermediateCollectionNoCircular.json \
-   intermediateCollectionWithName.json \
-   intermediateCollectionWithDescription.json \
-   intermediateCollectionWithBaseURL.json \
-   intermediateCollectionWithLinks.json \
-   intermediateCollectionPostBody.json \
-   intermediateCollectionWithNoVar.json
+  intermediateCollectionDisableQueryParam.json \
+  intermediateCollectionNoPostmanID.json \
+  intermediateCollectionNoCircular.json \
+  intermediateCollectionWithName.json \
+  intermediateCollectionWithDescription.json \
+  intermediateCollectionWithBaseURL.json \
+  intermediateCollectionWithLinks.json \
+  intermediateCollectionPostBody.json \
+  intermediateCollectionWithNoVar.json
 
 popd -0
