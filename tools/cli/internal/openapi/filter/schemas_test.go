@@ -20,504 +20,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSchemas_Apply(t *testing.T) {
-	testCases := []struct {
-		name       string
-		initSpec   *openapi3.T
-		wantedSpec *openapi3.T
-	}{
-		{
-			name: "Remove unused schemas",
-			initSpec: &openapi3.T{
-				OpenAPI: "3.0.0",
-				Info: &openapi3.Info{
-					Version: "1.0",
-				},
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView3",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView2",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-				Components: &openapi3.Components{
-					Schemas: map[string]*openapi3.SchemaRef{
-						"PaginatedAppUserView": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView2": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView3": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			wantedSpec: &openapi3.T{
-				OpenAPI: "3.0.0",
-				Info: &openapi3.Info{
-					Version: "1.0",
-				},
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView3",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView2",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-				Components: &openapi3.Components{
-					Schemas: map[string]*openapi3.SchemaRef{
-						"PaginatedAppUserView": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView2": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView3": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		{
-			name: "Do not remove nested schemas",
-			initSpec: &openapi3.T{
-				OpenAPI: "3.0.0",
-				Info: &openapi3.Info{
-					Version: "1.0",
-				},
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-				Components: &openapi3.Components{
-					Schemas: map[string]*openapi3.SchemaRef{
-						"PaginatedAppUserView": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView2",
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView2": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView3": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView4": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			wantedSpec: &openapi3.T{
-				OpenAPI: "3.0.0",
-				Info: &openapi3.Info{
-					Version: "1.0",
-				},
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-				Components: &openapi3.Components{
-					Schemas: map[string]*openapi3.SchemaRef{
-						"PaginatedAppUserView": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView2",
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView2": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		{
-			name: "Don not remove used schemas",
-			initSpec: &openapi3.T{
-				OpenAPI: "3.0.0",
-				Info: &openapi3.Info{
-					Version: "1.0",
-				},
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView3",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView2",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-				Components: &openapi3.Components{
-					Schemas: map[string]*openapi3.SchemaRef{
-						"PaginatedAppUserView": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView2": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView3": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView4": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			wantedSpec: &openapi3.T{
-				OpenAPI: "3.0.0",
-				Info: &openapi3.Info{
-					Version: "1.0",
-				},
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView3",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView2",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-				Components: &openapi3.Components{
-					Schemas: map[string]*openapi3.SchemaRef{
-						"PaginatedAppUserView": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView2": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-						"PaginatedAppUserView3": {
-							Value: &openapi3.Schema{
-								Properties: map[string]*openapi3.SchemaRef{
-									"pro": &openapi3.SchemaRef{
-										Value: &openapi3.Schema{
-											Format: "string",
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
+type testCase struct {
+	name       string
+	initSpec   *openapi3.T
+	wantedSpec *openapi3.T
+}
 
+func TestSchemasFilter_Apply(t *testing.T) {
+	testCases := []testCase{unusedSchemasScenario(), nestedSchemasScenario(), onlyUsedSchemasScenario()}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -528,5 +38,504 @@ func TestSchemas_Apply(t *testing.T) {
 			require.NoError(t, f.Apply())
 			require.EqualValues(t, tc.wantedSpec, f.oas)
 		})
+	}
+}
+
+func unusedSchemasScenario() testCase {
+	return testCase{
+		name: "Remove unused schemas",
+		initSpec: &openapi3.T{
+			OpenAPI: "3.0.0",
+			Info: &openapi3.Info{
+				Version: "1.0",
+			},
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView3",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView2",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+			Components: &openapi3.Components{
+				Schemas: map[string]*openapi3.SchemaRef{
+					"PaginatedAppUserView": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView2": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView3": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		wantedSpec: &openapi3.T{
+			OpenAPI: "3.0.0",
+			Info: &openapi3.Info{
+				Version: "1.0",
+			},
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView3",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView2",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+			Components: &openapi3.Components{
+				Schemas: map[string]*openapi3.SchemaRef{
+					"PaginatedAppUserView": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView2": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView3": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func nestedSchemasScenario() testCase {
+	return testCase{
+		name: "Do not remove nested schemas",
+		initSpec: &openapi3.T{
+			OpenAPI: "3.0.0",
+			Info: &openapi3.Info{
+				Version: "1.0",
+			},
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+			Components: &openapi3.Components{
+				Schemas: map[string]*openapi3.SchemaRef{
+					"PaginatedAppUserView": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Ref: "#/components/schemas/PaginatedAppUserView2",
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView2": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView3": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView4": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		wantedSpec: &openapi3.T{
+			OpenAPI: "3.0.0",
+			Info: &openapi3.Info{
+				Version: "1.0",
+			},
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+			Components: &openapi3.Components{
+				Schemas: map[string]*openapi3.SchemaRef{
+					"PaginatedAppUserView": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Ref: "#/components/schemas/PaginatedAppUserView2",
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView2": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func onlyUsedSchemasScenario() testCase {
+	return testCase{
+		name: "Don not remove used schemas",
+		initSpec: &openapi3.T{
+			OpenAPI: "3.0.0",
+			Info: &openapi3.Info{
+				Version: "1.0",
+			},
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView3",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView2",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+			Components: &openapi3.Components{
+				Schemas: map[string]*openapi3.SchemaRef{
+					"PaginatedAppUserView": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView2": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView3": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView4": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		wantedSpec: &openapi3.T{
+			OpenAPI: "3.0.0",
+			Info: &openapi3.Info{
+				Version: "1.0",
+			},
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView3",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView2",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+			Components: &openapi3.Components{
+				Schemas: map[string]*openapi3.SchemaRef{
+					"PaginatedAppUserView": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView2": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					"PaginatedAppUserView3": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"pro": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 }
