@@ -56,7 +56,7 @@ func (f *SchemasFilter) Apply() error {
 		}
 
 		for _, schemaToDelete := range schemasToDelete {
-			log.Printf("Deleting unused schema: '%s'", schemaToDelete)
+			log.Printf("Deleting unused schema: %q", schemaToDelete)
 			maps.DeleteFunc(f.oas.Components.Schemas, func(k string, _ *openapi3.SchemaRef) bool {
 				return k == schemaToDelete
 			})
