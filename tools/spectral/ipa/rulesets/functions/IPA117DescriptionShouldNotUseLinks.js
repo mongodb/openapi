@@ -33,7 +33,6 @@ function checkViolationsAndReturnErrors(description, path) {
 
   try {
     if (markdownLinkPattern.test(description)) {
-      console.log(description, '\n\n');
       return [{ path, message: ERROR_MESSAGE }];
     }
     return [];
