@@ -617,6 +617,21 @@ Rule checks the format of the descriptions for components:
   - Schema properties
 The rule validates that the description content does not include opening and/or closing HTML tags.
 
+#### xgen-IPA-117-description-should-not-use-inline-tables
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Descriptions should not include inline tables as this may not work well with all tools, in particular generated client code.
+
+##### Implementation details
+Rule checks the format of the descriptions for components:
+  - Info object
+  - Tags
+  - Operation objects
+  - Inline schema properties for operation object requests and responses
+  - Parameter objects (in operations and components)
+  - Schema properties
+The rule validates that the description content does not include inline markdown tables.
+
 
 
 ### IPA-123
