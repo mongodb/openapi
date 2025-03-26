@@ -13,7 +13,7 @@ import {
 import { resolveObject } from './utils/componentUtils.js';
 import { schemaIsPaginated } from './utils/schemaUtils.js';
 
-const RULE_NAME = 'xgen-IPA-110-collections-use-paginated-schema';
+const RULE_NAME = 'xgen-IPA-110-collections-response-define-results-array';
 const ERROR_MESSAGE = 'The response for collections must define an array of results containing the paginated resource.';
 
 export default (input, _, { path, documentInventory }) => {
