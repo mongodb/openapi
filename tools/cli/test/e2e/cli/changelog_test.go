@@ -139,13 +139,13 @@ func compareVersions(t *testing.T, cmdOutput, testOutput string) {
 
 func areEntriesTheSame(t *testing.T, cmdEntries, testEntries []*changelog.Entry) {
 	t.Helper()
-	require.Equal(t, len(cmdEntries), len(testEntries))
+	require.Len(t, len(cmdEntries), len(testEntries))
 	arePathsTheSame(t, cmdEntries[0].Paths, testEntries[0].Paths)
 }
 
 func arePathsTheSame(t *testing.T, cmdPaths, testPaths []*changelog.Path) {
 	t.Helper()
-	require.Equal(t, len(cmdPaths), len(testPaths))
+	require.Len(t, len(cmdPaths), len(testPaths))
 	for i, cmdPath := range cmdPaths {
 		assert.Equal(t, cmdPath.OperationID, testPaths[i].OperationID)
 		assert.Equal(t, cmdPath.HTTPMethod, testPaths[i].HTTPMethod)
