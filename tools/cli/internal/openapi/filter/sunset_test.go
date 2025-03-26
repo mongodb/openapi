@@ -21,308 +21,11 @@ import (
 )
 
 func TestSunsetFilter_Apply(t *testing.T) {
-	testCases := []struct {
-		name       string
-		initSpec   *openapi3.T
-		wantedSpec *openapi3.T
-	}{
-		{
-			name: "Remove x-sunset when value is 9999-12-31",
-			initSpec: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-			},
-			wantedSpec: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-									},
-								},
-							},
-						})),
-					},
-				})),
-			},
-		},
-		{
-			name: "Remove x-sunset when value is 9999-12-31 for a 204",
-			initSpec: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("204", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-			},
-			wantedSpec: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("204", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-									},
-								},
-							},
-						})),
-					},
-				})),
-			},
-		},
-		{
-			name: "Keep x-sunset when value is different",
-			initSpec: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-			},
-			wantedSpec: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-			},
-		},
-		{
-			name: "Ignore non-2xx responses",
-			initSpec: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("404", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-			},
-			wantedSpec: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
-					Get: &openapi3.Operation{
-						OperationID: "testOperationID",
-						Summary:     "testSummary",
-						Responses: openapi3.NewResponses(openapi3.WithName("404", &openapi3.Response{
-							Content: openapi3.Content{
-								"application/vnd.atlas.2025-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2025-01-01",
-									},
-								},
-								"application/vnd.atlas.2024-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2024-01-01",
-										"x-sunset":      "2024-12-31",
-									},
-								},
-								"application/vnd.atlas.2023-01-01+json": {
-									Schema: &openapi3.SchemaRef{
-										Ref: "#/components/schemas/PaginatedAppUserView",
-									},
-									Extensions: map[string]any{
-										"x-gen-version": "2023-01-01",
-										"x-sunset":      "9999-12-31",
-									},
-								},
-							},
-						})),
-					},
-				})),
-			},
-		},
-	}
+	testCases := []testCase{removeSunsetFromOperation(),
+		ignoreNot20XResponse(),
+		doNotRemoveSunset(),
+		removeSunsetToDecideFromResponse204(),
+		removeSunsetToDecideFromResponse()}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -334,5 +37,393 @@ func TestSunsetFilter_Apply(t *testing.T) {
 			require.NoError(t, f.Apply())
 			require.Equal(t, tc.wantedSpec, f.oas)
 		})
+	}
+}
+
+func removeSunsetFromOperation() testCase {
+	return testCase{
+		name: "Remove x-sunset when value is 9999-12-31 and extension is in the operation",
+		initSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+								},
+							},
+						},
+					})),
+					Extensions: map[string]any{
+						"x-sunset": "9999-12-31",
+					},
+				},
+			})),
+		},
+		wantedSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+								},
+							},
+						},
+					})),
+					Extensions: map[string]any{},
+				},
+			})),
+		},
+	}
+}
+func ignoreNot20XResponse() testCase {
+	return testCase{
+		name: "Ignore non-2xx responses",
+		initSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("404", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+		},
+		wantedSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("404", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+		},
+	}
+}
+func doNotRemoveSunset() testCase {
+	return testCase{
+		name: "Keep x-sunset when value is different",
+		initSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+		},
+		wantedSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+		},
+	}
+}
+func removeSunsetToDecideFromResponse204() testCase {
+	return testCase{
+		name: "Remove x-sunset when value is 9999-12-31 for a 204",
+		initSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("204", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+		},
+		wantedSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("204", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+								},
+							},
+						},
+					})),
+				},
+			})),
+		},
+	}
+}
+func removeSunsetToDecideFromResponse() testCase {
+	return testCase{
+		name: "Remove x-sunset when value is 9999-12-31",
+		initSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+									"x-sunset":      "9999-12-31",
+								},
+							},
+						},
+					})),
+				},
+			})),
+		},
+		wantedSpec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+							"application/vnd.atlas.2024-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2024-01-01",
+									"x-sunset":      "2024-12-31",
+								},
+							},
+							"application/vnd.atlas.2023-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/PaginatedAppUserView",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2023-01-01",
+								},
+							},
+						},
+					})),
+				},
+			})),
+		},
 	}
 }
