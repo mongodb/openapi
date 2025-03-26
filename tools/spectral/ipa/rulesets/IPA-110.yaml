@@ -4,6 +4,8 @@
 functions:
   - IPA110CollectionsUsePaginatedPrefix
   - IPA110CollectionsResponseDefineResultsArray
+  - IPA110CollectionsRequestHasItemsPerPageQueryParam
+  - IPA110CollectionsRequestHasPageNumQueryParam
 
 rules:
   xgen-IPA-110-collections-use-paginated-prefix:
@@ -35,3 +37,37 @@ rules:
     then:
       field: '@key'
       function: 'IPA110CollectionsResponseDefineResultsArray'
+  xgen-IPA-110-collections-request-has-itemsPerPage-query-param:
+    description: |
+      The request should support an integer itemsPerPage query parameter allowing users to specify the maximum number of results to return per page.
+      itemsPerPage must not be required
+      itemsPerPage default value should be 100.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET on resource collection paths)
+        - Verifies the operation includes itemsPerPage query parameter
+        - Verifies the itemsPerPage query parameter is not required
+        - Verifies the itemsPerPage query parameter has a default value of 100
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-request-has-itemsPerPage-query-param'
+    severity: warn
+    given: '$.paths[*].get'
+    then:
+      function: 'IPA110CollectionsRequestHasItemsPerPageQueryParam'
+  xgen-IPA-110-collections-request-has-pageNum-query-param:
+    description: |
+      The request should support an integer pageNum query parameter allowing users to specify the maximum number of results to return per page.
+      pageNum must not be required
+      pageNum default value should be 1.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET on resource collection paths)
+        - Verifies the operation includes pageNum query parameter
+        - Verifies the pageNum query parameter is not required
+        - Verifies the pageNum query parameter has a default value of 1
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-request-has-pageNum-query-param'
+    severity: warn
+    given: '$.paths[*].get'
+    then:
+      function: 'IPA110CollectionsRequestHasPageNumQueryParam'

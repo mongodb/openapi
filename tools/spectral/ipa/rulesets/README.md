@@ -472,6 +472,34 @@ Rule checks for the following conditions:
   - Only applies to List methods (GET operations that return collections of resources)
   - Verifies the 200 response schema has the required results fields
 
+#### xgen-IPA-110-collections-request-has-itemsPerPage-query-param
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The request should support an integer itemsPerPage query parameter allowing users to specify the maximum number of results to return per page.
+itemsPerPage must not be required
+itemsPerPage default value should be 100.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only applies to List methods (GET on resource collection paths)
+  - Verifies the operation includes itemsPerPage query parameter
+  - Verifies the itemsPerPage query parameter is not required
+  - Verifies the itemsPerPage query parameter has a default value of 100
+
+#### xgen-IPA-110-collections-request-has-pageNum-query-param
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The request should support an integer pageNum query parameter allowing users to specify the maximum number of results to return per page.
+pageNum must not be required
+pageNum default value should be 1.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only applies to List methods (GET on resource collection paths)
+  - Verifies the operation includes pageNum query parameter
+  - Verifies the pageNum query parameter is not required
+  - Verifies the pageNum query parameter has a default value of 1
+
 
 
 ### IPA-112
