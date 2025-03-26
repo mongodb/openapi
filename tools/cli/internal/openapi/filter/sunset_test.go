@@ -332,7 +332,7 @@ func TestSunsetFilter_Apply(t *testing.T) {
 			}
 
 			require.NoError(t, f.Apply())
-			require.EqualValues(t, tc.wantedSpec, f.oas)
+			require.Equal(t, tc.wantedSpec, f.oas)
 		})
 	}
 }
