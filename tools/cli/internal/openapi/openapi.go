@@ -23,7 +23,7 @@ import (
 	"github.com/tufin/oasdiff/load"
 )
 
-// This struct is a 1-to-1 copy of the Spec struct in the openapi3 package.
+// Spec is a struct is a 1-to-1 copy of the Spec struct in the openapi3 package.
 // We need this to override the order of the fields in the struct.
 type Spec struct {
 	OpenAPI      string                        `json:"openapi" yaml:"openapi"`
@@ -49,7 +49,6 @@ func (o *OasDiff) MergeOpenAPISpecs(paths []string) (*Spec, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		o.result, err = o.GetSimpleDiff(o.base, spec)
 		if err != nil {
 			log.Fatalf("error in calculating the diff of the specs: %s", err)

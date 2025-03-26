@@ -38,7 +38,7 @@ func TestGenerateExemptionsFileWithFs(t *testing.T) {
 
 		data, err := os.ReadFile(outputPath)
 		require.NoError(t, err)
-		assert.Equal(t, "", string(data))
+		assert.Empty(t, string(data))
 	})
 
 	t.Run("test_generate_exemptions_expired_entries_ignore_set", func(t *testing.T) {

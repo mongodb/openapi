@@ -49,7 +49,12 @@ func (f *SunsetFilter) Apply() error {
 	return nil
 }
 
+// applyOnOperation removes the "sunset" extension if its value is set to "sunsetToBeDecided".
+// The "sunset" extension can be located in two places.
+// 1) Within the 20X response.
+// 2) As part of the operation itself.
 func applyOnOperation(op *openapi3.Operation) {
+	// 1) Check the "sunset" extension in the response
 	for key, response := range op.Responses.Map() {
 		if !strings.HasPrefix(key, "20") {
 			continue
@@ -61,4 +66,9 @@ func applyOnOperation(op *openapi3.Operation) {
 			})
 		}
 	}
+
+	// 2) Check the "sunset" extension as part of the operation
+	maps.DeleteFunc(op.Extensions, func(_ string, v any) bool {
+		return v == sunsetToBeDecided
+	})
 }

@@ -5,3 +5,28 @@
 
 This repository hosts the OpenAPI specification for the [Atlas Administration API (v2.0)](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/).
 
+
+
+## Tools
+This repository also contains tools for validating, generating, and distributing OpenAPI specifications.
+### FoasCLI
+The [tools/cli](tools/cli) directory hosts a Go-based CLI tool used to merge multiple OpenAPI specifications into a single federated specification, which is used for the Admin APIs. 
+
+For more details, please refer to the [CLI’s README.md](tools/cli/README.md).
+
+### Spectral
+The [tools/spectral](tools/spectral) directory contains MongoDB-specific [Spectral](https://github.com/stoplightio/spectral) rule definitions.
+These rules are used to validate that the generated OpenAPI specifications comply with MongoDB’s guidelines.
+
+For more details, please refer to the [Spectral’s README.md](tools/spectral/README.md).
+
+
+### Postman
+The [tools/postman](tools/postman) directory contains the logic required to generate the [MongoDB Atlas Postman collections](https://www.postman.com/mongodb-devrel?tab=collections).
+
+For more details, please refer to the [Spectral’s README.md](tools/postman/README.md).
+
+
+
+## Contributing
+See our [CONTRIBUTING.md](../../CONTRIBUTING.md) guide.
