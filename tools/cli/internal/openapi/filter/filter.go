@@ -79,6 +79,7 @@ func DefaultFilters(oas *openapi3.T, metadata *Metadata) []Filter {
 		&TagsFilter{oas: oas},
 		&OperationsFilter{oas: oas},
 		&SunsetFilter{oas: oas},
+		&SchemasFilter{oas: oas},
 	}
 }
 
@@ -88,6 +89,7 @@ func FiltersWithoutVersioning(oas *openapi3.T, metadata *Metadata) []Filter {
 		&HiddenEnvsFilter{oas: oas, metadata: metadata},
 		&TagsFilter{oas: oas},
 		&OperationsFilter{oas: oas},
+		&SchemasFilter{oas: oas},
 	}
 }
 
