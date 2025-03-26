@@ -9,7 +9,7 @@ This repository hosts the OpenAPI specification for the [Atlas Administration AP
 
 ## Tools
 This repository also contains tools for validating, generating, and distributing OpenAPI specifications.
-### FoasCLI
+### FOASCLI
 The [tools/cli](tools/cli) directory hosts a Go-based CLI tool used to merge multiple OpenAPI specifications into a single federated specification, which is used for the Admin APIs. 
 
 For more details, please refer to the [CLI’s README.md](tools/cli/README.md).
