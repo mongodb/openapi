@@ -7,6 +7,7 @@ functions:
   - IPA117DescriptionEndsWithPeriod
   - IPA117DescriptionMustNotUseHtml
   - IPA117DescriptionShouldNotUseTables
+  - IPA117DescriptionShouldNotUseLinks
 
 rules:
   xgen-IPA-117-description:
@@ -133,3 +134,26 @@ rules:
       - '$.components.parameters[*]'
     then:
       function: 'IPA117DescriptionShouldNotUseTables'
+  xgen-IPA-117-description-should-not-use-inline-links:
+    description: |
+      Descriptions should not include inline links.
+
+      ##### Implementation details
+      Rule checks the format of the descriptions for components:
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+      The rule validates that the description content does not include inline markdown links. The rule ignores HTML `<a>` links - this is covered by `xgen-IPA-117-description-must-not-use-html`.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-should-not-use-inline-links'
+    severity: warn
+    given:
+      - '$.tags[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
+      - '$.components.schemas..properties[*]'
+      - '$.components.parameters[*]'
+    then:
+      function: 'IPA117DescriptionShouldNotUseLinks'
