@@ -672,7 +672,7 @@ Rule checks the format of the descriptions for components:
   - Inline schema properties for operation object requests and responses
   - Parameter objects (in operations and components)
   - Schema properties
-The rule validates that the description content does not include inline markdown links. The ignores HTML `a` links, this is covered by `xgen-IPA-117-description-must-not-use-html`.
+The rule validates that the description content does not include inline markdown links. The rule ignores HTML `<a>` links - this is covered by `xgen-IPA-117-description-must-not-use-html`.
 
 
 
