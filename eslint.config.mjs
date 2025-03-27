@@ -25,6 +25,14 @@ export default [
       ecmaVersion: 2022,
       sourceType: 'module',
     },
+    rules: {
+      'no-extra-boolean-cast': [
+        'warn',
+        {
+          enforceForLogicalOperands: true,
+        },
+      ],
+    },
   },
   {
     ignores: ['node-modules'],

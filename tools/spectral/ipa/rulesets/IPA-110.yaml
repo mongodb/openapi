@@ -6,6 +6,8 @@ functions:
   - IPA110CollectionsResponseDefineResultsArray
   - IPA110CollectionsRequestHasItemsPerPageQueryParam
   - IPA110CollectionsRequestHasPageNumQueryParam
+  - IPA110CollectionsRequestIncludeCountNotRequired
+  - IPA110CollectionsResponseDefineLinksArray
 
 rules:
   xgen-IPA-110-collections-use-paginated-prefix:
@@ -71,3 +73,31 @@ rules:
     given: '$.paths[*].get'
     then:
       function: 'IPA110CollectionsRequestHasPageNumQueryParam'
+  xgen-IPA-110-collections-request-includeCount-not-required:
+    description: |
+      If the request supports an includeCount query parameter, it must not be required.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET on resource collection paths)
+        - Checks if includeCount query parameter exists
+        - If it exists, verifies the includeCount parameter is not required
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-request-includeCount-not-required'
+    severity: warn
+    given: '$.paths[*].get'
+    then:
+      function: 'IPA110CollectionsRequestIncludeCountNotRequired'
+  xgen-IPA-110-collections-response-define-links-array:
+    description: |
+      The response for collections should define a links array field, providing links to next and previous pages.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET operations that return collections of resources)
+        - Verifies the response schema includes a links field of type array
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-response-define-links-array'
+    severity: warn
+    given: '$.paths[*].get.responses.200.content'
+    then:
+      field: '@key'
+      function: 'IPA110CollectionsResponseDefineLinksArray'
