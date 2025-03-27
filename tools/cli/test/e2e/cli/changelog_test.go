@@ -149,7 +149,7 @@ func compareVersions(t *testing.T, cmdOutput, testOutput string) {
 	cmdFiles, err := os.ReadDir(fmt.Sprintf("%s/%s", cmdOutput, "version-diff"))
 	require.NoError(t, err)
 	// Ignore the changelog.json and changelog-all.json files
-	require.Equal(t, len(files)-2, len(cmdFiles))
+	require.Len(t, cmdFiles, len(files)-2)
 
 	// Loop over each file in the test output folder
 	for _, fileName := range files {
