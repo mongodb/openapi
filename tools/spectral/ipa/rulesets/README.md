@@ -603,6 +603,20 @@ Rule checks for the following conditions:
 
 
 
+### IPA-114
+
+Rules are based on [http://go/ipa/IPA-114](http://go/ipa/IPA-114).
+
+#### xgen-IPA-114-error-responses-refer-to-api-error
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+APIs must return ApiError when errors occur
+
+##### Implementation details
+This rule checks that all 4xx and 5xx error responses reference the ApiError schema.
+
+
+
 ### IPA-117
 
 Rules are based on [http://go/ipa/IPA-117](http://go/ipa/IPA-117).
