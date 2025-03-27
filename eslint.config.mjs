@@ -32,6 +32,7 @@ export default [
           enforceForLogicalOperands: true,
         },
       ],
+      'no-mixed-operators': 'warn',
     },
   },
   {
