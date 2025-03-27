@@ -10,6 +10,13 @@ import { resolveObject } from './utils/componentUtils.js';
 const RULE_NAME = 'xgen-IPA-117-plaintext-response-must-have-example';
 const ERROR_MESSAGE = 'For APIs that respond with plain text, for example CSV, API producers must provide an example.';
 
+/**
+ * For APIs that respond with plain text, for example CSV, API producers must provide an example.
+ *
+ * @param {object} input - A response media type
+ * @param {{allowedTypes: string[]}} opts - Allowed type suffixes, if the type ends with one of these, it is ignored
+ * @param {object} context - The context object containing the path and documentInventory
+ */
 export default (input, { allowedTypes }, { documentInventory, path }) => {
   const responseCode = path[4];
 
