@@ -1,5 +1,5 @@
-# FoasCLI
-FoasCLI is a Go-based CLI tool that provides commands for generating the Federated OpenAPI specification and the API changelog.
+# FOASCLI
+FOASCLI is a Go-based CLI tool that provides commands for generating the Federated OpenAPI specification and the API changelog.
 
 ### Build From Source
 
