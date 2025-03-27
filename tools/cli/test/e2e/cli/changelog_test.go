@@ -18,7 +18,6 @@ import (
 func TestChangelog(t *testing.T) {
 	cliPath := NewBin(t)
 
-	// Flaky Test: To be fixed in ticket CLOUDP-277324
 	t.Run("Generate Changelog with new API Version", func(t *testing.T) {
 		base := NewChangelogBasePathNewAPIVersion(t)
 		revision := NewChangelogRevisionPathNewAPIVersion(t)
@@ -96,6 +95,32 @@ func TestChangelog(t *testing.T) {
 		require.NoError(t, cmd.Run(), e.String())
 		checkChangelogFilesAreTheSame(t, commandOut, newChangelogOutputPathNewPreviewAPIVersion(t))
 	})
+
+	t.Run("Generate Changelog with renamed API Version", func(t *testing.T) {
+		base := newChangelogBasePathRenamedAPIVersion(t)
+		revision := newChangelogRevisionPathRenamedAPIVersion(t)
+		exemptions := newChangelogExemptionFilePathRenamedAPIVersion(t)
+		commandOut := getOutputFolder(t, "changelog")
+
+		cmd := exec.Command(cliPath,
+			"changelog",
+			"create",
+			"-b",
+			base,
+			"-r",
+			revision,
+			"-e",
+			exemptions,
+			"-o",
+			commandOut,
+		)
+
+		var o, e bytes.Buffer
+		cmd.Stdout = &o
+		cmd.Stderr = &e
+		require.NoError(t, cmd.Run(), e.String())
+		checkChangelogFilesAreTheSame(t, commandOut, newChangelogOutputPathRenamedAPIVersion(t))
+	})
 }
 
 func checkChangelogFilesAreTheSame(t *testing.T, cmdOutput, testOutput string) {
@@ -119,6 +144,12 @@ func compareVersions(t *testing.T, cmdOutput, testOutput string) {
 
 	files, err := os.ReadDir(testOutput)
 	require.NoError(t, err)
+
+	// Compare number of version-diff files
+	cmdFiles, err := os.ReadDir(fmt.Sprintf("%s/%s", cmdOutput, "version-diff"))
+	require.NoError(t, err)
+	// Ignore the changelog.json and changelog-all.json files
+	require.Equal(t, len(files)-2, len(cmdFiles))
 
 	// Loop over each file in the test output folder
 	for _, fileName := range files {
