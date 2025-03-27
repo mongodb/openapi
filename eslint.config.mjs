@@ -26,10 +26,12 @@ export default [
       sourceType: 'module',
     },
     rules: {
-      'no-extra-boolean-cast': ['warn',
+      'no-extra-boolean-cast': [
+        'warn',
         {
           enforceForLogicalOperands: true,
-        }]
+        },
+      ],
     },
   },
   {
