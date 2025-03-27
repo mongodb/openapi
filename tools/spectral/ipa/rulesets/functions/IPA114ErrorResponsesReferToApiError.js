@@ -15,8 +15,7 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
  *
  * @param {object} input - The response object to check
  * @param {object} _ - Rule options (unused)
- * @param {{ path: string[], documentInventory: object}} context - The context object containing the path and document
- * @returns {object|void} - Violation object if any errors found, otherwise undefined
+ * @param {object} context - The context object containing path and document information
  */
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
