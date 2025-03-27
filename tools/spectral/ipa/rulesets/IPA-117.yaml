@@ -8,6 +8,7 @@ functions:
   - IPA117DescriptionMustNotUseHtml
   - IPA117DescriptionShouldNotUseTables
   - IPA117DescriptionShouldNotUseLinks
+  - IPA117PlaintextResponseMustHaveExample
 
 rules:
   xgen-IPA-117-description:
@@ -157,3 +158,20 @@ rules:
       - '$.components.parameters[*]'
     then:
       function: 'IPA117DescriptionShouldNotUseLinks'
+  xgen-IPA-117-plaintext-response-must-have-example:
+    description: |
+      For APIs that respond with plain text, for example CSV, API producers must provide an example. Some tools are not able to generate examples for such responses
+
+      ##### Implementation details
+        - The rule only applies to 2xx responses
+        - The rule ignores JSON and YAML responses (passed as `allowedTypes`)
+        - The rule checks for the presence of the example property as a sibling to the `schema` property, or inside the `schema` object
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-plaintext-response-must-have-example'
+    severity: warn
+    given:
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace].responses[*].content'
+    then:
+      field: '@key'
+      function: 'IPA117PlaintextResponseMustHaveExample'
+      functionOptions:
+        allowedTypes: ['json', 'yaml']

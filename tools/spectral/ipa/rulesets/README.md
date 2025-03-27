@@ -695,6 +695,16 @@ Rule checks the format of the descriptions for components:
   - Schema properties
 The rule validates that the description content does not include inline markdown links. The rule ignores HTML `<a>` links - this is covered by `xgen-IPA-117-description-must-not-use-html`.
 
+#### xgen-IPA-117-plaintext-response-must-have-example
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+For APIs that respond with plain text, for example CSV, API producers must provide an example. Some tools are not able to generate examples for such responses
+
+##### Implementation details
+  - The rule only applies to 2xx responses
+  - The rule ignores JSON and YAML responses (passed as `allowedTypes`)
+  - The rule checks for the presence of the example property as a sibling to the `schema` property, or inside the `schema` object
+
 
 
 ### IPA-123
