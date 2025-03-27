@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -125,16 +126,16 @@ func TestChangelog(t *testing.T) {
 
 func checkChangelogFilesAreTheSame(t *testing.T, cmdOutput, testOutput string) {
 	t.Helper()
-	log.Printf("Checking file: %s", fmt.Sprintf("%s/%s", cmdOutput, "changelog.json"))
-	cmdChangelog := newEntriesFromPath(t, fmt.Sprintf("%s/%s", cmdOutput, "changelog.json"))
+	fmt.Printf("Checking file: %s", filepath.Join(cmdOutput, "changelog.json"))
+	cmdChangelog := newEntriesFromPath(t, filepath.Join(cmdOutput, "changelog.json"))
 
-	log.Printf("With test file: %s", fmt.Sprintf("%s/%s", testOutput, "changelog.json"))
-	testChangelog := newEntriesFromPath(t, fmt.Sprintf("%s/%s", testOutput, "changelog.json"))
+	fmt.Printf("With test file: %s", filepath.Join(testOutput, "changelog.json"))
+	testChangelog := newEntriesFromPath(t, filepath.Join(testOutput, "changelog.json"))
 	areEntriesTheSame(t, cmdChangelog, testChangelog)
 
 	log.Print("Checking file: changelog-all.json")
-	cmdChangelogAll := newEntriesFromPath(t, fmt.Sprintf("%s/%s", cmdOutput, "internal/changelog-all.json"))
-	testChangelogAll := newEntriesFromPath(t, fmt.Sprintf("%s/%s", testOutput, "changelog-all.json"))
+	cmdChangelogAll := newEntriesFromPath(t, filepath.Join(cmdOutput, "internal", "changelog-all.json"))
+	testChangelogAll := newEntriesFromPath(t, filepath.Join(testOutput, "changelog-all.json"))
 	areEntriesTheSame(t, cmdChangelogAll, testChangelogAll)
 	compareVersions(t, cmdOutput, testOutput)
 }
@@ -146,7 +147,7 @@ func compareVersions(t *testing.T, cmdOutput, testOutput string) {
 	require.NoError(t, err)
 
 	// Compare number of version-diff files
-	cmdFiles, err := os.ReadDir(fmt.Sprintf("%s/%s", cmdOutput, "version-diff"))
+	cmdFiles, err := os.ReadDir(filepath.Join(cmdOutput, "version-diff"))
 	require.NoError(t, err)
 	// Ignore the changelog.json and changelog-all.json files
 	require.Len(t, cmdFiles, len(files)-2)
@@ -161,9 +162,9 @@ func compareVersions(t *testing.T, cmdOutput, testOutput string) {
 			continue
 		}
 
-		log.Printf("Checking file: %s", fileName.Name())
-		cmdPaths := newPathsFromPath(t, fmt.Sprintf("%s/%s/%s", cmdOutput, "version-diff", fileName.Name()))
-		testPaths := newPathsFromPath(t, fmt.Sprintf("%s/%s", testOutput, fileName.Name()))
+		fmt.Printf("Checking file: %s", fileName.Name())
+		cmdPaths := newPathsFromPath(t, filepath.Join(cmdOutput, "version-diff", fileName.Name()))
+		testPaths := newPathsFromPath(t, filepath.Join(testOutput, fileName.Name()))
 		arePathsTheSame(t, cmdPaths, testPaths)
 	}
 }
