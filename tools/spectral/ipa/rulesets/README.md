@@ -29,22 +29,9 @@ Rule checks for the following conditions:
 
 Rules are based on [http://go/ipa/IPA-102](http://go/ipa/IPA-102).
 
-#### xgen-IPA-102-path-alternate-resource-name-path-param
-
- ![error](https://img.shields.io/badge/error-red) 
-Paths should alternate between resource names and path params.
-
-##### Implementation details
-Rule checks for the following conditions:
-
-  - Paths must follow a pattern where resource names and path parameters strictly alternate
-  - Even-indexed path segments should be resource names (not path parameters)
-  - Odd-indexed path segments should be path parameters
-  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
-
 #### xgen-IPA-102-collection-identifier-camelCase
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Collection identifiers must be in camelCase.
 
  ##### Implementation details
@@ -58,9 +45,22 @@ Collection identifiers must be in camelCase.
    - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
    - Double slashes (//) are not allowed in paths
 
+#### xgen-IPA-102-path-alternate-resource-name-path-param
+
+ ![error](https://img.shields.io/badge/error-red) 
+Paths should alternate between resource names and path params.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Paths must follow a pattern where resource names and path parameters strictly alternate
+  - Even-indexed path segments should be resource names (not path parameters)
+  - Odd-indexed path segments should be path parameters
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 #### xgen-IPA-102-collection-identifier-pattern
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers.
 
 ##### Implementation details
@@ -222,6 +222,20 @@ Rule checks for the following conditions:
   - Verifies the operation does not contain query parameters
   - Ignores specified parameters like 'pretty' and 'envelope' via configuration
 
+#### xgen-IPA-106-create-method-request-body-is-get-method-response
+
+ ![error](https://img.shields.io/badge/error-red) 
+Request body content of the Create method and response content of the Get method should refer to the same resource.
+
+##### Implementation details
+
+Validation checks the POST method for resource collection paths.
+  - Validation ignores resources without a Get method.
+  - `readOnly:true` properties of Get method response will be ignored. 
+  - `writeOnly:true` properties of Create method request will be ignored.
+  - Property comparison is based on `type` and `name` matching.
+  - `oneOf` and `discriminator` definitions must match exactly.
+
 #### xgen-IPA-106-create-method-request-has-no-readonly-fields
 
  ![error](https://img.shields.io/badge/error-red) 
@@ -245,23 +259,9 @@ Rule checks for the following conditions:
   - Verifies the 201 Created response code is present
   - Fails if the method lacks a 201 Created response or defines a different 2xx status code
 
-#### xgen-IPA-106-create-method-request-body-is-get-method-response
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-Request body content of the Create method and response content of the Get method should refer to the same resource.
-
-##### Implementation details
-
-Validation checks the POST method for resource collection paths.
-  - Validation ignores resources without a Get method.
-  - `readOnly:true` properties of Get method response will be ignored. 
-  - `writeOnly:true` properties of Create method request will be ignored.
-  - Property comparison is based on `type` and `name` matching.
-  - `oneOf` and `discriminator` definitions must match exactly.
-
 #### xgen-IPA-106-create-method-response-is-get-method-response
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The response body of the Create method should consist of the same resource object returned by the Get method.
 
 ##### Implementation details
@@ -281,7 +281,7 @@ Rules are based on [http://go/ipa/IPA-107](http://go/ipa/IPA-107).
 
 #### xgen-IPA-107-update-must-not-have-query-params
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Update operations must not accept query parameters.
 ##### Implementation details
 Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
@@ -290,7 +290,7 @@ Validation checks the PATCH/PUT methods for single resource paths and [singleton
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 #### xgen-IPA-107-update-method-response-code-is-200
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Update method response status code should be 200 OK.
 ##### Implementation details
 Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
@@ -298,7 +298,7 @@ Validation checks the PATCH/PUT methods for single resource paths and [singleton
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 #### xgen-IPA-107-update-method-response-is-get-method-response
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The response body of the Update method should consist of the same resource object returned by the Get method.
 ##### Implementation details Rule checks for the following conditions:
   - Applies only to single resource paths and singleton resources with JSON content types
@@ -308,7 +308,7 @@ The response body of the Update method should consist of the same resource objec
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 #### xgen-IPA-107-update-method-request-has-no-readonly-fields
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Update method Request object must not include fields with readOnly:true.
 
 ##### Implementation details
@@ -320,7 +320,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-107-update-method-request-body-is-get-method-response
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The request body must contain the resource being updated, i.e. the resource or parts of the resource returned by the Get method.
 
 ##### Implementation details
@@ -334,7 +334,7 @@ Validation checks the PATCH/PUT methods for single resource paths and singleton 
 
 #### xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Update method request schema should reference an `UpdateRequest` suffixed object.
 
 ##### Implementation details
@@ -352,7 +352,7 @@ Rules are based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
 
 #### xgen-IPA-108-delete-response-should-be-empty
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Delete method response should not have schema reference to object.
 
 ##### Implementation details
@@ -364,7 +364,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-108-delete-method-return-204-response
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 DELETE method must return 204 No Content.
 
 ##### Implementation details
@@ -378,7 +378,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-108-delete-include-404-response
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 DELETE method must include 404 response and return it when resource not found.
 
 ##### Implementation details
@@ -390,7 +390,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-108-delete-request-no-body
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 DELETE method must not have request body.
 
 ##### Implementation details
@@ -570,7 +570,7 @@ Rules are based on [http://go/ipa/IPA-113](http://go/ipa/IPA-113).
 
 #### xgen-IPA-113-singleton-must-not-have-id
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Singleton resources must not have a user-provided or system-generated ID.
 
 ##### Implementation details
@@ -583,7 +583,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-singleton-must-not-have-delete-method
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Singleton resources must not define the Delete standard method.
 
 ##### Implementation details
@@ -593,7 +593,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-singleton-should-have-update-method
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Singleton resources should define the Update method. Validation for the presence of Get method is covered by IPA-104 (see [xgen-IPA-104-resource-has-GET](https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-resource-has-GET)).
 
 ##### Implementation details

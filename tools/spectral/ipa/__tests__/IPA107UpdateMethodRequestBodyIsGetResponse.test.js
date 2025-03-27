@@ -436,28 +436,28 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
         message:
           'The request body schema properties of the Update method must match the response body schema properties of the Get method.',
         path: ['paths', '/resource/{id}', 'patch', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
         message:
           'The request body schema properties of the Update method must match the response body schema properties of the Get method.',
         path: ['paths', '/resource/{id}', 'patch', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
         message:
           'The request body schema properties of the Update method must match the response body schema properties of the Get method.',
         path: ['paths', '/resource/{id}', 'put', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
         message:
           'The request body schema properties of the Update method must match the response body schema properties of the Get method.',
         path: ['paths', '/resource/{id}', 'put', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
@@ -471,7 +471,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
@@ -485,7 +485,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
@@ -499,7 +499,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
@@ -513,7 +513,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
@@ -527,7 +527,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
@@ -541,7 +541,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
@@ -555,7 +555,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -610,7 +610,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-body-is-get-method-response',
@@ -624,7 +624,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

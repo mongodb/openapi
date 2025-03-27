@@ -357,7 +357,7 @@ testRule('xgen-IPA-107-update-method-response-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-01-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-response-is-get-method-response',
@@ -372,7 +372,7 @@ testRule('xgen-IPA-107-update-method-response-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-01-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-response-is-get-method-response',
@@ -387,7 +387,7 @@ testRule('xgen-IPA-107-update-method-response-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-01-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-response-is-get-method-response',
@@ -401,7 +401,7 @@ testRule('xgen-IPA-107-update-method-response-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-01-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-response-is-get-method-response',
@@ -415,7 +415,7 @@ testRule('xgen-IPA-107-update-method-response-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-01-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -467,7 +467,7 @@ testRule('xgen-IPA-107-update-method-response-is-get-method-response', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
