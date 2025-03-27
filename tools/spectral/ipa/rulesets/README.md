@@ -500,6 +500,27 @@ Rule checks for the following conditions:
   - Verifies the pageNum query parameter is not required
   - Verifies the pageNum query parameter has a default value of 1
 
+#### xgen-IPA-110-collections-request-includeCount-not-required
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+If the request supports an includeCount query parameter, it must not be required.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only applies to List methods (GET on resource collection paths)
+  - Checks if includeCount query parameter exists
+  - If it exists, verifies the includeCount parameter is not required
+
+#### xgen-IPA-110-collections-response-define-links-array
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The response for collections should define a links array field, providing links to next and previous pages.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only applies to List methods (GET operations that return collections of resources)
+  - Verifies the response schema includes a links field of type array
+
 
 
 ### IPA-112
