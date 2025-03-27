@@ -35,15 +35,19 @@ const (
 )
 
 var breakingChangesAdditionalCheckers = map[string]checker.Level{
-	"response-non-success-status-removed":   checker.ERR,
-	"api-operation-id-removed":              checker.ERR,
-	"api-tag-removed":                       checker.ERR,
-	"response-property-enum-value-removed":  checker.ERR,
-	"response-mediatype-enum-value-removed": checker.ERR,
-	"request-body-enum-value-removed":       checker.ERR,
-	"api-schema-removed":                    checker.ERR,
-	"response-property-one-of-added":        checker.INFO,
-	"response-body-one-of-added":            checker.INFO,
+	"response-non-success-status-removed":           checker.ERR,
+	"api-operation-id-removed":                      checker.ERR,
+	"api-tag-removed":                               checker.ERR,
+	"response-property-enum-value-removed":          checker.ERR,
+	"response-mediatype-enum-value-removed":         checker.ERR,
+	"request-body-enum-value-removed":               checker.ERR,
+	"api-schema-removed":                            checker.ERR,
+	"response-property-one-of-added":                checker.INFO,
+	"response-body-one-of-added":                    checker.INFO,
+	"request-parameter-removed":                     checker.ERR,
+	"request-property-removed":                      checker.ERR,
+	"response-optional-property-removed":            checker.ERR,
+	"response-optional-write-only-property-removed": checker.ERR,
 }
 
 type Changelog struct {
