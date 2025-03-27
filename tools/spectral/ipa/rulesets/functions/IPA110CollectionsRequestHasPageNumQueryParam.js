@@ -15,7 +15,7 @@ export default (input, _, { path, documentInventory }) => {
 
   if (
     !isResourceCollectionIdentifier(resourcePath) ||
-    (isResourceCollectionIdentifier(resourcePath) && isSingletonResource(getResourcePathItems(resourcePath, oas.paths)))
+    isSingletonResource(getResourcePathItems(resourcePath, oas.paths))
   ) {
     return;
   }
