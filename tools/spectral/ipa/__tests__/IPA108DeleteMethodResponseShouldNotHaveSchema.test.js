@@ -67,7 +67,7 @@ testRule('xgen-IPA-108-delete-response-should-be-empty', [
         message:
           'Error found for application/vnd.atlas.2023-01-01+json: DELETE method should return an empty response. The response should not have a schema property.',
         path: ['paths', '/resource/{id}', 'delete', 'responses', '204'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -141,7 +141,7 @@ testRule('xgen-IPA-108-delete-response-should-be-empty', [
         message:
           'Error found for application/vnd.atlas.2023-01-01+json: DELETE method should return an empty response. The response should not have a schema property.',
         path: ['paths', '/resources/{resourceId}', 'delete', 'responses', '204'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

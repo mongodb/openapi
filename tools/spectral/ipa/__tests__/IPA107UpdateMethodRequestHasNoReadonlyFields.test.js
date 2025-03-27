@@ -183,28 +183,28 @@ testRule('xgen-IPA-107-update-method-request-has-no-readonly-fields', [
         message:
           'The Update method request object must not include input fields (readOnly properties). Found readOnly property at: id. ',
         path: ['paths', '/resource/{id}', 'patch', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-has-no-readonly-fields',
         message:
           'The Update method request object must not include input fields (readOnly properties). Found readOnly property at one of the inline schemas. ',
         path: ['paths', '/resource/{id}', 'patch', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-has-no-readonly-fields',
         message:
           'The Update method request object must not include input fields (readOnly properties). Found readOnly property at: id. ',
         path: ['paths', '/resource/{id}', 'put', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-has-no-readonly-fields',
         message:
           'The Update method request object must not include input fields (readOnly properties). Found readOnly property at one of the inline schemas. ',
         path: ['paths', '/resource/{id}', 'put', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-has-no-readonly-fields',
@@ -218,7 +218,7 @@ testRule('xgen-IPA-107-update-method-request-has-no-readonly-fields', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-update-method-request-has-no-readonly-fields',
@@ -232,7 +232,7 @@ testRule('xgen-IPA-107-update-method-request-has-no-readonly-fields', [
           'content',
           'application/vnd.atlas.2023-01-01+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -262,7 +262,7 @@ testRule('xgen-IPA-107-update-method-request-has-no-readonly-fields', [
         message:
           'The Update method request object must not include input fields (readOnly properties). Found readOnly property at: user.userId. ',
         path: ['paths', '/resource/{id}', 'patch', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -292,7 +292,7 @@ testRule('xgen-IPA-107-update-method-request-has-no-readonly-fields', [
         message:
           'The Update method request object must not include input fields (readOnly properties). Found readOnly property at: items.items.itemId. ',
         path: ['paths', '/resource/{id}', 'patch', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

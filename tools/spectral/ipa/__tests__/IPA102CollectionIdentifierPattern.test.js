@@ -47,7 +47,7 @@ testRule('xgen-IPA-102-collection-identifier-pattern', [
         message:
           "Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers (/[a-z][a-zA-Z0-9]*/). Path segment 'Resources' in path '/Resources' doesn't match the required pattern.",
         path: ['paths', '/Resources'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -65,14 +65,14 @@ testRule('xgen-IPA-102-collection-identifier-pattern', [
         message:
           "Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers (/[a-z][a-zA-Z0-9]*/). Path segment 'resource-groups' in path '/resource-groups' doesn't match the required pattern.",
         path: ['paths', '/resource-groups'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-102-collection-identifier-pattern',
         message:
           "Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers (/[a-z][a-zA-Z0-9]*/). Path segment 'user_profiles' in path '/user_profiles' doesn't match the required pattern.",
         path: ['paths', '/user_profiles'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
