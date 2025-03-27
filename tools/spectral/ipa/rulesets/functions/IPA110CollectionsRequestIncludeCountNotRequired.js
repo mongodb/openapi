@@ -25,18 +25,12 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const parameters = input.parameters;
-  if (!parameters) {
-    return;
-  }
-
-  const includeCountParam = parameters.find((p) => p.name === 'includeCount' && p.in === 'query');
-
+  const includeCountParam = input?.parameters?.find((p) => p.name === 'includeCount' && p.in === 'query');
   if (!includeCountParam) {
     return;
   }
 
-  if (includeCountParam.required === true) {
+  if (includeCountParam.required) {
     return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
   }
 

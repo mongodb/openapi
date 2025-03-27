@@ -50,10 +50,7 @@ export default (input, _, { path, documentInventory }) => {
 
 function checkViolationsAndReturnErrors(listResponseSchema, oas, path) {
   try {
-    const hasLinksArray =
-      listResponseSchema.properties &&
-      listResponseSchema.properties.links &&
-      listResponseSchema.properties.links.type === 'array';
+    const hasLinksArray = listResponseSchema.properties?.links?.type === 'array';
 
     if (!hasLinksArray) {
       return [
