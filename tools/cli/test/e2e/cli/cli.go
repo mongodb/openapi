@@ -115,6 +115,34 @@ func newChangelogExepmtionFilePathNewPreviewAPIVersion(t *testing.T) string {
 	return cliPath
 }
 
+func newChangelogBasePathRenamedAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/rename-api-version/base")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func newChangelogRevisionPathRenamedAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/rename-api-version/revision")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func newChangelogExemptionFilePathRenamedAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/rename-api-version/exemptions.yaml")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func newChangelogOutputPathRenamedAPIVersion(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/changelog/rename-api-version/output")
+	require.NoError(t, err)
+	return cliPath
+}
+
 func NewAPIRegistrySpecPath(t *testing.T) string {
 	t.Helper()
 	cliPath, err := filepath.Abs("../../data/apiregistry_spec.json")
