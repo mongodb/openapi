@@ -18,22 +18,22 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
  * @param {object} context - The context object containing path and document information
  */
 export default (input, _, { path, documentInventory }) => {
-    const oas = documentInventory.unresolved;
-    const apiResponseObject = resolveObject(oas, path);
-    const errorCode = path[path.length - 1];
+  const oas = documentInventory.unresolved;
+  const apiResponseObject = resolveObject(oas, path);
+  const errorCode = path[path.length - 1];
 
-    // Check for exception at response level
-    if (hasException(apiResponseObject, RULE_NAME)) {
-      collectException(apiResponseObject, RULE_NAME, path);
-      return;
-    }
+  // Check for exception at response level
+  if (hasException(apiResponseObject, RULE_NAME)) {
+    collectException(apiResponseObject, RULE_NAME, path);
+    return;
+  }
 
-    const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
-    if (errors.length !== 0) {
-      return collectAndReturnViolation(path, RULE_NAME, errors);
-    }
+  const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
+  if (errors.length !== 0) {
+    return collectAndReturnViolation(path, RULE_NAME, errors);
+  }
 
-    collectAdoption(path, RULE_NAME);
+  collectAdoption(path, RULE_NAME);
 };
 
 function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode) {
