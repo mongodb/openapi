@@ -46,3 +46,44 @@ export function resolveObject(oas, objectPath) {
     return current && current[key] ? current[key] : undefined;
   }, oas);
 }
+
+/**
+ * Checks if a path array points to a specific response version, for example:
+ * [
+ *   "paths",
+ *   "/resource/{id}",
+ *   "get",
+ *   "responses",
+ *   "200",
+ *   "content",
+ *   "application/vnd.atlas.2023-08-05+json",
+ * ],
+ *
+ * The array may have more elements beyond the version.
+ *
+ * @param {string[]} path
+ * @returns {boolean}
+ */
+export function pathIsForResponseVersion(path) {
+  return path.length > 6 && path[0] === 'paths' && path[3] === 'responses' && path[5] === 'content';
+}
+
+/**
+ * Checks if a path array points to a specific request body version, for example:
+ * [
+ *   "paths",
+ *   "/resource/{id}",
+ *   "get",
+ *   "requestBody",
+ *   "content",
+ *   "application/vnd.atlas.2023-08-05+json",
+ * ],
+ *
+ * The array may have more elements beyond the version.
+ *
+ * @param {string[]} path
+ * @returns {boolean}
+ */
+export function pathIsForRequestVersion(path) {
+  return path.length > 5 && path[0] === 'paths' && path[3] === 'requestBody' && path[4] === 'content';
+}

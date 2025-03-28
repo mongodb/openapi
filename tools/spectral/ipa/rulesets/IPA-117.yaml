@@ -9,6 +9,8 @@ functions:
   - IPA117DescriptionShouldNotUseTables
   - IPA117DescriptionShouldNotUseLinks
   - IPA117PlaintextResponseMustHaveExample
+  - IPA117ObjectsMustBeWellDefined
+  - IPA117ParameterHasExamplesOrSchema
 
 rules:
   xgen-IPA-117-description:
@@ -175,3 +177,53 @@ rules:
       function: 'IPA117PlaintextResponseMustHaveExample'
       functionOptions:
         allowedTypes: ['json', 'yaml']
+  xgen-IPA-117-objects-must-be-well-defined:
+    description: |
+      Components of type "object" must be well-defined, i.e. have of one of the properties:
+        - `schema`
+        - `examples`
+        - `example`
+        - `oneOf`, `anyOf` or `allOf`
+        - `properties`
+        - `additionalProperties`
+
+      ##### Implementation details
+      The rule applies to the following components:
+        - Inline operation responses/request bodies (JSON only)
+        - Inline operation response/request body properties (JSON only)
+        - Inline operation response/request body array items (JSON only)
+        - Schemas defined in `components/schemas`
+        - Schema properties defined in `components/schemas`
+        - `items` properties defined in `components/schemas`
+      The rule is applied to the unresolved OAS, and ignores components with `$ref` properties. Specific paths can be ignored using the `ignoredPaths` option.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-objects-must-be-well-defined'
+    severity: warn
+    resolved: false
+    given:
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..items'
+      - '$.components.schemas[*]'
+      - '$.components.schemas..properties[*]'
+      - '$.components.schemas..items'
+    then:
+      function: 'IPA117ObjectsMustBeWellDefined'
+      functionOptions:
+        ignoredPaths:
+          - 'components.schemas.NoBody'
+          - 'components.schemas.ApiError.properties.parameters.items'
+  xgen-IPA-117-parameter-has-examples-or-schema:
+    description: |
+      API producers must provide a well-defined schema or example(s) for parameters.
+
+      ##### Implementation details
+      The rule checks for the presence of the `schema`, `examples` or `example` property in:
+        - Operation parameters
+        - Parameters defined in `components/parameters`
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-parameter-has-examples-or-schema'
+    severity: warn
+    given:
+      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
+      - '$.components.parameters[*]'
+    then:
+      function: 'IPA117ParameterHasExamplesOrSchema'

@@ -4,9 +4,7 @@
  * @returns true if schema object returns results property (pagination), false otherwise
  */
 export function schemaIsPaginated(schema) {
-  const hasResultsArray = schema.properties?.results?.type === 'array';
-
-  return hasResultsArray;
+  return schema.properties?.results?.type === 'array';
 }
 
 /**
@@ -18,6 +16,17 @@ export function schemaIsPaginated(schema) {
 export function schemaIsArray(schema) {
   const fields = Object.keys(schema);
   return fields.includes('type') && schema['type'] === 'array';
+}
+
+/**
+ * Checks if schema is an object type of schema
+ *
+ * @param {Object} schema
+ * @returns
+ */
+export function schemaIsObject(schema) {
+  const fields = Object.keys(schema);
+  return fields.includes('type') && schema['type'] === 'object';
 }
 
 export function getSchemaPathFromEnumPath(path) {
