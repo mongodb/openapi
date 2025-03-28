@@ -615,6 +615,18 @@ APIs must return ApiError when errors occur
 ##### Implementation details
 This rule checks that all 4xx and 5xx error responses reference the ApiError schema.
 
+#### xgen-IPA-114-api-error-has-bad-request-detail
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+ApiError schema should have badRequestDetail field with proper structure.
+
+##### Implementation details
+Rule checks that:
+- ApiError schema has badRequestDetail field
+- badRequestDetail must include an array of fields
+- Each field must include description and field properties
+- This rule does not allow exceptions
+
 
 
 ### IPA-117

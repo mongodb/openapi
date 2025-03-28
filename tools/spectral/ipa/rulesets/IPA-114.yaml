@@ -3,6 +3,7 @@
 
 functions:
   - IPA114ErrorResponsesReferToApiError
+  - IPA114ApiErrorHasBadRequestDetail
 
 rules:
   xgen-IPA-114-error-responses-refer-to-api-error:
@@ -16,3 +17,18 @@ rules:
     given: '$.paths[*][*].responses[?(@property.match(/^[45]\d\d$/))]'
     then:
       function: 'IPA114ErrorResponsesReferToApiError'
+  xgen-IPA-114-api-error-has-bad-request-detail:
+    description: |
+      ApiError schema should have badRequestDetail field with proper structure.
+
+      ##### Implementation details
+      Rule checks that:
+      - ApiError schema has badRequestDetail field
+      - badRequestDetail must include an array of fields
+      - Each field must include description and field properties
+      - This rule does not allow exceptions
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-114-api-error-has-bad-request-detail'
+    severity: warn
+    given: $.components.schemas.ApiError
+    then:
+      function: 'IPA114ApiErrorHasBadRequestDetail'
