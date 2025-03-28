@@ -22,10 +22,6 @@ export default (input, _, { path, documentInventory }) => {
     const apiResponseObject = resolveObject(oas, path);
     const errorCode = path[path.length - 1];
 
-    console.log(RULE_NAME);
-    console.log(path);
-    console.log(input);
-
     // Check for exception at response level
     if (hasException(apiResponseObject, RULE_NAME)) {
       collectException(apiResponseObject, RULE_NAME, path);
