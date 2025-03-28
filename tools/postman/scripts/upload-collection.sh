@@ -80,13 +80,18 @@ else
      --header 'X-API-Key: **********'
      --data ${collection_transformed_path}"
 
-  curl --show-error --fail --retry 10 --retry-all-errors --silent --request PUT \
+  curl --show-error \
+       --retry 10 \
+       --retry-delay 30  \
+       --retry-max-time 300 \
+       --fail  \
+       --retry-all-errors \
+       --silent \
+       --request PUT \
        --location "https://api.getpostman.com/collections/${collection_id}" \
        --header "Content-Type: application/json" \
        --header "X-API-Key: ${POSTMAN_API_KEY}" \
-       --data "@${collection_transformed_path}"  \
-       --retry-delay 30 \
-       --retry-max-time 300
+       --data "@${collection_transformed_path}"
 fi
 
 popd -0
