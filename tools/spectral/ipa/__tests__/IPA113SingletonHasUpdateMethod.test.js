@@ -36,14 +36,14 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
         message:
           'Singleton resources should define the Update method. If this is not a singleton resource, please implement all CRUDL methods.',
         path: ['paths', '/resource/{exampleId}/singletonOne'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-113-singleton-should-have-update-method',
         message:
           'Singleton resources should define the Update method. If this is not a singleton resource, please implement all CRUDL methods.',
         path: ['paths', '/resource/{exampleId}/singletonTwo'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

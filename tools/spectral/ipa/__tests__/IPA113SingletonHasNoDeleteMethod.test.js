@@ -38,7 +38,7 @@ testRule('xgen-IPA-113-singleton-must-not-have-delete-method', [
         message:
           'Singleton resources must not define the Delete standard method. If this is not a singleton resource, please implement all CRUDL methods.',
         path: ['paths', '/resource/{exampleId}/singleton'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
