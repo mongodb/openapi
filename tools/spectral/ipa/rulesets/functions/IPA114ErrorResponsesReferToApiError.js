@@ -18,17 +18,27 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
  * @param {object} context - The context object containing path and document information
  */
 export default (input, _, { path, documentInventory }) => {
-  const oas = documentInventory.unresolved;
-  const apiResponseObject = resolveObject(oas, path);
-  const errorCode = path[path.length - 1]; // e.g., "400", "404", "500"
+  try {
+    const oas = documentInventory.unresolved;
+    const apiResponseObject = resolveObject(oas, path);
+    const errorCode = path[path.length - 1];
 
-  const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
+    // Check for exception at response level
+    if (hasException(apiResponseObject, RULE_NAME)) {
+      collectException(apiResponseObject, RULE_NAME, path);
+      return;
+    }
 
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
+    const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
+    if (errors.length !== 0) {
+      return collectAndReturnViolation(path, RULE_NAME, errors);
+    }
+
+    collectAdoption(path, RULE_NAME);
+  } catch(e) {
+    handleInternalError(RULE_NAME, path, e);
   }
 
-  collectAdoption(path, RULE_NAME);
 };
 
 function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode) {
@@ -42,6 +52,8 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
       const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
       const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
       content = responseSchema.content;
+    } else {
+      return [{ path, message: `${errorCode} response must define content with ApiError schema reference.` }];
     }
 
     for (const [mediaType, mediaTypeObj] of Object.entries(content)) {
@@ -57,20 +69,21 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
       const contentPath = [...path, 'content', mediaType];
 
       // Check if schema exists
-      if (!mediaTypeObj || !mediaTypeObj.schema) {
+      if (!mediaTypeObj.schema) {
         errors.push({
           path: contentPath,
-          message: `${errorCode} response must define a schema referencing ApiError`,
+          message: `${errorCode} response must define a schema referencing ApiError.`,
         });
         continue;
       }
 
       // Check if schema references ApiError
       const schema = mediaTypeObj.schema;
+
       if (!schema.$ref || !schema.$ref.endsWith('/ApiError')) {
         errors.push({
           path: contentPath,
-          message: `${errorCode} response must reference ApiError schema`,
+          message: `${errorCode} response must reference ApiError schema.`,
         });
       }
     }

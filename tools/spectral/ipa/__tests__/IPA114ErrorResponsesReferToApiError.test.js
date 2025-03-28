@@ -91,8 +91,30 @@ testRule('xgen-IPA-114-error-responses-refer-to-api-error', [
     errors: [
       {
         code: 'xgen-IPA-114-error-responses-refer-to-api-error',
-        message: '400 response must define a schema referencing ApiError',
+        message: '400 response must define a schema referencing ApiError.',
         path: ['paths', '/resources', 'get', 'responses', '400', 'content', 'application/json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid error responses missing content',
+    document: {
+      paths: {
+        '/resources': {
+          get: {
+            responses: {
+              400: {},
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-114-error-responses-refer-to-api-error',
+        message: '400 response must define content with ApiError schema reference.',
+        path: ['paths', '/resources', 'get', 'responses', '400'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -133,7 +155,7 @@ testRule('xgen-IPA-114-error-responses-refer-to-api-error', [
     errors: [
       {
         code: 'xgen-IPA-114-error-responses-refer-to-api-error',
-        message: '500 response must reference ApiError schema',
+        message: '500 response must reference ApiError schema.',
         path: ['paths', '/resources', 'get', 'responses', '500', 'content', 'application/json'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -168,7 +190,7 @@ testRule('xgen-IPA-114-error-responses-refer-to-api-error', [
     errors: [
       {
         code: 'xgen-IPA-114-error-responses-refer-to-api-error',
-        message: '404 response must reference ApiError schema',
+        message: '404 response must reference ApiError schema.',
         path: ['paths', '/resources', 'get', 'responses', '404', 'content', 'application/json'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -191,6 +213,11 @@ testRule('xgen-IPA-114-error-responses-refer-to-api-error', [
                       'xgen-IPA-114-error-responses-refer-to-api-error': 'Reason',
                     },
                   },
+                },
+              },
+              500: {
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-114-error-responses-refer-to-api-error': 'Reason',
                 },
               },
             },
