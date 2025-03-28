@@ -719,6 +719,37 @@ For APIs that respond with plain text, for example CSV, API producers must provi
   - The rule ignores JSON and YAML responses (passed as `allowedTypes`)
   - The rule checks for the presence of the example property as a sibling to the `schema` property, or inside the `schema` object
 
+#### xgen-IPA-117-objects-must-be-well-defined
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Components of type "object" must be well-defined, i.e. have of one of the properties:
+  - `schema`
+  - `examples`
+  - `example`
+  - `oneOf`, `anyOf` or `allOf`
+  - `properties`
+  - `additionalProperties`
+
+##### Implementation details
+The rule applies to the following components:
+  - Inline operation responses/request bodies (JSON only)
+  - Inline operation response/request body properties (JSON only)
+  - Inline operation response/request body array items (JSON only)
+  - Schemas defined in `components/schemas`
+  - Schema properties defined in `components/schemas`
+  - `items` properties defined in `components/schemas`
+The rule is applied to the unresolved OAS, and ignores components with `$ref` properties. Specific paths can be ignored using the `ignoredPaths` option.
+
+#### xgen-IPA-117-parameter-has-examples-or-schema
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+API producers must provide a well-defined schema or example(s) for parameters.
+
+##### Implementation details
+The rule checks for the presence of the `schema`, `examples` or `example` property in:
+  - Operation parameters
+  - Parameters defined in `components/parameters`
+
 
 
 ### IPA-123
