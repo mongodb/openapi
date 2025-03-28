@@ -63,7 +63,13 @@ if [  "$collection_exists" = "false" ]; then
      --header 'Content-Type: application/json'
      --header 'X-API-Key: **********'
      --data ${collection_transformed_path}"
-  curl --show-error --fail --retry 5 --retry-all-errors --silent \
+  curl --show-error \
+          --retry 10 \
+          --retry-delay 30  \
+          --retry-max-time 300 \
+          --retry-all-errors \
+          --fail  \
+          --silent \
        --location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
        --header "Content-Type: application/json" \
        --header "X-API-Key: ${POSTMAN_API_KEY}" \
@@ -80,7 +86,14 @@ else
      --header 'X-API-Key: **********'
      --data ${collection_transformed_path}"
 
-  curl --show-error --fail --retry 5 --retry-all-errors --silent --request PUT \
+  curl --show-error \
+       --retry 10 \
+       --retry-delay 30  \
+       --retry-max-time 300 \
+       --retry-all-errors \
+       --fail  \
+       --silent \
+       --request PUT \
        --location "https://api.getpostman.com/collections/${collection_id}" \
        --header "Content-Type: application/json" \
        --header "X-API-Key: ${POSTMAN_API_KEY}" \
