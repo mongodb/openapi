@@ -75,7 +75,7 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
       // Check if schema references ApiError
       const schema = mediaTypeObj.schema;
 
-      if (!schema.$ref || !schema.$ref.endsWith('/ApiError')) {
+      if (!schema.$ref || getSchemaNameFromRef(schema.$ref) !== 'ApiError') {
         errors.push({
           path: contentPath,
           message: `${errorCode} response must reference ApiError schema.`,
