@@ -38,6 +38,8 @@ export default (input, _, { path, documentInventory }) => {
   } catch(e) {
     handleInternalError(RULE_NAME, path, e);
     console.log(e);
+    console.log(RULE_NAME);
+    console.log(path);
   }
 
 };
