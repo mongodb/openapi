@@ -64,9 +64,9 @@ if [  "$collection_exists" = "false" ]; then
      --header 'X-API-Key: **********'
      --data ${collection_transformed_path}"
   curl --show-error \
-          --retry 10 \
+          --retry 7 \
           --retry-delay 30  \
-          --retry-max-time 300 \
+          --retry-max-time 1200 \
           --retry-all-errors \
           --fail  \
           --silent \
@@ -87,9 +87,9 @@ else
      --data ${collection_transformed_path}"
 
   curl --show-error \
-       --retry 10 \
+       --retry 7 \
        --retry-delay 30  \
-       --retry-max-time 300 \
+       --retry-max-time 1200 \
        --retry-all-errors \
        --fail  \
        --silent \
