@@ -19,6 +19,7 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
  */
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
+  const resolvedOas = documentInventory.resolved;
   const apiResponseObject = resolveObject(oas, path);
   const errorCode = path[path.length - 1];
 
@@ -28,7 +29,7 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
+  const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode, resolvedOas);
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
@@ -36,7 +37,7 @@ export default (input, _, { path, documentInventory }) => {
   collectAdoption(path, RULE_NAME);
 };
 
-function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode) {
+function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode, resolvedOas) {
   try {
     const errors = [];
     let content;
@@ -54,6 +55,7 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
         content = responseSchema.content;
       } else {
         console.log(ref);
+        console.log(resolvedOas[ref]);
       }
 
     } else {
