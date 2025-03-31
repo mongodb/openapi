@@ -19,9 +19,7 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
  */
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
-  const resolvedOas = documentInventory.resolved;
   const apiResponseObject = resolveObject(oas, path);
-  const resolvedApiResponseObject = resolveObject(resolvedOas, path);
   const errorCode = path[path.length - 1];
 
   // Check for exception at response level
@@ -30,7 +28,7 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(apiResponseObject, resolvedApiResponseObject, oas, path, errorCode);
+  const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
@@ -38,7 +36,7 @@ export default (input, _, { path, documentInventory }) => {
   collectAdoption(path, RULE_NAME);
 };
 
-function checkViolationsAndReturnErrors(apiResponseObject, resolvedApiResponseObject, oas, path, errorCode) {
+function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode) {
   try {
     const errors = [];
     let content;
@@ -46,19 +44,12 @@ function checkViolationsAndReturnErrors(apiResponseObject, resolvedApiResponseOb
     if (apiResponseObject.content) {
       content = apiResponseObject.content;
     } else if (apiResponseObject.$ref) {
-      const ref = apiResponseObject.$ref;
-      if(ref.startsWith('#/components')) {
-        const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
-        const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
-        if (!responseSchema) {
-          return [{ path, message: `${errorCode} response must define content with a valid reference.` }];
-        }
-        content = responseSchema.content;
-      } else {
-        console.log(ref);
-        console.log(resolvedApiResponseObject);
+      const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
+      const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
+      if (!responseSchema) {
+        return [{ path, message: `${errorCode} response must define content with a valid reference.` }];
       }
-
+      content = responseSchema.content;
     } else {
       return [{ path, message: `${errorCode} response must define content with ApiError schema reference.` }];
     }
