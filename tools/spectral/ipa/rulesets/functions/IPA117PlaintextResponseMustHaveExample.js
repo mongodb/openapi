@@ -32,6 +32,14 @@ export default (input, { allowedTypes }, { documentInventory, path }) => {
 
   const response = resolveObject(documentInventory.resolved, path);
 
+  // Ignore binary formats, i.e. files
+  if (
+    (response['type'] && response['format'] === 'binary') ||
+    (response['schema'] && response['schema']['format'] === 'binary')
+  ) {
+    return;
+  }
+
   if (hasException(response, RULE_NAME)) {
     collectException(response, RULE_NAME, path);
     return;

@@ -729,6 +729,7 @@ For APIs that respond with plain text, for example CSV, API producers must provi
 ##### Implementation details
   - The rule only applies to 2xx responses
   - The rule ignores JSON and YAML responses (passed as `allowedTypes`)
+  - The rule ignores responses with `format: 'binary'` (i.e. file types)
   - The rule checks for the presence of the example property as a sibling to the `schema` property, or inside the `schema` object
 
 #### xgen-IPA-117-objects-must-be-well-defined
