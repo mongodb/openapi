@@ -17,10 +17,11 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
  * @param {object} _ - Rule options (unused)
  * @param {object} context - The context object containing path and document information
  */
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, referencedDocuments }) => {
   const oas = documentInventory.unresolved;
   const apiResponseObject = resolveObject(oas, path);
   const errorCode = path[path.length - 1];
+  console.log(referencedDocuments);
 
   // Check for exception at response level
   if (hasException(apiResponseObject, RULE_NAME)) {
@@ -44,12 +45,18 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
     if (apiResponseObject.content) {
       content = apiResponseObject.content;
     } else if (apiResponseObject.$ref) {
-      const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
-      const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
-      if (!responseSchema) {
-        return [{ path, message: `${errorCode} response must define content with a valid reference.` }];
+      const ref = apiResponseObject.$ref;
+      if(ref.startsWith('#/components')) {
+        const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
+        const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
+        if (!responseSchema) {
+          return [{ path, message: `${errorCode} response must define content with a valid reference.` }];
+        }
+        content = responseSchema.content;
+      } else {
+        console.log(ref);
       }
-      content = responseSchema.content;
+
     } else {
       return [{ path, message: `${errorCode} response must define content with ApiError schema reference.` }];
     }
