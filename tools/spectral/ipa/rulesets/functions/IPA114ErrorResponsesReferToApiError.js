@@ -45,9 +45,9 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
       content = apiResponseObject.content;
     } else if (apiResponseObject.$ref) {
       const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
-      console.log(schemaName);
-      //const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
-      //content = responseSchema.content;
+      const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
+      content = responseSchema.content;
+      console.log(responseSchema);
     } else {
       return [{ path, message: `${errorCode} response must define content with ApiError schema reference.` }];
     }
