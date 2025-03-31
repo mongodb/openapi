@@ -42,11 +42,6 @@ export function isPathParam(str) {
  * console.log(result); // Output: { fieldName: { type: 'string' } }
  */
 export function resolveObject(oas, objectPath) {
-  if (!objectPath || !Array.isArray(objectPath)) {
-    console.log(objectPath);
-    return undefined;
-  }
-
   return objectPath.reduce((current, key) => {
     return current && current[key] ? current[key] : undefined;
   }, oas);
