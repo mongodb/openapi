@@ -4,7 +4,7 @@ import {
   collectException, handleInternalError,
 } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { getSchemaNameFromRef } from './utils/methodUtils.js';
+//import { getSchemaNameFromRef } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
 
@@ -39,15 +39,19 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
     const errors = [];
     let content;
 
+    /*else if (apiResponseObject.$ref) {
+  const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
+  const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
+  content = responseSchema.content;
+} */
+
     if (apiResponseObject.content) {
       content = apiResponseObject.content;
-    } else if (apiResponseObject.$ref) {
-      const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
-      const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
-      content = responseSchema.content;
-    } else {
+    }
+    else {
       return [{ path, message: `${errorCode} response must define content with ApiError schema reference.` }];
     }
+    console.log('content', content);
 
     /*
     for (const [mediaType, mediaTypeObj] of Object.entries(content)) {
