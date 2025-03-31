@@ -46,7 +46,7 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
     } else if (apiResponseObject.$ref) {
       const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
       const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
-      if(!responseSchema){
+      if (!responseSchema) {
         return [{ path, message: `${errorCode} response must define content with a valid reference.` }];
       }
       content = responseSchema.content;
