@@ -34,7 +34,7 @@ testRule('xgen-IPA-117-plaintext-response-must-have-example', [
             },
           },
         },
-        // Ignores JSON/YAML
+        // Ignores JSON/YAML/gzip
         '/resourceTwo': {
           get: {
             responses: {
@@ -45,6 +45,9 @@ testRule('xgen-IPA-117-plaintext-response-must-have-example', [
                   },
                   'application/vnd.atlas.2024-08-05+yaml': {
                     type: 'string',
+                  },
+                  'application/vnd.atlas.2024-08-05+gzip': {
+                    type: 'binary',
                   },
                 },
               },
