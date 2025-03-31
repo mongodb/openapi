@@ -52,6 +52,7 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
       return [{ path, message: `${errorCode} response must define content with ApiError schema reference.` }];
     }
     console.log('content', content);
+    console.log('path', path);
 
     /*
     for (const [mediaType, mediaTypeObj] of Object.entries(content)) {
