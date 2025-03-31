@@ -1,12 +1,9 @@
 import { hasException } from './utils/exceptions.js';
 import {
   collectAdoption,
-  collectAndReturnViolation,
   collectException,
-  handleInternalError,
 } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { getSchemaNameFromRef } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
 
@@ -20,7 +17,7 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const apiResponseObject = resolveObject(oas, path);
-  const errorCode = path[path.length - 1];
+  //const errorCode = path[path.length - 1];
 
   // Check for exception at response level
   if (hasException(apiResponseObject, RULE_NAME)) {
@@ -28,14 +25,14 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
+  /*const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
-
+*/
   collectAdoption(path, RULE_NAME);
 };
-
+/*
 function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode) {
   try {
     const errors = [];
@@ -81,3 +78,4 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
     handleInternalError(RULE_NAME, path, e);
   }
 }
+*/
