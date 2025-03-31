@@ -18,7 +18,7 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const apiResponseObject = resolveObject(oas, path);
-  //const errorCode = path[path.length - 1];
+  const errorCode = path[path.length - 1];
 
   // Check for exception at response level
   if (hasException(apiResponseObject, RULE_NAME)) {
