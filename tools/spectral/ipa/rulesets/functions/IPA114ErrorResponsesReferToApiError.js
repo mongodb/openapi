@@ -47,12 +47,10 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
       const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
       const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
       content = responseSchema.content;
-      console.log(responseSchema);
     } else {
       return [{ path, message: `${errorCode} response must define content with ApiError schema reference.` }];
     }
 
-    /*
     for (const [mediaType, mediaTypeObj] of Object.entries(content)) {
       if (!mediaType.endsWith('json')) {
         continue;
@@ -77,7 +75,7 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
           message: `${errorCode} response must reference ApiError schema.`,
         });
       }
-    }*/
+    }
     return errors;
   } catch (e) {
     handleInternalError(RULE_NAME, path, e);
