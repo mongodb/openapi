@@ -47,7 +47,14 @@ testRule('xgen-IPA-117-plaintext-response-must-have-example', [
                     type: 'string',
                   },
                   'application/vnd.atlas.2024-08-05+gzip': {
-                    type: 'binary',
+                    type: 'string',
+                    format: 'binary',
+                  },
+                  'application/vnd.atlas.2023-08-05+gzip': {
+                    schema: {
+                      type: 'string',
+                      format: 'binary',
+                    },
                   },
                 },
               },
