@@ -5,6 +5,7 @@ functions:
   - IPA114ErrorResponsesReferToApiError
   - IPA114ApiErrorHasBadRequestDetail
   - IPA114AuthenticatedEndpointsHaveAuthErrors
+  - IPA114ParameterizedPathsHave404NotFound
 
 rules:
   xgen-IPA-114-error-responses-refer-to-api-error:
@@ -45,3 +46,16 @@ rules:
     given: '$.paths[*][*]'
     then:
       function: 'IPA114AuthenticatedEndpointsHaveAuthErrors'
+  xgen-IPA-114-parameterized-paths-have-404-not-found:
+    description: |
+      Paths with parameters must define 404 responses.
+
+      ##### Implementation details
+      This rule checks that all endpoints with path parameters (identified by '{param}' 
+      in the path) include a 404 response to handle the case when the requested resource
+      is not found.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-114-parameterized-paths-have-not-found'
+    severity: warn
+    given: '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+    then:
+      function: 'IPA114ParameterizedPathsHave404NotFound'
