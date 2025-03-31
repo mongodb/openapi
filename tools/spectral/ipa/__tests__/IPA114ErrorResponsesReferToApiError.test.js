@@ -204,18 +204,19 @@ testRule('xgen-IPA-114-error-responses-refer-to-api-error', [
           get: {
             responses: {
               400: {
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-114-error-responses-refer-to-api-error': 'Reason',
+                },
                 content: {
                   'application/json': {
                     schema: {
                       type: 'object',
                     },
-                    'x-xgen-IPA-exception': {
-                      'xgen-IPA-114-error-responses-refer-to-api-error': 'Reason',
-                    },
                   },
                 },
               },
               500: {
+                description: "Internal Service Error",
                 'x-xgen-IPA-exception': {
                   'xgen-IPA-114-error-responses-refer-to-api-error': 'Reason',
                 },

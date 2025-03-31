@@ -56,13 +56,7 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
         continue;
       }
 
-      if (hasException(mediaTypeObj, RULE_NAME)) {
-        collectException(mediaTypeObj, RULE_NAME, [...path, 'content', mediaType]);
-        continue;
-      }
-
       const contentPath = [...path, 'content', mediaType];
-
       // Check if schema exists
       if (!mediaTypeObj.schema) {
         errors.push({
