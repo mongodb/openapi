@@ -627,6 +627,15 @@ Rule checks that:
 - Each field must include description and field properties
 - This rule does not allow exceptions
 
+#### xgen-IPA-114-authenticated-endpoints-have-auth-errors
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Authenticated endpoints must define 401 and 403 responses.
+
+##### Implementation details
+This rule checks that all authenticated endpoints (those without explicit 'security: []' 
+and not containing '/unauth' in the path) include 401 and 403 responses.
+
 
 
 ### IPA-117

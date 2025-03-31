@@ -4,6 +4,7 @@
 functions:
   - IPA114ErrorResponsesReferToApiError
   - IPA114ApiErrorHasBadRequestDetail
+  - IPA114AuthenticatedEndpointsHaveAuthErrors
 
 rules:
   xgen-IPA-114-error-responses-refer-to-api-error:
@@ -32,3 +33,15 @@ rules:
     given: $.components.schemas.ApiError
     then:
       function: 'IPA114ApiErrorHasBadRequestDetail'
+  xgen-IPA-114-authenticated-endpoints-have-auth-errors:
+    description: |
+      Authenticated endpoints must define 401 and 403 responses.
+
+      ##### Implementation details
+      This rule checks that all authenticated endpoints (those without explicit 'security: []' 
+      and not containing '/unauth' in the path) include 401 and 403 responses.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-114-authenticated-endpoints-have-auth-errors'
+    severity: warn
+    given: '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+    then:
+      function: 'IPA114AuthenticatedEndpointsHaveAuthErrors'
