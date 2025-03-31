@@ -21,6 +21,7 @@ export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const resolvedOas = documentInventory.resolved;
   const apiResponseObject = resolveObject(oas, path);
+  const resolvedApiResponseObject = resolveObject(resolvedOas, path);
   const errorCode = path[path.length - 1];
 
   // Check for exception at response level
@@ -29,7 +30,7 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode, resolvedOas);
+  const errors = checkViolationsAndReturnErrors(apiResponseObject, resolvedApiResponseObject, oas, path, errorCode);
   if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
@@ -37,7 +38,7 @@ export default (input, _, { path, documentInventory }) => {
   collectAdoption(path, RULE_NAME);
 };
 
-function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode, resolvedOas) {
+function checkViolationsAndReturnErrors(apiResponseObject, resolvedApiResponseObject, oas, path, errorCode) {
   try {
     const errors = [];
     let content;
@@ -55,7 +56,7 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode,
         content = responseSchema.content;
       } else {
         console.log(ref);
-        console.log(resolvedOas);
+        console.log(resolvedApiResponseObject);
       }
 
     } else {
