@@ -46,6 +46,9 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
     } else if (apiResponseObject.$ref) {
       const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
       const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
+      if (!responseSchema) {
+        return [{ path, message: `${errorCode} response must define content with a valid reference.` }];
+      }
       content = responseSchema.content;
     } else {
       return [{ path, message: `${errorCode} response must define content with ApiError schema reference.` }];
@@ -56,13 +59,7 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
         continue;
       }
 
-      if (hasException(mediaTypeObj, RULE_NAME)) {
-        collectException(mediaTypeObj, RULE_NAME, [...path, 'content', mediaType]);
-        continue;
-      }
-
       const contentPath = [...path, 'content', mediaType];
-
       // Check if schema exists
       if (!mediaTypeObj.schema) {
         errors.push({
