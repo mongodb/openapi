@@ -17,11 +17,10 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
  * @param {object} _ - Rule options (unused)
  * @param {object} context - The context object containing path and document information
  */
-export default (input, _, { path, documentInventory, referencedDocuments }) => {
+export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const apiResponseObject = resolveObject(oas, path);
   const errorCode = path[path.length - 1];
-  console.log(referencedDocuments);
 
   // Check for exception at response level
   if (hasException(apiResponseObject, RULE_NAME)) {
