@@ -55,7 +55,7 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode,
         content = responseSchema.content;
       } else {
         console.log(ref);
-        console.log(resolvedOas[ref]);
+        console.log(resolvedOas);
       }
 
     } else {
