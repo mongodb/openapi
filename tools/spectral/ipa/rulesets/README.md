@@ -376,18 +376,6 @@ Rule checks for the following conditions:
   - Fails if the 204 status code is missing or if other 2xx responses exist
   - Skips validation for collection endpoints (without path parameters)
 
-#### xgen-IPA-108-delete-include-404-response
-
- ![error](https://img.shields.io/badge/error-red) 
-DELETE method must include 404 response and return it when resource not found.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies to all DELETE methods for single resource endpoints (with path parameters)
-  - Verifies that the method includes a 404 response code
-  - Fails if the 404 status code is missing from the responses
-  - Skips validation for collection endpoints (without path parameters)
-
 #### xgen-IPA-108-delete-request-no-body
 
  ![error](https://img.shields.io/badge/error-red) 
