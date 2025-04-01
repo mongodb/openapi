@@ -636,6 +636,16 @@ Authenticated endpoints must define 401 and 403 responses.
 This rule checks that all authenticated endpoints (those without explicit 'security: []' 
 and not containing '/unauth' in the path) include 401 and 403 responses.
 
+#### xgen-IPA-114-parameterized-paths-have-404-not-found
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Paths with parameters must define 404 responses.
+
+##### Implementation details
+This rule checks that all endpoints with path parameters (identified by '{param}' 
+in the path) include a 404 response to handle the case when the requested resource
+is not found.
+
 
 
 ### IPA-117
