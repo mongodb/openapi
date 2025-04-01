@@ -58,7 +58,6 @@ testRule('xgen-IPA-118-no-additional-properties-false', [
   {
     name: 'invalid with additionalProperties: false',
     document: {
-      openapi: '3.0.0',
       components: {
         schemas: {
           ExampleSchema: {
@@ -118,7 +117,45 @@ testRule('xgen-IPA-118-no-additional-properties-false', [
     ],
   },
   {
-    name: 'with exception tag',
+    name: 'invalid with multiple nested additionalProperties: false',
+    document: {
+      components: {
+        schemas: {
+          ParentSchema: {
+            type: 'object',
+            properties: {
+              child: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+                additionalProperties: false,
+              },
+            },
+            additionalProperties: false,
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-118-no-additional-properties-false',
+        message:
+          "Schema must not use 'additionalProperties: false'. Consider using 'additionalProperties: true' or omitting the property.",
+        path: ['components', 'schemas', 'ParentSchema'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-118-no-additional-properties-false',
+        message:
+          "Schema must not use 'additionalProperties: false'. Consider using 'additionalProperties: true' or omitting the property.",
+        path: ['components', 'schemas', 'ParentSchema', 'properties', 'child'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'with exception',
     document: {
       components: {
         schemas: {
@@ -145,6 +182,32 @@ testRule('xgen-IPA-118-no-additional-properties-false', [
                 },
                 additionalProperties: false,
               },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid with multiple nested additionalProperties: false - exceptions',
+    document: {
+      components: {
+        schemas: {
+          ParentSchema: {
+            type: 'object',
+            properties: {
+              child: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+                additionalProperties: false,
+              },
+            },
+            additionalProperties: false,
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-118-no-additional-properties-false': 'Exception reason',
             },
           },
         },
