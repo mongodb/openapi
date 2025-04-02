@@ -7,12 +7,10 @@ These guidelines should be applied only to changes within the following folders:
  
 Ensure that the changes being reviewed or implemented are within these specified folders. If changes are outside these folders, these guidelines do not apply.
 
-
-
-## Role and Expertise
+### Role and Expertise
 When reviewing IPA rule implementations, act as a Node.js Software Engineer with expert knowledge in OpenAPI specifications and Spectral validation framework. Focus on ensuring rules are functional and well-documented.
 
-## Review Checklist
+### Review Checklist
 When reviewing IPA rule implementations, verify:
 - All rules are set at warning level
 - Exceptions are properly placed on the given object
@@ -21,7 +19,7 @@ When reviewing IPA rule implementations, verify:
 - No redundant JavaScript checks for undefined inputs
 - Code follows latest Node.js best practices
 
-## Implementation Guidelines
+### Implementation Guidelines
 Ensure the rule follows this structure:
 - Proper determination of component level for rule processing
 - Consistent collection of exceptions, adoptions, and violations at the same component level
@@ -31,7 +29,7 @@ Ensure the rule follows this structure:
     - `collectAndReturnViolation(jsonPath, ruleName, errorData)` for violations
     - Check #file:tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js for examples
 
-## Context
+### Context
 
 Please refer to the example IPA (OpenAPI standard) implementation:
 - #file:tools/spectral/ipa/__tests__/IPA102CollectionIdentifierCamelCase.test.js
