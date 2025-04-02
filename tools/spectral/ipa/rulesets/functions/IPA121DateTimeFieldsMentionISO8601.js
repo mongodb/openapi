@@ -21,7 +21,7 @@ export default (input, options, { path, documentInventory }) => {
   }
 
   if (input.format === 'date-time') {
-    if (!input.description?.includes('ISO 8601')) {
+    if (!input.description?.includes('ISO 8601') && !input.description?.includes('UTC')) {
       return collectAndReturnViolation(path, RULE_NAME, [
         {
           path,
