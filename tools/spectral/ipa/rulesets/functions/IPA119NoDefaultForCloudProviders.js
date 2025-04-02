@@ -14,16 +14,12 @@ export default (input, { propertyNameToLookFor, cloudProviderEnumValues }, { pat
   const propertyObject = resolveObject(oas, path);
   const fieldType = path[path.length - 2];
 
-  if (fieldType === 'parameters' && !propertyObject.schema) {
-    return;
-  }
-
   if (hasException(propertyObject, RULE_NAME)) {
     collectException(propertyObject, RULE_NAME, path);
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(
+  const result = checkViolationsAndReturnErrors(
     input,
     propertyObject,
     path,
@@ -31,10 +27,12 @@ export default (input, { propertyNameToLookFor, cloudProviderEnumValues }, { pat
     fieldType,
     cloudProviderEnumValues
   );
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
+  if (result.errors.length !== 0) {
+    return collectAndReturnViolation(path, RULE_NAME, result.errors);
   }
-  collectAdoption(path, RULE_NAME);
+  if (result.isCloudProviderField) {
+    collectAdoption(path, RULE_NAME);
+  }
 };
 
 function checkViolationsAndReturnErrors(
@@ -46,14 +44,21 @@ function checkViolationsAndReturnErrors(
   cloudProviderEnumValues
 ) {
   try {
+    const result = {
+      errors: [],
+      isCloudProviderField: false,
+    };
+
     if (fieldType === 'properties') {
-      if (propertyName === propertyNameToLookFor && propertyObject.default !== undefined) {
-        return [
-          {
+      if (propertyName === propertyNameToLookFor) {
+        result.isCloudProviderField = true;
+        if (propertyObject.default !== undefined) {
+          result.errors.push({
             path,
             message: ERROR_MESSAGE,
-          },
-        ];
+          });
+          return result;
+        }
       }
 
       if (Array.isArray(propertyObject.enum) && propertyObject.enum.length > 0) {
@@ -61,23 +66,27 @@ function checkViolationsAndReturnErrors(
         const hasCloudProviderEnumValue = cloudProviderEnumValues.every((cloudProviderValue) =>
           enumValues.includes(cloudProviderValue)
         );
-        if (hasCloudProviderEnumValue && propertyObject.default !== undefined) {
-          return [
-            {
+        if (hasCloudProviderEnumValue) {
+          result.isCloudProviderField = true;
+          if (propertyObject.default !== undefined) {
+            result.errors.push({
               path,
               message: ERROR_MESSAGE,
-            },
-          ];
+            });
+            return result;
+          }
         }
       }
     } else if (fieldType === 'parameters') {
-      if (propertyObject.name === propertyNameToLookFor && propertyObject.schema.default !== undefined) {
-        return [
-          {
+      if (propertyObject.name === propertyNameToLookFor) {
+        result.isCloudProviderField = true;
+        if (propertyObject.schema.default !== undefined) {
+          result.errors.push({
             path,
             message: ERROR_MESSAGE,
-          },
-        ];
+          });
+          return result;
+        }
       }
 
       if (Array.isArray(propertyObject.schema.enum) && propertyObject.schema.enum.length > 0) {
@@ -86,18 +95,20 @@ function checkViolationsAndReturnErrors(
           enumValues.includes(cloudProviderValue)
         );
 
-        if (hasCloudProviderEnumValue && propertyObject.schema.default !== undefined) {
-          return [
-            {
+        if (hasCloudProviderEnumValue) {
+          result.isCloudProviderField = true;
+          if (propertyObject.schema.default !== undefined) {
+            result.errors.push({
               path,
               message: ERROR_MESSAGE,
-            },
-          ];
+            });
+            return result;
+          }
         }
       }
     }
 
-    return [];
+    return result;
   } catch (e) {
     handleInternalError(RULE_NAME, path, e);
   }

@@ -21,7 +21,7 @@ testRule('xgen-IPA-119-no-default-for-cloud-providers', [
     errors: [],
   },
   {
-    name: 'invalid when cloud provider field has default value',
+    name: 'invalid when cloudProvider field has default value',
     document: {
       components: {
         schemas: {
@@ -47,7 +47,7 @@ testRule('xgen-IPA-119-no-default-for-cloud-providers', [
     ],
   },
   {
-    name: 'invalid when cloud provider field has default value',
+    name: 'invalid when provider field has default value',
     document: {
       components: {
         schemas: {
