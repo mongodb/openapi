@@ -14,6 +14,10 @@ export default (input, { propertyNameToLookFor, cloudProviderEnumValues }, { pat
   const propertyObject = resolveObject(oas, path);
   const fieldType = path[path.length - 2];
 
+  if (fieldType === 'parameters' && !propertyObject.schema) {
+    return;
+  }
+
   if (hasException(propertyObject, RULE_NAME)) {
     collectException(propertyObject, RULE_NAME, path);
     return;
