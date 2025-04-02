@@ -112,21 +112,21 @@ testRule('xgen-IPA-121-date-time-fields-mention-iso-8601', [
       {
         code: 'xgen-IPA-121-date-time-fields-mention-iso-8601',
         message:
-          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 in their description.',
+          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 and UTC in their description.',
         path: ['components', 'schemas', 'TestSchema', 'properties', 'createdAt'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-121-date-time-fields-mention-iso-8601',
         message:
-          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 in their description.',
+          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 and UTC in their description.',
         path: ['components', 'schemas', 'TestSchema', 'properties', 'modifiedAt'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-121-date-time-fields-mention-iso-8601',
         message:
-          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 in their description.',
+          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 and UTC in their description.',
         path: ['components', 'parameters', 'TestParameter'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -202,7 +202,7 @@ testRule('xgen-IPA-121-date-time-fields-mention-iso-8601', [
       {
         code: 'xgen-IPA-121-date-time-fields-mention-iso-8601',
         message:
-          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 in their description.',
+          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 and UTC in their description.',
         path: ['paths', '/resources', 'get', 'parameters', '1'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -242,7 +242,7 @@ testRule('xgen-IPA-121-date-time-fields-mention-iso-8601', [
       {
         code: 'xgen-IPA-121-date-time-fields-mention-iso-8601',
         message:
-          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 in their description.',
+          'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 and UTC in their description.',
         path: [
           'paths',
           '/resources',

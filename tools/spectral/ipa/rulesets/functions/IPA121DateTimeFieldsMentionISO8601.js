@@ -4,7 +4,7 @@ import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-121-date-time-fields-mention-iso-8601';
 const ERROR_MESSAGE =
-  'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 in their description.';
+  'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 and UTC in their description.';
 
 export default (input, options, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
