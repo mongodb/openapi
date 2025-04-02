@@ -1,4 +1,13 @@
-# IPA Rule Development Guidelines
+# Copilot Review Guidelines
+
+## IPA Developement guidelines
+
+These guidelines should be applied only to changes within the following folders:
+- `tools/spectral/ipa/`
+ 
+Ensure that the changes being reviewed or implemented are within these specified folders. If changes are outside these folders, these guidelines do not apply.
+
+
 
 ## Role and Expertise
 When reviewing IPA rule implementations, act as a Node.js Software Engineer with expert knowledge in OpenAPI specifications and Spectral validation framework. Focus on ensuring rules are functional and well-documented.
