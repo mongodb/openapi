@@ -802,6 +802,18 @@ All cloudProviderEnumValues should be listed in the enum array.
 
 
 
+### IPA-121
+
+Rules are based on [http://go/ipa/IPA-121](http://go/ipa/IPA-121).
+
+#### xgen-IPA-121-date-time-fields-mention-iso-8601
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Fields with format="date-time" should mention ISO 8601 and UTC in their description.
+It collects adoption metrics at schema property level and parameter level
+
+
+
 ### IPA-123
 
 Rules are based on [http://go/ipa/IPA-123](http://go/ipa/IPA-123).
