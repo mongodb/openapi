@@ -107,7 +107,7 @@ testRule('xgen-IPA-123-enum-values-should-not-exceed-20', [
     ],
   },
   {
-    name: 'valid when exception is defined',
+    name: 'exception on schema',
     document: {
       components: {
         schemas: {
@@ -250,5 +250,36 @@ testRule('xgen-IPA-123-enum-values-should-not-exceed-20', [
         severity: DiagnosticSeverity.Warning,
       },
     ],
+  },
+  {
+    name: 'exception on parameter schema',
+    document: {
+      paths: {
+        '/resources': {
+          get: {
+            parameters: [
+              {
+                name: 'status',
+                in: 'query',
+                schema: {
+                  type: 'string',
+                  enum: [
+                    'VAL_1', 'VAL_2', 'VAL_3', 'VAL_4', 'VAL_5',
+                    'VAL_6', 'VAL_7', 'VAL_8', 'VAL_9', 'VAL_10',
+                    'VAL_11', 'VAL_12', 'VAL_13', 'VAL_14', 'VAL_15',
+                    'VAL_16', 'VAL_17', 'VAL_18', 'VAL_19', 'VAL_20',
+                    'VAL_21', 'VAL_22', 'VAL_23', 'VAL_24', 'VAL_25',
+                  ],
+                  'x-xgen-IPA-exception': {
+                    'xgen-IPA-123-enum-values-should-not-exceed-20': 'Parameter with many possible values',
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    },
+    errors: [],
   },
 ]);
