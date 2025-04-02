@@ -780,9 +780,9 @@ Rules are based on [http://go/ipa/IPA-119](http://go/ipa/IPA-119).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 When using a provider field or parameter, API producers should not define a default value.
-As providers are added, having a default value can impact usability.
-This rule checks fields containing "provider" or "cloudProvider" and ensures they do not have a default value.
+This rule checks fields and parameters named "cloudProvider" and ensures they do not have a default value.
 It also checks enum fields that might contain cloud provider values.
+All cloudProviderEnumValues should be listed in the enum array.
 
 
 

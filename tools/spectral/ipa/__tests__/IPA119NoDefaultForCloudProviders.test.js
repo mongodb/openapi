@@ -47,6 +47,32 @@ testRule('xgen-IPA-119-no-default-for-cloud-providers', [
     ],
   },
   {
+    name: 'invalid when cloud provider field has default value',
+    document: {
+      components: {
+        schemas: {
+          Schema: {
+            properties: {
+              provider: {
+                type: 'string',
+                enum: ['AWS', 'GCP', 'AZURE'],
+                default: 'AWS',
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-119-no-default-for-cloud-providers',
+        message: 'When using a provider field or param, API producers should not define a default value.',
+        path: ['components', 'schemas', 'Schema', 'properties', 'provider'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
     name: 'valid when non-provider field has default value',
     document: {
       components: {
@@ -134,6 +160,22 @@ testRule('xgen-IPA-119-no-default-for-cloud-providers', [
                 },
               },
             ],
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Schema: {
+            properties: {
+              provider: {
+                type: 'string',
+                enum: ['AWS', 'GCP', 'AZURE'],
+                default: 'AWS',
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-119-no-default-for-cloud-providers': 'Reason',
+                },
+              },
+            },
           },
         },
       },
