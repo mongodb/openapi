@@ -147,3 +147,49 @@ export function removeRequestProperties(schema) {
   let result = removePropertiesByFlag(schema, 'writeOnly');
   return removePropertyKeys(result, 'title', 'description', 'required');
 }
+
+/**
+ * Recursively finds all paths where additionalProperties is set to false in a schema
+ * @param {object} schema - The schema to analyze
+ * @param {Array<string>} currentPath - The current path (for recursion)
+ * @param {Array<Array<string>>} results - Accumulator for paths with additionalProperties: false
+ * @returns {Array<Array<string>>} Array of paths where additionalProperties: false was found
+ */
+export function findAdditionalPropertiesFalsePaths(schema, currentPath = [], results = []) {
+  if (!schema || typeof schema !== 'object') {
+    return results;
+  }
+
+  // Check if this schema has additionalProperties: false
+  if (schema.additionalProperties === false) {
+    results.push([...currentPath]);
+  }
+
+  // Check properties
+  if (schema.properties && typeof schema.properties === 'object') {
+    for (const [propName, propValue] of Object.entries(schema.properties)) {
+      if (typeof propValue === 'object') {
+        findAdditionalPropertiesFalsePaths(propValue, [...currentPath, 'properties', propName], results);
+      }
+    }
+  }
+
+  // Check items for arrays
+  if (schema.items && typeof schema.items === 'object') {
+    findAdditionalPropertiesFalsePaths(schema.items, [...currentPath, 'items'], results);
+  }
+
+  // Check other schema composition keywords
+  const compositionKeywords = ['allOf', 'anyOf', 'oneOf'];
+  for (const keyword of compositionKeywords) {
+    if (Array.isArray(schema[keyword])) {
+      schema[keyword].forEach((subSchema, index) => {
+        if (typeof subSchema === 'object') {
+          findAdditionalPropertiesFalsePaths(subSchema, [...currentPath, keyword, index.toString()], results);
+        }
+      });
+    }
+  }
+
+  return results;
+}

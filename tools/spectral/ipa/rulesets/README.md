@@ -772,6 +772,22 @@ The rule checks for the presence of the `schema`, `examples` or `example` proper
 
 
 
+### IPA-118
+
+Rules are based on [http://go/ipa/IPA-118](http://go/ipa/IPA-118).
+
+#### xgen-IPA-118-no-additional-properties-false
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Schemas must not use `additionalProperties: false`
+
+##### Implementation details
+This rule checks that schemas don't restrict additional properties by setting `additionalProperties: false`.
+Schemas without explicit `additionalProperties` settings (which default to true) or with `additionalProperties` set to `true` are compliant.
+This rule checks all nested schemas, but only parent schemas can be marked for exception.
+
+
+
 ### IPA-123
 
 Rules are based on [http://go/ipa/IPA-123](http://go/ipa/IPA-123).

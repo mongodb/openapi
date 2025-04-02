@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import {
+  findAdditionalPropertiesFalsePaths,
   isDeepEqual,
   removePropertiesByFlag,
   removePropertyKeys,
@@ -327,5 +328,159 @@ describe('removeRequestProperties', () => {
     };
 
     expect(removeRequestProperties(input)).toEqual(expected);
+  });
+});
+
+describe('findAdditionalPropertiesFalsePaths', () => {
+  it('finds additionalProperties:false at root level', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+      },
+      additionalProperties: false,
+    };
+
+    const results = findAdditionalPropertiesFalsePaths(schema, ['root']);
+    expect(results).toEqual([['root']]);
+  });
+
+  it('finds additionalProperties:false in nested properties', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            address: {
+              type: 'object',
+              additionalProperties: false,
+            },
+          },
+        },
+      },
+    };
+
+    const results = findAdditionalPropertiesFalsePaths(schema, ['root']);
+    expect(results).toEqual([['root', 'properties', 'user', 'properties', 'address']]);
+  });
+
+  it('finds additionalProperties:false in array items', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+      },
+    };
+
+    const results = findAdditionalPropertiesFalsePaths(schema, ['root']);
+    expect(results).toEqual([['root', 'items']]);
+  });
+
+  it('finds additionalProperties:false in composition keywords', () => {
+    const schema = {
+      oneOf: [
+        {
+          type: 'object',
+          additionalProperties: false,
+        },
+        {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+      ],
+    };
+
+    const results = findAdditionalPropertiesFalsePaths(schema, ['root']);
+    expect(results).toEqual([['root', 'oneOf', '0']]);
+  });
+
+  it('finds multiple additionalProperties:false occurrences', () => {
+    const schema = {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        user: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            addresses: {
+              type: 'array',
+              items: {
+                type: 'object',
+                additionalProperties: false,
+              },
+            },
+          },
+        },
+        metadata: {
+          allOf: [
+            {
+              type: 'object',
+              additionalProperties: false,
+            },
+          ],
+        },
+      },
+    };
+
+    const results = findAdditionalPropertiesFalsePaths(schema, ['root']);
+    expect(results).toEqual([
+      ['root'],
+      ['root', 'properties', 'user'],
+      ['root', 'properties', 'user', 'properties', 'addresses', 'items'],
+      ['root', 'properties', 'metadata', 'allOf', '0'],
+    ]);
+  });
+
+  it('handles deeply nested structures', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        level1: {
+          type: 'object',
+          properties: {
+            level2: {
+              type: 'object',
+              properties: {
+                level3: {
+                  type: 'object',
+                  properties: {
+                    level4: {
+                      type: 'object',
+                      additionalProperties: false,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const results = findAdditionalPropertiesFalsePaths(schema, ['root']);
+    expect(results).toEqual([
+      ['root', 'properties', 'level1', 'properties', 'level2', 'properties', 'level3', 'properties', 'level4'],
+    ]);
+  });
+
+  it('does not find additionalProperties:true or schema objects', () => {
+    const schema = {
+      type: 'object',
+      additionalProperties: true,
+      properties: {
+        user: {
+          type: 'object',
+          additionalProperties: { type: 'string' },
+        },
+      },
+    };
+
+    const results = findAdditionalPropertiesFalsePaths(schema, ['root']);
+    expect(results).toEqual([]);
   });
 });
