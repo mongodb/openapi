@@ -26,10 +26,10 @@ testRule('xgen-IPA-121-date-time-fields-mention-iso-8601', [
           TestParameter: {
             name: 'createdAt',
             in: 'query',
+            description: 'The creation timestamp in ISO 8601 format in UTC.',
             schema: {
               type: 'string',
               format: 'date-time',
-              description: 'The creation timestamp in ISO 8601 format in UTC.',
             },
           },
         },
@@ -82,10 +82,10 @@ testRule('xgen-IPA-121-date-time-fields-mention-iso-8601', [
           TestParameter: {
             name: 'createdAt',
             in: 'query',
+            description: 'The creation timestamp',
             schema: {
               type: 'string',
               format: 'date-time',
-              description: 'The creation timestamp',
             },
           },
         },
@@ -127,7 +127,7 @@ testRule('xgen-IPA-121-date-time-fields-mention-iso-8601', [
         code: 'xgen-IPA-121-date-time-fields-mention-iso-8601',
         message:
           'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 in their description.',
-        path: ['components', 'parameters', 'TestParameter', 'schema'],
+        path: ['components', 'parameters', 'TestParameter'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -154,13 +154,13 @@ testRule('xgen-IPA-121-date-time-fields-mention-iso-8601', [
           TestParameter: {
             name: 'createdAt',
             in: 'query',
+            description: 'The creation timestamp',
             schema: {
               type: 'string',
               format: 'date-time',
-              description: 'The creation timestamp',
-              'x-xgen-IPA-exception': {
-                'xgen-IPA-121-date-time-fields-mention-iso-8601': 'Legacy field format',
-              },
+            },
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-121-date-time-fields-mention-iso-8601': 'Legacy field format',
             },
           },
         },
@@ -178,19 +178,19 @@ testRule('xgen-IPA-121-date-time-fields-mention-iso-8601', [
               {
                 name: 'since',
                 in: 'query',
+                description: 'Filter resources created since this ISO 8601 timestamp in UTC',
                 schema: {
                   type: 'string',
                   format: 'date-time',
-                  description: 'Filter resources created since this ISO 8601 timestamp in UTC',
                 },
               },
               {
                 name: 'until',
                 in: 'query',
+                description: 'Filter resources created until this timestamp', // Missing ISO 8601 and UTC
                 schema: {
                   type: 'string',
                   format: 'date-time',
-                  description: 'Filter resources created until this timestamp', // Missing ISO 8601 and UTC
                 },
               },
             ],
@@ -203,7 +203,7 @@ testRule('xgen-IPA-121-date-time-fields-mention-iso-8601', [
         code: 'xgen-IPA-121-date-time-fields-mention-iso-8601',
         message:
           'API producers must use ISO 8601 date-time format in UTC for all timestamps. Fields must note ISO 8601 in their description.',
-        path: ['paths', '/resources', 'get', 'parameters', '1', 'schema'],
+        path: ['paths', '/resources', 'get', 'parameters', '1'],
         severity: DiagnosticSeverity.Warning,
       },
     ],

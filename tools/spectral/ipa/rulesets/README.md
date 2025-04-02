@@ -810,6 +810,7 @@ Rules are based on [http://go/ipa/IPA-121](http://go/ipa/IPA-121).
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Fields with format="date-time" should mention ISO 8601 and UTC in their description.
+It collects adoption metrics at schema property level and parameter level
 
 
 

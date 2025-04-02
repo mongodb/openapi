@@ -9,7 +9,7 @@ const ERROR_MESSAGE =
 export default (input, options, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const propertyObject = resolveObject(oas, path);
-
+  const fieldType = path[path.length - 2];
   // Not to duplicate the check for referenced schemas
   if (!propertyObject) {
     return;
@@ -20,8 +20,16 @@ export default (input, options, { path, documentInventory }) => {
     return;
   }
 
-  if (input.format === 'date-time') {
-    if (!input.description?.includes('ISO 8601') && !input.description?.includes('UTC')) {
+  let format;
+  let description = input.description;
+  if (fieldType === 'parameters') {
+    format = input.schema?.format;
+  } else if (fieldType === 'properties') {
+    format = input.format;
+  }
+
+  if (format === 'date-time') {
+    if (!description?.includes('ISO 8601') && !description?.includes('UTC')) {
       return collectAndReturnViolation(path, RULE_NAME, [
         {
           path,
