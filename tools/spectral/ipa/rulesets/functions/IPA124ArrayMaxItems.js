@@ -15,10 +15,24 @@ const RULE_NAME = 'xgen-IPA-124-array-max-items';
  * @param {object} options - Rule configuration options
  * @param {object} context - The context object containing the path and documentInventory
  */
-export default (input, { maxItems }, { path }) => {
+export default (input, { maxItems, ignore = [] }, { path }) => {
   // Check for exception at the schema level
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
+    return;
+  }
+
+  let propertyName;
+  if (path.includes('parameters')) {
+    propertyName = input.name;
+  } else if (path.includes('content')) {
+    propertyName = null;
+  } else {
+    propertyName = path[path.length - 1];
+  }
+
+  // Check if the parameter name is in the ignore list
+  if (ignore.includes(propertyName)) {
     return;
   }
 
@@ -42,10 +56,10 @@ function checkViolationsAndReturnErrors(input, path, maxItems) {
       ];
     }
     // Check if maxItems is set to the required value
-    else if (input.maxItems !== maxItems) {
+    else if (input.maxItems > maxItems) {
       return [
         {
-          message: `Array maxItems must be set to ${maxItems}, found: ${input.maxItems}.`,
+          message: `Array maxItems must be set below ${maxItems}, found: ${input.maxItems}.`,
           path,
         },
       ];

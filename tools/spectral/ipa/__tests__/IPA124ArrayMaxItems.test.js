@@ -38,6 +38,12 @@ testRule('xgen-IPA-124-array-max-items', [
                   type: 'string',
                 },
               },
+              links: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                },
+              },
             },
           },
         },
@@ -62,7 +68,7 @@ testRule('xgen-IPA-124-array-max-items', [
             properties: {
               arrayProperty: {
                 type: 'array',
-                maxItems: 50,
+                maxItems: 101,
                 items: {
                   type: 'string',
                 },
@@ -75,7 +81,7 @@ testRule('xgen-IPA-124-array-max-items', [
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
-        message: 'Array maxItems must be set to 100, found: 50.',
+        message: 'Array maxItems must be set below 100, found: 101.',
         path: ['components', 'schemas', 'InvalidSchema', 'properties', 'arrayProperty'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -118,7 +124,7 @@ testRule('xgen-IPA-124-array-max-items', [
                 maxItems: 100,
                 arrayProperty: {
                   type: 'array',
-                  maxItems: 50,
+                  maxItems: 101,
                   items: {
                     type: 'string',
                   },
@@ -132,7 +138,7 @@ testRule('xgen-IPA-124-array-max-items', [
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
-        message: 'Array maxItems must be set to 100, found: 50.',
+        message: 'Array maxItems must be set below 100, found: 101.',
         path: ['components', 'schemas', 'NestedArrays', 'properties', 'outerArray', 'arrayProperty'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -183,5 +189,198 @@ testRule('xgen-IPA-124-array-max-items', [
         severity: DiagnosticSeverity.Warning,
       },
     ],
+  },
+  {
+    name: 'parameter arrays should be checked',
+    document: {
+      paths: {
+        '/api/resources': {
+          get: {
+            parameters: [
+              {
+                name: 'ids',
+                in: 'query',
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-124-array-max-items',
+        message: 'Array must have maxItems property defined to enforce an upper bound on the number of items.',
+        path: ['paths', '/api/resources', 'get', 'parameters', '0', 'schema'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'arrays with property names in the ignore list should be skipped',
+    document: {
+      components: {
+        schemas: {
+          IgnoredSchema: {
+            type: 'object',
+            properties: {
+              links: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'arrays in response content should be checked - invalid case',
+    document: {
+      paths: {
+        '/api/resources': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-124-array-max-items',
+        message: 'Array must have maxItems property defined to enforce an upper bound on the number of items.',
+        path: [
+          'paths',
+          '/api/resources',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2023-01-01+json',
+          'schema',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'arrays in response content should be checked - valid case',
+    document: {
+      paths: {
+        '/api/resources': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'array',
+                      maxItems: 100,
+                      items: {
+                        type: 'object',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'arrays in response content with excessive maxItems',
+    document: {
+      paths: {
+        '/api/resources': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'array',
+                      maxItems: 500,
+                      items: {
+                        type: 'object',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-124-array-max-items',
+        message: 'Array maxItems must be set below 100, found: 500.',
+        path: [
+          'paths',
+          '/api/resources',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2023-01-01+json',
+          'schema',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'arrays in response content with exception should be skipped',
+    document: {
+      paths: {
+        '/api/resources': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                      },
+                      'x-xgen-IPA-exception': {
+                        'xgen-IPA-124-array-max-items': 'Large response array is necessary',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
   },
 ]);
