@@ -46,7 +46,7 @@ testRule('xgen-IPA-124-array-max-items', [
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
-        message: 'Array must have maxItems property defined.',
+        message: 'Array must have maxItems property defined to enforce an upper bound on the number of items.',
         path: ['components', 'schemas', 'InvalidSchema', 'properties', 'items'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -168,7 +168,7 @@ testRule('xgen-IPA-124-array-max-items', [
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
-        message: 'Array must have maxItems property defined.',
+        message: 'Array must have maxItems property defined to enforce an upper bound on the number of items.',
         path: [
           'paths',
           '/api/resources',

@@ -36,7 +36,7 @@ function checkViolationsAndReturnErrors(input, path, maxItems) {
     if (input.maxItems === undefined) {
       return [
         {
-          message: `Array must have maxItems property defined.`,
+          message: `Array must have maxItems property defined to enforce an upper bound on the number of items.`,
           path,
         },
       ];
