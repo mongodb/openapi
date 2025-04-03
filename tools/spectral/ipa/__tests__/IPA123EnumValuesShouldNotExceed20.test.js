@@ -100,7 +100,7 @@ testRule('xgen-IPA-123-allowable-enum-values-should-not-exceed-20', [
     errors: [
       {
         code: 'xgen-IPA-123-allowable-enum-values-should-not-exceed-20',
-        message: 'Enum arrays should not exceed 20 values. Current count: 21',
+        message: 'Inline enum arrays should not exceed 20 values. Current count: 21',
         path: ['components', 'schemas', 'TestSchema', 'properties', 'status', 'enum'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -172,7 +172,7 @@ testRule('xgen-IPA-123-allowable-enum-values-should-not-exceed-20', [
     errors: [
       {
         code: 'xgen-IPA-123-allowable-enum-values-should-not-exceed-20',
-        message: 'Enum arrays should not exceed 20 values. Current count: 21',
+        message: 'Inline enum arrays should not exceed 20 values. Current count: 21',
         path: ['components', 'schemas', 'TestSchema', 'properties', 'priority', 'enum'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -245,7 +245,7 @@ testRule('xgen-IPA-123-allowable-enum-values-should-not-exceed-20', [
     errors: [
       {
         code: 'xgen-IPA-123-allowable-enum-values-should-not-exceed-20',
-        message: 'Enum arrays should not exceed 20 values. Current count: 21',
+        message: 'Inline enum arrays should not exceed 20 values. Current count: 21',
         path: ['paths', '/resources', 'get', 'parameters', '0', 'schema', 'enum'],
         severity: DiagnosticSeverity.Warning,
       },
