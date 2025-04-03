@@ -858,7 +858,7 @@ Array fields must have a maxItems property defined to enforce an upper bound on 
 Rule checks for the following conditions:
 
   - All schema objects with type 'array' must have a maxItems property
-  - The maxItems value must be set to 100
+  - The maxItems value must be set below the threshold of 100
 
 ##### Function options
         - maxItems: Required integer parameter specifying the maximum allowed array size (default: 100)
