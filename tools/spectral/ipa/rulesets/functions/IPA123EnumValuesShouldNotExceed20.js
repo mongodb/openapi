@@ -5,9 +5,8 @@ import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-123-allowable-enum-values-should-not-exceed-20';
 const ERROR_MESSAGE = 'Inline enum arrays should not exceed 20 values. Current count: ';
-const MAX_ENUM_VALUES = 20;
 
-export default (input, options, { path, documentInventory }) => {
+export default (input, { maxEnumValues }, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const schemaPath = getSchemaPathFromEnumPath(path);
   const schemaObject = resolveObject(oas, schemaPath);
@@ -27,7 +26,7 @@ export default (input, options, { path, documentInventory }) => {
     return;
   }
 
-  if (input.length > MAX_ENUM_VALUES) {
+  if (input.length > maxEnumValues) {
     return collectAndReturnViolation(path, RULE_NAME, [
       {
         path,
