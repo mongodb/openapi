@@ -352,6 +352,13 @@ testRule('xgen-IPA-123-allowable-enum-values-should-not-exceed-20', [
               'VAL_25',
             ],
           },
+          TestSchema: {
+            properties: {
+              status: {
+                $ref: '#/components/schemas/StatusEnum',
+              },
+            },
+          },
         },
       },
     },
