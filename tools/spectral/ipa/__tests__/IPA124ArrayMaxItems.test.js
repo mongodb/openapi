@@ -14,15 +14,15 @@ testRule('xgen-IPA-124-array-max-items', [
                 type: 'array',
                 maxItems: 100,
                 items: {
-                  type: 'string'
-                }
-              }
-            }
-          }
-        }
-      }
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    errors: []
+    errors: [],
   },
   {
     name: 'invalid array missing maxItems',
@@ -35,22 +35,22 @@ testRule('xgen-IPA-124-array-max-items', [
               items: {
                 type: 'array',
                 items: {
-                  type: 'string'
-                }
-              }
-            }
-          }
-        }
-      }
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
     },
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
         message: 'Array must have maxItems property defined.',
         path: ['components', 'schemas', 'InvalidSchema', 'properties', 'items'],
-        severity: DiagnosticSeverity.Warning
-      }
-    ]
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
   },
   {
     name: 'invalid array with incorrect maxItems value',
@@ -64,22 +64,22 @@ testRule('xgen-IPA-124-array-max-items', [
                 type: 'array',
                 maxItems: 50,
                 items: {
-                  type: 'string'
-                }
-              }
-            }
-          }
-        }
-      }
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
     },
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
         message: 'Array maxItems must be set to 100, found: 50.',
         path: ['components', 'schemas', 'InvalidSchema', 'properties', 'items'],
-        severity: DiagnosticSeverity.Warning
-      }
-    ]
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
   },
   {
     name: 'array with exception should be skipped',
@@ -92,18 +92,18 @@ testRule('xgen-IPA-124-array-max-items', [
               items: {
                 type: 'array',
                 items: {
-                  type: 'string'
+                  type: 'string',
                 },
                 'x-xgen-IPA-exception': {
-                  'xgen-IPA-124-array-max-items': 'Reason'
-                }
-              }
-            }
-          }
-        }
-      }
+                  'xgen-IPA-124-array-max-items': 'Reason',
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    errors: []
+    errors: [],
   },
   {
     name: 'nested arrays should all be checked',
@@ -117,26 +117,26 @@ testRule('xgen-IPA-124-array-max-items', [
                 type: 'array',
                 maxItems: 100,
                 items: {
-                  type: 'array', 
+                  type: 'array',
                   maxItems: 50,
                   items: {
-                    type: 'string'
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
         message: 'Array maxItems must be set to 100, found: 50.',
         path: ['components', 'schemas', 'NestedArrays', 'properties', 'outerArray', 'items'],
-        severity: DiagnosticSeverity.Warning
-      }
-    ]
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
   },
   {
     name: 'arrays in request/response bodies should be checked',
@@ -153,25 +153,35 @@ testRule('xgen-IPA-124-array-max-items', [
                       items: {
                         type: 'array',
                         items: {
-                          type: 'string'
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                          type: 'string',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
         message: 'Array must have maxItems property defined.',
-        path: ['paths', '/api/resources', 'post', 'requestBody', 'content', 'application/json', 'schema', 'properties', 'items'],
-        severity: DiagnosticSeverity.Warning
-      }
-    ]
-  }
+        path: [
+          'paths',
+          '/api/resources',
+          'post',
+          'requestBody',
+          'content',
+          'application/json',
+          'schema',
+          'properties',
+          'items',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
 ]);

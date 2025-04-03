@@ -841,6 +841,7 @@ Rule checks for the following conditions:
   - Validates that each enum array has 20 or fewer values
   - Reusable enum schemas will be ignored
   - Skips validation if the schema has an exception defined for this rule
+  - This validation threshold can be adjusted by changing the functionOptions.maxEnumValues parameter
 
 
 
@@ -858,7 +859,7 @@ Rule checks for the following conditions:
 
   - All schema objects with type 'array' must have a maxItems property
   - The maxItems value must be set to 100
-  - Schema objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+  - This validation threshold can be adjusted by changing the functionOptions.maxItems parameter
 
 
 
