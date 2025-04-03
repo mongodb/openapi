@@ -844,6 +844,24 @@ Rule checks for the following conditions:
 
 
 
+### IPA-124
+
+Rules are based on [http://go/ipa/IPA-124](http://go/ipa/IPA-124).
+
+#### xgen-IPA-124-array-max-items
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Array fields must have a maxItems property defined with a value of 100.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - All schema objects with type 'array' must have a maxItems property
+  - The maxItems value must be set to 100
+  - Schema objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+
+
 ### IPA-125
 
 Rules are based on [http://go/ipa/IPA-125](http://go/ipa/IPA-125).
