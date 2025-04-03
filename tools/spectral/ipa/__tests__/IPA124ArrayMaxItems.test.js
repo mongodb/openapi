@@ -17,6 +17,13 @@ testRule('xgen-IPA-124-array-max-items', [
                   type: 'string',
                 },
               },
+              anotherArrayProperty: {
+                type: 'array',
+                maxItems: 50,
+                items: {
+                  type: 'string',
+                },
+              },
             },
           },
         },
@@ -81,7 +88,8 @@ testRule('xgen-IPA-124-array-max-items', [
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
-        message: 'Array maxItems must be set below 100, found: 101.',
+        message:
+          'The maxItems value for arrays must be set to 100 or below, found: 101. If the array field has the chance of being too large, the API should use a sub-resource instead.',
         path: ['components', 'schemas', 'InvalidSchema', 'properties', 'arrayProperty'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -121,10 +129,10 @@ testRule('xgen-IPA-124-array-max-items', [
             properties: {
               outerArray: {
                 type: 'array',
-                maxItems: 100,
+                maxItems: 500,
                 arrayProperty: {
                   type: 'array',
-                  maxItems: 101,
+                  maxItems: 500,
                   items: {
                     type: 'string',
                   },
@@ -138,7 +146,15 @@ testRule('xgen-IPA-124-array-max-items', [
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
-        message: 'Array maxItems must be set below 100, found: 101.',
+        message:
+          'The maxItems value for arrays must be set to 100 or below, found: 500. If the array field has the chance of being too large, the API should use a sub-resource instead.',
+        path: ['components', 'schemas', 'NestedArrays', 'properties', 'outerArray'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-124-array-max-items',
+        message:
+          'The maxItems value for arrays must be set to 100 or below, found: 500. If the array field has the chance of being too large, the API should use a sub-resource instead.',
         path: ['components', 'schemas', 'NestedArrays', 'properties', 'outerArray', 'arrayProperty'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -339,7 +355,8 @@ testRule('xgen-IPA-124-array-max-items', [
     errors: [
       {
         code: 'xgen-IPA-124-array-max-items',
-        message: 'Array maxItems must be set below 100, found: 500.',
+        message:
+          'The maxItems value for arrays must be set to 100 or below, found: 500. If the array field has the chance of being too large, the API should use a sub-resource instead.',
         path: [
           'paths',
           '/api/resources',

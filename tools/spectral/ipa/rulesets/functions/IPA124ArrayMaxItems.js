@@ -55,11 +55,11 @@ function checkViolationsAndReturnErrors(input, path, maxItems) {
         },
       ];
     }
-    // Check if maxItems is set to the required value
+    // Check if maxItems is larger than the recommended value
     else if (input.maxItems > maxItems) {
       return [
         {
-          message: `Array maxItems must be set below ${maxItems}, found: ${input.maxItems}.`,
+          message: `The maxItems value for arrays must be set to ${maxItems} or below, found: ${input.maxItems}. If the array field has the chance of being too large, the API should use a sub-resource instead.`,
           path,
         },
       ];
