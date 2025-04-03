@@ -16,6 +16,8 @@ const RULE_NAME = 'xgen-IPA-124-array-max-items';
  * @param {object} context - The context object containing the path and documentInventory
  */
 export default (input, { maxItems }, { path }) => {
+  console.log(input);
+  console.log(path);
   // Check for exception at the schema level
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);

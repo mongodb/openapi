@@ -10,7 +10,7 @@ testRule('xgen-IPA-124-array-max-items', [
           ValidSchema: {
             type: 'object',
             properties: {
-              items: {
+              arrayProperty: {
                 type: 'array',
                 maxItems: 100,
                 items: {
@@ -32,7 +32,7 @@ testRule('xgen-IPA-124-array-max-items', [
           InvalidSchema: {
             type: 'object',
             properties: {
-              items: {
+              arrayProperty: {
                 type: 'array',
                 items: {
                   type: 'string',
@@ -47,7 +47,7 @@ testRule('xgen-IPA-124-array-max-items', [
       {
         code: 'xgen-IPA-124-array-max-items',
         message: 'Array must have maxItems property defined to enforce an upper bound on the number of items.',
-        path: ['components', 'schemas', 'InvalidSchema', 'properties', 'items'],
+        path: ['components', 'schemas', 'InvalidSchema', 'properties', 'arrayProperty'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -60,7 +60,7 @@ testRule('xgen-IPA-124-array-max-items', [
           InvalidSchema: {
             type: 'object',
             properties: {
-              items: {
+              arrayProperty: {
                 type: 'array',
                 maxItems: 50,
                 items: {
@@ -76,7 +76,7 @@ testRule('xgen-IPA-124-array-max-items', [
       {
         code: 'xgen-IPA-124-array-max-items',
         message: 'Array maxItems must be set to 100, found: 50.',
-        path: ['components', 'schemas', 'InvalidSchema', 'properties', 'items'],
+        path: ['components', 'schemas', 'InvalidSchema', 'properties', 'arrayProperty'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -89,7 +89,7 @@ testRule('xgen-IPA-124-array-max-items', [
           ExceptionSchema: {
             type: 'object',
             properties: {
-              items: {
+              arrayProperty: {
                 type: 'array',
                 items: {
                   type: 'string',
@@ -116,7 +116,7 @@ testRule('xgen-IPA-124-array-max-items', [
               outerArray: {
                 type: 'array',
                 maxItems: 100,
-                items: {
+                arrayProperty: {
                   type: 'array',
                   maxItems: 50,
                   items: {
@@ -133,7 +133,7 @@ testRule('xgen-IPA-124-array-max-items', [
       {
         code: 'xgen-IPA-124-array-max-items',
         message: 'Array maxItems must be set to 100, found: 50.',
-        path: ['components', 'schemas', 'NestedArrays', 'properties', 'outerArray', 'items'],
+        path: ['components', 'schemas', 'NestedArrays', 'properties', 'outerArray', 'arrayProperty'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -150,7 +150,7 @@ testRule('xgen-IPA-124-array-max-items', [
                   schema: {
                     type: 'object',
                     properties: {
-                      items: {
+                      arrayProperty: {
                         type: 'array',
                         items: {
                           type: 'string',
@@ -178,7 +178,7 @@ testRule('xgen-IPA-124-array-max-items', [
           'application/json',
           'schema',
           'properties',
-          'items',
+          'arrayProperty',
         ],
         severity: DiagnosticSeverity.Warning,
       },
