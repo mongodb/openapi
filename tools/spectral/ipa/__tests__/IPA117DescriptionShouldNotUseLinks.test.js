@@ -55,14 +55,14 @@ testRule('xgen-IPA-117-description-should-not-use-inline-links', [
         message:
           'Descriptions should not include inline links. Use the externalDocumentation property instead, see https://swagger.io/specification/#external-documentation-object.',
         path: ['components', 'schemas', 'Schema', 'properties', 'invalidLink'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description-should-not-use-inline-links',
         message:
           'Descriptions should not include inline links. Use the externalDocumentation property instead, see https://swagger.io/specification/#external-documentation-object.',
         path: ['components', 'schemas', 'Schema', 'properties', 'invalidMultipleLinks'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

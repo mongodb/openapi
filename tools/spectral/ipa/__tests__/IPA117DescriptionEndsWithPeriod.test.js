@@ -39,7 +39,7 @@ testRule('xgen-IPA-117-description-ends-with-period', [
         code: 'xgen-IPA-117-description-ends-with-period',
         message: 'Descriptions must end with a full stop(.).',
         path: ['components', 'schemas', 'Schema', 'properties', 'noPeriod'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

@@ -108,7 +108,7 @@ testRule('xgen-IPA-110-collections-response-define-links-array', [
         message:
           'The response for collections should define a links array field, providing links to next and previous pages.',
         path: ['paths', '/resources', 'get', 'responses', '200', 'content', 'application/json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
