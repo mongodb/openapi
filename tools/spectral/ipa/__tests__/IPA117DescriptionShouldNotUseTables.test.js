@@ -55,35 +55,35 @@ testRule('xgen-IPA-117-description-should-not-use-inline-tables', [
         message:
           'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
         path: ['components', 'schemas', 'Schema', 'properties', 'table'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description-should-not-use-inline-tables',
         message:
           'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
         path: ['components', 'schemas', 'Schema', 'properties', 'tableLeftAlignment'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description-should-not-use-inline-tables',
         message:
           'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
         path: ['components', 'schemas', 'Schema', 'properties', 'tableCenterAlignment'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description-should-not-use-inline-tables',
         message:
           'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
         path: ['components', 'schemas', 'Schema', 'properties', 'tableRightAlignment'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description-should-not-use-inline-tables',
         message:
           'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
         path: ['components', 'schemas', 'Schema', 'properties', 'largeTable'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

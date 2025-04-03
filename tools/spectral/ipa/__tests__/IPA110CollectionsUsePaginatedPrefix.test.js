@@ -110,7 +110,7 @@ testRule('xgen-IPA-110-collections-use-paginated-prefix', [
         message:
           'List methods response must reference a paginated response schema. The response should reference a schema with "Paginated" prefix.',
         path: ['paths', '/resources', 'get', 'responses', '200', 'content', 'application/json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -151,21 +151,21 @@ testRule('xgen-IPA-110-collections-use-paginated-prefix', [
         message:
           'List methods response must reference a paginated response schema. The response should reference a schema with "Paginated" prefix.',
         path: ['paths', '/resources', 'get', 'responses', '200', 'content', 'application/vnd.atlas.2024-08-05+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-110-collections-use-paginated-prefix',
         message:
           'List methods response must reference a paginated response schema. The schema is defined inline and must reference a predefined paginated schema.',
         path: ['paths', '/resources', 'get', 'responses', '200', 'content', 'application/vnd.atlas.2024-01-01+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-110-collections-use-paginated-prefix',
         message:
           'List methods response must reference a paginated response schema. The List method response does not have a schema defined.',
         path: ['paths', '/resources', 'get', 'responses', '200', 'content', 'application/vnd.atlas.2024-03-03+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -212,7 +212,7 @@ testRule('xgen-IPA-110-collections-use-paginated-prefix', [
         code: 'xgen-IPA-110-collections-use-paginated-prefix',
         message: 'The schema is defined inline and must reference a predefined paginated schema.',
         path: ['paths', '/resources', 'get', 'responses', '200', 'content', 'application/json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
