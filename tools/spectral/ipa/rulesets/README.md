@@ -859,7 +859,10 @@ Rule checks for the following conditions:
 
   - All schema objects with type 'array' must have a maxItems property
   - The maxItems value must be set to 100
-  - This validation threshold can be adjusted by changing the functionOptions.maxItems parameter
+
+##### Function options
+        - maxItems: Required integer parameter specifying the maximum allowed array size (default: 100)
+        - ignore: Required array parameter listing property names to be exempted from validation
 
 
 
