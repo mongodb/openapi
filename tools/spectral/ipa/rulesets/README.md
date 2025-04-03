@@ -852,7 +852,7 @@ Rules are based on [http://go/ipa/IPA-124](http://go/ipa/IPA-124).
 #### xgen-IPA-124-array-max-items
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Array fields must have a maxItems property defined with a value of 100.
+Array fields must have a maxItems property defined to enforce an upper bound on the number of items (default: 100).
 
 ##### Implementation details
 Rule checks for the following conditions:
