@@ -3,7 +3,7 @@ import { collectAdoption, collectAndReturnViolation, collectException } from './
 import { getSchemaPathFromEnumPath } from './utils/schemaUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-123-enum-values-should-not-exceed-20';
+const RULE_NAME = 'xgen-IPA-123-allowable-enum-values-should-not-exceed-20';
 const ERROR_MESSAGE = 'Enum arrays should not exceed 20 values. Current count: ';
 const MAX_ENUM_VALUES = 20;
 
@@ -11,6 +11,11 @@ export default (input, options, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const schemaPath = getSchemaPathFromEnumPath(path);
   const schemaObject = resolveObject(oas, schemaPath);
+
+  //Ignore if the schemaObject belongs to a reusable enum
+  if (!schemaPath.includes('properties') && !schemaPath.includes('parameters')) {
+    return;
+  }
 
   // Check for exceptions
   if (hasException(schemaObject, RULE_NAME)) {

@@ -830,15 +830,16 @@ Rule checks for the following conditions:
   - Validates each enum value individually against the UPPER_SNAKE_CASE pattern
   - Skips validation if the schema has an exception defined for this rule
 
-#### xgen-IPA-123-enum-values-should-not-exceed-20
+#### xgen-IPA-123-allowable-enum-values-should-not-exceed-20
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Enum values should not exceed 20 entries.
+Allowable enum values should not exceed 20 entries.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to all enum value arrays defined in the OpenAPI schema
+  - Applies to enum value arrays defined in the parameters and schema properties
   - Validates that each enum array has 20 or fewer values
+  - Reusable enum schemas will be ignored
   - Skips validation if the schema has an exception defined for this rule
 
 

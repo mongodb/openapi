@@ -1,7 +1,7 @@
 import testRule from './__helpers__/testRule.js';
 import { DiagnosticSeverity } from '@stoplight/types';
 
-testRule('xgen-IPA-123-enum-values-should-not-exceed-20', [
+testRule('xgen-IPA-123-allowable-enum-values-should-not-exceed-20', [
   {
     name: 'valid when enum has exactly 20 values',
     document: {
@@ -99,7 +99,7 @@ testRule('xgen-IPA-123-enum-values-should-not-exceed-20', [
     },
     errors: [
       {
-        code: 'xgen-IPA-123-enum-values-should-not-exceed-20',
+        code: 'xgen-IPA-123-allowable-enum-values-should-not-exceed-20',
         message: 'Enum arrays should not exceed 20 values. Current count: 21',
         path: ['components', 'schemas', 'TestSchema', 'properties', 'status', 'enum'],
         severity: DiagnosticSeverity.Warning,
@@ -143,7 +143,7 @@ testRule('xgen-IPA-123-enum-values-should-not-exceed-20', [
                   'VALUE_25',
                 ],
                 'x-xgen-IPA-exception': {
-                  'xgen-IPA-123-enum-values-should-not-exceed-20': 'Legacy enum with more than 20 values',
+                  'xgen-IPA-123-allowable-enum-values-should-not-exceed-20': 'Legacy enum with more than 20 values',
                 },
               },
             },
@@ -171,7 +171,7 @@ testRule('xgen-IPA-123-enum-values-should-not-exceed-20', [
     },
     errors: [
       {
-        code: 'xgen-IPA-123-enum-values-should-not-exceed-20',
+        code: 'xgen-IPA-123-allowable-enum-values-should-not-exceed-20',
         message: 'Enum arrays should not exceed 20 values. Current count: 21',
         path: ['components', 'schemas', 'TestSchema', 'properties', 'priority', 'enum'],
         severity: DiagnosticSeverity.Warning,
@@ -244,7 +244,7 @@ testRule('xgen-IPA-123-enum-values-should-not-exceed-20', [
     },
     errors: [
       {
-        code: 'xgen-IPA-123-enum-values-should-not-exceed-20',
+        code: 'xgen-IPA-123-allowable-enum-values-should-not-exceed-20',
         message: 'Enum arrays should not exceed 20 values. Current count: 21',
         path: ['paths', '/resources', 'get', 'parameters', '0', 'schema', 'enum'],
         severity: DiagnosticSeverity.Warning,
@@ -291,10 +291,65 @@ testRule('xgen-IPA-123-enum-values-should-not-exceed-20', [
                     'VAL_25',
                   ],
                   'x-xgen-IPA-exception': {
-                    'xgen-IPA-123-enum-values-should-not-exceed-20': 'Parameter with many possible values',
+                    'xgen-IPA-123-allowable-enum-values-should-not-exceed-20': 'Parameter with many possible values',
                   },
                 },
               },
+            ],
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid on with reusable schemas',
+    document: {
+      paths: {
+        '/resources': {
+          get: {
+            parameters: [
+              {
+                name: 'status',
+                in: 'query',
+                schema: {
+                  $ref: '#/components/schemas/StatusEnum',
+                },
+              },
+            ],
+          },
+        },
+      },
+      components: {
+        schemas: {
+          StatusEnum: {
+            type: 'string',
+            enum: [
+              'VAL_1',
+              'VAL_2',
+              'VAL_3',
+              'VAL_4',
+              'VAL_5',
+              'VAL_6',
+              'VAL_7',
+              'VAL_8',
+              'VAL_9',
+              'VAL_10',
+              'VAL_11',
+              'VAL_12',
+              'VAL_13',
+              'VAL_14',
+              'VAL_15',
+              'VAL_16',
+              'VAL_17',
+              'VAL_18',
+              'VAL_19',
+              'VAL_20',
+              'VAL_21',
+              'VAL_22',
+              'VAL_23',
+              'VAL_24',
+              'VAL_25',
             ],
           },
         },
