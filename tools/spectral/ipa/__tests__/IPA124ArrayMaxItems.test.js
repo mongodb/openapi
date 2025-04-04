@@ -51,6 +51,12 @@ testRule('xgen-IPA-124-array-max-items', [
                   type: 'object',
                 },
               },
+              results: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                },
+              },
             },
           },
         },
