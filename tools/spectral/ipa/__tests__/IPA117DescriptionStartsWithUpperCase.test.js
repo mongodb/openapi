@@ -39,7 +39,7 @@ testRule('xgen-IPA-117-description-starts-with-uppercase', [
         code: 'xgen-IPA-117-description-starts-with-uppercase',
         message: 'Descriptions must start with Uppercase.',
         path: ['components', 'schemas', 'Schema', 'properties', 'noUpperCase'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

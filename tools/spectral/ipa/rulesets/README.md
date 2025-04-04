@@ -441,7 +441,7 @@ Rules are based on [http://go/ipa/IPA-110](http://go/ipa/IPA-110).
 
 #### xgen-IPA-110-collections-use-paginated-prefix
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 APIs that return collections of resources must use a schema with the "Paginated" prefix.
 
 ##### Implementation details
@@ -452,7 +452,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-110-collections-response-define-results-array
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The response for collections must define an array of results containing the paginated resource.
 
 ##### Implementation details
@@ -462,7 +462,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-110-collections-request-has-itemsPerPage-query-param
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The request should support an integer itemsPerPage query parameter allowing users to specify the maximum number of results to return per page.
 itemsPerPage must not be required
 itemsPerPage default value should be 100.
@@ -476,7 +476,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-110-collections-request-has-pageNum-query-param
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The request should support an integer pageNum query parameter allowing users to specify the maximum number of results to return per page.
 pageNum must not be required
 pageNum default value should be 1.
@@ -490,7 +490,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-110-collections-request-includeCount-not-required
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 If the request supports an includeCount query parameter, it must not be required.
 
 ##### Implementation details
@@ -501,7 +501,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-110-collections-response-define-links-array
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The response for collections should define a links array field, providing links to next and previous pages.
 
 ##### Implementation details
@@ -517,7 +517,7 @@ Rules are based on [http://go/ipa/IPA-112](http://go/ipa/IPA-112).
 
 #### xgen-IPA-112-avoid-project-field-names
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Schema field names should avoid using "project", "projects", or "projectId".
 
 ##### Implementation details
@@ -530,7 +530,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-112-field-names-are-camel-case
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Schema field names should be in camelCase format.
 
 ##### Implementation details
@@ -541,7 +541,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-112-boolean-field-names-avoid-is-prefix
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Boolean field names should avoid the "is" prefix.
 
 ##### Implementation details
@@ -642,7 +642,7 @@ Rules are based on [http://go/ipa/IPA-117](http://go/ipa/IPA-117).
 
 #### xgen-IPA-117-description
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 API producers must provide descriptions for Properties, Operations and Parameters.
 
 ##### Implementation details
@@ -657,7 +657,7 @@ The rule also fails if the description is an empty string.
 
 #### xgen-IPA-117-description-starts-with-uppercase
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Descriptions must start with Uppercase.
 
 ##### Implementation details
@@ -671,7 +671,7 @@ Rule checks the format of the description property in the following components:
 
 #### xgen-IPA-117-description-ends-with-period
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Descriptions must end with a full stop(.).
 
 ##### Implementation details
@@ -686,7 +686,7 @@ The rule ignores descriptions that end with `|`, i.e. inline markdown tables
 
 #### xgen-IPA-117-description-must-not-use-html
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Descriptions must not use raw HTML.
 
 ##### Implementation details
@@ -701,7 +701,7 @@ The rule validates that the description content does not include opening and/or 
 
 #### xgen-IPA-117-description-should-not-use-inline-tables
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Descriptions should not include inline tables as this may not work well with all tools, in particular generated client code.
 
 ##### Implementation details
@@ -716,7 +716,7 @@ The rule validates that the description content does not include inline markdown
 
 #### xgen-IPA-117-description-should-not-use-inline-links
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Descriptions should not include inline links.
 
 ##### Implementation details
@@ -872,7 +872,7 @@ Rules are based on [http://go/ipa/IPA-125](http://go/ipa/IPA-125).
 
 #### xgen-IPA-125-oneOf-must-have-discriminator
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Each oneOf property must include a discriminator property to define the exact type.
 
 ##### Implementation details
@@ -902,7 +902,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-125-oneOf-no-base-types
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 API producers should not use oneOf with different base types like integer, string, boolean, or number or references at the same time.
 
 ##### Implementation details

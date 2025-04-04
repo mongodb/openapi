@@ -147,7 +147,7 @@ testRule('xgen-IPA-110-collections-response-define-results-array', [
         code: 'xgen-IPA-110-collections-response-define-results-array',
         message: 'The response for collections must define an array of results containing the paginated resource.',
         path: ['paths', '/resources', 'get', 'responses', '200', 'content', 'application/json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

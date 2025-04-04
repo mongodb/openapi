@@ -84,42 +84,42 @@ testRule('xgen-IPA-117-description', [
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['info'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['tags', '0'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['paths', '/resource', 'get'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['paths', '/resource', 'get', 'parameters', 'id'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'schemas', 'Schema', 'properties', 'id'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'parameters', 'parameter'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -144,7 +144,7 @@ testRule('xgen-IPA-117-description', [
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'schemas', 'Schema', 'properties', 'id'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -170,7 +170,7 @@ testRule('xgen-IPA-117-description', [
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'schemas', 'ArraySchema', 'items', 'properties', 'id'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -198,21 +198,21 @@ testRule('xgen-IPA-117-description', [
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'schemas', 'NestedSchema', 'properties', 'name'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'schemas', 'NestedSchema', 'properties', 'name', 'properties', 'first'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'schemas', 'NestedSchema', 'properties', 'name', 'properties', 'last'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -243,21 +243,21 @@ testRule('xgen-IPA-117-description', [
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'schemas', 'PaginatedSchema', 'properties', 'results'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'schemas', 'PaginatedSchema', 'properties', 'results', 'items', 'properties', 'first'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
         message:
           'Description not found. API producers must provide descriptions for Properties, Operations and Parameters.',
         path: ['components', 'schemas', 'PaginatedSchema', 'properties', 'results', 'items', 'properties', 'last'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -320,7 +320,7 @@ testRule('xgen-IPA-117-description', [
           'properties',
           'id',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
@@ -337,7 +337,7 @@ testRule('xgen-IPA-117-description', [
           'properties',
           'id',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-description',
@@ -354,7 +354,7 @@ testRule('xgen-IPA-117-description', [
           'properties',
           'id',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
