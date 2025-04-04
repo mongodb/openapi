@@ -134,6 +134,7 @@ testRule('xgen-IPA-126-tag-names-should-use-title-case', [
         { name: '-Test Tag' },
         { name: 'Test Tag-' },
         { name: 'Test Tag -Name' },
+        { name: 'the Test Tag' },
       ],
     },
     errors: [
@@ -171,6 +172,12 @@ testRule('xgen-IPA-126-tag-names-should-use-title-case', [
         code: 'xgen-IPA-126-tag-names-should-use-title-case',
         message: 'Tag name should use Title Case, found: "Test Tag -Name".',
         path: ['tags', '7'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-126-tag-names-should-use-title-case',
+        message: 'Tag name should use Title Case, found: "the Test Tag".',
+        path: ['tags', '8'],
         severity: DiagnosticSeverity.Warning,
       },
     ],

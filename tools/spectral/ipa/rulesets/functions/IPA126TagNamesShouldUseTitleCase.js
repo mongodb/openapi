@@ -26,23 +26,22 @@ export default (input, { ignoreList, grammaticalWords }, { path }) => {
 
 function isTitleCase(str, ignoreList, grammaticalWords) {
   // Split by spaces to check each word/word-group
+  // First character should be uppercase, rest lowercase, all alphabetical
   const words = str.split(' ');
 
-  return words.every((wordGroup) => {
+  return words.every((wordGroup, index) => {
     // For hyphenated words, check each part
     if (wordGroup.includes('-')) {
       const hyphenatedParts = wordGroup.split('-');
       return hyphenatedParts.every((part) => {
         if (ignoreList.includes(part)) return true;
-        if (grammaticalWords.includes(part)) return true;
-        // First character should be uppercase, rest lowercase, all alphabetical
         return /^[A-Z][a-z]*$/.test(part);
       });
     }
 
     // For regular words
     if (ignoreList.includes(wordGroup)) return true;
-    if (grammaticalWords.includes(wordGroup)) return true;
+    if (index !== 0 && grammaticalWords.includes(wordGroup)) return true;
     return /^[A-Z][a-z]*$/.test(wordGroup);
   });
 }
