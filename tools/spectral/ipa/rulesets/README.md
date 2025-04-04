@@ -933,6 +933,13 @@ Tag names in the OpenAPI specification should use Title Case.
 Rule checks for the following conditions:
   - All tag names defined in the OpenAPI tags object should use Title Case 
   - Title Case means each word starts with an uppercase letter, and the rest are lowercase
+  - Certain abbreviations (like "API", "AWS", etc.) in the ignoreList are allowed to maintain their casing
+  - Grammatical words (like "and", "or", "the", etc.) are allowed to be all lowercase
+
+##### Configuration
+This rule includes two configuration options:
+  - `ignoreList`: Words that are allowed to maintain their specific casing (e.g., "API", "AWS", "DNS")
+  - `grammaticalWords`: Common words that can remain lowercase in titles (e.g., "and", "or", "the")
 
 
 
