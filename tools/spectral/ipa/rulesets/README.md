@@ -920,4 +920,20 @@ object types with clear discriminators.
 
 
 
+### IPA-126
+
+Rules are based on [http://go/ipa/IPA-126](http://go/ipa/IPA-126).
+
+#### xgen-IPA-126-tag-names-should-use-title-case
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Tag names in the OpenAPI specification should use Title Case.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - All tag names defined in the OpenAPI tags object should use Title Case 
+  - Title Case means each word starts with an uppercase letter, and the rest are lowercase
+
+
+
 
