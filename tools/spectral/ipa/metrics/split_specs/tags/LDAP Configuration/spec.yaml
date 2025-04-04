@@ -1,0 +1,158 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/userSecurity:
+        get:
+            description: Returns the current LDAP configuration for the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: getLdapConfiguration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/UserSecurity'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return the Current LDAP or X.509 Configuration
+            tags:
+                - LDAP Configuration
+            x-xgen-owner-team: Atlas Dedicated
+        patch:
+            description: |-
+                Edits the LDAP configuration for the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+
+                Updating this configuration triggers a rolling restart of the database.
+            operationId: saveLdapConfiguration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/UserSecurity'
+                description: Updates the LDAP configuration for the specified project.
+                required: true
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/UserSecurity'
+                            x-xgen-version: "2023-01-01"
+                    description: Accepted
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Edit the LDAP or X.509 Configuration
+            tags:
+                - LDAP Configuration
+            x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/userSecurity/ldap/userToDNMapping:
+        delete:
+            description: Removes the current LDAP Distinguished Name mapping captured in the ``userToDNMapping`` document from the LDAP configuration for the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: deleteLdapConfiguration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/UserSecurity'
+                            x-xgen-version: "2023-01-01"
+                    description: Accepted
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove the Current LDAP User to DN Mapping
+            tags:
+                - LDAP Configuration
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/userSecurity/ldap/verify:
+        post:
+            description: Verifies the LDAP configuration for the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: verifyLdapConfiguration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/LDAPVerifyConnectivityJobRequestParams'
+                description: The LDAP configuration for the specified project that you want to verify.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LDAPVerifyConnectivityJobRequest'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Verify the LDAP Configuration in One Project
+            tags:
+                - LDAP Configuration
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/userSecurity/ldap/verify/{requestId}:
+        get:
+            description: Returns the status of one request to verify one LDAP configuration for the specified project. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: getLdapConfigurationStatus
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique string that identifies the request to verify an <abbr title="Lightweight Directory Access Protocol">LDAP</abbr> configuration.
+                  in: path
+                  name: requestId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/LDAPVerifyConnectivityJobRequest'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return the Status of One Verify LDAP Configuration Request
+            tags:
+                - LDAP Configuration
+            x-xgen-owner-team: Atlas Dedicated
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

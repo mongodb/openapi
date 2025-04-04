@@ -1,0 +1,217 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/groups/{groupId}/privateEndpoint/serverless/instance/{instanceName}/endpoint:
+        get:
+            description: Returns all private endpoints for one serverless instance. You must have at least the Project Read Only role for the project to successfully call this resource.
+            operationId: listServerlessPrivateEndpoints
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the serverless instance associated with the tenant endpoint.
+                  in: path
+                  name: instanceName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/ServerlessTenantEndpoint'
+                                type: array
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Private Endpoints for One Serverless Instance
+            tags:
+                - Serverless Private Endpoints
+            x-xgen-owner-team: Atlas Serverless II
+        post:
+            description: |-
+                Creates one private endpoint for one serverless instance. To use this resource, the requesting API Key must have the Project Owner role.
+
+                 A new endpoint won't be immediately available after creation.  Read the steps in the linked tutorial for detailed guidance.
+            externalDocs:
+                description: Set Up a Private Endpoint for a Serverless Instance Tutorial
+                url: https://dochub.mongodb.org/core/serverless-private-endpoint
+            operationId: createServerlessPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the serverless instance for which the tenant endpoint will be created.
+                  in: path
+                  name: instanceName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ServerlessTenantCreateRequest'
+                description: Information about the Private Endpoint to create for the Serverless Instance.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessTenantEndpoint'
+                            x-xgen-version: "2023-01-01"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Private Endpoint for One Serverless Instance
+            tags:
+                - Serverless Private Endpoints
+            x-xgen-owner-team: Atlas Serverless II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/privateEndpoint/serverless/instance/{instanceName}/endpoint/{endpointId}:
+        delete:
+            description: Remove one private endpoint from one serverless instance. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: deleteServerlessPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the serverless instance from which the tenant endpoint will be removed.
+                  in: path
+                  name: instanceName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the tenant endpoint which will be removed.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Private Endpoint for One Serverless Instance
+            tags:
+                - Serverless Private Endpoints
+            x-xgen-owner-team: Atlas Serverless II
+        get:
+            description: Return one private endpoint for one serverless instance. Identify this endpoint using its unique ID. You must have at least the Project Read Only role for the project to successfully call this resource.
+            operationId: getServerlessPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the serverless instance associated with the tenant endpoint.
+                  in: path
+                  name: instanceName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the tenant endpoint.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessTenantEndpoint'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Private Endpoint for One Serverless Instance
+            tags:
+                - Serverless Private Endpoints
+            x-xgen-owner-team: Atlas Serverless II
+        patch:
+            description: Updates one private endpoint for one serverless instance. To use this resource, the requesting API Key must have the Project Owner role.
+            operationId: updateServerlessPrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the serverless instance associated with the tenant endpoint that will be updated.
+                  in: path
+                  name: instanceName
+                  required: true
+                  schema:
+                    maxLength: 64
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the tenant endpoint which will be updated.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ServerlessTenantEndpointUpdate'
+                description: Object used for update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ServerlessTenantEndpoint'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Private Endpoint for One Serverless Instance
+            tags:
+                - Serverless Private Endpoints
+            x-xgen-owner-team: Atlas Serverless II
+        x-xgen-IPA-exception:
+            xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation

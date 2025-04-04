@@ -1,0 +1,651 @@
+openapi: 3.0.1
+paths:
+    /api/atlas/v2/federationSettings/{federationSettingsId}:
+        delete:
+            description: 'Deletes the federation settings instance and all associated data, including identity providers and domains. To use this resource, the requesting API Key must have the Organization Owner role in the last remaining connected organization. **Note**: requests to this resource will fail if there is more than one connected organization in the federation.'
+            operationId: deleteFederationApp
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-xgen-version: "2023-01-01"
+                    description: No Content
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Federation Settings Instance
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs:
+        get:
+            description: Returns all connected org configs in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected orgs.
+            operationId: listConnectedOrgConfigs
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedConnectedOrgConfigsView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Connected Org Configs from One Federation
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}:
+        delete:
+            description: 'Removes one connected organization configuration from the specified federation. To use this resource, the requesting API Key must have the Organization Owner role. Note: This request fails if only one connected organization exists in the federation.'
+            operationId: removeConnectedOrgConfig
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Unique 24-hexadecimal digit string that identifies the connected organization configuration to remove.
+                  in: path
+                  name: orgId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/NoBody'
+                            x-xgen-version: "2023-01-01"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Org Config Connected to One Federation
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+        get:
+            description: Returns the specified connected org config from the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in the connected org.
+            operationId: getConnectedOrgConfig
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Unique 24-hexadecimal digit string that identifies the connected organization configuration to return.
+                  in: path
+                  name: orgId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ConnectedOrgConfig'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Org Config Connected to One Federation
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+        patch:
+            description: "Updates one connected organization configuration from the specified federation. To use this resource, the requesting API Key must have the Organization Owner role. \n\n**Note** If the organization configuration has no associated identity provider, you can't use this resource to update role mappings or post authorization role grants.  \n\n**Note**: The domainRestrictionEnabled field defaults to false if not provided in the request. \n\n**Note**: If the identityProviderId field is not provided, you will disconnect the organization and the identity provider. \n\n**Note**: Currently connected data access identity providers missing from the dataAccessIdentityProviderIds field will be disconnected."
+            operationId: updateConnectedOrgConfig
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Unique 24-hexadecimal digit string that identifies the connected organization configuration to update.
+                  in: path
+                  name: orgId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ConnectedOrgConfig'
+                description: The connected organization configuration that you want to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/ConnectedOrgConfig'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Org Config Connected to One Federation
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings:
+        get:
+            description: Returns all role mappings from the specified organization in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role.
+            operationId: listRoleMappings
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedRoleMappingView'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Role Mappings from One Organization
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+        post:
+            description: Adds one role mapping to the specified organization in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role.
+            operationId: createRoleMapping
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AuthFederationRoleMapping'
+                description: The role mapping that you want to create.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/AuthFederationRoleMapping'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Add One Role Mapping to One Organization
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}:
+        delete:
+            description: Removes one role mapping in the specified organization from the specified federation. To use this resource, the requesting API Key must have the Organization Owner role.
+            operationId: deleteRoleMapping
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - description: Unique 24-hexadecimal digit string that identifies the role mapping that you want to remove.
+                  in: path
+                  name: id
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            x-xgen-version: "2023-01-01"
+                    description: No Content
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Role Mapping from One Organization
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+        get:
+            description: Returns one role mapping from the specified organization in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role.
+            operationId: getRoleMapping
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - description: Unique 24-hexadecimal digit string that identifies the role mapping that you want to return.
+                  in: path
+                  name: id
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/AuthFederationRoleMapping'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Role Mapping from One Organization
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+        put:
+            description: Updates one role mapping in the specified organization in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role.
+            operationId: updateRoleMapping
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - description: Unique 24-hexadecimal digit string that identifies the role mapping that you want to update.
+                  in: path
+                  name: id
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    maxLength: 24
+                    minLength: 24
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/AuthFederationRoleMapping'
+                description: The role mapping that you want to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/AuthFederationRoleMapping'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Role Mapping in One Organization
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders:
+        get:
+            description: Returns all identity providers with the provided protocol and type in the specified federation. If no protocol is specified, only SAML identity providers will be returned. If no idpType is specified, only WORKFORCE identity providers will be returned. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
+            operationId: listIdentityProviders
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - description: The protocols of the target identity providers.
+                  in: query
+                  name: protocol
+                  schema:
+                    items:
+                        default: SAML
+                        enum:
+                            - SAML
+                            - OIDC
+                        type: string
+                    type: array
+                - description: The types of the target identity providers.
+                  in: query
+                  name: idpType
+                  schema:
+                    items:
+                        default: WORKFORCE
+                        enum:
+                            - WORKFORCE
+                            - WORKLOAD
+                        type: string
+                    type: array
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedFederationIdentityProvider'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Identity Providers in One Federation
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+        post:
+            description: |-
+                Creates one identity provider within the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
+
+                **Note**: This resource only supports the creation of OIDC identity providers.
+            operationId: createIdentityProvider
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-11-15+json:
+                        schema:
+                            $ref: '#/components/schemas/FederationOidcIdentityProviderUpdate'
+                description: The identity provider that you want to create.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/FederationOidcIdentityProvider'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Identity Provider
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}:
+        delete:
+            description: "Deletes one identity provider in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations. \n\n**Note**: Requests to this resource will fail if the identity provider has any connected organizations. Before deleting an identity provider, disconnect all organizations and confirm that no organization in your account uses this identity provider. To learn more, see [Manage Organization Mapping for Federated Authentication](https://www.mongodb.com/docs/atlas/security/manage-org-mapping/)."
+            operationId: deleteIdentityProvider
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - description: Unique 24-hexadecimal digit string that identifies the identity provider to connect.
+                  in: path
+                  name: identityProviderId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            x-xgen-version: "2023-11-15"
+                    description: No Response
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Identity Provider
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+        get:
+            description: Returns one identity provider in the specified federation by the identity provider's id. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
+            operationId: getIdentityProvider
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - description: Unique string that identifies the identity provider to connect. If using an API version before 11-15-2023, use the legacy 20-hexadecimal digit id. This id can be found within the Federation Management Console > Identity Providers tab by clicking the info icon in the IdP ID row of a configured identity provider. For all other versions, use the 24-hexadecimal digit id.
+                  in: path
+                  name: identityProviderId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/FederationSamlIdentityProvider'
+                            x-sunset: "2025-01-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/FederationIdentityProvider'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Identity Provider by ID
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+        patch:
+            description: |-
+                Updates one identity provider in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
+
+                **Note**: Changing authorization types and/or updating authorization claims can prevent current users and/or groups from accessing the database.
+            operationId: updateIdentityProvider
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - description: Unique string that identifies the identity provider to connect. If using an API version before 11-15-2023, use the legacy 20-hexadecimal digit id. This id can be found within the Federation Management Console > Identity Providers tab by clicking the info icon in the IdP ID row of a configured identity provider. For all other versions, use the 24-hexadecimal digit id.
+                  in: path
+                  name: identityProviderId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/FederationSamlIdentityProviderUpdate'
+                    application/vnd.atlas.2023-11-15+json:
+                        schema:
+                            $ref: '#/components/schemas/FederationIdentityProviderUpdate'
+                description: The identity provider that you want to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/FederationSamlIdentityProvider'
+                            x-sunset: "2025-01-01"
+                            x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.2023-11-15+json:
+                            schema:
+                                $ref: '#/components/schemas/FederationIdentityProvider'
+                            x-xgen-version: "2023-11-15"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Identity Provider
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}/jwks:
+        delete:
+            description: "Revokes the JWKS tokens from the requested OIDC identity provider. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations. \n\n**Note**: Revoking your JWKS tokens immediately refreshes your IdP public keys from all your Atlas clusters, invalidating previously signed access tokens and logging out all users. You may need to restart your MongoDB clients. All organizations connected to the identity provider will be affected. To learn more, see [Configure OIDC Authorization](https://www.mongodb.com/docs/atlas/security-oidc/#revoke-jwks)."
+            operationId: revokeJwksFromIdentityProvider
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - description: Unique 24-hexadecimal digit string that identifies the identity provider to connect.
+                  in: path
+                  name: identityProviderId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2023-11-15+json:
+                            x-xgen-version: "2023-11-15"
+                    description: No Response
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Revoke the JWKS from One OIDC Identity Provider
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/federationSettings/{federationSettingsId}/identityProviders/{identityProviderId}/metadata.xml:
+        get:
+            description: Returns the metadata of one identity provider in the specified federation. To use this resource, the requesting API Key must have the Organization Owner role in one of the connected organizations.
+            operationId: getIdentityProviderMetadata
+            parameters:
+                - $ref: '#/components/parameters/federationSettingsId'
+                - $ref: '#/components/parameters/identityProviderId'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                type: string
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return the Metadata of One Identity Provider
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
+    /api/atlas/v2/orgs/{orgId}/federationSettings:
+        get:
+            description: Returns information about the federation settings for the specified organization. To use this resource, the requesting API Key must have the Organization Owner role in the connected org.
+            operationId: getFederationSettings
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgFederationSettings'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Federation Settings for One Organization
+            tags:
+                - Federated Authentication
+            x-xgen-owner-team: IAM
