@@ -56,21 +56,19 @@ jobs:
           popd
       - name: Create Issue - Postman validation Failed
         if: ${{ failure() && steps.spectral-validation.outcome == 'failure' }}
-        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-        env:
-          target_env: ${{ inputs.env }}
+        uses: ./.github/workflows/task-failure-handler.yml
         with:
-          labels: failed-release
-          title: "(${{env.target_env}}) Optional Postman validation failed :scream_cat:"
-          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          env: ${{ inputs.env }}
+          task_name: 'Optional Postman validation'
+          team_id: ${{ vars.JIRA_TEAM_ID_APIX_1 }}
+        secrets:
+          jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
       - name: Create Issue - IPA validation Failed
-        if: ${{ failure() && steps.ipa-spectral-validation.outcome == 'failure' }}
-        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd
-        env:
-          target_env: ${{ inputs.env }}
+        if: ${{ failure() && steps.ipa-spectral-validation.outcome == 'failure'}}
+        uses: ./.github/workflows/task-failure-handler.yml
         with:
-          labels: failed-release
-          title: "(${{env.target_env}}) Optional IPA validation failed :scream_cat:"
-          body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          env: ${{ inputs.env }}
+          task_name: 'Optional IPA validation'
+          team_id: ${{ vars.JIRA_TEAM_ID_APIX_1 }}
+        secrets:
+          jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
