@@ -33,7 +33,6 @@ function isTitleCase(str, ignoreList, grammaticalWords) {
     if (wordGroup.includes('-')) {
       const hyphenatedParts = wordGroup.split('-');
       return hyphenatedParts.every((part) => {
-        if (part === '') return true; // Skip empty parts
         if (ignoreList.includes(part)) return true;
         if (grammaticalWords.includes(part)) return true;
         // First character should be uppercase, rest lowercase, all alphabetical
@@ -42,7 +41,6 @@ function isTitleCase(str, ignoreList, grammaticalWords) {
     }
 
     // For regular words
-    if (wordGroup === '') return true;
     if (ignoreList.includes(wordGroup)) return true;
     if (grammaticalWords.includes(wordGroup)) return true;
     return /^[A-Z][a-z]*$/.test(wordGroup);

@@ -131,6 +131,9 @@ testRule('xgen-IPA-126-tag-names-should-use-title-case', [
         { name: 'Push-Based Log Export' }, //valid
         { name: 'AWS Clusters DNS' }, // valid
         { name: 'Encryption at Rest using Customer Key Management' },
+        { name: '-Test Tag' },
+        { name: 'Test Tag-' },
+        { name: 'Test Tag -Name' },
       ],
     },
     errors: [
@@ -150,6 +153,24 @@ testRule('xgen-IPA-126-tag-names-should-use-title-case', [
         code: 'xgen-IPA-126-tag-names-should-use-title-case',
         message: 'Tag name should use Title Case, found: "Encryption at Rest using Customer Key Management".',
         path: ['tags', '4'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-126-tag-names-should-use-title-case',
+        message: 'Tag name should use Title Case, found: "-Test Tag".',
+        path: ['tags', '5'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-126-tag-names-should-use-title-case',
+        message: 'Tag name should use Title Case, found: "Test Tag-".',
+        path: ['tags', '6'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-126-tag-names-should-use-title-case',
+        message: 'Tag name should use Title Case, found: "Test Tag -Name".',
+        path: ['tags', '7'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
