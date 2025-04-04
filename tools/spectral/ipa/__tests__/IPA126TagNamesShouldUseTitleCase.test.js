@@ -135,6 +135,7 @@ testRule('xgen-IPA-126-tag-names-should-use-title-case', [
         { name: 'Test Tag-' },
         { name: 'Test Tag -Name' },
         { name: 'the Test Tag' },
+        { name: 'A Test Tag' },
       ],
     },
     errors: [
