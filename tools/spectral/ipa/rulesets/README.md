@@ -841,6 +841,28 @@ Rule checks for the following conditions:
   - Validates that each enum array has 20 or fewer values
   - Reusable enum schemas will be ignored
   - Skips validation if the schema has an exception defined for this rule
+  - This validation threshold can be adjusted by changing the functionOptions.maxEnumValues parameter
+
+
+
+### IPA-124
+
+Rules are based on [http://go/ipa/IPA-124](http://go/ipa/IPA-124).
+
+#### xgen-IPA-124-array-max-items
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Array fields must have a maxItems property defined to enforce an upper bound on the number of items (recommended max: 100). If the array field has the chance of being too large, the API should use a sub-resource instead.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - All schema objects with type 'array' must have a maxItems property
+  - The maxItems value must be set below the threshold of 100
+
+##### Function options
+        - maxItems: Required integer parameter specifying the maximum allowed array size (default: 100)
+        - ignore: Required array parameter listing property names to be exempted from validation
 
 
 
