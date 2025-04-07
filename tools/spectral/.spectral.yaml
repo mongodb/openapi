@@ -16,18 +16,6 @@ aliases:
     - "$.components.schemas[*]..properties[?(@ && @.type)]"
 
 rules:
-  xgen-schema-properties-camel-case:
-    description:
-        All properties in the schema must be camelCase. http://go/ipa/112
-    severity: error
-    recommended: true
-    message: "`{{property}}` MUST follow camelCase"
-    given: "$.components.schemas..properties[*]~"
-    then:
-      function: pattern # casing?
-      functionOptions:
-        match: "/^[a-z$_]{1}[A-Z09$_]*/" # type: camel ?
-
   xgen-schema-name-pascal-case:
     description: OpenAPI Schema names should use PascalCase. PascalCase ensures consistency with OpenAPI generated code.
     message: "`{{property}}` name must follow PascalCase. Please verify if you have provided valid @Schema(name='') annotation"
@@ -37,41 +25,6 @@ rules:
       function: pattern # casing?
       functionOptions:
         match: "^[A-Z].*" # type: pascal ?
-
-  xgen-description:
-    description: "Use this field to describe the action performed by each specific API endpoint or property, to provide context for how to use it to the users of the API."
-    message: "{{error}}."
-    severity: error
-    given: "#DescribableObjects"
-    then:
-      - field: "description"
-        function: truthy
-      - field: "description"
-        function: pattern
-        functionOptions:
-          match: "/^[A-Z]/"
-      - field: "description"
-        function: pattern
-        functionOptions:
-          match: "\\.|\|$"
-
-  xgen-request-GET-no-body:
-    description: "A 'GET' request MUST NOT accept a 'body` parameter. http://go/ipa/104"
-    severity: error
-    given: $.paths..get.parameters..in
-    then:
-      function: pattern
-      functionOptions:
-        notMatch: "/^body$/"
-
-  xgen-request-DELETE-no-body:
-    description: "A 'DELETE' request MUST NOT accept a 'body` parameter. http://go/ipa/108"
-    severity: error
-    given: $.paths..delete.parameters..in
-    then:
-      function: pattern
-      functionOptions:
-        notMatch: "/^body$/"
 
   xgen-docs-tags-alphabetical:
     message: "Tags should be defined in alphabetical order."
@@ -184,17 +137,6 @@ rules:
         functionOptions:
           match: "^mms(,[a-zA-Z0-9_-]+)*$"
         message: "'additionalServices' must start with 'mms' and can include additional services in a comma-separated format."
-
-  no-slash-before-custom-method:
-    description: "Custom methods (e.g., ':applyItem') should not be preceded by a '/'."
-    message: "The path '{{path}}' contains a '/' before a custom method. Custom methods should not start with a '/'."
-    severity: error
-    given: "$.paths"
-    then:
-      field: "@key"
-      function: pattern
-      functionOptions:
-        notMatch: "/[^/]+/:[a-zA-Z]+$"
 
   xgen-security-override:
     description: "Security must not be set at resource or method level because it is set globally. Use @Unauthenticated annotation to set no security. https://go/openapi-unauthenticated-annotation"
