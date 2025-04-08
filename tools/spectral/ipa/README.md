@@ -2,7 +2,7 @@
 
 The IPA validation uses [Spectral](https://docs.stoplight.io/docs/spectral/9ffa04e052cc1-spectral-cli) to validate the [MongoDB Atlas Admin API OpenAPI Specification](https://github.com/mongodb/openapi/tree/main/openapi). The rules cover MongoDB best-practices for API design.
 
-**Note:** For MongoDB engineers, please review https://go/ipa-validation-internal-wiki for additional information.
+**Note:** For MongoDB engineers, please review https://go/ipa-validation for additional information.
 
 ## Running Locally
 
@@ -27,39 +27,108 @@ The Spectral CLI can also be used to run the validation on any valid OpenAPI fil
 spectral lint {path/to/oas/file} --ruleset=./tools/spectral/ipa/ipa-spectral.yaml
 ```
 
-## Rule Implementation
+## Integrating IPA Validations
 
-The rule validations are custom JS functions (see [/rulesets/functions](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/rulesets/functions)). To learn more about custom functions, refer to the [Spectral Documentation](https://docs.stoplight.io/docs/spectral/a781e290eb9f9-custom-functions).
+To incorporate the IPA Spectral ruleset for OpenAPI specification validation in your repositories, you can follow these implementation approaches:
 
-The custom rule implementation allows for:
-- Advanced validations not available using the standard Spectral rules
-- Custom exception handling
-- Metrics collection
+### Installation Options
 
-### Exceptions
+#### Server-based Installation
 
-Instead of using the [Spectral overrides approach](https://docs.stoplight.io/docs/spectral/293426e270fac-overrides), we use [custom OAS extensions](https://swagger.io/docs/specification/v3_0/openapi-extensions/) to handle exceptions to IPA validation rules. Exception extensions are added to the component which should be exempted, with the Spectral rule name and a reason.
+You can reference our ruleset directly in your `.spectral.yaml` file without installation:
 
 ```
-"x-xgen-IPA-exception": {
-    "xgen-IPA-104-resource-has-GET": "Legacy API, not used by infrastructure-as-code tooling",
-}
+extends:
+- https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
 ```
 
-## Testing
+#### Package-based Installation
 
-- IPA Validation related code is tested using [Jest](https://jestjs.io/)
-- Each custom validation function has tests, located in [/\__tests\__](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/__tests__). They use the test hook [testRule.js](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/__tests__/__helpers__/testRule.js) as a common approach for Spectral rule testing
-- Helper/util functions are tested as well, see [/\__tests\__/utils](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/__tests__/utils)
+Not supported yet
 
-Install necessary dependencies with `npm install` if you haven't already. All Jest tests can be run with:
+### Integration Methods
 
-```
-npm run test
-```
+#### Local Configuration
 
-To run a single test, in this case `singletonHasNoId.test.js`:
+Create a `.spectral.yaml` file that extends our ruleset:
 
 ```
-npm run test -- singletonHasNoId
+extends:
+- https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
+```
+
+For more information about how to extend rulesets, see the [web page](https://meta.stoplight.io/docs/spectral/83527ef2dd8c0-extending-rulesets).
+
+#### Customization Options
+
+You can override specific rules from our ruleset by adding them to your local `.spectral.yaml`:
+
+```
+extends:
+- https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
+
+overrides:
+    - files:
+        '**#/components/schemas/ExampleSchema'
+        '**#/paths/example-path'
+       rules:
+         x-xgen-IPA-xxx-rule: 'off'
+```
+
+### CI/CD Integration
+
+#### GitHub Actions Example
+
+If you use GitHub Actions, you can define a workflow step to include IPA validation, such as
+
+```
+- name: IPA validation action
+run: npx spectral lint <openapi-spec-file> --ruleset=<spectral-ruleset-file>
+```
+
+or
+
+```
+    - name: IPA validation - Spectral GitHub action
+      uses: stoplightio/spectral-action@2ad0b9302e32a77c1caccf474a9b2191a8060d83
+      with:
+        file_glob: <openapi-spec-file>
+        spectral_ruleset: <spectral-ruleset-file>
+```
+
+`<spectral-ruleset-file>` is the ruleset file which extends the IPA Spectral ruleset.
+
+For more information about Spectral GitHub action, see the [GitHub repo](https://github.com/stoplightio/spectral-action).
+
+#### Shell Script Example
+
+You can create a validation script similar to this:
+
+```
+#!/bin/bash
+spectral lint <openapi-spec-file> --ruleset=<spectral-ruleset-file>
+if [ $? -ne 0 ]; then
+echo "API validation failed"
+exit 1
+fi
+```
+
+For more information on Spectral CLI, see the [web page](https://meta.stoplight.io/docs/spectral/9ffa04e052cc1-spectral-cli).
+
+#### Bazel Target Example
+
+You can create a Bazel target using the shell script similar to:
+
+```
+sh_binary(
+name = "ipa_validation",
+srcs = ["ipa_validation.sh"],
+data = [
+":spectral",
+":spectral_config",
+],
+deps = [
+"@bazel_tools//tools/bash/runfiles",
+],
+)
 ```
