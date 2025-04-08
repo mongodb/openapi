@@ -79,6 +79,19 @@ npm run gen-ipa-docs
 ---
 ## Getting Started with IPA Rule Development
 
+#### Custom Rule Function Signature
+
+Spectral custom rule functions follow this format:
+
+```js
+export default (input, _, { path, documentInventory })
+```
+- `input`: The current component from the OpenAPI spec. Derived from the given and field values in the rule definition.
+- `path`: JSONPath array to the current component.
+- `documentInventory`: The entire OpenAPI specification (use `resolved` or `unresolved` depending on rule context).
+
+---
+
 ### Resource & Singleton Evaluation
 
 In IPA Spectral validation, a **resource** is typically identified using a *resource collection path*, such as `/resource`.
@@ -109,11 +122,17 @@ Use the following helpers to check the type of a path:
 
 > **Note:** Paths such as `/resource/resource` or `/resource/{id}/{id}` are not recognized as valid resource or single resource identifiers using `isResourceCollectionIdentifier` or `isSingleResourceIdentifier`.
 
+### Collecting Adoption, Violation, or Exception
 
-### Deciding When to Collect Adoption, Violation, or Exception
+#### Rule Design Guidance
 
-In IPA rule development, **adoption**, **violation**, and **exception** must be collected at the same component level — that is, they must share the same `jsonPath`.
+As a rule developer, you need to define:
 
+- What qualifies as a **violation**?
+- What qualifies as an **adoption**?
+- When should an **exception** be collected?
+
+---
 #### Helper Functions
 
 Use the following helper functions from the `collectionUtils` module:
@@ -122,114 +141,45 @@ Use the following helper functions from the `collectionUtils` module:
 - [`collectAdoption(jsonPath, ruleName)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L32) — for marking rule adoption.
 - [`collectException(object, ruleName, jsonPath)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L32) — for recording rule exceptions.
 ---
-#### Rule Design Guidance
 
-As a rule developer, you need to define:
+#### How to Decide the component level at which the rule will be processed
 
-- What qualifies as a **violation**?
-- What qualifies as an **adoption**?
-- When should an **exception** be collected?
----
-#### Custom Rule Function Signature
+##### Collect the Exemption
 
-Spectral custom rule functions follow this format:
+When designing a rule, it is important to decide at which component level the rule exemption can be defined. It will also define the component level the adoption and violation will be collected.
 
-```js
-export default (input, _, { path, documentInventory })
+**Decision Process**:
+
+1. Identify where the component is defined in the OpenAPI specification. For instance, `enum` values are typically defined under the `schema` level in the OpenAPI spec.
+
+**Example OpenAPI Spec**:
+```yaml
+"schemaName": {
+  "type": "string",
+  "enum": [
+    "ABC_ENUM",
+    "DEF_ENUM"
+  ]
+}
 ```
-- `input`: The current component from the OpenAPI spec. Derived from the given and field values in the rule definition.
-- `path`: JSONPath array to the current component.
-- `documentInventory`: The entire OpenAPI specification (use `resolved` or `unresolved` depending on rule context).
-
----
-
-#### Rule Implementation Conventions
-
-- Use the **same `jsonPath`** for:
-  - `collectAndReturnViolation`
-  - `collectAdoption`
-  - `collectException`
-
-  > 💡 This path should either be the `path` parameter from the rule function or a derived value from it.
-
-- A rule must collect **only one** of the following for each evaluation:
-  - An **adoption**
-  - A **violation**
-  - An **exception**
-
-- You can include **multiple error messages** for a violation. To do so:
-  - Gather the messages into an array
-  - Pass them to `collectAndReturnViolation`
-
-- The `input` parameter is assumed to be **defined** when the rule runs. No need to check for its existence.
-
----
-
-#### Example: Enum Case Validation
-To validate an enum and show a separate error for each invalid value:
-
-```js
-const errors = [];
-
-for (const value of enumValues) {
-  if (!isUpperSnakeCase(value)) {
-    errors.push({
-      path: [...path, 'enum'],
-      message: `${value} is not in UPPER_SNAKE_CASE`,
-    });
+2. Determine the component level for the rule exemption. In this case, it would be `schemaName` in the OpenAPI spec.
+```yaml
+"schemaName": {
+  "type": "string",
+  "description": "Description",
+  "readOnly": true,
+  "enum": ["queued", "inProgress", "completed", "failed"],
+  "x-xgen-IPA-exception": {
+    "xgen-IPA-123-enum-values-must-be-upper-snake-case": "Schema predates IPA validation"
   }
 }
-
-if (errors.length === 0) {
-  collectAdoption(path, RULE_NAME);
-} else {
-  return collectAndReturnViolation(path, RULE_NAME, errors);
-}
 ```
+3. In the rule implementation, use the `collectException(object, ruleName, jsonPath)` helper function to collect exceptions. The object here is what you get when you traverse the path defined by the `jsonPath`.
 
-### How to Decide the component level at which the rule will be processed
+##### Rule Design
+Once you have decided on the component for which you want to collect exemptions, you can proceed with the rule design.
 
-When designing a rule, think from the custom rule function’s perspective.
-Consider which `input` and `jsonPath` values will be most helpful for accurately evaluating the rule and collecting adoption, violation, or exception data.
-
-High-level pseudocode for custom rule functions:
-
-```
-const RULE_NAME = 'xgen-IPA-xxx-rule-name'
-
-export default (input, opts, { path, documentInventory }) => {
-
-// TODO Optional filter cases that we do not want to handle
-// Return no response for those cases.
-
-//Decide the jsonPath (component level) at which you want to collect exceptions, adoption, and violation
-//It can be "path" parameter of custom rule function
-//Or, a derived path from "path" parameter
-if (hasException(input, RULE_NAME)) {
-collectException(input, RULE_NAME, jsonPath);
-return;
-}
-
-errors = checkViolationsAndReturnErrors(...);
-if (errors.length != 0) {
-return collectAndReturnViolation(jsonPath, RULE_NAME, errors);
-}
-return collectAdoption(jsonPath, RULE_NAME);
-};
-
-//This function can accept "input", "path", "documentInventory", or other derived parameters
-function checkViolationsAndReturnErrors(...){
-try {
-const errors = []
-// TODO validate errors
-return errors;
-} catch(e) {
-handleInternalError(RULE_NAME, jsonPathArray, e);
-}
-}
-```
-
-Each rule must specify the `given` and `then` fields to determine how the rule will traverse and evaluate the OpenAPI document.
+Each rule must specify the `given` and `then` fields, which define how the rule will traverse and evaluate the OpenAPI document. These fields should be determined based on the chosen component, ensuring that the rule is applied correctly to the relevant part of the specification.
 
 **Case 1**: The rule evaluates an object as a whole
 
@@ -238,14 +188,14 @@ Each rule must specify the `given` and `then` fields to determine how the rule w
     - `input`: The object for the current `<pathKey>` the rule is processing
     - `path`: `[‘paths’, ‘<pathKey>’, ‘get’]`
 
-```
+```yaml
 xgen-IPA-xxx-rule-name:
-description: "Rule description"
-message: "{{error}} http:://go/ipa/x"
-severity: warn
-given: '$.paths[*].get'
-then:
-function: "customRuleFunction"
+  description: "Rule description"
+  message: "{{error}} http:://go/ipa/x"
+  severity: warn
+  given: '$.paths[*].get'
+  then:
+  function: "customRuleFunction"
 ```
 
 **Case 2**: The rule evaluates keys of an object
@@ -255,15 +205,15 @@ If the given parameter refers to an object, and we want to iterate through its k
 - `input`: API endpoint path string such as `/api/atlas/v2/groups`
 - `path`: `[‘paths’, ‘/api/atlas/v2/groups’]`
 
-```
+```yaml
 xgen-IPA-xxx-rule-name:
-description: "Rule description"
-message: "{{error}} http:://go/ipa/x"
-severity: warn
-given: '$.paths'
-then:
-field: @key
-function: "customRuleFunction"
+  description: "Rule description"
+  message: "{{error}} http:://go/ipa/x"
+  severity: warn
+  given: '$.paths'
+  then:
+  field: @key
+  function: "customRuleFunction"
 ```
 
 **Case 3**: Parameterized rules
@@ -292,4 +242,72 @@ export default (input, opts, { path, documentInventory }) => {
   
   // Use the options in your rule logic
 };
+```
+
+##### Collect the Adoption and Violation
+In IPA rule development, **adoption**, **violation**, and **exception** must be collected at the same component level.
+
+A rule must collect **only one** of the following for each evaluation:
+  - An **adoption**
+  - A **violation**
+  - An **exception**
+
+You can include **multiple error messages** for a violation. To do so:
+  - Gather the messages into an array
+  - Pass them to `collectAndReturnViolation`
+
+###### Considerations
+
+- Use the **same `jsonPath`** for:
+  - `collectAndReturnViolation`
+  - `collectAdoption`
+  - `collectException`
+
+  > 💡 This path should either be the `path` parameter from the rule function or a derived value from it.
+
+- The `input` parameter is assumed to be **defined** when the rule runs. No need to check for its existence.
+
+
+**Example Rule Implementation**: Enum Case Validation
+
+```js
+const RULE_NAME = 'xgen-IPA-xxx-rule-name'
+
+export default (input, opts, { path, documentInventory }) => {
+  //Optional filter cases that we do not want to handle
+  // Return no response for those cases.
+  
+  //Decide the jsonPath (component level) at which you want to collect exceptions, adoption, and violation
+  //It can be "path" parameter of custom rule function
+  //Or, a derived path from "path" parameter
+  if (hasException(input, RULE_NAME)) {
+    collectException(input, RULE_NAME, jsonPath);
+    return;
+  }
+
+  errors = checkViolationsAndReturnErrors(...);
+  if (errors.length != 0) {
+    return collectAndReturnViolation(jsonPath, RULE_NAME, errors);
+  }
+  return collectAdoption(jsonPath, RULE_NAME);
+};
+
+
+//This function can accept "input", "path", "documentInventory", or other derived parameters
+function checkViolationsAndReturnErrors(...){
+  try {
+    const errors = [];
+    for (const value of enumValues) {
+      if (!isUpperSnakeCase(value)) {
+        errors.push({
+          path: [...path, 'enum'],
+          message: `${value} is not in UPPER_SNAKE_CASE`,
+        });
+      }
+    }
+    return errors;
+  } catch(e) {
+    handleInternalError(RULE_NAME, jsonPathArray, e);
+  }
+}
 ```
