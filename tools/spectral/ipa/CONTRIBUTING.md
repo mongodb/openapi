@@ -4,28 +4,6 @@ Thank you for your interest in contributing! We welcome contributions of all kin
 
 **Note:** For MongoDB engineers, please review https://go/ipa-validation-internal-wiki for additional information.
 
-## 🛠 Getting Started
-
-### Prerequisites
-
-- Node.js >= v20
-- npm
-
-1. **Fork the repo**
-2. **Clone your fork**
-   ```bash
-   git clone https://github.com/your-username/project-name.git
-   ```
-3. **Install dependencies**
-   ```bash
-   cd project-name
-   npm install
-   ```
-4. **Create a new branch**
-   ```bash
-   git checkout -b my-feature-branch
-   ```
-
 ## Rule Implementation
 
 The rule validations are custom JS functions (see [/rulesets/functions](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/rulesets/functions)). To learn more about custom functions, refer to the [Spectral Documentation](https://docs.stoplight.io/docs/spectral/a781e290eb9f9-custom-functions).
