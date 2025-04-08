@@ -16,7 +16,9 @@ package openapi
 
 import (
 	"fmt"
+	"log"
 	"sort"
+	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
@@ -75,7 +77,34 @@ func extractVersions(oas *openapi3.T) ([]string, error) {
 		}
 	}
 
-	return mapKeysToSortedSlice(versions), nil
+	return mapKeysToSortedSlice(filterUpcomingVersions(versions)), nil
+}
+
+// filterUpcomingVersions removes the "YYYY.MM.DD.upcoming" apis version if the
+// related stable api YYYY.MM.DD is available.
+func filterUpcomingVersions(apiVersions map[string]struct{}) map[string]struct{} {
+	apiVersionSet := make(map[string]struct{}, len(apiVersions))
+	upcomingVersions := make([]string, 0, len(apiVersions))
+
+	for v := range apiVersions {
+		if apiversion.IsUpcomingStabilityLevel(strings.ToLower(v)) {
+			upcomingVersions = append(upcomingVersions, v)
+			continue
+		}
+		apiVersionSet[v] = struct{}{}
+	}
+
+	for _, upcomingVersion := range upcomingVersions {
+		date := strings.ReplaceAll(upcomingVersion, ".upcoming", "")
+		if _, ok := apiVersionSet[date]; !ok {
+			apiVersionSet[upcomingVersion] = struct{}{}
+		} else {
+			log.Printf("The API Version %[1]q was removed as the Stable API Version %[2]q was detected."+
+				" Please, remove %[1]q from the OpenAPI Spec.\n", upcomingVersion, date)
+		}
+	}
+
+	return apiVersionSet
 }
 
 // mapKeysToSortedSlice converts map keys to a sorted slice.

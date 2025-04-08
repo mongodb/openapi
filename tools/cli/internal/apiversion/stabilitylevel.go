@@ -22,6 +22,7 @@ import (
 const (
 	StableStabilityLevel         = "stable"
 	PreviewStabilityLevel        = "preview"
+	UpcomingStabilityLevel       = "upcoming"
 	PrivatePreviewStabilityLevel = "private-preview"
 	PublicPreviewStabilityLevel  = "public-preview"
 )
@@ -30,7 +31,8 @@ var supportedValues = []string{StableStabilityLevel, PublicPreviewStabilityLevel
 
 // IsPreviewStabilityLevel checks if the version is a preview version, public or private.
 func IsPreviewStabilityLevel(value string) bool {
-	return IsPrivatePreviewStabilityLevel(value) || IsPublicPreviewStabilityLevel(value)
+	lowerCaseValue := strings.ToLower(value)
+	return IsPrivatePreviewStabilityLevel(lowerCaseValue) || IsPublicPreviewStabilityLevel(lowerCaseValue)
 }
 
 // IsPrivatePreviewStabilityLevel checks if the version is a private preview version.
@@ -40,18 +42,24 @@ func IsPrivatePreviewStabilityLevel(value string) bool {
 
 // IsPublicPreviewStabilityLevel checks if the version is a public preview version.
 func IsPublicPreviewStabilityLevel(value string) bool {
-	return strings.EqualFold(value, PublicPreviewStabilityLevel) || strings.EqualFold(value, PreviewStabilityLevel)
+	lowerCaseValue := strings.ToLower(value)
+	return strings.EqualFold(lowerCaseValue, PublicPreviewStabilityLevel) || strings.EqualFold(lowerCaseValue, PreviewStabilityLevel)
 }
 
 // IsStableStabilityLevel checks if the version is a stable version.
 func IsStableStabilityLevel(value string) bool {
-	return strings.EqualFold(value, StableStabilityLevel)
+	return strings.EqualFold(strings.ToLower(value), StableStabilityLevel)
 }
 
-// IsValidStabilityLevel checks if the version is a valid stability level.
+// IsUpcomingStabilityLevel checks if the version is an "upcoming" version.
+func IsUpcomingStabilityLevel(value string) bool {
+	return strings.Contains(strings.ToLower(value), UpcomingStabilityLevel)
+}
+
 // ValidateStabilityLevel checks if the version is a valid stability level.
 func ValidateStabilityLevel(value string) error {
-	if IsStableStabilityLevel(value) || IsPreviewStabilityLevel(value) {
+	lowerCaseValue := strings.ToLower(value)
+	if IsStableStabilityLevel(lowerCaseValue) || IsPreviewStabilityLevel(lowerCaseValue) {
 		return nil
 	}
 
