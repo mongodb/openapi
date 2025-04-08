@@ -65,6 +65,10 @@ func (v *APIVersion) newVersion(version string, date time.Time) {
 	if IsPreviewStabilityLevel(version) {
 		v.stabilityVersion = PreviewStabilityLevel
 	}
+
+	if IsUpcomingStabilityLevel(version) {
+		v.stabilityVersion = UpcomingStabilityLevel
+	}
 }
 
 // WithVersion sets the version on the APIVersion.
@@ -166,7 +170,7 @@ func (v *APIVersion) StabilityLevel() string {
 }
 
 func (v *APIVersion) ExactMatchOnly() bool {
-	return v.IsPreview()
+	return v.IsPreview() || v.IsUpcoming()
 }
 
 func (v *APIVersion) IsPreview() bool {
@@ -181,6 +185,7 @@ func (v *APIVersion) IsPublicPreview() bool {
 	return v.IsPreview() && !v.IsPrivatePreview()
 }
 
+func (v *APIVersion) IsUpcoming() bool { return IsUpcomingStabilityLevel(v.stabilityVersion) }
 func FindMatchesFromContentType(contentType string) []string {
 	return contentPattern.FindStringSubmatch(contentType)
 }

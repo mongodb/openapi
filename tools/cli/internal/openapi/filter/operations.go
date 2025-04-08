@@ -18,7 +18,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// OperationsFilter: is a filter that removes the x-xgen-owner-team extension from operations.
+// OperationsFilter is a filter that removes the x-xgen-owner-team extension from operations.
 type OperationsFilter struct {
 	oas *openapi3.T
 }

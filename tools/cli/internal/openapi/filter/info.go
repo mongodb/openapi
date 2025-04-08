@@ -21,7 +21,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
-// InfoVersioningFilter: Filter that modifies the Info object in the OpenAPI spec with the target version.
+// InfoVersioningFilter modifies the Info object in the OpenAPI spec with the target version.
 type InfoVersioningFilter struct {
 	oas      *openapi3.T
 	metadata *Metadata
