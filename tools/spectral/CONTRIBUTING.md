@@ -2,9 +2,10 @@
 
 Thank you for your interest in contributing! We welcome contributions of all kinds—bug fixes, new features, documentation improvements, and more.
 
-**Note:** For MongoDB engineers, please review https://go/ipa-validation-internal-wiki for additional information.
+> **Note:** For MongoDB engineers, please review https://go/ipa-validation-internal-wiki for additional information.
 
-## Legacy Spectral Rule Implementation
+---
+## Legacy Spectral Rule Development
 
 ### Updating the .spectral.yaml Ruleset
 
@@ -13,8 +14,8 @@ When adding new rules or updating the `.spectral.yaml` file, the validations wil
 1. Open a pull request (PR) in the `mongodb/openapi` repository with changes to `tools/spectral/.spectral.yaml`.
 2. Ensure that the new Spectral lint checks pass.
 3. Review and merge the PR.
-
-## IPA Rule Implementation
+---
+## IPA Rule Development
 
 The rule validations are custom JS functions (see [/rulesets/functions](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/rulesets/functions)). To learn more about custom functions, refer to the [Spectral Documentation](https://docs.stoplight.io/docs/spectral/a781e290eb9f9-custom-functions).
 
@@ -33,7 +34,7 @@ Instead of using the [Spectral overrides approach](https://docs.stoplight.io/doc
     "xgen-IPA-104-resource-has-GET": "Legacy API, not used by infrastructure-as-code tooling",
 }
 ```
-
+---
 ## Testing
 
 - IPA Validation related code is tested using [Jest](https://jestjs.io/)
@@ -51,6 +52,7 @@ To run a single test, in this case `singletonHasNoId.test.js`:
 ```
 npm run test -- singletonHasNoId
 ```
+---
 
 ## Code Style
 
@@ -61,6 +63,7 @@ npx prettier . --write
 ```
 
 - [ESLint](https://eslint.org/) is being used for linting
+---
 
 ## Pull Request Checklist
 
@@ -73,102 +76,118 @@ npm run gen-ipa-docs
 ```
 
 - [ ] Reference related issues (e.g., Closes #123)
-
-## Technical Decisions
+---
+## Getting Started with IPA Rule Development
 
 ### Resource & Singleton Evaluation
 
-In the IPA Spectral validation, a resource can be identified using a resource collection path.
+In IPA Spectral validation, a **resource** is typically identified using a *resource collection path*, such as `/resource`.
 
-For example, resource collection path: `/resource`
+To develop rules that evaluate resource and singleton patterns, you can use the following utility functions:
 
-- To get all paths and the path objects for this resource, use [getResourcePathItems](https://github.com/mongodb/openapi/blob/99823b3dfd315f892c5f64f1db50f2124261929c/tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js#L143)
+####  Retrieve Resource Path Items
 
-  - Will return path objects for paths (if present):
-    - Resource collection path `/resource`
-    - Single resource path `/resource + /{someId}`
-    - Custom method path(s)
-      - `/resource + /{someId} + :customMethod`
-      - `/resource + :customMethod`
+Use [`getResourcePathItems`](https://github.com/mongodb/openapi/blob/99823b3dfd315f892c5f64f1db50f2124261929c/tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js#L143) to retrieve all relevant path objects for a given resource:
 
-- To check if a resource is a singleton, take the returned object from [getResourcePathItems](https://github.com/mongodb/openapi/blob/99823b3dfd315f892c5f64f1db50f2124261929c/tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js#L143) and evaluate the resource using [isSingletonResource](https://github.com/mongodb/openapi/blob/99823b3dfd315f892c5f64f1db50f2124261929c/tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js#L71)
-- To check if a path belongs to a resource collection, use [isResourceCollectionIdentifier](https://github.com/mongodb/openapi/blob/99823b3dfd315f892c5f64f1db50f2124261929c/tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js#L13)
-- To check if a path belongs to a single resource, use [isSingleResourceIdentifier](https://github.com/mongodb/openapi/blob/99823b3dfd315f892c5f64f1db50f2124261929c/tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js#L31)
+- Returns path objects for:
+  - Resource collection path: `/resource`
+  - Single resource path: `/resource/{someId}`
+  - Custom method paths:
+    - `/resource/{someId}:customMethod`
+    - `/resource:customMethod`
 
-![info](https://img.shields.io/badge/info-blue) Note: Paths like `/resource/resource` or `/resource/{id}/{id}` are not evaluated as valid resource or single resource paths using isResourceCollectionIdentifier or isSingleResourceIdentifier.
+####  Determine if Resource is a Singleton
 
-### Rule Implementation Guidelines
+Use [`isSingletonResource`](https://github.com/mongodb/openapi/blob/99823b3dfd315f892c5f64f1db50f2124261929c/tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js#L71) to check if the resource behaves as a singleton. Pass the object returned by `getResourcePathItems`.
 
-#### How to Decide when to collect adoption and violation
+#### Identify Resource Collection or Single Resource Paths
 
-The collection of adoption, violation, and exemption should be at the same component level - i.e., the same jsonPath level.
+Use the following helpers to check the type of a path:
 
-Use
+- [`isResourceCollectionIdentifier`](https://github.com/mongodb/openapi/blob/99823b3dfd315f892c5f64f1db50f2124261929c/tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js#L13): Determines if a path represents a resource collection (e.g., `/resource`).
+- [`isSingleResourceIdentifier`](https://github.com/mongodb/openapi/blob/99823b3dfd315f892c5f64f1db50f2124261929c/tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js#L31): Determines if a path represents a single resource (e.g., `/resource/{someId}`).
 
-- [collectAndReturnViolation(jsonPath, ruleName, errorData)](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L14) for violation collection
-- [collectAdoption(jsonPath,ruleName)](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L32) for adoption collection
-- [collectException(object, ruleName, jsonPath)](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L32) for exception collection
+> **Note:** Paths such as `/resource/resource` or `/resource/{id}/{id}` are not recognized as valid resource or single resource identifiers using `isResourceCollectionIdentifier` or `isSingleResourceIdentifier`.
 
-The rule developer should decide on which cases the rule will be considered as adopted and violated.
 
-- **Example**: IPA guideline - Enumeration values must be UPPER_SNAKE_CASE
-- **Decision Process**
+### Deciding When to Collect Adoption, Violation, or Exception
 
-Custom Spectral rule functions in the format of
+In IPA rule development, **adoption**, **violation**, and **exception** must be collected at the same component level — that is, they must share the same `jsonPath`.
 
-```
+#### Helper Functions
+
+Use the following helper functions from the `collectionUtils` module:
+
+- [`collectAndReturnViolation(jsonPath, ruleName, errorData)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L14) — for reporting rule violations.
+- [`collectAdoption(jsonPath, ruleName)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L32) — for marking rule adoption.
+- [`collectException(object, ruleName, jsonPath)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L32) — for recording rule exceptions.
+---
+#### Rule Design Guidance
+
+As a rule developer, you need to define:
+
+- What qualifies as a **violation**?
+- What qualifies as an **adoption**?
+- When should an **exception** be collected?
+---
+#### Custom Rule Function Signature
+
+Spectral custom rule functions follow this format:
+
+```js
 export default (input, _, { path, documentInventory })
 ```
+- `input`: The current component from the OpenAPI spec. Derived from the given and field values in the rule definition.
+- `path`: JSONPath array to the current component.
+- `documentInventory`: The entire OpenAPI specification (use `resolved` or `unresolved` depending on rule context).
 
-- `input`: When the Spectral rule is processed according to the given and field parameters of the rule definition, input is the current component being processed.
-- `path`: JSONPath to current input
-- `documentInventory`: Whole OpenAPI spec (retrieve resolved or unresolved according to the need)
+---
 
-When implementing a custom Spectral rule, please follow these conventions:
+#### Rule Implementation Conventions
 
-- If adoption, violation, and exception data should be collected at the same component level, ensure all helper functions use the same `jsonPath`.
-  This path is either passed directly as the Spectral rule function's parameter or derived from it.
-- Use this `jsonPath` consistently in:
-
+- Use the **same `jsonPath`** for:
   - `collectAndReturnViolation`
   - `collectAdoption`
   - `collectException`
 
-- Input assumptions:
-  The custom rule function assumes its input is never undefined. You do not need to validate the presence or structure of the input parameter.
+  > 💡 This path should either be the `path` parameter from the rule function or a derived value from it.
 
-- Expected behavior: A rule must collect exactly one of:
+- A rule must collect **only one** of the following for each evaluation:
+  - An **adoption**
+  - A **violation**
+  - An **exception**
 
-  - an adoption,
-  - a violation, or
-  - an exception.
+- You can include **multiple error messages** for a violation. To do so:
+  - Gather the messages into an array
+  - Pass them to `collectAndReturnViolation`
 
-- Violations can include multiple error messages, if needed.
-  In that case, gather all messages into an array and pass it to `collectAndReturnViolation`, which is responsible for displaying messages to users.
+- The `input` parameter is assumed to be **defined** when the rule runs. No need to check for its existence.
 
-💡 Example:
+---
 
-If you're validating an `enum` and want to highlight each invalid value, collect the individual error messages into an array and pass it to `collectAndReturnViolation`.
+#### Example: Enum Case Validation
+To validate an enum and show a separate error for each invalid value:
 
-```
-const errors = []
-...
+```js
+const errors = [];
 
-errors.push({
-path: <jsonPath array for violation>,
-message: <custom error message>
-});
-
-....
+for (const value of enumValues) {
+  if (!isUpperSnakeCase(value)) {
+    errors.push({
+      path: [...path, 'enum'],
+      message: `${value} is not in UPPER_SNAKE_CASE`,
+    });
+  }
+}
 
 if (errors.length === 0) {
-collectAdoption(jsonPath, RULE_NAME);
+  collectAdoption(path, RULE_NAME);
 } else {
-return collectAndReturnViolation(jsonPath, RULE_NAME, errors);
+  return collectAndReturnViolation(path, RULE_NAME, errors);
 }
 ```
 
-#### How to Decide the component level at which the rule will be processed
+### How to Decide the component level at which the rule will be processed
 
 When designing a rule, think from the custom rule function’s perspective.
 Consider which `input` and `jsonPath` values will be most helpful for accurately evaluating the rule and collecting adoption, violation, or exception data.
@@ -245,4 +264,32 @@ given: '$.paths'
 then:
 field: @key
 function: "customRuleFunction"
+```
+
+**Case 3**: Parameterized rules
+
+The `functionOptions` in the rule definition can be used to pass additional parameters to your custom rule function. This is useful when you need to configure or provide specific settings to the rule function for more flexible behavior.
+
+- **Example**: Define `functionOptions` within the rule to adjust behavior:
+
+```yaml
+xgen-IPA-xxx-rule-name:
+  description: "Rule description"
+  message: "{{error}} http:://go/ipa/x"
+  severity: warn
+  given: '$.paths[*].get'
+  then:
+    function: "customRuleFunction"
+    functionOptions:
+      option1: "value1"
+      option2: "value2"
+```
+
+In the custom rule function:
+```js
+export default (input, opts, { path, documentInventory }) => {
+  const { option1, option2 } = opts.functionOptions;
+  
+  // Use the options in your rule logic
+};
 ```

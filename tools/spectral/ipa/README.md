@@ -104,7 +104,7 @@ For more information about Spectral GitHub action, see the [GitHub repo](https:/
 
 You can create a validation script similar to this:
 
-```
+```bash
 #!/bin/bash
 spectral lint <openapi-spec-file> --ruleset=<spectral-ruleset-file>
 if [ $? -ne 0 ]; then
