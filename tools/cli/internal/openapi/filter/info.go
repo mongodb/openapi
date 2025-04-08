@@ -49,6 +49,6 @@ func replaceVersion(input string, v *apiversion.APIVersion) string {
 		return input // No match found, return the original string
 	}
 
-	replacement := fmt.Sprintf("application/vnd.atlas.%s+%s", v.String(), matches[5])
+	replacement := fmt.Sprintf("application/vnd.atlas.%s+%s", v.String(), matches[6])
 	return apiversion.ReplaceContentType(input, replacement)
 }
