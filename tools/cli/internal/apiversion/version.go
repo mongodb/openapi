@@ -126,6 +126,10 @@ func DateFromVersion(version string) (time.Time, error) {
 	if IsPreviewStabilityLevel(version) {
 		return time.Parse(dateFormat, previewDate)
 	}
+
+	if IsUpcomingStabilityLevel(version) {
+		return time.Parse(dateFormat, strings.ReplaceAll(version, ".upcoming", ""))
+	}
 	return time.Parse(dateFormat, version)
 }
 
