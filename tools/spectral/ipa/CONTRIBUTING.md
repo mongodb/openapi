@@ -64,6 +64,28 @@ To run a single test, in this case `singletonHasNoId.test.js`:
 npm run test -- singletonHasNoId
 ```
 
+## Code Style
+
+- Use [Prettier](https://prettier.io/) for code formatting
+
+```
+npx prettier . --write
+```
+
+- [ESLint](https://eslint.org/) is being used for linting
+
+## Pull Request Checklist
+
+- [ ] Ensure that code builds and CI tests pass
+- [ ] Add or update unit tests as needed
+- [ ] Update documentation (if applicable)
+
+```
+npm run gen-ipa-docs
+```
+
+- [ ] Reference related issues (e.g., Closes #123)
+
 ## Technical Decisions
 
 ### Resource & Singleton Evaluation
