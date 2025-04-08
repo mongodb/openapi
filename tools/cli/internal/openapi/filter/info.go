@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package filter
 
 import (
@@ -48,6 +49,6 @@ func replaceVersion(input string, v *apiversion.APIVersion) string {
 		return input // No match found, return the original string
 	}
 
-	replacement := fmt.Sprintf("application/vnd.atlas.%s+%s", v.String(), matches[5])
+	replacement := fmt.Sprintf("application/vnd.atlas.%s+%s", v.String(), matches[6])
 	return apiversion.ReplaceContentType(input, replacement)
 }

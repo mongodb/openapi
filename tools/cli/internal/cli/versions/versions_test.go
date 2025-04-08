@@ -75,6 +75,41 @@ func TestVersion_RunWithPreview(t *testing.T) {
 	assert.Contains(t, string(b), "preview")
 }
 
+func TestVersion_RunWithUpcoming(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:   "../../../test/data/openapi_with_upcoming.json",
+		outputPath: "foas.json",
+		fs:         fs,
+		env:        "dev",
+	}
+
+	require.NoError(t, opts.Run())
+	b, err := afero.ReadFile(fs, opts.outputPath)
+	require.NoError(t, err)
+
+	// Check initial versions
+	assert.NotEmpty(t, b)
+	assert.Contains(t, string(b), "2023-02-01")
+	assert.Contains(t, string(b), "2025-09-22.upcoming")
+
+	opts = &Opts{
+		basePath:   "../../../test/data/openapi_with_upcoming.json",
+		outputPath: "foas.json",
+		fs:         fs,
+		env:        "prod",
+	}
+
+	require.NoError(t, opts.Run())
+	b, err = afero.ReadFile(fs, opts.outputPath)
+	require.NoError(t, err)
+
+	assert.NotEmpty(t, b)
+	assert.Contains(t, string(b), "2023-02-01")
+	// Upcoming is only available for dev env
+	assert.NotContains(t, string(b), "2025-09-22.upcoming")
+}
+
 func TestVersion_RunStabilityLevelPreviewAndPrivatePreview(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	opts := &Opts{

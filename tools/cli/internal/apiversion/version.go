@@ -36,7 +36,12 @@ const (
 	previewDate = "3000-01-01"
 )
 
-var contentPattern = regexp.MustCompile(`application/vnd\.atlas\.((\d{4})-(\d{2})-(\d{2})|preview)\+(.+)`)
+// This regex will match:
+//  1. application/vnd.atlas.2025-01-01.json
+//  2. application/vnd.atlas.preview.json
+//  3. application/vnd.atlas.2025-01-01.upcoming.json
+//  4. application/vnd.atlas.2025-01-01.upcoming.yaml
+var contentPattern = regexp.MustCompile(`application/vnd\.atlas\.((\d{4})-(\d{2})-(\d{2})(\.upcoming)?|preview)\+(.+)`)
 
 // Option is a function that sets a value on the APIVersion.
 type Option func(v *APIVersion) error
@@ -120,6 +125,10 @@ func WithFullContent(contentType string, contentValue *openapi3.MediaType) Optio
 func DateFromVersion(version string) (time.Time, error) {
 	if IsPreviewStabilityLevel(version) {
 		return time.Parse(dateFormat, previewDate)
+	}
+
+	if IsUpcomingStabilityLevel(version) {
+		return time.Parse(dateFormat, strings.ReplaceAll(version, ".upcoming", ""))
 	}
 	return time.Parse(dateFormat, version)
 }

@@ -88,6 +88,10 @@ func (o *Opts) filterStabilityLevelVersions(apiVersions []string) []string {
 			if (apiversion.IsPublicPreviewStabilityLevel(stabilityLevel)) && apiversion.IsPublicPreviewStabilityLevel(v) {
 				out = append(out, v)
 			}
+
+			if apiversion.IsUpcomingStabilityLevel(stabilityLevel) && apiversion.IsUpcomingStabilityLevel(v) {
+				out = append(out, v)
+			}
 		}
 	}
 
@@ -145,7 +149,7 @@ func (o *Opts) PreRunE(_ []string) error {
 }
 
 // Builder builds the versions command with the following signature:
-// versions -s oas --env dev|qa|staging|prod -stability-level STABLE|PREVIEW.
+// versions -s oas --env dev|qa|staging|prod -stability-level STABLE|UPCOMING|PREVIEW.
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),

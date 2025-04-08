@@ -39,6 +39,18 @@ func TestVersions_PublicPreview(t *testing.T) {
 	assert.Equal(t, []string{"2023-01-01", "2023-02-01", "preview"}, versions)
 }
 
+func TestVersions_UpcomingAPI(t *testing.T) {
+	versions, err := ExtractVersionsWithEnv(NewVersionedResponsesWithUpcoming(t), "")
+	require.NoError(t, err)
+	assert.Equal(t, []string{"2023-01-01", "2025-09-22.upcoming"}, versions)
+}
+
+func TestVersions_UpcomingAndStableAPI(t *testing.T) {
+	versions, err := ExtractVersionsWithEnv(NewVersionedResponsesWithUpcomingAndStable(t), "")
+	require.NoError(t, err)
+	assert.Equal(t, []string{"2023-01-01", "2025-09-22"}, versions)
+}
+
 func TestVersions_InvalidPreviewData(t *testing.T) {
 	r := NewVersionedResponses(t)
 	// override the extension so something invalid like "public": true
@@ -185,6 +197,83 @@ func NewVersionedResponses(t *testing.T) *openapi3.T {
 
 			Tags:      []string{"tag1"},
 			Responses: responsesFour,
+		},
+	})
+
+	oas := &openapi3.T{
+		Paths: inputPath,
+	}
+
+	return oas
+}
+
+func NewVersionedResponsesWithUpcoming(t *testing.T) *openapi3.T {
+	t.Helper()
+	inputPath := &openapi3.Paths{}
+
+	extension := map[string]any{
+		"x-xgen-version": "2023-01-01",
+	}
+	response := &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Extensions: extension,
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.2023-01-01+json":          {},
+				"application/vnd.atlas.2025-09-22.upcoming+json": {},
+			},
+		},
+	}
+
+	responses := &openapi3.Responses{}
+	responses.Set("200", response)
+
+	inputPath.Set("pathBase1", &openapi3.PathItem{
+		Extensions:  nil,
+		Ref:         "",
+		Summary:     "pathBase1",
+		Description: "pathBase1Description",
+		Get: &openapi3.Operation{
+			Tags:      []string{"tag1"},
+			Responses: responses,
+		},
+	})
+
+	oas := &openapi3.T{
+		Paths: inputPath,
+	}
+
+	return oas
+}
+
+func NewVersionedResponsesWithUpcomingAndStable(t *testing.T) *openapi3.T {
+	t.Helper()
+	inputPath := &openapi3.Paths{}
+
+	extension := map[string]any{
+		"x-xgen-version": "2023-01-01",
+	}
+	response := &openapi3.ResponseRef{
+		Value: &openapi3.Response{
+			Extensions: extension,
+			Content: map[string]*openapi3.MediaType{
+				"application/vnd.atlas.2023-01-01+json":          {},
+				"application/vnd.atlas.2025-09-22.upcoming+json": {},
+				"application/vnd.atlas.2025-09-22+json":          {},
+			},
+		},
+	}
+
+	responses := &openapi3.Responses{}
+	responses.Set("200", response)
+
+	inputPath.Set("pathBase1", &openapi3.PathItem{
+		Extensions:  nil,
+		Ref:         "",
+		Summary:     "pathBase1",
+		Description: "pathBase1Description",
+		Get: &openapi3.Operation{
+			Tags:      []string{"tag1"},
+			Responses: responses,
 		},
 	})
 
