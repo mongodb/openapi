@@ -176,6 +176,17 @@ When designing a rule, it is important to decide at which component level the ru
 ```
 3. In the rule implementation, use the `collectException(object, ruleName, jsonPath)` helper function to collect exceptions. The object here is what you get when you traverse the path defined by the `jsonPath`.
 
+Exceptions can be defined at different levels, such as:
+- Resource level
+- Path level
+- Operation (HTTP method) level
+- Parameter level
+- Response level
+- Request body level
+- Schema level
+- Schema property level
+- Tag level
+
 ##### Rule Design
 Once you have decided on the component for which you want to collect exemptions, you can proceed with the rule design.
 
