@@ -78,6 +78,26 @@ func TestSplitPrivatePreviewRun(t *testing.T) {
 	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/groups")
 }
 
+func TestSplitUpcomingRun(t *testing.T) {
+	t.Parallel()
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		basePath:   "../../../test/data/openapi_with_upcoming.json",
+		outputPath: "foas.yaml",
+		fs:         fs,
+		env:        "dev",
+	}
+
+	require.NoError(t, opts.Run())
+
+	info, err := loadRunResultOas(fs, "foas-2025-09-22.upcoming.yaml")
+	require.NoError(t, err)
+
+	// check paths has only one
+	require.Len(t, info.Spec.Paths.Map(), 1)
+	require.Contains(t, info.Spec.Paths.Map(), "/api/atlas/v2/openapi/info")
+}
+
 func TestSplitMultiplePreviewsRun(t *testing.T) {
 	t.Parallel()
 	fs := afero.NewMemMapFs()
