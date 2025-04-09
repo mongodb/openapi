@@ -46,6 +46,7 @@ func TestSplitPublicPreviewRun(t *testing.T) {
 		outputPath: "foas.yaml",
 		fs:         fs,
 		env:        "dev",
+		format:     "yaml",
 	}
 
 	require.NoError(t, opts.Run())
@@ -66,6 +67,7 @@ func TestSplitPrivatePreviewRun(t *testing.T) {
 		outputPath: "foas.yaml",
 		fs:         fs,
 		env:        "dev",
+		format:     "yaml",
 	}
 
 	require.NoError(t, opts.Run())
@@ -86,6 +88,7 @@ func TestSplitUpcomingRun(t *testing.T) {
 		outputPath: "foas.yaml",
 		fs:         fs,
 		env:        "dev",
+		format:     "yaml",
 	}
 
 	require.NoError(t, opts.Run())
@@ -106,6 +109,7 @@ func TestSplitMultiplePreviewsRun(t *testing.T) {
 		outputPath: "foas.yaml",
 		env:        "dev",
 		fs:         fs,
+		format:     "yaml",
 	}
 
 	require.NoError(t, opts.Run())
@@ -144,6 +148,7 @@ func TestInjectSha_Run(t *testing.T) {
 		fs:         fs,
 		gitSha:     "123456",
 		env:        "dev",
+		format:     "yaml",
 	}
 
 	require.NoError(t, opts.Run())
