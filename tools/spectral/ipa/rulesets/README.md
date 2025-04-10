@@ -597,7 +597,7 @@ Rules are based on [http://go/ipa/IPA-114](http://go/ipa/IPA-114).
 
 #### xgen-IPA-114-error-responses-refer-to-api-error
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 APIs must return ApiError when errors occur
 
 ##### Implementation details
@@ -605,7 +605,7 @@ This rule checks that all 4xx and 5xx error responses reference the ApiError sch
 
 #### xgen-IPA-114-api-error-has-bad-request-detail
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 ApiError schema should have badRequestDetail field with proper structure.
 
 ##### Implementation details
@@ -617,7 +617,7 @@ Rule checks that:
 
 #### xgen-IPA-114-authenticated-endpoints-have-auth-errors
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Authenticated endpoints must define 401 and 403 responses.
 
 ##### Implementation details
@@ -626,7 +626,7 @@ and not containing '/unauth' in the path) include 401 and 403 responses.
 
 #### xgen-IPA-114-parameterized-paths-have-404-not-found
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Paths with parameters must define 404 responses.
 
 ##### Implementation details
@@ -730,7 +730,7 @@ The rule validates that the description content does not include inline markdown
 
 #### xgen-IPA-117-plaintext-response-must-have-example
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 For APIs that respond with plain text, for example CSV, API producers must provide an example. Some tools are not able to generate examples for such responses
 
 ##### Implementation details
@@ -741,7 +741,7 @@ For APIs that respond with plain text, for example CSV, API producers must provi
 
 #### xgen-IPA-117-objects-must-be-well-defined
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Components of type "object" must be well-defined, i.e. have of one of the properties:
   - `schema`
   - `examples`
@@ -762,7 +762,7 @@ The rule is applied to the unresolved OAS, and ignores components with `$ref` pr
 
 #### xgen-IPA-117-parameter-has-examples-or-schema
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 API producers must provide a well-defined schema or example(s) for parameters.
 
 ##### Implementation details
@@ -778,7 +778,7 @@ Rules are based on [http://go/ipa/IPA-118](http://go/ipa/IPA-118).
 
 #### xgen-IPA-118-no-additional-properties-false
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Schemas must not use `additionalProperties: false`
 
 ##### Implementation details
@@ -794,7 +794,7 @@ Rules are based on [http://go/ipa/IPA-119](http://go/ipa/IPA-119).
 
 #### xgen-IPA-119-no-default-for-cloud-providers
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 When using a provider field or parameter, API producers should not define a default value.
 This rule checks fields and parameters named "cloudProvider" and ensures they do not have a default value.
 It also checks enum fields that might contain cloud provider values.
@@ -808,7 +808,7 @@ Rules are based on [http://go/ipa/IPA-121](http://go/ipa/IPA-121).
 
 #### xgen-IPA-121-date-time-fields-mention-iso-8601
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Fields with format="date-time" should mention ISO 8601 and UTC in their description.
 It collects adoption metrics at schema property level and parameter level
 
@@ -832,7 +832,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-123-allowable-enum-values-should-not-exceed-20
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Allowable enum values should not exceed 20 entries.
 
 ##### Implementation details
@@ -851,7 +851,7 @@ Rules are based on [http://go/ipa/IPA-124](http://go/ipa/IPA-124).
 
 #### xgen-IPA-124-array-max-items
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Array fields must have a maxItems property defined to enforce an upper bound on the number of items (recommended max: 100). If the array field has the chance of being too large, the API should use a sub-resource instead.
 
 ##### Implementation details
@@ -926,7 +926,7 @@ Rules are based on [http://go/ipa/IPA-126](http://go/ipa/IPA-126).
 
 #### xgen-IPA-126-tag-names-should-use-title-case
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Tag names in the OpenAPI specification should use Title Case.
 
 ##### Implementation details

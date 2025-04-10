@@ -82,7 +82,7 @@ testRule('xgen-IPA-118-no-additional-properties-false', [
         message:
           "Schema must not use 'additionalProperties: false'. Consider using 'additionalProperties: true' or omitting the property.",
         path: ['components', 'schemas', 'ExampleSchema'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -112,7 +112,7 @@ testRule('xgen-IPA-118-no-additional-properties-false', [
         message:
           "Schema must not use 'additionalProperties: false'. Consider using 'additionalProperties: true' or omitting the property.",
         path: ['components', 'schemas', 'ParentSchema', 'properties', 'child'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -143,14 +143,14 @@ testRule('xgen-IPA-118-no-additional-properties-false', [
         message:
           "Schema must not use 'additionalProperties: false'. Consider using 'additionalProperties: true' or omitting the property.",
         path: ['components', 'schemas', 'ParentSchema'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-118-no-additional-properties-false',
         message:
           "Schema must not use 'additionalProperties: false'. Consider using 'additionalProperties: true' or omitting the property.",
         path: ['components', 'schemas', 'ParentSchema', 'properties', 'child'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

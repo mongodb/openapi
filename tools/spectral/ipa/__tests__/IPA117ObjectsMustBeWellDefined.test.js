@@ -173,7 +173,7 @@ testRule('xgen-IPA-117-objects-must-be-well-defined', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-objects-must-be-well-defined',
@@ -190,7 +190,7 @@ testRule('xgen-IPA-117-objects-must-be-well-defined', [
           'properties',
           'name',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-objects-must-be-well-defined',
@@ -208,42 +208,42 @@ testRule('xgen-IPA-117-objects-must-be-well-defined', [
           'hobbies',
           'items',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-objects-must-be-well-defined',
         message:
           'Components of type "object" must be well-defined with for example a schema, example(s) or properties.',
         path: ['paths', '/resource/{id}', 'get', 'requestBody', 'content', 'application/vnd.atlas.2023-08-05+json'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-objects-must-be-well-defined',
         message:
           'Components of type "object" must be well-defined with for example a schema, example(s) or properties.',
         path: ['components', 'schemas', 'SchemaOneOf'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-objects-must-be-well-defined',
         message:
           'Components of type "object" must be well-defined with for example a schema, example(s) or properties.',
         path: ['components', 'schemas', 'SchemaAllOf'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-objects-must-be-well-defined',
         message:
           'Components of type "object" must be well-defined with for example a schema, example(s) or properties.',
         path: ['components', 'schemas', 'SchemaAnyOf'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-117-objects-must-be-well-defined',
         message:
           'Components of type "object" must be well-defined with for example a schema, example(s) or properties.',
         path: ['components', 'schemas', 'ArraySchema', 'items'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -279,7 +279,7 @@ testRule('xgen-IPA-117-objects-must-be-well-defined', [
         message:
           'Components of type "object" must be well-defined with for example a schema, example(s) or properties.',
         path: ['components', 'schemas', 'Schema'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
