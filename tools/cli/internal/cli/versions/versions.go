@@ -77,7 +77,7 @@ func (o *Opts) filterStabilityLevelVersions(apiVersions []string) []string {
 	var out []string
 	for _, v := range apiVersions {
 		for _, stabilityLevel := range o.stabilityLevel {
-			if (apiversion.IsStableStabilityLevel(stabilityLevel)) && !apiversion.IsPreviewStabilityLevel(v) {
+			if (apiversion.IsStableStabilityLevel(stabilityLevel)) && !apiversion.IsPreviewStabilityLevel(v) && !apiversion.IsUpcomingStabilityLevel(v) {
 				out = append(out, v)
 			}
 
