@@ -18,7 +18,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// BumpFilter modifies includes the fields "x-state" and "x-beta" to the "preview" and "upcoming" APIs Paths.
+// BumpFilter modifies includes the fields "x-state" and "x-beta" to the "preview" and "upcoming" APIs Operations.
 // The "x-state" and "x-beta" fields are bump.sh custom fields to include budges
 // Bump.sh feature: https://docs.bump.sh/help/specification-support/doc-badges/
 type BumpFilter struct {
@@ -51,10 +51,12 @@ func (f *BumpFilter) Apply() error {
 
 func (f *BumpFilter) includeBumpFieldForUpcoming() error {
 	for _, p := range f.oas.Paths.Map() {
-		if p.Extensions == nil {
-			p.Extensions = map[string]any{}
+		for _, op := range p.Operations() {
+			if op.Extensions == nil {
+				op.Extensions = map[string]any{}
+			}
+			op.Extensions[stateFieldName] = stateFieldValueUpcoming
 		}
-		p.Extensions[stateFieldName] = stateFieldValueUpcoming
 	}
 
 	return nil
@@ -62,11 +64,13 @@ func (f *BumpFilter) includeBumpFieldForUpcoming() error {
 
 func (f *BumpFilter) includeBumpFieldForPreview() error {
 	for _, p := range f.oas.Paths.Map() {
-		if p.Extensions == nil {
-			p.Extensions = map[string]any{}
+		for _, op := range p.Operations() {
+			if op.Extensions == nil {
+				op.Extensions = map[string]any{}
+			}
+			op.Extensions[stateFieldName] = stateFieldValuePreview
+			op.Extensions[betaFieldName] = true
 		}
-		p.Extensions[stateFieldName] = stateFieldValuePreview
-		p.Extensions[betaFieldName] = true
 	}
 	return nil
 }

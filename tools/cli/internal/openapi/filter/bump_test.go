@@ -63,10 +63,13 @@ func TestBumpFilter_Apply_Preview(t *testing.T) {
 	assert.Contains(t, oas.Paths.Map(), "test")
 
 	testPath := oas.Paths.Map()["test"]
-	assert.Contains(t, testPath.Extensions, "x-state")
-	assert.Equal(t, "Preview", testPath.Extensions["x-state"])
-	assert.Contains(t, testPath.Extensions, "x-beta")
-	assert.Equal(t, true, testPath.Extensions["x-beta"])
+	assert.NotNil(t, testPath.Get)
+
+	op := testPath.Get
+	assert.Contains(t, op.Extensions, "x-state")
+	assert.Equal(t, "Preview", op.Extensions["x-state"])
+	assert.Contains(t, op.Extensions, "x-beta")
+	assert.Equal(t, true, op.Extensions["x-beta"])
 }
 
 func TestBumpFilter_Apply_Upcoming(t *testing.T) {
@@ -106,9 +109,12 @@ func TestBumpFilter_Apply_Upcoming(t *testing.T) {
 	assert.Contains(t, oas.Paths.Map(), "test")
 
 	testPath := oas.Paths.Map()["test"]
-	assert.Contains(t, testPath.Extensions, "x-state")
-	assert.Equal(t, "Upcoming", testPath.Extensions["x-state"])
-	assert.NotContains(t, testPath.Extensions, "x-beta")
+	assert.NotNil(t, testPath.Get)
+	op := testPath.Get
+
+	assert.Contains(t, op.Extensions, "x-state")
+	assert.Equal(t, "Upcoming", op.Extensions["x-state"])
+	assert.NotContains(t, op.Extensions, "x-beta")
 }
 
 func TestBumpFilter_Apply_Stable(t *testing.T) {
@@ -148,6 +154,9 @@ func TestBumpFilter_Apply_Stable(t *testing.T) {
 	assert.Contains(t, oas.Paths.Map(), "test")
 
 	testPath := oas.Paths.Map()["test"]
-	assert.NotContains(t, testPath.Extensions, "x-state")
-	assert.NotContains(t, testPath.Extensions, "x-beta")
+	assert.NotNil(t, testPath.Get)
+	op := testPath.Get
+
+	assert.NotContains(t, op.Extensions, "x-state")
+	assert.NotContains(t, op.Extensions, "x-beta")
 }
