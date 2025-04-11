@@ -186,6 +186,9 @@ func (v *APIVersion) IsPublicPreview() bool {
 }
 
 func (v *APIVersion) IsUpcoming() bool { return IsUpcomingStabilityLevel(v.stabilityVersion) }
+
+func (v *APIVersion) IsStable() bool { return IsStableStabilityLevel(v.stabilityVersion) }
+
 func FindMatchesFromContentType(contentType string) []string {
 	return contentPattern.FindStringSubmatch(contentType)
 }
