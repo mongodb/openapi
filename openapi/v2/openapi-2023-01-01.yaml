@@ -12757,7 +12757,7 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 bucketName:
-                    description: The name of the AWS S3 Bucket or Azure Storage Container that Snapshots are exported to.
+                    description: The name of the AWS S3 Bucket, Azure Storage Container, or Google Cloud Storage Bucket that Snapshots are exported to.
                     example: export-bucket
                     maxLength: 63
                     minLength: 3
@@ -12767,6 +12767,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
                 iamRoleId:
                     description: Unique 24-hexadecimal character string that identifies the Unified AWS Access role ID that MongoDB Cloud uses to access the AWS S3 bucket.
@@ -12857,6 +12858,7 @@ components:
                 mapping:
                     AWS: '#/components/schemas/DiskBackupSnapshotAWSExportBucketRequest'
                     AZURE: '#/components/schemas/DiskBackupSnapshotAzureExportBucketRequest'
+                    GCP: '#/components/schemas/DiskBackupSnapshotGCPExportBucketRequest'
                 propertyName: cloudProvider
             properties:
                 cloudProvider:
@@ -12864,6 +12866,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -12883,6 +12886,7 @@ components:
                 mapping:
                     AWS: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
                     AZURE: '#/components/schemas/DiskBackupSnapshotAzureExportBucketResponse'
+                    GCP: '#/components/schemas/DiskBackupSnapshotGCPExportBucketResponse'
                 propertyName: cloudProvider
             properties:
                 _id:
@@ -12891,7 +12895,7 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 bucketName:
-                    description: The name of the AWS S3 Bucket or Azure Storage Container that Snapshots are exported to.
+                    description: The name of the AWS S3 Bucket, Azure Storage Container, or Google Cloud Storage Bucket that Snapshots are exported to.
                     example: export-bucket
                     maxLength: 63
                     minLength: 3
@@ -12901,6 +12905,7 @@ components:
                     enum:
                         - AWS
                         - AZURE
+                        - GCP
                     type: string
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -12915,6 +12920,43 @@ components:
                 - _id
                 - bucketName
                 - cloudProvider
+            type: object
+        DiskBackupSnapshotGCPExportBucketRequest:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupSnapshotExportBucketRequest'
+                - properties:
+                    bucketName:
+                        description: Human-readable label that identifies the Google Cloud Storage Bucket that the role is authorized to export to.
+                        example: export-bucket
+                        maxLength: 63
+                        minLength: 3
+                        type: string
+                    roleId:
+                        description: Unique 24-hexadecimal digit string that identifies the GCP Cloud Provider Access Role that MongoDB Cloud uses to access the Google Cloud Storage Bucket.
+                        example: 32b6e34b3d91647abb20e7b8
+                        pattern: ^([a-f0-9]{24})$
+                        type: string
+                  type: object
+            required:
+                - bucketName
+                - cloudProvider
+                - roleId
+            type: object
+        DiskBackupSnapshotGCPExportBucketResponse:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupSnapshotExportBucketResponse'
+                - properties:
+                    roleId:
+                        description: Unique 24-hexadecimal digit string that identifies the GCP Cloud Provider Access Role that MongoDB Cloud uses to access the Google Cloud Storage Bucket.
+                        example: 32b6e34b3d91647abb20e7b8
+                        pattern: ^([a-f0-9]{24})$
+                        type: string
+                  type: object
+            required:
+                - _id
+                - bucketName
+                - cloudProvider
+                - roleId
             type: object
         DiskBackupSnapshotRestoreJob:
             properties:
@@ -30522,7 +30564,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: fbd3118cb27a5ad3e44c3e5ee4dc078dbf116745
+    x-xgen-sha: 0d8de5ea928403859c5ea46d921078cb1674c1f3
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -32387,7 +32429,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listExportBuckets
         post:
             deprecated: true
-            description: Creates a Snapshot Export Bucket for an AWS S3 Bucket or Azure Blob Storage Container. Once created, an snapshots can be exported to the Export Bucket and its referenced AWS S3 Bucket or Azure Blob Storage Container. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: Creates a Snapshot Export Bucket for an AWS S3 Bucket, Azure Blob Storage Container, or Google Cloud Storage Bucket. Once created, an snapshots can be exported to the Export Bucket and its referenced AWS S3 Bucket, Azure Blob Storage Container, or Google Cloud Storage Bucket. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
             operationId: createExportBucket
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -32406,7 +32448,7 @@ paths:
                         schema:
                             $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketRequest'
                         x-xgen-version: "2023-01-01"
-                description: Specifies the role and AWS S3 Bucket or Azure Blob Storage Container that the Export Bucket should reference.
+                description: Specifies the role and AWS S3 Bucket, Azure Blob Storage Container, or Google Cloud Storage Bucket that the Export Bucket should reference.
                 required: true
             responses:
                 "200":
