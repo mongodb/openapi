@@ -1099,12 +1099,6 @@ components:
                 - error
                 - errorCode
             type: object
-        ApiVersion:
-            properties:
-                version:
-                    description: Object representing a version of the Atlas Admin API.
-                    type: string
-            type: object
         AppServiceMetricMatcher:
             description: Rules to apply when comparing an app service metric against this alert configuration.
             properties:
@@ -6324,6 +6318,28 @@ components:
                     type: string
             readOnly: true
             type: object
+        Info:
+            description: Information about the MongoDB Atlas Administration API OpenAPI Specification.
+            properties:
+                description:
+                    description: Description of the MongoDB Atlas Administration API.
+                    example: The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.
+                    type: string
+                license:
+                    $ref: '#/components/schemas/License'
+                termsOfService:
+                    description: Terms of Service URL.
+                    example: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
+                    type: string
+                title:
+                    description: Title of the MongoDB Atlas Administration API.
+                    example: MongoDB Atlas Administration API.
+                    type: string
+                version:
+                    description: Version of the MongoDB Atlas Administration API.
+                    example: "2.0"
+                    type: string
+            type: object
         IngestionSink:
             description: Ingestion destination of a Data Lake Pipeline.
             discriminator:
@@ -6976,6 +6992,18 @@ components:
                     type: string
             readOnly: true
             type: object
+        License:
+            description: License information of the MongoDB Atlas Administration API.
+            properties:
+                name:
+                    description: Name of the license.
+                    example: CC BY-NC-SA 3.0 US
+                    type: string
+                url:
+                    description: URL of the license.
+                    example: https://creativecommons.org/licenses/by-nc-sa/3.0/us/
+                    type: string
+            type: object
         Link:
             properties:
                 href:
@@ -7222,6 +7250,11 @@ components:
                 - type
             title: Online Archive Schedule
             type: object
+        OpenApiInfo:
+            properties:
+                info:
+                    $ref: '#/components/schemas/Info'
+            type: object
         OrgActiveUserResponse:
             allOf:
                 - $ref: '#/components/schemas/OrgUserResponse'
@@ -7364,30 +7397,6 @@ components:
                     type: array
                     uniqueItems: true
             readOnly: true
-            type: object
-        PaginatedApiVersions:
-            properties:
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                results:
-                    description: List of returned documents that MongoDB Cloud provides when completing this request.
-                    items:
-                        $ref: '#/components/schemas/ApiVersion'
-                    readOnly: true
-                    type: array
-                totalCount:
-                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
-                    format: int32
-                    minimum: 0
-                    readOnly: true
-                    type: integer
             type: object
         PeriodicCpsSnapshotSource:
             allOf:
@@ -8789,62 +8798,6 @@ components:
         StreamsSampleConnection:
             allOf:
                 - $ref: '#/components/schemas/StreamsConnection'
-            type: object
-        StreamsTransitGatewayAttachment:
-            properties:
-                cloudProvider:
-                    description: Provider for the transit gateway resources.
-                    type: string
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                regionName:
-                    description: Region name where the resources are in the cloud provider's format.
-                    type: string
-                tgwAttachmentId:
-                    description: The AWS Transit Gateway Attachment ID as a result of creating the attachment successfully.
-                    pattern: ^(tgw-attach-)[0-9a-zA-Z]+$
-                    readOnly: true
-                    type: string
-                tgwId:
-                    description: AWS transit gateway ID.
-                    pattern: ^(tgw-)[0-9a-zA-Z]+$
-                    type: string
-                vpcId:
-                    description: AWS VPC ID.
-                    pattern: ^(vpc-)[0-9a-zA-Z]+$
-                    type: string
-            type: object
-        StreamsTransitGatewayResourceShare:
-            properties:
-                cloudProvider:
-                    description: Provider for the transit gateway resources.
-                    type: string
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                regionName:
-                    description: AWS Region name.
-                    type: string
-                tgwId:
-                    description: AWS transit gateway ID.
-                    pattern: ^(tgw-)[0-9a-zA-Z]+$
-                    type: string
-                tgwResourceShareInvitationArn:
-                    description: AWS Transit Gateway resource share invitation ARN. This is different from the resource share ARN.
-                    type: string
             type: object
         SynonymMappingStatusDetail:
             description: Contains the status of the index's synonym mappings on each search host. This field (and its subfields) only appear if the index has synonyms defined.
@@ -10444,7 +10397,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.private-preview-version-resource+json" \
+          --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -10460,122 +10413,30 @@ info:
     x-xgen-sha: 79cc6998379657fbb1810cdcc9723232d848cc0e
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/groups/{groupId}/streams:acceptTgwResourceShareInvitation:
-        post:
-            description: Accept AWS RAM Resource Share for a Transit Gateway that has been shared with an Atlas AWS account. This Transit Gateway will be used in Atlas Streams private networking connections.
-            operationId: acceptTransitGatewayResourcesShare
-            parameters:
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/envelope'
-            requestBody:
-                content: {}
-                description: Detailed information on creating a resource share for Transit Gateway connections.
-                required: true
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/StreamsTransitGatewayResourceShare'
-                            x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
-                    description: OK
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Accept AWS RAM Resource Share for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.
-            tags:
-                - Streams
-            x-beta: true
-            x-state: Preview
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/acceptTransitGatewayResourcesShare
-    /api/atlas/v2/groups/{groupId}/streams:createTgwAttachment:
-        post:
-            description: Creates Transit Gateway Attachment with the provided VPC for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.
-            operationId: createTransitGatewayAttachment
-            parameters:
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/envelope'
-            requestBody:
-                content: {}
-                description: Detailed information on creating a transit gateway attachment.
-                required: true
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/StreamsTransitGatewayAttachment'
-                            x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
-                    description: OK
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Creates Transit Gateway Attachment with the provided VPC for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.
-            tags:
-                - Streams
-            x-beta: true
-            x-state: Preview
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createTransitGatewayAttachment
-    /api/atlas/v2/unauth/openapi/versions:
+    /api/atlas/v2/openapi/info:
         get:
-            description: 'API that provides a list of available versionsfor a given environment. Deprecated versions: v2-{2024-08-05}'
-            operationId: getApiVersions
+            description: 'This resource returns general information about the MongoDB Atlas Administration API OpenAPI Specification. Deprecated versions: v2-{2024-08-05}, v2-{2024-05-30}'
+            operationId: getOpenApiInfo
             parameters:
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/itemsPerPage'
-                - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-                - description: The environment to get the versions from. If not provided, it returnsthe versions for the given MongoDB URL. (E.g. prod for cloud.mongodb.com).
-                  in: query
-                  name: env
-                  schema:
-                    enum:
-                        - dev
-                        - qa
-                        - prod
-                        - stage
-                    type: string
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.preview+json:
+                        application/vnd.atlas.2025-09-22.upcoming+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
-                            x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
-                        application/vnd.atlas.preview+yaml:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
-                            x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
+                                $ref: '#/components/schemas/OpenApiInfo'
+                            x-xgen-version: 2025-09-22.upcoming
                     description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Provides a list of versions for a given environment.
+            summary: Return general information about the MongoDB Atlas Administration API OpenAPI Specification.
             tags:
                 - OpenAPI
-            x-beta: true
-            x-state: Preview
+            x-state: Upcoming
 security:
     - ServiceAccounts: []
     - DigestAuth: []
@@ -10584,5 +10445,3 @@ servers:
 tags:
     - description: Returns information about the MongoDB Atlas Specification.
       name: OpenAPI
-    - description: Returns, adds, edits, and removes Streams Instances. This resource requires your project ID.
-      name: Streams
