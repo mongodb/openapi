@@ -32972,7 +32972,38 @@ components:
                 streamConfig:
                     $ref: '#/components/schemas/StreamConfig'
             type: object
-        StreamsTransitGateway:
+        StreamsTransitGatewayAttachment:
+            properties:
+                cloudProvider:
+                    description: Provider for the transit gateway resources.
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                regionName:
+                    description: Region name where the resources are in the cloud provider's format.
+                    type: string
+                tgwAttachmentId:
+                    description: The AWS Transit Gateway Attachment ID as a result of creating the attachment successfully.
+                    pattern: ^(tgw-attach-)[0-9a-zA-Z]+$
+                    readOnly: true
+                    type: string
+                tgwId:
+                    description: AWS transit gateway ID.
+                    pattern: ^(tgw-)[0-9a-zA-Z]+$
+                    type: string
+                vpcId:
+                    description: AWS VPC ID.
+                    pattern: ^(vpc-)[0-9a-zA-Z]+$
+                    type: string
+            type: object
+        StreamsTransitGatewayResourceShare:
             properties:
                 cloudProvider:
                     description: Provider for the transit gateway resources.
@@ -36263,7 +36294,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.2025-04-23+json" \
+          --header "Accept: application/vnd.atlas.2025-03-12+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -36276,7 +36307,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: ae5444618576500d2641787344dae8d282a811b0
+    x-xgen-sha: 27e02d03bfa58b63702726e89ec0364b6a7da5f4
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -53795,18 +53826,20 @@ paths:
                 - $ref: '#/components/parameters/envelope'
             requestBody:
                 content:
-                    application/vnd.atlas.2025-04-23+json:
+                    application/vnd.atlas.preview+json:
                         schema:
-                            $ref: '#/components/schemas/StreamsTransitGateway'
+                            $ref: '#/components/schemas/StreamsTransitGatewayResourceShare'
                 description: Detailed information on creating a resource share for Transit Gateway connections.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2025-04-23+json:
+                        application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/StreamsTransitGateway'
-                            x-xgen-version: "2025-04-23"
+                                $ref: '#/components/schemas/StreamsTransitGatewayResourceShare'
+                            x-xgen-preview:
+                                name: version-resource
+                            x-xgen-version: preview
                     description: OK
                 "400":
                     $ref: '#/components/responses/badRequest'
@@ -53822,6 +53855,47 @@ paths:
             tags:
                 - Streams
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/acceptTransitGatewayResourcesShare
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Atlas Streams
+    /api/atlas/v2/groups/{groupId}/streams:createTgwAttachment:
+        post:
+            description: Creates Transit Gateway Attachment with the provided VPC for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.
+            operationId: createTransitGatewayAttachment
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsTransitGatewayAttachment'
+                description: Detailed information on creating a transit gateway attachment.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsTransitGatewayAttachment'
+                            x-xgen-preview:
+                                name: version-resource
+                            x-xgen-version: preview
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Creates Transit Gateway Attachment with the provided VPC for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.
+            tags:
+                - Streams
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createTransitGatewayAttachment
             x-xgen-hidden-env:
                 envs: qa,stage,prod
             x-xgen-owner-team: Atlas Streams
