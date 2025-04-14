@@ -25,7 +25,7 @@ collection_transformed_path="${PWD}/${TMP_FOLDER}/${COLLECTION_TRANSFORMED_FILE_
 
 pushd "${OPENAPI_FOLDER}"
 
-current_collection_name="⭐MongoDB Atlas Administration API ${current_api_revision}"
+current_collection_name="⭐ MongoDB Atlas Administration API ${current_api_revision}"
 
 echo "Fetching list of current collections"
 echo "curl -o ${COLLECTIONS_LIST_FILE} 
