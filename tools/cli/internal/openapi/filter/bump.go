@@ -31,6 +31,8 @@ const (
 	stateFieldValueUpcoming = "Upcoming"
 	stateFieldValuePreview  = "Preview"
 	betaFieldName           = "x-beta"
+	description             = "\nThis API is in preview. Breaking changes might be introduced before it is released. " +
+		"Don't use preview APIs in production."
 )
 
 func (f *BumpFilter) ValidateMetadata() error {
@@ -70,6 +72,7 @@ func (f *BumpFilter) includeBumpFieldForPreview() error {
 			}
 			op.Extensions[stateFieldName] = stateFieldValuePreview
 			op.Extensions[betaFieldName] = true
+			op.Description += description
 		}
 	}
 	return nil
