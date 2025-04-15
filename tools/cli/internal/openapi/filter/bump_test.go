@@ -116,7 +116,7 @@ func TestBumpFilter_Apply_Upcoming(t *testing.T) {
 	assert.Contains(t, op.Extensions, "x-state")
 	assert.Equal(t, "Upcoming", op.Extensions["x-state"])
 	assert.NotContains(t, op.Extensions, "x-beta")
-	assert.NotContains(t, op.Description, description)
+	assert.NotContains(t, op.Description, descriptionDoc feedback for preview API)
 }
 
 func TestBumpFilter_Apply_Stable(t *testing.T) {
