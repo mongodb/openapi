@@ -51,5 +51,8 @@ async function createSpectral(ruleName) {
 function getRulesetForRule(ruleName, ruleset) {
   const modifiedRuleset = { rules: {} };
   modifiedRuleset.rules[ruleName] = ruleset.rules[ruleName].definition;
+  if (ruleset.aliases) {
+    modifiedRuleset.aliases = ruleset.aliases;
+  }
   return modifiedRuleset;
 }
