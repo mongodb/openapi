@@ -67,10 +67,10 @@ func TestBumpFilter_Apply_Preview(t *testing.T) {
 
 	op := testPath.Get
 	assert.Contains(t, op.Extensions, "x-state")
-	assert.Equal(t, "Preview", op.Extensions["x-state"])
+	assert.Equal(t, stateFieldValuePreview, op.Extensions["x-state"])
 	assert.Contains(t, op.Extensions, "x-beta")
 	assert.Equal(t, true, op.Extensions["x-beta"])
-	assert.Contains(t, description, op.Description)
+	assert.Contains(t, op.Description, description)
 }
 
 func TestBumpFilter_Apply_Upcoming(t *testing.T) {
@@ -114,7 +114,7 @@ func TestBumpFilter_Apply_Upcoming(t *testing.T) {
 	op := testPath.Get
 
 	assert.Contains(t, op.Extensions, "x-state")
-	assert.Equal(t, "Upcoming", op.Extensions["x-state"])
+	assert.Equal(t, stateFieldValueUpcoming, op.Extensions["x-state"])
 	assert.NotContains(t, op.Extensions, "x-beta")
 	assert.NotContains(t, op.Description, description)
 }
