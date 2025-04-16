@@ -9,6 +9,10 @@ functions:
   - IPA104GetMethodResponseHasNoInputFields
   - IPA104GetMethodHasNoRequestBody
 
+aliases:
+  GetOperationObject:
+    - '$.paths[*].get'
+
 rules:
   xgen-IPA-104-resource-has-GET:
     description: |
@@ -36,7 +40,7 @@ rules:
         - Different error messages are provided for standard vs singleton resources
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-returns-single-resource'
     severity: error
-    given: '$.paths[*].get.responses[*].content'
+    given: '#GetOperationObject.responses[*].content'
     then:
       field: '@key'
       function: 'IPA104GetMethodReturnsSingleResource'
@@ -50,7 +54,7 @@ rules:
         - Fails if the method lacks a 200 OK response or defines a different 2xx status code
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-response-code-is-200'
     severity: error
-    given: '$.paths[*].get'
+    given: '#GetOperationObject'
     then:
       function: 'IPA104GetResponseCodeShouldBe200OK'
   xgen-IPA-104-get-method-returns-response-suffixed-object:
@@ -63,7 +67,7 @@ rules:
         - Confirms the referenced schema name ends with "Response" suffix
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-returns-response-suffixed-object'
     severity: error
-    given: '$.paths[*].get.responses[*].content'
+    given: '#GetOperationObject.responses[*].content'
     then:
       field: '@key'
       function: 'IPA104GetMethodReturnsResponseSuffixedObject'
@@ -77,7 +81,7 @@ rules:
         - Fails if any writeOnly properties are found in the response schema
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-response-has-no-input-fields'
     severity: error
-    given: '$.paths[*].get.responses[*].content'
+    given: '#GetOperationObject.responses[*].content'
     then:
       field: '@key'
       function: 'IPA104GetMethodResponseHasNoInputFields'
@@ -90,6 +94,6 @@ rules:
         - Verifies that the operation object does not contain a requestBody property
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-get-method-no-request-body'
     severity: error
-    given: '$.paths[*].get'
+    given: '#GetOperationObject'
     then:
       function: 'IPA104GetMethodHasNoRequestBody'

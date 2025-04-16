@@ -12,6 +12,17 @@ functions:
   - IPA117ObjectsMustBeWellDefined
   - IPA117ParameterHasExamplesOrSchema
 
+aliases:
+  OperationObject:
+    - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+  DescribableObjects:
+    - '$.tags[*]'
+    - '#OperationObject'
+    - '#OperationObject.parameters[*]'
+    - '#OperationObject..content..properties[*]'
+    - '$.components.schemas..properties[*]'
+    - '$.components.parameters[*]'
+
 rules:
   xgen-IPA-117-description:
     description: |
@@ -30,12 +41,7 @@ rules:
     severity: error
     given:
       - '$.info'
-      - '$.tags[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
-      - '$.components.schemas..properties[*]'
-      - '$.components.parameters[*]'
+      - '#DescribableObjects'
     then:
       function: 'IPA117HasDescription'
   xgen-IPA-117-description-starts-with-uppercase:
@@ -54,12 +60,7 @@ rules:
     severity: error
     given:
       - '$.info'
-      - '$.tags[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
-      - '$.components.schemas..properties[*]'
-      - '$.components.parameters[*]'
+      - '#DescribableObjects'
     then:
       function: 'IPA117DescriptionStartsWithUpperCase'
   xgen-IPA-117-description-ends-with-period:
@@ -79,12 +80,7 @@ rules:
     severity: error
     given:
       - '$.info'
-      - '$.tags[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
-      - '$.components.schemas..properties[*]'
-      - '$.components.parameters[*]'
+      - '#DescribableObjects'
     then:
       function: 'IPA117DescriptionEndsWithPeriod'
   xgen-IPA-117-description-must-not-use-html:
@@ -104,12 +100,7 @@ rules:
     severity: error
     given:
       - '$.info'
-      - '$.tags[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
-      - '$.components.schemas..properties[*]'
-      - '$.components.parameters[*]'
+      - '#DescribableObjects'
     then:
       function: 'IPA117DescriptionMustNotUseHtml'
   xgen-IPA-117-description-should-not-use-inline-tables:
@@ -129,12 +120,7 @@ rules:
     severity: error
     given:
       - '$.info'
-      - '$.tags[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
-      - '$.components.schemas..properties[*]'
-      - '$.components.parameters[*]'
+      - '#DescribableObjects'
     then:
       function: 'IPA117DescriptionShouldNotUseTables'
   xgen-IPA-117-description-should-not-use-inline-links:
@@ -152,12 +138,7 @@ rules:
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-should-not-use-inline-links'
     severity: error
     given:
-      - '$.tags[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
-      - '$.components.schemas..properties[*]'
-      - '$.components.parameters[*]'
+      - '#DescribableObjects'
     then:
       function: 'IPA117DescriptionShouldNotUseLinks'
   xgen-IPA-117-plaintext-response-must-have-example:
@@ -172,7 +153,7 @@ rules:
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-plaintext-response-must-have-example'
     severity: error
     given:
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace].responses[*].content'
+      - '#OperationObject.responses[*].content'
     then:
       field: '@key'
       function: 'IPA117PlaintextResponseMustHaveExample'
@@ -201,9 +182,9 @@ rules:
     severity: error
     resolved: false
     given:
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..properties[*]'
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace]..content..items'
+      - '#OperationObject..content[*]'
+      - '#OperationObject..content..properties[*]'
+      - '#OperationObject..content..items'
       - '$.components.schemas[*]'
       - '$.components.schemas..properties[*]'
       - '$.components.schemas..items'
@@ -224,7 +205,7 @@ rules:
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-parameter-has-examples-or-schema'
     severity: error
     given:
-      - '$.paths[*][get,put,post,delete,options,head,patch,trace].parameters[*]'
+      - '#OperationObject.parameters[*]'
       - '$.components.parameters[*]'
     then:
       function: 'IPA117ParameterHasExamplesOrSchema'
