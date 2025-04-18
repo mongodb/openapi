@@ -262,7 +262,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "e30f3251485ae968ac5600d7325f9131cc78f8d7"
+    "x-xgen-sha": "10667b4c133c5470def0766a2e554a15d74928b3"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -27439,7 +27439,7 @@
           "content": {
             "application/vnd.atlas.preview+json": {
               "schema": {
-                "$ref": "#/components/schemas/StreamsTransitGatewayResourceShareDelete"
+                "$ref": "#/components/schemas/StreamsResourceShare"
               }
             }
           },
@@ -27479,6 +27479,60 @@
           "Streams"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/deleteTransitGatewayResourcesShare",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
+        "x-xgen-owner-team": "Atlas Streams"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/streams:listTgwResourceShares": {
+      "get": {
+        "description": "Returns the AWS RAM Resource Shares and Transit Gateway IDs for a Transit Gateway that has been shared with an Atlas AWS Account. This only returns the resource shares cached for Atlas Streams Processing.",
+        "operationId": "listTransitGatewayResourcesShares",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamsResourceShareList"
+                },
+                "x-xgen-preview": {
+                  "name": "aws-transit-gateway"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Returns the AWS RAM Resource Shares and Transit Gateway IDs for a Transit Gateway that has been shared with an Atlas AWS Account. This only returns the resource shares cached for Atlas Streams Processing.",
+        "tags": [
+          "Streams"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/listTransitGatewayResourcesShares",
         "x-xgen-hidden-env": {
           "envs": "qa,stage,prod"
         },
@@ -75547,6 +75601,57 @@
         ],
         "type": "object"
       },
+      "StreamsResourceShare": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "tgwId": {
+            "description": "AWS transit gateway ID.",
+            "pattern": "^(tgw-)[0-9a-zA-Z]+$",
+            "type": "string"
+          },
+          "tgwResourceShareArn": {
+            "description": "AWS Transit Gateway resource share ARN.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "StreamsResourceShareList": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "resourceShares": {
+            "description": "Lists of transit gateway IDs and resource share ARNs.",
+            "items": {
+              "$ref": "#/components/schemas/StreamsResourceShare"
+            },
+            "maxItems": 100,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "StreamsS3Connection": {
         "allOf": [
           {
@@ -75728,32 +75833,6 @@
           "regionName": {
             "description": "AWS Region name.",
             "type": "string"
-          },
-          "tgwId": {
-            "description": "AWS transit gateway ID.",
-            "pattern": "^(tgw-)[0-9a-zA-Z]+$",
-            "type": "string"
-          },
-          "tgwResourceShareArn": {
-            "description": "AWS Transit Gateway resource share ARN.",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "StreamsTransitGatewayResourceShareDelete": {
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
           },
           "tgwId": {
             "description": "AWS transit gateway ID.",
