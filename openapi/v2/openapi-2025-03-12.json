@@ -244,7 +244,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "5dccc865bc5832db72d796397513d97192aa7db6"
+    "x-xgen-sha": "cc90a1de7cc60bb513bba7cac36c83d4bb763114"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -23433,7 +23433,7 @@
             "content": {
               "application/vnd.atlas.2024-11-13+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AWSAccountDetails"
+                  "$ref": "#/components/schemas/AccountDetails"
                 },
                 "x-xgen-version": "2024-11-13"
               }
@@ -31901,6 +31901,10 @@
             "description": "The VPC CIDR Block.",
             "type": "string"
           },
+          "cloudProvider": {
+            "description": "Cloud provider.",
+            "type": "string"
+          },
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
             "externalDocs": {
@@ -32804,6 +32808,25 @@
         },
         "required": [
           "ipAddress"
+        ],
+        "type": "object"
+      },
+      "AccountDetails": {
+        "description": "Account details for the group, region, and provider.",
+        "discriminator": {
+          "mapping": {
+            "aws": "#/components/schemas/AWSAccountDetails",
+            "azure": "#/components/schemas/AzureAccountDetails"
+          },
+          "propertyName": "cloudProvider"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AWSAccountDetails"
+          },
+          {
+            "$ref": "#/components/schemas/AzureAccountDetails"
+          }
         ],
         "type": "object"
       },
@@ -36678,6 +36701,39 @@
           "vpcId"
         ],
         "title": "AWS",
+        "type": "object"
+      },
+      "AzureAccountDetails": {
+        "properties": {
+          "azureSubscriptionId": {
+            "description": "The Azure Subscription ID.",
+            "type": "string"
+          },
+          "cidrBlock": {
+            "description": "The VPC CIDR Block.",
+            "type": "string"
+          },
+          "cloudProvider": {
+            "description": "Cloud provider.",
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "virtualNetworkName": {
+            "description": "The name of the virtual network.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "AzureCloudProviderContainer": {
