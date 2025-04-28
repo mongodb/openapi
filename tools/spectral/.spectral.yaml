@@ -15,7 +15,18 @@ aliases:
     - "#OperationObject.parameters[?(@ && @.in)]"
     - "$.components.schemas[*]..properties[?(@ && @.type)]"
 
+functions:
+  - acceptHeaderUpcomingVersionLimit
+
 rules:
+  accept-header-upcoming-version-limit:
+    description: Ensure that each operation has at most one upcoming API Accept header.
+    message: "An operation must not have more than one upcoming API Accept header (format: application/vnd.atlas.YYYY-MM-DD.upcoming+format)."
+    severity: error
+    given: $.paths[*][*]
+    then:
+      function: "acceptHeaderUpcomingVersionLimit"
+      
   xgen-schema-name-pascal-case:
     description: OpenAPI Schema names should use PascalCase. PascalCase ensures consistency with OpenAPI generated code.
     message: "`{{property}}` name must follow PascalCase. Please verify if you have provided valid @Schema(name='') annotation"
