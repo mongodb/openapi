@@ -28,7 +28,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "190516086626d6e423e3f56727444d9f81164a8f"
+    "x-xgen-sha": "7baef64ac5d5cb942060a8bb9fe131fee5cec3c9"
   },
   "paths": {
     "/api/atlas/v2/groups/{groupId}/streams:acceptTgwResourceShareInvitation": {
@@ -1758,6 +1758,37 @@
           "tokenizer"
         ],
         "title": "Atlas Search Analyzer",
+        "type": "object"
+      },
+      "AuthFederationRoleMapping": {
+        "description": "Mapping settings that link one IdP and MongoDB Cloud.",
+        "properties": {
+          "externalGroupName": {
+            "description": "Unique human-readable label that identifies the identity provider group to which this role mapping applies.",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies this role mapping.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "roleAssignments": {
+            "description": "Atlas roles and the unique identifiers of the groups and organizations associated with each role. The array must include at least one element with an Organization role and its respective **orgId**. Each element in the array can have a value for **orgId** or **groupId**, but not both.",
+            "items": {
+              "$ref": "#/components/schemas/ConnectedOrgConfigRoleAssignment"
+            },
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "externalGroupName"
+        ],
+        "title": "Federated Authentication Role Mapping",
         "type": "object"
       },
       "AzureCloudProviderContainer": {
@@ -4860,6 +4891,119 @@
         "title": "Serverless Backup Options",
         "type": "object"
       },
+      "ConnectedOrgConfig": {
+        "properties": {
+          "dataAccessIdentityProviderIds": {
+            "description": "The collection of unique ids representing the identity providers that can be used for data access in this organization.",
+            "items": {
+              "description": "Unique 24-hexadecimal digit string that represents the id of the identity providers that can be used for data access in this organization.",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "domainAllowList": {
+            "description": "Approved domains that restrict users who can join the organization based on their email address.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "domainRestrictionEnabled": {
+            "description": "Value that indicates whether domain restriction is enabled for this connected org.",
+            "type": "boolean"
+          },
+          "identityProviderId": {
+            "description": "Legacy 20-hexadecimal digit string that identifies the UI access identity provider that this connected org config is associated with. This id can be found within the Federation Management Console > Identity Providers tab by clicking the info icon in the IdP ID row of a configured identity provider.",
+            "pattern": "^([a-f0-9]{20})$",
+            "type": "string"
+          },
+          "orgId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the connected organization configuration.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "postAuthRoleGrants": {
+            "description": "Atlas roles that are granted to a user in this organization after authenticating. Roles are a human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific MongoDB Cloud user. These roles can only be organization specific roles.",
+            "items": {
+              "enum": [
+                "ORG_OWNER",
+                "ORG_MEMBER",
+                "ORG_GROUP_CREATOR",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_READ_ONLY"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "roleMappings": {
+            "description": "Role mappings that are configured in this organization.",
+            "items": {
+              "$ref": "#/components/schemas/AuthFederationRoleMapping"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "userConflicts": {
+            "description": "List that contains the users who have an email address that doesn't match any domain on the allowed list.",
+            "items": {
+              "$ref": "#/components/schemas/FederatedUser"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "domainRestrictionEnabled",
+          "orgId"
+        ],
+        "type": "object"
+      },
+      "ConnectedOrgConfigRoleAssignment": {
+        "properties": {
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project to which this role belongs. Each element within **roleAssignments** can have a value for **groupId** or **orgId**, but not both.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "orgId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the organization to which this role belongs. Each element within **roleAssignments** can have a value for **orgId** or **groupId**, but not both.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "role": {
+            "description": "Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.",
+            "enum": [
+              "ORG_OWNER",
+              "ORG_MEMBER",
+              "ORG_GROUP_CREATOR",
+              "ORG_BILLING_ADMIN",
+              "ORG_BILLING_READ_ONLY",
+              "ORG_READ_ONLY",
+              "GROUP_BACKUP_MANAGER",
+              "GROUP_CLUSTER_MANAGER",
+              "GROUP_DATA_ACCESS_ADMIN",
+              "GROUP_DATA_ACCESS_READ_ONLY",
+              "GROUP_DATA_ACCESS_READ_WRITE",
+              "GROUP_DATABASE_ACCESS_ADMIN",
+              "GROUP_OBSERVABILITY_VIEWER",
+              "GROUP_OWNER",
+              "GROUP_READ_ONLY",
+              "GROUP_SEARCH_INDEX_EDITOR",
+              "GROUP_STREAM_PROCESSING_OWNER"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "CreateAWSEndpointRequest": {
         "allOf": [
           {
@@ -7012,6 +7156,45 @@
         "additionalProperties": {
           "type": "object"
         },
+        "type": "object"
+      },
+      "FederatedUser": {
+        "description": "MongoDB Cloud user linked to this federated authentication.",
+        "properties": {
+          "emailAddress": {
+            "description": "Email address of the MongoDB Cloud user linked to the federated organization.",
+            "format": "email",
+            "type": "string"
+          },
+          "federationSettingsId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the federation to which this MongoDB Cloud user belongs.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "firstName": {
+            "description": "First or given name that belongs to the MongoDB Cloud user.",
+            "type": "string"
+          },
+          "lastName": {
+            "description": "Last name, family name, or surname that belongs to the MongoDB Cloud user.",
+            "type": "string"
+          },
+          "userId": {
+            "description": "Unique 24-hexadecimal digit string that identifies this user.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "emailAddress",
+          "federationSettingsId",
+          "firstName",
+          "lastName"
+        ],
+        "title": "Federated User",
         "type": "object"
       },
       "FieldViolation": {

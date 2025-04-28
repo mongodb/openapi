@@ -4147,7 +4147,7 @@ components:
                 roleAssignments:
                     description: Atlas roles and the unique identifiers of the groups and organizations associated with each role. The array must include at least one element with an Organization role and its respective **orgId**. Each element in the array can have a value for **orgId** or **groupId**, but not both.
                     items:
-                        $ref: '#/components/schemas/RoleAssignment'
+                        $ref: '#/components/schemas/ConnectedOrgConfigRoleAssignment'
                     type: array
                     uniqueItems: true
             required:
@@ -9817,6 +9817,40 @@ components:
             required:
                 - domainRestrictionEnabled
                 - orgId
+            type: object
+        ConnectedOrgConfigRoleAssignment:
+            properties:
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project to which this role belongs. Each element within **roleAssignments** can have a value for **groupId** or **orgId**, but not both.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                orgId:
+                    description: Unique 24-hexadecimal digit string that identifies the organization to which this role belongs. Each element within **roleAssignments** can have a value for **orgId** or **groupId**, but not both.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                role:
+                    description: Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.
+                    enum:
+                        - ORG_OWNER
+                        - ORG_MEMBER
+                        - ORG_GROUP_CREATOR
+                        - ORG_BILLING_ADMIN
+                        - ORG_BILLING_READ_ONLY
+                        - ORG_READ_ONLY
+                        - GROUP_BACKUP_MANAGER
+                        - GROUP_CLUSTER_MANAGER
+                        - GROUP_DATA_ACCESS_ADMIN
+                        - GROUP_DATA_ACCESS_READ_ONLY
+                        - GROUP_DATA_ACCESS_READ_WRITE
+                        - GROUP_DATABASE_ACCESS_ADMIN
+                        - GROUP_OBSERVABILITY_VIEWER
+                        - GROUP_OWNER
+                        - GROUP_READ_ONLY
+                        - GROUP_SEARCH_INDEX_EDITOR
+                        - GROUP_STREAM_PROCESSING_OWNER
+                    type: string
             type: object
         ControlPlaneIPAddresses:
             description: List of IP addresses in the Atlas control plane.
@@ -28581,40 +28615,6 @@ components:
                     type: string
             readOnly: true
             type: object
-        RoleAssignment:
-            properties:
-                groupId:
-                    description: Unique 24-hexadecimal digit string that identifies the project to which this role belongs. Each element within **roleAssignments** can have a value for **groupId** or **orgId**, but not both.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-                orgId:
-                    description: Unique 24-hexadecimal digit string that identifies the organization to which this role belongs. Each element within **roleAssignments** can have a value for **orgId** or **groupId**, but not both.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-                role:
-                    description: Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.
-                    enum:
-                        - ORG_OWNER
-                        - ORG_MEMBER
-                        - ORG_GROUP_CREATOR
-                        - ORG_BILLING_ADMIN
-                        - ORG_BILLING_READ_ONLY
-                        - ORG_READ_ONLY
-                        - GROUP_BACKUP_MANAGER
-                        - GROUP_CLUSTER_MANAGER
-                        - GROUP_DATA_ACCESS_ADMIN
-                        - GROUP_DATA_ACCESS_READ_ONLY
-                        - GROUP_DATA_ACCESS_READ_WRITE
-                        - GROUP_DATABASE_ACCESS_ADMIN
-                        - GROUP_OBSERVABILITY_VIEWER
-                        - GROUP_OWNER
-                        - GROUP_READ_ONLY
-                        - GROUP_SEARCH_INDEX_EDITOR
-                        - GROUP_STREAM_PROCESSING_OWNER
-                    type: string
-            type: object
         SMSNotification:
             description: SMS notification configuration for MongoDB Cloud to send information when an event triggers an alert condition.
             properties:
@@ -34785,7 +34785,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 190516086626d6e423e3f56727444d9f81164a8f
+    x-xgen-sha: 7baef64ac5d5cb942060a8bb9fe131fee5cec3c9
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
