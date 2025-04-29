@@ -27,15 +27,34 @@ pushd "${OPENAPI_FOLDER}"
 
 current_collection_name="⭐ MongoDB Atlas Administration API ${current_api_revision}"
 
+# Run curl with all the provided arguments
+execute_curl() {
+  # Capture all arguments passed to the function
+  local args=("$@")
+
+  # Add verbose flag if runner debugging is enabled
+  if [[ "${RUNNER_DEBUG:-0}" == "1" ]]; then
+    args+=("-v")
+    echo "Debug mode enabled - using verbose curl output"
+  fi
+  
+  # runs curl for provided args without showing sensitive info
+  curl "${args[@]}" 2>&1 | grep -i -v "api-key\|x-api-key\|PMAK-" || true
+}
+
 echo "Fetching list of current collections"
 echo "curl -o ${COLLECTIONS_LIST_FILE} 
      --location 'https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}'
      --header 'X-API-Key: **********'"
-curl --show-error --fail --silent -o "${COLLECTIONS_LIST_FILE}" \
+execute_curl --show-error --fail --silent -o "${COLLECTIONS_LIST_FILE}" \
      --location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
      --header "X-API-Key: ${POSTMAN_API_KEY}"
 
-collection_exists=$(jq '.collections | any(.name=="'"${current_collection_name}"'")' "${COLLECTIONS_LIST_FILE}")
+     # Print the collections list to the console
+     echo "Current collections in the workspace:"
+     jq '.collections[] | {id, name}' "${COLLECTIONS_LIST_FILE}"
+
+     collection_exists=$(jq '.collections | any(.name=="'"${current_collection_name}"'")' "${COLLECTIONS_LIST_FILE}")
 
 if [  "$collection_exists" = "false" ]; then
   # Check if a collection with a star icon already exists
@@ -46,14 +65,16 @@ if [  "$collection_exists" = "false" ]; then
 
     echo "Removing star icon from the previous collection name"
     echo "curl -o ${COLLECTIONS_LIST_FILE}
-         --location 'https://api.getpostman.com/collections/${previous_star_collection_id}'
-         --header 'X-API-Key: **********'
-         --data \"{\"collection\": {\"info\": {\"name\": \"${new_collection_name}\"}}}\""
-    curl --show-error --fail --silent --request PATCH \
-         --location "https://api.getpostman.com/collections/${previous_star_collection_id}" \
-         --header "Content-Type: application/json" \
-         --header "X-API-Key: ${POSTMAN_API_KEY}" \
-         --data "{\"collection\": {\"info\": {\"name\": \"${new_collection_name}\"}}}"
+     --location 'https://api.getpostman.com/collections/${previous_star_collection_id}'
+     --header 'X-API-Key: **********'
+     --data '{\"collection\": {\"info\": {\"name\": \"${new_collection_name}\"}}}'"
+
+    execute_curl --show-error --fail --silent --request PATCH \
+     --location "https://api.getpostman.com/collections/${previous_star_collection_id}" \
+     --header "Content-Type: application/json" \
+     --header "X-API-Key: ${POSTMAN_API_KEY}" \
+     --data "{\"collection\": {\"info\": {\"name\": \"${new_collection_name}\"}}}"
+
   fi
 
   # Create new collection
@@ -63,17 +84,12 @@ if [  "$collection_exists" = "false" ]; then
      --header 'Content-Type: application/json'
      --header 'X-API-Key: **********'
      --data ${collection_transformed_path}"
-  curl --show-error \
-          --retry 7 \
-          --retry-delay 30  \
-          --retry-max-time 1200 \
-          --retry-all-errors \
-          --fail  \
-          --silent \
-       --location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
-       --header "Content-Type: application/json" \
-       --header "X-API-Key: ${POSTMAN_API_KEY}" \
-       --data "@${collection_transformed_path}" \
+  execute_curl --show-error --retry 3 --retry-delay 30 --retry-max-time 1200 \
+     --retry-all-errors --fail --silent \
+     --location "https://api.getpostman.com/collections?workspace=${WORKSPACE_ID}" \
+     --header "Content-Type: application/json" \
+     --header "X-API-Key: ${POSTMAN_API_KEY}" \
+     --data "@${collection_transformed_path}"
 
 else
   # Find collection ID and update collection
@@ -86,18 +102,13 @@ else
      --header 'X-API-Key: **********'
      --data ${collection_transformed_path}"
 
-  curl --show-error \
-       --retry 7 \
-       --retry-delay 30  \
-       --retry-max-time 1200 \
-       --retry-all-errors \
-       --fail  \
-       --silent \
-       --request PUT \
-       --location "https://api.getpostman.com/collections/${collection_id}" \
-       --header "Content-Type: application/json" \
-       --header "X-API-Key: ${POSTMAN_API_KEY}" \
-       --data "@${collection_transformed_path}"
+  execute_curl --request PUT --retry 3 --retry-delay 30 --retry-max-time 1200 \
+     --show-error --fail --silent \
+     --location "https://api.getpostman.com/collections/${collection_id}" \
+     --header "Content-Type: application/json" \
+     --header "X-API-Key: ${POSTMAN_API_KEY}" \
+     --data "@${collection_transformed_path}"
+
 fi
 
 popd -0
