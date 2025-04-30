@@ -1,0 +1,48 @@
+name: Spectral Lint Commited OpenAPI Spec
+
+# Trigger the workflow on pull requests and pushes to the main branch
+on:
+  pull_request:
+    paths:
+      - 'tools/spectral/**'
+      - 'openapi/**.yaml'
+      - 'package.json'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/spectral/**'
+      - 'openapi/**.yaml'
+      - 'package.json'
+
+jobs:
+  spectral-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          sparse-checkout: |
+            openapi/
+            tools/spectral
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - name: Install npm dependencies
+        run: npm install
+      - name: Fetch OAS file from Dev Branch
+        run: curl -O "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/.raw/v2.yaml"
+        working-directory: ${{ github.workspace }}
+      - name: Spectral action
+        uses: stoplightio/spectral-action@2ad0b9302e32a77c1caccf474a9b2191a8060d83
+        with:
+          # Path to the OpenAPI spec files and openapi/.raw/v2.yaml
+          file_glob: openapi/.raw/v2.yaml
+          spectral_ruleset: tools/spectral/.spectral.yaml #If updated, need to update in MMS too.
+      - name: IPA validation action
+        run: npx spectral lint v2.yaml --ruleset=./tools/spectral/ipa/ipa-spectral.yaml
+          

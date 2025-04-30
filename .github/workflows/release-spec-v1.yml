@@ -1,0 +1,89 @@
+name: 'Release OpenAPI Spec V1 for a given environment'
+on:
+  workflow_call:
+    inputs:
+      aws_default_region:
+        description: 'AWS Default Region.'
+        required: true
+        type: string
+      aws_s3_bucket:
+        description: 'AWS S3 Bucket.'
+        required: true
+        type: string
+      env:
+        description: 'Environment to generate the OpenAPI Spec for.'
+        required: true
+        type: string
+      branch:
+        description: 'Branch to release the OpenAPI Spec to.'
+        required: true
+        type: string
+      aws_s3_role_to_assume:
+        description: 'AWS S3 Role to Assume.'
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      api_bot_pat:
+        required: true
+      mms_deployed_sha_url:
+        required: true
+
+permissions:
+  contents: write
+  issues: write
+  id-token: write
+
+jobs:
+  release-v1-oas-apis:
+    name: Release OpenAPI Spec for V1 (DEPRECATED) APIs
+    runs-on: ubuntu-latest
+    steps:
+      - name: aws configure
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws_s3_role_to_assume }}
+          aws-region: ${{inputs.aws_default_region}}
+      - name: Download v1 Spec
+        env:
+          AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
+          S3_BUCKET: ${{ inputs.aws_s3_bucket }}
+          MMS_DEPLOYED_SHA_URL: ${{secrets.mms_deployed_sha_url}}
+        run: |
+          sha=$(curl "${MMS_DEPLOYED_SHA_URL}")
+          echo "Downloading the OpenAPI Spec for v1 with sha ${sha}"
+          aws s3 cp "s3://${S3_BUCKET}/openapi/oas/mms-v1/${sha}.json" "v1.json"
+      - name: Generate YAML spec
+        run: |
+          sudo snap install yq
+          yq -P '.' v1.json > v1.yaml
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: openapi-v1-${{ inputs.env }}
+          path: |
+            v1.json
+            v1.yaml
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: ${{ inputs.branch }}
+          token: ${{secrets.api_bot_pat}}
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-v1-${{ inputs.env }}
+          github-token: ${{ secrets.api_bot_pat }}
+          run-id: ${{ github.run_id }}
+          path: openapi/v1-deprecated
+      - name: Commit changes
+        id: commit
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403
+        env:
+          target_env: ${{ inputs.env }}
+          target_branch: ${{ inputs.branch }}
+          run_id: ${{ github.run_id }}
+        with:
+          commit_message: "(${{env.target_env}}) Release OpenAPI Spec V1 :rocket:. See https://github.com/mongodb/openapi/actions/runs/${{env.run_id}}."
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          branch: ${{env.target_branch}}
+          file_pattern: "openapi/v1-deprecated/*"

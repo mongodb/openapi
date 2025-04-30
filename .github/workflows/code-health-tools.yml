@@ -1,0 +1,79 @@
+name: 'Code Health Tools'
+on:
+  push:
+    branches:
+      - main
+    paths: 
+      - 'tools/postman/**'
+      - 'tools/spectral/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tools/postman/**'
+      - 'tools/spectral/**'
+  workflow_dispatch: {}
+  workflow_call: {}
+
+permissions:
+  contents: read
+
+jobs:
+  js-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          sparse-checkout: |
+            .github
+            tools/spectral/ipa
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - name: Install npm dependencies
+        run: npm install
+      - name: Run Jest tests
+        run: |
+          npm run test
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          sparse-checkout: |
+            .github
+            tools
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - name: Install npm dependencies
+        run: npm install
+      - name: Run Prettier
+        run: |
+          npm run format-check
+      - name: Run ESLint on JS files
+        run: |
+          npm run lint-js
+      - name: Check IPA docs up-to-date
+        run: |
+          npm run gen-ipa-docs
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "IPA docs not up to date, please run 'npm run gen-ipa-docs' and commit the changes"
+            exit 1
+          fi
+          exit 0
+      - name: Download actionlint
+        id: get_actionlint
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+        shell: bash
+      - name: Check workflow files
+        run: |
+          echo "::add-matcher::.github/actionlint-matcher.json"
+          ${{ steps.get_actionlint.outputs.executable }} -color
+        shell: bash

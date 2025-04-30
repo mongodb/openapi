@@ -1,0 +1,207 @@
+name: 'Release OpenAPI Spec for a given environment'
+on:
+  workflow_call:
+    inputs:
+      aws_default_region:
+        description: 'AWS Default Region.'
+        required: true
+        type: string
+      aws_s3_bucket:
+        description: 'AWS S3 Bucket.'
+        required: true
+        type: string
+      env:
+        description: 'Environment to generate the OpenAPI Spec for.'
+        required: true
+        type: string
+      branch:
+        description: 'Branch to release the OpenAPI Spec to.'
+        required: true
+        type: string
+      spectral_version:
+        description: 'Version of Spectral to use.'
+        required: true
+        type: string
+      foascli_version:
+        description: 'Version of FOASCLI to use.'
+        required: true
+        type: string
+      atlas_prod_base_url:
+        description: 'Base URL of Atlas.'
+        required: false
+        type: string
+      aws_s3_role_to_assume:
+        description: 'AWS S3 Role to Assume.'
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      api_bot_pat:
+        required: true
+      postman_api_key:
+        required: false
+      workspace_id:
+        required: false
+      jira_api_token:
+        required: true
+      ipa_aws_access_key:
+        required: false
+      ipa_aws_secret_key:
+        required: false
+      ipa_aws_s3_bucket_prefix:
+        required: false
+
+permissions:
+  contents: write
+  issues: write
+  id-token: write
+
+jobs:
+  generate-spec:
+    name: Generate the OpenAPI Spec
+    uses: ./.github/workflows/generate-openapi.yml
+    secrets:
+      api_bot_pat: ${{ secrets.api_bot_pat }}
+    with:
+      aws_default_region: ${{ inputs.aws_default_region}}
+      aws_s3_bucket: ${{ inputs.aws_s3_bucket}}
+      aws_s3_role_to_assume: ${{ inputs.aws_s3_role_to_assume }}
+      env: ${{ inputs.env }}
+      foascli_version: ${{ inputs.foascli_version }}
+
+  # Required validations will stop the release if they fail
+  run-required-validations:
+    name: Run Required Validations
+    needs: generate-spec
+    uses: ./.github/workflows/required-spec-validations.yml
+    secrets:
+      api_bot_pat: ${{ secrets.api_bot_pat }}
+    with:
+      spectral_version: ${{ inputs.spectral_version }}
+      env: ${{ inputs.env }}
+
+  # Optional validations won't stop the release but only open a GH issue if they fail
+  run-optional-validations:
+    name: Run Optional Validations
+    needs: generate-spec
+    uses: ./.github/workflows/optional-spec-validations.yml
+    secrets:
+      api_bot_pat: ${{ secrets.api_bot_pat }}
+    with:
+      env: ${{ inputs.env }}
+      spectral_version: ${{ vars.SPECTRAL_VERSION }}
+
+  release:
+      name: Release OpenAPI Spec for V2 APIs
+      runs-on: ubuntu-latest
+      needs: [run-required-validations]
+      outputs:
+        changes_detected: ${{ steps.commit.outputs.changes_detected }}
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+          with:
+            ref: ${{ inputs.branch }}
+            token: ${{secrets.api_bot_pat}}
+        - name: Upload current Specs and Changelog files
+          uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+          with:
+            name: base-${{ inputs.env }}
+            retention-days: 1
+            path: |
+              openapi/v2/openapi*.json
+              changelog/changelog.json
+              changelog/internal/changelog-all.json
+              changelog/internal/metadata.json   
+        - name: Download openapi-foas
+          uses: actions/download-artifact@v4
+          with:
+            name: openapi-foas-${{ inputs.env }}
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ github.run_id }}
+        - name: Download release scripts
+          uses: actions/download-artifact@v4
+          with:
+            name: release-scripts
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ github.run_id }}
+            path: release-scripts
+        - name: Add permissions to execute scripts
+          run: chmod +x release-scripts/*.sh
+        - name: Install FOASCLI
+          env:
+            foascli_version: ${{ inputs.foascli_version }}
+          run: |
+             wget https://github.com/mongodb/openapi/releases/download/v"${foascli_version}"/mongodb-foas-cli_"${foascli_version}"_linux_x86_64.tar.gz -O foascli.tar.gz
+             tar -xzvf foascli.tar.gz 
+             pushd mongodb-foas-cli_*
+             echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+             popd       
+        - name: Run foascli split command
+          id: split
+          env:
+            target_env: ${{ inputs.env }}
+          run: ./release-scripts/split_spec.sh
+        - name: Create branded_preview.html
+          working-directory: openapi 
+          env:
+              target_env: ${{ inputs.env }}
+          run: ../release-scripts/branded_preview.sh
+        - name: Commit changes
+          id: commit
+          uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403
+          env:
+            target_env: ${{ inputs.env }}
+            target_branch: ${{ inputs.branch }}
+            run_id: ${{ github.run_id }}
+          with:
+            commit_message: "(${{env.target_env}}) Release OpenAPI Spec :rocket:. See https://github.com/mongodb/openapi/actions/runs/${{env.run_id}}."
+            commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+            branch: ${{env.target_branch}}
+            file_pattern: "openapi/*"
+
+  release-postman:
+      name: Release Postman
+      needs: [release]
+      if: ${{ inputs.env == 'prod' && needs.release.outputs.changes_detected == 'true' }}
+      uses: ./.github/workflows/release-postman.yml
+      secrets:
+        postman_api_key: ${{ secrets.postman_api_key }}
+        workspace_id: ${{ secrets.workspace_id }}
+      with:
+        atlas_prod_base_url: ${{ inputs.atlas_prod_base_url}}
+
+  release-changelog:
+    name: Release API Changelog
+    needs: release
+    uses: ./.github/workflows/release-changelog.yml
+    secrets:
+        api_bot_pat: ${{ secrets.api_bot_pat }}
+    with:
+        aws_default_region: ${{ inputs.aws_default_region}}
+        aws_s3_role_to_assume: ${{ inputs.aws_s3_role_to_assume }}
+        aws_s3_bucket: ${{ inputs.aws_s3_bucket}}
+        env: ${{ inputs.env }}
+        branch: ${{ inputs.branch }}
+        foascli_version: ${{ inputs.foascli_version }}
+
+  retry-handler:
+    needs: [ release, release-postman, release-changelog]
+    if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.api_bot_pat }}
+        run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
+
+  failure-handler:
+    name: Failure Handler
+    needs: [retry-handler, release, release-postman, release-changelog]
+    if: ${{ always() && contains(needs.*.result, 'failure') && needs.retry-handler.result == 'skipped' }}
+    uses: ./.github/workflows/failure-handler.yml
+    with:
+      env: ${{ inputs.env }}
+      release_name: "OpenAPI Spec"
+      team_id: ${{ vars.JIRA_TEAM_ID_APIX_2 }}
+    secrets:
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}

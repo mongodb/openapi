@@ -1,0 +1,211 @@
+# IPA-117: Documentation
+# http://go/ipa/117
+
+functions:
+  - IPA117HasDescription
+  - IPA117DescriptionStartsWithUpperCase
+  - IPA117DescriptionEndsWithPeriod
+  - IPA117DescriptionMustNotUseHtml
+  - IPA117DescriptionShouldNotUseTables
+  - IPA117DescriptionShouldNotUseLinks
+  - IPA117PlaintextResponseMustHaveExample
+  - IPA117ObjectsMustBeWellDefined
+  - IPA117ParameterHasExamplesOrSchema
+
+aliases:
+  OperationObject:
+    - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+  DescribableObjects:
+    - '$.tags[*]'
+    - '#OperationObject'
+    - '#OperationObject.parameters[*]'
+    - '#OperationObject..content..properties[*]'
+    - '$.components.schemas..properties[*]'
+    - '$.components.parameters[*]'
+
+rules:
+  xgen-IPA-117-description:
+    description: |
+      API producers must provide descriptions for Properties, Operations and Parameters.
+
+      ##### Implementation details
+      Rule checks for description property in the following components:
+        - Info object
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+      The rule also fails if the description is an empty string.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description'
+    severity: error
+    given:
+      - '$.info'
+      - '#DescribableObjects'
+    then:
+      function: 'IPA117HasDescription'
+  xgen-IPA-117-description-starts-with-uppercase:
+    description: |
+      Descriptions must start with Uppercase.
+
+      ##### Implementation details
+      Rule checks the format of the description property in the following components:
+        - Info object
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-starts-with-uppercase'
+    severity: error
+    given:
+      - '$.info'
+      - '#DescribableObjects'
+    then:
+      function: 'IPA117DescriptionStartsWithUpperCase'
+  xgen-IPA-117-description-ends-with-period:
+    description: |
+      Descriptions must end with a full stop(.).
+
+      ##### Implementation details
+      Rule checks the format of the description property in the following components:
+        - Info object
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+      The rule ignores descriptions that end with `|`, i.e. inline markdown tables
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-ends-with-period'
+    severity: error
+    given:
+      - '$.info'
+      - '#DescribableObjects'
+    then:
+      function: 'IPA117DescriptionEndsWithPeriod'
+  xgen-IPA-117-description-must-not-use-html:
+    description: |
+      Descriptions must not use raw HTML.
+
+      ##### Implementation details
+      Rule checks the format of the descriptions for components:
+        - Info object
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+      The rule validates that the description content does not include opening and/or closing HTML tags.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-must-not-use-html'
+    severity: error
+    given:
+      - '$.info'
+      - '#DescribableObjects'
+    then:
+      function: 'IPA117DescriptionMustNotUseHtml'
+  xgen-IPA-117-description-should-not-use-inline-tables:
+    description: |
+      Descriptions should not include inline tables as this may not work well with all tools, in particular generated client code.
+
+      ##### Implementation details
+      Rule checks the format of the descriptions for components:
+        - Info object
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+      The rule validates that the description content does not include inline markdown tables.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-should-not-use-inline-tables'
+    severity: error
+    given:
+      - '$.info'
+      - '#DescribableObjects'
+    then:
+      function: 'IPA117DescriptionShouldNotUseTables'
+  xgen-IPA-117-description-should-not-use-inline-links:
+    description: |
+      Descriptions should not include inline links.
+
+      ##### Implementation details
+      Rule checks the format of the descriptions for components:
+        - Tags
+        - Operation objects
+        - Inline schema properties for operation object requests and responses
+        - Parameter objects (in operations and components)
+        - Schema properties
+      The rule validates that the description content does not include inline markdown links. The rule ignores HTML `<a>` links - this is covered by `xgen-IPA-117-description-must-not-use-html`.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-description-should-not-use-inline-links'
+    severity: error
+    given:
+      - '#DescribableObjects'
+    then:
+      function: 'IPA117DescriptionShouldNotUseLinks'
+  xgen-IPA-117-plaintext-response-must-have-example:
+    description: |
+      For APIs that respond with plain text, for example CSV, API producers must provide an example. Some tools are not able to generate examples for such responses
+
+      ##### Implementation details
+        - The rule only applies to 2xx responses
+        - The rule ignores JSON and YAML responses (passed as `allowedTypes`)
+        - The rule ignores responses with `format: 'binary'` (i.e. file types)
+        - The rule checks for the presence of the example property as a sibling to the `schema` property, or inside the `schema` object
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-plaintext-response-must-have-example'
+    severity: error
+    given:
+      - '#OperationObject.responses[*].content'
+    then:
+      field: '@key'
+      function: 'IPA117PlaintextResponseMustHaveExample'
+      functionOptions:
+        allowedTypes: ['json', 'yaml']
+  xgen-IPA-117-objects-must-be-well-defined:
+    description: |
+      Components of type "object" must be well-defined, i.e. have of one of the properties:
+        - `schema`
+        - `examples`
+        - `example`
+        - `oneOf`, `anyOf` or `allOf`
+        - `properties`
+        - `additionalProperties`
+
+      ##### Implementation details
+      The rule applies to the following components:
+        - Inline operation responses/request bodies (JSON only)
+        - Inline operation response/request body properties (JSON only)
+        - Inline operation response/request body array items (JSON only)
+        - Schemas defined in `components/schemas`
+        - Schema properties defined in `components/schemas`
+        - `items` properties defined in `components/schemas`
+      The rule is applied to the unresolved OAS, and ignores components with `$ref` properties. Specific paths can be ignored using the `ignoredPaths` option.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-objects-must-be-well-defined'
+    severity: error
+    resolved: false
+    given:
+      - '#OperationObject..content[*]'
+      - '#OperationObject..content..properties[*]'
+      - '#OperationObject..content..items'
+      - '$.components.schemas[*]'
+      - '$.components.schemas..properties[*]'
+      - '$.components.schemas..items'
+    then:
+      function: 'IPA117ObjectsMustBeWellDefined'
+      functionOptions:
+        ignoredPaths:
+          - 'components.schemas.NoBody'
+          - 'components.schemas.ApiError.properties.parameters.items'
+  xgen-IPA-117-parameter-has-examples-or-schema:
+    description: |
+      API producers must provide a well-defined schema or example(s) for parameters.
+
+      ##### Implementation details
+      The rule checks for the presence of the `schema`, `examples` or `example` property in:
+        - Operation parameters
+        - Parameters defined in `components/parameters`
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-parameter-has-examples-or-schema'
+    severity: error
+    given:
+      - '#OperationObject.parameters[*]'
+      - '$.components.parameters[*]'
+    then:
+      function: 'IPA117ParameterHasExamplesOrSchema'

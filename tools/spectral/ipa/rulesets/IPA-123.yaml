@@ -1,0 +1,43 @@
+# IPA-123: Enums
+# http://go/ipa/123
+
+functions:
+  - IPA123EachEnumValueMustBeUpperSnakeCase
+  - IPA123EnumValuesShouldNotExceed20
+
+rules:
+  xgen-IPA-123-enum-values-must-be-upper-snake-case:
+    description: |
+      Enum values must be UPPER_SNAKE_CASE.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to all enum value arrays defined in the OpenAPI schema
+        - Resolves the schema object that contains the enum values
+        - Validates each enum value individually against the UPPER_SNAKE_CASE pattern
+        - Skips validation if the schema has an exception defined for this rule
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-123-enum-values-must-be-upper-snake-case'
+    severity: error
+    resolved: false
+    given: '$..enum'
+    then:
+      function: 'IPA123EachEnumValueMustBeUpperSnakeCase'
+  xgen-IPA-123-allowable-enum-values-should-not-exceed-20:
+    description: |
+      Allowable enum values should not exceed 20 entries.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to inline enum values
+        - Validates that each enum array has 20 or fewer values
+        - Reusable enum schemas will be ignored
+        - Skips validation if the schema has an exception defined for this rule
+        - This validation threshold can be adjusted by changing the functionOptions.maxEnumValues parameter
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-123-allowable-enum-values-should-not-exceed-20'
+    severity: error
+    resolved: false
+    given: '$..enum'
+    then:
+      function: 'IPA123EnumValuesShouldNotExceed20'
+      functionOptions:
+        maxEnumValues: 20

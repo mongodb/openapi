@@ -1,0 +1,73 @@
+functions:
+  [
+    folderDescription,
+    requestNameShouldNotEndInCopy,
+    patchRequestShouldHaveBody
+  ]
+
+rules:
+  collection-description-is-mandatory:
+    description: Collection must have a description.
+    given: $.collection.info
+    severity: error
+    then:
+      field: description
+      function: truthy
+
+  request-description-is-mandatory:
+    description: All requests must have a description.
+    given: $..request
+    severity: error
+    then:
+      field: description
+      function: truthy
+
+  folder-description-is-mandatory:
+    description: All folders should have a description.
+    message: "{{error}}"
+    given: $
+    severity: warn
+    then:
+      function: "folderDescription"
+
+  request-url-is-mandatory:
+    description: Requests must have a URL.
+    given: $..request
+    severity: error
+    then:
+      field: url
+      function: truthy
+
+  all-responses-have-status-code:
+    description: All responses must have a status code.
+    given: $..response[*]
+    severity: error
+    then:
+      field: code
+      function: truthy
+
+  http-should-not-be-used:
+    description: HTTP should not be used.
+    message: "HTTP should not be used: {{value}}"
+    given: $..url.raw
+    severity: warn
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: "/^http:/i"
+        
+  request-name-should-not-end-in-Copy:
+    description: Request names should not end in "Copy".
+    message: "{{error}}"
+    given: $..item[*]
+    severity: error
+    then:
+      function: requestNameShouldNotEndInCopy
+
+  patch-requests-require-body:
+    description: All PATCH requests require a request body.
+    message: "{{error}}"
+    given: $..request
+    severity: error
+    then:
+      function: patchRequestShouldHaveBody

@@ -1,0 +1,66 @@
+# IPA-114: Errors
+# http://go/ipa/114
+
+functions:
+  - IPA114ErrorResponsesReferToApiError
+  - IPA114ApiErrorHasBadRequestDetail
+  - IPA114AuthenticatedEndpointsHaveAuthErrors
+  - IPA114ParameterizedPathsHave404NotFound
+
+aliases:
+  OperationObject:
+    - '$.paths[*][get,put,post,delete,options,head,patch,trace]'
+
+rules:
+  xgen-IPA-114-error-responses-refer-to-api-error:
+    description: |
+      APIs must return ApiError when errors occur
+
+      ##### Implementation details
+      This rule checks that all 4xx and 5xx error responses reference the ApiError schema.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-114-error-responses-refer-to-api-error'
+    severity: error
+    resolved: false
+    given: '$.paths[*][*].responses[?(@property.match(/^[45]\d\d$/))]'
+    then:
+      function: 'IPA114ErrorResponsesReferToApiError'
+  xgen-IPA-114-api-error-has-bad-request-detail:
+    description: |
+      ApiError schema should have badRequestDetail field with proper structure.
+
+      ##### Implementation details
+      Rule checks that:
+      - ApiError schema has badRequestDetail field
+      - badRequestDetail must include an array of fields
+      - Each field must include description and field properties
+      - This rule does not allow exceptions
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-114-api-error-has-bad-request-detail'
+    severity: error
+    given: $.components.schemas.ApiError
+    then:
+      function: 'IPA114ApiErrorHasBadRequestDetail'
+  xgen-IPA-114-authenticated-endpoints-have-auth-errors:
+    description: |
+      Authenticated endpoints must define 401 and 403 responses.
+
+      ##### Implementation details
+      This rule checks that all authenticated endpoints (those without explicit 'security: []' 
+      and not containing '/unauth' in the path) include 401 and 403 responses.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-114-authenticated-endpoints-have-auth-errors'
+    severity: error
+    given: '#OperationObject'
+    then:
+      function: 'IPA114AuthenticatedEndpointsHaveAuthErrors'
+  xgen-IPA-114-parameterized-paths-have-404-not-found:
+    description: |
+      Paths with parameters must define 404 responses.
+
+      ##### Implementation details
+      This rule checks that all endpoints with path parameters (identified by '{param}' 
+      in the path) include a 404 response to handle the case when the requested resource
+      is not found.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-114-parameterized-paths-have-not-found'
+    severity: error
+    given: '#OperationObject'
+    then:
+      function: 'IPA114ParameterizedPathsHave404NotFound'

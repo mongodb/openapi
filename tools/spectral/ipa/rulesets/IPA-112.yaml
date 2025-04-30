@@ -1,0 +1,76 @@
+# IPA-112: Field Names
+# http://go/ipa/112
+
+functions:
+  - IPA112AvoidProjectFieldNames
+  - IPA112FieldNamesAreCamelCase
+  - IPA112BooleanFieldNamesAvoidIsPrefix
+
+rules:
+  xgen-IPA-112-avoid-project-field-names:
+    description: |
+      Schema field names should avoid using "project", "projects", or "projectId".
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Searches through all schemas in the API definition
+        - Identifies property names that match "project" (case-insensitive)
+        - Ignores fields where prohibited words appear with specified words (e.g., "gcpProjectId")
+        - Reports any instances where these field names are used
+        - Suggests using "group", "groups", or "groupId" as alternatives
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-112-avoid-project-field-names'
+    severity: error
+    resolved: false
+    given:
+      - '$.components.schemas..properties'
+      - '$.paths..requestBody.content[?(@property.match(/json$/i))].schema..properties'
+      - '$.paths..responses..content[?(@property.match(/json$/i))].schema..properties'
+    then:
+      field: '@key'
+      function: 'IPA112AvoidProjectFieldNames'
+      functionOptions:
+        prohibitedFieldNames:
+          - name: 'project'
+            alternative: ['group']
+          - name: 'projects'
+            alternative: ['groups']
+        ignore:
+          - 'gcp'
+  xgen-IPA-112-field-names-are-camel-case:
+    description: |
+      Schema field names should be in camelCase format.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Searches through all schemas in the API definition
+        - Identifies property names that are not in camelCase format
+        - Reports any instances where these field names are not in camelCase format
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-112-field-names-are-camel-case'
+    severity: error
+    resolved: false
+    given:
+      - '$.components.schemas..properties'
+      - '$.paths..requestBody.content[?(@property.match(/json$/i))].schema..properties'
+      - '$.paths..responses..content[?(@property.match(/json$/i))].schema..properties'
+    then:
+      field: '@key'
+      function: 'IPA112FieldNamesAreCamelCase'
+  xgen-IPA-112-boolean-field-names-avoid-is-prefix:
+    description: |
+      Boolean field names should avoid the "is" prefix.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to properties with type 'boolean'
+        - Identifies property names that start with "is" followed by an uppercase letter
+        - Suggests using the direct adjective form instead (e.g., "disabled" instead of "isDisabled")
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-112-boolean-field-names-avoid-is-prefix'
+    severity: error
+    resolved: false
+    given:
+      - '$.components.schemas..properties'
+      - '$.paths..requestBody.content[?(@property.match(/json$/i))].schema..properties'
+      - '$.paths..responses..content[?(@property.match(/json$/i))].schema..properties'
+    then:
+      field: '@key'
+      function: 'IPA112BooleanFieldNamesAvoidIsPrefix'

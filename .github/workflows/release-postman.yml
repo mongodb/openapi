@@ -1,0 +1,59 @@
+name: Postman Release
+on:
+  workflow_call:
+    inputs:
+      atlas_prod_base_url:
+        description: Base URL of Atlas
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      postman_api_key:
+        required: true
+      workspace_id:
+        required: true
+  workflow_dispatch:
+permissions:
+  issues: write
+
+jobs:
+  release-postman:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Fetch OpenAPI Specification
+        working-directory: ./tools/postman
+        run: |
+          make fetch_openapi
+
+      - name: Convert the OpenAPI Specification into Collection
+        id: convert
+        working-directory: ./tools/postman
+        run: |
+          make convert_to_collection
+
+      - name: Transform Postman Collection 
+        id: transform
+        env:
+          BASE_URL: ${{ inputs.atlas_prod_base_url }}
+        working-directory: ./tools/postman
+        run: |
+          make transform_collection_js
+
+      - name: Upload Collection to Postman
+        env:
+          POSTMAN_API_KEY: ${{ secrets.postman_api_key }}
+          WORKSPACE_ID: ${{ secrets.workspace_id }}
+        working-directory: ./tools/postman
+        run: |
+          make upload_collection

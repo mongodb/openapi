@@ -1,0 +1,114 @@
+# IPA-107: Update
+# http://go/ipa/107
+
+functions:
+  - IPA107UpdateMethodMustNotHaveQueryParams
+  - IPA107UpdateResponseCodeShouldBe200OK
+  - IPA107UpdateMethodResponseIsGetMethodResponse
+  - IPA107UpdateMethodRequestHasNoReadonlyFields
+  - IPA107UpdateMethodRequestBodyIsGetResponse
+  - IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject
+
+aliases:
+  UpdateOperationObject:
+    - '$.paths[*][put,patch]'
+
+rules:
+  xgen-IPA-107-update-must-not-have-query-params:
+    description: >-
+      Update operations must not accept query parameters.
+
+      ##### Implementation details
+
+      Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
+
+        - Query parameters `envelope` and `pretty` are exempt from this rule
+        - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-must-not-have-query-params'
+    severity: error
+    given: '#UpdateOperationObject'
+    then:
+      function: 'IPA107UpdateMethodMustNotHaveQueryParams'
+      functionOptions:
+        ignoredValues: ['pretty', 'envelope']
+  xgen-IPA-107-update-method-response-code-is-200:
+    description: >-
+      The Update method response status code should be 200 OK.
+
+      ##### Implementation details
+
+      Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
+
+        - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-method-response-code-is-200'
+    severity: error
+    given: '#UpdateOperationObject'
+    then:
+      function: 'IPA107UpdateResponseCodeShouldBe200OK'
+  xgen-IPA-107-update-method-response-is-get-method-response:
+    description: >-
+      The response body of the Update method should consist of the same resource object returned by the Get method.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to single resource paths and singleton resources with JSON content types
+        - Ignores singleton resources and responses without a schema
+        - Validation ignores resources without a Get method
+        - Fails if the Get method doesn't have a schema reference or if the schemas don't match
+        - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-method-response-is-get-method-response'
+    severity: error
+    given: '#UpdateOperationObject.responses.200.content'
+    then:
+      field: '@key'
+      function: 'IPA107UpdateMethodResponseIsGetMethodResponse'
+  xgen-IPA-107-update-method-request-has-no-readonly-fields:
+    description: |
+      Update method Request object must not include fields with readOnly:true.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to Update methods on single resource paths or singleton resources
+        - Applies only to JSON content types
+        - Searches through the request schema to find any properties marked with readOnly attribute
+        - Fails if any readOnly properties are found in the request schema
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-method-request-has-no-readonly-fields'
+    severity: error
+    given: '#UpdateOperationObject.requestBody.content'
+    then:
+      field: '@key'
+      function: 'IPA107UpdateMethodRequestHasNoReadonlyFields'
+  xgen-IPA-107-update-method-request-body-is-get-method-response:
+    description: |
+      The request body must contain the resource being updated, i.e. the resource or parts of the resource returned by the Get method.
+
+      ##### Implementation details
+
+      Validation checks the PATCH/PUT methods for single resource paths and singleton resources.
+        - Validation ignores resources without a Get method.
+        - `readOnly:true` properties of Get method response will be ignored.
+        - `writeOnly:true` properties of Update method request will be ignored.
+        - Property comparison is based on `type` and `name` matching.
+        - `oneOf` and `discriminator` definitions must match exactly.
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-method-request-body-is-get-method-response:'
+    severity: error
+    given: '#UpdateOperationObject.requestBody.content'
+    then:
+      field: '@key'
+      function: 'IPA107UpdateMethodRequestBodyIsGetResponse'
+  xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object:
+    description: |
+      The Update method request schema should reference an `UpdateRequest` suffixed object.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to PUT/PATCH methods on single resource paths and singleton resources
+        - Applies only to JSON content types
+        - Validation only applies to schema references to a predefined schema (not inline)
+        - Confirms the referenced schema name ends with "Request" suffix
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object'
+    severity: error
+    given: '#UpdateOperationObject.requestBody.content'
+    then:
+      field: '@key'
+      function: 'IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject'

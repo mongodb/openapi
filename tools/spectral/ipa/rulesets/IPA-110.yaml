@@ -1,0 +1,109 @@
+# IPA-110: Pagination
+# http://go/ipa/110
+
+functions:
+  - IPA110CollectionsUsePaginatedPrefix
+  - IPA110CollectionsResponseDefineResultsArray
+  - IPA110CollectionsRequestHasItemsPerPageQueryParam
+  - IPA110CollectionsRequestHasPageNumQueryParam
+  - IPA110CollectionsRequestIncludeCountNotRequired
+  - IPA110CollectionsResponseDefineLinksArray
+
+aliases:
+  Get200ResponseContent:
+    - '$.paths[*].get.responses.200.content'
+  GetOperationObject:
+    - '$.paths[*].get'
+
+rules:
+  xgen-IPA-110-collections-use-paginated-prefix:
+    description: |
+      APIs that return collections of resources must use a schema with the "Paginated" prefix.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET operations that return collections of resources)
+        - Checks if List method has a response schema defined
+        - Checks that the 200 response schema references a schema with a "Paginated" prefix
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-use-paginated-prefix'
+    severity: error
+    given: '#Get200ResponseContent'
+    then:
+      field: '@key'
+      function: 'IPA110CollectionsUsePaginatedPrefix'
+  xgen-IPA-110-collections-response-define-results-array:
+    description: |
+      The response for collections must define an array of results containing the paginated resource.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET operations that return collections of resources)
+        - Verifies the 200 response schema has the required results fields
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-response-define-results-array'
+    severity: error
+    given: '#Get200ResponseContent'
+    then:
+      field: '@key'
+      function: 'IPA110CollectionsResponseDefineResultsArray'
+  xgen-IPA-110-collections-request-has-itemsPerPage-query-param:
+    description: |
+      The request should support an integer itemsPerPage query parameter allowing users to specify the maximum number of results to return per page.
+      itemsPerPage must not be required
+      itemsPerPage default value should be 100.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET on resource collection paths)
+        - Verifies the operation includes itemsPerPage query parameter
+        - Verifies the itemsPerPage query parameter is not required
+        - Verifies the itemsPerPage query parameter has a default value of 100
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-request-has-itemsPerPage-query-param'
+    severity: error
+    given: '#GetOperationObject'
+    then:
+      function: 'IPA110CollectionsRequestHasItemsPerPageQueryParam'
+  xgen-IPA-110-collections-request-has-pageNum-query-param:
+    description: |
+      The request should support an integer pageNum query parameter allowing users to specify the maximum number of results to return per page.
+      pageNum must not be required
+      pageNum default value should be 1.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET on resource collection paths)
+        - Verifies the operation includes pageNum query parameter
+        - Verifies the pageNum query parameter is not required
+        - Verifies the pageNum query parameter has a default value of 1
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-request-has-pageNum-query-param'
+    severity: error
+    given: '#GetOperationObject'
+    then:
+      function: 'IPA110CollectionsRequestHasPageNumQueryParam'
+  xgen-IPA-110-collections-request-includeCount-not-required:
+    description: |
+      If the request supports an includeCount query parameter, it must not be required.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET on resource collection paths)
+        - Checks if includeCount query parameter exists
+        - If it exists, verifies the includeCount parameter is not required
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-request-includeCount-not-required'
+    severity: error
+    given: '#GetOperationObject'
+    then:
+      function: 'IPA110CollectionsRequestIncludeCountNotRequired'
+  xgen-IPA-110-collections-response-define-links-array:
+    description: |
+      The response for collections should define a links array field, providing links to next and previous pages.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only applies to List methods (GET operations that return collections of resources)
+        - Verifies the response schema includes a links field of type array
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-110-collections-response-define-links-array'
+    severity: error
+    given: '#Get200ResponseContent'
+    then:
+      field: '@key'
+      function: 'IPA110CollectionsResponseDefineLinksArray'

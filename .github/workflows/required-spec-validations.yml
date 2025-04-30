@@ -1,0 +1,67 @@
+name: 'Required Spec Validations'
+on:
+  workflow_call:
+    inputs:
+      spectral_version:
+        description: 'Version of Spectral to use'     
+        type: string
+        required: true
+      env:
+        description: 'Environment to generate the OpenAPI Spec for.'
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      api_bot_pat:
+        required: true
+
+permissions:
+  contents: write
+
+jobs:  
+  required-validations:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        - name: Setup Node
+          uses: actions/setup-node@v4
+          with:
+            node-version: '20.x'
+            cache: 'npm'
+        - name: Install npm dependencies
+          run: npm install
+        - name: Download openapi-foas
+          uses: actions/download-artifact@v4
+          with:
+            name: openapi-foas-${{ inputs.env }}
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ github.run_id }}
+        - name: Run 
+          id: spectral-validation
+          env:
+            SPECTRAL_VERSION: ${{ inputs.spectral_version }}
+          run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint openapi-foas.yaml --ruleset=tools/spectral/.spectral.yaml
+        - name: Install Go
+          uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b
+          with:
+            go-version-file: 'tools/cli/go.mod'
+            cache-dependency-path: "tools/cli/go.sum"
+        - name: Checkout GO SDK repository
+          uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+          with:
+            repository: 'mongodb/atlas-sdk-go'
+            token: ${{ secrets.api_bot_pat }}
+            path: 'atlas-sdk-go'
+        - name: Download openapi-foas
+          uses: actions/download-artifact@v4
+          with:
+            name: openapi-foas-${{ inputs.env }}
+            github-token: ${{ secrets.api_bot_pat }}
+            run-id: ${{ github.run_id }}
+        - name: Validate the FOAS can be used with the Go SDK
+          id: go-sdk-validation
+          run: |
+            cp -rf "openapi-foas.yaml" "atlas-sdk-go/openapi/atlas-sdk.yaml"
+            pushd atlas-sdk-go
+            make -e openapi-pipeline
+            popd

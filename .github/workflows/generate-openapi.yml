@@ -1,0 +1,82 @@
+name: 'Generate the Federated OpenAPI Spec'
+on:
+  workflow_call:
+    inputs:
+      aws_default_region:
+        description: 'AWS Default Region.'
+        required: true
+        type: string
+      aws_s3_bucket:
+        description: 'AWS S3 Bucket.'
+        required: true
+        type: string
+      env:
+        description: 'Environment to generate the OpenAPI Spec for.'
+        required: true
+        type: string
+      foascli_version:
+        description: 'Version of FOASCLI to use.'
+        required: true
+        type: string
+      aws_s3_role_to_assume:
+        description: 'AWS S3 Role to Assume.'
+        required: true
+        type: string
+    secrets: # all secrets are passed explicitly in this workflow
+      api_bot_pat:
+        required: true
+
+permissions:
+  contents: write
+  issues: write
+  id-token: write
+
+jobs:
+  generate-spec:
+    name: Generate the Federated OpenAPI Spec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          sparse-checkout: |
+            tools
+            .github/scripts
+      - name: Install FOASCLI
+        env:
+          foascli_version: ${{ inputs.foascli_version }}
+        run: |
+          wget https://github.com/mongodb/openapi/releases/download/v"${foascli_version}"/mongodb-foas-cli_"${foascli_version}"_linux_x86_64.tar.gz -O foascli.tar.gz
+          tar -xzvf foascli.tar.gz 
+          pushd mongodb-foas-cli_*
+          echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+          popd  
+      - name: Download release scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-scripts
+          github-token: ${{ secrets.api_bot_pat }}
+          run-id: ${{ github.run_id }}
+          path: release-scripts
+      - name: Add permissions to execute scripts
+        run: |
+          chmod +x release-scripts/*.sh  
+      - name: aws configure
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws_s3_role_to_assume }}
+          aws-region: ${{inputs.aws_default_region}}
+      - name: Retrieve Specs
+        env:
+          AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
+          S3_BUCKET: ${{ inputs.aws_s3_bucket }}
+        run: ./release-scripts/download_specs.sh
+      - name: Generate Federated Spec
+        run: .github/scripts/generate_federated_spec.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: openapi-foas-${{ inputs.env }}
+          path: |
+            openapi-foas.*
+            foas-metadata.json

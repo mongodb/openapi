@@ -1,0 +1,178 @@
+# https://meta.stoplight.io/docs/spectral/cb95cf0d26b83-core-functions
+extends:
+  - spectral:oas
+
+aliases:
+  PathItem:
+    - "$.paths[*]"
+  OperationObject:
+    - "#PathItem[get,put,post,delete,options,head,patch,trace]"
+  DescribableObjects:
+    - "$.info"
+    - "$.tags[*]"
+    - "#OperationObject"
+    - "#PathItem.parameters[?(@ && @.in)]"
+    - "#OperationObject.parameters[?(@ && @.in)]"
+    - "$.components.schemas[*]..properties[?(@ && @.type)]"
+
+rules:
+  xgen-schema-name-pascal-case:
+    description: OpenAPI Schema names should use PascalCase. PascalCase ensures consistency with OpenAPI generated code.
+    message: "`{{property}}` name must follow PascalCase. Please verify if you have provided valid @Schema(name='') annotation"
+    severity: error
+    given: "$.components.schemas[*]~"
+    then:
+      function: pattern # casing?
+      functionOptions:
+        match: "^[A-Z].*" # type: pascal ?
+
+  xgen-docs-tags-alphabetical:
+    message: "Tags should be defined in alphabetical order."
+    description: "Many documentation tools show tags in the order they are defined, so defining them not in alphabetical order can look funny to API consumers."
+    severity: error
+    given: "$"
+    then:
+      field: "tags"
+      function: alphabetical
+      functionOptions:
+        keyedBy: "name"
+
+  xgen-docs-tags:
+    message: "{{error}}."
+    description: "Tags help group logic into conceptual groups instead of making end-users dig through URLs or lists of operation names."
+    severity: error
+    given: "$"
+    then:
+      field: "tags"
+      function: schema
+      functionOptions:
+        schema:
+          type: "array"
+          minItems: 1
+
+  xgen-docs-operation-tags:
+    message: "Operation should have non-empty `tags` array."
+    description:
+     "Once tags are defined they should be references in the operation, otherwise they will not be doing anything."
+    severity: error
+    given: "#OperationObject"
+    then:
+      field: "tags"
+      function: schema
+      functionOptions:
+        schema:
+          type: "array"
+          minItems: 1
+
+  xgen-docs-operationId-valid-in-url:
+    message: "operationId must only contain URL friendly characters."
+    description: "Most documentation tools use the operationId to produce URLs, so the characters used must be safe and legal when used in the URL."
+    severity: error
+    given: "#OperationObject"
+    then:
+      field: "operationId"
+      function: pattern
+      functionOptions:
+        match: "^[A-Za-z0-9-._~:/?#\\[\\]@!\\$&'()*+,;=]*$"
+
+  xgen-docs-operationId-camel-case:
+    description: operationId should be camelCased.
+    given: "$.paths[*]..operationId"
+    severity: error
+    message: "Operation ID should be camelCase: {{value}}."
+    then:
+      function: casing
+      functionOptions:
+        type: camel
+
+  x-xgen-hidden-env-format:
+    description: "Ensure x-xgen-hidden-env extension has the correct format. https://go/openapi-hidden-extension"
+    severity: error
+    given: "$..x-xgen-hidden-env"                    # Match anywhere in the document
+    then:
+      - field: envs
+        function: truthy
+      - field: envs
+        function: pattern
+        functionOptions:
+          match: "^(dev|qa|stage|prod)(,(dev|qa|stage|prod))*$"
+  
+  soa-migration-extension:
+    description: "Ensure the x-xgen-soa-migration extension is valid."
+    message: "The x-xgen-soa-migration extension must include 'additionalServices', 'targetService', 'allowDocsDiff', and 'docsSource'."
+    formats: ["oas3"]
+    given: "$.paths[*][*].x-xgen-soa-migration"
+    severity: error
+    then:
+      - field: targetService
+        function: truthy
+        message: "'targetService' must be provided."
+      - field: allowDocsDiff
+        function: pattern
+        functionOptions:
+          match: "^(true|false)$"
+        message: "'allowDocsDiff' must be true or false."
+      - field: docsSource
+        function: truthy
+        message: "'docsSource' must be provided."
+      - field: additionalServices
+        function: truthy
+        message: "'additionalServices' must be provided."
+      - field: additionalServices
+        function: pattern
+        functionOptions:
+          match: "^mms(,[a-zA-Z0-9_-]+)*$"
+        message: "'additionalServices' must start with 'mms' and can include additional services in a comma-separated format."
+
+  xgen-security-override:
+    description: "Security must not be set at resource or method level because it is set globally. Use @Unauthenticated annotation to set no security. https://go/openapi-unauthenticated-annotation"
+    severity: error
+    given: "#OperationObject.security"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: array
+          items:
+            type: object
+          minItems: 0
+          maxItems: 0
+
+overrides:
+  - files: # load sample data has an issue with different path param names for different VERBS
+      - "*.yaml#/paths/~1api~1atlas~1v1.0~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7BsampleDatasetId%7D"
+      - "*.yaml#/paths/~1api~1atlas~1v1.0~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7Bname%7D"
+      - "*.yaml#/paths/~1api~1atlas~1v2~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7Bname%7D"
+      - "*.yaml#/paths/~1api~1atlas~1v2~1groups~1%7BgroupId%7D~1sampleDatasetLoad~1%7BsampleDatasetId%7D"
+    rules:
+      path-params: "off"
+  - files:
+      - "*.yaml#/components/schemas/raw"
+      - "*.yaml#/components/schemas/charFilterhtmlStrip"
+      - "*.yaml#/components/schemas/charFiltericuNormalize"
+      - "*.yaml#/components/schemas/charFiltermapping"
+      - "*.yaml#/components/schemas/charFilterpersian"
+      - "*.yaml#/components/schemas/tokenizernGram"
+      - "*.yaml#/components/schemas/tokenizeredgeGram"
+      - "*.yaml#/components/schemas/tokenizerkeyword"
+      - "*.yaml#/components/schemas/tokenizerregexCaptureGroup"
+      - "*.yaml#/components/schemas/tokenizerregexSplit"
+      - "*.yaml#/components/schemas/tokenizerstandard"
+      - "*.yaml#/components/schemas/tokenizeruaxUrlEmail"
+      - "*.yaml#/components/schemas/tokenizerwhitespace"
+      - "*.yaml#/components/schemas/tokenFilterasciiFolding"
+      - "*.yaml#/components/schemas/tokenFilterdaitchMokotoffSoundex"
+      - "*.yaml#/components/schemas/tokenFilteredgeGram"
+      - "*.yaml#/components/schemas/tokenFiltericuFolding"
+      - "*.yaml#/components/schemas/tokenFiltericuNormalizer"
+      - "*.yaml#/components/schemas/tokenFilterlength"
+      - "*.yaml#/components/schemas/tokenFilterlowercase"
+      - "*.yaml#/components/schemas/tokenFilternGram"
+      - "*.yaml#/components/schemas/tokenFilterregex"
+      - "*.yaml#/components/schemas/tokenFilterreverse"
+      - "*.yaml#/components/schemas/tokenFiltershingle"
+      - "*.yaml#/components/schemas/tokenFiltersnowballStemming"
+      - "*.yaml#/components/schemas/tokenFilterstopword"
+      - "*.yaml#/components/schemas/tokenFiltertrim"
+    rules:
+        xgen-schema-name-pascal-case: "off"
