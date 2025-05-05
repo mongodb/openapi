@@ -26885,8 +26885,18 @@ components:
                     description: Text of the MongoDB log related to this slow query.
                     readOnly: true
                     type: string
+                metrics:
+                    $ref: '#/components/schemas/PerformanceAdvisorSlowQueryMetrics'
                 namespace:
                     description: Human-readable label that identifies the namespace on the specified host. The resource expresses this parameter value as `<database>.<collection>`.
+                    readOnly: true
+                    type: string
+                opType:
+                    description: Operation type (read/write/command) associated with this slow query log.
+                    readOnly: true
+                    type: string
+                replicaState:
+                    description: Replica state associated with this slow query log.
                     readOnly: true
                     type: string
             readOnly: true
@@ -26899,6 +26909,63 @@ components:
                         $ref: '#/components/schemas/PerformanceAdvisorSlowQuery'
                     readOnly: true
                     type: array
+            type: object
+        PerformanceAdvisorSlowQueryMetrics:
+            description: Metrics from a slow query log.
+            properties:
+                docsExamined:
+                    description: The number of documents in the collection that MongoDB scanned in order to carry out the operation.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                docsExaminedReturnedRatio:
+                    description: Ratio of documents examined to documents returned.
+                    format: double
+                    readOnly: true
+                    type: number
+                docsReturned:
+                    description: The number of documents returned by the operation.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                fromUserConnection:
+                    description: This boolean will be true when the server can identfiy the query source as non-server. This field is only available for MDB 8.0+.
+                    readOnly: true
+                    type: boolean
+                hasIndexCoverage:
+                    description: Indicates if the query has index coverage.
+                    readOnly: true
+                    type: boolean
+                hasSort:
+                    description: This boolean will be true when a query cannot use the ordering in the index to return the requested sorted results; i.e. MongoDB must sort the documents after it receives the documents from a cursor.
+                    readOnly: true
+                    type: boolean
+                keysExamined:
+                    description: The number of index keys that MongoDB scanned in order to carry out the operation.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                keysExaminedReturnedRatio:
+                    description: Ratio of keys examined to documents returned.
+                    format: double
+                    readOnly: true
+                    type: number
+                numYields:
+                    description: The number of times the operation yielded to allow other operations to complete.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                operationExecutionTime:
+                    description: Total execution time of a query in milliseconds.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                responseLength:
+                    description: The length in bytes of the operation's result document.
+                    format: int64
+                    readOnly: true
+                    type: integer
+            readOnly: true
             type: object
         PeriodicCpsSnapshotSource:
             allOf:
@@ -31282,6 +31349,26 @@ components:
                     description: Flag that indicates whether to add a 'sample_stream_solar' connection.
                     type: boolean
             type: object
+        StreamsStartStreamProcessorWith:
+            description: A request to start a stream processor
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                startAtOperationTime:
+                    description: The operation time after which the change stream source should begin reporting. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    type: string
+            type: object
         StreamsTenant:
             properties:
                 _id:
@@ -34383,7 +34470,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: fe4d7cb75aef55884918cd6ffb1e764669ae72fb
+    x-xgen-sha: 523a3b1135cfcee06770fb177939bf6f08ba84b0
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -47799,6 +47886,24 @@ paths:
                     type: integer
                   x-xgen-IPA-exception:
                     xgen-IPA-117-description-should-not-use-inline-links: Parameters don't support externalDocs
+                - description: Whether or not to include metrics extracted from the slow query log as separate fields.
+                  in: query
+                  name: includeMetrics
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Whether or not to include the replica state of the host when the slow query log was generated as a separate field.
+                  in: query
+                  name: includeReplicaState
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Whether or not to include the operation type (read/write/command) extracted from the slow query log as a separate field.
+                  in: query
+                  name: includeOpType
+                  schema:
+                    default: false
+                    type: boolean
             responses:
                 "200":
                     content:
@@ -49845,6 +49950,51 @@ paths:
             tags:
                 - Streams
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/startStreamProcessor
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:startWith:
+        post:
+            description: Start a Stream Processor within the specified stream instance. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: startStreamProcessorWith
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsStartStreamProcessorWith'
+                        x-xgen-version: "2025-03-12"
+                description: Options for starting a stream processor.
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Start One Stream Processor With Options
+            tags:
+                - Streams
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/startStreamProcessorWith
     /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:stop:
         post:
             description: Stop a Stream Processor within the specified stream instance. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Stream Processing Owner role.
@@ -51711,10 +51861,18 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2023-01-01+csv:
+                            example: |
+                                Billed Date,666acb8787ba90706905dcae,
+                                Invoice Id,"June 1, 2024 - July 1, 2024",
+                                Organization Name,Test 2,
+                                Organization ID,666acb8787ba90706905dcae,
+                                Project Name,666acb8787ba90706905dcae,
+                                Project Id,666acb8787ba90706905dcae,
+                                Cluster Name,TestCluster
+                                Cluster Unique Id,666acb8787ba90706905dcae
+                                Usage Amount, 1018.39
                             schema:
                                 type: string
-                            x-xgen-IPA-exception:
-                                xgen-IPA-117-plaintext-response-must-have-example: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-01-01+json:
                             schema:
@@ -52328,10 +52486,15 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2023-01-01+csv:
+                            example: |
+                                Invoice Number,666acb8787ba43606905dcae,
+                                Billing Period,"June 1, 2024 - July 1, 2024",
+                                Organization Name,Test 2,
+                                Organization ID,666acb8787ba43606905dcac,
+
+                                Date,Usage Date,Description,Note,Organization Name,Organization ID,Project,Project ID,SKU,Region,Cluster,Replica Set,Config Server,Application,Unit,Unit Price,Quantity,Discount Percent,Amount
                             schema:
                                 type: string
-                            x-xgen-IPA-exception:
-                                xgen-IPA-117-plaintext-response-must-have-example: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2023-01-01+json:
                             schema:

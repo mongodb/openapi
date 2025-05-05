@@ -212,7 +212,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "fe4d7cb75aef55884918cd6ffb1e764669ae72fb"
+    "x-xgen-sha": "523a3b1135cfcee06770fb177939bf6f08ba84b0"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -17909,6 +17909,33 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-117-description-should-not-use-inline-links": "Parameters don't support externalDocs"
             }
+          },
+          {
+            "description": "Whether or not to include metrics extracted from the slow query log as separate fields.",
+            "in": "query",
+            "name": "includeMetrics",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Whether or not to include the replica state of the host when the slow query log was generated as a separate field.",
+            "in": "query",
+            "name": "includeReplicaState",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Whether or not to include the operation type (read/write/command) extracted from the slow query log as a separate field.",
+            "in": "query",
+            "name": "includeOpType",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -22343,11 +22370,9 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-01-01+csv": {
+                "example": "Billed Date,666acb8787ba90706905dcae,\nInvoice Id,\"June 1, 2024 - July 1, 2024\",\nOrganization Name,Test 2,\nOrganization ID,666acb8787ba90706905dcae,\nProject Name,666acb8787ba90706905dcae,\nProject Id,666acb8787ba90706905dcae,\nCluster Name,TestCluster\nCluster Unique Id,666acb8787ba90706905dcae\nUsage Amount, 1018.39\n",
                 "schema": {
                   "type": "string"
-                },
-                "x-xgen-IPA-exception": {
-                  "xgen-IPA-117-plaintext-response-must-have-example": "API predates IPA validation"
                 },
                 "x-xgen-version": "2023-01-01"
               },
@@ -23309,11 +23334,9 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-01-01+csv": {
+                "example": "Invoice Number,666acb8787ba43606905dcae,\nBilling Period,\"June 1, 2024 - July 1, 2024\",\nOrganization Name,Test 2,\nOrganization ID,666acb8787ba43606905dcac,\n\nDate,Usage Date,Description,Note,Organization Name,Organization ID,Project,Project ID,SKU,Region,Cluster,Replica Set,Config Server,Application,Unit,Unit Price,Quantity,Discount Percent,Amount\n",
                 "schema": {
                   "type": "string"
-                },
-                "x-xgen-IPA-exception": {
-                  "xgen-IPA-117-plaintext-response-must-have-example": "API predates IPA validation"
                 },
                 "x-xgen-version": "2023-01-01"
               },
@@ -54491,8 +54514,21 @@
             "readOnly": true,
             "type": "string"
           },
+          "metrics": {
+            "$ref": "#/components/schemas/PerformanceAdvisorSlowQueryMetrics"
+          },
           "namespace": {
             "description": "Human-readable label that identifies the namespace on the specified host. The resource expresses this parameter value as `<database>.<collection>`.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "opType": {
+            "description": "Operation type (read/write/command) associated with this slow query log.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "replicaState": {
+            "description": "Replica state associated with this slow query log.",
             "readOnly": true,
             "type": "string"
           }
@@ -54511,6 +54547,76 @@
             "type": "array"
           }
         },
+        "type": "object"
+      },
+      "PerformanceAdvisorSlowQueryMetrics": {
+        "description": "Metrics from a slow query log.",
+        "properties": {
+          "docsExamined": {
+            "description": "The number of documents in the collection that MongoDB scanned in order to carry out the operation.",
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "docsExaminedReturnedRatio": {
+            "description": "Ratio of documents examined to documents returned.",
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          },
+          "docsReturned": {
+            "description": "The number of documents returned by the operation.",
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "fromUserConnection": {
+            "description": "This boolean will be true when the server can identfiy the query source as non-server. This field is only available for MDB 8.0+.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "hasIndexCoverage": {
+            "description": "Indicates if the query has index coverage.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "hasSort": {
+            "description": "This boolean will be true when a query cannot use the ordering in the index to return the requested sorted results; i.e. MongoDB must sort the documents after it receives the documents from a cursor.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "keysExamined": {
+            "description": "The number of index keys that MongoDB scanned in order to carry out the operation.",
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "keysExaminedReturnedRatio": {
+            "description": "Ratio of keys examined to documents returned.",
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          },
+          "numYields": {
+            "description": "The number of times the operation yielded to allow other operations to complete.",
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "operationExecutionTime": {
+            "description": "Total execution time of a query in milliseconds.",
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "responseLength": {
+            "description": "The length in bytes of the operation's result document.",
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "readOnly": true,
         "type": "object"
       },
       "PeriodicCpsSnapshotSource": {
