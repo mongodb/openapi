@@ -33027,6 +33027,26 @@ components:
                     description: Flag that indicates whether to add a 'sample_stream_solar' connection.
                     type: boolean
             type: object
+        StreamsStartStreamProcessorWith:
+            description: A request to start a stream processor
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                startAtOperationTime:
+                    description: The operation time after which the change stream source should begin reporting. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    type: string
+            type: object
         StreamsTenant:
             properties:
                 _id:
@@ -36415,7 +36435,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 142423ce10ab1ab7711c7ec69fd33bf1e6774e11
+    x-xgen-sha: 1137c656831ebc2546595681fae34a44fa7362ea
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -53471,6 +53491,52 @@ paths:
             tags:
                 - Streams
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/startStreamProcessor
+            x-xgen-owner-team: Atlas Streams
+    /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:startWith:
+        post:
+            description: Start a Stream Processor within the specified stream instance. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Stream Processing Owner role.
+            operationId: startStreamProcessorWith
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the stream instance.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the stream processor.
+                  in: path
+                  name: processorName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsStartStreamProcessorWith'
+                        x-xgen-version: "2025-03-12"
+                description: Options for starting a stream processor.
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Start One Stream Processor With Options
+            tags:
+                - Streams
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/startStreamProcessorWith
             x-xgen-owner-team: Atlas Streams
     /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:stop:
         post:
