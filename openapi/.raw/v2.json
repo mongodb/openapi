@@ -262,7 +262,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "ca485563cd6faf12de0565f0be2790b5bbe9dd6e"
+    "x-xgen-sha": "8161e33b707b64bdcde5a41122ed0fa457f66c0a"
   },
   "paths": {
     "/api/atlas/v2": {
@@ -2126,6 +2126,9 @@
         "tags": [
           "Project IP Access List"
         ],
+        "x-xgen-changelog": {
+          "2025-05-08": "Corrects an issue where the endpoint would include Atlas internal entries."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Project-IP-Access-List/operation/listProjectIpAccessLists",
         "x-xgen-owner-team": "Atlas"
       },
@@ -27151,6 +27154,80 @@
         "x-xgen-owner-team": "Atlas Streams"
       }
     },
+    "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:startWith": {
+      "post": {
+        "description": "Start a Stream Processor within the specified stream instance. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Stream Processing Owner role.",
+        "operationId": "startStreamProcessorWith",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the stream instance.",
+            "in": "path",
+            "name": "tenantName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the stream processor.",
+            "in": "path",
+            "name": "processorName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamsStartStreamProcessorWith"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "Options for starting a stream processor."
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Start One Stream Processor With Options",
+        "tags": [
+          "Streams"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/startStreamProcessorWith",
+        "x-xgen-owner-team": "Atlas Streams"
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:stop": {
       "post": {
         "description": "Stop a Stream Processor within the specified stream instance. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Stream Processing Owner role.",
@@ -36584,6 +36661,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "externalDocs": {
@@ -38683,6 +38763,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "externalDocs": {
@@ -39029,6 +39112,9 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
           },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
@@ -39940,7 +40026,7 @@
           "roleAssignments": {
             "description": "Atlas roles and the unique identifiers of the groups and organizations associated with each role. The array must include at least one element with an Organization role and its respective **orgId**. Each element in the array can have a value for **orgId** or **groupId**, but not both.",
             "items": {
-              "$ref": "#/components/schemas/RoleAssignment"
+              "$ref": "#/components/schemas/ConnectedOrgConfigRoleAssignment"
             },
             "type": "array",
             "uniqueItems": true,
@@ -43191,6 +43277,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "threshold": {
             "$ref": "#/components/schemas/GreaterThanRawThreshold"
           },
@@ -45272,6 +45361,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "externalDocs": {
@@ -47166,6 +47258,46 @@
         ],
         "type": "object"
       },
+      "ConnectedOrgConfigRoleAssignment": {
+        "properties": {
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project to which this role belongs. Each element within **roleAssignments** can have a value for **groupId** or **orgId**, but not both.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "orgId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the organization to which this role belongs. Each element within **roleAssignments** can have a value for **orgId** or **groupId**, but not both.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "role": {
+            "description": "Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.",
+            "enum": [
+              "ORG_OWNER",
+              "ORG_MEMBER",
+              "ORG_GROUP_CREATOR",
+              "ORG_BILLING_ADMIN",
+              "ORG_BILLING_READ_ONLY",
+              "ORG_READ_ONLY",
+              "GROUP_BACKUP_MANAGER",
+              "GROUP_CLUSTER_MANAGER",
+              "GROUP_DATA_ACCESS_ADMIN",
+              "GROUP_DATA_ACCESS_READ_ONLY",
+              "GROUP_DATA_ACCESS_READ_WRITE",
+              "GROUP_DATABASE_ACCESS_ADMIN",
+              "GROUP_OBSERVABILITY_VIEWER",
+              "GROUP_OWNER",
+              "GROUP_READ_ONLY",
+              "GROUP_SEARCH_INDEX_EDITOR",
+              "GROUP_STREAM_PROCESSING_OWNER"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ControlPlaneIPAddresses": {
         "description": "List of IP addresses in the Atlas control plane.",
         "properties": {
@@ -47380,6 +47512,9 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
           },
           "threshold": {
             "$ref": "#/components/schemas/GreaterThanTimeThreshold"
@@ -50741,6 +50876,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "externalDocs": {
@@ -53999,6 +54137,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "threshold": {
             "$ref": "#/components/schemas/GreaterThanDaysThresholdView"
           },
@@ -54088,6 +54229,16 @@
           "cloudProvider"
         ],
         "type": "object"
+      },
+      "EventSeverity": {
+        "description": "Severity of the event.",
+        "enum": [
+          "INFO",
+          "WARNING",
+          "ERROR",
+          "CRITICAL"
+        ],
+        "type": "string"
       },
       "EventTypeDetails": {
         "description": "A singular type of event",
@@ -57530,6 +57681,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "externalDocs": {
@@ -58475,6 +58629,9 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
           },
           "threshold": {
             "$ref": "#/components/schemas/GreaterThanRawThreshold"
@@ -59760,6 +59917,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "externalDocs": {
@@ -60564,6 +60724,9 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
           },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
@@ -62072,7 +62235,22 @@
               "ATLAS_FLEX_GCP_200_USAGE_HOURS",
               "ATLAS_FLEX_GCP_300_USAGE_HOURS",
               "ATLAS_FLEX_GCP_400_USAGE_HOURS",
-              "ATLAS_FLEX_GCP_500_USAGE_HOURS"
+              "ATLAS_FLEX_GCP_500_USAGE_HOURS",
+              "ATLAS_FLEX_AWS_LEGACY_100_USAGE_HOURS",
+              "ATLAS_FLEX_AWS_LEGACY_200_USAGE_HOURS",
+              "ATLAS_FLEX_AWS_LEGACY_300_USAGE_HOURS",
+              "ATLAS_FLEX_AWS_LEGACY_400_USAGE_HOURS",
+              "ATLAS_FLEX_AWS_LEGACY_500_USAGE_HOURS",
+              "ATLAS_FLEX_AZURE_LEGACY_100_USAGE_HOURS",
+              "ATLAS_FLEX_AZURE_LEGACY_200_USAGE_HOURS",
+              "ATLAS_FLEX_AZURE_LEGACY_300_USAGE_HOURS",
+              "ATLAS_FLEX_AZURE_LEGACY_400_USAGE_HOURS",
+              "ATLAS_FLEX_AZURE_LEGACY_500_USAGE_HOURS",
+              "ATLAS_FLEX_GCP_LEGACY_100_USAGE_HOURS",
+              "ATLAS_FLEX_GCP_LEGACY_200_USAGE_HOURS",
+              "ATLAS_FLEX_GCP_LEGACY_300_USAGE_HOURS",
+              "ATLAS_FLEX_GCP_LEGACY_400_USAGE_HOURS",
+              "ATLAS_FLEX_GCP_LEGACY_500_USAGE_HOURS"
             ],
             "readOnly": true,
             "type": "string"
@@ -63248,6 +63426,9 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
           },
           "threshold": {
             "$ref": "#/components/schemas/LessThanTimeThreshold"
@@ -65394,6 +65575,9 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
           },
           "threshold": {
             "$ref": "#/components/schemas/LessThanDaysThresholdView"
@@ -70811,6 +70995,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "threshold": {
             "$ref": "#/components/schemas/AlertsThresholdInteger"
           },
@@ -71173,6 +71360,9 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
           },
           "threshold": {
             "$ref": "#/components/schemas/AlertsThresholdInteger"
@@ -71592,46 +71782,6 @@
           }
         },
         "readOnly": true,
-        "type": "object"
-      },
-      "RoleAssignment": {
-        "properties": {
-          "groupId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the project to which this role belongs. Each element within **roleAssignments** can have a value for **groupId** or **orgId**, but not both.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "type": "string"
-          },
-          "orgId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the organization to which this role belongs. Each element within **roleAssignments** can have a value for **orgId** or **groupId**, but not both.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "type": "string"
-          },
-          "role": {
-            "description": "Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.",
-            "enum": [
-              "ORG_OWNER",
-              "ORG_MEMBER",
-              "ORG_GROUP_CREATOR",
-              "ORG_BILLING_ADMIN",
-              "ORG_BILLING_READ_ONLY",
-              "ORG_READ_ONLY",
-              "GROUP_BACKUP_MANAGER",
-              "GROUP_CLUSTER_MANAGER",
-              "GROUP_DATA_ACCESS_ADMIN",
-              "GROUP_DATA_ACCESS_READ_ONLY",
-              "GROUP_DATA_ACCESS_READ_WRITE",
-              "GROUP_DATABASE_ACCESS_ADMIN",
-              "GROUP_OBSERVABILITY_VIEWER",
-              "GROUP_OWNER",
-              "GROUP_READ_ONLY",
-              "GROUP_SEARCH_INDEX_EDITOR",
-              "GROUP_STREAM_PROCESSING_OWNER"
-            ],
-            "type": "string"
-          }
-        },
         "type": "object"
       },
       "SMSNotification": {
@@ -73238,6 +73388,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "externalDocs": {
@@ -74232,6 +74385,9 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
           },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "externalDocs": {
@@ -74585,6 +74741,9 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
             }
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
           },
           "threshold": {
             "$ref": "#/components/schemas/StreamProcessorMetricThreshold"
@@ -75633,6 +75792,33 @@
             "default": false,
             "description": "Flag that indicates whether to add a 'sample_stream_solar' connection.",
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "StreamsStartStreamProcessorWith": {
+        "description": "A request to start a stream processor",
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "startAtOperationTime": {
+            "description": "The operation time after which the change stream source should begin reporting. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "type": "string"
           }
         },
         "type": "object"
