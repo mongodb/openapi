@@ -24786,8 +24786,18 @@ components:
                     description: Text of the MongoDB log related to this slow query.
                     readOnly: true
                     type: string
+                metrics:
+                    $ref: '#/components/schemas/PerformanceAdvisorSlowQueryMetrics'
                 namespace:
                     description: Human-readable label that identifies the namespace on the specified host. The resource expresses this parameter value as `<database>.<collection>`.
+                    readOnly: true
+                    type: string
+                opType:
+                    description: Operation type (read/write/command) associated with this slow query log.
+                    readOnly: true
+                    type: string
+                replicaState:
+                    description: Replica state associated with this slow query log.
                     readOnly: true
                     type: string
             readOnly: true
@@ -24800,6 +24810,63 @@ components:
                         $ref: '#/components/schemas/PerformanceAdvisorSlowQuery'
                     readOnly: true
                     type: array
+            type: object
+        PerformanceAdvisorSlowQueryMetrics:
+            description: Metrics from a slow query log.
+            properties:
+                docsExamined:
+                    description: The number of documents in the collection that MongoDB scanned in order to carry out the operation.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                docsExaminedReturnedRatio:
+                    description: Ratio of documents examined to documents returned.
+                    format: double
+                    readOnly: true
+                    type: number
+                docsReturned:
+                    description: The number of documents returned by the operation.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                fromUserConnection:
+                    description: This boolean will be true when the server can identfiy the query source as non-server. This field is only available for MDB 8.0+.
+                    readOnly: true
+                    type: boolean
+                hasIndexCoverage:
+                    description: Indicates if the query has index coverage.
+                    readOnly: true
+                    type: boolean
+                hasSort:
+                    description: This boolean will be true when a query cannot use the ordering in the index to return the requested sorted results; i.e. MongoDB must sort the documents after it receives the documents from a cursor.
+                    readOnly: true
+                    type: boolean
+                keysExamined:
+                    description: The number of index keys that MongoDB scanned in order to carry out the operation.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                keysExaminedReturnedRatio:
+                    description: Ratio of keys examined to documents returned.
+                    format: double
+                    readOnly: true
+                    type: number
+                numYields:
+                    description: The number of times the operation yielded to allow other operations to complete.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                operationExecutionTime:
+                    description: Total execution time of a query in milliseconds.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                responseLength:
+                    description: The length in bytes of the operation's result document.
+                    format: int64
+                    readOnly: true
+                    type: integer
+            readOnly: true
             type: object
         PeriodicCpsSnapshotSource:
             allOf:
@@ -32005,7 +32072,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 2c460eadc39533d4c207e0e9ae1984247c5528f3
+    x-xgen-sha: f468d07a8c492c375caafd941eb850d7a5237d97
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -44574,6 +44641,24 @@ paths:
                     type: integer
                   x-xgen-IPA-exception:
                     xgen-IPA-117-description-should-not-use-inline-links: Parameters don't support externalDocs
+                - description: Whether or not to include metrics extracted from the slow query log as separate fields.
+                  in: query
+                  name: includeMetrics
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Whether or not to include the replica state of the host when the slow query log was generated as a separate field.
+                  in: query
+                  name: includeReplicaState
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Whether or not to include the operation type (read/write/command) extracted from the slow query log as a separate field.
+                  in: query
+                  name: includeOpType
+                  schema:
+                    default: false
+                    type: boolean
             responses:
                 "200":
                     content:
