@@ -59,7 +59,7 @@
 - The HTTP URI must use a colon(:) character followed by the custom method name
 - Declarative-friendly resources should not employ custom methods
 
-## IPA-109: Pagination
+## IPA-110: Pagination
 - APIs returning collections of data must provide pagination at the outset, as it is a backward-incompatible change to add pagination to an existing method
 - If the user does not specify itemsPerPage (or specifies 0) the API must not return an error and chooses an appropriate default of 100
 - If the user specifies itemsPerPage greater than the maximum permitted by the API, the API should coerce down to the maximum permitted page size
