@@ -1,4 +1,27 @@
-# IPA (Improvement Proposal for APIs)
+## Instructions for AI Code Review
+
+As an AI code reviewer, your task is to evaluate changes for compliance with OpenAPI and IPA (
+Internal Public API) guidelines. Follow these structured steps:
+
+1. First, determine if the files in the PR are within scope
+2. For in-scope files, check if any routes are excluded
+3. For applicable code, verify compliance with the IPA guidelines
+4. Report violations with specific guideline references
+
+## Scope Determination
+
+**ONLY** apply these guidelines to the following file types:
+
+- API Resource Java classes (`*Resource.java`)
+- API View Java classes (`*View.java`)
+- OpenAPI specification files (`openapi-*.json`)
+- Any code with Swagger-core annotations (`@Schema`, `@Operation`, `@Content`, etc.)
+
+If a file doesn't match these patterns, do not apply these guidelines to it.
+
+# Compliance Verification
+
+Review the code against the IPA guidelines found below:
 
 ## IPA-5: Documenting Exceptions to IPAs
 - API producers must document within the OpenAPI spec when “should” or “must” guidance in an IPA is intentionally ignored to avoid unintentionally setting the wrong precedent for design
