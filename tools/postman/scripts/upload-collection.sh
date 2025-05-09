@@ -103,7 +103,7 @@ else
      --data ${collection_transformed_path}"
 
   execute_curl --request PUT --retry 3 --retry-delay 30 --retry-max-time 1200 \
-     --show-error --fail --silent \
+     --show-error --fail --silent --retry-all-errors \
      --location "https://api.getpostman.com/collections/${collection_id}" \
      --header "Content-Type: application/json" \
      --header "X-API-Key: ${POSTMAN_API_KEY}" \
