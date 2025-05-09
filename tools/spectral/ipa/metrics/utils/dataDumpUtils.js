@@ -10,9 +10,7 @@ function loadS3Config() {
   }
   return {
     aws: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: 'us-east-1',
+      region: process.env.AWS_REGION,
     },
     s3: {
       prefix: process.env.S3_BUCKET_PREFIX,
@@ -29,14 +27,14 @@ export function getS3FilePath() {
   return { bucketName, key };
 }
 
+/**
+ * Gets an S3 client configured to use AssumeRole credentials
+ * @returns {S3Client} Configured S3 client
+ */
 export function getS3Client() {
-  const AWSConfig = loadS3Config();
+  const S3Config = loadS3Config();
 
-  return new S3Client({
-    credentials: {
-      accessKeyId: AWSConfig.aws.accessKeyId,
-      secretAccessKey: AWSConfig.aws.secretAccessKey,
-    },
-    region: AWSConfig.aws.region,
-  });
+  // When running in GitHub Actions with aws-actions/configure-aws-credentials,
+  // the SDK will automatically use the credentials from the environment
+  return new S3Client({ region: S3Config.aws.region });
 }
