@@ -1,4 +1,12 @@
-# OpenAPI and IPA Compliance Guidelines for Code Review
+
+# Instructions for AI Code Review
+
+As an AI code reviewer, your task is to evaluate changes for compliance with OpenAPI and IPA ( Internal Public API) guidelines. Follow these structured steps:
+
+1. First, determine if the files in the PR are within scope
+2. For in-scope files, check if any routes are excluded
+3. For applicable code, verify compliance with the IPA guidelines
+4. Report violations with specific guideline references
 
 ## Overview
 
