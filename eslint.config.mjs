@@ -36,7 +36,7 @@ export default [
     },
   },
   {
-    ignores: ['**/node_modules/**'],
+    ignorePatterns: ['node_modules/*'],
   },
   {
     files: ['**/*.test.js'],
