@@ -96,4 +96,4 @@ describe('accept-header-upcoming-version-limit', () => {
     const result = acceptHeaderUpcomingVersionLimit(operation);
     expect(result).toBeUndefined();
   });
-}); 
+});
