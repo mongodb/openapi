@@ -36,7 +36,11 @@ export default [
     },
   },
   {
-    ignores: ['node_modules/'],
+    ignores: ['node_modules'],
+  },
+  {
+    files: ['**/*.test.js'],
+    ...jest.configs['flat/recommended'],
   },
   ...compat.config({
     plugins: ['require-extensions'],
