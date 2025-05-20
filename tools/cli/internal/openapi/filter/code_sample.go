@@ -54,17 +54,17 @@ func (f *CodeSampleFilter) Apply() error {
 	return nil
 }
 
-func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opK string) codeSample {
+func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
 	source := "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + apiVersion(f.metadata.targetVersion) + "+json\" \\\n  "
 
-	switch opK {
+	switch opMethod {
 	case "GET":
-		source += "-X " + opK + " \"" + pathName + "?pretty=true\""
+		source += "-X " + opMethod + " \"" + pathName + "?pretty=true\""
 	case "DELETE":
-		source += "-X " + opK + " \"" + pathName + "\""
+		source += "-X " + opMethod + " \"" + pathName + "\""
 	case "POST", "PATCH", "PUT":
-		source += "-X " + opK + " \"" + pathName + "\"\n  "
+		source += "-X " + opMethod + " \"" + pathName + "\"\n  "
 		source += "-d " + "{ <Payload> }"
 	}
 
@@ -96,8 +96,8 @@ func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 	}
 }
 
-func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opK string, op *openapi3.Operation) error {
-	if op == nil || opK == "" || pathName == "" {
+func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod string, op *openapi3.Operation) error {
+	if op == nil || opMethod == "" || pathName == "" {
 		return nil
 	}
 
@@ -106,7 +106,7 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opK string, 
 	}
 
 	op.Extensions[codeSampleExtensionName] = []codeSample{
-		f.newCurlCodeSamplesForOperation(pathName, opK),
+		f.newCurlCodeSamplesForOperation(pathName, opMethod),
 		newAtlasCliCodeSamplesForOperation(op),
 	}
 	return nil
