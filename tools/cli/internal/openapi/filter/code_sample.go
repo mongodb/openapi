@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
 const codeSampleExtensionName = "x-codeSamples"
@@ -53,9 +54,9 @@ func (f *CodeSampleFilter) Apply() error {
 	return nil
 }
 
-func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opK string, op *openapi3.Operation) codeSample {
+func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opK string) codeSample {
 	source := "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
-		"--header \"Accept: application/vnd.atlas." + f.metadata.targetVersion.Date().Format(time.DateOnly) + "+json\" \\\n  "
+		"--header \"Accept: application/vnd.atlas." + apiVersion(f.metadata.targetVersion) + "+json\" \\\n  "
 
 	switch opK {
 	case "GET":
@@ -74,7 +75,20 @@ func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opK string, 
 	}
 }
 
-func (f *CodeSampleFilter) newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
+func apiVersion(version *apiversion.APIVersion) string {
+	if version.IsStable() {
+		return version.Date().Format(time.DateOnly)
+	}
+
+	if version.IsPreview() {
+		return "preview"
+	}
+
+	// Upcoming api version
+	return version.Date().Format(time.DateOnly) + ".upcoming"
+}
+
+func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 	return codeSample{
 		Lang:   "cURL",
 		Label:  "Atlas CLI",
@@ -83,9 +97,17 @@ func (f *CodeSampleFilter) newAtlasCliCodeSamplesForOperation(op *openapi3.Opera
 }
 
 func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opK string, op *openapi3.Operation) error {
+	if op == nil || opK == "" || pathName == "" {
+		return nil
+	}
+
+	if op.Extensions == nil {
+		op.Extensions = map[string]any{}
+	}
+
 	op.Extensions[codeSampleExtensionName] = []codeSample{
-		f.newCurlCodeSamplesForOperation(pathName, opK, op),
-		f.newAtlasCliCodeSamplesForOperation(op),
+		f.newCurlCodeSamplesForOperation(pathName, opK),
+		newAtlasCliCodeSamplesForOperation(op),
 	}
 	return nil
 }
