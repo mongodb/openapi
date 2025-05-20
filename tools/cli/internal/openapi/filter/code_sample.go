@@ -44,8 +44,8 @@ func (f *CodeSampleFilter) ValidateMetadata() error {
 
 func (f *CodeSampleFilter) Apply() error {
 	for pathName, p := range f.oas.Paths.Map() {
-		for opK, op := range p.Operations() {
-			if err := f.includeCodeSamplesForOperation(pathName, opK, op); err != nil {
+		for opMethod, op := range p.Operations() {
+			if err := f.includeCodeSamplesForOperation(pathName, opMethod, op); err != nil {
 				return err
 			}
 		}
