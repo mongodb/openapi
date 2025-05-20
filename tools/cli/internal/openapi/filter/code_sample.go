@@ -55,8 +55,9 @@ func (f *CodeSampleFilter) Apply() error {
 }
 
 func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
+	version := apiVersion(f.metadata.targetVersion)
 	source := "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
-		"--header \"Accept: application/vnd.atlas." + apiVersion(f.metadata.targetVersion) + "+json\" \\\n  "
+		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
 
 	switch opMethod {
 	case "GET":
@@ -64,6 +65,7 @@ func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod str
 	case "DELETE":
 		source += "-X " + opMethod + " \"" + pathName + "\""
 	case "POST", "PATCH", "PUT":
+		source += "--header \"Content-Type: application/vnd.atlas." + version + "+json\" \\\n  "
 		source += "-X " + opMethod + " \"" + pathName + "\"\n  "
 		source += "-d " + "{ <Payload> }"
 	}
