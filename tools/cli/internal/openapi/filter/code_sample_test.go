@@ -222,8 +222,8 @@ func TestCodeSampleFilter(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		t.Parallel()
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			oas := tt.oas
 			version, err := apiversion.New(apiversion.WithVersion(tt.version))
 			require.NoError(t, err)
