@@ -69,6 +69,7 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			folder := tc.env
 			base := getInputPath(t, tc.specType, tc.format, folder)
 			outputPath := getOutputFolder(t, folder) + "/" + tc.specType + "-" + folder + "-" + "output." + tc.format
