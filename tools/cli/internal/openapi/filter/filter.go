@@ -81,6 +81,7 @@ func DefaultFilters(oas *openapi3.T, metadata *Metadata) []Filter {
 		&SunsetFilter{oas: oas},
 		&SchemasFilter{oas: oas},
 		&BumpFilter{oas: oas, metadata: metadata},
+		&CodeSampleFilter{oas: oas, metadata: metadata},
 	}
 }
 
