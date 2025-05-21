@@ -34,7 +34,7 @@ func TestCodeSampleFilter(t *testing.T) {
 			name:    "stable api",
 			version: "2025-01-01",
 			oas: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
@@ -57,7 +57,7 @@ func TestCodeSampleFilter(t *testing.T) {
 				})),
 			},
 			expectedOas: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
@@ -80,7 +80,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									Lang:  "cURL",
 									Label: "curl",
 									Source: "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
-										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"test?pretty=true\"",
+										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
 								{
 									Lang:   "cURL",
@@ -97,7 +97,7 @@ func TestCodeSampleFilter(t *testing.T) {
 			name:    "preview api",
 			version: "preview",
 			oas: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
@@ -120,7 +120,7 @@ func TestCodeSampleFilter(t *testing.T) {
 				})),
 			},
 			expectedOas: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
@@ -143,7 +143,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									Lang:  "cURL",
 									Label: "curl",
 									Source: "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
-										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"test?pretty=true\"",
+										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
 								{
 									Lang:   "cURL",
@@ -160,7 +160,7 @@ func TestCodeSampleFilter(t *testing.T) {
 			name:    "upcoming api",
 			version: "2025-01-01.upcoming",
 			oas: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
@@ -183,7 +183,7 @@ func TestCodeSampleFilter(t *testing.T) {
 				})),
 			},
 			expectedOas: &openapi3.T{
-				Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
@@ -206,7 +206,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									Lang:  "cURL",
 									Label: "curl",
 									Source: "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
-										"--header \"Accept: application/vnd.atlas.2025-01-01.upcoming+json\" \\\n  " + "-X GET \"test?pretty=true\"",
+										"--header \"Accept: application/vnd.atlas.2025-01-01.upcoming+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
 								{
 									Lang:   "cURL",
