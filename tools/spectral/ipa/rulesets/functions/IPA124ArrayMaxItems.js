@@ -15,7 +15,7 @@ const RULE_NAME = 'xgen-IPA-124-array-max-items';
  * @param {object} options - Rule configuration options
  * @param {object} context - The context object containing the path and documentInventory
  */
-export default (input, { maxItems, ignore = [] }, { path }) => {
+export default (input, { maxAllowedValue, ignore = [] }, { path }) => {
   // Check for exception at the schema level
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
@@ -36,7 +36,7 @@ export default (input, { maxItems, ignore = [] }, { path }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path, maxItems);
+  const errors = checkViolationsAndReturnErrors(input, path, maxAllowedValue);
   if (errors.length > 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
@@ -44,7 +44,7 @@ export default (input, { maxItems, ignore = [] }, { path }) => {
   collectAdoption(path, RULE_NAME);
 };
 
-function checkViolationsAndReturnErrors(input, path, maxItems) {
+function checkViolationsAndReturnErrors(input, path, maxAllowedValue) {
   try {
     // Check if maxItems is defined
     if (input.maxItems === undefined) {
@@ -56,10 +56,10 @@ function checkViolationsAndReturnErrors(input, path, maxItems) {
       ];
     }
     // Check if maxItems is larger than the recommended value
-    else if (input.maxItems > maxItems) {
+    else if (input.maxItems > maxAllowedValue) {
       return [
         {
-          message: `The maxItems value for arrays must be set to ${maxItems} or below, found: ${input.maxItems}. If the array field has the chance of being too large, the API should use a sub-resource instead.`,
+          message: `The maxItems value for arrays must be set to ${maxAllowedValue} or below, found: ${input.maxItems}. If the array field has the chance of being too large, the API should use a sub-resource instead.`,
           path,
         },
       ];
