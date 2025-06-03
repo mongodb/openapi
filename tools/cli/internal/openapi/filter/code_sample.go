@@ -66,8 +66,8 @@ func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod str
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
 	case "POST", "PATCH", "PUT":
 		source += "--header \"Content-Type: application/vnd.atlas." + version + "+json\" \\\n  "
-		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\"\n  "
-		source += "-d " + "{ <Payload> }"
+		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\" \\\n  "
+		source += "-d " + "'{ <Payload> }'"
 	}
 
 	return codeSample{
