@@ -78,7 +78,13 @@ func TestCodeSampleFilter(t *testing.T) {
 							"x-codeSamples": []codeSample{
 								{
 									Lang:  "cURL",
-									Label: "curl",
+									Label: "curl (Service Account)",
+									Source: "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Digest)",
 									Source: "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
 										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
@@ -141,7 +147,13 @@ func TestCodeSampleFilter(t *testing.T) {
 							"x-codeSamples": []codeSample{
 								{
 									Lang:  "cURL",
-									Label: "curl",
+									Label: "curl (Service Account)",
+									Source: "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  " +
+										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Digest)",
 									Source: "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
 										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
@@ -204,7 +216,13 @@ func TestCodeSampleFilter(t *testing.T) {
 							"x-codeSamples": []codeSample{
 								{
 									Lang:  "cURL",
-									Label: "curl",
+									Label: "curl (Service Account)",
+									Source: "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01.upcoming+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Digest)",
 									Source: "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
 										"--header \"Accept: application/vnd.atlas.2025-01-01.upcoming+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},

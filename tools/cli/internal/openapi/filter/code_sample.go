@@ -54,7 +54,7 @@ func (f *CodeSampleFilter) Apply() error {
 	return nil
 }
 
-func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
+func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
 	source := "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
@@ -72,7 +72,30 @@ func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod str
 
 	return codeSample{
 		Lang:   "cURL",
-		Label:  "curl",
+		Label:  "curl (Digest)",
+		Source: source,
+	}
+}
+
+func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
+	version := apiVersion(f.metadata.targetVersion)
+	source := "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  " +
+		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
+
+	switch opMethod {
+	case "GET":
+		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "?pretty=true\""
+	case "DELETE":
+		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
+	case "POST", "PATCH", "PUT":
+		source += "--header \"Content-Type: application/vnd.atlas." + version + "+json\" \\\n  "
+		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\" \\\n  "
+		source += "-d " + "'{ <Payload> }'"
+	}
+
+	return codeSample{
+		Lang:   "cURL",
+		Label:  "curl (Service Account)",
 		Source: source,
 	}
 }
@@ -108,7 +131,8 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 	}
 
 	op.Extensions[codeSampleExtensionName] = []codeSample{
-		f.newCurlCodeSamplesForOperation(pathName, opMethod),
+		f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod),
+		f.newDigestCurlCodeSamplesForOperation(pathName, opMethod),
 		newAtlasCliCodeSamplesForOperation(op),
 	}
 	return nil

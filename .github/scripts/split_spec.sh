@@ -2,7 +2,7 @@
 set -eou pipefail
 
 echo "Running FOAS CLI versions command"
-foascli versions -s openapi-foas.json -o ./openapi/v2/versions.json --env "${target_env:?}" --stability-level stable  --stability-level preview
+foascli versions -s openapi-foas.json -o ./openapi/v2/versions.json --env "${target_env:?}" --stability-level stable  --stability-level preview --stability-level upcoming
 
 echo "Running FOAS CLI split command with the following --env=${target_env:?} and -o=./openapi/v2/openapi.json"
 
