@@ -77,15 +77,21 @@ func TestCodeSampleFilter(t *testing.T) {
 							"x-sunset": "9999-12-31",
 							"x-codeSamples": []codeSample{
 								{
-									Lang:  "cURL",
-									Label: "curl",
-									Source: "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
-										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
-								},
-								{
 									Lang:   "cURL",
 									Label:  "Atlas CLI",
 									Source: "atlas api testOperationID --help",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Service Accounts)",
+									Source: "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Digest)",
+									Source: "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
 							},
 						},
@@ -140,15 +146,21 @@ func TestCodeSampleFilter(t *testing.T) {
 							"x-sunset": "9999-12-31",
 							"x-codeSamples": []codeSample{
 								{
-									Lang:  "cURL",
-									Label: "curl",
-									Source: "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
-										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
-								},
-								{
 									Lang:   "cURL",
 									Label:  "Atlas CLI",
 									Source: "atlas api testOperationID --help",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Service Accounts)",
+									Source: "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
+										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Digest)",
+									Source: "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
+										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
 							},
 						},
@@ -203,15 +215,21 @@ func TestCodeSampleFilter(t *testing.T) {
 							"x-sunset": "9999-12-31",
 							"x-codeSamples": []codeSample{
 								{
-									Lang:  "cURL",
-									Label: "curl",
-									Source: "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
-										"--header \"Accept: application/vnd.atlas.2025-01-01.upcoming+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
-								},
-								{
 									Lang:   "cURL",
 									Label:  "Atlas CLI",
 									Source: "atlas api testOperationID --help",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Service Accounts)",
+									Source: "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01.upcoming+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Digest)",
+									Source: "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01.upcoming+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
 							},
 						},

@@ -54,9 +54,9 @@ func (f *CodeSampleFilter) Apply() error {
 	return nil
 }
 
-func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
+func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
+	source := "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
 
 	switch opMethod {
@@ -65,14 +65,37 @@ func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod str
 	case "DELETE":
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
 	case "POST", "PATCH", "PUT":
-		source += "--header \"Content-Type: application/vnd.atlas." + version + "+json\" \\\n  "
+		source += "--header \"Content-Type: application/json\" \\\n  "
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\" \\\n  "
 		source += "-d " + "'{ <Payload> }'"
 	}
 
 	return codeSample{
 		Lang:   "cURL",
-		Label:  "curl",
+		Label:  "curl (Digest)",
+		Source: source,
+	}
+}
+
+func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
+	version := apiVersion(f.metadata.targetVersion)
+	source := "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
+		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
+
+	switch opMethod {
+	case "GET":
+		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "?pretty=true\""
+	case "DELETE":
+		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
+	case "POST", "PATCH", "PUT":
+		source += "--header \"Content-Type: application/json\" \\\n  "
+		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\" \\\n  "
+		source += "-d " + "'{ <Payload> }'"
+	}
+
+	return codeSample{
+		Lang:   "cURL",
+		Label:  "curl (Service Accounts)",
 		Source: source,
 	}
 }
@@ -108,8 +131,9 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 	}
 
 	op.Extensions[codeSampleExtensionName] = []codeSample{
-		f.newCurlCodeSamplesForOperation(pathName, opMethod),
 		newAtlasCliCodeSamplesForOperation(op),
+		f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod),
+		f.newDigestCurlCodeSamplesForOperation(pathName, opMethod),
 	}
 	return nil
 }
