@@ -56,7 +56,7 @@ func (f *CodeSampleFilter) Apply() error {
 
 func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  " +
+	source := "curl --user \"${PUBLIC-KEY}:${PRIVATE-KEY}\" \\\n  --digest \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
 
 	switch opMethod {
@@ -65,7 +65,7 @@ func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMeth
 	case "DELETE":
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
 	case "POST", "PATCH", "PUT":
-		source += "--header \"Content-Type: application/vnd.atlas." + version + "+json\" \\\n  "
+		source += "--header \"Content-Type: application/json\" \\\n  "
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\" \\\n  "
 		source += "-d " + "'{ <Payload> }'"
 	}
@@ -79,7 +79,7 @@ func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMeth
 
 func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  " +
+	source := "curl --header \"Authorization: Bearer ${ACCESS-TOKEN}\" \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
 
 	switch opMethod {
@@ -88,14 +88,14 @@ func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName
 	case "DELETE":
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
 	case "POST", "PATCH", "PUT":
-		source += "--header \"Content-Type: application/vnd.atlas." + version + "+json\" \\\n  "
+		source += "--header \"Content-Type: application/json\" \\\n  "
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\" \\\n  "
 		source += "-d " + "'{ <Payload> }'"
 	}
 
 	return codeSample{
 		Lang:   "cURL",
-		Label:  "curl (Service Account)",
+		Label:  "curl (Service Account Access Token)",
 		Source: source,
 	}
 }
