@@ -17,6 +17,7 @@ package metadata
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
@@ -71,6 +72,9 @@ func (o *Opts) PreRun() error {
 	}
 
 	for _, version := range o.versions {
+		if strings.Contains(version, ".upcoming") {
+			continue
+		}
 		if _, err := time.Parse("2006-01-02", version); err != nil {
 			return fmt.Errorf("invalid version date: %w. Make sure to use the format YYYY-MM-DD", err)
 		}

@@ -28,7 +28,7 @@ func TestCreateBuild_Run(t *testing.T) {
 	opts := &Opts{
 		specRevision: "11110c256dffdb163be71a3ca70854a57fad5f6f",
 		runDate:      "2024-01-01",
-		versions:     []string{"2024-01-01"},
+		versions:     []string{"2024-01-01", "2024-01-01.upcoming"},
 		fs:           fs,
 	}
 
