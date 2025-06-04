@@ -95,7 +95,7 @@ func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName
 
 	return codeSample{
 		Lang:   "cURL",
-		Label:  "curl (Service Account - oauth2)",
+		Label:  "curl (Service Accounts)",
 		Source: source,
 	}
 }
@@ -131,9 +131,9 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 	}
 
 	op.Extensions[codeSampleExtensionName] = []codeSample{
+		newAtlasCliCodeSamplesForOperation(op),
 		f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod),
 		f.newDigestCurlCodeSamplesForOperation(pathName, opMethod),
-		newAtlasCliCodeSamplesForOperation(op),
 	}
 	return nil
 }
