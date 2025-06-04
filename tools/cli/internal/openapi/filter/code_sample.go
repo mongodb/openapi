@@ -56,7 +56,7 @@ func (f *CodeSampleFilter) Apply() error {
 
 func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --user \"${PUBLIC-KEY}:${PRIVATE-KEY}\" \\\n  --digest \\\n  " +
+	source := "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
 
 	switch opMethod {
@@ -79,7 +79,7 @@ func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMeth
 
 func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --header \"Authorization: Bearer ${ACCESS-TOKEN}\" \\\n  " +
+	source := "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
 
 	switch opMethod {
