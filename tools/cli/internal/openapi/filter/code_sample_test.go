@@ -78,7 +78,7 @@ func TestCodeSampleFilter(t *testing.T) {
 							"x-codeSamples": []codeSample{
 								{
 									Lang:  "cURL",
-									Label: "curl (Service Account Access Token)",
+									Label: "curl (Service Account - oauth2)",
 									Source: "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
 										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
@@ -147,7 +147,7 @@ func TestCodeSampleFilter(t *testing.T) {
 							"x-codeSamples": []codeSample{
 								{
 									Lang:  "cURL",
-									Label: "curl (Service Account Access Token)",
+									Label: "curl (Service Account - oauth2)",
 									Source: "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
 										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
@@ -216,7 +216,7 @@ func TestCodeSampleFilter(t *testing.T) {
 							"x-codeSamples": []codeSample{
 								{
 									Lang:  "cURL",
-									Label: "curl (Service Account Access Token)",
+									Label: "curl (Service Account - oauth2)",
 									Source: "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
 										"--header \"Accept: application/vnd.atlas.2025-01-01.upcoming+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},

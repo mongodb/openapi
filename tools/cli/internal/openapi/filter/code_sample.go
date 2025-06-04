@@ -95,7 +95,7 @@ func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName
 
 	return codeSample{
 		Lang:   "cURL",
-		Label:  "curl (Service Account Access Token)",
+		Label:  "curl (Service Account - oauth2)",
 		Source: source,
 	}
 }
