@@ -31,7 +31,7 @@ func TestCreateBuild_Run(t *testing.T) {
 		versions:     []string{"2024-01-01", "2024-01-01.upcoming"},
 		fs:           fs,
 	}
-
+	require.NoError(t, opts.PreRun())
 	require.NoError(t, opts.Run())
 }
 
