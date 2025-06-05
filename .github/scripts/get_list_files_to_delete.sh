@@ -6,8 +6,7 @@ set -eou pipefail
 
 pushd openapi/v2
 upcoming_api_versions=$(find . -maxdepth 1 -name 'openapi-*.upcoming.json' -exec basename {} \; | sed -e "s/^openapi-//" -e "s/\.json$//")
-echo "upcoming_api_versions:"
-echo "${upcoming_api_versions}"
+echo "upcoming_api_versions: ${upcoming_api_versions}"
 
 api_versions=$(cat versions.json)
 echo "api_versions: ${api_versions}"
