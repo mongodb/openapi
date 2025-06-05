@@ -44,7 +44,7 @@ done
 
 # Display the files marked for deletion
 if [ ${#files_to_delete[@]} -gt 0 ]; then
-  echo "V2_OPEN_API_FILES_TO_DELETE=${files_to_delete[*]}" >> "${GITHUB_ENV:?}"
+  echo "V2_OPEN_API_FILES_TO_DELETE=${files_to_delete[*]}" >> "${GITHUB_OUTPUT:?}"
   for file_to_del in "${files_to_delete[@]}"; do
     echo "${file_to_del}"
   done
