@@ -184,6 +184,15 @@ jobs:
         branch: ${{ inputs.branch }}
         foascli_version: ${{ inputs.foascli_version }}
 
+  release-cleanup:
+    needs: [ release, release-changelog]
+    uses: ./.github/workflows/release-cleanup.yml
+    with:
+      env: ${{ inputs.env }}
+      branch: ${{ inputs.branch }}
+    secrets:
+      api_bot_pat: ${{ secrets.api_bot_pat }}
+
   retry-handler:
     needs: [ release, release-postman, release-changelog]
     if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
