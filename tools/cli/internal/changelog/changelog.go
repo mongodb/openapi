@@ -442,7 +442,8 @@ func latestVersionActiveOnDate(date string, versions []string) (string, error) {
 
 	activeVersions := []time.Time{}
 	for _, version := range versions {
-		if apiversion.IsPreviewStabilityLevel(version) {
+		// Only stable API can be the Active Version
+		if apiversion.IsPreviewStabilityLevel(version) || apiversion.IsUpcomingStabilityLevel(version) {
 			continue
 		}
 		versionTime, err := newDateFromString(version)
