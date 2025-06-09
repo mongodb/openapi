@@ -17,9 +17,9 @@ package metadata
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
@@ -73,9 +73,7 @@ func (o *Opts) PreRun() error {
 
 	// Validate that the API version use the correct date format YYYY-MM-DD
 	for _, version := range o.versions {
-		// Upcoming version has the format YYYY-MM-DD.upcoming, here we remove .upcoming to validate the date format.
-		version = strings.ReplaceAll(version, ".upcoming", "")
-		if _, err := time.Parse("2006-01-02", version); err != nil {
+		if _, err := apiversion.New(apiversion.WithVersion(version)); err != nil {
 			return fmt.Errorf("invalid version date: %w. Make sure to use the format YYYY-MM-DD", err)
 		}
 	}
