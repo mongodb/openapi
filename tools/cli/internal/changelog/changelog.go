@@ -230,7 +230,7 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) (
 				continue
 			}
 
-			// Skip upcoming preview version. It will be included in CLOUDP-315486
+			// Skip upcoming version. It will be included in CLOUDP-315486
 			if apiversion.IsUpcomingStabilityLevel(fromVersion) || apiversion.IsUpcomingStabilityLevel(toVersion) {
 				continue
 			}
