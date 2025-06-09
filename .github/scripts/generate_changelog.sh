@@ -11,11 +11,8 @@ mkdir -p changelog/revision
 cp openapi/v2/openapi-*.json changelog/revision/
 
 echo "Generating revision metadata file"
-# CLOUDP-311382: This change avoid to conside upcoming for the changelog for now.
 # We will revert this change once we add support for upcoming to changelog.
-revision_version=$(< openapi/v2/versions.json jq -r '
-  .[] | select(. != "preview" and (endswith(".upcoming") | not))
-' | paste -sd ',' -)
+revision_version=$(< openapi/v2/versions.json jq -r '.[]' | paste -sd ',' - | sed "s/,preview//")
 RELEASE_SHA=$(< foas-metadata.json jq -r '.services[] | select(.name=="mms") | .sha')
 foascli changelog metadata create --sha "${RELEASE_SHA}" --versions="${revision_version}" > changelog/revision/metadata.json
 cat changelog/revision/metadata.json
