@@ -17,6 +17,7 @@ package metadata
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
@@ -70,7 +71,10 @@ func (o *Opts) PreRun() error {
 		}
 	}
 
+	// Validate that the API version use the correct date format YYYY-MM-DD
 	for _, version := range o.versions {
+		// Upcoming version has the format YYYY-MM-DD.upcoming, here we remove .upcoming to validate the date format.
+		version = strings.ReplaceAll(version, ".upcoming", "")
 		if _, err := time.Parse("2006-01-02", version); err != nil {
 			return fmt.Errorf("invalid version date: %w. Make sure to use the format YYYY-MM-DD", err)
 		}
@@ -79,7 +83,8 @@ func (o *Opts) PreRun() error {
 	return nil
 }
 
-// changelog metadata create [--run-date=2024-09-22] --sha=e624d716e86f6910757b60cefdf3aa3181582d38 versions=2023-01-01,2023-02-01.
+// CreateBuilder creates the Cobra command for changelog metadata create [--run-date=2024-09-22]
+// --sha=e624d716e86f6910757b60cefdf3aa3181582d38 versions=2023-01-01,2023-02-01.
 func CreateBuilder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),

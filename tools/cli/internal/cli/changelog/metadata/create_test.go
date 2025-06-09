@@ -28,7 +28,7 @@ func TestCreateBuild_Run(t *testing.T) {
 	opts := &Opts{
 		specRevision: "11110c256dffdb163be71a3ca70854a57fad5f6f",
 		runDate:      "2024-01-01",
-		versions:     []string{"2024-01-01"},
+		versions:     []string{"2024-01-01", "2024-01-01.upcoming"},
 		fs:           fs,
 	}
 
@@ -45,6 +45,18 @@ func TestCreateBuild_PreRun_InvalidVersion(t *testing.T) {
 	}
 
 	require.ErrorContains(t, opts.PreRun(), "invalid version date")
+}
+
+func TestCreateBuild_PreRun_UpcomingVersion(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	opts := &Opts{
+		specRevision: "test",
+		runDate:      "2024-01-01",
+		versions:     []string{"2024-01-01.upcoming", "2025-01-01"},
+		fs:           fs,
+	}
+
+	require.NoError(t, opts.PreRun())
 }
 
 func TestCreateBuilder(t *testing.T) {

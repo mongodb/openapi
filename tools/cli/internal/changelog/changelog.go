@@ -180,8 +180,8 @@ func NewEntries(basePath, revisionPath, exceptionFilePath string) ([]*Entry, err
 	}
 
 	for _, version := range changelog.RevisionMetadata.Versions {
-		// Skip preview versions
-		if apiversion.IsPreviewStabilityLevel(version) {
+		// Skip preview and upcoming versions
+		if apiversion.IsPreviewStabilityLevel(version) || apiversion.IsUpcomingStabilityLevel(version) {
 			continue
 		}
 
@@ -229,6 +229,12 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) (
 			if apiversion.IsPreviewStabilityLevel(fromVersion) || apiversion.IsPreviewStabilityLevel(toVersion) {
 				continue
 			}
+
+			// Skip upcoming preview version. It will be included in CLOUDP-315486
+			if apiversion.IsUpcomingStabilityLevel(fromVersion) || apiversion.IsUpcomingStabilityLevel(toVersion) {
+				continue
+			}
+
 			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion, exceptionFilePath)
 			if err != nil {
 				return nil, err
