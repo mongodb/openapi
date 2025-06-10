@@ -34,6 +34,14 @@ on:
         description: 'AWS S3 Role to Assume.'
         required: true
         type: string
+      atlas_admin_v1_doc_id:
+        description: 'Bump Doc ID for the v1 spec'
+        required: true
+        type: string
+      atlas_admin_v2_doc_id:
+        description: 'Bump Doc ID for the v2 specs'
+        required: true
+        type: string
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -49,6 +57,8 @@ on:
         required: false
       ipa_aws_s3_bucket_prefix:
         required: false
+      bump_token:
+        required: true
 
 permissions:
   contents: write
@@ -183,6 +193,20 @@ jobs:
         env: ${{ inputs.env }}
         branch: ${{ inputs.branch }}
         foascli_version: ${{ inputs.foascli_version }}
+
+  release-bump-sh:
+    name: Release API Specification to Bump.sh for ${{ inputs.branch }}
+    needs: release
+    if: ${{needs.release.outputs.changes_detected == 'true'}}
+    uses: ./.github/workflows/generate-bump-pages.yml
+    secrets:
+      api_bot_pat: ${{ secrets.api_bot_pat }}
+      bump_token: ${{ secrets.bump_token }}
+    with:
+      env: ${{ inputs.env }}
+      branch: ${{ inputs.branch }}
+      atlas_admin_v1_doc_id:  ${{ inputs.atlas_admin_v1_doc_id }}
+      atlas_admin_v2_doc_id: ${{ inputs.atlas_admin_v2_doc_id }}
 
   release-cleanup:
     needs: [ release, release-changelog]
