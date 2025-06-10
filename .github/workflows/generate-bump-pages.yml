@@ -36,6 +36,15 @@ jobs:
           token: ${{secrets.api_bot_pat}}
       - name: Setup Node
         uses: actions/setup-node@v4
+      - name: Download release scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-scripts
+          github-token: ${{ secrets.api_bot_pat }}
+          run-id: ${{ github.run_id }}
+          path: release-scripts
+      - name: Add permissions to execute scripts
+        run: chmod +x release-scripts/*.js
       - name: Generate matrix
         id: set-matrix
         env:
@@ -43,7 +52,7 @@ jobs:
           ATLAS_ADMIN_V2_DOC_ID: ${{ inputs.atlas_admin_v1_doc_id }}
           BRANCH_NAME: ${{ inputs.branch }}
         run: |
-          spec_mapping=$(node .github/scripts/generateSpecMapping.js)
+          spec_mapping=$(node release-scripts/generateSpecMapping.js)
           echo "matrix=$spec_mapping" >> "$GITHUB_OUTPUT"
 
   deploy-doc:
