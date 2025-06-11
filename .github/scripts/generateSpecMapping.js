@@ -19,7 +19,7 @@ const SPEC_MAPPING = [
 function handleAdminAPIv2() {
   const docId = process.env.ATLAS_ADMIN_V2_DOC_ID;
   const directory = 'openapi/v2';
-  const filePath = path.join(__dirname, `../../${directory}/versions.json`);
+  const filePath = path.join(__dirname, `../${directory}/versions.json`);
   const versions = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
   if (!versions || !Array.isArray(versions)) {
