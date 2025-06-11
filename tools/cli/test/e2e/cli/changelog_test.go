@@ -48,7 +48,7 @@ func TestChangelog(t *testing.T) {
 	t.Run("Generate Changelog with same API Version", func(t *testing.T) {
 		base := NewChangelogBasePathSameAPIVersion(t)
 		revision := NewChangelogRevisionPathSameAPIVersion(t)
-		exemptions := NewChangelogExepmtionFilePathSameAPIVersion(t)
+		exemptions := NewChangelogExemptionFilePathSameAPIVersion(t)
 		commandOut := getOutputFolder(t, "changelog")
 
 		cmd := exec.Command(cliPath,
@@ -74,7 +74,7 @@ func TestChangelog(t *testing.T) {
 	t.Run("Generate Changelog with new Preview API Version", func(t *testing.T) {
 		base := newChangelogBasePathNewPreviewAPIVersion(t)
 		revision := newChangelogRevisionPathNewPreviewAPIVersion(t)
-		exemptions := newChangelogExepmtionFilePathNewPreviewAPIVersion(t)
+		exemptions := newChangelogExemptionFilePathNewPreviewAPIVersion(t)
 		commandOut := getOutputFolder(t, "changelog")
 
 		cmd := exec.Command(cliPath,
@@ -121,6 +121,32 @@ func TestChangelog(t *testing.T) {
 		cmd.Stderr = &e
 		require.NoError(t, cmd.Run(), e.String())
 		checkChangelogFilesAreTheSame(t, commandOut, newChangelogOutputPathRenamedAPIVersion(t))
+	})
+
+	t.Run("Generate Changelog with Upcoming API Version", func(t *testing.T) {
+		base := newChangelogBasePathUpcomingAPIVersion(t)
+		revision := newChangelogRevisionPathUpcomingAPIVersion(t)
+		exemptions := newChangelogExemptionFilePathUpcomingAPIVersion(t)
+		commandOut := getOutputFolder(t, "changelog")
+
+		cmd := exec.Command(cliPath,
+			"changelog",
+			"create",
+			"-b",
+			base,
+			"-r",
+			revision,
+			"-e",
+			exemptions,
+			"-o",
+			commandOut,
+		)
+
+		var o, e bytes.Buffer
+		cmd.Stdout = &o
+		cmd.Stderr = &e
+		require.NoError(t, cmd.Run(), e.String())
+		checkChangelogFilesAreTheSame(t, commandOut, newChangelogOutputPathUpcomingAPIVersion(t))
 	})
 }
 
