@@ -263,8 +263,9 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 		pathEntry.Tag = conf.Tag()
 
 		pathEntryVersion := newEntryVersion(&pathEntry.Versions, version)
-		pathEntryVersion.ChangeType = newChangeType(pathEntryVersion.ChangeType, changeType, change.ID)
 		pathEntryVersion.StabilityLevel = stabilityLevelStable
+		pathEntryVersion.ChangeType = newChangeType(pathEntryVersion.ChangeType, changeType, change.ID)
+		
 		versionChange := &Change{
 			Description:        change.Text,
 			Code:               change.ID,
