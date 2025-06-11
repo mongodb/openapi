@@ -8,13 +8,18 @@ const __dirname = path.dirname(__filename);
 // Standalone specs can be added directly to the mapping. Any spec that requires displaying a version dropdown
 // will need to map its different versions to a separate Bump "branch". For example, a new resource version
 // for Atlas Admin API v2 will lead to a new entry in the array with its own Bump branch.
-const SPEC_MAPPING = [
-  {
-    doc: process.env.ATLAS_ADMIN_V1_DOC_ID,
-    file: 'v1-deprecated/v1.json',
-    branch: 'main',
-  },
-];
+const SPEC_MAPPING = [];
+
+function handleAdminAPIv1() {
+  // We release v1-deprecated/v1.json only for the main branch (PROD)
+  if (process.env.BRANCH_NAME === 'main') {
+    SPEC_MAPPING.push({
+      doc: process.env.ATLAS_ADMIN_V1_DOC_ID,
+      file: 'v1-deprecated/v1.json',
+      branch: 'main',
+    });
+  }
+}
 
 function handleAdminAPIv2() {
   const docId = process.env.ATLAS_ADMIN_V2_DOC_ID;
@@ -54,6 +59,7 @@ function handleAdminAPIv2() {
   }
 }
 
+handleAdminAPIv1();
 handleAdminAPIv2();
 // Output to GH action
 console.log(JSON.stringify(SPEC_MAPPING));
