@@ -12,7 +12,7 @@ const SPEC_MAPPING = [
   {
     doc: process.env.ATLAS_ADMIN_V1_DOC_ID,
     file: 'openapi/v1-deprecated/v1.json',
-    branch: 'main'
+    branch: 'main',
   },
 ];
 
