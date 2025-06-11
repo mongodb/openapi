@@ -199,8 +199,8 @@ func (m *Changelog) newPathsFromDeprecatedChanges(
 	changes []*outputfilter.OasDiffEntry,
 	changelogPath *[]*Path,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
-	depreactedChanges := m.newDeprecatedByNewerVersionOasDiffEntries(changes, conf)
-	return newMergedChanges(depreactedChanges, changeTypeDeprecated, m.BaseMetadata.ActiveVersion, changelogPath, conf)
+	deprecatedChanges := m.newDeprecatedByNewerVersionOasDiffEntries(changes, conf)
+	return newMergedChanges(deprecatedChanges, changeTypeDeprecated, m.BaseMetadata.ActiveVersion, changelogPath, conf)
 }
 
 func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
@@ -252,18 +252,17 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 
 	for _, change := range changes {
 		pathEntry := newPathEntry(changelogPath, change.Path, change.Operation)
-		operationdID := change.OperationID
+		operationID := change.OperationID
 
-		conf, ok := operationConfig[operationdID]
+		conf, ok := operationConfig[operationID]
 		if !ok {
-			return nil, fmt.Errorf("operation %s not found in operation config", operationdID)
+			return nil, fmt.Errorf("operation %s not found in operation config", operationID)
 		}
 
-		pathEntry.OperationID = operationdID
+		pathEntry.OperationID = operationID
 		pathEntry.Tag = conf.Tag()
 
 		pathEntryVersion := newEntryVersion(&pathEntry.Versions, version)
-		pathEntryVersion.StabilityLevel = stabilityLevelStable
 		pathEntryVersion.ChangeType = newChangeType(pathEntryVersion.ChangeType, changeType, change.ID)
 
 		versionChange := &Change{

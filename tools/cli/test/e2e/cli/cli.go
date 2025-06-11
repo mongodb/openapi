@@ -73,7 +73,7 @@ func NewChangelogRevisionPathSameAPIVersion(t *testing.T) string {
 	return cliPath
 }
 
-func NewChangelogExepmtionFilePathSameAPIVersion(t *testing.T) string {
+func NewChangelogExemptionFilePathSameAPIVersion(t *testing.T) string {
 	t.Helper()
 	cliPath, err := filepath.Abs("../../data/changelog/same-api-version/exemptions.yaml")
 	require.NoError(t, err)
@@ -108,7 +108,7 @@ func newChangelogRevisionPathNewPreviewAPIVersion(t *testing.T) string {
 	return cliPath
 }
 
-func newChangelogExepmtionFilePathNewPreviewAPIVersion(t *testing.T) string {
+func newChangelogExemptionFilePathNewPreviewAPIVersion(t *testing.T) string {
 	t.Helper()
 	cliPath, err := filepath.Abs("../../data/changelog/new-api-preview-version/exemptions.yaml")
 	require.NoError(t, err)

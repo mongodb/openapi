@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
@@ -230,11 +231,6 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) (
 				continue
 			}
 
-			// Skip upcoming version. It will be included in CLOUDP-315486
-			if apiversion.IsUpcomingStabilityLevel(fromVersion) || apiversion.IsUpcomingStabilityLevel(toVersion) {
-				continue
-			}
-
 			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion, exceptionFilePath)
 			if err != nil {
 				return nil, err
@@ -389,6 +385,14 @@ func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec
 		if err != nil {
 			return nil, nil, err
 		}
+
+		if strings.Contains(revisionMetadata.ActiveVersion, ".upcoming") {
+			// Upcoming API Spec contains only endpoints marked as "upcoming". We need to remove endpoints from
+			// the base spec that aren't present in the revision spec to avoid generating
+			// incorrect "endpoint deleted" changelog entries.
+			removePathsAndOperationsNotInRevision(baseSpec, revisionSpec)
+		}
+
 		baseSpec.Version = baseMetadata.ActiveVersion
 		revisionSpec.Version = revisionMetadata.ActiveVersion
 
@@ -410,6 +414,24 @@ func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec
 	revisionSpec.Version = revisionMetadata.ActiveVersion
 
 	return baseSpec, revisionSpec, nil
+}
+
+// removePathsAndOperationsNotInRevision removes paths and operations not in the revision spec.
+func removePathsAndOperationsNotInRevision(baseSpec, revisionSpec *load.SpecInfo) {
+	pathsFromRevision := revisionSpec.Spec.Paths.Map()
+	for pathKeyFromBase, pathValueFromBase := range baseSpec.Spec.Paths.Map() {
+		if _, ok := pathsFromRevision[pathKeyFromBase]; !ok {
+			baseSpec.Spec.Paths.Delete(pathKeyFromBase)
+			continue
+		}
+
+		operationsFromRevision := pathsFromRevision[pathKeyFromBase].Operations()
+		for operationKeyFromBase := range pathValueFromBase.Operations() {
+			if _, ok := operationsFromRevision[operationKeyFromBase]; !ok {
+				delete(pathValueFromBase.Operations(), operationKeyFromBase)
+			}
+		}
+	}
 }
 
 func newOpeAPISpecFromPathAndVersion(path, version string) (*load.SpecInfo, error) {
