@@ -387,8 +387,8 @@ func newBaseAndRevisionSpecs(baseMetadata, revisionMetadata *Metadata) (baseSpec
 		}
 
 		if strings.Contains(revisionMetadata.ActiveVersion, ".upcoming") {
-			// Upcoming API Spec contains only endpoints marked as "upcoming". We need to remove endpoints from
-			// the base spec that aren't present in the revision spec to avoid generating
+			// "Upcoming" OpenAPI Spec contains only endpoints marked as "upcoming". We need to remove endpoints from
+			// the base spec that aren't present in the "Upcoming" revision spec to avoid generating
 			// incorrect "endpoint deleted" changelog entries.
 			removePathsAndOperationsNotInRevision(baseSpec, revisionSpec)
 		}
