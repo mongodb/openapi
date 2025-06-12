@@ -15,7 +15,7 @@ function handleAdminAPIv1() {
   if (process.env.BRANCH_NAME === 'main') {
     SPEC_MAPPING.push({
       doc: process.env.ATLAS_ADMIN_V1_DOC_ID,
-      file: 'v1-deprecated/v1.json',
+      file: 'openapi/v1-deprecated/v1.json',
       branch: 'main',
     });
   }
