@@ -12,6 +12,7 @@ add_changelog_files_to_delete() {
 
   for file in "${changelog_files[@]}"; do
     filename=$(basename "$file")
+    echo "CHANGELOG - upcoming_version_item: ${upcoming_version_item}"
     if [[ "${filename}" == *"${upcoming_version_item}"* ]]; then
       changelog_files_to_delete+=("${filename}")
     fi
@@ -48,7 +49,7 @@ for upcoming_version_item in "${upcoming_array[@]}"; do
   # Check if the exact upcoming_version_item string (e.g., "2023-01-01.upcoming"),
   # when quoted (e.g., "\"2023-01-01.upcoming\""), is NOT found in the api_versions string.
   # The condition is true if grep does not find the string (exit status 1).
-  echo "upcoming_version_item: $upcoming_version_item"
+  echo "OPENAPI - upcoming_version_item: $upcoming_version_item"
   if ! echo "${api_versions}" | grep -qF "\"${upcoming_version_item}\""; then
     # If upcoming_version_item is NOT found in api_versions,
     # add its corresponding OpenAPI file name (e.g., openapi-2023-01-01.upcoming.json)
