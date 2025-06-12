@@ -4,6 +4,22 @@
 # This script is used in the release cleanup pipeline.
 set -eou pipefail
 
+add_changelog_files_to_delete() {
+  pushd ../../changelog/version-diff
+
+  upcoming_version_item="$1"
+  changelog_files=(./*)
+
+  for file in "${changelog_files[@]}"; do
+    filename=$(basename "$file")
+    if [[ "${filename}" == *"${upcoming_version_item}"* ]]; then
+      changelog_files_to_delete+=("${filename}")
+    fi
+  done
+
+  popd
+}
+
 pushd openapi/v2
 upcoming_api_versions=$(find . -maxdepth 1 -name 'openapi-*.upcoming.json' -exec basename {} \; | sed -e "s/^openapi-//" -e "s/\.json$//")
 echo "upcoming_api_versions: ${upcoming_api_versions}"
@@ -42,22 +58,6 @@ for upcoming_version_item in "${upcoming_array[@]}"; do
     add_changelog_files_to_delete "${upcoming_version_item}"
   fi
 done
-
-add_changelog_files_to_delete() {
-  pushd ../../changelog/version-diff
-
-  upcoming_version_item="$1"
-  changelog_files=(./*)
-
-  for file in "${changelog_files[@]}"; do
-    filename=$(basename "$file")
-    if [[ "${filename}" == *"${upcoming_version_item}"* ]]; then
-      changelog_files_to_delete+=("${filename}")
-    fi
-  done
-
-  popd
-}
 
 # Display the files marked for deletion
 if [ ${#files_to_delete[@]} -gt 0 ]; then
