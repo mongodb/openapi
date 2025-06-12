@@ -4,6 +4,23 @@
 # This script is used in the release cleanup pipeline.
 set -eou pipefail
 
+add_changelog_files_to_delete() {
+  pushd ../../changelog/version-diff
+
+  upcoming_version_item="$1"
+  changelog_files=(./*)
+
+  for file in "${changelog_files[@]}"; do
+    filename=$(basename "$file")
+    echo "CHANGELOG - upcoming_version_item: ${upcoming_version_item}"
+    if [[ "${filename}" == *"${upcoming_version_item}"* ]]; then
+      changelog_files_to_delete+=("${filename}")
+    fi
+  done
+
+  popd
+}
+
 pushd openapi/v2
 upcoming_api_versions=$(find . -maxdepth 1 -name 'openapi-*.upcoming.json' -exec basename {} \; | sed -e "s/^openapi-//" -e "s/\.json$//")
 echo "upcoming_api_versions: ${upcoming_api_versions}"
@@ -18,6 +35,7 @@ if [ -z "${upcoming_api_versions}" ]; then
 fi
 
 files_to_delete=()
+changelog_files_to_delete=()
 # Populate upcoming_array line by line from the multi-line upcoming_api_versions string
 while IFS= read -r line; do
   # Add to array only if line is not empty
@@ -31,21 +49,30 @@ for upcoming_version_item in "${upcoming_array[@]}"; do
   # Check if the exact upcoming_version_item string (e.g., "2023-01-01.upcoming"),
   # when quoted (e.g., "\"2023-01-01.upcoming\""), is NOT found in the api_versions string.
   # The condition is true if grep does not find the string (exit status 1).
-  echo "upcoming_version_item: $upcoming_version_item"
+  echo "OPENAPI - upcoming_version_item: $upcoming_version_item"
   if ! echo "${api_versions}" | grep -qF "\"${upcoming_version_item}\""; then
     # If upcoming_version_item is NOT found in api_versions,
     # add its corresponding OpenAPI file name (e.g., openapi-2023-01-01.upcoming.json)
     # to the files_to_delete array.
     files_to_delete+=("openapi-${upcoming_version_item}.json")
     files_to_delete+=("openapi-${upcoming_version_item}.yaml")
+    add_changelog_files_to_delete "${upcoming_version_item}"
   fi
 done
 
 # Display the files marked for deletion
 if [ ${#files_to_delete[@]} -gt 0 ]; then
   echo "V2_OPEN_API_FILES_TO_DELETE=${files_to_delete[*]}" >> "${GITHUB_OUTPUT:?}"
+  echo "V2_CHANGELOG_FILES_TO_DELETE=${changelog_files_to_delete[*]}" >> "${GITHUB_OUTPUT:?}"
+
+  echo "Files to delete:"
   for file_to_del in "${files_to_delete[@]}"; do
     echo "${file_to_del}"
+  done
+
+  echo "Changelog files to delete:"
+  for api_to_del in "${changelog_files_to_delete[@]}"; do
+    echo "${api_to_del}"
   done
 else
   echo "No files marked for deletion."
