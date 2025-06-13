@@ -26,7 +26,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-const goSDKFormat = `import (
+const goSDKTemplate = `import (
   "os"
   "context"
   sdk "go.mongodb.org/atlas-sdk/v{{ .Version }}/admin"
@@ -156,7 +156,7 @@ func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operatio
 	operationID := cases.Title(language.English, cases.NoLower).String(op.OperationID)
 	tag := strings.ReplaceAll(op.Tags[0], " ", "")
 
-	t, err := template.New("goSDK").Parse(goSDKFormat)
+	t, err := template.New("goSDK").Parse(goSDKTemplate)
 	if err != nil {
 		return codeSample{}, err
 	}
