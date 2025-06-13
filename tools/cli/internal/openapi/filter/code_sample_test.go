@@ -87,21 +87,21 @@ func TestCodeSampleFilter(t *testing.T) {
 									Lang:  "go",
 									Label: "Go",
 									Source: "import (\n" +
-										"  \"os\"\n  \"context\"\n" +
-										"  sdk \"go.mongodb.org/atlas-sdk/v20250101001/admin\"\n)\n\n" +
+										"\t\"os\"\n	\"context\"\n" +
+										"\tsdk \"go.mongodb.org/atlas-sdk/v20250101001/admin\"\n)\n\n" +
 										"func main() {\n" +
-										"  ctx := context.Background()\n" +
-										"  apiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n" +
-										"  apiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n" +
-										"  url := os.Getenv(\"MONGODB_ATLAS_BASE_URL\")\n\n" +
-										"  client, err := sdk.NewClient(\n" +
-										"    sdk.UseDigestAuth(apiKey, apiSecret),\n" +
-										"    sdk.UseBaseURL(url),\n" +
-										"    sdk.UseDebug(true))\n\n" +
-										"  params = &sdk.TestOperationIDApiParams{}\n" +
-										"  sdkResp, httpResp, err := sdk.TestTagApi\n" +
-										"    .TestOperationIDWithParams(ctx, params)\n" +
-										"    .Execute()" + "\n}",
+										"\tctx := context.Background()\n" +
+										"\tapiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n" +
+										"\tapiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n" +
+										"\turl := os.Getenv(\"MONGODB_ATLAS_BASE_URL\")\n\n" +
+										"\tclient, err := sdk.NewClient(\n" +
+										"\t\tsdk.UseDigestAuth(apiKey, apiSecret),\n" +
+										"\t\tsdk.UseBaseURL(url),\n" +
+										"\t\tsdk.UseDebug(true))\n\n" +
+										"\tparams = &sdk.TestOperationIDApiParams{}\n" +
+										"\tsdkResp, httpResp, err := sdk.TestTagApi.\n" +
+										"\t\tTestOperationIDWithParams(ctx, params).\n" +
+										"\t\tExecute()" + "\n}",
 								},
 								{
 									Lang:  "cURL",

@@ -16,6 +16,8 @@ package filter
 
 import (
 	"bytes"
+	"fmt"
+	goFormat "go/format"
 	"strings"
 	"text/template"
 	"time"
@@ -44,11 +46,10 @@ func main() {
     sdk.UseDebug(true))
 
   params = &sdk.{{ .OperationID }}ApiParams{}
-{{ if eq .Method "DELETE" }}  httpResp, err := sdk.{{ .Tag }}Api
-    .{{ .OperationID }}WithParams(ctx, params)
-    .Execute(){{ else }}  sdkResp, httpResp, err := sdk.{{ .Tag }}Api
-    .{{ .OperationID }}WithParams(ctx, params)
-    .Execute(){{ end}}
+{{ if eq .Method "DELETE" }}  httpResp, err := sdk.{{ .Tag }}Api.
+    {{ .OperationID }}WithParams(ctx, params).
+    Execute(){{ else }}  sdkResp, httpResp, err := sdk.{{ .Tag }}Api.
+    Execute(){{ end}}
 }`
 
 const codeSampleExtensionName = "x-codeSamples"
@@ -155,6 +156,7 @@ func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operatio
 	version := strings.ReplaceAll(apiVersion(f.metadata.targetVersion), "-", "") + "001"
 	operationID := cases.Title(language.English, cases.NoLower).String(op.OperationID)
 	tag := strings.ReplaceAll(op.Tags[0], " ", "")
+	tag = strings.ReplaceAll(tag, ".", "")
 
 	t, err := template.New("goSDK").Parse(goSDKTemplate)
 	if err != nil {
@@ -178,10 +180,16 @@ func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operatio
 		return codeSample{}, err
 	}
 
+	formattedResult, err := goFormat.Source(buffer.Bytes())
+	if err != nil {
+		return codeSample{}, fmt.Errorf("tag: %s, operationId: %s code: %s: error: %w",
+			op.Tags[0], operationID, buffer.String(), err)
+	}
+
 	return codeSample{
 		Lang:   "go",
 		Label:  "Go",
-		Source: buffer.String(),
+		Source: string(formattedResult),
 	}, nil
 }
 
