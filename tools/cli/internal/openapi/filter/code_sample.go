@@ -15,8 +15,9 @@
 package filter
 
 import (
-	"fmt"
+	"bytes"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -24,6 +25,31 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
+
+const goSDKFormat = `import (
+  "os"
+  "context"
+  sdk "go.mongodb.org/atlas-sdk/v{{ .Version }}/admin"
+)
+
+func main() {
+  ctx := context.Background()
+  apiKey := os.Getenv("MONGODB_ATLAS_PUBLIC_KEY")
+  apiSecret := os.Getenv("MONGODB_ATLAS_PRIVATE_KEY")
+  url := os.Getenv("MONGODB_ATLAS_BASE_URL")
+
+  client, err := sdk.NewClient(
+    sdk.UseDigestAuth(apiKey, apiSecret),
+    sdk.UseBaseURL(url),
+    sdk.UseDebug(true))
+
+  params = &sdk.{{ .OperationID }}ApiParams{}
+{{ if eq .Method "DELETE" }}  httpResp, err := sdk.{{ .Tag }}Api
+    .{{ .OperationID }}WithParams(ctx, params)
+    .Execute(){{ else }}  sdkResp, httpResp, err := sdk.{{ .Tag }}Api
+    .{{ .OperationID }}WithParams(ctx, params)
+    .Execute(){{ end}}
+}`
 
 const codeSampleExtensionName = "x-codeSamples"
 
@@ -125,39 +151,38 @@ func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 	}
 }
 
-func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operation, opMethod string) codeSample {
+func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operation, opMethod string) (codeSample, error) {
 	version := strings.ReplaceAll(apiVersion(f.metadata.targetVersion), "-", "") + "001"
 	operationID := cases.Title(language.English, cases.NoLower).String(op.OperationID)
-	sdkCall := fmt.Sprintf(
-		"sdk.%sApi\n    .%sWithParams(ctx, params)\n    .Execute()",
-		strings.ReplaceAll(op.Tags[0], " ", ""), operationID)
+	tag := strings.ReplaceAll(op.Tags[0], " ", "")
 
-	switch opMethod {
-	case "GET", "POST", "PATCH", "PUT":
-		sdkCall = "  sdkResp, httpResp, err := " + sdkCall
-	case "DELETE":
-		sdkCall = "  httpResp, err := " + sdkCall
+	t, err := template.New("goSDK").Parse(goSDKFormat)
+	if err != nil {
+		return codeSample{}, err
 	}
 
-	source := "import (\n" +
-		"  \"os\"\n  \"context\"\n" +
-		"  sdk \"go.mongodb.org/atlas-sdk/v" + version + "/admin\"\n)\n\n" +
-		"func main() {\n" +
-		"  ctx := context.Background()\n" +
-		"  apiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n" +
-		"  apiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n" +
-		"  url := os.Getenv(\"MONGODB_ATLAS_BASE_URL\")\n\n" +
-		"  client, err := sdk.NewClient(\n" +
-		"    sdk.UseDigestAuth(apiKey, apiSecret),\n" +
-		"    sdk.UseBaseURL(url),\n" +
-		"    sdk.UseDebug(true))\n\n" +
-		"  params = &sdk." + operationID + "ApiParams{}\n" + sdkCall + "\n}"
+	var buffer bytes.Buffer
+	err = t.Execute(&buffer, struct {
+		Tag         string
+		OperationID string
+		Version     string
+		Method      string
+	}{
+		Tag:         tag,
+		OperationID: operationID,
+		Version:     version,
+		Method:      opMethod,
+	})
+
+	if err != nil {
+		return codeSample{}, err
+	}
 
 	return codeSample{
 		Lang:   "go",
 		Label:  "Go",
-		Source: source,
-	}
+		Source: buffer.String(),
+	}, nil
 }
 
 func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod string, op *openapi3.Operation) error {
@@ -174,7 +199,11 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 	}
 
 	if f.metadata.targetVersion.IsStable() {
-		codeSamples = append(codeSamples, f.newGoSdkCodeSamplesForOperation(op, opMethod))
+		sdkSample, err := f.newGoSdkCodeSamplesForOperation(op, opMethod)
+		if err != nil {
+			return err
+		}
+		codeSamples = append(codeSamples, sdkSample)
 	}
 
 	codeSamples = append(
