@@ -15,10 +15,14 @@
 package filter
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const codeSampleExtensionName = "x-codeSamples"
@@ -121,6 +125,41 @@ func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 	}
 }
 
+func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operation, opMethod string) codeSample {
+	version := strings.ReplaceAll(apiVersion(f.metadata.targetVersion), "-", "") + "001"
+	operationID := cases.Title(language.English, cases.NoLower).String(op.OperationID)
+	sdkCall := fmt.Sprintf(
+		"sdk.%sApi\n    .%sWithParams(ctx, params)\n    .Execute()",
+		strings.ReplaceAll(op.Tags[0], " ", ""), operationID)
+
+	switch opMethod {
+	case "GET", "POST", "PATCH", "PUT":
+		sdkCall = "  sdkResp, httpResp, err := " + sdkCall
+	case "DELETE":
+		sdkCall = "  httpResp, err := " + sdkCall
+	}
+
+	source := "import (\n" +
+		"  \"os\"\n  \"context\"\n" +
+		"  sdk \"go.mongodb.org/atlas-sdk/v" + version + "/admin\"\n)\n\n" +
+		"func main() {\n" +
+		"  ctx := context.Background()\n" +
+		"  apiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n" +
+		"  apiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n" +
+		"  url := os.Getenv(\"MONGODB_ATLAS_BASE_URL\")\n\n" +
+		"  client, err := sdk.NewClient(\n" +
+		"    sdk.UseDigestAuth(apiKey, apiSecret),\n" +
+		"    sdk.UseBaseURL(url),\n" +
+		"    sdk.UseDebug(true))\n\n" +
+		"  params = &sdk." + operationID + "ApiParams{}\n" + sdkCall + "\n}"
+
+	return codeSample{
+		Lang:   "go",
+		Label:  "Go",
+		Source: source,
+	}
+}
+
 func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod string, op *openapi3.Operation) error {
 	if op == nil || opMethod == "" || pathName == "" {
 		return nil
@@ -130,10 +169,18 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 		op.Extensions = map[string]any{}
 	}
 
-	op.Extensions[codeSampleExtensionName] = []codeSample{
+	codeSamples := []codeSample{
 		newAtlasCliCodeSamplesForOperation(op),
-		f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod),
-		f.newDigestCurlCodeSamplesForOperation(pathName, opMethod),
 	}
+
+	if f.metadata.targetVersion.IsStable() {
+		codeSamples = append(codeSamples, f.newGoSdkCodeSamplesForOperation(op, opMethod))
+	}
+
+	codeSamples = append(
+		codeSamples,
+		f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod),
+		f.newDigestCurlCodeSamplesForOperation(pathName, opMethod))
+	op.Extensions[codeSampleExtensionName] = codeSamples
 	return nil
 }
