@@ -49,6 +49,7 @@ func main() {
 {{ if eq .Method "DELETE" }}  httpResp, err := sdk.{{ .Tag }}Api.
     {{ .OperationID }}WithParams(ctx, params).
     Execute(){{ else }}  sdkResp, httpResp, err := sdk.{{ .Tag }}Api.
+    {{ .OperationID }}WithParams(ctx, params).
     Execute(){{ end}}
 }`
 
