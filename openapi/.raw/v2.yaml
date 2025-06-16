@@ -32831,8 +32831,25 @@ components:
                 - properties:
                     aws:
                         $ref: '#/components/schemas/StreamsAWSConnectionConfig'
+                    networking:
+                        $ref: '#/components/schemas/StreamsKinesisNetworking'
                   type: object
             description: The configuration for Kinesis connections.
+            type: object
+        StreamsKinesisNetworking:
+            description: Networking Access Type can either be 'PUBLIC' (Default) or 'PRIVATE_LINK'.
+            properties:
+                access:
+                    $ref: '#/components/schemas/StreamsNetworkingAccess'
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
             type: object
         StreamsMatcher:
             description: Rules to apply when comparing a stream processing instance or stream processor against this alert configuration.
@@ -32913,6 +32930,28 @@ components:
                 resumeFromCheckpoint:
                     description: When true, the modified stream processor resumes from its last checkpoint.
                     type: boolean
+            type: object
+        StreamsNetworkingAccess:
+            description: Information about the networking access.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                type:
+                    description: Selected networking type. Either PUBLIC, VPC, PRIVATE_LINK, or TRANSIT_GATEWAY. Defaults to PUBLIC. For VPC, ensure that VPC peering exists and connectivity has been established between Atlas VPC and the VPC where Kafka cluster is hosted for the connection to function properly. TRANSIT_GATEWAY support is coming soon.
+                    enum:
+                        - PUBLIC
+                        - VPC
+                        - PRIVATE_LINK
+                        - TRANSIT_GATEWAY
+                    title: Networking Access Type
+                    type: string
             type: object
         StreamsOptions:
             description: Optional configuration for the stream processor.
@@ -36626,7 +36665,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 9ad966893778371f92c8eaef910fc70d5cfd6648
+    x-xgen-sha: 6c97fde764c108b0fe1ce7db3423ca03528210c1
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
