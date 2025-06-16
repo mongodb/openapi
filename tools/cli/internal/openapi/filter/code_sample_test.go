@@ -50,6 +50,7 @@ func TestCodeSampleFilter(t *testing.T) {
 								},
 							},
 						})),
+						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 						},
@@ -73,6 +74,7 @@ func TestCodeSampleFilter(t *testing.T) {
 								},
 							},
 						})),
+						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 							"x-codeSamples": []codeSample{
@@ -80,6 +82,25 @@ func TestCodeSampleFilter(t *testing.T) {
 									Lang:   "cURL",
 									Label:  "Atlas CLI",
 									Source: "atlas api testOperationID --help",
+								},
+								{
+									Lang:  "go",
+									Label: "Go",
+									Source: "import (\n" +
+										"\t\"os\"\n	\"context\"\n" + "\t\"log\"\n" +
+										"\tsdk \"go.mongodb.org/atlas-sdk/v20250101001/admin\"\n)\n\n" +
+										"func main() {\n" +
+										"\tctx := context.Background()\n" +
+										"\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n" +
+										"\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n" +
+										"\tclient, err := sdk.NewClient(\n" +
+										"\t\tsdk.UseOAuthAuth(clientID, clientSecret),\n" +
+										"\t\tsdk.UseBaseURL(url))\n\n" +
+										"\tif err != nil {\n" + "\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n" +
+										"\tparams = &sdk.TestOperationIDApiParams{}\n" +
+										"\tsdkResp, httpResp, err := client.TestTagApi.\n" +
+										"\t\tTestOperationIDWithParams(ctx, params).\n" +
+										"\t\tExecute()" + "\n}",
 								},
 								{
 									Lang:  "cURL",
