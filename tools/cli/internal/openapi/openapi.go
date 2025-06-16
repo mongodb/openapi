@@ -34,6 +34,7 @@ type Spec struct {
 	Paths        *openapi3.Paths               `json:"paths" yaml:"paths"`
 	Components   *openapi3.Components          `json:"components,omitempty" yaml:"components,omitempty"`
 	ExternalDocs *openapi3.ExternalDocs        `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
+	Extensions   map[string]any                `json:"-" yaml:"-"`
 }
 type Parser interface {
 	CreateOpenAPISpecFromPath(string) (*load.SpecInfo, error)
