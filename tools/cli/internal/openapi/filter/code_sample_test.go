@@ -87,17 +87,16 @@ func TestCodeSampleFilter(t *testing.T) {
 									Lang:  "go",
 									Label: "Go",
 									Source: "import (\n" +
-										"\t\"os\"\n	\"context\"\n" +
+										"\t\"os\"\n	\"context\"\n" + "\t\"log\"\n" +
 										"\tsdk \"go.mongodb.org/atlas-sdk/v20250101001/admin\"\n)\n\n" +
 										"func main() {\n" +
 										"\tctx := context.Background()\n" +
-										"\tapiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n" +
-										"\tapiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n" +
-										"\turl := os.Getenv(\"MONGODB_ATLAS_BASE_URL\")\n\n" +
+										"\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n" +
+										"\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n" +
 										"\tclient, err := sdk.NewClient(\n" +
-										"\t\tsdk.UseDigestAuth(apiKey, apiSecret),\n" +
-										"\t\tsdk.UseBaseURL(url),\n" +
-										"\t\tsdk.UseDebug(true))\n\n" +
+										"\t\tsdk.UseOAuthAuth(clientID, clientSecret),\n" +
+										"\t\tsdk.UseBaseURL(url))\n\n" +
+										"\tif err != nil {\n" + "\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n" +
 										"\tparams = &sdk.TestOperationIDApiParams{}\n" +
 										"\tsdkResp, httpResp, err := sdk.TestTagApi.\n" +
 										"\t\tTestOperationIDWithParams(ctx, params).\n" +

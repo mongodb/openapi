@@ -31,20 +31,23 @@ import (
 const goSDKTemplate = `import (
   "os"
   "context"
+  "log"
   sdk "go.mongodb.org/atlas-sdk/v{{ .Version }}/admin"
 )
 
 func main() {
   ctx := context.Background()
-  apiKey := os.Getenv("MONGODB_ATLAS_PUBLIC_KEY")
-  apiSecret := os.Getenv("MONGODB_ATLAS_PRIVATE_KEY")
-  url := os.Getenv("MONGODB_ATLAS_BASE_URL")
+  clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+  clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
 
   client, err := sdk.NewClient(
-    sdk.UseDigestAuth(apiKey, apiSecret),
-    sdk.UseBaseURL(url),
-    sdk.UseDebug(true))
+    sdk.UseOAuthAuth(clientID, clientSecret),
+    sdk.UseBaseURL(url))
 
+  if err != nil {
+	log.Fatalf("Error: %v", err)
+  }
+  
   params = &sdk.{{ .OperationID }}ApiParams{}
 {{ if eq .Method "DELETE" }}  httpResp, err := sdk.{{ .Tag }}Api.
     {{ .OperationID }}WithParams(ctx, params).
@@ -153,7 +156,7 @@ func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 	}
 }
 
-func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operation, opMethod string) (codeSample, error) {
+func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operation, opMethod string) (*codeSample, error) {
 	version := strings.ReplaceAll(apiVersion(f.metadata.targetVersion), "-", "") + "001"
 	operationID := cases.Title(language.English, cases.NoLower).String(op.OperationID)
 	tag := strings.ReplaceAll(op.Tags[0], " ", "")
@@ -161,7 +164,7 @@ func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operatio
 
 	t, err := template.New("goSDK").Parse(goSDKTemplate)
 	if err != nil {
-		return codeSample{}, err
+		return nil, err
 	}
 
 	var buffer bytes.Buffer
@@ -178,16 +181,16 @@ func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operatio
 	})
 
 	if err != nil {
-		return codeSample{}, err
+		return nil, err
 	}
 
 	formattedResult, err := goFormat.Source(buffer.Bytes())
 	if err != nil {
-		return codeSample{}, fmt.Errorf("tag: %s, operationId: %s code: %s: error: %w",
+		return nil, fmt.Errorf("tag: %q, operationId: %q code: %q: error: %w",
 			op.Tags[0], operationID, buffer.String(), err)
 	}
 
-	return codeSample{
+	return &codeSample{
 		Lang:   "go",
 		Label:  "Go",
 		Source: string(formattedResult),
@@ -212,7 +215,7 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 		if err != nil {
 			return err
 		}
-		codeSamples = append(codeSamples, sdkSample)
+		codeSamples = append(codeSamples, *sdkSample)
 	}
 
 	codeSamples = append(
