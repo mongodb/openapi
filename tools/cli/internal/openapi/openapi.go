@@ -106,5 +106,6 @@ func newSpec(spec *openapi3.T) *Spec {
 		Servers:      spec.Servers,
 		Tags:         spec.Tags,
 		ExternalDocs: spec.ExternalDocs,
+		Extensions:   spec.Extensions,
 	}
 }
