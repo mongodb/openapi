@@ -16,6 +16,7 @@ package openapi
 
 //go:generate mockgen -destination=../openapi/mock_openapi.go -package=openapi github.com/mongodb/openapi/tools/cli/internal/openapi Parser,Merger
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -26,6 +27,7 @@ import (
 // Spec is a struct is a 1-to-1 copy of the Spec struct in the openapi3 package.
 // We need this to override the order of the fields in the struct.
 type Spec struct {
+	Extensions   map[string]any                `json:"-" yaml:"-"`
 	OpenAPI      string                        `json:"openapi" yaml:"openapi"`
 	Security     openapi3.SecurityRequirements `json:"security,omitempty" yaml:"security,omitempty"`
 	Servers      openapi3.Servers              `json:"servers,omitempty" yaml:"servers,omitempty"`
@@ -34,7 +36,6 @@ type Spec struct {
 	Paths        *openapi3.Paths               `json:"paths" yaml:"paths"`
 	Components   *openapi3.Components          `json:"components,omitempty" yaml:"components,omitempty"`
 	ExternalDocs *openapi3.ExternalDocs        `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
-	Extensions   map[string]any                `json:"-" yaml:"-"`
 }
 type Parser interface {
 	CreateOpenAPISpecFromPath(string) (*load.SpecInfo, error)
@@ -98,6 +99,7 @@ func NewOasDiffWithSpecInfo(base, external *load.SpecInfo, config *diff.Config) 
 
 func newSpec(spec *openapi3.T) *Spec {
 	return &Spec{
+		Extensions:   spec.Extensions,
 		OpenAPI:      spec.OpenAPI,
 		Components:   spec.Components,
 		Info:         spec.Info,
@@ -107,4 +109,46 @@ func newSpec(spec *openapi3.T) *Spec {
 		Tags:         spec.Tags,
 		ExternalDocs: spec.ExternalDocs,
 	}
+}
+
+// MarshalJSON returns the JSON encoding of Spec.
+// We need a custom definition of MarshalJSON to include support for
+// Extensions   map[string]any                `json:"-" yaml:"-"` where
+// we only what to serialize the value of the field.
+func (doc *Spec) MarshalJSON() ([]byte, error) {
+	x, err := doc.MarshalYAML()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(x)
+}
+
+// MarshalYAML returns the YAML encoding of Spec.
+func (doc *Spec) MarshalYAML() (any, error) {
+	if doc == nil {
+		return nil, nil
+	}
+	m := make(map[string]any, 4+len(doc.Extensions))
+	for k, v := range doc.Extensions {
+		m[k] = v
+	}
+	m["openapi"] = doc.OpenAPI
+	if x := doc.Components; x != nil {
+		m["components"] = x
+	}
+	m["info"] = doc.Info
+	m["paths"] = doc.Paths
+	if x := doc.Security; len(x) != 0 {
+		m["security"] = x
+	}
+	if x := doc.Servers; len(x) != 0 {
+		m["servers"] = x
+	}
+	if x := doc.Tags; len(x) != 0 {
+		m["tags"] = x
+	}
+	if x := doc.ExternalDocs; x != nil {
+		m["externalDocs"] = x
+	}
+	return m, nil
 }
