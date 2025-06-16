@@ -49,9 +49,9 @@ func main() {
   }
   
   params = &sdk.{{ .OperationID }}ApiParams{}
-{{ if eq .Method "DELETE" }}  httpResp, err := sdk.{{ .Tag }}Api.
+{{ if eq .Method "DELETE" }}  httpResp, err := client.{{ .Tag }}Api.
     {{ .OperationID }}WithParams(ctx, params).
-    Execute(){{ else }}  sdkResp, httpResp, err := sdk.{{ .Tag }}Api.
+    Execute(){{ else }}  sdkResp, httpResp, err := client.{{ .Tag }}Api.
     {{ .OperationID }}WithParams(ctx, params).
     Execute(){{ end}}
 }`

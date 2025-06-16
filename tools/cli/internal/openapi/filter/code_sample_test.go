@@ -98,7 +98,7 @@ func TestCodeSampleFilter(t *testing.T) {
 										"\t\tsdk.UseBaseURL(url))\n\n" +
 										"\tif err != nil {\n" + "\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n" +
 										"\tparams = &sdk.TestOperationIDApiParams{}\n" +
-										"\tsdkResp, httpResp, err := sdk.TestTagApi.\n" +
+										"\tsdkResp, httpResp, err := client.TestTagApi.\n" +
 										"\t\tTestOperationIDWithParams(ctx, params).\n" +
 										"\t\tExecute()" + "\n}",
 								},
