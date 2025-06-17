@@ -275,7 +275,11 @@ func TestCodeSampleFilter(t *testing.T) {
 
 			require.NoError(t, filter.Apply())
 			if !reflect.DeepEqual(tt.expectedOas, tt.oas) {
-				t.Errorf("expected %v, got %v", tt.expectedOas, oas)
+				expectedOas, err := tt.expectedOas.MarshalJSON()
+				require.NoError(t, err)
+				oasFromTest, err := tt.oas.MarshalJSON()
+				require.NoError(t, err)
+				t.Errorf("expected %v, got %v", string(expectedOas), string(oasFromTest))
 			}
 		})
 	}
