@@ -29,7 +29,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-//go:embed go_sdk_code_sample.go.tmpl
+//go:embed template/go_sdk_code_sample.go.tmpl
 var goSDKTemplate string
 
 const codeSampleExtensionName = "x-codeSamples"
@@ -137,7 +137,6 @@ func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operatio
 	operationID := cases.Title(language.English, cases.NoLower).String(op.OperationID)
 	tag := strings.ReplaceAll(op.Tags[0], " ", "")
 	tag = strings.ReplaceAll(tag, ".", "")
-
 	t, err := template.New("goSDK").Parse(goSDKTemplate)
 	if err != nil {
 		return nil, err
