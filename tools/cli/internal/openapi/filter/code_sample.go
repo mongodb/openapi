@@ -16,6 +16,7 @@ package filter
 
 import (
 	"bytes"
+	_ "embed"
 	"fmt"
 	goFormat "go/format"
 	"strings"
@@ -28,33 +29,8 @@ import (
 	"golang.org/x/text/language"
 )
 
-const goSDKTemplate = `import (
-  "os"
-  "context"
-  "log"
-  sdk "go.mongodb.org/atlas-sdk/v{{ .Version }}/admin"
-)
-
-func main() {
-  ctx := context.Background()
-  clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-  clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-  client, err := sdk.NewClient(
-    sdk.UseOAuthAuth(clientID, clientSecret),
-    sdk.UseBaseURL(url))
-
-  if err != nil {
-	log.Fatalf("Error: %v", err)
-  }
-  
-  params = &sdk.{{ .OperationID }}ApiParams{}
-{{ if eq .Method "DELETE" }}  httpResp, err := client.{{ .Tag }}Api.
-    {{ .OperationID }}WithParams(ctx, params).
-    Execute(){{ else }}  sdkResp, httpResp, err := client.{{ .Tag }}Api.
-    {{ .OperationID }}WithParams(ctx, params).
-    Execute(){{ end}}
-}`
+//go:embed go_sdk_code_sample.go.tmpl
+var goSDKTemplate string
 
 const codeSampleExtensionName = "x-codeSamples"
 
