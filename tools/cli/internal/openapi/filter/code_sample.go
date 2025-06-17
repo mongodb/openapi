@@ -39,7 +39,8 @@ func main() {
   ctx := context.Background()
   clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
   clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
+  
+  // See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
   client, err := sdk.NewClient(
     sdk.UseOAuthAuth(clientID, clientSecret),
     sdk.UseBaseURL(url))

@@ -93,6 +93,7 @@ func TestCodeSampleFilter(t *testing.T) {
 										"\tctx := context.Background()\n" +
 										"\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n" +
 										"\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n" +
+										"\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n" +
 										"\tclient, err := sdk.NewClient(\n" +
 										"\t\tsdk.UseOAuthAuth(clientID, clientSecret),\n" +
 										"\t\tsdk.UseBaseURL(url))\n\n" +
