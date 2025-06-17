@@ -279,7 +279,7 @@ func TestCodeSampleFilter(t *testing.T) {
 				require.NoError(t, err)
 				oasFromTest, err := tt.oas.MarshalJSON()
 				require.NoError(t, err)
-				t.Errorf("expected %v, got %v", string(expectedOas), string(oasFromTest))
+				t.Errorf("expected: %q,\ngot: %q", string(expectedOas), string(oasFromTest))
 			}
 		})
 	}
