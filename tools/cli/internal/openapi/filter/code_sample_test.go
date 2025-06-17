@@ -101,7 +101,7 @@ func TestCodeSampleFilter(t *testing.T) {
 										"\tparams = &sdk.TestOperationIDApiParams{}\n" +
 										"\tsdkResp, httpResp, err := client.TestTagApi.\n" +
 										"\t\tTestOperationIDWithParams(ctx, params).\n" +
-										"\t\tExecute()" + "\n}",
+										"\t\tExecute()" + "\n}\n",
 								},
 								{
 									Lang:  "cURL",
