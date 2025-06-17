@@ -29,7 +29,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-//go:embed template/go_sdk_code_sample.txt
+//go:embed go_sdk_code_sample.txt
 var goSDKTemplate string
 
 const codeSampleExtensionName = "x-codeSamples"
