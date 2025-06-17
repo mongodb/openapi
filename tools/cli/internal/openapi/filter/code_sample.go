@@ -16,6 +16,7 @@ package filter
 
 import (
 	"bytes"
+	"embed"
 	_ "embed"
 	"fmt"
 	goFormat "go/format"
@@ -29,8 +30,8 @@ import (
 	"golang.org/x/text/language"
 )
 
-//go:embed go_sdk_code_sample.go.tmpl
-var goSDKTemplate string
+//go:embed template/*
+var templatesDir embed.FS
 
 const codeSampleExtensionName = "x-codeSamples"
 
@@ -137,8 +138,11 @@ func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operatio
 	operationID := cases.Title(language.English, cases.NoLower).String(op.OperationID)
 	tag := strings.ReplaceAll(op.Tags[0], " ", "")
 	tag = strings.ReplaceAll(tag, ".", "")
-
-	t, err := template.New("goSDK").Parse(goSDKTemplate)
+	file, err := templatesDir.ReadFile("template/go_sdk_code_sample.go.tmpl")
+	if err != nil {
+		return nil, err
+	}
+	t, err := template.New("goSDK").Parse(string(file))
 	if err != nil {
 		return nil, err
 	}
