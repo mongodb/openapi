@@ -36701,7 +36701,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 926b03ab9c06166a31d9900eeba0effe4f37ea69
+    x-xgen-sha: b39ede6c5da7d027d379b2c39e5b4d1967d9b7e9
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -54786,15 +54786,13 @@ paths:
                     $ref: '#/components/responses/notFound'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Add Teams to One Project
+            summary: Add One Team to One Project
             tags:
                 - Teams
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/addAllTeamsToProject
             x-xgen-owner-team: IAM
-        x-xgen-IPA-exception:
-            xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/teams/{teamId}:
         delete:
             description: Removes one team specified using its unique 24-hexadecimal digit identifier from the project specified using its unique 24-hexadecimal digit identifier. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
@@ -54833,6 +54831,45 @@ paths:
                 - Teams
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/removeProjectTeam
             x-xgen-owner-team: IAM
+        get:
+            description: Returns one team to which the authenticated user has access in the project specified using its unique 24-hexadecimal digit identifier. All members of the team share the same project access. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
+            operationId: getProjectTeam
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique 24-hexadecimal digit string that identifies the team for which you want to get.
+                  in: path
+                  name: teamId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/TeamRole'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-104-get-method-returns-response-suffixed-object: Content predates IPA validation
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Team in One Project
+            tags:
+                - Teams
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/getProjectTeam
+            x-xgen-owner-team: IAM
         patch:
             description: Updates the project roles assigned to the specified team. You can grant team roles for specific projects and grant project access roles to users in the team. All members of the team share the same project access. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
             externalDocs:
@@ -54866,6 +54903,8 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedTeamRoleView'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-107-update-method-response-is-get-method-response: Content predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
                 "400":

@@ -38674,7 +38674,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "926b03ab9c06166a31d9900eeba0effe4f37ea69"
+    "x-xgen-sha": "b39ede6c5da7d027d379b2c39e5b4d1967d9b7e9"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -65700,7 +65700,7 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Add Teams to One Project",
+        "summary": "Add One Team to One Project",
         "tags": [
           "Teams"
         ],
@@ -65808,6 +65808,89 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/removeProjectTeam"
       },
+      "get": {
+        "description": "Returns one team to which the authenticated user has access in the project specified using its unique 24-hexadecimal digit identifier. All members of the team share the same project access. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
+        "operationId": "getProjectTeam",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the team for which you want to get.",
+            "in": "path",
+            "name": "teamId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2023-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamRole"
+                },
+                "x-xgen-IPA-exception": {
+                  "xgen-IPA-104-get-method-returns-response-suffixed-object": "Content predates IPA validation"
+                },
+                "x-xgen-version": "2023-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Team in One Project",
+        "tags": [
+          "Teams"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api getProjectTeam --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20230201001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(\n\t\tsdk.UseOAuthAuth(clientID, clientSecret),\n\t\tsdk.UseBaseURL(url))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetProjectTeamApiParams{}\n\tsdkResp, httpResp, err := client.TeamsApi.\n\t\tGetProjectTeamWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/teams/{teamId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/teams/{teamId}?pretty=true\""
+          }
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/getProjectTeam"
+      },
       "patch": {
         "description": "Updates the project roles assigned to the specified team. You can grant team roles for specific projects and grant project access roles to users in the team. All members of the team share the same project access. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
         "externalDocs": {
@@ -65853,6 +65936,9 @@
               "application/vnd.atlas.2023-01-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedTeamRoleView"
+                },
+                "x-xgen-IPA-exception": {
+                  "xgen-IPA-107-update-method-response-is-get-method-response": "Content predates IPA validation"
                 },
                 "x-xgen-version": "2023-01-01"
               }
