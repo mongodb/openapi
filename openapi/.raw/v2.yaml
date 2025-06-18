@@ -32529,6 +32529,17 @@ components:
                     description: The name of an S3 bucket used to check authorization of the passed-in IAM role ARN.
                     type: string
             type: object
+        StreamsAWSKinesisDataStreamsConnection:
+            allOf:
+                - $ref: '#/components/schemas/StreamsConnection'
+                - properties:
+                    aws:
+                        $ref: '#/components/schemas/StreamsAWSConnectionConfig'
+                    networking:
+                        $ref: '#/components/schemas/StreamsKafkaNetworking'
+                  type: object
+            description: The configuration for AWS Kinesis Data Stream connections.
+            type: object
         StreamsAWSLambdaConnection:
             allOf:
                 - $ref: '#/components/schemas/StreamsConnection'
@@ -32556,6 +32567,7 @@ components:
             description: Settings that define a connection to an external data store.
             discriminator:
                 mapping:
+                    AWSKinesisDataStreams: '#/components/schemas/StreamsAWSKinesisDataStreamsConnection'
                     AWSLambda: '#/components/schemas/StreamsAWSLambdaConnection'
                     Cluster: '#/components/schemas/StreamsClusterConnection'
                     Https: '#/components/schemas/StreamsHttpsConnection'
@@ -32570,6 +32582,7 @@ components:
                 - $ref: '#/components/schemas/StreamsHttpsConnection'
                 - $ref: '#/components/schemas/StreamsAWSLambdaConnection'
                 - $ref: '#/components/schemas/StreamsS3Connection'
+                - $ref: '#/components/schemas/StreamsAWSKinesisDataStreamsConnection'
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -32591,7 +32604,7 @@ components:
                         - Sample
                         - Https
                         - AWSLambda
-                        - Kinesis
+                        - AWSKinesisDataStreams
                     type: string
                     x-xgen-IPA-exception:
                         xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation
@@ -32784,7 +32797,7 @@ components:
                   type: object
             type: object
         StreamsKafkaNetworking:
-            description: Networking Access Type can either be 'PUBLIC' (default) or VPC. VPC type is in public preview, please file a support ticket to enable VPC Network Access.
+            description: Networking configuration for Streams connections.
             properties:
                 access:
                     $ref: '#/components/schemas/StreamsKafkaNetworkingAccess'
@@ -32799,7 +32812,7 @@ components:
                     type: array
             type: object
         StreamsKafkaNetworkingAccess:
-            description: Information about the networking access.
+            description: Information about networking access.
             properties:
                 connectionId:
                     description: Reserved. Will be used by PRIVATE_LINK connection type.
@@ -32860,32 +32873,6 @@ components:
                 protocol:
                     description: Describes the transport type. Can be either SASL_PLAINTEXT, SASL_SSL, or SSL.
                     type: string
-            type: object
-        StreamsKinesisConnection:
-            allOf:
-                - $ref: '#/components/schemas/StreamsConnection'
-                - properties:
-                    aws:
-                        $ref: '#/components/schemas/StreamsAWSConnectionConfig'
-                    networking:
-                        $ref: '#/components/schemas/StreamsKinesisNetworking'
-                  type: object
-            description: The configuration for Kinesis connections.
-            type: object
-        StreamsKinesisNetworking:
-            description: Networking Access Type can either be 'PUBLIC' (Default) or 'PRIVATE_LINK'.
-            properties:
-                access:
-                    $ref: '#/components/schemas/StreamsNetworkingAccess'
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
             type: object
         StreamsMatcher:
             description: Rules to apply when comparing a stream processing instance or stream processor against this alert configuration.
@@ -32966,28 +32953,6 @@ components:
                 resumeFromCheckpoint:
                     description: When true, the modified stream processor resumes from its last checkpoint.
                     type: boolean
-            type: object
-        StreamsNetworkingAccess:
-            description: Information about the networking access.
-            properties:
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                type:
-                    description: Selected networking type. Either PUBLIC, VPC, PRIVATE_LINK, or TRANSIT_GATEWAY. Defaults to PUBLIC. For VPC, ensure that VPC peering exists and connectivity has been established between Atlas VPC and the VPC where Kafka cluster is hosted for the connection to function properly. TRANSIT_GATEWAY support is coming soon.
-                    enum:
-                        - PUBLIC
-                        - VPC
-                        - PRIVATE_LINK
-                        - TRANSIT_GATEWAY
-                    title: Networking Access Type
-                    type: string
             type: object
         StreamsOptions:
             description: Optional configuration for the stream processor.
@@ -36701,7 +36666,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 1ee6eb081048ea5c92a5444ab76621c767bc5335
+    x-xgen-sha: c9cc80704805413f1d20ccd4de364bd36cd66b6b
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
