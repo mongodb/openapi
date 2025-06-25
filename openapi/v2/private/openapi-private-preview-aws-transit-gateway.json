@@ -328,6 +328,22 @@
         },
         "description": "Payment Required."
       },
+      "tooManyRequests": {
+        "content": {
+          "application/json": {
+            "example": {
+              "detail": "(This is just an example, the exception may not be related to this endpoint)",
+              "error": 429,
+              "errorCode": "RATE_LIMITED",
+              "reason": "Too Many Requests"
+            },
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Too Many Requests."
+      },
       "unauthorized": {
         "content": {
           "application/json": {
@@ -1692,7 +1708,13 @@
                   "SOUTH_AFRICA_WEST",
                   "UAE_CENTRAL",
                   "UAE_NORTH",
-                  "QATAR_CENTRAL"
+                  "QATAR_CENTRAL",
+                  "POLAND_CENTRAL",
+                  "ISRAEL_CENTRAL",
+                  "ITALY_NORTH",
+                  "SPAIN_CENTRAL",
+                  "MEXICO_CENTRAL",
+                  "NEW_ZEALAND_NORTH"
                 ],
                 "externalDocs": {
                   "description": "Azure",
@@ -3983,7 +4005,13 @@
                   "SOUTH_AFRICA_WEST",
                   "UAE_CENTRAL",
                   "UAE_NORTH",
-                  "QATAR_CENTRAL"
+                  "QATAR_CENTRAL",
+                  "POLAND_CENTRAL",
+                  "ISRAEL_CENTRAL",
+                  "ITALY_NORTH",
+                  "SPAIN_CENTRAL",
+                  "MEXICO_CENTRAL",
+                  "NEW_ZEALAND_NORTH"
                 ],
                 "title": "Azure Regions",
                 "type": "string"
@@ -4194,7 +4222,13 @@
                   "SOUTH_AFRICA_WEST",
                   "UAE_CENTRAL",
                   "UAE_NORTH",
-                  "QATAR_CENTRAL"
+                  "QATAR_CENTRAL",
+                  "POLAND_CENTRAL",
+                  "ISRAEL_CENTRAL",
+                  "ITALY_NORTH",
+                  "SPAIN_CENTRAL",
+                  "MEXICO_CENTRAL",
+                  "NEW_ZEALAND_NORTH"
                 ],
                 "title": "Azure Regions",
                 "type": "string"
@@ -8568,7 +8602,12 @@
               "ATLAS_FLEX_GCP_LEGACY_200_USAGE_HOURS",
               "ATLAS_FLEX_GCP_LEGACY_300_USAGE_HOURS",
               "ATLAS_FLEX_GCP_LEGACY_400_USAGE_HOURS",
-              "ATLAS_FLEX_GCP_LEGACY_500_USAGE_HOURS"
+              "ATLAS_FLEX_GCP_LEGACY_500_USAGE_HOURS",
+              "ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP10",
+              "ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP30",
+              "ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP50",
+              "ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER",
+              "ATLAS_GCP_STREAM_PROCESSING_PRIVATELINK"
             ],
             "readOnly": true,
             "type": "string"
@@ -10753,6 +10792,26 @@
         },
         "type": "object"
       },
+      "StreamsAWSKinesisDataStreamsConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsConnection"
+          },
+          {
+            "properties": {
+              "aws": {
+                "$ref": "#/components/schemas/StreamsAWSConnectionConfig"
+              },
+              "networking": {
+                "$ref": "#/components/schemas/StreamsKafkaNetworking"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "The configuration for AWS Kinesis Data Stream connections.",
+        "type": "object"
+      },
       "StreamsAWSLambdaConnection": {
         "allOf": [
           {
@@ -10798,6 +10857,7 @@
         "description": "Settings that define a connection to an external data store.",
         "discriminator": {
           "mapping": {
+            "AWSKinesisDataStreams": "#/components/schemas/StreamsAWSKinesisDataStreamsConnection",
             "AWSLambda": "#/components/schemas/StreamsAWSLambdaConnection",
             "Cluster": "#/components/schemas/StreamsClusterConnection",
             "Https": "#/components/schemas/StreamsHttpsConnection",
@@ -10825,6 +10885,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamsS3Connection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsAWSKinesisDataStreamsConnection"
           }
         ],
         "properties": {
@@ -10851,7 +10914,8 @@
               "Cluster",
               "Sample",
               "Https",
-              "AWSLambda"
+              "AWSLambda",
+              "AWSKinesisDataStreams"
             ],
             "type": "string"
           }
@@ -11003,7 +11067,7 @@
         "type": "object"
       },
       "StreamsKafkaNetworking": {
-        "description": "Networking Access Type can either be 'PUBLIC' (default) or VPC. VPC type is in public preview, please file a support ticket to enable VPC Network Access.",
+        "description": "Networking configuration for Streams connections.",
         "properties": {
           "access": {
             "$ref": "#/components/schemas/StreamsKafkaNetworkingAccess"
@@ -11024,7 +11088,7 @@
         "type": "object"
       },
       "StreamsKafkaNetworkingAccess": {
-        "description": "Information about the networking access.",
+        "description": "Information about networking access.",
         "properties": {
           "connectionId": {
             "description": "Reserved. Will be used by PRIVATE_LINK connection type.",
@@ -13293,7 +13357,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "1d9d3cc03ffb70a43e74ac7c570524cafc6bc487"
+    "x-xgen-sha": "83db9323fe67cd7339b6871d6ae4a5f31d70b6f1"
   },
   "openapi": "3.0.1",
   "paths": {

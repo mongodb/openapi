@@ -328,6 +328,22 @@
         },
         "description": "Payment Required."
       },
+      "tooManyRequests": {
+        "content": {
+          "application/json": {
+            "example": {
+              "detail": "(This is just an example, the exception may not be related to this endpoint)",
+              "error": 429,
+              "errorCode": "RATE_LIMITED",
+              "reason": "Too Many Requests"
+            },
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Too Many Requests."
+      },
       "unauthorized": {
         "content": {
           "application/json": {
@@ -1023,7 +1039,13 @@
                   "SOUTH_AFRICA_WEST",
                   "UAE_CENTRAL",
                   "UAE_NORTH",
-                  "QATAR_CENTRAL"
+                  "QATAR_CENTRAL",
+                  "POLAND_CENTRAL",
+                  "ISRAEL_CENTRAL",
+                  "ITALY_NORTH",
+                  "SPAIN_CENTRAL",
+                  "MEXICO_CENTRAL",
+                  "NEW_ZEALAND_NORTH"
                 ],
                 "title": "Azure Regions",
                 "type": "string"
@@ -4978,7 +5000,13 @@
                   "SOUTH_AFRICA_WEST",
                   "UAE_CENTRAL",
                   "UAE_NORTH",
-                  "QATAR_CENTRAL"
+                  "QATAR_CENTRAL",
+                  "POLAND_CENTRAL",
+                  "ISRAEL_CENTRAL",
+                  "ITALY_NORTH",
+                  "SPAIN_CENTRAL",
+                  "MEXICO_CENTRAL",
+                  "NEW_ZEALAND_NORTH"
                 ],
                 "externalDocs": {
                   "description": "Azure",
@@ -5355,7 +5383,13 @@
                   "SOUTH_AFRICA_WEST",
                   "UAE_CENTRAL",
                   "UAE_NORTH",
-                  "QATAR_CENTRAL"
+                  "QATAR_CENTRAL",
+                  "POLAND_CENTRAL",
+                  "ISRAEL_CENTRAL",
+                  "ITALY_NORTH",
+                  "SPAIN_CENTRAL",
+                  "MEXICO_CENTRAL",
+                  "NEW_ZEALAND_NORTH"
                 ],
                 "title": "Azure Regions",
                 "type": "string"
@@ -9090,7 +9124,13 @@
                   "SOUTH_AFRICA_WEST",
                   "UAE_CENTRAL",
                   "UAE_NORTH",
-                  "QATAR_CENTRAL"
+                  "QATAR_CENTRAL",
+                  "POLAND_CENTRAL",
+                  "ISRAEL_CENTRAL",
+                  "ITALY_NORTH",
+                  "SPAIN_CENTRAL",
+                  "MEXICO_CENTRAL",
+                  "NEW_ZEALAND_NORTH"
                 ],
                 "title": "Azure Regions",
                 "type": "string"
@@ -9301,7 +9341,13 @@
                   "SOUTH_AFRICA_WEST",
                   "UAE_CENTRAL",
                   "UAE_NORTH",
-                  "QATAR_CENTRAL"
+                  "QATAR_CENTRAL",
+                  "POLAND_CENTRAL",
+                  "ISRAEL_CENTRAL",
+                  "ITALY_NORTH",
+                  "SPAIN_CENTRAL",
+                  "MEXICO_CENTRAL",
+                  "NEW_ZEALAND_NORTH"
                 ],
                 "title": "Azure Regions",
                 "type": "string"
@@ -10999,7 +11045,7 @@
           },
           "caseLevel": {
             "default": false,
-            "description": "Flag that indicates whether to include case comparison when `\"strength\" : 1` or `\"strength\" : 2`.\n\n| Value | Compare case at level 1 or 2? | Strength Level | Comparisons Include |\n |---|---|---|---|\n | true | Yes | 1 | Base characters and case. |\n |  |  | 2 | Base characters, diacritics (and possible other secondary differences),   and case. |\n | false | No |  |  |\n",
+            "description": "Flag that indicates whether to include case comparison when `\"strength\" : 1` or `\"strength\" : 2`.\n- `true` - Include casing in comparison\n  - Strength Level: 1 - Base characters and case.\n  - Strength Level: 2 - Base characters, diacritics (and possible other secondary differences),   and case.\n- `false` - Case is NOT included in comparison.",
             "type": "boolean"
           },
           "locale": {
@@ -11138,7 +11184,7 @@
           },
           "strength": {
             "default": 3,
-            "description": "Degree of comparison to perform when sorting words. MongoDB Cloud accepts the following values:\n\n| Value | Comparison Level | Comparison Method |\n|---|---|---|\n| 1 | Primary | Compares the base characters only, ignoring other differences such as diacritics and case. |\n| 2 | Secondary | Compares base characters (primary) and diacritics (secondary). Primary differences take precedence over secondary differences. |\n| 3 | Tertiary | Compares base characters (primary), diacritics (secondary), and case and variants (tertiary). Differences between base characters takes precedence over secondary differences which take precedence over tertiary differences. |\n| 4 | Quaternary | Compares for the specific use case to consider punctuation when levels 1 through 3 ignore punctuation or for processing Japanese text. |\n| 5 | Identical | Compares for the specific use case of tie breaker. |\n",
+            "description": "Degree of comparison to perform when sorting words.\n\nMongoDB Cloud accepts the following _numeric values_ that correspond to the _comparison level_ and what that _comparison method_ is.\n\n- `1` - \"Primary\" - Compares the base characters only, ignoring other differences such as diacritics and case.\n- `2` - \"Secondary\" - Compares base characters (primary) and diacritics (secondary). Primary differences take precedence over secondary differences.\n- `3` - \"Tertiary\" - Compares base characters (primary), diacritics (secondary), and case and variants (tertiary). Differences between base characters takes precedence over secondary differences which take precedence over tertiary differences.\n- `4` - \"Quaternary\" - Compares for the specific use case to consider punctuation when levels 1 through 3 ignore punctuation or for processing Japanese text.\n- `5` - \"Identical\" - Compares for the specific use case of tie breaker.",
             "format": "int32",
             "maximum": 5,
             "minimum": 1,
@@ -14324,6 +14370,11 @@
             "description": "Toggle sending database metrics that includes database names and metrics on the number of collections, storage size, and index size.",
             "type": "boolean"
           },
+          "sendUserProvidedResourceTags": {
+            "default": false,
+            "description": "Toggle sending user provided group and cluster resource tags with the datadog metrics.",
+            "type": "boolean"
+          },
           "type": {
             "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the third-party service integration type.",
             "enum": [
@@ -14614,7 +14665,9 @@
                   "TENANT_UPGRADE_TO_SERVERLESS_FAILED",
                   "NETWORK_PERMISSION_ENTRY_ADDED",
                   "NETWORK_PERMISSION_ENTRY_REMOVED",
-                  "NETWORK_PERMISSION_ENTRY_UPDATED"
+                  "NETWORK_PERMISSION_ENTRY_UPDATED",
+                  "CLUSTER_BLOCK_WRITE",
+                  "CLUSTER_UNBLOCK_WRITE"
                 ],
                 "title": "NDS Audit Types",
                 "type": "string"
@@ -14875,7 +14928,9 @@
                   "TENANT_UPGRADE_TO_SERVERLESS_FAILED",
                   "NETWORK_PERMISSION_ENTRY_ADDED",
                   "NETWORK_PERMISSION_ENTRY_REMOVED",
-                  "NETWORK_PERMISSION_ENTRY_UPDATED"
+                  "NETWORK_PERMISSION_ENTRY_UPDATED",
+                  "CLUSTER_BLOCK_WRITE",
+                  "CLUSTER_UNBLOCK_WRITE"
                 ],
                 "title": "NDS Audit Types",
                 "type": "string"
@@ -15699,7 +15754,15 @@
                   "AZURE_SELF_SERVE_ACCOUNT_CANCELLED",
                   "AZURE_SELF_SERVE_ACCOUNT_LINK_FAILED",
                   "GCP_SELF_SERVE_ACCOUNT_LINKED",
-                  "GCP_SELF_SERVE_ACCOUNT_CANCELLED"
+                  "GCP_SELF_SERVE_ACCOUNT_CANCELLED",
+                  "VERCEL_SELF_SERVE_ACCOUNT_LINKED",
+                  "VERCEL_SELF_SERVE_ACCOUNT_LINK_PENDING",
+                  "VERCEL_SELF_SERVE_ACCOUNT_CANCELLED",
+                  "VERCEL_SELF_SERVE_ACCOUNT_LINK_FAILED",
+                  "VERCEL_INVOICE_CREATED",
+                  "VERCEL_INVOICE_NOT_PAID",
+                  "VERCEL_INVOICE_PAID",
+                  "VERCEL_INVOICE_REFUNDED"
                 ],
                 "title": "Partner Event Types",
                 "type": "string"
@@ -17612,7 +17675,13 @@
                   "SOUTH_AFRICA_WEST",
                   "UAE_CENTRAL",
                   "UAE_NORTH",
-                  "QATAR_CENTRAL"
+                  "QATAR_CENTRAL",
+                  "POLAND_CENTRAL",
+                  "ISRAEL_CENTRAL",
+                  "ITALY_NORTH",
+                  "SPAIN_CENTRAL",
+                  "MEXICO_CENTRAL",
+                  "NEW_ZEALAND_NORTH"
                 ],
                 "title": "Azure Regions",
                 "type": "string"
@@ -18549,6 +18618,8 @@
               "ATLAS_SQL_SCHEDULED_UPDATE_REMOVED",
               "CLUSTER_INSTANCE_DISABLED",
               "CLUSTER_INSTANCE_ENABLED",
+              "CLUSTER_BLOCK_WRITE",
+              "CLUSTER_UNBLOCK_WRITE",
               "KMIP_KEY_ROTATION_SCHEDULED",
               "SSL_CERTIFICATE_ISSUED",
               "PROJECT_SCHEDULED_MAINTENANCE_OUTSIDE_OF_PROTECTED_HOURS",
@@ -18559,7 +18630,8 @@
               "CLUSTER_IP_MIGRATED_FINAL_ROUND",
               "CLUSTER_IP_ROLLED_BACK",
               "AZ_BALANCING_OVERRIDE_MODIFIED",
-              "FTDC_SETTINGS_UPDATED"
+              "FTDC_SETTINGS_UPDATED",
+              "PROXY_PROTOCOL_FOR_PRIVATE_LINK_MODE_UPDATED"
             ],
             "title": "NDS Audit Types",
             "type": "string"
@@ -19096,6 +19168,7 @@
           {
             "enum": [
               "ORG_CREATED",
+              "CUSTOM_SESSION_TIMEOUT_MODIFIED",
               "SECURITY_CONTACT_MODIFIED",
               "ORG_CREDIT_CARD_ADDED",
               "ORG_CREDIT_CARD_UPDATED",
@@ -19150,7 +19223,9 @@
               "ORG_MONGODB_VERSION_EOL_EXTENSION_ACCEPTED",
               "ORG_MONGODB_VERSION_EOL_EXTENSION_PENDING",
               "ORG_MONGODB_VERSION_EOL_EXTENSION_CANCELLED",
-              "GROUP_MOVED_FROM_ORG"
+              "GROUP_MOVED_FROM_ORG",
+              "SANDBOX_ENABLED_FOR_ORG",
+              "SANDBOX_DISABLED_FOR_ORG"
             ],
             "title": "Org Event Types",
             "type": "string"
@@ -19168,7 +19243,15 @@
               "AZURE_SELF_SERVE_ACCOUNT_CANCELLED",
               "AZURE_SELF_SERVE_ACCOUNT_LINK_FAILED",
               "GCP_SELF_SERVE_ACCOUNT_LINKED",
-              "GCP_SELF_SERVE_ACCOUNT_CANCELLED"
+              "GCP_SELF_SERVE_ACCOUNT_CANCELLED",
+              "VERCEL_SELF_SERVE_ACCOUNT_LINKED",
+              "VERCEL_SELF_SERVE_ACCOUNT_LINK_PENDING",
+              "VERCEL_SELF_SERVE_ACCOUNT_CANCELLED",
+              "VERCEL_SELF_SERVE_ACCOUNT_LINK_FAILED",
+              "VERCEL_INVOICE_CREATED",
+              "VERCEL_INVOICE_NOT_PAID",
+              "VERCEL_INVOICE_PAID",
+              "VERCEL_INVOICE_REFUNDED"
             ],
             "title": "Partner Event Types",
             "type": "string"
@@ -21355,6 +21438,12 @@
           "keyVersionResourceID": {
             "description": "Resource path that displays the key version resource ID for your Google Cloud KMS.",
             "example": "projects/my-project-common-0/locations/us-east4/keyRings/my-key-ring-0/cryptoKeys/my-key-0/cryptoKeyVersions/1",
+            "type": "string"
+          },
+          "roleId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the Google Cloud Provider Access Role that MongoDB Cloud uses to access the Google Cloud KMS.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
             "type": "string"
           },
           "serviceAccountKey": {
@@ -24859,7 +24948,12 @@
               "ATLAS_FLEX_GCP_LEGACY_200_USAGE_HOURS",
               "ATLAS_FLEX_GCP_LEGACY_300_USAGE_HOURS",
               "ATLAS_FLEX_GCP_LEGACY_400_USAGE_HOURS",
-              "ATLAS_FLEX_GCP_LEGACY_500_USAGE_HOURS"
+              "ATLAS_FLEX_GCP_LEGACY_500_USAGE_HOURS",
+              "ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP10",
+              "ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP30",
+              "ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP50",
+              "ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER",
+              "ATLAS_GCP_STREAM_PROCESSING_PRIVATELINK"
             ],
             "readOnly": true,
             "type": "string"
@@ -27257,6 +27351,8 @@
           "ATLAS_SQL_SCHEDULED_UPDATE_REMOVED",
           "CLUSTER_INSTANCE_DISABLED",
           "CLUSTER_INSTANCE_ENABLED",
+          "CLUSTER_BLOCK_WRITE",
+          "CLUSTER_UNBLOCK_WRITE",
           "KMIP_KEY_ROTATION_SCHEDULED",
           "SSL_CERTIFICATE_ISSUED",
           "PROJECT_SCHEDULED_MAINTENANCE_OUTSIDE_OF_PROTECTED_HOURS",
@@ -27267,7 +27363,8 @@
           "CLUSTER_IP_MIGRATED_FINAL_ROUND",
           "CLUSTER_IP_ROLLED_BACK",
           "AZ_BALANCING_OVERRIDE_MODIFIED",
-          "FTDC_SETTINGS_UPDATED"
+          "FTDC_SETTINGS_UPDATED",
+          "PROXY_PROTOCOL_FOR_PRIVATE_LINK_MODE_UPDATED"
         ],
         "example": "CLUSTER_CREATED",
         "title": "NDS Audit Types",
@@ -28765,6 +28862,7 @@
         "description": "Unique identifier of event type.",
         "enum": [
           "ORG_CREATED",
+          "CUSTOM_SESSION_TIMEOUT_MODIFIED",
           "SECURITY_CONTACT_MODIFIED",
           "ORG_CREDIT_CARD_ADDED",
           "ORG_CREDIT_CARD_UPDATED",
@@ -28819,7 +28917,9 @@
           "ORG_MONGODB_VERSION_EOL_EXTENSION_ACCEPTED",
           "ORG_MONGODB_VERSION_EOL_EXTENSION_PENDING",
           "ORG_MONGODB_VERSION_EOL_EXTENSION_CANCELLED",
-          "GROUP_MOVED_FROM_ORG"
+          "GROUP_MOVED_FROM_ORG",
+          "SANDBOX_ENABLED_FOR_ORG",
+          "SANDBOX_DISABLED_FOR_ORG"
         ],
         "example": "ORG_CREATED",
         "title": "Org Event Types",
@@ -36615,6 +36715,26 @@
         },
         "type": "object"
       },
+      "StreamsAWSKinesisDataStreamsConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsConnection"
+          },
+          {
+            "properties": {
+              "aws": {
+                "$ref": "#/components/schemas/StreamsAWSConnectionConfig"
+              },
+              "networking": {
+                "$ref": "#/components/schemas/StreamsKafkaNetworking"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "The configuration for AWS Kinesis Data Stream connections.",
+        "type": "object"
+      },
       "StreamsAWSLambdaConnection": {
         "allOf": [
           {
@@ -36660,6 +36780,7 @@
         "description": "Settings that define a connection to an external data store.",
         "discriminator": {
           "mapping": {
+            "AWSKinesisDataStreams": "#/components/schemas/StreamsAWSKinesisDataStreamsConnection",
             "AWSLambda": "#/components/schemas/StreamsAWSLambdaConnection",
             "Cluster": "#/components/schemas/StreamsClusterConnection",
             "Https": "#/components/schemas/StreamsHttpsConnection",
@@ -36687,6 +36808,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamsS3Connection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsAWSKinesisDataStreamsConnection"
           }
         ],
         "properties": {
@@ -36713,7 +36837,8 @@
               "Cluster",
               "Sample",
               "Https",
-              "AWSLambda"
+              "AWSLambda",
+              "AWSKinesisDataStreams"
             ],
             "type": "string"
           }
@@ -36977,7 +37102,7 @@
         "type": "object"
       },
       "StreamsKafkaNetworking": {
-        "description": "Networking Access Type can either be 'PUBLIC' (default) or VPC. VPC type is in public preview, please file a support ticket to enable VPC Network Access.",
+        "description": "Networking configuration for Streams connections.",
         "properties": {
           "access": {
             "$ref": "#/components/schemas/StreamsKafkaNetworkingAccess"
@@ -36998,7 +37123,7 @@
         "type": "object"
       },
       "StreamsKafkaNetworkingAccess": {
-        "description": "Information about the networking access.",
+        "description": "Information about networking access.",
         "properties": {
           "connectionId": {
             "description": "Reserved. Will be used by PRIVATE_LINK connection type.",
@@ -37285,7 +37410,7 @@
             "type": "string"
           },
           "vendor": {
-            "description": "Vendor that manages the Kafka cluster. The following are the vendor values per provider:\n- MSK and CONFLUENT for the AWS provider.\n- EVENTHUB and CONFLUENT for the AZURE provider.\n\n**NOTE** Omitting the vendor field will default to using the EVENTHUB vendor for the AZURE provider.",
+            "description": "Vendor that manages the cloud service. The following are the vendor values per provider:\n- AWS\n-- MSK for AWS MSK Kafka clusters\n-- CONFLUENT for Confluent Kafka clusters on AWS\n-- KINESIS for AWS Kinesis Data Streams (coming soon).\n\n- Azure\n-- EVENTHUB for Azure EventHub.\n-- CONFLUENT for the Confluent Kafka clusters on Azure\n\n**NOTE** Omitting the vendor field will default to using the GENERIC vendor.",
             "type": "string"
           }
         },
@@ -41302,7 +41427,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "1d9d3cc03ffb70a43e74ac7c570524cafc6bc487"
+    "x-xgen-sha": "83db9323fe67cd7339b6871d6ae4a5f31d70b6f1"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -51519,6 +51644,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -52475,6 +52603,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -52550,6 +52681,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -52677,6 +52811,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -58799,6 +58936,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -58927,6 +59067,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -59603,6 +59746,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -59770,6 +59916,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -59890,6 +60039,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -60015,6 +60167,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -60127,6 +60282,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -62402,6 +62560,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -62468,6 +62629,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -62533,6 +62697,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -67322,6 +67489,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -67474,6 +67644,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -67614,6 +67787,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -68943,6 +69119,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
@@ -69026,6 +69205,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -72931,7 +73113,7 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Add Teams to One Project",
+        "summary": "Add One Team to One Project",
         "tags": [
           "Teams"
         ],
@@ -73039,6 +73221,89 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/removeProjectTeam"
       },
+      "get": {
+        "description": "Returns one team to which the authenticated user has access in the project specified using its unique 24-hexadecimal digit identifier. All members of the team share the same project access. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
+        "operationId": "getProjectTeam",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the team for which you want to get.",
+            "in": "path",
+            "name": "teamId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2023-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamRole"
+                },
+                "x-xgen-IPA-exception": {
+                  "xgen-IPA-104-get-method-returns-response-suffixed-object": "Content predates IPA validation"
+                },
+                "x-xgen-version": "2023-01-01"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Team in One Project",
+        "tags": [
+          "Teams"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api getProjectTeam --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetProjectTeamApiParams{}\n\tsdkResp, httpResp, err := client.TeamsApi.\n\t\tGetProjectTeamWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2024-10-23+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/teams/{teamId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-10-23+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/teams/{teamId}?pretty=true\""
+          }
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/getProjectTeam"
+      },
       "patch": {
         "description": "Updates the project roles assigned to the specified team. You can grant team roles for specific projects and grant project access roles to users in the team. All members of the team share the same project access. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
         "externalDocs": {
@@ -73084,6 +73349,9 @@
               "application/vnd.atlas.2023-01-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedTeamRoleView"
+                },
+                "x-xgen-IPA-exception": {
+                  "xgen-IPA-107-update-method-response-is-get-method-response": "Content predates IPA validation"
                 },
                 "x-xgen-version": "2023-01-01"
               }
@@ -77093,7 +77361,7 @@
           "description": "Atlas Resource Policies",
           "url": "https://dochub.mongodb.org/core/atlas-resource-policies"
         },
-        "operationId": "getAtlasResourcePolicies",
+        "operationId": "listOrgResourcePolicies",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -77152,12 +77420,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api getAtlasResourcePolicies --help"
+            "source": "atlas api listOrgResourcePolicies --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetAtlasResourcePoliciesApiParams{}\n\tsdkResp, httpResp, err := client.ResourcePoliciesApi.\n\t\tGetAtlasResourcePoliciesWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListOrgResourcePoliciesApiParams{}\n\tsdkResp, httpResp, err := client.ResourcePoliciesApi.\n\t\tListOrgResourcePoliciesWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -77170,7 +77438,7 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-10-23+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/resourcePolicies?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/getAtlasResourcePolicies"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/listOrgResourcePolicies"
       },
       "post": {
         "description": "Create one Atlas Resource Policy for an org.",
@@ -77178,7 +77446,7 @@
           "description": "Atlas Resource Policies",
           "url": "https://dochub.mongodb.org/core/atlas-resource-policies"
         },
-        "operationId": "createAtlasResourcePolicy",
+        "operationId": "createOrgResourcePolicy",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -77246,12 +77514,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api createAtlasResourcePolicy --help"
+            "source": "atlas api createOrgResourcePolicy --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateAtlasResourcePolicyApiParams{}\n\tsdkResp, httpResp, err := client.ResourcePoliciesApi.\n\t\tCreateAtlasResourcePolicyWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateOrgResourcePolicyApiParams{}\n\tsdkResp, httpResp, err := client.ResourcePoliciesApi.\n\t\tCreateOrgResourcePolicyWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -77264,7 +77532,7 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-10-23+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/resourcePolicies\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/createAtlasResourcePolicy"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/createOrgResourcePolicy"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/resourcePolicies/{resourcePolicyId}": {
@@ -77274,7 +77542,7 @@
           "description": "Atlas Resource Policies",
           "url": "https://dochub.mongodb.org/core/atlas-resource-policies"
         },
-        "operationId": "deleteAtlasResourcePolicy",
+        "operationId": "deleteOrgResourcePolicy",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -77332,12 +77600,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api deleteAtlasResourcePolicy --help"
+            "source": "atlas api deleteOrgResourcePolicy --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteAtlasResourcePolicyApiParams{}\n\thttpResp, err := client.ResourcePoliciesApi.\n\t\tDeleteAtlasResourcePolicyWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteOrgResourcePolicyApiParams{}\n\thttpResp, err := client.ResourcePoliciesApi.\n\t\tDeleteOrgResourcePolicyWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -77350,7 +77618,7 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-10-23+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/resourcePolicies/{resourcePolicyId}\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/deleteAtlasResourcePolicy"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/deleteOrgResourcePolicy"
       },
       "get": {
         "description": "Return one Atlas Resource Policy for an org.",
@@ -77358,7 +77626,7 @@
           "description": "Atlas Resource Policies",
           "url": "https://dochub.mongodb.org/core/atlas-resource-policies"
         },
-        "operationId": "getAtlasResourcePolicy",
+        "operationId": "getOrgResourcePolicy",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -77422,12 +77690,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api getAtlasResourcePolicy --help"
+            "source": "atlas api getOrgResourcePolicy --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetAtlasResourcePolicyApiParams{}\n\tsdkResp, httpResp, err := client.ResourcePoliciesApi.\n\t\tGetAtlasResourcePolicyWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetOrgResourcePolicyApiParams{}\n\tsdkResp, httpResp, err := client.ResourcePoliciesApi.\n\t\tGetOrgResourcePolicyWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -77440,7 +77708,7 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-10-23+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/resourcePolicies/{resourcePolicyId}?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/getAtlasResourcePolicy"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/getOrgResourcePolicy"
       },
       "patch": {
         "description": "Update one Atlas Resource Policy for an org.",
@@ -77448,7 +77716,7 @@
           "description": "Atlas Resource Policies",
           "url": "https://dochub.mongodb.org/core/atlas-resource-policies"
         },
-        "operationId": "updateAtlasResourcePolicy",
+        "operationId": "updateOrgResourcePolicy",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -77529,12 +77797,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api updateAtlasResourcePolicy --help"
+            "source": "atlas api updateOrgResourcePolicy --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateAtlasResourcePolicyApiParams{}\n\tsdkResp, httpResp, err := client.ResourcePoliciesApi.\n\t\tUpdateAtlasResourcePolicyWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241023001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateOrgResourcePolicyApiParams{}\n\tsdkResp, httpResp, err := client.ResourcePoliciesApi.\n\t\tUpdateOrgResourcePolicyWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -77547,7 +77815,7 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-10-23+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/resourcePolicies/{resourcePolicyId}\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/updateAtlasResourcePolicy"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/updateOrgResourcePolicy"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/resourcePolicies:validate": {
@@ -78613,7 +78881,7 @@
     },
     "/api/atlas/v2/orgs/{orgId}/settings": {
       "get": {
-        "description": "Returns details about the specified organization's settings. To use this resource, the requesting Service Account or API Key must have the Organization Owner role.",
+        "description": "Returns details about the specified organization's settings. To use this resource, the requesting Service Account or API Key must have the Organization Member role.",
         "operationId": "getOrganizationSettings",
         "parameters": [
           {
@@ -78730,6 +78998,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
