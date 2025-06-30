@@ -29,4 +29,4 @@ For more details, please refer to the [Spectral’s README.md](tools/postman/REA
 
 
 ## Contributing
-See our [CONTRIBUTING.md](../../CONTRIBUTING.md) guide.
+See our [CONTRIBUTING.md](CONTRIBUTING.md) guide.
