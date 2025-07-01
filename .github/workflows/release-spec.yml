@@ -106,6 +106,7 @@ jobs:
       needs: [run-required-validations]
       outputs:
         changes_detected: ${{ steps.commit.outputs.changes_detected }}
+        bump_release: ${{ steps.bump_changes.outputs.bump_release }}
       steps:
         - name: Checkout repository
           uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -156,6 +157,22 @@ jobs:
           env:
               target_env: ${{ inputs.env }}
           run: ../release-scripts/branded_preview.sh
+        - name: Check if changes should be deployed to bump.sh
+          id: bump_changes
+          run: |
+            # We often only update the x-xgen-sha property in OAS since we need
+            # this piece of information during the changelog release. However, this small changes
+            # should not trigger a bump.sh release since the rendered spec is still the same.
+            # This logic makes sure that the v2.json file changes are more than 1 lines
+            # which suggests that we are not only updating the x-xgen-sha property.
+            
+            export bump_release='false'
+            changed_lines=$(git diff --numstat openapi/v2.json | awk '{print $1}')
+            if [ "${changed_lines}" -gt 1 ]; then
+              export bump_release='true'
+            fi
+            
+            echo "bump_release=${bump_release}" >> "${GITHUB_OUTPUT:?}"
         - name: Commit changes
           id: commit
           uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0
@@ -197,7 +214,7 @@ jobs:
   release-bump-sh:
     name: Release API Specification to Bump.sh for ${{ inputs.branch }}
     needs: release
-    if: ${{needs.release.outputs.changes_detected == 'true'}}
+    if: ${{needs.release.outputs.bump_release == 'true'}}
     uses: ./.github/workflows/generate-bump-pages.yml
     secrets:
       api_bot_pat: ${{ secrets.api_bot_pat }}
