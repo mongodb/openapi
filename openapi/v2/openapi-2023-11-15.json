@@ -11306,6 +11306,9 @@
             "pattern": "^([a-f0-9]{24})$",
             "type": "string"
           },
+          "serviceAccount": {
+            "$ref": "#/components/schemas/OrgServiceAccountRequest"
+          },
           "skipDefaultAlertsSettings": {
             "default": false,
             "description": "Disables automatic alert creation. When set to true, no organization level alerts will be created automatically.",
@@ -11338,6 +11341,9 @@
           },
           "organization": {
             "$ref": "#/components/schemas/AtlasOrganization"
+          },
+          "serviceAccount": {
+            "$ref": "#/components/schemas/OrgServiceAccount"
           },
           "skipDefaultAlertsSettings": {
             "default": false,
@@ -28215,6 +28221,105 @@
         ],
         "type": "object"
       },
+      "OrgServiceAccount": {
+        "description": "Organization Service Account that Atlas created for the organization.",
+        "properties": {
+          "clientId": {
+            "description": "The Client ID of the Service Account.",
+            "example": "mdb_sa_id_1234567890abcdef12345678",
+            "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "The date that the Service Account was created on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human readable description for the Service Account.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable name for the Service Account.",
+            "type": "string"
+          },
+          "roles": {
+            "description": "A list of Organization roles associated with the Service Account.",
+            "items": {
+              "description": "Organization roles available for Service Accounts.",
+              "enum": [
+                "ORG_MEMBER",
+                "ORG_READ_ONLY",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_GROUP_CREATOR",
+                "ORG_OWNER"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "secrets": {
+            "description": "A list of secrets associated with the specified Service Account.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountSecret"
+            },
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "readOnly": true,
+        "type": "object"
+      },
+      "OrgServiceAccountRequest": {
+        "description": "Organization Service Account that Atlas creates for this organization. If omitted, Atlas doesn't create an organization Service Account for this organization. If specified, this object requires all body parameters.",
+        "properties": {
+          "description": {
+            "description": "Human readable description for the Service Account.",
+            "maxLength": 250,
+            "minLength": 1,
+            "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
+            "type": "string"
+          },
+          "roles": {
+            "description": "A list of organization-level roles for the Service Account.",
+            "items": {
+              "description": "Organization roles available for Service Accounts.",
+              "enum": [
+                "ORG_MEMBER",
+                "ORG_READ_ONLY",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_GROUP_CREATOR",
+                "ORG_OWNER"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "secretExpiresAfterHours": {
+            "description": "The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.",
+            "example": 8,
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "description",
+          "name",
+          "roles",
+          "secretExpiresAfterHours"
+        ],
+        "type": "object"
+      },
       "OrgUserResponse": {
         "discriminator": {
           "mapping": {
@@ -34249,6 +34354,53 @@
         "title": "ServiceAccount Events",
         "type": "object"
       },
+      "ServiceAccountSecret": {
+        "properties": {
+          "createdAt": {
+            "description": "The date that the secret was created on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expiresAt": {
+            "description": "The date for the expiration of the secret. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies the secret.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "lastUsedAt": {
+            "description": "The last time the secret was used. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "maskedSecretValue": {
+            "description": "The masked Service Account secret.",
+            "example": "mdb_sa_sk_...",
+            "readOnly": true,
+            "type": "string"
+          },
+          "secret": {
+            "description": "The secret for the Service Account. It will be returned only the first time after creation.",
+            "example": "mdb_sa_sk_...",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "expiresAt",
+          "id"
+        ],
+        "type": "object"
+      },
       "ShardEntry": {
         "description": "Sharding configuration for a collection to be sharded on the destination cluster.",
         "properties": {
@@ -39530,7 +39682,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "0bb8c863b80c4655735bb11376743aa69005a591"
+    "x-xgen-sha": "325531abf1013a03e42710b64fe6866651a21ede"
   },
   "openapi": "3.0.1",
   "paths": {
