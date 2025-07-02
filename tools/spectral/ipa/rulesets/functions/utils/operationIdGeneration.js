@@ -1,4 +1,4 @@
-import { singularize } from "active-inflector";
+import { singularize } from "ember-inflector";
 import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourceEvaluation.js';
 import { casing } from '@stoplight/spectral-functions';
 
