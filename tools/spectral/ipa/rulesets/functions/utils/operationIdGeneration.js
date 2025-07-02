@@ -10,12 +10,24 @@ import { casing } from '@stoplight/spectral-functions';
  */
 export function generateOperationID(method, path) {
     let resourceIdentifier = removePrefix(path);
-    let verb = deriveActionVerb(method, resourceIdentifier);
     let nouns = resourceIdentifier
                     .split("/")
                     .filter(id => id.length > 0 && !isPathParam(id))
                     .map(noun => capitalize(noun));
     
+    // legacy custom method - use end of path as custom method name
+    if (method === "") {
+        method = path.split("/").pop();
+        nouns.pop();
+    }
+
+    let verb = deriveActionVerb(method);
+    
+    // if custom method name is multiple words, add trailing nouns to the operation ID
+    if (!casing(method, { type: 'camel'}) && method.length > verb.length) {
+        nouns.push(method.slice(verb.length));
+    }
+
     let opID = verb;
     for(let i = 0; i < nouns.length - 1; i++) {
         opID += singularize(nouns[i]);
@@ -28,11 +40,6 @@ export function generateOperationID(method, path) {
 
     opID += nouns.pop();
 
-    // if custom method name is multiple words, append trailing nouns to the operation ID
-    if (!casing(method, { type: 'camel'})) {
-        opID += method.slice(verb.length);
-    }
-
     return opID;
 }
 
@@ -41,12 +48,7 @@ export function generateOperationID(method, path) {
  * 
  * @param method the custom method name
  */
-function deriveActionVerb(method, path) {
-    // legacy custom method - return last collection identifier from path
-    if (method === "") {
-        return path.split("/").pop();
-    }
-
+function deriveActionVerb(method) {
     // custom method name is camelCase return first word (assumed verb)
     if (!casing(method, { type: 'camel'})) {
         return method.match(/[A-Z]?[a-z]+/g)[0];
