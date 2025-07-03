@@ -191,11 +191,11 @@ function resourceBelongsToSingleParent(resourcePath) {
 
 // TODO move prefixes to be rule arguments
 export function removePrefix(path) {
-  if (path.startsWith(AUTH_PREFIX)) {
-    return path.slice(AUTH_PREFIX.length);
-  }
   if (path.startsWith(UNAUTH_PREFIX)) {
     return path.slice(UNAUTH_PREFIX.length);
+  }
+  if (path.startsWith(AUTH_PREFIX)) {
+    return path.slice(AUTH_PREFIX.length);
   }
   return path;
 }
