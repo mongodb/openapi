@@ -12,11 +12,11 @@ export function generateOperationID(method, path) {
   let resourceIdentifier = removePrefix(path);
   let nouns = resourceIdentifier
     .split('/')
-    .filter((id) => id.length > 0 && !isPathParam(id))
+    .filter((section) => section.length > 0 && !isPathParam(section))
     .map((noun) => capitalize(noun));
 
   // legacy custom method - use end of path as custom method name
-  if (method === '') {
+  if (!method) {
     method = path.split('/').pop();
     nouns.pop();
   }
@@ -34,7 +34,7 @@ export function generateOperationID(method, path) {
   }
 
   // singularize final noun, dependent on resource identifier
-  if (isSingleResourceIdentifier(resourceIdentifier) || verb == 'create') {
+  if (isSingleResourceIdentifier(resourceIdentifier) || verb === 'create') {
     nouns[nouns.length - 1] = singularize(nouns[nouns.length - 1]);
   }
 
