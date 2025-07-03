@@ -17,6 +17,10 @@ package sunset
 import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tufin/oasdiff/load"
+	"maps"
+	"regexp"
+	"slices"
+	"sort"
 )
 
 const (
@@ -95,8 +99,21 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) ma
 }
 
 func contentExtensions(content openapi3.Content) map[string]any {
-	for _, v := range content {
-		return v.Extensions
-	}
-	return nil
+	keysContent := slices.Collect(maps.Keys(content))
+	// Regex to find a date in YYYY-MM-DD format.
+	dateRegex := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	// we need the content of the API version with the older date.
+	sort.Slice(keysContent, func(i, j int) bool {
+		dateI := dateRegex.FindString(keysContent[i])
+		dateJ := dateRegex.FindString(keysContent[j])
+
+		// If both have dates, compare them as strings.
+		if dateI != "" && dateJ != "" {
+			return dateI < dateJ
+		}
+		// Strings with dates should come before those without.
+		return dateI != ""
+	})
+
+	return content[keysContent[0]].Extensions
 }
