@@ -2,6 +2,8 @@ import { singularize } from 'ember-inflector';
 import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourceEvaluation.js';
 import { casing } from '@stoplight/spectral-functions';
 
+const CAMEL_CASE = /[A-Z]?[a-z]+/g
+
 /**
  * Returns IPA Compliant Operation ID.
  *
@@ -24,7 +26,7 @@ export function generateOperationID(method, path) {
   let verb = deriveActionVerb(method);
 
   // if custom method name is multiple words, add trailing nouns to the operation ID
-  if (!casing(method, { type: 'camel' }) && method.length > verb.length) {
+  if (method.length > verb.length) {
     nouns.push(method.slice(verb.length));
   }
 
@@ -45,16 +47,12 @@ export function generateOperationID(method, path) {
 
 /**
  * Derives action verb from custom method name. Returns standard method names as is.
+ * Assumes the first word of camelCase method names is the action verb.
  *
  * @param method the custom method name
  */
 function deriveActionVerb(method) {
-  // custom method name is camelCase return first word (assumed verb)
-  if (!casing(method, { type: 'camel' })) {
-    return method.match(/[A-Z]?[a-z]+/g)[0];
-  }
-
-  return method;
+  return method.match(CAMEL_CASE)[0];
 }
 
 function capitalize(val) {
