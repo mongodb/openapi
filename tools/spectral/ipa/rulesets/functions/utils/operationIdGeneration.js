@@ -1,8 +1,7 @@
 import { singularize } from 'ember-inflector';
 import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourceEvaluation.js';
-import { casing } from '@stoplight/spectral-functions';
 
-const CAMEL_CASE = /[A-Z]?[a-z]+/g
+const CAMEL_CASE = /[A-Z]?[a-z]+/g;
 
 /**
  * Returns IPA Compliant Operation ID.
@@ -12,16 +11,14 @@ const CAMEL_CASE = /[A-Z]?[a-z]+/g
  */
 export function generateOperationID(method, path) {
   let resourceIdentifier = removePrefix(path);
-  let nouns = resourceIdentifier
-    .split('/')
-    .filter((section) => section.length > 0 && !isPathParam(section))
-    .map((noun) => capitalize(noun));
+  let nouns = resourceIdentifier.split('/').filter((section) => section.length > 0 && !isPathParam(section));
 
   // legacy custom method - use end of path as custom method name
   if (!method) {
-    method = path.split('/').pop();
-    nouns.pop();
+    method = nouns.pop();
   }
+
+  nouns = nouns.map((noun) => capitalize(noun));
 
   let verb = deriveActionVerb(method);
 
