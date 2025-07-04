@@ -1,4 +1,4 @@
-import { singularize } from 'ember-inflector';
+const inflection = require('inflection');
 import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourceEvaluation.js';
 
 const CAMEL_CASE = /[A-Z]?[a-z]+/g;
@@ -29,12 +29,12 @@ export function generateOperationID(method, path) {
 
   let opID = verb;
   for (let i = 0; i < nouns.length - 1; i++) {
-    opID += singularize(nouns[i]);
+    opID += inflection.singularize(nouns[i]);
   }
 
   // singularize final noun, dependent on resource identifier
   if (isSingleResourceIdentifier(resourceIdentifier) || verb === 'create') {
-    nouns[nouns.length - 1] = singularize(nouns[nouns.length - 1]);
+    nouns[nouns.length - 1] = inflection.singularize(nouns[nouns.length - 1]);
   }
 
   opID += nouns.pop();

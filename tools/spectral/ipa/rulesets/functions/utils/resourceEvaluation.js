@@ -57,6 +57,10 @@ export function getCustomMethodName(path) {
   return path.split(':')[1];
 }
 
+export function stripCustomMethodName(path) {
+  return path.substring(0, path.indexOf(':'));
+}
+
 export function isPathParam(string) {
   return string.startsWith('{') && string.endsWith('}');
 }
