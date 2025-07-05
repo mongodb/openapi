@@ -102,6 +102,8 @@ func apiSpecResourceToCodeSpecModel(oasResource APISpecResource, resourceConfig 
 //
 // Returns:
 //   - A pointer to the base.Schema object from the successful response content, or nil if not found
+//
+// !IMPORTANT!: This function does not currently handle nested refs in the response schema
 func findSuccessfulResponse(oasResource *APISpecResource) *base.Schema {
 	if oasResource.UpdateOp == nil {
 		return nil
