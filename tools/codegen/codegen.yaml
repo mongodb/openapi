@@ -1,0 +1,1981 @@
+resources:
+    - name: custom_db_role_api
+      operations:
+        create:
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}
+        delete:
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Creates one custom role in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role, Project Stream Processing Owner role, or the Project Database Access Admin role.
+        attributes:
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies the privilege action.
+                          computedOptionalRequired: required
+                          name: action
+                        - listNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - bool:
+                                        default: null
+                                      description: Flag that indicates whether to grant the action on the cluster resource. If `true`, MongoDB Cloud ignores the **actions.resources.collection** and **actions.resources.db** parameters.
+                                      computedOptionalRequired: required
+                                      name: cluster
+                                    - string:
+                                        default: null
+                                      description: 'Human-readable label that identifies the collection on which you grant the action to one MongoDB user. If you don''t set this parameter, you grant the action to all collections in the database specified in the **actions.resources.db** parameter. If you set `"actions.resources.cluster" : true`, MongoDB Cloud ignores this parameter.'
+                                      computedOptionalRequired: required
+                                      name: collection
+                                    - string:
+                                        default: null
+                                      description: 'Human-readable label that identifies the database on which you grant the action to one MongoDB user. If you set `"actions.resources.cluster" : true`, MongoDB Cloud ignores this parameter.'
+                                      computedOptionalRequired: required
+                                      name: db
+                          description: List of resources on which you grant the action.
+                          computedOptionalRequired: optional
+                          name: resources
+              description: List of the individual privilege actions that the role grants.
+              computedOptionalRequired: optional
+              name: actions
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - setNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies the database on which someone grants the action to one MongoDB user.
+                          computedOptionalRequired: required
+                          name: db
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies the role inherited. Set this value to `admin` for every role except `read` or `readWrite`.
+                          computedOptionalRequired: required
+                          name: role
+              description: List of the built-in roles that this custom role inherits.
+              computedOptionalRequired: optional
+              name: inherited_roles
+            - string:
+                default: null
+              description: Human-readable label that identifies the role for the request. This name must be unique for this custom role in this project.
+              computedOptionalRequired: required
+              name: role_name
+              reqBodyUsage: 1
+      openapi-schema:
+        content:
+            application/vnd.atlas.2023-01-01+json:
+                schema:
+                    $ref: "#/components/schemas/UserCustomDBRole"
+                x-xgen-version: 2023-01-01
+        description: OK
+    - name: database_user_api
+      operations:
+        create:
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/databaseUsers
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}
+        delete:
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Creates one database user in the specified project. This MongoDB Cloud supports a maximum of 100 database users per project. If you require more than 100 database users on a project, contact Support. To use this resource, the requesting Service Account or API Key must have the Project Owner role, the Project Charts Admin role, Project Stream Processing Owner role, or the Project Database Access Admin role.
+        attributes:
+            - string:
+                default: NONE
+              description: Human-readable label that indicates whether the new database user authenticates with the Amazon Web Services (AWS) Identity and Access Management (IAM) credentials associated with the user or the user's role.
+              computedOptionalRequired: computed_optional
+              name: aws_iamtype
+            - string:
+                default: admin
+              description: The database against which the database user authenticates. Database users must provide both a username and authentication database to log into MongoDB. If the user authenticates with AWS IAM, x.509, LDAP, or OIDC Workload this value should be `$external`. If the user authenticates with SCRAM-SHA or OIDC Workforce, this value should be `admin`.
+              computedOptionalRequired: computed_optional
+              name: database_name
+            - string:
+                default: null
+              description: Date and time when MongoDB Cloud deletes the user. This parameter expresses its value in the ISO 8601 timestamp format in UTC and can include the time zone designation. You must specify a future date that falls within one week of making the Application Programming Interface (API) request.
+              computedOptionalRequired: optional
+              name: delete_after_date
+            - string:
+                default: null
+              description: Description of this database user.
+              computedOptionalRequired: optional
+              name: description
+              reqBodyUsage: 2
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Key applied to tag and categorize this component.
+                          computedOptionalRequired: optional
+                          name: key
+                        - string:
+                            default: null
+                          description: Value set to the Key applied to tag and categorize this component.
+                          computedOptionalRequired: optional
+                          name: value
+              description: List that contains the key-value pairs for tagging and categorizing the MongoDB database user. The labels that you define do not appear in the console.
+              computedOptionalRequired: optional
+              name: labels
+            - string:
+                default: NONE
+              description: Part of the Lightweight Directory Access Protocol (LDAP) record that the database uses to authenticate this database user on the LDAP host.
+              computedOptionalRequired: computed_optional
+              name: ldap_auth_type
+            - string:
+                default: NONE
+              description: Human-readable label that indicates whether the new database user or group authenticates with OIDC federated authentication. To create a federated authentication user, specify the value of USER in this field. To create a federated authentication group, specify the value of IDP_GROUP in this field.
+              computedOptionalRequired: computed_optional
+              name: oidc_auth_type
+            - string:
+                default: null
+              description: Alphanumeric string that authenticates this database user against the database specified in `databaseName`. To authenticate with SCRAM-SHA, you must specify this parameter. This parameter doesn't appear in this response.
+              computedOptionalRequired: optional
+              name: password
+              sensitive: true
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Collection on which this role applies.
+                          computedOptionalRequired: optional
+                          name: collection_name
+                        - string:
+                            default: null
+                          description: Database to which the user is granted access privileges.
+                          computedOptionalRequired: required
+                          name: database_name
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies a group of privileges assigned to a database user. This value can either be a built-in role or a custom role.
+                          computedOptionalRequired: required
+                          name: role_name
+              description: List that provides the pairings of one role with one applicable database.
+              computedOptionalRequired: optional
+              name: roles
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies the cluster or MongoDB Atlas Data Lake that this database user can access.
+                          computedOptionalRequired: required
+                          name: name
+                        - string:
+                            default: null
+                          description: Category of resource that this database user can access.
+                          computedOptionalRequired: required
+                          name: type
+              description: List that contains clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances that this database user can access. If omitted, MongoDB Cloud grants the database user access to all the clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances in the project.
+              computedOptionalRequired: optional
+              name: scopes
+            - string:
+                default: null
+              description: |
+                Human-readable label that represents the user that authenticates to MongoDB. The format of this label depends on the method of authentication:
+
+                | Authentication Method | Parameter Needed | Parameter Value | username Format |
+                |---|---|---|---|
+                | AWS IAM | awsIAMType | ROLE | <abbr title="Amazon Resource Name">ARN</abbr> |
+                | AWS IAM | awsIAMType | USER | <abbr title="Amazon Resource Name">ARN</abbr> |
+                | x.509 | x509Type | CUSTOMER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                | x.509 | x509Type | MANAGED | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                | LDAP | ldapAuthType | USER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                | LDAP | ldapAuthType | GROUP | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                | OIDC Workforce | oidcAuthType | IDP_GROUP | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP group name |
+                | OIDC Workload | oidcAuthType | USER | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP user name |
+                | SCRAM-SHA | awsIAMType, x509Type, ldapAuthType, oidcAuthType | NONE | Alphanumeric string |
+              computedOptionalRequired: required
+              name: username
+            - string:
+                default: NONE
+              description: |-
+                X.509 method that MongoDB Cloud uses to authenticate the database user.
+
+                - For application-managed X.509, specify `MANAGED`.
+                - For self-managed X.509, specify `CUSTOMER`.
+
+                Users created with the `CUSTOMER` method require a Common Name (CN) in the **username** parameter. You must create externally authenticated users on the `$external` database.
+              computedOptionalRequired: computed_optional
+              name: x509type
+      openapi-schema:
+        content:
+            application/vnd.atlas.2023-01-01+json:
+                schema:
+                    $ref: "#/components/schemas/CloudDatabaseUser"
+                x-xgen-version: 2023-01-01
+        description: OK
+    - name: maintenance_window_api
+      operations:
+        create:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
+        delete:
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Updates the maintenance window for the specified project. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. Updating the maintenance window will reset any maintenance deferrals for this project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+        attributes:
+            - bool:
+                default: null
+              description: Flag that indicates whether MongoDB Cloud should defer all maintenance windows for one week after you enable them.
+              computedOptionalRequired: computed_optional
+              name: auto_defer_once_enabled
+            - int64:
+                default: null
+              description: |-
+                One-based integer that represents the day of the week that the maintenance window starts.
+
+                - `1`: Sunday.
+                - `2`: Monday.
+                - `3`: Tuesday.
+                - `4`: Wednesday.
+                - `5`: Thursday.
+                - `6`: Friday.
+                - `7`: Saturday.
+              computedOptionalRequired: required
+              name: day_of_week
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - int64:
+                default: null
+              description: Zero-based integer that represents the hour of the of the day that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon.
+              computedOptionalRequired: required
+              name: hour_of_day
+            - int64:
+                default: null
+              description: Number of times the current maintenance event for this project has been deferred.
+              computedOptionalRequired: computed
+              name: number_of_deferrals
+              reqBodyUsage: 3
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - int64:
+                            default: null
+                          description: Zero-based integer that represents the end hour of the of the day that the maintenance will not begin in.
+                          computedOptionalRequired: optional
+                          name: end_hour_of_day
+                        - int64:
+                            default: null
+                          description: Zero-based integer that represents the beginning hour of the of the day that the maintenance will not begin in.
+                          computedOptionalRequired: optional
+                          name: start_hour_of_day
+              description: Defines the a window where maintenance will not begin within.
+              computedOptionalRequired: optional
+              name: protected_hours
+            - bool:
+                default: null
+              description: Flag that indicates whether MongoDB Cloud starts the maintenance window immediately upon receiving this request. To start the maintenance window immediately for your project, MongoDB Cloud must have maintenance scheduled and you must set a maintenance window. This flag resets to `false` after MongoDB Cloud completes maintenance.
+              computedOptionalRequired: optional
+              name: start_asap
+            - string:
+                default: null
+              description: Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.
+              computedOptionalRequired: computed
+              name: time_zone_id
+              reqBodyUsage: 3
+      openapi-schema:
+        content:
+            application/vnd.atlas.2023-01-01+json:
+                x-xgen-version: 2023-01-01
+        description: OK
+    - name: resource_policy_api
+      operations:
+        create:
+            httpMethod: POST
+            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies/{id}
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies/{id}
+        delete:
+            httpMethod: DELETE
+            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies/{id}
+        versionheader: application/vnd.atlas.2024-08-05+json
+      schema:
+        description: Create one Atlas Resource Policy for an org.
+        attributes:
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Unique 24-hexadecimal character string that identifies a user.
+                          computedOptionalRequired: computed
+                          name: id
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Human-readable label that describes a user.
+                          computedOptionalRequired: computed
+                          name: name
+                          reqBodyUsage: 3
+              description: The user that last updated the atlas resource policy.
+              computedOptionalRequired: computed
+              name: created_by_user
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Date and time in UTC when the atlas resource policy was created.
+              computedOptionalRequired: computed
+              name: created_date
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Description of the atlas resource policy.
+              computedOptionalRequired: optional
+              name: description
+            - string:
+                default: null
+              description: Unique 24-hexadecimal character string that identifies the atlas resource policy.
+              computedOptionalRequired: computed
+              name: id
+              reqBodyUsage: 3
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Unique 24-hexadecimal character string that identifies a user.
+                          computedOptionalRequired: computed
+                          name: id
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Human-readable label that describes a user.
+                          computedOptionalRequired: computed
+                          name: name
+                          reqBodyUsage: 3
+              description: The user that last updated the atlas resource policy.
+              computedOptionalRequired: computed
+              name: last_updated_by_user
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Date and time in UTC when the atlas resource policy was last updated.
+              computedOptionalRequired: computed
+              name: last_updated_date
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Human-readable label that describes the atlas resource policy.
+              computedOptionalRequired: required
+              name: name
+            - string:
+                default: null
+              description: Unique 24-hexadecimal digit string that identifies the organization that contains your projects. Use the [/orgs](#tag/Organizations/operation/listOrganizations) endpoint to retrieve all organizations to which the authenticated user has access.
+              computedOptionalRequired: required
+              name: org_id
+              reqBodyUsage: 3
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: A string that defines the permissions for the policy. The syntax used is the Cedar Policy language.
+                          computedOptionalRequired: required
+                          name: body
+                        - string:
+                            default: null
+                          description: Unique 24-hexadecimal character string that identifies the policy.
+                          computedOptionalRequired: computed
+                          name: id
+                          reqBodyUsage: 3
+              description: List of policies that make up the atlas resource policy.
+              computedOptionalRequired: required
+              name: policies
+            - string:
+                default: null
+              description: A string that identifies the version of the atlas resource policy.
+              computedOptionalRequired: computed
+              name: version
+              reqBodyUsage: 3
+      openapi-schema:
+        content:
+            application/vnd.atlas.2024-08-05+json:
+                schema:
+                    $ref: "#/components/schemas/ApiAtlasResourcePolicy"
+                x-xgen-version: 2024-08-05
+        description: Ok
+    - name: search_deployment_api
+      operations:
+        create:
+            wait:
+                stateProperty: stateName
+                pendingStates:
+                    - UPDATING
+                    - PAUSED
+                targetStates:
+                    - IDLE
+                timeoutSeconds: 10800
+                minTimeoutSeconds: 60
+                delaySeconds: 60
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
+        update:
+            wait:
+                stateProperty: stateName
+                pendingStates:
+                    - UPDATING
+                    - PAUSED
+                targetStates:
+                    - IDLE
+                timeoutSeconds: 10800
+                minTimeoutSeconds: 60
+                delaySeconds: 60
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
+        delete:
+            wait:
+                stateProperty: stateName
+                pendingStates:
+                    - IDLE
+                    - UPDATING
+                    - PAUSED
+                targetStates:
+                    - DELETED
+                timeoutSeconds: 10800
+                minTimeoutSeconds: 30
+                delaySeconds: 60
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
+        versionheader: application/vnd.atlas.2025-03-12+json
+      schema:
+        description: Creates Search Nodes for the specified cluster.
+        attributes:
+            - string:
+                default: null
+              description: Label that identifies the cluster to create Search Nodes for.
+              computedOptionalRequired: required
+              name: cluster_name
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Cloud service provider that manages your customer keys to provide an additional layer of Encryption At Rest for the cluster.
+              computedOptionalRequired: computed
+              name: encryption_at_rest_provider
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Unique 24-hexadecimal digit string that identifies the search deployment.
+              computedOptionalRequired: computed
+              name: id
+              reqBodyUsage: 3
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Hardware specification for the Search Node instance sizes.
+                          computedOptionalRequired: required
+                          name: instance_size
+                        - int64:
+                            default: null
+                          description: Number of Search Nodes in the cluster.
+                          computedOptionalRequired: required
+                          name: node_count
+              description: |-
+                List of settings that configure the Search Nodes for your cluster.
+
+                **NOTE**: We accept a single configuration for all nodes currently.
+              computedOptionalRequired: required
+              name: specs
+            - string:
+                default: null
+              description: Human-readable label that indicates the current operating condition of this search deployment.
+              computedOptionalRequired: computed
+              name: state_name
+              reqBodyUsage: 3
+      openapi-schema:
+        content:
+            application/vnd.atlas.2024-05-30+json:
+                schema:
+                    $ref: "#/components/schemas/ApiSearchDeploymentResponse"
+                x-xgen-version: 2024-05-30
+        description: OK
+    - name: stream_instance_api
+      operations:
+        create:
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/streams
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/streams/{name}
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/streams/{name}
+        delete:
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/streams/{name}
+        versionheader: application/vnd.atlas.2023-02-01+json
+      schema:
+        description: Creates one stream instance in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Data Access Admin role, Project Owner role or Project Stream Processing Owner role.
+        attributes:
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - singleNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - string:
+                                        default: null
+                                      description: Style of authentication. Can be one of PLAIN, SCRAM-256, or SCRAM-512.
+                                      computedOptionalRequired: computed
+                                      name: mechanism
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: Password of the account to connect to the Kafka cluster.
+                                      computedOptionalRequired: computed
+                                      name: password
+                                      reqBodyUsage: 3
+                                      sensitive: true
+                                    - string:
+                                        default: null
+                                      description: SSL certificate for client authentication to Kafka.
+                                      computedOptionalRequired: computed
+                                      name: ssl_certificate
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: SSL key for client authentication to Kafka.
+                                      computedOptionalRequired: computed
+                                      name: ssl_key
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: Password for the SSL key, if it is password protected.
+                                      computedOptionalRequired: computed
+                                      name: ssl_key_password
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: Username of the account to connect to the Kafka cluster.
+                                      computedOptionalRequired: computed
+                                      name: username
+                                      reqBodyUsage: 3
+                          description: User credentials required to connect to a Kafka Cluster. Includes the authentication type, as well as the parameters for that authentication mode.
+                          computedOptionalRequired: computed
+                          name: authentication
+                          reqBodyUsage: 3
+                        - singleNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - string:
+                                        default: null
+                                      description: Amazon Resource Name (ARN) that identifies the Amazon Web Services (AWS) Identity and Access Management (IAM) role that MongoDB Cloud assumes when it accesses resources in your AWS account.
+                                      computedOptionalRequired: computed
+                                      name: role_arn
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: The name of an S3 bucket used to check authorization of the passed-in IAM role ARN.
+                                      computedOptionalRequired: computed
+                                      name: test_bucket
+                                      reqBodyUsage: 3
+                          description: AWS configurations for AWS-based connection types.
+                          computedOptionalRequired: computed
+                          name: aws
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Comma separated list of server addresses.
+                          computedOptionalRequired: computed
+                          name: bootstrap_servers
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: The id of the group that the cluster belongs to.
+                          computedOptionalRequired: computed
+                          name: cluster_group_id
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Name of the cluster configured for this connection.
+                          computedOptionalRequired: computed
+                          name: cluster_name
+                          reqBodyUsage: 3
+                        - map:
+                            default: null
+                            elementtype: 4
+                          description: A map of Kafka key-value pairs for optional configuration. This is a flat object, and keys can have '.' characters.
+                          computedOptionalRequired: computed
+                          name: config
+                          reqBodyUsage: 3
+                        - singleNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - string:
+                                        default: null
+                                      description: The name of the role to use. Can be a built in role or a custom role.
+                                      computedOptionalRequired: computed
+                                      name: role
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: Type of the DB role. Can be either BuiltIn or Custom.
+                                      computedOptionalRequired: computed
+                                      name: type
+                                      reqBodyUsage: 3
+                          description: The name of a Built in or Custom DB Role to connect to an Atlas Cluster.
+                          computedOptionalRequired: computed
+                          name: db_role_to_execute
+                          reqBodyUsage: 3
+                        - map:
+                            default: null
+                            elementtype: 4
+                          description: A map of key-value pairs that will be passed as headers for the request.
+                          computedOptionalRequired: computed
+                          name: headers
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.
+                          computedOptionalRequired: computed
+                          name: name
+                          reqBodyUsage: 3
+                        - singleNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - singleNested:
+                                        default: null
+                                        nestedobject:
+                                            attributes:
+                                                - string:
+                                                    default: null
+                                                  description: Reserved. Will be used by PRIVATE_LINK connection type.
+                                                  computedOptionalRequired: computed
+                                                  name: connection_id
+                                                  reqBodyUsage: 3
+                                                - string:
+                                                    default: null
+                                                  description: Reserved. Will be used by PRIVATE_LINK connection type.
+                                                  computedOptionalRequired: computed
+                                                  name: name
+                                                  reqBodyUsage: 3
+                                                - string:
+                                                    default: null
+                                                  description: Reserved. Will be used by TRANSIT_GATEWAY connection type.
+                                                  computedOptionalRequired: computed
+                                                  name: tgw_id
+                                                  reqBodyUsage: 3
+                                                - string:
+                                                    default: null
+                                                  description: Reserved. Will be used by TRANSIT_GATEWAY connection type.
+                                                  computedOptionalRequired: computed
+                                                  name: tgw_route_id
+                                                  reqBodyUsage: 3
+                                                - string:
+                                                    default: null
+                                                  description: Selected networking type. Either PUBLIC, VPC, PRIVATE_LINK, or TRANSIT_GATEWAY. Defaults to PUBLIC. For VPC, ensure that VPC peering exists and connectivity has been established between Atlas VPC and the VPC where Kafka cluster is hosted for the connection to function properly. TRANSIT_GATEWAY support is coming soon.
+                                                  computedOptionalRequired: computed
+                                                  name: type
+                                                  reqBodyUsage: 3
+                                                - string:
+                                                    default: null
+                                                  description: Reserved. Will be used by TRANSIT_GATEWAY connection type.
+                                                  computedOptionalRequired: computed
+                                                  name: vpc_cidr
+                                                  reqBodyUsage: 3
+                                      description: Information about networking access.
+                                      computedOptionalRequired: computed
+                                      name: access
+                                      reqBodyUsage: 3
+                          description: Networking configuration for Streams connections.
+                          computedOptionalRequired: computed
+                          name: networking
+                          reqBodyUsage: 3
+                        - singleNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - string:
+                                        default: null
+                                      description: A trusted, public x509 certificate for connecting to Kafka over SSL.
+                                      computedOptionalRequired: computed
+                                      name: broker_public_certificate
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: Describes the transport type. Can be either SASL_PLAINTEXT, SASL_SSL, or SSL.
+                                      computedOptionalRequired: computed
+                                      name: protocol
+                                      reqBodyUsage: 3
+                          description: Properties for the secure transport connection to Kafka. For SSL, this can include the trusted certificate to use.
+                          computedOptionalRequired: computed
+                          name: security
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Type of the connection.
+                          computedOptionalRequired: computed
+                          name: type
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: The url to be used for the request.
+                          computedOptionalRequired: computed
+                          name: url
+                          reqBodyUsage: 3
+              description: List of connections configured in the stream instance.
+              computedOptionalRequired: computed
+              name: connections
+              reqBodyUsage: 3
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Label that identifies the cloud service provider where MongoDB Cloud performs stream processing. Currently, this parameter only supports AWS and AZURE.
+                          computedOptionalRequired: required
+                          name: cloud_provider
+                        - string:
+                            default: null
+                          description: Name of the cloud provider region hosting Atlas Stream Processing.
+                          computedOptionalRequired: required
+                          name: region
+              description: Information about the cloud provider region in which MongoDB Cloud processes the stream.
+              computedOptionalRequired: optional
+              name: data_process_region
+              reqBodyUsage: 1
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - list:
+                default: null
+                elementtype: 4
+              description: List that contains the hostnames assigned to the stream instance.
+              computedOptionalRequired: computed
+              name: hostnames
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Human-readable label that identifies the stream instance.
+              computedOptionalRequired: optional
+              name: name
+              reqBodyUsage: 1
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - bool:
+                            default: false
+                          description: Flag that indicates whether to add a 'sample_stream_solar' connection.
+                          computedOptionalRequired: computed_optional
+                          name: solar
+              description: Sample connections to add to SPI.
+              computedOptionalRequired: optional
+              name: sample_connections
+              reqBodyUsage: 1
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Selected tier for the Stream Instance. Configures Memory / VCPU allowances.
+                          computedOptionalRequired: optional
+                          name: tier
+              description: Configuration options for an Atlas Stream Processing Instance.
+              computedOptionalRequired: optional
+              name: stream_config
+              reqBodyUsage: 1
+      openapi-schema:
+        content:
+            application/vnd.atlas.2023-02-01+json:
+                schema:
+                    $ref: "#/components/schemas/StreamsTenant"
+                x-xgen-version: 2023-02-01
+        description: OK
+    - name: auditing_api
+      operations:
+        create:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/auditLog
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/auditLog
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/auditLog
+        delete:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/auditLog
+            staticRequestBody: '{"enabled": "false"}'
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Updates the auditing configuration for the specified project. The auditing configuration defines the events that MongoDB Cloud records in the audit log. To use this resource, the requesting Service Account or API Key must have the Project Owner role. This feature isn't available for `M0`, `M2`, `M5`, or serverless clusters.
+        attributes:
+            - bool:
+                default: false
+              description: 'Flag that indicates whether someone set auditing to track successful authentications. This only applies to the `"atype" : "authCheck"` audit filter. Setting this parameter to `true` degrades cluster performance.'
+              computedOptionalRequired: computed_optional
+              name: audit_authorization_success
+            - string:
+                default: null
+              description: JSON document that specifies which events to record. Escape any characters that may prevent parsing, such as single or double quotes, using a backslash (`\`).
+              computedOptionalRequired: optional
+              name: audit_filter
+            - string:
+                default: null
+              description: Human-readable label that displays how to configure the audit filter.
+              computedOptionalRequired: computed
+              name: configuration_type
+              reqBodyUsage: 3
+            - bool:
+                default: false
+              description: Flag that indicates whether someone enabled database auditing for the specified project.
+              computedOptionalRequired: computed_optional
+              name: enabled
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+      openapi-schema:
+        content:
+            application/vnd.atlas.2023-01-01+json:
+                schema:
+                    $ref: "#/components/schemas/AuditLog"
+                x-xgen-version: 2023-01-01
+        description: OK
+    - name: cluster_api
+      operations:
+        create:
+            wait:
+                stateProperty: stateName
+                pendingStates:
+                    - CREATING
+                    - UPDATING
+                    - REPAIRING
+                    - REPEATING
+                    - PENDING
+                    - DELETING
+                targetStates:
+                    - IDLE
+                timeoutSeconds: 10800
+                minTimeoutSeconds: 60
+                delaySeconds: 30
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/clusters
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/clusters/{name}
+        update:
+            wait:
+                stateProperty: stateName
+                pendingStates:
+                    - CREATING
+                    - UPDATING
+                    - REPAIRING
+                    - REPEATING
+                    - PENDING
+                    - DELETING
+                targetStates:
+                    - IDLE
+                timeoutSeconds: 10800
+                minTimeoutSeconds: 60
+                delaySeconds: 30
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/clusters/{name}
+        delete:
+            wait:
+                stateProperty: stateName
+                pendingStates:
+                    - IDLE
+                    - CREATING
+                    - UPDATING
+                    - REPAIRING
+                    - REPEATING
+                    - PENDING
+                    - DELETING
+                targetStates:
+                    - DELETED
+                timeoutSeconds: 10800
+                minTimeoutSeconds: 60
+                delaySeconds: 30
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/clusters/{name}
+        versionheader: application/vnd.atlas.2024-08-05+json
+      schema:
+        description: |-
+            Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting Service Account or API Key must have the Project Owner role. This feature is not available for serverless clusters.
+
+            Please note that using an instanceSize of M2 or M5 will create a Flex cluster instead. Support for the instanceSize of M2 or M5 will be discontinued in January 2026. We recommend using the createFlexCluster API for such configurations moving forward. Deprecated versions: v2-{2024-08-05}, v2-{2023-02-01}, v2-{2023-01-01}
+        attributes:
+            - string:
+                default: null
+              description: If reconfiguration is necessary to regain a primary due to a regional outage, submit this field alongside your topology reconfiguration to request a new regional outage resistant topology. Forced reconfigurations during an outage of the majority of electable nodes carry a risk of data loss if replicated writes (even majority committed writes) have not been replicated to the new primary node. MongoDB Atlas docs contain more information. To proceed with an operation which carries that risk, set **acceptDataRisksAndForceReplicaSetReconfig** to the current date. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+              computedOptionalRequired: optional
+              name: accept_data_risks_and_force_replica_set_reconfig
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - list:
+                            default: null
+                            elementtype: 4
+                          description: The custom OpenSSL cipher suite list for TLS 1.2. This field is only valid when `tlsCipherConfigMode` is set to `CUSTOM`.
+                          computedOptionalRequired: computed_optional
+                          name: custom_openssl_cipher_config_tls12
+                        - string:
+                            default: null
+                          description: Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections. Clusters using TLS 1.0 or 1.1 should consider setting TLS 1.2 as the minimum TLS protocol version.
+                          computedOptionalRequired: computed_optional
+                          name: minimum_enabled_tls_protocol
+                        - string:
+                            default: null
+                          description: The TLS cipher suite configuration mode. The default mode uses the default cipher suites. The custom mode allows you to specify custom cipher suites for both TLS 1.2 and TLS 1.3.
+                          computedOptionalRequired: computed_optional
+                          name: tls_cipher_config_mode
+              description: Group of settings that configures a subset of the advanced configuration details.
+              computedOptionalRequired: computed_optional
+              name: advanced_configuration
+            - bool:
+                default: false
+              description: Flag that indicates whether the cluster can perform backups. If set to `true`, the cluster can perform backups. You must set this value to `true` for NVMe clusters. Backup uses Cloud Backups for dedicated clusters and [Shared Cluster Backups](https://docs.atlas.mongodb.com/backup/shared-tier/overview/) for tenant clusters. If set to `false`, the cluster doesn't use backups.
+              computedOptionalRequired: computed_optional
+              name: backup_enabled
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - bool:
+                            default: null
+                          description: Flag that indicates whether MongoDB Connector for Business Intelligence is enabled on the specified cluster.
+                          computedOptionalRequired: computed_optional
+                          name: enabled
+                        - string:
+                            default: null
+                          description: Data source node designated for the MongoDB Connector for Business Intelligence on MongoDB Cloud. The MongoDB Connector for Business Intelligence on MongoDB Cloud reads data from the primary, secondary, or analytics node based on your read preferences. Defaults to `ANALYTICS` node, or `SECONDARY` if there are no `ANALYTICS` nodes.
+                          computedOptionalRequired: computed_optional
+                          name: read_preference
+              description: Settings needed to configure the MongoDB Connector for Business Intelligence for this cluster.
+              computedOptionalRequired: computed_optional
+              name: bi_connector
+            - string:
+                default: null
+              description: Configuration of nodes that comprise the cluster.
+              computedOptionalRequired: optional
+              name: cluster_type
+            - string:
+                default: ATLAS_MANAGED
+              description: |-
+                Config Server Management Mode for creating or updating a sharded cluster.
+
+                When configured as ATLAS_MANAGED, atlas may automatically switch the cluster's config server type for optimal performance and savings.
+
+                When configured as FIXED_TO_DEDICATED, the cluster will always use a dedicated config server.
+              computedOptionalRequired: computed_optional
+              name: config_server_management_mode
+            - string:
+                default: null
+              description: Describes a sharded cluster's config server type.
+              computedOptionalRequired: computed
+              name: config_server_type
+              reqBodyUsage: 3
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - map:
+                            default: null
+                            elementtype: 4
+                          description: Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to MongoDB Cloud through the interface endpoint that the key names.
+                          computedOptionalRequired: computed
+                          name: aws_private_link
+                          reqBodyUsage: 3
+                        - map:
+                            default: null
+                            elementtype: 4
+                          description: Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to Atlas through the interface endpoint that the key names. If the cluster uses an optimized connection string, `awsPrivateLinkSrv` contains the optimized connection string. If the cluster has the non-optimized (legacy) connection string, `awsPrivateLinkSrv` contains the non-optimized connection string even if an optimized connection string is also present.
+                          computedOptionalRequired: computed
+                          name: aws_private_link_srv
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Network peering connection strings for each interface Virtual Private Cloud (VPC) endpoint that you configured to connect to this cluster. This connection string uses the `mongodb+srv://` protocol. The resource returns this parameter once someone creates a network peering connection to this cluster. This protocol tells the application to look up the host seed list in the Domain Name System (DNS). This list synchronizes with the nodes in a cluster. If the connection string uses this Uniform Resource Identifier (URI) format, you don't need to append the seed list or change the URI if the nodes change. Use this URI format if your driver supports it. If it doesn't, use connectionStrings.private. For Amazon Web Services (AWS) clusters, this resource returns this parameter only if you enable custom DNS.
+                          computedOptionalRequired: computed
+                          name: private
+                          reqBodyUsage: 3
+                        - listNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - string:
+                                        default: null
+                                      description: Private endpoint-aware connection string that uses the `mongodb://` protocol to connect to MongoDB Cloud through a private endpoint.
+                                      computedOptionalRequired: computed
+                                      name: connection_string
+                                      reqBodyUsage: 3
+                                    - listNested:
+                                        default: null
+                                        nestedobject:
+                                            attributes:
+                                                - string:
+                                                    default: null
+                                                  description: Unique string that the cloud provider uses to identify the private endpoint.
+                                                  computedOptionalRequired: computed
+                                                  name: endpoint_id
+                                                  reqBodyUsage: 3
+                                                - string:
+                                                    default: null
+                                                  description: Cloud provider in which MongoDB Cloud deploys the private endpoint.
+                                                  computedOptionalRequired: computed
+                                                  name: provider_name
+                                                  reqBodyUsage: 3
+                                                - string:
+                                                    default: null
+                                                  description: Region where the private endpoint is deployed.
+                                                  computedOptionalRequired: computed
+                                                  name: region
+                                                  reqBodyUsage: 3
+                                      description: List that contains the private endpoints through which you connect to MongoDB Cloud when you use **connectionStrings.privateEndpoint[n].connectionString** or **connectionStrings.privateEndpoint[n].srvConnectionString**.
+                                      computedOptionalRequired: computed
+                                      name: endpoints
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: Private endpoint-aware connection string that uses the `mongodb+srv://` protocol to connect to MongoDB Cloud through a private endpoint. The `mongodb+srv` protocol tells the driver to look up the seed list of hosts in the Domain Name System (DNS). This list synchronizes with the nodes in a cluster. If the connection string uses this Uniform Resource Identifier (URI) format, you don't need to append the seed list or change the Uniform Resource Identifier (URI) if the nodes change. Use this Uniform Resource Identifier (URI) format if your application supports it. If it doesn't, use connectionStrings.privateEndpoint[n].connectionString.
+                                      computedOptionalRequired: computed
+                                      name: srv_connection_string
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: Private endpoint-aware connection string optimized for sharded clusters that uses the `mongodb+srv://` protocol to connect to MongoDB Cloud through a private endpoint. If the connection string uses this Uniform Resource Identifier (URI) format, you don't need to change the Uniform Resource Identifier (URI) if the nodes change. Use this Uniform Resource Identifier (URI) format if your application and Atlas cluster supports it. If it doesn't, use and consult the documentation for connectionStrings.privateEndpoint[n].srvConnectionString.
+                                      computedOptionalRequired: computed
+                                      name: srv_shard_optimized_connection_string
+                                      reqBodyUsage: 3
+                                    - string:
+                                        default: null
+                                      description: MongoDB process type to which your application connects. Use `MONGOD` for replica sets and `MONGOS` for sharded clusters.
+                                      computedOptionalRequired: computed
+                                      name: type
+                                      reqBodyUsage: 3
+                          description: List of private endpoint-aware connection strings that you can use to connect to this cluster through a private endpoint. This parameter returns only if you deployed a private endpoint to all regions to which you deployed this clusters' nodes.
+                          computedOptionalRequired: computed
+                          name: private_endpoint
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Network peering connection strings for each interface Virtual Private Cloud (VPC) endpoint that you configured to connect to this cluster. This connection string uses the `mongodb+srv://` protocol. The resource returns this parameter when someone creates a network peering connection to this cluster. This protocol tells the application to look up the host seed list in the Domain Name System (DNS). This list synchronizes with the nodes in a cluster. If the connection string uses this Uniform Resource Identifier (URI) format, you don't need to append the seed list or change the Uniform Resource Identifier (URI) if the nodes change. Use this Uniform Resource Identifier (URI) format if your driver supports it. If it doesn't, use `connectionStrings.private`. For Amazon Web Services (AWS) clusters, this parameter returns only if you [enable custom DNS](https://docs.atlas.mongodb.com/reference/api/aws-custom-dns-update/).
+                          computedOptionalRequired: computed
+                          name: private_srv
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Public connection string that you can use to connect to this cluster. This connection string uses the `mongodb://` protocol.
+                          computedOptionalRequired: computed
+                          name: standard
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Public connection string that you can use to connect to this cluster. This connection string uses the `mongodb+srv://` protocol.
+                          computedOptionalRequired: computed
+                          name: standard_srv
+                          reqBodyUsage: 3
+              description: Collection of Uniform Resource Locators that point to the MongoDB database.
+              computedOptionalRequired: computed
+              name: connection_strings
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Date and time when MongoDB Cloud created this cluster. This parameter expresses its value in ISO 8601 format in UTC.
+              computedOptionalRequired: computed
+              name: create_date
+              reqBodyUsage: 3
+            - string:
+                default: FULLY_WARMED
+              description: Disk warming mode selection.
+              computedOptionalRequired: computed_optional
+              name: disk_warming_mode
+            - string:
+                default: null
+              description: 'Cloud service provider that manages your customer keys to provide an additional layer of encryption at rest for the cluster. To enable customer key management for encryption at rest, the cluster **replicationSpecs[n].regionConfigs[m].{type}Specs.instanceSize** setting must be `M10` or higher and `"backupEnabled" : false` or omitted entirely.'
+              computedOptionalRequired: computed_optional
+              name: encryption_at_rest_provider
+            - string:
+                default: null
+              description: Feature compatibility version of the cluster. This will always appear regardless of whether FCV is pinned.
+              computedOptionalRequired: computed
+              name: feature_compatibility_version
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Feature compatibility version expiration date. Will only appear if FCV is pinned. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+              computedOptionalRequired: computed
+              name: feature_compatibility_version_expiration_date
+              reqBodyUsage: 3
+            - bool:
+                default: null
+              description: |-
+                Set this field to configure the Sharding Management Mode when creating a new Global Cluster.
+
+                When set to false, the management mode is set to Atlas-Managed Sharding. This mode fully manages the sharding of your Global Cluster and is built to provide a seamless deployment experience.
+
+                When set to true, the management mode is set to Self-Managed Sharding. This mode leaves the management of shards in your hands and is built to provide an advanced and flexible deployment experience.
+
+                This setting cannot be changed once the cluster is deployed.
+              computedOptionalRequired: computed_optional
+              name: global_cluster_self_managed_sharding
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Unique 24-hexadecimal digit string that identifies the cluster.
+              computedOptionalRequired: computed
+              name: id
+              reqBodyUsage: 3
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Key applied to tag and categorize this component.
+                          computedOptionalRequired: optional
+                          name: key
+                        - string:
+                            default: null
+                          description: Value set to the Key applied to tag and categorize this component.
+                          computedOptionalRequired: optional
+                          name: value
+              description: |-
+                Collection of key-value pairs between 1 to 255 characters in length that tag and categorize the cluster. The MongoDB Cloud console doesn't display your labels.
+
+                Cluster labels are deprecated and will be removed in a future release. We strongly recommend that you use Resource Tags instead.
+              deprecationMessage: This attribute has been deprecated
+              computedOptionalRequired: optional
+              name: labels
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Expiration date for the employee access grant. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                          computedOptionalRequired: required
+                          name: expiration_time
+                        - string:
+                            default: null
+                          description: Level of access to grant to MongoDB Employees.
+                          computedOptionalRequired: required
+                          name: grant_type
+              description: MongoDB employee granted access level and expiration for a cluster.
+              computedOptionalRequired: optional
+              name: mongo_dbemployee_access_grant
+            - string:
+                default: null
+              description: "MongoDB major version of the cluster. Set to the binary major version. \n\nOn creation: Choose from the available versions of MongoDB, or leave unspecified for the current recommended default in the MongoDB Cloud platform. The recommended version is a recent Long Term Support version. The default is not guaranteed to be the most recently released version throughout the entire release cycle. For versions available in a specific project, see the linked documentation or use the API endpoint for [project LTS versions endpoint](#tag/Projects/operation/getProjectLtsVersions).\n\n On update: Increase version only by 1 major version at a time. If the cluster is pinned to a MongoDB feature compatibility version exactly one major version below the current MongoDB version, the MongoDB version can be downgraded to the previous major version."
+              computedOptionalRequired: optional
+              name: mongo_dbmajor_version
+            - string:
+                default: null
+              description: Version of MongoDB that the cluster runs.
+              computedOptionalRequired: computed
+              name: mongo_dbversion
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Human-readable label that identifies the cluster.
+              computedOptionalRequired: optional
+              name: name
+            - bool:
+                default: null
+              description: Flag that indicates whether the cluster is paused.
+              computedOptionalRequired: computed_optional
+              name: paused
+            - bool:
+                default: null
+              description: Flag that indicates whether the cluster uses continuous cloud backups.
+              computedOptionalRequired: computed_optional
+              name: pit_enabled
+            - bool:
+                default: null
+              description: |-
+                Enable or disable log redaction.
+
+                This setting configures the ``mongod`` or ``mongos`` to redact any document field contents from a message accompanying a given log event before logging. This prevents the program from writing potentially sensitive data stored on the database to the diagnostic log. Metadata such as error or operation codes, line numbers, and source file names are still visible in the logs.
+
+                Use ``redactClientLogData`` in conjunction with Encryption at Rest and TLS/SSL (Transport Encryption) to assist compliance with regulatory requirements.
+
+                *Note*: changing this setting on a cluster will trigger a rolling restart as soon as the cluster is updated.
+              computedOptionalRequired: computed_optional
+              name: redact_client_log_data
+            - string:
+                default: WORKLOAD_TYPE
+              description: |-
+                Set this field to configure the replica set scaling mode for your cluster.
+
+                By default, Atlas scales under WORKLOAD_TYPE. This mode allows Atlas to scale your analytics nodes in parallel to your operational nodes.
+
+                When configured as SEQUENTIAL, Atlas scales all nodes sequentially. This mode is intended for steady-state workloads and applications performing latency-sensitive secondary reads.
+
+                When configured as NODE_TYPE, Atlas scales your electable nodes in parallel with your read-only and analytics nodes. This mode is intended for large, dynamic workloads requiring frequent and timely cluster tier scaling. This is the fastest scaling strategy, but it might impact latency of workloads when performing extensive secondary reads.
+              computedOptionalRequired: computed_optional
+              name: replica_set_scaling_strategy
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Unique 24-hexadecimal digit string that identifies the replication object for a shard in a Cluster. If you include existing shard replication configurations in the request, you must specify this parameter. If you add a new shard to an existing Cluster, you may specify this parameter. The request deletes any existing shards  in the Cluster that you exclude from the request. This corresponds to Shard ID displayed in the UI.
+                          computedOptionalRequired: computed
+                          name: id
+                          reqBodyUsage: 3
+                        - listNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - singleNested:
+                                        default: null
+                                        nestedobject:
+                                            attributes:
+                                                - singleNested:
+                                                    default: null
+                                                    nestedobject:
+                                                        attributes:
+                                                            - bool:
+                                                                default: null
+                                                              description: |-
+                                                                Flag that indicates whether instance size reactive auto-scaling is enabled.
+
+                                                                - Set to `true` to enable instance size reactive auto-scaling. If enabled, you must specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.maxInstanceSize**.
+                                                                - Set to `false` to disable instance size reactive auto-scaling.
+                                                              computedOptionalRequired: optional
+                                                              name: enabled
+                                                            - string:
+                                                                default: null
+                                                              description: Instance size boundary to which your cluster can automatically scale.
+                                                              computedOptionalRequired: computed
+                                                              name: max_instance_size
+                                                              reqBodyUsage: 3
+                                                            - string:
+                                                                default: null
+                                                              description: Instance size boundary to which your cluster can automatically scale.
+                                                              computedOptionalRequired: computed
+                                                              name: min_instance_size
+                                                              reqBodyUsage: 3
+                                                            - bool:
+                                                                default: null
+                                                              description: |-
+                                                                Flag that indicates whether predictive instance size auto-scaling is enabled.
+
+                                                                - Set to `true` to enable predictive instance size auto-scaling. MongoDB Cloud requires **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** to be `true` in order to enable this feature.
+                                                                - Set to `false` to disable predictive instance size auto-scaling.
+                                                              computedOptionalRequired: optional
+                                                              name: predictive_enabled
+                                                            - bool:
+                                                                default: null
+                                                              description: Flag that indicates whether the instance size may scale down via reactive auto-scaling. MongoDB Cloud requires this parameter if **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.minInstanceSize**.
+                                                              computedOptionalRequired: optional
+                                                              name: scale_down_enabled
+                                                  description: Options that determine how this cluster handles CPU scaling.
+                                                  computedOptionalRequired: optional
+                                                  name: compute
+                                                - singleNested:
+                                                    default: null
+                                                    nestedobject:
+                                                        attributes:
+                                                            - bool:
+                                                                default: null
+                                                              description: Flag that indicates whether this cluster enables disk auto-scaling. The maximum memory allowed for the selected cluster tier and the oplog size can limit storage auto-scaling.
+                                                              computedOptionalRequired: optional
+                                                              name: enabled
+                                                  description: Setting that enables disk auto-scaling.
+                                                  computedOptionalRequired: optional
+                                                  name: disk_gb
+                                      description: Options that determine how this cluster handles resource scaling.
+                                      computedOptionalRequired: optional
+                                      name: analytics_auto_scaling
+                                    - singleNested:
+                                        default: null
+                                        nestedobject:
+                                            attributes:
+                                                - int64:
+                                                    default: null
+                                                  description: |-
+                                                    Target throughput desired for storage attached to your Azure-provisioned cluster. Change this parameter if you:
+
+                                                    - set `"replicationSpecs[n].regionConfigs[m].providerName" : "Azure"`.
+                                                    - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize" : "M40"` or greater not including `Mxx_NVME` tiers.
+
+                                                    The maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.
+                                                    This parameter defaults to the cluster tier's standard IOPS value.
+                                                    Changing this value impacts cluster cost.
+                                                  computedOptionalRequired: computed_optional
+                                                  name: disk_iops
+                                                - float64:
+                                                    default: null
+                                                  description: "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier."
+                                                  computedOptionalRequired: computed_optional
+                                                  name: disk_size_gb
+                                                - string:
+                                                    default: STANDARD
+                                                  description: "Type of storage you want to attach to your AWS-provisioned cluster.\n\n- `STANDARD` volume types can't exceed the default input/output operations per second (IOPS) rate for the selected volume size. \n\n- `PROVISIONED` volume types must fall within the allowable IOPS range for the selected volume size. You must set this value to (`PROVISIONED`) for NVMe clusters."
+                                                  computedOptionalRequired: computed_optional
+                                                  name: ebs_volume_type
+                                                - string:
+                                                    default: null
+                                                  description: Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as "base nodes") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.
+                                                  computedOptionalRequired: computed_optional
+                                                  name: instance_size
+                                                - int64:
+                                                    default: null
+                                                  description: Number of nodes of the given type for MongoDB Cloud to deploy to the region.
+                                                  computedOptionalRequired: computed_optional
+                                                  name: node_count
+                                      description: Hardware specifications for read-only nodes in the region. Read-only nodes can never become the primary member, but can enable local reads. If you don't specify this parameter, no read-only nodes are deployed to the region.
+                                      computedOptionalRequired: computed_optional
+                                      name: analytics_specs
+                                    - singleNested:
+                                        default: null
+                                        nestedobject:
+                                            attributes:
+                                                - singleNested:
+                                                    default: null
+                                                    nestedobject:
+                                                        attributes:
+                                                            - bool:
+                                                                default: null
+                                                              description: |-
+                                                                Flag that indicates whether instance size reactive auto-scaling is enabled.
+
+                                                                - Set to `true` to enable instance size reactive auto-scaling. If enabled, you must specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.maxInstanceSize**.
+                                                                - Set to `false` to disable instance size reactive auto-scaling.
+                                                              computedOptionalRequired: computed_optional
+                                                              name: enabled
+                                                            - string:
+                                                                default: null
+                                                              description: Instance size boundary to which your cluster can automatically scale.
+                                                              computedOptionalRequired: computed_optional
+                                                              name: max_instance_size
+                                                              reqBodyUsage: 3
+                                                            - string:
+                                                                default: null
+                                                              description: Instance size boundary to which your cluster can automatically scale.
+                                                              computedOptionalRequired: computed_optional
+                                                              name: min_instance_size
+                                                              reqBodyUsage: 3
+                                                            - bool:
+                                                                default: null
+                                                              description: |-
+                                                                Flag that indicates whether predictive instance size auto-scaling is enabled.
+
+                                                                - Set to `true` to enable predictive instance size auto-scaling. MongoDB Cloud requires **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** to be `true` in order to enable this feature.
+                                                                - Set to `false` to disable predictive instance size auto-scaling.
+                                                              computedOptionalRequired: computed_optional
+                                                              name: predictive_enabled
+                                                            - bool:
+                                                                default: null
+                                                              description: Flag that indicates whether the instance size may scale down via reactive auto-scaling. MongoDB Cloud requires this parameter if **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.minInstanceSize**.
+                                                              computedOptionalRequired: computed_optional
+                                                              name: scale_down_enabled
+                                                  description: Options that determine how this cluster handles CPU scaling.
+                                                  computedOptionalRequired: computed_optional
+                                                  name: compute
+                                                - singleNested:
+                                                    default: null
+                                                    nestedobject:
+                                                        attributes:
+                                                            - bool:
+                                                                default: null
+                                                              description: Flag that indicates whether this cluster enables disk auto-scaling. The maximum memory allowed for the selected cluster tier and the oplog size can limit storage auto-scaling.
+                                                              computedOptionalRequired: computed_optional
+                                                              name: enabled
+                                                  description: Setting that enables disk auto-scaling.
+                                                  computedOptionalRequired: computed_optional
+                                                  name: disk_gb
+                                      description: Options that determine how this cluster handles resource scaling.
+                                      computedOptionalRequired: computed_optional
+                                      name: auto_scaling
+                                    - string:
+                                        default: null
+                                      description: "Cloud service provider on which MongoDB Cloud provisioned the multi-tenant cluster. The resource returns this parameter when **providerName** is `TENANT` and **electableSpecs.instanceSize** is `M0`, `M2` or `M5`. \n\nPlease note that  using an instanceSize of M2 or M5 will create a Flex cluster instead. Support for the instanceSize of M2 or M5 will be discontinued in January 2026. We recommend using the createFlexCluster API for such configurations moving forward."
+                                      computedOptionalRequired: optional
+                                      name: backing_provider_name
+                                    - singleNested:
+                                        default: null
+                                        nestedobject:
+                                            attributes:
+                                                - int64:
+                                                    default: null
+                                                  description: |-
+                                                    Target throughput desired for storage attached to your Azure-provisioned cluster. Change this parameter if you:
+
+                                                    - set `"replicationSpecs[n].regionConfigs[m].providerName" : "Azure"`.
+                                                    - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize" : "M40"` or greater not including `Mxx_NVME` tiers.
+
+                                                    The maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.
+                                                    This parameter defaults to the cluster tier's standard IOPS value.
+                                                    Changing this value impacts cluster cost.
+                                                  computedOptionalRequired: computed_optional
+                                                  name: disk_iops
+                                                - float64:
+                                                    default: null
+                                                  description: "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier."
+                                                  computedOptionalRequired: computed_optional
+                                                  name: disk_size_gb
+                                                - string:
+                                                    default: STANDARD
+                                                  description: "Type of storage you want to attach to your AWS-provisioned cluster.\n\n- `STANDARD` volume types can't exceed the default input/output operations per second (IOPS) rate for the selected volume size. \n\n- `PROVISIONED` volume types must fall within the allowable IOPS range for the selected volume size. You must set this value to (`PROVISIONED`) for NVMe clusters."
+                                                  computedOptionalRequired: computed_optional
+                                                  name: ebs_volume_type
+                                                - string:
+                                                    default: null
+                                                  description: The true tenant instance size. This is present to support backwards compatibility for deprecated provider types and/or instance sizes.
+                                                  computedOptionalRequired: computed
+                                                  name: effective_instance_size
+                                                  reqBodyUsage: 3
+                                                - string:
+                                                    default: null
+                                                  description: Hardware specification for the instances in this M0/M2/M5 tier cluster.
+                                                  computedOptionalRequired: optional
+                                                  name: instance_size
+                                                - int64:
+                                                    default: null
+                                                  description: Number of nodes of the given type for MongoDB Cloud to deploy to the region.
+                                                  computedOptionalRequired: optional
+                                                  name: node_count
+                                      description: Hardware specifications for all electable nodes deployed in the region. Electable nodes can become the primary and can enable local reads. If you don't specify this option, MongoDB Cloud deploys no electable nodes to the region.
+                                      computedOptionalRequired: optional
+                                      name: electable_specs
+                                    - int64:
+                                        default: null
+                                      description: |-
+                                        Precedence is given to this region when a primary election occurs. If your **regionConfigs** has only **readOnlySpecs**, **analyticsSpecs**, or both, set this value to `0`. If you have multiple **regionConfigs** objects (your cluster is multi-region or multi-cloud), they must have priorities in descending order. The highest priority is `7`.
+
+                                        **Example:** If you have three regions, their priorities would be `7`, `6`, and `5` respectively. If you added two more regions for supporting electable nodes, the priorities of those regions would be `4` and `3` respectively.
+                                      computedOptionalRequired: optional
+                                      name: priority
+                                    - string:
+                                        default: null
+                                      description: Cloud service provider on which MongoDB Cloud provisions the hosts. Set dedicated clusters to `AWS`, `GCP`, `AZURE` or `TENANT`.
+                                      computedOptionalRequired: optional
+                                      name: provider_name
+                                    - singleNested:
+                                        default: null
+                                        nestedobject:
+                                            attributes:
+                                                - int64:
+                                                    default: null
+                                                  description: |-
+                                                    Target throughput desired for storage attached to your Azure-provisioned cluster. Change this parameter if you:
+
+                                                    - set `"replicationSpecs[n].regionConfigs[m].providerName" : "Azure"`.
+                                                    - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize" : "M40"` or greater not including `Mxx_NVME` tiers.
+
+                                                    The maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.
+                                                    This parameter defaults to the cluster tier's standard IOPS value.
+                                                    Changing this value impacts cluster cost.
+                                                  computedOptionalRequired: computed_optional
+                                                  name: disk_iops
+                                                - float64:
+                                                    default: null
+                                                  description: "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier."
+                                                  computedOptionalRequired: computed_optional
+                                                  name: disk_size_gb
+                                                - string:
+                                                    default: STANDARD
+                                                  description: "Type of storage you want to attach to your AWS-provisioned cluster.\n\n- `STANDARD` volume types can't exceed the default input/output operations per second (IOPS) rate for the selected volume size. \n\n- `PROVISIONED` volume types must fall within the allowable IOPS range for the selected volume size. You must set this value to (`PROVISIONED`) for NVMe clusters."
+                                                  computedOptionalRequired: computed_optional
+                                                  name: ebs_volume_type
+                                                - string:
+                                                    default: null
+                                                  description: Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as "base nodes") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.
+                                                  computedOptionalRequired: computed_optional
+                                                  name: instance_size
+                                                - int64:
+                                                    default: null
+                                                  description: Number of nodes of the given type for MongoDB Cloud to deploy to the region.
+                                                  computedOptionalRequired: computed_optional
+                                                  name: node_count
+                                      description: Hardware specifications for read-only nodes in the region. Read-only nodes can never become the primary member, but can enable local reads. If you don't specify this parameter, no read-only nodes are deployed to the region.
+                                      computedOptionalRequired: computed_optional
+                                      name: read_only_specs
+                                    - string:
+                                        default: null
+                                      description: Physical location of your MongoDB cluster nodes. The region you choose can affect network latency for clients accessing your databases. The region name is only returned in the response for single-region clusters. When MongoDB Cloud deploys a dedicated cluster, it checks if a VPC or VPC connection exists for that provider and region. If not, MongoDB Cloud creates them as part of the deployment. It assigns the VPC a Classless Inter-Domain Routing (CIDR) block. To limit a new VPC peering connection to one Classless Inter-Domain Routing (CIDR) block and region, create the connection first. Deploy the cluster after the connection starts. GCP Clusters and Multi-region clusters require one VPC peering connection for each region. MongoDB nodes can use only the peering connection that resides in the same region as the nodes to communicate with the peered VPC.
+                                      computedOptionalRequired: optional
+                                      name: region_name
+                          description: |-
+                            Hardware specifications for nodes set for a given region. Each **regionConfigs** object describes the region's priority in elections and the number and type of MongoDB nodes that MongoDB Cloud deploys to the region. Each **regionConfigs** object must have either an **analyticsSpecs** object, **electableSpecs** object, or **readOnlySpecs** object. Tenant clusters only require **electableSpecs. Dedicated** clusters can specify any of these specifications, but must have at least one **electableSpecs** object within a **replicationSpec**.
+
+                            **Example:**
+
+                            If you set `"replicationSpecs[n].regionConfigs[m].analyticsSpecs.instanceSize" : "M30"`, set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize" : `"M30"` if you have electable nodes and `"replicationSpecs[n].regionConfigs[m].readOnlySpecs.instanceSize" : `"M30"` if you have read-only nodes.
+                          computedOptionalRequired: optional
+                          name: region_configs
+                        - string:
+                            default: null
+                          description: Unique 24-hexadecimal digit string that identifies the zone in a Global Cluster. This value can be used to configure Global Cluster backup policies.
+                          computedOptionalRequired: computed
+                          name: zone_id
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: 'Human-readable label that describes the zone this shard belongs to in a Global Cluster. Provide this value only if "clusterType" : "GEOSHARDED" but not "selfManagedSharding" : true.'
+                          computedOptionalRequired: computed_optional
+                          name: zone_name
+              description: List of settings that configure your cluster regions. This array has one object per shard representing node configurations in each shard. For replica sets there is only one object representing node configurations.
+              computedOptionalRequired: optional
+              name: replication_specs
+            - string:
+                default: ISRGROOTX1
+              description: Root Certificate Authority that MongoDB Atlas cluster uses. MongoDB Cloud supports Internet Security Research Group.
+              computedOptionalRequired: computed_optional
+              name: root_cert_type
+            - string:
+                default: null
+              description: Human-readable label that indicates the current operating condition of this cluster.
+              computedOptionalRequired: computed
+              name: state_name
+              reqBodyUsage: 3
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: 'Constant that defines the set of the tag. For example, `environment` in the `environment : production` tag.'
+                          computedOptionalRequired: required
+                          name: key
+                        - string:
+                            default: null
+                          description: 'Variable that belongs to the set of the tag. For example, `production` in the `environment : production` tag.'
+                          computedOptionalRequired: required
+                          name: value
+              description: List that contains key-value pairs between 1 to 255 characters in length for tagging and categorizing the cluster.
+              computedOptionalRequired: optional
+              name: tags
+            - bool:
+                default: false
+              description: Flag that indicates whether termination protection is enabled on the cluster. If set to `true`, MongoDB Cloud won't delete the cluster. If set to `false`, MongoDB Cloud will delete the cluster.
+              computedOptionalRequired: computed_optional
+              name: termination_protection_enabled
+            - string:
+                default: LTS
+              description: Method by which the cluster maintains the MongoDB versions. If value is `CONTINUOUS`, you must not specify **mongoDBMajorVersion**.
+              computedOptionalRequired: computed_optional
+              name: version_release_system
+      openapi-schema:
+        content:
+            application/vnd.atlas.2024-10-23+json:
+                schema:
+                    $ref: "#/components/schemas/ClusterDescription20240805"
+                x-xgen-version: 2024-10-23
+        description: OK
+    - name: project_api
+      operations:
+        create:
+            httpMethod: POST
+            path: /api/atlas/v2/groups
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{id}
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{id}
+        delete:
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{id}
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Creates one project. Projects group clusters into logical collections that support an application environment, workload, or both. Each project can have its own users, teams, security, tags, and alert settings. To use this resource, the requesting Service Account or API Key must have the Read Write role.
+        attributes:
+            - int64:
+                default: null
+              description: Quantity of MongoDB Cloud clusters deployed in this project.
+              computedOptionalRequired: computed
+              name: cluster_count
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Date and time when MongoDB Cloud created this project. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+              computedOptionalRequired: computed
+              name: created
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Unique 24-hexadecimal digit string that identifies the MongoDB Cloud project.
+              computedOptionalRequired: computed
+              name: id
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Human-readable label that identifies the project included in the MongoDB Cloud organization.
+              computedOptionalRequired: required
+              name: name
+            - string:
+                default: null
+              description: Unique 24-hexadecimal digit string that identifies the MongoDB Cloud organization to which the project belongs.
+              computedOptionalRequired: required
+              name: org_id
+              reqBodyUsage: 1
+            - string:
+                default: COMMERCIAL_FEDRAMP_REGIONS_ONLY
+              description: |-
+                Applies to Atlas for Government only.
+
+                In Commercial Atlas, this field will be rejected in requests and missing in responses.
+
+                This field sets restrictions on available regions in the project.
+
+                `COMMERCIAL_FEDRAMP_REGIONS_ONLY`: Only allows deployments in FedRAMP Moderate regions.
+
+                `GOV_REGIONS_ONLY`: Only allows deployments in GovCloud regions.
+              computedOptionalRequired: computed_optional
+              name: region_usage_restrictions
+              reqBodyUsage: 1
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: 'Constant that defines the set of the tag. For example, `environment` in the `environment : production` tag.'
+                          computedOptionalRequired: required
+                          name: key
+                        - string:
+                            default: null
+                          description: 'Variable that belongs to the set of the tag. For example, `production` in the `environment : production` tag.'
+                          computedOptionalRequired: required
+                          name: value
+              description: List that contains key-value pairs between 1 to 255 characters in length for tagging and categorizing the project.
+              computedOptionalRequired: optional
+              name: tags
+            - bool:
+                default: true
+              description: Flag that indicates whether to create the project with default alert settings.
+              computedOptionalRequired: computed_optional
+              name: with_default_alerts_settings
+              reqBodyUsage: 1
+      openapi-schema:
+        content:
+            application/vnd.atlas.2023-01-01+json:
+                schema:
+                    $ref: "#/components/schemas/Group"
+                x-xgen-version: 2023-01-01
+        description: OK
+    - name: push_based_log_export_api
+      operations:
+        create:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INITIATING
+                    - BUCKET_VERIFIED
+                targetStates:
+                    - ACTIVE
+                timeoutSeconds: 900
+                minTimeoutSeconds: 60
+                delaySeconds: 10
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+        update:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INITIATING
+                    - BUCKET_VERIFIED
+                targetStates:
+                    - ACTIVE
+                timeoutSeconds: 900
+                minTimeoutSeconds: 60
+                delaySeconds: 10
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+        delete:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - ACTIVE
+                    - INITIATING
+                    - BUCKET_VERIFIED
+                targetStates:
+                    - UNCONFIGURED
+                    - DELETED
+                timeoutSeconds: 900
+                minTimeoutSeconds: 60
+                delaySeconds: 10
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Configures the project level settings for the push-based log export feature.
+        attributes:
+            - string:
+                default: null
+              description: The name of the bucket to which the agent will send the logs to.
+              computedOptionalRequired: required
+              name: bucket_name
+            - string:
+                default: null
+              description: Date and time that this feature was enabled on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+              computedOptionalRequired: computed
+              name: create_date
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: ID of the AWS IAM role that will be used to write to the S3 bucket.
+              computedOptionalRequired: required
+              name: iam_role_id
+            - string:
+                default: null
+              description: S3 directory in which vector will write to in order to store the logs. An empty string denotes the root directory.
+              computedOptionalRequired: required
+              name: prefix_path
+            - string:
+                default: null
+              description: Describes whether or not the feature is enabled and what status it is in.
+              computedOptionalRequired: computed
+              name: state
+              reqBodyUsage: 3
+      openapi-schema:
+        content:
+            application/vnd.atlas.2023-01-01+json:
+                x-xgen-version: 2023-01-01
+        description: OK
+    - name: stream_processor_api
+      operations:
+        create:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INIT
+                    - CREATING
+                targetStates:
+                    - CREATED
+                timeoutSeconds: 300
+                minTimeoutSeconds: 10
+                delaySeconds: 10
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{name}
+        update:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INIT
+                    - CREATING
+                targetStates:
+                    - CREATED
+                timeoutSeconds: 300
+                minTimeoutSeconds: 10
+                delaySeconds: 10
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{name}
+        delete:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INIT
+                    - CREATING
+                    - CREATED
+                    - STARTED
+                    - STOPPED
+                targetStates:
+                    - DELETED
+                timeoutSeconds: 300
+                minTimeoutSeconds: 10
+                delaySeconds: 10
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{name}
+        versionheader: application/vnd.atlas.2024-05-30+json
+      schema:
+        description: Create one Stream Processor within the specified stream instance. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Stream Processing Owner role.
+        attributes:
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Human-readable name of the stream processor.
+              computedOptionalRequired: optional
+              name: name
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - singleNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - string:
+                                        default: null
+                                      description: Name of the collection to use for the DLQ.
+                                      computedOptionalRequired: optional
+                                      name: coll
+                                    - string:
+                                        default: null
+                                      description: Name of the connection to write DLQ messages to. Must be an Atlas connection.
+                                      computedOptionalRequired: optional
+                                      name: connection_name
+                                    - string:
+                                        default: null
+                                      description: Name of the database to use for the DLQ.
+                                      computedOptionalRequired: optional
+                                      name: db
+                          description: Dead letter queue for the stream processor.
+                          computedOptionalRequired: optional
+                          name: dlq
+                        - bool:
+                            default: null
+                          description: When true, the modified stream processor resumes from its last checkpoint.
+                          computedOptionalRequired: optional
+                          name: resume_from_checkpoint
+              description: Optional configuration for the stream processor.
+              computedOptionalRequired: computed_optional
+              name: options
+            - list:
+                default: null
+                elementtype: 5
+              description: Stream aggregation pipeline you want to apply to your streaming data.
+              computedOptionalRequired: optional
+              name: pipeline
+            - string:
+                default: null
+              description: The state of the stream processor. Commonly occurring states are 'CREATED', 'STARTED', 'STOPPED' and 'FAILED'.
+              computedOptionalRequired: computed
+              name: state
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: The stats associated with the stream processor.
+              customType:
+                model: jsontypes.Normalized
+                schema: jsontypes.NormalizedType{}
+              computedOptionalRequired: computed
+              name: stats
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Human-readable label that identifies the stream instance.
+              computedOptionalRequired: required
+              name: tenant_name
+              reqBodyUsage: 3
+      openapi-schema:
+        content:
+            application/vnd.atlas.2024-05-30+json:
+                schema:
+                    $ref: "#/components/schemas/StreamsProcessorWithStats"
+                x-xgen-version: 2024-05-30
+        description: OK
