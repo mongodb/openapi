@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/pb33f/libopenapi"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 	"log"
 	"strings"
@@ -16,7 +15,6 @@ import (
 	"github.com/mongodb/openapi/tools/codegen/config"
 	"github.com/mongodb/openapi/tools/codegen/openapi"
 	"github.com/mongodb/openapi/tools/codegen/stringcase"
-	v3 "github.com/pb33f/libopenapi/datamodel/high/v3"
 )
 
 func ToCodeSpecModel(atlasAdminAPISpecFilePath, configPath string, resourceName *string) (*Model, error) {
@@ -46,13 +44,13 @@ func ToCodeSpecModel(atlasAdminAPISpecFilePath, configPath string, resourceName 
 			return nil, fmt.Errorf("unable to get APISpecResource schema: %v", err)
 		}
 		// map OAS resource model to CodeSpecModel
-		results = append(results, *apiSpecResourceToCodeSpecModel(apiSpec, oasResource, &resourceConfig, stringcase.SnakeCaseString(name)))
+		results = append(results, *apiSpecResourceToCodeSpecModel(oasResource, &resourceConfig, stringcase.SnakeCaseString(name)))
 	}
 
 	return &Model{Resources: results}, nil
 }
 
-func apiSpecResourceToCodeSpecModel(spec *libopenapi.DocumentModel[v3.Document], oasResource APISpecResource, resourceConfig *config.Resource, name stringcase.SnakeCaseString) *Resource {
+func apiSpecResourceToCodeSpecModel(oasResource APISpecResource, resourceConfig *config.Resource, name stringcase.SnakeCaseString) *Resource {
 	createOp := oasResource.CreateOp
 	updateOp := oasResource.UpdateOp
 	readOp := oasResource.ReadOp
@@ -85,7 +83,7 @@ func apiSpecResourceToCodeSpecModel(spec *libopenapi.DocumentModel[v3.Document],
 	resource := &Resource{
 		Name:          name,
 		Schema:        schema,
-		OpenApiSchema: findSuccessfulResponse(spec, &oasResource),
+		OpenApiSchema: findSuccessfulResponse(&oasResource),
 		Operations:    operations,
 	}
 
@@ -94,18 +92,25 @@ func apiSpecResourceToCodeSpecModel(spec *libopenapi.DocumentModel[v3.Document],
 	return resource
 }
 
-func findSuccessfulResponse(spec *libopenapi.DocumentModel[v3.Document], oasResource *APISpecResource) *base.Schema {
+// findSuccessfulResponse searches for a response with a successful HTTP status code (200-208, 226)
+// in the UpdateOp of the provided OAS resource. When found, it extracts and returns the content schema
+// from that response. This function is used to obtain the schema that represents the resource's structure
+// as defined in the OpenAPI specification.
+//
+// Parameters:
+//   - oasResource: The API resource specification containing operations (Create, Read, Update, Delete)
+//
+// Returns:
+//   - A pointer to the base.Schema object from the successful response content, or nil if not found
+func findSuccessfulResponse(oasResource *APISpecResource) *base.Schema {
 	if oasResource.UpdateOp == nil {
 		return nil
 	}
 
 	successFulResponses := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226}
-
 	for _, successCode := range successFulResponses {
 		response := oasResource.UpdateOp.Responses.FindResponseByCode(successCode)
 		if response != nil {
-			//lowResponse := response.GoLow()
-			// If it's not a reference, return the inline response
 			return response.Content.Newest().Value.Schema.Schema()
 		}
 	}

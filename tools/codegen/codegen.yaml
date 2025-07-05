@@ -1,225 +1,182 @@
 resources:
-    - name: push_based_log_export_api
+    - name: database_user_api
       operations:
         create:
-            wait:
-                stateProperty: state
-                pendingStates:
-                    - INITIATING
-                    - BUCKET_VERIFIED
-                targetStates:
-                    - ACTIVE
-                timeoutSeconds: 900
-                minTimeoutSeconds: 60
-                delaySeconds: 10
             httpMethod: POST
-            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+            path: /api/atlas/v2/groups/{groupId}/databaseUsers
         read:
             httpMethod: GET
-            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+            path: /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}
         update:
-            wait:
-                stateProperty: state
-                pendingStates:
-                    - INITIATING
-                    - BUCKET_VERIFIED
-                targetStates:
-                    - ACTIVE
-                timeoutSeconds: 900
-                minTimeoutSeconds: 60
-                delaySeconds: 10
             httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+            path: /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}
         delete:
-            wait:
-                stateProperty: state
-                pendingStates:
-                    - ACTIVE
-                    - INITIATING
-                    - BUCKET_VERIFIED
-                targetStates:
-                    - UNCONFIGURED
-                    - DELETED
-                timeoutSeconds: 900
-                minTimeoutSeconds: 60
-                delaySeconds: 10
             httpMethod: DELETE
-            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+            path: /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}
         versionheader: application/vnd.atlas.2023-01-01+json
       schema:
-        description: Configures the project level settings for the push-based log export feature.
+        description: Creates one database user in the specified project. This MongoDB Cloud supports a maximum of 100 database users per project. If you require more than 100 database users on a project, contact Support. To use this resource, the requesting Service Account or API Key must have the Project Owner role, the Project Charts Admin role, Project Stream Processing Owner role, or the Project Database Access Admin role.
         attributes:
             - string:
-                default: null
-              description: The name of the bucket to which the agent will send the logs to.
-              computedOptionalRequired: required
-              name: bucket_name
+                default: NONE
+              description: Human-readable label that indicates whether the new database user authenticates with the Amazon Web Services (AWS) Identity and Access Management (IAM) credentials associated with the user or the user's role.
+              computedOptionalRequired: computed_optional
+              name: aws_iamtype
+            - string:
+                default: admin
+              description: The database against which the database user authenticates. Database users must provide both a username and authentication database to log into MongoDB. If the user authenticates with AWS IAM, x.509, LDAP, or OIDC Workload this value should be `$external`. If the user authenticates with SCRAM-SHA or OIDC Workforce, this value should be `admin`.
+              computedOptionalRequired: computed_optional
+              name: database_name
             - string:
                 default: null
-              description: Date and time that this feature was enabled on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-              computedOptionalRequired: computed
-              name: create_date
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: |-
-                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
-
-                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
-              computedOptionalRequired: required
-              name: group_id
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: ID of the AWS IAM role that will be used to write to the S3 bucket.
-              computedOptionalRequired: required
-              name: iam_role_id
-            - string:
-                default: null
-              description: S3 directory in which vector will write to in order to store the logs. An empty string denotes the root directory.
-              computedOptionalRequired: required
-              name: prefix_path
-            - string:
-                default: null
-              description: Describes whether or not the feature is enabled and what status it is in.
-              computedOptionalRequired: computed
-              name: state
-              reqBodyUsage: 3
-      openapi-schema: null
-    - name: stream_processor_api
-      operations:
-        create:
-            wait:
-                stateProperty: state
-                pendingStates:
-                    - INIT
-                    - CREATING
-                targetStates:
-                    - CREATED
-                timeoutSeconds: 300
-                minTimeoutSeconds: 10
-                delaySeconds: 10
-            httpMethod: POST
-            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor
-        read:
-            httpMethod: GET
-            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{name}
-        update:
-            wait:
-                stateProperty: state
-                pendingStates:
-                    - INIT
-                    - CREATING
-                targetStates:
-                    - CREATED
-                timeoutSeconds: 300
-                minTimeoutSeconds: 10
-                delaySeconds: 10
-            httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{name}
-        delete:
-            wait:
-                stateProperty: state
-                pendingStates:
-                    - INIT
-                    - CREATING
-                    - CREATED
-                    - STARTED
-                    - STOPPED
-                targetStates:
-                    - DELETED
-                timeoutSeconds: 300
-                minTimeoutSeconds: 10
-                delaySeconds: 10
-            httpMethod: DELETE
-            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{name}
-        versionheader: application/vnd.atlas.2024-05-30+json
-      schema:
-        description: Create one Stream Processor within the specified stream instance. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Stream Processing Owner role.
-        attributes:
-            - string:
-                default: null
-              description: |-
-                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
-
-                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
-              computedOptionalRequired: required
-              name: group_id
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: Human-readable name of the stream processor.
+              description: Date and time when MongoDB Cloud deletes the user. This parameter expresses its value in the ISO 8601 timestamp format in UTC and can include the time zone designation. You must specify a future date that falls within one week of making the Application Programming Interface (API) request.
               computedOptionalRequired: optional
-              name: name
-            - singleNested:
+              name: delete_after_date
+            - string:
+                default: null
+              description: Description of this database user.
+              computedOptionalRequired: optional
+              name: description
+              reqBodyUsage: 2
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+            - listNested:
                 default: null
                 nestedobject:
                     attributes:
-                        - singleNested:
+                        - string:
                             default: null
-                            nestedobject:
-                                attributes:
-                                    - string:
-                                        default: null
-                                      description: Name of the collection to use for the DLQ.
-                                      computedOptionalRequired: optional
-                                      name: coll
-                                    - string:
-                                        default: null
-                                      description: Name of the connection to write DLQ messages to. Must be an Atlas connection.
-                                      computedOptionalRequired: optional
-                                      name: connection_name
-                                    - string:
-                                        default: null
-                                      description: Name of the database to use for the DLQ.
-                                      computedOptionalRequired: optional
-                                      name: db
-                          description: Dead letter queue for the stream processor.
+                          description: Key applied to tag and categorize this component.
                           computedOptionalRequired: optional
-                          name: dlq
-                        - bool:
+                          name: key
+                        - string:
                             default: null
-                          description: When true, the modified stream processor resumes from its last checkpoint.
+                          description: Value set to the Key applied to tag and categorize this component.
                           computedOptionalRequired: optional
-                          name: resume_from_checkpoint
-              description: Optional configuration for the stream processor.
-              computedOptionalRequired: computed_optional
-              name: options
-            - list:
-                default: null
-                elementtype: 5
-              description: Stream aggregation pipeline you want to apply to your streaming data.
+                          name: value
+              description: List that contains the key-value pairs for tagging and categorizing the MongoDB database user. The labels that you define do not appear in the console.
               computedOptionalRequired: optional
-              name: pipeline
+              name: labels
+            - string:
+                default: NONE
+              description: Part of the Lightweight Directory Access Protocol (LDAP) record that the database uses to authenticate this database user on the LDAP host.
+              computedOptionalRequired: computed_optional
+              name: ldap_auth_type
+            - string:
+                default: NONE
+              description: Human-readable label that indicates whether the new database user or group authenticates with OIDC federated authentication. To create a federated authentication user, specify the value of USER in this field. To create a federated authentication group, specify the value of IDP_GROUP in this field.
+              computedOptionalRequired: computed_optional
+              name: oidc_auth_type
             - string:
                 default: null
-              description: The state of the stream processor. Commonly occurring states are 'CREATED', 'STARTED', 'STOPPED' and 'FAILED'.
-              computedOptionalRequired: computed
-              name: state
-              reqBodyUsage: 3
+              description: Alphanumeric string that authenticates this database user against the database specified in `databaseName`. To authenticate with SCRAM-SHA, you must specify this parameter. This parameter doesn't appear in this response.
+              computedOptionalRequired: optional
+              name: password
+              sensitive: true
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Collection on which this role applies.
+                          computedOptionalRequired: optional
+                          name: collection_name
+                        - string:
+                            default: null
+                          description: Database to which the user is granted access privileges.
+                          computedOptionalRequired: required
+                          name: database_name
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies a group of privileges assigned to a database user. This value can either be a built-in role or a custom role.
+                          computedOptionalRequired: required
+                          name: role_name
+              description: List that provides the pairings of one role with one applicable database.
+              computedOptionalRequired: optional
+              name: roles
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies the cluster or MongoDB Atlas Data Lake that this database user can access.
+                          computedOptionalRequired: required
+                          name: name
+                        - string:
+                            default: null
+                          description: Category of resource that this database user can access.
+                          computedOptionalRequired: required
+                          name: type
+              description: List that contains clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances that this database user can access. If omitted, MongoDB Cloud grants the database user access to all the clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances in the project.
+              computedOptionalRequired: optional
+              name: scopes
             - string:
                 default: null
-              description: The stats associated with the stream processor.
-              customType:
-                model: jsontypes.Normalized
-                schema: jsontypes.NormalizedType{}
-              computedOptionalRequired: computed
-              name: stats
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: Human-readable label that identifies the stream instance.
+              description: |
+                Human-readable label that represents the user that authenticates to MongoDB. The format of this label depends on the method of authentication:
+
+                | Authentication Method | Parameter Needed | Parameter Value | username Format |
+                |---|---|---|---|
+                | AWS IAM | awsIAMType | ROLE | <abbr title="Amazon Resource Name">ARN</abbr> |
+                | AWS IAM | awsIAMType | USER | <abbr title="Amazon Resource Name">ARN</abbr> |
+                | x.509 | x509Type | CUSTOMER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                | x.509 | x509Type | MANAGED | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                | LDAP | ldapAuthType | USER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                | LDAP | ldapAuthType | GROUP | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                | OIDC Workforce | oidcAuthType | IDP_GROUP | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP group name |
+                | OIDC Workload | oidcAuthType | USER | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP user name |
+                | SCRAM-SHA | awsIAMType, x509Type, ldapAuthType, oidcAuthType | NONE | Alphanumeric string |
               computedOptionalRequired: required
-              name: tenant_name
-              reqBodyUsage: 3
+              name: username
+            - string:
+                default: NONE
+              description: |-
+                X.509 method that MongoDB Cloud uses to authenticate the database user.
+
+                - For application-managed X.509, specify `MANAGED`.
+                - For self-managed X.509, specify `CUSTOMER`.
+
+                Users created with the `CUSTOMER` method require a Common Name (CN) in the **username** parameter. You must create externally authenticated users on the `$external` database.
+              computedOptionalRequired: computed_optional
+              name: x509type
       openapi-schema:
-        description: An atlas stream processor with optional stats.
         properties:
-            _id:
-                description: Unique 24-hexadecimal character string that identifies the stream processor.
-                example: 32b6e34b3d91647abb20e7b8
-                pattern: ^([a-f0-9]{24})$
-                readOnly: true
+            awsIAMType:
+                default: NONE
+                description: Human-readable label that indicates whether the new database user authenticates with the Amazon Web Services (AWS) Identity and Access Management (IAM) credentials associated with the user or the user's role.
+                type: string
+            databaseName:
+                default: admin
+                description: The database against which the database user authenticates. Database users must provide both a username and authentication database to log into MongoDB. If the user authenticates with AWS IAM, x.509, LDAP, or OIDC Workload this value should be `$external`. If the user authenticates with SCRAM-SHA or OIDC Workforce, this value should be `admin`.
+                type: string
+            deleteAfterDate:
+                description: Date and time when MongoDB Cloud deletes the user. This parameter expresses its value in the ISO 8601 timestamp format in UTC and can include the time zone designation. You must specify a future date that falls within one week of making the Application Programming Interface (API) request.
+                format: date-time
+                type: string
+            description:
+                description: Description of this database user.
+                maxLength: 100
+                type: string
+            groupId:
+                description: Unique 24-hexadecimal digit string that identifies the project.
+                type: string
+                writeOnly: true
+            labels:
+                description: List that contains the key-value pairs for tagging and categorizing the MongoDB database user. The labels that you define do not appear in the console.
+                items:
+                    $ref: "#/components/schemas/ComponentLabel"
+                type: array
+            ldapAuthType:
+                default: NONE
+                description: Part of the Lightweight Directory Access Protocol (LDAP) record that the database uses to authenticate this database user on the LDAP host.
                 type: string
             links:
                 description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -230,297 +187,60 @@ resources:
                     $ref: "#/components/schemas/Link"
                 readOnly: true
                 type: array
-            name:
-                description: Human-readable name of the stream processor.
-                readOnly: true
+            oidcAuthType:
+                default: NONE
+                description: Human-readable label that indicates whether the new database user or group authenticates with OIDC federated authentication. To create a federated authentication user, specify the value of USER in this field. To create a federated authentication group, specify the value of IDP_GROUP in this field.
                 type: string
-            options:
-                $ref: "#/components/schemas/StreamsOptions"
-            pipeline:
-                description: Stream aggregation pipeline you want to apply to your streaming data.
-                items:
-                    readOnly: true
-                    type: object
-                readOnly: true
-                type: array
-            state:
-                description: The state of the stream processor. Commonly occurring states are 'CREATED', 'STARTED', 'STOPPED' and 'FAILED'.
-                readOnly: true
-                type: string
-            stats:
-                description: The stats associated with the stream processor.
+            password:
+                description: Alphanumeric string that authenticates this database user against the database specified in `databaseName`. To authenticate with SCRAM-SHA, you must specify this parameter. This parameter doesn't appear in this response.
                 externalDocs:
-                    url: https://www.mongodb.com/docs/atlas/atlas-stream-processing/manage-stream-processor/#view-statistics-of-a-stream-processor
-                readOnly: true
-                type: object
-        required:
-            - _id
-            - name
-            - pipeline
-            - state
-        type: object
-    - name: auditing_api
-      operations:
-        create:
-            httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/auditLog
-        read:
-            httpMethod: GET
-            path: /api/atlas/v2/groups/{groupId}/auditLog
-        update:
-            httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/auditLog
-        delete:
-            httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/auditLog
-            staticRequestBody: '{"enabled": "false"}'
-        versionheader: application/vnd.atlas.2023-01-01+json
-      schema:
-        description: Updates the auditing configuration for the specified project. The auditing configuration defines the events that MongoDB Cloud records in the audit log. To use this resource, the requesting Service Account or API Key must have the Project Owner role. This feature isn't available for `M0`, `M2`, `M5`, or serverless clusters.
-        attributes:
-            - bool:
-                default: false
-              description: 'Flag that indicates whether someone set auditing to track successful authentications. This only applies to the `"atype" : "authCheck"` audit filter. Setting this parameter to `true` degrades cluster performance.'
-              computedOptionalRequired: computed_optional
-              name: audit_authorization_success
-            - string:
-                default: null
-              description: JSON document that specifies which events to record. Escape any characters that may prevent parsing, such as single or double quotes, using a backslash (`\`).
-              computedOptionalRequired: optional
-              name: audit_filter
-            - string:
-                default: null
-              description: Human-readable label that displays how to configure the audit filter.
-              computedOptionalRequired: computed
-              name: configuration_type
-              reqBodyUsage: 3
-            - bool:
-                default: false
-              description: Flag that indicates whether someone enabled database auditing for the specified project.
-              computedOptionalRequired: computed_optional
-              name: enabled
-            - string:
-                default: null
-              description: |-
-                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+                    description: SCRAM-SHA
+                    url: https://docs.mongodb.com/manual/core/security-scram/
+                minLength: 8
+                type: string
+                writeOnly: true
+            roles:
+                description: List that provides the pairings of one role with one applicable database.
+                items:
+                    $ref: "#/components/schemas/DatabaseUserRole"
+                type: array
+            scopes:
+                description: List that contains clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances that this database user can access. If omitted, MongoDB Cloud grants the database user access to all the clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances in the project.
+                items:
+                    $ref: "#/components/schemas/UserScope"
+                type: array
+            username:
+                description: |
+                    Human-readable label that represents the user that authenticates to MongoDB. The format of this label depends on the method of authentication:
 
-                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
-              computedOptionalRequired: required
-              name: group_id
-              reqBodyUsage: 3
-      openapi-schema:
-        properties:
-            auditAuthorizationSuccess:
-                default: false
-                description: 'Flag that indicates whether someone set auditing to track successful authentications. This only applies to the `"atype" : "authCheck"` audit filter. Setting this parameter to `true` degrades cluster performance.'
-                externalDocs:
-                    description: System Auditing Messages
-                    url: https://docs.mongodb.com/manual/reference/audit-message/#audit-event-actions-details-and-results
-                type: boolean
-            auditFilter:
-                description: JSON document that specifies which events to record. Escape any characters that may prevent parsing, such as single or double quotes, using a backslash (`\`).
-                externalDocs:
-                    description: Custom Auditing Filter
-                    url: https://docs.atlas.mongodb.com/tutorial/auditing-custom-filter/
+                    | Authentication Method | Parameter Needed | Parameter Value | username Format |
+                    |---|---|---|---|
+                    | AWS IAM | awsIAMType | ROLE | <abbr title="Amazon Resource Name">ARN</abbr> |
+                    | AWS IAM | awsIAMType | USER | <abbr title="Amazon Resource Name">ARN</abbr> |
+                    | x.509 | x509Type | CUSTOMER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | x.509 | x509Type | MANAGED | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | LDAP | ldapAuthType | USER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | LDAP | ldapAuthType | GROUP | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
+                    | OIDC Workforce | oidcAuthType | IDP_GROUP | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP group name |
+                    | OIDC Workload | oidcAuthType | USER | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP user name |
+                    | SCRAM-SHA | awsIAMType, x509Type, ldapAuthType, oidcAuthType | NONE | Alphanumeric string |
+                maxLength: 1024
                 type: string
-            configurationType:
-                description: Human-readable label that displays how to configure the audit filter.
-                readOnly: true
-                type: string
-            enabled:
-                default: false
-                description: Flag that indicates whether someone enabled database auditing for the specified project.
-                type: boolean
-        type: object
-    - name: custom_db_role_api
-      operations:
-        create:
-            httpMethod: POST
-            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles
-        read:
-            httpMethod: GET
-            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}
-        update:
-            httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}
-        delete:
-            httpMethod: DELETE
-            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}
-        versionheader: application/vnd.atlas.2023-01-01+json
-      schema:
-        description: Creates one custom role in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role, Project Stream Processing Owner role, or the Project Database Access Admin role.
-        attributes:
-            - listNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - string:
-                            default: null
-                          description: Human-readable label that identifies the privilege action.
-                          computedOptionalRequired: required
-                          name: action
-                        - listNested:
-                            default: null
-                            nestedobject:
-                                attributes:
-                                    - bool:
-                                        default: null
-                                      description: Flag that indicates whether to grant the action on the cluster resource. If `true`, MongoDB Cloud ignores the **actions.resources.collection** and **actions.resources.db** parameters.
-                                      computedOptionalRequired: required
-                                      name: cluster
-                                    - string:
-                                        default: null
-                                      description: 'Human-readable label that identifies the collection on which you grant the action to one MongoDB user. If you don''t set this parameter, you grant the action to all collections in the database specified in the **actions.resources.db** parameter. If you set `"actions.resources.cluster" : true`, MongoDB Cloud ignores this parameter.'
-                                      computedOptionalRequired: required
-                                      name: collection
-                                    - string:
-                                        default: null
-                                      description: 'Human-readable label that identifies the database on which you grant the action to one MongoDB user. If you set `"actions.resources.cluster" : true`, MongoDB Cloud ignores this parameter.'
-                                      computedOptionalRequired: required
-                                      name: db
-                          description: List of resources on which you grant the action.
-                          computedOptionalRequired: optional
-                          name: resources
-              description: List of the individual privilege actions that the role grants.
-              computedOptionalRequired: optional
-              name: actions
-            - string:
-                default: null
-              description: |-
-                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+            x509Type:
+                default: NONE
+                description: |-
+                    X.509 method that MongoDB Cloud uses to authenticate the database user.
 
-                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
-              computedOptionalRequired: required
-              name: group_id
-              reqBodyUsage: 3
-            - setNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - string:
-                            default: null
-                          description: Human-readable label that identifies the database on which someone grants the action to one MongoDB user.
-                          computedOptionalRequired: required
-                          name: db
-                        - string:
-                            default: null
-                          description: Human-readable label that identifies the role inherited. Set this value to `admin` for every role except `read` or `readWrite`.
-                          computedOptionalRequired: required
-                          name: role
-              description: List of the built-in roles that this custom role inherits.
-              computedOptionalRequired: optional
-              name: inherited_roles
-            - string:
-                default: null
-              description: Human-readable label that identifies the role for the request. This name must be unique for this custom role in this project.
-              computedOptionalRequired: required
-              name: role_name
-              reqBodyUsage: 1
-      openapi-schema:
-        properties:
-            actions:
-                description: List of the individual privilege actions that the role grants.
-                items:
-                    $ref: "#/components/schemas/DatabasePrivilegeAction"
-                type: array
-            inheritedRoles:
-                description: List of the built-in roles that this custom role inherits.
-                items:
-                    $ref: "#/components/schemas/DatabaseInheritedRole"
-                type: array
-                uniqueItems: true
-            roleName:
-                description: Human-readable label that identifies the role for the request. This name must be unique for this custom role in this project.
+                    - For application-managed X.509, specify `MANAGED`.
+                    - For self-managed X.509, specify `CUSTOMER`.
+
+                    Users created with the `CUSTOMER` method require a Common Name (CN) in the **username** parameter. You must create externally authenticated users on the `$external` database.
                 type: string
         required:
-            - roleName
+            - databaseName
+            - groupId
+            - username
         type: object
-    - name: maintenance_window_api
-      operations:
-        create:
-            httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
-        read:
-            httpMethod: GET
-            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
-        update:
-            httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
-        delete:
-            httpMethod: DELETE
-            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
-        versionheader: application/vnd.atlas.2023-01-01+json
-      schema:
-        description: Updates the maintenance window for the specified project. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. Updating the maintenance window will reset any maintenance deferrals for this project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-        attributes:
-            - bool:
-                default: null
-              description: Flag that indicates whether MongoDB Cloud should defer all maintenance windows for one week after you enable them.
-              computedOptionalRequired: computed_optional
-              name: auto_defer_once_enabled
-            - int64:
-                default: null
-              description: |-
-                One-based integer that represents the day of the week that the maintenance window starts.
-
-                - `1`: Sunday.
-                - `2`: Monday.
-                - `3`: Tuesday.
-                - `4`: Wednesday.
-                - `5`: Thursday.
-                - `6`: Friday.
-                - `7`: Saturday.
-              computedOptionalRequired: required
-              name: day_of_week
-            - string:
-                default: null
-              description: |-
-                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
-
-                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
-              computedOptionalRequired: required
-              name: group_id
-              reqBodyUsage: 3
-            - int64:
-                default: null
-              description: Zero-based integer that represents the hour of the of the day that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon.
-              computedOptionalRequired: required
-              name: hour_of_day
-            - int64:
-                default: null
-              description: Number of times the current maintenance event for this project has been deferred.
-              computedOptionalRequired: computed
-              name: number_of_deferrals
-              reqBodyUsage: 3
-            - singleNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - int64:
-                            default: null
-                          description: Zero-based integer that represents the end hour of the of the day that the maintenance will not begin in.
-                          computedOptionalRequired: optional
-                          name: end_hour_of_day
-                        - int64:
-                            default: null
-                          description: Zero-based integer that represents the beginning hour of the of the day that the maintenance will not begin in.
-                          computedOptionalRequired: optional
-                          name: start_hour_of_day
-              description: Defines the a window where maintenance will not begin within.
-              computedOptionalRequired: optional
-              name: protected_hours
-            - bool:
-                default: null
-              description: Flag that indicates whether MongoDB Cloud starts the maintenance window immediately upon receiving this request. To start the maintenance window immediately for your project, MongoDB Cloud must have maintenance scheduled and you must set a maintenance window. This flag resets to `false` after MongoDB Cloud completes maintenance.
-              computedOptionalRequired: optional
-              name: start_asap
-            - string:
-                default: null
-              description: Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.
-              computedOptionalRequired: computed
-              name: time_zone_id
-              reqBodyUsage: 3
-      openapi-schema: null
     - name: project_api
       operations:
         create:
@@ -675,304 +395,6 @@ resources:
             - created
             - name
             - orgId
-        type: object
-    - name: resource_policy_api
-      operations:
-        create:
-            httpMethod: POST
-            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies
-        read:
-            httpMethod: GET
-            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies/{id}
-        update:
-            httpMethod: PATCH
-            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies/{id}
-        delete:
-            httpMethod: DELETE
-            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies/{id}
-        versionheader: application/vnd.atlas.2024-08-05+json
-      schema:
-        description: Create one Atlas Resource Policy for an org.
-        attributes:
-            - singleNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - string:
-                            default: null
-                          description: Unique 24-hexadecimal character string that identifies a user.
-                          computedOptionalRequired: computed
-                          name: id
-                          reqBodyUsage: 3
-                        - string:
-                            default: null
-                          description: Human-readable label that describes a user.
-                          computedOptionalRequired: computed
-                          name: name
-                          reqBodyUsage: 3
-              description: The user that last updated the atlas resource policy.
-              computedOptionalRequired: computed
-              name: created_by_user
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: Date and time in UTC when the atlas resource policy was created.
-              computedOptionalRequired: computed
-              name: created_date
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: Description of the atlas resource policy.
-              computedOptionalRequired: optional
-              name: description
-            - string:
-                default: null
-              description: Unique 24-hexadecimal character string that identifies the atlas resource policy.
-              computedOptionalRequired: computed
-              name: id
-              reqBodyUsage: 3
-            - singleNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - string:
-                            default: null
-                          description: Unique 24-hexadecimal character string that identifies a user.
-                          computedOptionalRequired: computed
-                          name: id
-                          reqBodyUsage: 3
-                        - string:
-                            default: null
-                          description: Human-readable label that describes a user.
-                          computedOptionalRequired: computed
-                          name: name
-                          reqBodyUsage: 3
-              description: The user that last updated the atlas resource policy.
-              computedOptionalRequired: computed
-              name: last_updated_by_user
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: Date and time in UTC when the atlas resource policy was last updated.
-              computedOptionalRequired: computed
-              name: last_updated_date
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: Human-readable label that describes the atlas resource policy.
-              computedOptionalRequired: required
-              name: name
-            - string:
-                default: null
-              description: Unique 24-hexadecimal digit string that identifies the organization that contains your projects. Use the [/orgs](#tag/Organizations/operation/listOrganizations) endpoint to retrieve all organizations to which the authenticated user has access.
-              computedOptionalRequired: required
-              name: org_id
-              reqBodyUsage: 3
-            - listNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - string:
-                            default: null
-                          description: A string that defines the permissions for the policy. The syntax used is the Cedar Policy language.
-                          computedOptionalRequired: required
-                          name: body
-                        - string:
-                            default: null
-                          description: Unique 24-hexadecimal character string that identifies the policy.
-                          computedOptionalRequired: computed
-                          name: id
-                          reqBodyUsage: 3
-              description: List of policies that make up the atlas resource policy.
-              computedOptionalRequired: required
-              name: policies
-            - string:
-                default: null
-              description: A string that identifies the version of the atlas resource policy.
-              computedOptionalRequired: computed
-              name: version
-              reqBodyUsage: 3
-      openapi-schema:
-        properties:
-            createdByUser:
-                $ref: "#/components/schemas/ApiAtlasUserMetadata"
-            createdDate:
-                description: Date and time in UTC when the atlas resource policy was created.
-                format: date-time
-                readOnly: true
-                type: string
-            description:
-                description: Description of the atlas resource policy.
-                readOnly: true
-                type: string
-            id:
-                description: Unique 24-hexadecimal character string that identifies the atlas resource policy.
-                example: 32b6e34b3d91647abb20e7b8
-                pattern: ^([a-f0-9]{24})$
-                readOnly: true
-                type: string
-            lastUpdatedByUser:
-                $ref: "#/components/schemas/ApiAtlasUserMetadata"
-            lastUpdatedDate:
-                description: Date and time in UTC when the atlas resource policy was last updated.
-                format: date-time
-                readOnly: true
-                type: string
-            name:
-                description: Human-readable label that describes the atlas resource policy.
-                readOnly: true
-                type: string
-            orgId:
-                description: Unique 24-hexadecimal character string that identifies the organization the atlas resource policy belongs to.
-                example: 32b6e34b3d91647abb20e7b8
-                pattern: ^([a-f0-9]{24})$
-                readOnly: true
-                type: string
-            policies:
-                description: List of policies that make up the atlas resource policy.
-                items:
-                    $ref: "#/components/schemas/ApiAtlasPolicy"
-                readOnly: true
-                type: array
-            version:
-                description: A string that identifies the version of the atlas resource policy.
-                example: v1
-                readOnly: true
-                type: string
-        type: object
-    - name: search_deployment_api
-      operations:
-        create:
-            wait:
-                stateProperty: stateName
-                pendingStates:
-                    - UPDATING
-                    - PAUSED
-                targetStates:
-                    - IDLE
-                timeoutSeconds: 10800
-                minTimeoutSeconds: 60
-                delaySeconds: 60
-            httpMethod: POST
-            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
-        read:
-            httpMethod: GET
-            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
-        update:
-            wait:
-                stateProperty: stateName
-                pendingStates:
-                    - UPDATING
-                    - PAUSED
-                targetStates:
-                    - IDLE
-                timeoutSeconds: 10800
-                minTimeoutSeconds: 60
-                delaySeconds: 60
-            httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
-        delete:
-            wait:
-                stateProperty: stateName
-                pendingStates:
-                    - IDLE
-                    - UPDATING
-                    - PAUSED
-                targetStates:
-                    - DELETED
-                timeoutSeconds: 10800
-                minTimeoutSeconds: 30
-                delaySeconds: 60
-            httpMethod: DELETE
-            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
-        versionheader: application/vnd.atlas.2025-03-12+json
-      schema:
-        description: Creates Search Nodes for the specified cluster.
-        attributes:
-            - string:
-                default: null
-              description: Label that identifies the cluster to create Search Nodes for.
-              computedOptionalRequired: required
-              name: cluster_name
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: Cloud service provider that manages your customer keys to provide an additional layer of Encryption At Rest for the cluster.
-              computedOptionalRequired: computed
-              name: encryption_at_rest_provider
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: |-
-                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
-
-                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
-              computedOptionalRequired: required
-              name: group_id
-              reqBodyUsage: 3
-            - string:
-                default: null
-              description: Unique 24-hexadecimal digit string that identifies the search deployment.
-              computedOptionalRequired: computed
-              name: id
-              reqBodyUsage: 3
-            - listNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - string:
-                            default: null
-                          description: Hardware specification for the Search Node instance sizes.
-                          computedOptionalRequired: required
-                          name: instance_size
-                        - int64:
-                            default: null
-                          description: Number of Search Nodes in the cluster.
-                          computedOptionalRequired: required
-                          name: node_count
-              description: |-
-                List of settings that configure the Search Nodes for your cluster.
-
-                **NOTE**: We accept a single configuration for all nodes currently.
-              computedOptionalRequired: required
-              name: specs
-            - string:
-                default: null
-              description: Human-readable label that indicates the current operating condition of this search deployment.
-              computedOptionalRequired: computed
-              name: state_name
-              reqBodyUsage: 3
-      openapi-schema:
-        properties:
-            encryptionAtRestProvider:
-                description: Cloud service provider that manages your customer keys to provide an additional layer of Encryption At Rest for the cluster.
-                externalDocs:
-                    description: Encryption at Rest using Customer Key Management
-                    url: https://www.mongodb.com/docs/atlas/security-kms-encryption/
-                readOnly: true
-                type: string
-            groupId:
-                description: Unique 24-hexadecimal character string that identifies the project.
-                example: 32b6e34b3d91647abb20e7b8
-                pattern: ^([a-f0-9]{24})$
-                readOnly: true
-                type: string
-            id:
-                description: Unique 24-hexadecimal digit string that identifies the search deployment.
-                example: 32b6e34b3d91647abb20e7b8
-                pattern: ^([a-f0-9]{24})$
-                readOnly: true
-                type: string
-            specs:
-                description: List of settings that configure the Search Nodes for your cluster. The configuration will be returned for each region and shard.
-                items:
-                    $ref: "#/components/schemas/ApiSearchDeploymentSpec"
-                readOnly: true
-                type: array
-            stateName:
-                description: Human-readable label that indicates the current operating condition of this search deployment.
-                readOnly: true
-                type: string
         type: object
     - name: stream_instance_api
       operations:
@@ -1319,6 +741,826 @@ resources:
                 $ref: "#/components/schemas/StreamsSampleConnections"
             streamConfig:
                 $ref: "#/components/schemas/StreamConfig"
+        type: object
+    - name: custom_db_role_api
+      operations:
+        create:
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}
+        delete:
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Creates one custom role in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role, Project Stream Processing Owner role, or the Project Database Access Admin role.
+        attributes:
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies the privilege action.
+                          computedOptionalRequired: required
+                          name: action
+                        - listNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - bool:
+                                        default: null
+                                      description: Flag that indicates whether to grant the action on the cluster resource. If `true`, MongoDB Cloud ignores the **actions.resources.collection** and **actions.resources.db** parameters.
+                                      computedOptionalRequired: required
+                                      name: cluster
+                                    - string:
+                                        default: null
+                                      description: 'Human-readable label that identifies the collection on which you grant the action to one MongoDB user. If you don''t set this parameter, you grant the action to all collections in the database specified in the **actions.resources.db** parameter. If you set `"actions.resources.cluster" : true`, MongoDB Cloud ignores this parameter.'
+                                      computedOptionalRequired: required
+                                      name: collection
+                                    - string:
+                                        default: null
+                                      description: 'Human-readable label that identifies the database on which you grant the action to one MongoDB user. If you set `"actions.resources.cluster" : true`, MongoDB Cloud ignores this parameter.'
+                                      computedOptionalRequired: required
+                                      name: db
+                          description: List of resources on which you grant the action.
+                          computedOptionalRequired: optional
+                          name: resources
+              description: List of the individual privilege actions that the role grants.
+              computedOptionalRequired: optional
+              name: actions
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - setNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies the database on which someone grants the action to one MongoDB user.
+                          computedOptionalRequired: required
+                          name: db
+                        - string:
+                            default: null
+                          description: Human-readable label that identifies the role inherited. Set this value to `admin` for every role except `read` or `readWrite`.
+                          computedOptionalRequired: required
+                          name: role
+              description: List of the built-in roles that this custom role inherits.
+              computedOptionalRequired: optional
+              name: inherited_roles
+            - string:
+                default: null
+              description: Human-readable label that identifies the role for the request. This name must be unique for this custom role in this project.
+              computedOptionalRequired: required
+              name: role_name
+              reqBodyUsage: 1
+      openapi-schema:
+        properties:
+            actions:
+                description: List of the individual privilege actions that the role grants.
+                items:
+                    $ref: "#/components/schemas/DatabasePrivilegeAction"
+                type: array
+            inheritedRoles:
+                description: List of the built-in roles that this custom role inherits.
+                items:
+                    $ref: "#/components/schemas/DatabaseInheritedRole"
+                type: array
+                uniqueItems: true
+            roleName:
+                description: Human-readable label that identifies the role for the request. This name must be unique for this custom role in this project.
+                type: string
+        required:
+            - roleName
+        type: object
+    - name: maintenance_window_api
+      operations:
+        create:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
+        delete:
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/maintenanceWindow
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Updates the maintenance window for the specified project. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. Updating the maintenance window will reset any maintenance deferrals for this project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+        attributes:
+            - bool:
+                default: null
+              description: Flag that indicates whether MongoDB Cloud should defer all maintenance windows for one week after you enable them.
+              computedOptionalRequired: computed_optional
+              name: auto_defer_once_enabled
+            - int64:
+                default: null
+              description: |-
+                One-based integer that represents the day of the week that the maintenance window starts.
+
+                - `1`: Sunday.
+                - `2`: Monday.
+                - `3`: Tuesday.
+                - `4`: Wednesday.
+                - `5`: Thursday.
+                - `6`: Friday.
+                - `7`: Saturday.
+              computedOptionalRequired: required
+              name: day_of_week
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - int64:
+                default: null
+              description: Zero-based integer that represents the hour of the of the day that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon.
+              computedOptionalRequired: required
+              name: hour_of_day
+            - int64:
+                default: null
+              description: Number of times the current maintenance event for this project has been deferred.
+              computedOptionalRequired: computed
+              name: number_of_deferrals
+              reqBodyUsage: 3
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - int64:
+                            default: null
+                          description: Zero-based integer that represents the end hour of the of the day that the maintenance will not begin in.
+                          computedOptionalRequired: optional
+                          name: end_hour_of_day
+                        - int64:
+                            default: null
+                          description: Zero-based integer that represents the beginning hour of the of the day that the maintenance will not begin in.
+                          computedOptionalRequired: optional
+                          name: start_hour_of_day
+              description: Defines the a window where maintenance will not begin within.
+              computedOptionalRequired: optional
+              name: protected_hours
+            - bool:
+                default: null
+              description: Flag that indicates whether MongoDB Cloud starts the maintenance window immediately upon receiving this request. To start the maintenance window immediately for your project, MongoDB Cloud must have maintenance scheduled and you must set a maintenance window. This flag resets to `false` after MongoDB Cloud completes maintenance.
+              computedOptionalRequired: optional
+              name: start_asap
+            - string:
+                default: null
+              description: Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.
+              computedOptionalRequired: computed
+              name: time_zone_id
+              reqBodyUsage: 3
+      openapi-schema: null
+    - name: push_based_log_export_api
+      operations:
+        create:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INITIATING
+                    - BUCKET_VERIFIED
+                targetStates:
+                    - ACTIVE
+                timeoutSeconds: 900
+                minTimeoutSeconds: 60
+                delaySeconds: 10
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+        update:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INITIATING
+                    - BUCKET_VERIFIED
+                targetStates:
+                    - ACTIVE
+                timeoutSeconds: 900
+                minTimeoutSeconds: 60
+                delaySeconds: 10
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+        delete:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - ACTIVE
+                    - INITIATING
+                    - BUCKET_VERIFIED
+                targetStates:
+                    - UNCONFIGURED
+                    - DELETED
+                timeoutSeconds: 900
+                minTimeoutSeconds: 60
+                delaySeconds: 10
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/pushBasedLogExport
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Configures the project level settings for the push-based log export feature.
+        attributes:
+            - string:
+                default: null
+              description: The name of the bucket to which the agent will send the logs to.
+              computedOptionalRequired: required
+              name: bucket_name
+            - string:
+                default: null
+              description: Date and time that this feature was enabled on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+              computedOptionalRequired: computed
+              name: create_date
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: ID of the AWS IAM role that will be used to write to the S3 bucket.
+              computedOptionalRequired: required
+              name: iam_role_id
+            - string:
+                default: null
+              description: S3 directory in which vector will write to in order to store the logs. An empty string denotes the root directory.
+              computedOptionalRequired: required
+              name: prefix_path
+            - string:
+                default: null
+              description: Describes whether or not the feature is enabled and what status it is in.
+              computedOptionalRequired: computed
+              name: state
+              reqBodyUsage: 3
+      openapi-schema: null
+    - name: resource_policy_api
+      operations:
+        create:
+            httpMethod: POST
+            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies/{id}
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies/{id}
+        delete:
+            httpMethod: DELETE
+            path: /api/atlas/v2/orgs/{orgId}/resourcePolicies/{id}
+        versionheader: application/vnd.atlas.2024-08-05+json
+      schema:
+        description: Create one Atlas Resource Policy for an org.
+        attributes:
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Unique 24-hexadecimal character string that identifies a user.
+                          computedOptionalRequired: computed
+                          name: id
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Human-readable label that describes a user.
+                          computedOptionalRequired: computed
+                          name: name
+                          reqBodyUsage: 3
+              description: The user that last updated the atlas resource policy.
+              computedOptionalRequired: computed
+              name: created_by_user
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Date and time in UTC when the atlas resource policy was created.
+              computedOptionalRequired: computed
+              name: created_date
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Description of the atlas resource policy.
+              computedOptionalRequired: optional
+              name: description
+            - string:
+                default: null
+              description: Unique 24-hexadecimal character string that identifies the atlas resource policy.
+              computedOptionalRequired: computed
+              name: id
+              reqBodyUsage: 3
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Unique 24-hexadecimal character string that identifies a user.
+                          computedOptionalRequired: computed
+                          name: id
+                          reqBodyUsage: 3
+                        - string:
+                            default: null
+                          description: Human-readable label that describes a user.
+                          computedOptionalRequired: computed
+                          name: name
+                          reqBodyUsage: 3
+              description: The user that last updated the atlas resource policy.
+              computedOptionalRequired: computed
+              name: last_updated_by_user
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Date and time in UTC when the atlas resource policy was last updated.
+              computedOptionalRequired: computed
+              name: last_updated_date
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Human-readable label that describes the atlas resource policy.
+              computedOptionalRequired: required
+              name: name
+            - string:
+                default: null
+              description: Unique 24-hexadecimal digit string that identifies the organization that contains your projects. Use the [/orgs](#tag/Organizations/operation/listOrganizations) endpoint to retrieve all organizations to which the authenticated user has access.
+              computedOptionalRequired: required
+              name: org_id
+              reqBodyUsage: 3
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: A string that defines the permissions for the policy. The syntax used is the Cedar Policy language.
+                          computedOptionalRequired: required
+                          name: body
+                        - string:
+                            default: null
+                          description: Unique 24-hexadecimal character string that identifies the policy.
+                          computedOptionalRequired: computed
+                          name: id
+                          reqBodyUsage: 3
+              description: List of policies that make up the atlas resource policy.
+              computedOptionalRequired: required
+              name: policies
+            - string:
+                default: null
+              description: A string that identifies the version of the atlas resource policy.
+              computedOptionalRequired: computed
+              name: version
+              reqBodyUsage: 3
+      openapi-schema:
+        properties:
+            createdByUser:
+                $ref: "#/components/schemas/ApiAtlasUserMetadata"
+            createdDate:
+                description: Date and time in UTC when the atlas resource policy was created.
+                format: date-time
+                readOnly: true
+                type: string
+            description:
+                description: Description of the atlas resource policy.
+                readOnly: true
+                type: string
+            id:
+                description: Unique 24-hexadecimal character string that identifies the atlas resource policy.
+                example: 32b6e34b3d91647abb20e7b8
+                pattern: ^([a-f0-9]{24})$
+                readOnly: true
+                type: string
+            lastUpdatedByUser:
+                $ref: "#/components/schemas/ApiAtlasUserMetadata"
+            lastUpdatedDate:
+                description: Date and time in UTC when the atlas resource policy was last updated.
+                format: date-time
+                readOnly: true
+                type: string
+            name:
+                description: Human-readable label that describes the atlas resource policy.
+                readOnly: true
+                type: string
+            orgId:
+                description: Unique 24-hexadecimal character string that identifies the organization the atlas resource policy belongs to.
+                example: 32b6e34b3d91647abb20e7b8
+                pattern: ^([a-f0-9]{24})$
+                readOnly: true
+                type: string
+            policies:
+                description: List of policies that make up the atlas resource policy.
+                items:
+                    $ref: "#/components/schemas/ApiAtlasPolicy"
+                readOnly: true
+                type: array
+            version:
+                description: A string that identifies the version of the atlas resource policy.
+                example: v1
+                readOnly: true
+                type: string
+        type: object
+    - name: search_deployment_api
+      operations:
+        create:
+            wait:
+                stateProperty: stateName
+                pendingStates:
+                    - UPDATING
+                    - PAUSED
+                targetStates:
+                    - IDLE
+                timeoutSeconds: 10800
+                minTimeoutSeconds: 60
+                delaySeconds: 60
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
+        update:
+            wait:
+                stateProperty: stateName
+                pendingStates:
+                    - UPDATING
+                    - PAUSED
+                targetStates:
+                    - IDLE
+                timeoutSeconds: 10800
+                minTimeoutSeconds: 60
+                delaySeconds: 60
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
+        delete:
+            wait:
+                stateProperty: stateName
+                pendingStates:
+                    - IDLE
+                    - UPDATING
+                    - PAUSED
+                targetStates:
+                    - DELETED
+                timeoutSeconds: 10800
+                minTimeoutSeconds: 30
+                delaySeconds: 60
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment
+        versionheader: application/vnd.atlas.2025-03-12+json
+      schema:
+        description: Creates Search Nodes for the specified cluster.
+        attributes:
+            - string:
+                default: null
+              description: Label that identifies the cluster to create Search Nodes for.
+              computedOptionalRequired: required
+              name: cluster_name
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Cloud service provider that manages your customer keys to provide an additional layer of Encryption At Rest for the cluster.
+              computedOptionalRequired: computed
+              name: encryption_at_rest_provider
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Unique 24-hexadecimal digit string that identifies the search deployment.
+              computedOptionalRequired: computed
+              name: id
+              reqBodyUsage: 3
+            - listNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - string:
+                            default: null
+                          description: Hardware specification for the Search Node instance sizes.
+                          computedOptionalRequired: required
+                          name: instance_size
+                        - int64:
+                            default: null
+                          description: Number of Search Nodes in the cluster.
+                          computedOptionalRequired: required
+                          name: node_count
+              description: |-
+                List of settings that configure the Search Nodes for your cluster.
+
+                **NOTE**: We accept a single configuration for all nodes currently.
+              computedOptionalRequired: required
+              name: specs
+            - string:
+                default: null
+              description: Human-readable label that indicates the current operating condition of this search deployment.
+              computedOptionalRequired: computed
+              name: state_name
+              reqBodyUsage: 3
+      openapi-schema:
+        properties:
+            encryptionAtRestProvider:
+                description: Cloud service provider that manages your customer keys to provide an additional layer of Encryption At Rest for the cluster.
+                externalDocs:
+                    description: Encryption at Rest using Customer Key Management
+                    url: https://www.mongodb.com/docs/atlas/security-kms-encryption/
+                readOnly: true
+                type: string
+            groupId:
+                description: Unique 24-hexadecimal character string that identifies the project.
+                example: 32b6e34b3d91647abb20e7b8
+                pattern: ^([a-f0-9]{24})$
+                readOnly: true
+                type: string
+            id:
+                description: Unique 24-hexadecimal digit string that identifies the search deployment.
+                example: 32b6e34b3d91647abb20e7b8
+                pattern: ^([a-f0-9]{24})$
+                readOnly: true
+                type: string
+            specs:
+                description: List of settings that configure the Search Nodes for your cluster. The configuration will be returned for each region and shard.
+                items:
+                    $ref: "#/components/schemas/ApiSearchDeploymentSpec"
+                readOnly: true
+                type: array
+            stateName:
+                description: Human-readable label that indicates the current operating condition of this search deployment.
+                readOnly: true
+                type: string
+        type: object
+    - name: stream_processor_api
+      operations:
+        create:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INIT
+                    - CREATING
+                targetStates:
+                    - CREATED
+                timeoutSeconds: 300
+                minTimeoutSeconds: 10
+                delaySeconds: 10
+            httpMethod: POST
+            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{name}
+        update:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INIT
+                    - CREATING
+                targetStates:
+                    - CREATED
+                timeoutSeconds: 300
+                minTimeoutSeconds: 10
+                delaySeconds: 10
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{name}
+        delete:
+            wait:
+                stateProperty: state
+                pendingStates:
+                    - INIT
+                    - CREATING
+                    - CREATED
+                    - STARTED
+                    - STOPPED
+                targetStates:
+                    - DELETED
+                timeoutSeconds: 300
+                minTimeoutSeconds: 10
+                delaySeconds: 10
+            httpMethod: DELETE
+            path: /api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{name}
+        versionheader: application/vnd.atlas.2024-05-30+json
+      schema:
+        description: Create one Stream Processor within the specified stream instance. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Stream Processing Owner role.
+        attributes:
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Human-readable name of the stream processor.
+              computedOptionalRequired: optional
+              name: name
+            - singleNested:
+                default: null
+                nestedobject:
+                    attributes:
+                        - singleNested:
+                            default: null
+                            nestedobject:
+                                attributes:
+                                    - string:
+                                        default: null
+                                      description: Name of the collection to use for the DLQ.
+                                      computedOptionalRequired: optional
+                                      name: coll
+                                    - string:
+                                        default: null
+                                      description: Name of the connection to write DLQ messages to. Must be an Atlas connection.
+                                      computedOptionalRequired: optional
+                                      name: connection_name
+                                    - string:
+                                        default: null
+                                      description: Name of the database to use for the DLQ.
+                                      computedOptionalRequired: optional
+                                      name: db
+                          description: Dead letter queue for the stream processor.
+                          computedOptionalRequired: optional
+                          name: dlq
+                        - bool:
+                            default: null
+                          description: When true, the modified stream processor resumes from its last checkpoint.
+                          computedOptionalRequired: optional
+                          name: resume_from_checkpoint
+              description: Optional configuration for the stream processor.
+              computedOptionalRequired: computed_optional
+              name: options
+            - list:
+                default: null
+                elementtype: 5
+              description: Stream aggregation pipeline you want to apply to your streaming data.
+              computedOptionalRequired: optional
+              name: pipeline
+            - string:
+                default: null
+              description: The state of the stream processor. Commonly occurring states are 'CREATED', 'STARTED', 'STOPPED' and 'FAILED'.
+              computedOptionalRequired: computed
+              name: state
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: The stats associated with the stream processor.
+              customType:
+                model: jsontypes.Normalized
+                schema: jsontypes.NormalizedType{}
+              computedOptionalRequired: computed
+              name: stats
+              reqBodyUsage: 3
+            - string:
+                default: null
+              description: Human-readable label that identifies the stream instance.
+              computedOptionalRequired: required
+              name: tenant_name
+              reqBodyUsage: 3
+      openapi-schema:
+        description: An atlas stream processor with optional stats.
+        properties:
+            _id:
+                description: Unique 24-hexadecimal character string that identifies the stream processor.
+                example: 32b6e34b3d91647abb20e7b8
+                pattern: ^([a-f0-9]{24})$
+                readOnly: true
+                type: string
+            links:
+                description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                externalDocs:
+                    description: Web Linking Specification (RFC 5988)
+                    url: https://datatracker.ietf.org/doc/html/rfc5988
+                items:
+                    $ref: "#/components/schemas/Link"
+                readOnly: true
+                type: array
+            name:
+                description: Human-readable name of the stream processor.
+                readOnly: true
+                type: string
+            options:
+                $ref: "#/components/schemas/StreamsOptions"
+            pipeline:
+                description: Stream aggregation pipeline you want to apply to your streaming data.
+                items:
+                    readOnly: true
+                    type: object
+                readOnly: true
+                type: array
+            state:
+                description: The state of the stream processor. Commonly occurring states are 'CREATED', 'STARTED', 'STOPPED' and 'FAILED'.
+                readOnly: true
+                type: string
+            stats:
+                description: The stats associated with the stream processor.
+                externalDocs:
+                    url: https://www.mongodb.com/docs/atlas/atlas-stream-processing/manage-stream-processor/#view-statistics-of-a-stream-processor
+                readOnly: true
+                type: object
+        required:
+            - _id
+            - name
+            - pipeline
+            - state
+        type: object
+    - name: auditing_api
+      operations:
+        create:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/auditLog
+        read:
+            httpMethod: GET
+            path: /api/atlas/v2/groups/{groupId}/auditLog
+        update:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/auditLog
+        delete:
+            httpMethod: PATCH
+            path: /api/atlas/v2/groups/{groupId}/auditLog
+            staticRequestBody: '{"enabled": "false"}'
+        versionheader: application/vnd.atlas.2023-01-01+json
+      schema:
+        description: Updates the auditing configuration for the specified project. The auditing configuration defines the events that MongoDB Cloud records in the audit log. To use this resource, the requesting Service Account or API Key must have the Project Owner role. This feature isn't available for `M0`, `M2`, `M5`, or serverless clusters.
+        attributes:
+            - bool:
+                default: false
+              description: 'Flag that indicates whether someone set auditing to track successful authentications. This only applies to the `"atype" : "authCheck"` audit filter. Setting this parameter to `true` degrades cluster performance.'
+              computedOptionalRequired: computed_optional
+              name: audit_authorization_success
+            - string:
+                default: null
+              description: JSON document that specifies which events to record. Escape any characters that may prevent parsing, such as single or double quotes, using a backslash (`\`).
+              computedOptionalRequired: optional
+              name: audit_filter
+            - string:
+                default: null
+              description: Human-readable label that displays how to configure the audit filter.
+              computedOptionalRequired: computed
+              name: configuration_type
+              reqBodyUsage: 3
+            - bool:
+                default: false
+              description: Flag that indicates whether someone enabled database auditing for the specified project.
+              computedOptionalRequired: computed_optional
+              name: enabled
+            - string:
+                default: null
+              description: |-
+                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
+
+                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
+              computedOptionalRequired: required
+              name: group_id
+              reqBodyUsage: 3
+      openapi-schema:
+        properties:
+            auditAuthorizationSuccess:
+                default: false
+                description: 'Flag that indicates whether someone set auditing to track successful authentications. This only applies to the `"atype" : "authCheck"` audit filter. Setting this parameter to `true` degrades cluster performance.'
+                externalDocs:
+                    description: System Auditing Messages
+                    url: https://docs.mongodb.com/manual/reference/audit-message/#audit-event-actions-details-and-results
+                type: boolean
+            auditFilter:
+                description: JSON document that specifies which events to record. Escape any characters that may prevent parsing, such as single or double quotes, using a backslash (`\`).
+                externalDocs:
+                    description: Custom Auditing Filter
+                    url: https://docs.atlas.mongodb.com/tutorial/auditing-custom-filter/
+                type: string
+            configurationType:
+                description: Human-readable label that displays how to configure the audit filter.
+                readOnly: true
+                type: string
+            enabled:
+                default: false
+                description: Flag that indicates whether someone enabled database auditing for the specified project.
+                type: boolean
         type: object
     - name: cluster_api
       operations:
@@ -2246,246 +2488,4 @@ resources:
                 default: LTS
                 description: Method by which the cluster maintains the MongoDB versions. If value is `CONTINUOUS`, you must not specify **mongoDBMajorVersion**.
                 type: string
-        type: object
-    - name: database_user_api
-      operations:
-        create:
-            httpMethod: POST
-            path: /api/atlas/v2/groups/{groupId}/databaseUsers
-        read:
-            httpMethod: GET
-            path: /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}
-        update:
-            httpMethod: PATCH
-            path: /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}
-        delete:
-            httpMethod: DELETE
-            path: /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}
-        versionheader: application/vnd.atlas.2023-01-01+json
-      schema:
-        description: Creates one database user in the specified project. This MongoDB Cloud supports a maximum of 100 database users per project. If you require more than 100 database users on a project, contact Support. To use this resource, the requesting Service Account or API Key must have the Project Owner role, the Project Charts Admin role, Project Stream Processing Owner role, or the Project Database Access Admin role.
-        attributes:
-            - string:
-                default: NONE
-              description: Human-readable label that indicates whether the new database user authenticates with the Amazon Web Services (AWS) Identity and Access Management (IAM) credentials associated with the user or the user's role.
-              computedOptionalRequired: computed_optional
-              name: aws_iamtype
-            - string:
-                default: admin
-              description: The database against which the database user authenticates. Database users must provide both a username and authentication database to log into MongoDB. If the user authenticates with AWS IAM, x.509, LDAP, or OIDC Workload this value should be `$external`. If the user authenticates with SCRAM-SHA or OIDC Workforce, this value should be `admin`.
-              computedOptionalRequired: computed_optional
-              name: database_name
-            - string:
-                default: null
-              description: Date and time when MongoDB Cloud deletes the user. This parameter expresses its value in the ISO 8601 timestamp format in UTC and can include the time zone designation. You must specify a future date that falls within one week of making the Application Programming Interface (API) request.
-              computedOptionalRequired: optional
-              name: delete_after_date
-            - string:
-                default: null
-              description: Description of this database user.
-              computedOptionalRequired: optional
-              name: description
-              reqBodyUsage: 2
-            - string:
-                default: null
-              description: |-
-                Unique 24-hexadecimal digit string that identifies your project. Use the [/groups](#tag/Projects/operation/listProjects) endpoint to retrieve all projects to which the authenticated user has access.
-
-                **NOTE**: Groups and projects are synonymous terms. Your group id is the same as your project id. For existing groups, your group/project id remains the same. The resource and corresponding endpoints use the term groups.
-              computedOptionalRequired: required
-              name: group_id
-            - listNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - string:
-                            default: null
-                          description: Key applied to tag and categorize this component.
-                          computedOptionalRequired: optional
-                          name: key
-                        - string:
-                            default: null
-                          description: Value set to the Key applied to tag and categorize this component.
-                          computedOptionalRequired: optional
-                          name: value
-              description: List that contains the key-value pairs for tagging and categorizing the MongoDB database user. The labels that you define do not appear in the console.
-              computedOptionalRequired: optional
-              name: labels
-            - string:
-                default: NONE
-              description: Part of the Lightweight Directory Access Protocol (LDAP) record that the database uses to authenticate this database user on the LDAP host.
-              computedOptionalRequired: computed_optional
-              name: ldap_auth_type
-            - string:
-                default: NONE
-              description: Human-readable label that indicates whether the new database user or group authenticates with OIDC federated authentication. To create a federated authentication user, specify the value of USER in this field. To create a federated authentication group, specify the value of IDP_GROUP in this field.
-              computedOptionalRequired: computed_optional
-              name: oidc_auth_type
-            - string:
-                default: null
-              description: Alphanumeric string that authenticates this database user against the database specified in `databaseName`. To authenticate with SCRAM-SHA, you must specify this parameter. This parameter doesn't appear in this response.
-              computedOptionalRequired: optional
-              name: password
-              sensitive: true
-            - listNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - string:
-                            default: null
-                          description: Collection on which this role applies.
-                          computedOptionalRequired: optional
-                          name: collection_name
-                        - string:
-                            default: null
-                          description: Database to which the user is granted access privileges.
-                          computedOptionalRequired: required
-                          name: database_name
-                        - string:
-                            default: null
-                          description: Human-readable label that identifies a group of privileges assigned to a database user. This value can either be a built-in role or a custom role.
-                          computedOptionalRequired: required
-                          name: role_name
-              description: List that provides the pairings of one role with one applicable database.
-              computedOptionalRequired: optional
-              name: roles
-            - listNested:
-                default: null
-                nestedobject:
-                    attributes:
-                        - string:
-                            default: null
-                          description: Human-readable label that identifies the cluster or MongoDB Atlas Data Lake that this database user can access.
-                          computedOptionalRequired: required
-                          name: name
-                        - string:
-                            default: null
-                          description: Category of resource that this database user can access.
-                          computedOptionalRequired: required
-                          name: type
-              description: List that contains clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances that this database user can access. If omitted, MongoDB Cloud grants the database user access to all the clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances in the project.
-              computedOptionalRequired: optional
-              name: scopes
-            - string:
-                default: null
-              description: |
-                Human-readable label that represents the user that authenticates to MongoDB. The format of this label depends on the method of authentication:
-
-                | Authentication Method | Parameter Needed | Parameter Value | username Format |
-                |---|---|---|---|
-                | AWS IAM | awsIAMType | ROLE | <abbr title="Amazon Resource Name">ARN</abbr> |
-                | AWS IAM | awsIAMType | USER | <abbr title="Amazon Resource Name">ARN</abbr> |
-                | x.509 | x509Type | CUSTOMER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
-                | x.509 | x509Type | MANAGED | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
-                | LDAP | ldapAuthType | USER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
-                | LDAP | ldapAuthType | GROUP | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
-                | OIDC Workforce | oidcAuthType | IDP_GROUP | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP group name |
-                | OIDC Workload | oidcAuthType | USER | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP user name |
-                | SCRAM-SHA | awsIAMType, x509Type, ldapAuthType, oidcAuthType | NONE | Alphanumeric string |
-              computedOptionalRequired: required
-              name: username
-            - string:
-                default: NONE
-              description: |-
-                X.509 method that MongoDB Cloud uses to authenticate the database user.
-
-                - For application-managed X.509, specify `MANAGED`.
-                - For self-managed X.509, specify `CUSTOMER`.
-
-                Users created with the `CUSTOMER` method require a Common Name (CN) in the **username** parameter. You must create externally authenticated users on the `$external` database.
-              computedOptionalRequired: computed_optional
-              name: x509type
-      openapi-schema:
-        properties:
-            awsIAMType:
-                default: NONE
-                description: Human-readable label that indicates whether the new database user authenticates with the Amazon Web Services (AWS) Identity and Access Management (IAM) credentials associated with the user or the user's role.
-                type: string
-            databaseName:
-                default: admin
-                description: The database against which the database user authenticates. Database users must provide both a username and authentication database to log into MongoDB. If the user authenticates with AWS IAM, x.509, LDAP, or OIDC Workload this value should be `$external`. If the user authenticates with SCRAM-SHA or OIDC Workforce, this value should be `admin`.
-                type: string
-            deleteAfterDate:
-                description: Date and time when MongoDB Cloud deletes the user. This parameter expresses its value in the ISO 8601 timestamp format in UTC and can include the time zone designation. You must specify a future date that falls within one week of making the Application Programming Interface (API) request.
-                format: date-time
-                type: string
-            description:
-                description: Description of this database user.
-                maxLength: 100
-                type: string
-            groupId:
-                description: Unique 24-hexadecimal digit string that identifies the project.
-                type: string
-                writeOnly: true
-            labels:
-                description: List that contains the key-value pairs for tagging and categorizing the MongoDB database user. The labels that you define do not appear in the console.
-                items:
-                    $ref: "#/components/schemas/ComponentLabel"
-                type: array
-            ldapAuthType:
-                default: NONE
-                description: Part of the Lightweight Directory Access Protocol (LDAP) record that the database uses to authenticate this database user on the LDAP host.
-                type: string
-            links:
-                description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                externalDocs:
-                    description: Web Linking Specification (RFC 5988)
-                    url: https://datatracker.ietf.org/doc/html/rfc5988
-                items:
-                    $ref: "#/components/schemas/Link"
-                readOnly: true
-                type: array
-            oidcAuthType:
-                default: NONE
-                description: Human-readable label that indicates whether the new database user or group authenticates with OIDC federated authentication. To create a federated authentication user, specify the value of USER in this field. To create a federated authentication group, specify the value of IDP_GROUP in this field.
-                type: string
-            password:
-                description: Alphanumeric string that authenticates this database user against the database specified in `databaseName`. To authenticate with SCRAM-SHA, you must specify this parameter. This parameter doesn't appear in this response.
-                externalDocs:
-                    description: SCRAM-SHA
-                    url: https://docs.mongodb.com/manual/core/security-scram/
-                minLength: 8
-                type: string
-                writeOnly: true
-            roles:
-                description: List that provides the pairings of one role with one applicable database.
-                items:
-                    $ref: "#/components/schemas/DatabaseUserRole"
-                type: array
-            scopes:
-                description: List that contains clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances that this database user can access. If omitted, MongoDB Cloud grants the database user access to all the clusters, MongoDB Atlas Data Lakes, and MongoDB Atlas Streams Instances in the project.
-                items:
-                    $ref: "#/components/schemas/UserScope"
-                type: array
-            username:
-                description: |
-                    Human-readable label that represents the user that authenticates to MongoDB. The format of this label depends on the method of authentication:
-
-                    | Authentication Method | Parameter Needed | Parameter Value | username Format |
-                    |---|---|---|---|
-                    | AWS IAM | awsIAMType | ROLE | <abbr title="Amazon Resource Name">ARN</abbr> |
-                    | AWS IAM | awsIAMType | USER | <abbr title="Amazon Resource Name">ARN</abbr> |
-                    | x.509 | x509Type | CUSTOMER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
-                    | x.509 | x509Type | MANAGED | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
-                    | LDAP | ldapAuthType | USER | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
-                    | LDAP | ldapAuthType | GROUP | [RFC 2253](https://tools.ietf.org/html/2253) Distinguished Name |
-                    | OIDC Workforce | oidcAuthType | IDP_GROUP | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP group name |
-                    | OIDC Workload | oidcAuthType | USER | Atlas OIDC IdP ID (found in federation settings), followed by a '/', followed by the IdP user name |
-                    | SCRAM-SHA | awsIAMType, x509Type, ldapAuthType, oidcAuthType | NONE | Alphanumeric string |
-                maxLength: 1024
-                type: string
-            x509Type:
-                default: NONE
-                description: |-
-                    X.509 method that MongoDB Cloud uses to authenticate the database user.
-
-                    - For application-managed X.509, specify `MANAGED`.
-                    - For self-managed X.509, specify `CUSTOMER`.
-
-                    Users created with the `CUSTOMER` method require a Common Name (CN) in the **username** parameter. You must create externally authenticated users on the `$external` database.
-                type: string
-        required:
-            - databaseName
-            - groupId
-            - username
         type: object
