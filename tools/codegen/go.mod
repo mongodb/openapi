@@ -5,7 +5,6 @@ go 1.24.0
 require (
 	github.com/getkin/kin-openapi v0.132.0
 	github.com/huandu/xstrings v1.5.0
-	github.com/oasdiff/oasdiff v1.11.4
 	github.com/pb33f/libopenapi v0.23.0
 	github.com/stretchr/testify v1.10.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -26,6 +25,6 @@ require (
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/speakeasy-api/jsonpath v0.6.2 // indirect
+	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.9-0.20240815153524-6ea36470d1bd // indirect
-	github.com/yargevad/filepathx v1.0.0 // indirect
 )
