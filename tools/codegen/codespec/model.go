@@ -2,6 +2,7 @@ package codespec
 
 import (
 	"github.com/mongodb/openapi/tools/codegen/stringcase"
+	"github.com/pb33f/libopenapi/datamodel/high/base"
 )
 
 type ElemType int
@@ -24,7 +25,7 @@ type Resource struct {
 	Name          stringcase.SnakeCaseString `yaml:",omitempty"`
 	Operations    APIOperations              `yaml:"operations"`
 	Schema        *Schema                    `yaml:"schema"`
-	OpenApiSchema any                        `yaml:"openapi-schema"`
+	OpenApiSchema *base.Schema               `yaml:"openapi-schema"`
 }
 
 type APIOperations struct {

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/pb33f/libopenapi"
+	"github.com/pb33f/libopenapi/datamodel/high/base"
 	"log"
 	"strings"
 
@@ -14,6 +16,7 @@ import (
 	"github.com/mongodb/openapi/tools/codegen/config"
 	"github.com/mongodb/openapi/tools/codegen/openapi"
 	"github.com/mongodb/openapi/tools/codegen/stringcase"
+	v3 "github.com/pb33f/libopenapi/datamodel/high/v3"
 )
 
 func ToCodeSpecModel(atlasAdminAPISpecFilePath, configPath string, resourceName *string) (*Model, error) {
@@ -43,13 +46,13 @@ func ToCodeSpecModel(atlasAdminAPISpecFilePath, configPath string, resourceName 
 			return nil, fmt.Errorf("unable to get APISpecResource schema: %v", err)
 		}
 		// map OAS resource model to CodeSpecModel
-		results = append(results, *apiSpecResourceToCodeSpecModel(oasResource, &resourceConfig, stringcase.SnakeCaseString(name)))
+		results = append(results, *apiSpecResourceToCodeSpecModel(apiSpec, oasResource, &resourceConfig, stringcase.SnakeCaseString(name)))
 	}
 
 	return &Model{Resources: results}, nil
 }
 
-func apiSpecResourceToCodeSpecModel(oasResource APISpecResource, resourceConfig *config.Resource, name stringcase.SnakeCaseString) *Resource {
+func apiSpecResourceToCodeSpecModel(spec *libopenapi.DocumentModel[v3.Document], oasResource APISpecResource, resourceConfig *config.Resource, name stringcase.SnakeCaseString) *Resource {
 	createOp := oasResource.CreateOp
 	updateOp := oasResource.UpdateOp
 	readOp := oasResource.ReadOp
@@ -82,7 +85,7 @@ func apiSpecResourceToCodeSpecModel(oasResource APISpecResource, resourceConfig 
 	resource := &Resource{
 		Name:          name,
 		Schema:        schema,
-		OpenApiSchema: findSuccessfulResponse(&oasResource),
+		OpenApiSchema: findSuccessfulResponse(spec, &oasResource),
 		Operations:    operations,
 	}
 
@@ -91,7 +94,7 @@ func apiSpecResourceToCodeSpecModel(oasResource APISpecResource, resourceConfig 
 	return resource
 }
 
-func findSuccessfulResponse(oasResource *APISpecResource) any {
+func findSuccessfulResponse(spec *libopenapi.DocumentModel[v3.Document], oasResource *APISpecResource) *base.Schema {
 	if oasResource.UpdateOp == nil {
 		return nil
 	}
@@ -101,12 +104,9 @@ func findSuccessfulResponse(oasResource *APISpecResource) any {
 	for _, successCode := range successFulResponses {
 		response := oasResource.UpdateOp.Responses.FindResponseByCode(successCode)
 		if response != nil {
-			if response.GoLow().IsReference() {
-				// Use the document's index to find the referenced response.
-				return ""
-			}
-			// If it's not a reference, it's an inline response.
-			return response
+			//lowResponse := response.GoLow()
+			// If it's not a reference, return the inline response
+			return response.Content.Newest().Value.Schema.Schema()
 		}
 	}
 	return nil
