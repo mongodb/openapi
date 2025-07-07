@@ -11,12 +11,12 @@ export default (input, _, { path, documentInventory }) => {
   let resourcePath = path[1];
   let methodName = 'update';
 
-    if (hasException(createMethodResponse, RULE_NAME)) {
-      collectException(createMethodResponse, RULE_NAME, path);
-      return;
-    }
-    
-    // TODO detect custom method extension - CLOUDP-306294
+  if (hasException(createMethodResponse, RULE_NAME)) {
+    collectException(createMethodResponse, RULE_NAME, path);
+    return;
+  }
+
+  // TODO detect custom method extension - CLOUDP-306294
 
   if (isCustomMethodIdentifier(resourcePath)) {
     methodName = getCustomMethodName(resourcePath);

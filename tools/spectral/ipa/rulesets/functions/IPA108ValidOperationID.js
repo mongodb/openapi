@@ -15,7 +15,7 @@ export default (input, _, { path, documentInventory }) => {
     collectException(createMethodResponse, RULE_NAME, path);
     return;
   }
-  
+
   // TODO detect custom method extension - CLOUDP-306294
 
   if (isCustomMethodIdentifier(resourcePath)) {
