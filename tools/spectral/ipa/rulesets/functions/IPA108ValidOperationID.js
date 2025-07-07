@@ -9,10 +9,14 @@ const ERROR_MESSAGE =
 
 export default (input, _, { path, documentInventory }) => {
   let resourcePath = path[1];
-  const oas = documentInventory.resolved;
   let methodName = 'delete';
 
-  // TODO detect exceptions
+  if (hasException(createMethodResponse, RULE_NAME)) {
+    collectException(createMethodResponse, RULE_NAME, path);
+    return;
+  }
+  
+  // TODO detect custom method extension - CLOUDP-306294
 
   if (isCustomMethodIdentifier(resourcePath)) {
     methodName = getCustomMethodName(resourcePath);

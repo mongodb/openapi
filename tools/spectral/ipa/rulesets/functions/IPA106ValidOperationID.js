@@ -5,14 +5,18 @@ import { generateOperationID } from './utils/operationIdGeneration.js';
 
 const RULE_NAME = 'xgen-IPA-106-valid-operation-id';
 const ERROR_MESSAGE =
-  'Invalid OperationID. The Operation ID must start with the verb “create” and should be followed by a noun or compound noun. The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form';
+  'Invalid OperationID. The Operation ID must start with the verb “create” and should be followed by a noun or compound noun. The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.';
 
 export default (input, _, { path, documentInventory }) => {
   let resourcePath = path[1];
-  const oas = documentInventory.resolved;
   let methodName = 'create';
 
-  // TODO detect exceptions
+  if (hasException(createMethodResponse, RULE_NAME)) {
+    collectException(createMethodResponse, RULE_NAME, path);
+    return;
+  }
+  
+  // TODO detect custom method extension - CLOUDP-306294
 
   if (isCustomMethodIdentifier(resourcePath)) {
     methodName = getCustomMethodName(resourcePath);
