@@ -18,17 +18,16 @@ export default (input, _, { path, documentInventory }) => {
     resourcePath = stripCustomMethodName(resourcePath);
   }
 
-  let errors = [];
   const expectedOperationID = generateOperationID(methodName, resourcePath);
-  if (expectedOperationID != input.operationId) {
-    errors.push({
-      path: path,
-      message: `${ERROR_MESSAGE} Found ${input.operationId} expected ${expectedOperationID}.`,
-    });
-  }
-
-  if (errors.length !== 0) {
+  if (expectedOperationID !== input.operationId) {
+    const errors = [
+      {
+        path,
+        message: `${ERROR_MESSAGE} Found ${input.operationId}, expected ${expectedOperationID}.`,
+      },
+    ];
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
+
   collectAdoption(path, RULE_NAME);
 };
