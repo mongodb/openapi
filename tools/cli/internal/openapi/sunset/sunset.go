@@ -15,12 +15,13 @@
 package sunset
 
 import (
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/tufin/oasdiff/load"
 	"maps"
 	"regexp"
 	"slices"
 	"sort"
+
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/tufin/oasdiff/load"
 )
 
 const (
