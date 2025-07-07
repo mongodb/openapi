@@ -27,6 +27,13 @@
 #   - Non-zero if any commands fail (due to set -e)
 set -eou pipefail
 
+if [ $# -lt 2 ]; then
+  echo "Error: Missing required arguments"
+  echo "Usage: ./get_sunset_apis.sh <openapi_spec_url> <to_date>"
+  echo "Example: ./get_sunset_apis.sh openapi/openapi/v2.json 2025-09-22"
+  exit 1
+fi
+
 openapi_spec_url="$1"
 to_date="$2"
 from_date=$(date +"%y-%m-%d")
