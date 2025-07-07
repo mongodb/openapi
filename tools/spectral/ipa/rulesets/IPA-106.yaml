@@ -8,6 +8,7 @@ functions:
   - IPA106CreateMethodRequestHasNoReadonlyFields
   - IPA106CreateMethodResponseCodeIs201Created
   - IPA106CreateMethodResponseIsGetMethodResponse
+  - IPA106ValidOperationID
 
 aliases:
   CreateOperationObject:
@@ -112,3 +113,17 @@ rules:
     then:
       field: '@key'
       function: 'IPA106CreateMethodResponseIsGetMethodResponse'
+  xgen-IPA-106-valid-operation-id:
+    description: |
+      OperationID should be compliant with IPA-106 Naming guidelines.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to POST methods on resource collection paths
+        - Generates the expected OperationId given the resource identifier
+        - Compares the generated IPA Compliant OperationId with the existing OperationId
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-106-valid-operation-id'
+    severity: off
+    given: '#CreateOperationObject'
+    then:
+      function: 'IPA106ValidOperationID'
