@@ -8,6 +8,7 @@ functions:
   - IPA107UpdateMethodRequestHasNoReadonlyFields
   - IPA107UpdateMethodRequestBodyIsGetResponse
   - IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject
+  - IPA107ValidOperationID
 
 aliases:
   UpdateOperationObject:
@@ -112,3 +113,17 @@ rules:
     then:
       field: '@key'
       function: 'IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject'
+  xgen-IPA-107-valid-operation-id:
+    description: |
+      OperationID should be compliant with IPA-107 Naming guidelines.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
+        - Generates the expected OperationId given the resource identifier
+        - Compares the generated IPA Compliant OperationId with the existing OperationId
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-valid-operation-id'
+    severity: error
+    given: '#UpdateOperationObject'
+    then:
+      function: 'IPA107ValidOperationID'
