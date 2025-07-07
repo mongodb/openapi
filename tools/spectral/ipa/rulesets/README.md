@@ -273,6 +273,17 @@ Rule checks for the following conditions:
   - Ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-106-valid-operation-id
+
+ `off` 
+OperationID should be compliant with IPA-106 Naming guidelines.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths
+  - Generates the expected OperationId given the resource identifier
+  - Compares the generated IPA Compliant OperationId with the existing OperationId
+
 
 
 ### IPA-107
@@ -344,6 +355,17 @@ Rule checks for the following conditions:
   - Validation only applies to schema references to a predefined schema (not inline)
   - Confirms the referenced schema name ends with "Request" suffix
 
+#### xgen-IPA-107-valid-operation-id
+
+ `off` 
+OperationID should be compliant with IPA-107 Naming guidelines.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
+  - Generates the expected OperationId given the resource identifier
+  - Compares the generated IPA Compliant OperationId with the existing OperationId
+
 
 
 ### IPA-108
@@ -387,6 +409,17 @@ Rule checks for the following conditions:
   - Verifies that the operation object does not contain a requestBody property
   - Fails if any requestBody is defined for the DELETE method
   - Skips validation for collection endpoints (without path parameters)
+
+#### xgen-IPA-108-valid-operation-id
+
+ `off` 
+OperationID should be compliant with IPA-108 Naming guidelines.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods for single resource endpoints (with path parameters)
+  - Generates the expected OperationId given the resource identifier
+  - Compares the generated IPA Compliant OperationId with the existing OperationId
 
 
 
