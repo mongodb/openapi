@@ -116,8 +116,7 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) ma
 // with the oldest date in their keys.
 //
 // The function sorts content keys by date (in YYYY-MM-DD format) if present, with older dates taking
-// precedence. If multiple keys contain dates, it selects the entry with the earliest date. If no dates
-// are found, it selects the first content entry that would sort before entries with dates.
+// precedence. If multiple keys contain dates, it selects the entry with the earliest date.
 //
 // Parameters:
 //   - content: An OpenAPI content map with media types as keys and schema objects as values
@@ -125,6 +124,8 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) ma
 // Returns:
 //   - A map of extension names to their values from the selected content entry,
 //     or nil if the content map is empty or the selected entry has no extensions
+//
+// Assumption: the older version will have the earliest sunset date.
 func contentExtensions(content openapi3.Content) map[string]any {
 	keysContent := slices.Collect(maps.Keys(content))
 	// Regex to find a date in YYYY-MM-DD format.
