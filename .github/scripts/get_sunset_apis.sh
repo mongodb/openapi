@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-#!/usr/bin/env bash
 # get_sunset_apis.sh - Identifies API versions scheduled for sunset
 #
 # This script queries an OpenAPI specification to find API versions that will be
