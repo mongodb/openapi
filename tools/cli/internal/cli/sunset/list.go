@@ -17,6 +17,7 @@ package sunset
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -51,6 +52,14 @@ func (o *ListOpts) Run() error {
 	if err != nil {
 		return err
 	}
+
+	// order sunset elements per Path,Operation in ascending order
+	sort.Slice(sunsets, func(i, j int) bool {
+		if sunsets[i].Path != sunsets[j].Path {
+			return sunsets[i].Path < sunsets[j].Path
+		}
+		return sunsets[i].Operation < sunsets[j].Operation
+	})
 
 	bytes, err := o.newSunsetListBytes(sunsets)
 	if err != nil {
@@ -170,6 +179,5 @@ func ListBuilder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 
 	_ = cmd.MarkFlagRequired(flag.Spec)
-
 	return cmd
 }
