@@ -179,6 +179,5 @@ func ListBuilder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
 
 	_ = cmd.MarkFlagRequired(flag.Spec)
-
 	return cmd
 }
