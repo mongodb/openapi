@@ -1,5 +1,4 @@
 import testRule from './__helpers__/testRule';
-import { DiagnosticSeverity } from '@stoplight/types';
 
 // TODO: add tests for xgen-custom-method extension - CLOUDP-306294
 // TOOD: enable tests for invalid methods (after rules are upgraded to warning) - CLOUDP-329722
