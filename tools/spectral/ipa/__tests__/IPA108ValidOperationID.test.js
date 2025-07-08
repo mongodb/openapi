@@ -29,7 +29,7 @@ testRule('xgen-IPA-108-valid-operation-id', [
     errors: [],
   },
   // This test will be enable when the xgen-IPA-108-valid-operation-id is set to warning severity - CLOUDP-329722
-  {
+  /* {
     name: 'invalid methods',
     document: {
       components: componentSchemas,
@@ -62,7 +62,7 @@ testRule('xgen-IPA-108-valid-operation-id', [
         severity: DiagnosticSeverity.Warning,
       },
     ],
-  },
+  }, */
   {
     name: 'invalid methods with exceptions',
     document: {
