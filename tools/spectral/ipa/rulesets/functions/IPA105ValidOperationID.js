@@ -1,26 +1,24 @@
-import { generateOperationID } from './utils/operationIdGeneration.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { hasException } from './utils/exceptions.js';
+import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import {
-  isSingleResourceIdentifier,
-  isResourceCollectionIdentifier,
-  isSingletonResource,
   getResourcePathItems,
   isCustomMethodIdentifier,
+  isResourceCollectionIdentifier,
+  isSingletonResource,
 } from './utils/resourceEvaluation.js';
+import { generateOperationID } from './utils/operationIdGeneration.js';
 
-const RULE_NAME = 'xgen-IPA-104-valid-operation-id';
+const RULE_NAME = 'xgen-IPA-105-valid-operation-id';
 const ERROR_MESSAGE = '';
 
 export default (input, _, { path, documentInventory }) => {
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
-  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
   if (
     isCustomMethodIdentifier(resourcePath) ||
-    (!isSingleResourceIdentifier(resourcePath) &&
-      !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths)))
+    !isResourceCollectionIdentifier(resourcePath) ||
+    isSingletonResource(getResourcePathItems(resourcePath, oas.paths))
   ) {
     return;
   }
@@ -30,8 +28,9 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const expectedOperationId = generateOperationID('get', resourcePath);
+  const expectedOperationId = generateOperationID('list', resourcePath);
   if (expectedOperationId !== input.operationId) {
+    console.log( `${input.operationId}, ${expectedOperationId}, ${resourcePath}, ${input.deprecated ? 'TRUE' : 'FALSE'}, ${resourcePath, input['x-xgen-owner-team']}`);
     const errors = [
       {
         path,
