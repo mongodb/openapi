@@ -1,23 +1,25 @@
 import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
+import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import {
+  getResourcePathItems,
   isCustomMethodIdentifier,
   isResourceCollectionIdentifier,
   isSingletonResource,
-  getResourcePathItems,
 } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
 
-const RULE_NAME = 'xgen-IPA-106-valid-operation-id';
+const RULE_NAME = 'xgen-IPA-105-valid-operation-id';
 const ERROR_MESSAGE = 'Invalid OperationID.';
 
 export default (input, { methodName }, { path, documentInventory }) => {
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
-  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
-  const isResourceCollection = isResourceCollectionIdentifier(resourcePath) && !isSingletonResource(resourcePaths);
-  if (isCustomMethodIdentifier(resourcePath) || !isResourceCollection) {
+  if (
+    isCustomMethodIdentifier(resourcePath) ||
+    !isResourceCollectionIdentifier(resourcePath) ||
+    isSingletonResource(getResourcePathItems(resourcePath, oas.paths))
+  ) {
     return;
   }
 
@@ -26,16 +28,16 @@ export default (input, { methodName }, { path, documentInventory }) => {
     return;
   }
 
-  const expectedOperationID = generateOperationID(methodName, resourcePath);
-  if (expectedOperationID !== input.operationId) {
+  const expectedOperationId = generateOperationID(methodName, resourcePath);
+  if (expectedOperationId !== input.operationId) {
     const errors = [
       {
         path,
-        message: `${ERROR_MESSAGE} Found ${input.operationId}, expected ${expectedOperationID}.`,
+        message: `${ERROR_MESSAGE} Found ${input.operationId}, expected ${expectedOperationId}.`,
       },
     ];
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
 
-  collectAdoption(path, RULE_NAME);
+  return collectAdoption(path, RULE_NAME);
 };
