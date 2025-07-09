@@ -20,8 +20,6 @@ export default (input, _, { path, }) => {
     return;
   }
 
-  // TODO detect custom method extension - CLOUDP-306294
-
   const expectedOperationID = generateOperationID(methodName, resourcePath);
   if (expectedOperationID !== input.operationId) {
     const errors = [
