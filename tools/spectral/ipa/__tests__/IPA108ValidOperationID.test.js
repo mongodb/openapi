@@ -3,20 +3,10 @@ import testRule from './__helpers__/testRule';
 // TODO: add tests for xgen-custom-method extension - CLOUDP-306294
 // TOOD: enable tests for invalid methods (after rules are upgraded to warning) - CLOUDP-329722
 
-const componentSchemas = {
-  schemas: {
-    Schema: {
-      type: 'object',
-    },
-  },
-  operationId: 'string',
-};
-
 testRule('xgen-IPA-108-valid-operation-id', [
   {
     name: 'valid methods',
     document: {
-      components: componentSchemas,
       paths: {
         '/groups/{groupId}/clusters/{clusterName}': {
           delete: {
@@ -31,7 +21,6 @@ testRule('xgen-IPA-108-valid-operation-id', [
   /* {
     name: 'invalid methods',
     document: {
-      components: componentSchemas,
       paths: {
         '/api/atlas/v2/groups/{groupId}/apiKeys/{apiUserId}': {
           delete: {
@@ -65,7 +54,6 @@ testRule('xgen-IPA-108-valid-operation-id', [
   {
     name: 'invalid methods with exceptions',
     document: {
-      components: componentSchemas,
       paths: {
         '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index ': {
           post: {

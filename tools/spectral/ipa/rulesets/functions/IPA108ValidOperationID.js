@@ -1,6 +1,6 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
-import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
+import { isCustomMethodIdentifier, isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
 
 const RULE_NAME = 'xgen-IPA-108-valid-operation-id';
@@ -10,7 +10,7 @@ const ERROR_MESSAGE =
 export default (input, { methodName }, { path }) => {
   const resourcePath = path[1];
 
-  if (!isSingleResourceIdentifier(resourcePath)) {
+  if (isCustomMethodIdentifier(resourcePath) || !isSingleResourceIdentifier(resourcePath)) {
     return;
   }
 

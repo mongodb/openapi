@@ -5,6 +5,7 @@ import {
   isResourceCollectionIdentifier,
   isSingletonResource,
   getResourcePathItems,
+  isCustomMethodIdentifier,
 } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
 
@@ -18,8 +19,9 @@ export default (input, { methodName }, { path, documentInventory }) => {
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
   if (
-    !isSingleResourceIdentifier(resourcePath) &&
-    !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths))
+    isCustomMethodIdentifier(resourcePath) ||
+    (!isSingleResourceIdentifier(resourcePath) &&
+      !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths)))
   ) {
     return;
   }
@@ -31,6 +33,9 @@ export default (input, { methodName }, { path, documentInventory }) => {
 
   const expectedOperationID = generateOperationID(methodName, resourcePath);
   if (expectedOperationID !== input.operationId) {
+    console.log(
+      `${input.operationId}, ${expectedOperationID}, ${resourcePath}, ${input.deprecated ? 'TRUE' : 'FALSE'}, ${(resourcePath, input['x-xgen-owner-team'])}`
+    );
     const errors = [
       {
         path,

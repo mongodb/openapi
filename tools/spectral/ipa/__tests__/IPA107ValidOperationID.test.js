@@ -1,23 +1,12 @@
 import testRule from './__helpers__/testRule';
-import { DiagnosticSeverity } from '@stoplight/types';
 
 // TODO: add tests for xgen-custom-method extension - CLOUDP-306294
 // TOOD: enable tests for invalid methods (after rules are upgraded to warning) - CLOUDP-329722
-
-const componentSchemas = {
-  schemas: {
-    Schema: {
-      type: 'object',
-    },
-  },
-  operationId: 'string',
-};
 
 testRule('xgen-IPA-107-valid-operation-id', [
   {
     name: 'valid methods',
     document: {
-      components: componentSchemas,
       paths: {
         'groups/{groupId}/clusters/{clusterName}': {
           put: {
@@ -37,7 +26,6 @@ testRule('xgen-IPA-107-valid-operation-id', [
   /* {
     name: 'invalid methods',
     document: {
-      components: componentSchemas,
       paths: {
         '/api/atlas/v2/groups/{groupId}/limits/{limitName}': {
           patch: {
@@ -71,7 +59,6 @@ testRule('xgen-IPA-107-valid-operation-id', [
   {
     name: 'invalid methods with exceptions',
     document: {
-      components: componentSchemas,
       paths: {
         '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index ': {
           post: {
