@@ -139,6 +139,17 @@ Rule checks for the following conditions:
   - Applies only to GET methods on single resources or singleton resources
   - Verifies that the operation object does not contain a requestBody property
 
+#### xgen-IPA-104-valid-operation-id
+
+ `off` 
+Confirms that the existing operationId is compliant with generated IPA Compliant OperationId.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on single resources or singleton resources
+  - Generates the expected OperationId given the resource identifier
+  - Compares the generated IPA Compliant OperationId with the existing OperationId
+
 
 
 ### IPA-105
@@ -193,6 +204,18 @@ The response body of the List method should consist of the same resource object 
   - Fails if the Get method doesn't have a schema reference or if the schemas don't match
   - Validation ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+#### xgen-IPA-105-valid-operation-id
+
+ `off` 
+Confirms that the existing operationId is compliant with generated IPA Compliant OperationId.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on resource collection paths
+  - Ignores singleton resources
+  - Generates the expected OperationId given the resource identifier
+  - Compares the generated IPA Compliant OperationId with the existing OperationId
+
 
 
 ### IPA-106
