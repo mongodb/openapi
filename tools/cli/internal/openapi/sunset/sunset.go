@@ -15,6 +15,11 @@
 package sunset
 
 import (
+	"maps"
+	"regexp"
+	"slices"
+	"sort"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tufin/oasdiff/load"
 )
@@ -77,6 +82,19 @@ func teamName(op *openapi3.Operation) string {
 	return ""
 }
 
+// successResponseExtensions searches through a map of response objects for successful HTTP status
+// codes (200, 201, 202, 204) and returns the extensions from the content of the first successful
+// response found.
+//
+// The function prioritizes responses in the following order: 200, 201, 202, 204. For each found
+// response, it extracts extensions from its content using the contentExtensions helper function.
+//
+// Parameters:
+//   - responsesMap: A map of HTTP status codes to OpenAPI response objects
+//
+// Returns:
+//   - A map of extension names to their values from the first successful response content,
+//     or nil if no successful responses are found or if none contain relevant extensions
 func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) map[string]any {
 	if val, ok := responsesMap["200"]; ok {
 		return contentExtensions(val.Value.Content)
@@ -94,9 +112,36 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) ma
 	return nil
 }
 
+// contentExtensions extracts extensions from OpenAPI content objects, prioritizing content entries
+// with the oldest date in their keys.
+//
+// The function sorts content keys by date (in YYYY-MM-DD format) if present, with older dates taking
+// precedence. If multiple keys contain dates, it selects the entry with the earliest date.
+//
+// Parameters:
+//   - content: An OpenAPI content map with media types as keys and schema objects as values
+//
+// Returns:
+//   - A map of extension names to their values from the selected content entry,
+//     or nil if the content map is empty or the selected entry has no extensions
+//
+// Assumption: the older version will have the earliest sunset date.
 func contentExtensions(content openapi3.Content) map[string]any {
-	for _, v := range content {
-		return v.Extensions
-	}
-	return nil
+	keysContent := slices.Collect(maps.Keys(content))
+	// Regex to find a date in YYYY-MM-DD format.
+	dateRegex := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	// we need the content of the API version with the older date.
+	sort.Slice(keysContent, func(i, j int) bool {
+		dateI := dateRegex.FindString(keysContent[i])
+		dateJ := dateRegex.FindString(keysContent[j])
+
+		// If both have dates, compare them as strings.
+		if dateI != "" && dateJ != "" {
+			return dateI < dateJ
+		}
+		// Strings with dates should come before those without.
+		return dateI != ""
+	})
+
+	return content[keysContent[0]].Extensions
 }

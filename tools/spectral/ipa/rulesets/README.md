@@ -299,6 +299,18 @@ Rule checks for the following conditions:
   - Ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-106-valid-operation-id
+
+ `off` 
+The Operation ID must start with the verb “create” and should be followed by a noun or compound noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on resource collection paths
+  - Generates the expected OperationId given the resource identifier
+  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
+
 
 
 ### IPA-107
@@ -370,6 +382,19 @@ Rule checks for the following conditions:
   - Validation only applies to schema references to a predefined schema (not inline)
   - Confirms the referenced schema name ends with "Request" suffix
 
+#### xgen-IPA-107-valid-operation-id
+
+ `off` 
+The Operation ID must start with the verb “update” and should be followed by a noun or compound noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
+If the resource is a singleton resource, the last noun may be the plural form of the collection identifier.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
+  - Generates the expected OperationId given the resource identifier
+  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
+
 
 
 ### IPA-108
@@ -413,6 +438,18 @@ Rule checks for the following conditions:
   - Verifies that the operation object does not contain a requestBody property
   - Fails if any requestBody is defined for the DELETE method
   - Skips validation for collection endpoints (without path parameters)
+
+#### xgen-IPA-108-valid-operation-id
+
+ `off` 
+The Operation ID must start with the verb “delete” and should be followed by a noun or compound noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all DELETE methods for single resource endpoints (with path parameters)
+  - Generates the expected OperationId given the resource identifier
+  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
 
 
 
