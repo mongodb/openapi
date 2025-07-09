@@ -1,6 +1,11 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
-import { isCustomMethodIdentifier, isResourceCollectionIdentifier, isSingletonResource, getResourcePathItems } from './utils/resourceEvaluation.js';
+import {
+  isCustomMethodIdentifier,
+  isResourceCollectionIdentifier,
+  isSingletonResource,
+  getResourcePathItems,
+} from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
 
 const RULE_NAME = 'xgen-IPA-106-valid-operation-id';
