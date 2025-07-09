@@ -276,7 +276,7 @@ Rule checks for the following conditions:
 #### xgen-IPA-106-valid-operation-id
 
  `off` 
-OperationID should be compliant with IPA-106 Naming guidelines.
+Confirms that the existing operationId is compliant with generated IPA Compliant OperationId.
 
 ##### Implementation details
 Rule checks for the following conditions:
@@ -358,7 +358,7 @@ Rule checks for the following conditions:
 #### xgen-IPA-107-valid-operation-id
 
  `off` 
-OperationID should be compliant with IPA-107 Naming guidelines.
+Confirms that the existing operationId is compliant with generated IPA Compliant OperationId.
 
 ##### Implementation details
 Rule checks for the following conditions:
@@ -413,7 +413,7 @@ Rule checks for the following conditions:
 #### xgen-IPA-108-valid-operation-id
 
  `off` 
-OperationID should be compliant with IPA-108 Naming guidelines.
+Confirms that the existing operationId is compliant with generated IPA Compliant OperationId.
 
 ##### Implementation details
 Rule checks for the following conditions:
