@@ -19,7 +19,7 @@ testRule('xgen-IPA-104-valid-operation-id', [
       components: componentSchemas,
       paths: {
         '/groups/{groupId}/cluster/{clusterName}': {
-          post: {
+          get: {
             operationId: 'getGroupCluster',
           },
         },
@@ -68,7 +68,7 @@ testRule('xgen-IPA-104-valid-operation-id', [
       components: componentSchemas,
       paths: {
         '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index ': {
-          post: {
+          get: {
             operationId: 'getRollingIndex',
             'x-xgen-IPA-exception': {
               'xgen-IPA-104-valid-operation-id': 'Reason',

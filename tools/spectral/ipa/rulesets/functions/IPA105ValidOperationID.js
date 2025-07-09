@@ -31,9 +31,6 @@ export default (input, { methodName }, { path, documentInventory }) => {
 
   const expectedOperationId = generateOperationID(methodName, resourcePath);
   if (expectedOperationId !== input.operationId) {
-    console.log(
-      `${input.operationId}, ${expectedOperationId}, ${resourcePath}, ${input.deprecated ? 'TRUE' : 'FALSE'}, ${(resourcePath, input['x-xgen-owner-team'])}`
-    );
     const errors = [
       {
         path,

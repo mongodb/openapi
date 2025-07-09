@@ -209,14 +209,15 @@ The response body of the List method should consist of the same resource object 
 #### xgen-IPA-105-valid-operation-id
 
  `off` 
-Confirms that the existing operationId is compliant with generated IPA Compliant OperationId.
+The Operation ID must start with the verb “list” and should be followed by a noun or compound noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form, where the last noun is in plural form.
 
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to GET methods on resource collection paths
   - Ignores singleton resources
   - Generates the expected OperationId given the resource identifier
-  - Compares the generated IPA Compliant OperationId with the existing OperationId
+  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
 
 
 
