@@ -9,8 +9,7 @@ import {
 import { generateOperationID } from './utils/operationIdGeneration.js';
 
 const RULE_NAME = 'xgen-IPA-106-valid-operation-id';
-const ERROR_MESSAGE =
-  'Invalid OperationID. The Operation ID must start with the verb “create” and should be followed by a noun or compound noun. The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.';
+const ERROR_MESSAGE = 'Invalid OperationID.';
 
 export default (input, { methodName }, { path, documentInventory }) => {
   const resourcePath = path[1];
