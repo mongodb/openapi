@@ -141,7 +141,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-valid-operation-id
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ `off` 
 The Operation ID must start with the verb “get” and should be followed by a noun or compound noun.
 The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
 If the resource is a singleton resource, the last noun may be the plural form of the collection identifier.
