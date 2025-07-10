@@ -4,7 +4,7 @@ import { isCustomMethodIdentifier, getCustomMethodName, stripCustomMethodName } 
 import { generateOperationID } from './utils/operationIdGeneration.js';
 
 const RULE_NAME = 'xgen-IPA-109-valid-operation-id';
-const ERROR_MESSAGE = 'Invalid Operation ID';
+const ERROR_MESSAGE = 'Invalid Operation ID.';
 
 export default (input, _, { path }) => {
   let resourcePath = path[1];

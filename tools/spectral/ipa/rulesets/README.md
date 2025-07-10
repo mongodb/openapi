@@ -496,6 +496,22 @@ Rule checks for the following conditions:
   - Fails if multiple colons appear in the path
   - Fails if other than an alphabetical character or a closing curly brace appears before a colon
 
+#### xgen-IPA-109-valid-operation-id
+
+ `off` 
+The Operation ID must start with the custom method verb (the custom method path section delimited by the colon (:) character) and should be followed by a noun or compound noun.
+If the custom Operation ID has a verb + noun, the Operation ID should end with the noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form, where the last noun:
+  - Is in plural form if the method applies to a collection of resources
+  - Is in singular form if the method applies to a single resource
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths containing custom method identifiers (with colon format)
+  - Generates the expected OperationId given the resource identifier and the method name portion following the colon
+  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
+
 
 
 ### IPA-110
