@@ -8,26 +8,29 @@ const ERROR_MESSAGE = 'Invalid Operation ID';
 
 export default (input, _, { path }) => {
   let resourcePath = path[1];
+  const methodName = getCustomMethodName(resourcePath);
 
   if (!isCustomMethodIdentifier(resourcePath)) {
     return;
   }
-  //console.log(resourcePath);
 
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
     return;
   }
 
-  //console.log(input['post'].operationId)
   // TODO detect custom method extension - CLOUDP-306294
-  let methodName = getCustomMethodName(resourcePath);
-  resourcePath = stripCustomMethodName(resourcePath);
-  const operationId = input.post.operationId;
 
-  const expectedOperationID = generateOperationID(methodName, resourcePath);
+  let obj;
+  if (input.post) {
+    obj = input.post;
+  } else if (input.get) {
+    obj = input.get;
+  }
+
+  const operationId = obj.operationId;
+  const expectedOperationID = generateOperationID(methodName, stripCustomMethodName(resourcePath));
   if (expectedOperationID !== operationId) {
-    console.log(operationId, expectedOperationID)
     const errors = [
       {
         path,
