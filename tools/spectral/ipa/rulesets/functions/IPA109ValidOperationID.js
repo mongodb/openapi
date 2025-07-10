@@ -21,6 +21,8 @@ export default (input, _, { path }) => {
     obj = input.post;
   } else if (input.get) {
     obj = input.get;
+  } else {
+    return;
   }
 
   if (hasException(obj, RULE_NAME)) {
