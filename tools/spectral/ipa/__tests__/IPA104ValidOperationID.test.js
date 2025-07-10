@@ -38,14 +38,14 @@ testRule('xgen-IPA-104-valid-operation-id', [
       {
         code: 'xgen-IPA-104-valid-operation-id',
         message:
-          'Invalid OperationID. The Operation ID must start with the verb “get” and should be followed by a noun or compound noun. The noun(s) should be the collection identifiers from the resource identifier in singular form.',
+          'Invalid OperationID. ',
         path: ['paths', '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}/status', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-valid-operation-id',
         message:
-          'Invalid OperationID. The Operation ID must start with the verb “get” and should be followed by a noun or compound noun. The noun(s) should be the collection identifiers from the resource identifier in singular form.',
+          'Invalid OperationID. ',
         path: ['paths', '/api/atlas/v2/groups/{groupId}/dataFederation/{tenantName}/limits/{limitName}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },

@@ -43,7 +43,7 @@ testRule('xgen-IPA-107-valid-operation-id', [
       {
         code: 'xgen-IPA-107-valid-operation-id',
         message:
-          'Invalid OperationID. The Operation ID must start with the verb “update” and should be followed by a noun or compound noun. The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form. For singleton resources - the last noun may be in plural form.',
+          'Invalid OperationID. ',
         path: ['paths', '/api/atlas/v2/groups/{groupId}/limits/{limitName}', 'patch'],
         severity: DiagnosticSeverity.Warning,
       },

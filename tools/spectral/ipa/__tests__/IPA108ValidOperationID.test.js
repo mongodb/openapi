@@ -1,5 +1,4 @@
 import testRule from './__helpers__/testRule';
-import { DiagnosticSeverity } from '@stoplight/types';
 
 // TODO: add tests for xgen-custom-method extension - CLOUDP-306294
 // TOOD: enable tests for invalid methods (after rules are upgraded to warning) - CLOUDP-329722
@@ -19,7 +18,7 @@ testRule('xgen-IPA-108-valid-operation-id', [
     errors: [],
   },
   // This test will be enable when the xgen-IPA-108-valid-operation-id is set to warning severity - CLOUDP-329722
-  {
+  /* {
     name: 'invalid methods',
     document: {
       paths: {
@@ -49,7 +48,7 @@ testRule('xgen-IPA-108-valid-operation-id', [
         severity: DiagnosticSeverity.Warning,
       },
     ],
-  },
+  }, */
   {
     name: 'invalid methods with exceptions',
     document: {

@@ -4,18 +4,13 @@ import { isCustomMethodIdentifier, getCustomMethodName, stripCustomMethodName } 
 import { generateOperationID } from './utils/operationIdGeneration.js';
 
 const RULE_NAME = 'xgen-IPA-109-valid-operation-id';
-const ERROR_MESSAGE = 'Invalid Operation ID.';
+const ERROR_MESSAGE = 'Invalid OperationID.';
 
 export default (input, _, { path }) => {
   let resourcePath = path[1];
   const methodName = getCustomMethodName(resourcePath);
 
   if (!isCustomMethodIdentifier(resourcePath)) {
-    return;
-  }
-
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
     return;
   }
 
@@ -26,6 +21,11 @@ export default (input, _, { path }) => {
     obj = input.post;
   } else if (input.get) {
     obj = input.get;
+  }
+
+  if (hasException(obj, RULE_NAME)) {
+    collectException(obj, RULE_NAME, path);
+    return;
   }
 
   const operationId = obj.operationId;
