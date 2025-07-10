@@ -36,7 +36,7 @@ fi
 
 openapi_spec_url="$1"
 to_date="$2"
-from_date=$(date +"%y-%m-%d")
+from_date=$(date +"%Y-%m-%d")
 
 echo "openapi_spec_url: ${openapi_spec_url}"
 echo "from_date: ${from_date}, to_date: ${to_date}"
