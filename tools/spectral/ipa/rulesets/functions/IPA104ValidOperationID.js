@@ -1,5 +1,6 @@
+import { generateOperationID } from './utils/operationIdGeneration.js';
+import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
 import {
   isSingleResourceIdentifier,
   isResourceCollectionIdentifier,
@@ -7,9 +8,8 @@ import {
   getResourcePathItems,
   isCustomMethodIdentifier,
 } from './utils/resourceEvaluation.js';
-import { generateOperationID } from './utils/operationIdGeneration.js';
 
-const RULE_NAME = 'xgen-IPA-107-valid-operation-id';
+const RULE_NAME = 'xgen-IPA-104-valid-operation-id';
 const ERROR_MESSAGE = 'Invalid OperationID.';
 
 export default (input, { methodName }, { path, documentInventory }) => {
@@ -30,16 +30,16 @@ export default (input, { methodName }, { path, documentInventory }) => {
     return;
   }
 
-  const expectedOperationID = generateOperationID(methodName, resourcePath);
-  if (expectedOperationID !== input.operationId) {
+  const expectedOperationId = generateOperationID(methodName, resourcePath);
+  if (expectedOperationId !== input.operationId) {
     const errors = [
       {
         path,
-        message: `${ERROR_MESSAGE} Found ${input.operationId}, expected ${expectedOperationID}.`,
+        message: `${ERROR_MESSAGE} Found ${input.operationId}, expected ${expectedOperationId}.`,
       },
     ];
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
 
-  collectAdoption(path, RULE_NAME);
+  return collectAdoption(path, RULE_NAME);
 };
