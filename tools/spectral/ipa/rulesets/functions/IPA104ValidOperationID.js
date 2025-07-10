@@ -8,6 +8,8 @@ import {
   getResourcePathItems,
   isCustomMethodIdentifier,
 } from './utils/resourceEvaluation.js';
+import { hasVerbOverride, isGetOverride, isLegacyCustomMethod, isListOverride } from './utils/extensions.js';
+import { invalidGetMethod } from './utils/methodLogic.js';
 
 const RULE_NAME = 'xgen-IPA-104-valid-operation-id';
 const ERROR_MESSAGE = 'Invalid OperationID.';
@@ -18,9 +20,10 @@ export default (input, { methodName }, { path, documentInventory }) => {
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
   if (
+    isLegacyCustomMethod(input) ||
     isCustomMethodIdentifier(resourcePath) ||
-    (!isSingleResourceIdentifier(resourcePath) &&
-      !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths)))
+    isListOverride(input) ||
+    (invalidGetMethod(resourcePath, resourcePaths) && !isGetOverride(input))
   ) {
     return;
   }
@@ -32,6 +35,9 @@ export default (input, { methodName }, { path, documentInventory }) => {
 
   const expectedOperationId = generateOperationID(methodName, resourcePath);
   if (expectedOperationId !== input.operationId) {
+    if (isGetOverride(input)) {
+      console.log( `${input.operationId}, ${expectedOperationId}, ${resourcePath}, ${input.deprecated ? 'TRUE' : 'FALSE'}, ${resourcePath, input['x-xgen-owner-team']}`);
+    }
     const errors = [
       {
         path,
