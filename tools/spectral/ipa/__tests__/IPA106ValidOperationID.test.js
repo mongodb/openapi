@@ -38,14 +38,14 @@ testRule('xgen-IPA-106-valid-operation-id', [
       {
         code: 'xgen-IPA-106-valid-operation-id',
         message:
-          'Invalid OperationID. The Operation ID must start with the verb “create” and should be followed by a noun or compound noun. The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form. ',
+          'Invalid OperationID. ',
         path: ['paths', '/api/atlas/v2/groups/{groupId}/access', 'post'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-valid-operation-id',
         message:
-          'Invalid OperationID. The Operation ID must start with the verb “create” and should be followed by a noun or compound noun. The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form. ',
+          'Invalid OperationID. ',
         path: ['paths', '/api/atlas/v2/groups/{groupId}/invites', 'post'],
         severity: DiagnosticSeverity.Warning,
       },

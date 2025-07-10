@@ -37,15 +37,13 @@ testRule('xgen-IPA-108-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-108-valid-operation-id',
-        message:
-          'Invalid OperationID. The Operation ID must start with the verb “delete” and should be followed by a noun or compound noun. The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form. ',
+        message: 'Invalid OperationID. ',
         path: ['paths', '/api/atlas/v2/groups/{groupId}/apiKeys/{apiUserId}', 'delete'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-108-valid-operation-id',
-        message:
-          'Invalid OperationID. The Operation ID must start with the verb “delete” and should be followed by a noun or compound noun. The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form. ',
+        message: 'Invalid OperationID. ',
         path: ['paths', '/api/atlas/v2/groups/{groupId}', 'delete'],
         severity: DiagnosticSeverity.Warning,
       },
