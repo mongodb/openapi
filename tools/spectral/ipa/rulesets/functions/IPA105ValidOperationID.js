@@ -1,11 +1,6 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import {
-  getResourcePathItems,
-  isCustomMethodIdentifier,
-  isResourceCollectionIdentifier,
-  isSingletonResource,
-} from './utils/resourceEvaluation.js';
+import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
 import { invalidListMethod } from './utils/methodLogic.js';
 import { isLegacyCustomMethod, isGetOverride, isListOverride } from './utils/extensions.js';
