@@ -11,6 +11,10 @@ const CAMEL_CASE = /[A-Z]?[a-z]+/g;
  */
 export function generateOperationID(method, path) {
   let resourceIdentifier = removePrefix(path);
+  if (resourceIdentifier.includes('.')) {
+    resourceIdentifier = resourceIdentifier.substring(0, resourceIdentifier.lastIndexOf('.'));
+  }
+
   let nouns = resourceIdentifier.split('/').filter((section) => section.length > 0 && !isPathParam(section));
 
   // legacy custom method - use end of path as custom method name

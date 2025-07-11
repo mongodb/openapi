@@ -1,12 +1,13 @@
-import { isSingleResourceIdentifier, isResourceCollectionIdentifier, isSingletonResource } from './resourceEvaluation';
+import { isResourceCollectionIdentifier, isSingletonResource } from './resourceEvaluation';
+import { isPathParam } from './resourceEvaluation';
 
 export function invalidGetMethod(resourcePath, resourcePaths) {
   return (
-    !isSingleResourceIdentifier(resourcePath) &&
+    !isPathParam(resourcePath.split('/').pop()) &&
     !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths))
   );
 }
 
 export function invalidListMethod(resourcePath, resourcePaths) {
-  return !isResourceCollectionIdentifier(resourcePath) || isSingletonResource(resourcePaths);
+  return isPathParam(resourcePath.split('/').pop()) || isSingletonResource(resourcePaths);
 }
