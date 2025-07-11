@@ -2,6 +2,7 @@ import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier, isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
+import { isLegacyCustomMethod } from './utils/extensions.js';
 
 const RULE_NAME = 'xgen-IPA-108-valid-operation-id';
 const ERROR_MESSAGE = 'Invalid OperationID.';
@@ -9,7 +10,11 @@ const ERROR_MESSAGE = 'Invalid OperationID.';
 export default (input, { methodName }, { path }) => {
   const resourcePath = path[1];
 
-  if (isCustomMethodIdentifier(resourcePath) || !isSingleResourceIdentifier(resourcePath)) {
+  if (
+    isCustomMethodIdentifier(resourcePath) ||
+    !isSingleResourceIdentifier(resourcePath) ||
+    isLegacyCustomMethod(input)
+  ) {
     return;
   }
 
