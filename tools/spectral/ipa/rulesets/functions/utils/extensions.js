@@ -3,9 +3,9 @@ export const VERB_OVERRIDE_EXTENSION = 'x-xgen-method-verb-override';
 // for endpoint
 export function hasMethodWithVerbOverride(endpoint) {
   const keys = Object.keys(endpoint);
-  for (let i=0; i< keys.length; i++) {
+  for (let i = 0; i < keys.length; i++) {
     if (endpoint[keys[i]][VERB_OVERRIDE_EXTENSION]) {
-      return true
+      return true;
     }
   }
   return false;
@@ -30,13 +30,13 @@ export function isLegacyCustomMethod(object) {
 export function isGetOverride(object) {
   if (hasVerbOverride(object)) {
     return object[VERB_OVERRIDE_EXTENSION].verb === 'get';
-  } 
+  }
   return false;
 }
 
 export function isListOverride(object) {
   if (hasVerbOverride(object)) {
     return object[VERB_OVERRIDE_EXTENSION].verb === 'list';
-  } 
+  }
   return false;
 }
