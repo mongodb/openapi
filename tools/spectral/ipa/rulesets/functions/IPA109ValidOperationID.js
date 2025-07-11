@@ -2,7 +2,7 @@ import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier, getCustomMethodName, stripCustomMethodName } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
-import { hasVerbOverride } from './utils/extensions.js';
+import { hasMethodWithVerbOverride, isLegacyCustomMethod } from './utils/extensions.js';
 
 const RULE_NAME = 'xgen-IPA-109-valid-operation-id';
 const ERROR_MESSAGE = 'Invalid OperationID.';
@@ -14,44 +14,54 @@ export default (input, _, { path }) => {
     return;
   }
 
+  let errors = [];
   let expectedOperationID = '';
   if (isCustomMethodIdentifier(resourcePath)) {
     expectedOperationID = generateOperationID(getCustomMethodName(resourcePath), stripCustomMethodName(resourcePath));
-  } else if (hasVerbOverride(input)) {
 
+    let obj;
+    if (input.post) {
+      obj = input.post;
+    } else if (input.get) {
+      obj = input.get;
+    } else {
+      return;
+    }
 
-    //const ext = input['x-xgen-method-verb-override'];
-    //expectedOperationID = generateOperationID(ext.verb, resourcePath);
-  }
+    if (hasException(obj, RULE_NAME)) {
+      collectException(obj, RULE_NAME, path);
+      return;
+    }
 
-  let obj;
-  if (input.post) {
-    obj = input.post;
-  } else if (input.get) {
-    obj = input.get;
-  } else if (input.delete) {
-    obj = input.delete;
-    console.log("yes");
+    const operationId = obj.operationId;
+    errors.push(checkViolationAndReturnError(operationId, expectedOperationID, path));
+  } else if (hasMethodWithVerbOverride(input)) {
+    const methods = Object.keys(input);
+    for (let i = 0; i < methods.length; i++) {
+      let obj = input[methods[i]];
+      const operationId = obj.operationId;
+      if (isLegacyCustomMethod(obj)) {
+        expectedOperationID = generateOperationID(obj['x-xgen-method-verb-override'].verb, resourcePath);
+        errors.push(checkViolationAndReturnError(operationId, expectedOperationID, path));
+      }
+    }
   } else {
-    console.log('AHHHHH', input);
     return;
   }
 
-  if (hasException(obj, RULE_NAME)) {
-    collectException(obj, RULE_NAME, path);
-    return;
-  }
-
-  const operationId = obj.operationId;
-  if (expectedOperationID !== operationId) {
-    const errors = [
-      {
-        path,
-        message: `${ERROR_MESSAGE} Found ${operationId}, expected ${expectedOperationID}.`,
-      },
-    ];
+  if (errors.length !== 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
 
   collectAdoption(path, RULE_NAME);
 };
+
+function checkViolationAndReturnError(oldOperationID, newOperationID, path) {
+  if (oldOperationID !== newOperationID) {
+    return {
+      path,
+      message: `${ERROR_MESSAGE} Found ${oldOperationID}, expected ${newOperationID}.`,
+    };
+  }
+  return;
+}
