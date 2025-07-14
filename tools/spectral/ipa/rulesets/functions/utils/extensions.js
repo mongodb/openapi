@@ -1,42 +1,57 @@
 export const VERB_OVERRIDE_EXTENSION = 'x-xgen-method-verb-override';
 
-// for endpoint
+/**
+ * Checks if the endpoint has a method with an extension "x-xgen-method-verb-override"
+ *
+ * @param object the object to evaluate
+ * @returns {boolean} true if the object has the extension, otherwise false
+ */
 export function hasMethodWithVerbOverride(endpoint) {
   const keys = Object.keys(endpoint);
   for (let i = 0; i < keys.length; i++) {
-    if (endpoint[keys[i]][VERB_OVERRIDE_EXTENSION]) {
+    if (hasVerbOverride(endpoint[keys[i]])) {
       return true;
     }
   }
   return false;
 }
 
-// for method
-export function hasVerbOverride(object) {
-  if (!object[VERB_OVERRIDE_EXTENSION]) {
-    return false;
-  }
-  return true;
-}
-
-// for method
-export function isLegacyCustomMethod(object) {
+/**
+ * Checks if the object has an extension "x-xgen-method-verb-override" with the customMethod boolean set to true
+ *
+ * @param object the object to evaluate
+ * @returns {boolean} true if the object has an extension with customMethod=True, otherwise false
+ */
+export function hasCustomMethodOverride(object) {
   if (hasVerbOverride(object)) {
     return object[VERB_OVERRIDE_EXTENSION].customMethod;
   }
   return false;
 }
 
-export function isGetOverride(object) {
+/**
+ * Checks if the object has an extension "x-xgen-method-verb-override" with the verb set to a specific verb
+ *
+ * @param object the object to evaluate
+ * @param verb the verb to inspect the extension for
+ * @returns {boolean} true if the object has the extension with the given verb, otherwise false
+ */
+export function hasMethodVerbOverride(object, verb) {
   if (hasVerbOverride(object)) {
-    return object[VERB_OVERRIDE_EXTENSION].verb === 'get';
+    return object[VERB_OVERRIDE_EXTENSION].verb === verb;
   }
   return false;
 }
 
-export function isListOverride(object) {
-  if (hasVerbOverride(object)) {
-    return object[VERB_OVERRIDE_EXTENSION].verb === 'list';
+/**
+ * Checks if the object has an extension "x-xgen-method-verb-override"
+ *
+ * @param object the object to evaluate
+ * @returns {boolean} true if the object has the extension, otherwise false
+ */
+function hasVerbOverride(object) {
+  if (!object[VERB_OVERRIDE_EXTENSION]) {
+    return false;
   }
-  return false;
+  return true;
 }

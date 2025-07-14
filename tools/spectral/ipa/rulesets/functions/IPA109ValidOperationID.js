@@ -2,7 +2,7 @@ import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier, getCustomMethodName, stripCustomMethodName } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
-import { hasMethodWithVerbOverride, isLegacyCustomMethod } from './utils/extensions.js';
+import { hasMethodWithVerbOverride, hasCustomMethodOverride } from './utils/extensions.js';
 
 const RULE_NAME = 'xgen-IPA-109-valid-operation-id';
 const ERROR_MESSAGE = 'Invalid OperationID.';
@@ -48,7 +48,7 @@ export default (input, _, { path }) => {
     for (let i = 0; i < methods.length; i++) {
       let obj = input[methods[i]];
       const operationId = obj.operationId;
-      if (isLegacyCustomMethod(obj)) {
+      if (hasCustomMethodOverride(obj)) {
         expectedOperationID = generateOperationID(obj['x-xgen-method-verb-override'].verb, resourcePath);
         if (operationId !== expectedOperationID) {
           errors.push({

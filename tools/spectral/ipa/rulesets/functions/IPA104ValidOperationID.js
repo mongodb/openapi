@@ -2,7 +2,7 @@ import { generateOperationID } from './utils/operationIdGeneration.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
-import { isGetOverride, isLegacyCustomMethod, isListOverride } from './utils/extensions.js';
+import { hasCustomMethodOverride, hasMethodVerbOverride } from './utils/extensions.js';
 import { invalidGetMethod } from './utils/methodLogic.js';
 
 const RULE_NAME = 'xgen-IPA-104-valid-operation-id';
@@ -14,10 +14,10 @@ export default (input, { methodName }, { path, documentInventory }) => {
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
   if (
-    isLegacyCustomMethod(input) ||
+    hasCustomMethodOverride(input) ||
     isCustomMethodIdentifier(resourcePath) ||
-    isListOverride(input) ||
-    (invalidGetMethod(resourcePath, resourcePaths) && !isGetOverride(input))
+    hasMethodVerbOverride(input, "list") ||
+    (invalidGetMethod(resourcePath, resourcePaths) && !hasMethodVerbOverride(input, methodName))
   ) {
     return;
   }
