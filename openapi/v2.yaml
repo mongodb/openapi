@@ -1388,7 +1388,14 @@ components:
                         - ISRGROOTX1
                     type: string
                 stateName:
-                    description: Human-readable label that indicates the current operating condition of this cluster.
+                    description: |-
+                        Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
+
+                         - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.
+                         - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.
+                         - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.
+                         - `DELETING`: The cluster is in the process of deletion and will soon be deleted.
+                         - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.
                     enum:
                         - IDLE
                         - CREATING
@@ -2995,6 +3002,11 @@ components:
                     pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
                     readOnly: true
                     type: string
+                targetPublicKey:
+                    description: Public part of the API key that this event targets.
+                    example: zmmrboas
+                    readOnly: true
+                    type: string
                 userId:
                     description: Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.
                     example: 32b6e34b3d91647abb20e7b8
@@ -3004,6 +3016,11 @@ components:
                 username:
                     description: Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.
                     format: email
+                    readOnly: true
+                    type: string
+                whitelistEntry:
+                    description: Entry in the list of source host addresses that the API key accepts and this event targets.
+                    example: 0.0.0.0
                     readOnly: true
                     type: string
             required:
@@ -3079,6 +3096,11 @@ components:
                     pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
                     readOnly: true
                     type: string
+                targetPublicKey:
+                    description: Public part of the API key that this event targets.
+                    example: zmmrboas
+                    readOnly: true
+                    type: string
                 userId:
                     description: Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.
                     example: 32b6e34b3d91647abb20e7b8
@@ -3088,6 +3110,11 @@ components:
                 username:
                     description: Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.
                     format: email
+                    readOnly: true
+                    type: string
+                whitelistEntry:
+                    description: Entry in the list of source host addresses that the API key accepts and this event targets.
+                    example: 0.0.0.0
                     readOnly: true
                     type: string
             required:
@@ -4078,7 +4105,14 @@ components:
                         - ISRGROOTX1
                     type: string
                 stateName:
-                    description: Human-readable label that indicates the current operating condition of this cluster.
+                    description: |-
+                        Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
+
+                         - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.
+                         - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.
+                         - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.
+                         - `DELETING`: The cluster is in the process of deletion and will soon be deleted.
+                         - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.
                     enum:
                         - IDLE
                         - CREATING
@@ -8859,7 +8893,14 @@ components:
                         - ISRGROOTX1
                     type: string
                 stateName:
-                    description: Human-readable label that indicates the current operating condition of this cluster.
+                    description: |-
+                        Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
+
+                         - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.
+                         - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.
+                         - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.
+                         - `DELETING`: The cluster is in the process of deletion and will soon be deleted.
+                         - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.
                     enum:
                         - IDLE
                         - CREATING
@@ -10239,6 +10280,8 @@ components:
                     example: 32b6e34b3d91647abb20e7b8
                     pattern: ^([a-f0-9]{24})$
                     type: string
+                serviceAccount:
+                    $ref: '#/components/schemas/OrgServiceAccountRequest'
                 skipDefaultAlertsSettings:
                     default: false
                     description: Disables automatic alert creation. When set to true, no organization level alerts will be created automatically.
@@ -10264,6 +10307,8 @@ components:
                     type: string
                 organization:
                     $ref: '#/components/schemas/AtlasOrganization'
+                serviceAccount:
+                    $ref: '#/components/schemas/OrgServiceAccount'
                 skipDefaultAlertsSettings:
                     default: false
                     description: Disables automatic alert creation. When set to true, no organization level alerts will be created automatically.
@@ -15654,6 +15699,8 @@ components:
                     - CLUSTER_IP_ROLLED_BACK
                     - AZ_BALANCING_OVERRIDE_MODIFIED
                     - FTDC_SETTINGS_UPDATED
+                    - MONGOTUNE_ENABLED
+                    - MONGOTUNE_DISABLED
                     - PROXY_PROTOCOL_FOR_PRIVATE_LINK_MODE_UPDATED
                   title: NDS Audit Types
                   type: string
@@ -17424,7 +17471,14 @@ components:
                 providerSettings:
                     $ref: '#/components/schemas/FlexProviderSettings20241113'
                 stateName:
-                    description: Human-readable label that indicates the current operating condition of this instance.
+                    description: |-
+                        Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
+
+                         - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.
+                         - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.
+                         - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.
+                         - `DELETING`: The cluster is in the process of deletion and will soon be deleted.
+                         - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.
                     enum:
                         - IDLE
                         - CREATING
@@ -18510,9 +18564,8 @@ components:
                     type: array
                 withDefaultAlertsSettings:
                     default: true
-                    description: Flag that indicates whether to create the project with default alert settings.
+                    description: Flag that indicates whether to create the project with default alert settings. This setting cannot be updated after project creation.
                     type: boolean
-                    writeOnly: true
             required:
                 - clusterCount
                 - created
@@ -21858,7 +21911,14 @@ components:
                     readOnly: true
                     type: string
                 stateName:
-                    description: Human-readable label that indicates the current operating condition of the cluster.
+                    description: |-
+                        Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
+
+                         - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.
+                         - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.
+                         - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.
+                         - `DELETING`: The cluster is in the process of deletion and will soon be deleted.
+                         - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.
                     enum:
                         - IDLE
                         - CREATING
@@ -22151,7 +22211,14 @@ components:
                     readOnly: true
                     type: string
                 stateName:
-                    description: Human-readable label that indicates the current operating condition of the cluster.
+                    description: |-
+                        Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
+
+                         - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.
+                         - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.
+                         - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.
+                         - `DELETING`: The cluster is in the process of deletion and will soon be deleted.
+                         - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.
                     enum:
                         - IDLE
                         - CREATING
@@ -22605,6 +22672,7 @@ components:
                 - ARBITER
                 - MONGOS
                 - CONFIG
+                - MONGOT
             example: STANDALONE
             title: Matcher Host Types
             type: string
@@ -23382,6 +23450,8 @@ components:
                 - CLUSTER_IP_ROLLED_BACK
                 - AZ_BALANCING_OVERRIDE_MODIFIED
                 - FTDC_SETTINGS_UPDATED
+                - MONGOTUNE_ENABLED
+                - MONGOTUNE_DISABLED
                 - PROXY_PROTOCOL_FOR_PRIVATE_LINK_MODE_UPDATED
             example: CLUSTER_CREATED
             title: NDS Audit Types
@@ -24935,6 +25005,7 @@ components:
                 - username
             type: object
         OrgServiceAccount:
+            description: Organization Service Account that Atlas created for the organization.
             properties:
                 clientId:
                     description: The Client ID of the Service Account.
@@ -24971,8 +25042,10 @@ components:
                         $ref: '#/components/schemas/ServiceAccountSecret'
                     type: array
                     uniqueItems: true
+            readOnly: true
             type: object
         OrgServiceAccountRequest:
+            description: Organization Service Account that Atlas creates for this organization. If omitted, Atlas doesn't create an organization Service Account for this organization. If specified, this object requires all body parameters.
             properties:
                 description:
                     description: Human readable description for the Service Account.
@@ -28528,7 +28601,7 @@ components:
                     type: integer
                 regionConfigs:
                     description: |-
-                        Hardware specifications for nodes set for a given region. Each **regionConfigs** object describes the region's priority in elections and the number and type of MongoDB nodes that MongoDB Cloud deploys to the region. Each **regionConfigs** object must have either an **analyticsSpecs** object, **electableSpecs** object, or **readOnlySpecs** object. Tenant clusters only require **electableSpecs. Dedicated** clusters can specify any of these specifications, but must have at least one **electableSpecs** object within a **replicationSpec**. Every hardware specification must use the same **instanceSize**.
+                        Hardware specifications for nodes set for a given region. Each **regionConfigs** object must be unique by region and cloud provider within the **replicationSpec**. Each **regionConfigs** object describes the region's priority in elections and the number and type of MongoDB nodes that MongoDB Cloud deploys to the region. Each **regionConfigs** object must have either an **analyticsSpecs** object, **electableSpecs** object, or **readOnlySpecs** object. Tenant clusters only require **electableSpecs. Dedicated** clusters can specify any of these specifications, but must have at least one **electableSpecs** object within a **replicationSpec**. Every hardware specification must use the same **instanceSize**.
 
                         **Example:**
 
@@ -28558,7 +28631,7 @@ components:
                     type: string
                 regionConfigs:
                     description: |-
-                        Hardware specifications for nodes set for a given region. Each **regionConfigs** object describes the region's priority in elections and the number and type of MongoDB nodes that MongoDB Cloud deploys to the region. Each **regionConfigs** object must have either an **analyticsSpecs** object, **electableSpecs** object, or **readOnlySpecs** object. Tenant clusters only require **electableSpecs. Dedicated** clusters can specify any of these specifications, but must have at least one **electableSpecs** object within a **replicationSpec**.
+                        Hardware specifications for nodes set for a given region. Each **regionConfigs** object must be unique by region and cloud provider within the **replicationSpec**. Each **regionConfigs** object describes the region's priority in elections and the number and type of MongoDB nodes that MongoDB Cloud deploys to the region. Each **regionConfigs** object must have either an **analyticsSpecs** object, **electableSpecs** object, or **readOnlySpecs** object. Tenant clusters only require **electableSpecs. Dedicated** clusters can specify any of these specifications, but must have at least one **electableSpecs** object within a **replicationSpec**.
 
                         **Example:**
 
@@ -29919,7 +29992,14 @@ components:
                 serverlessBackupOptions:
                     $ref: '#/components/schemas/ClusterServerlessBackupOptions'
                 stateName:
-                    description: Human-readable label that indicates the current operating condition of the serverless instance.
+                    description: |-
+                        Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
+
+                         - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.
+                         - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.
+                         - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.
+                         - `DELETING`: The cluster is in the process of deletion and will soon be deleted.
+                         - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.
                     enum:
                         - IDLE
                         - CREATING
@@ -29976,7 +30056,14 @@ components:
                 serverlessBackupOptions:
                     $ref: '#/components/schemas/ClusterServerlessBackupOptions'
                 stateName:
-                    description: Human-readable label that indicates the current operating condition of the serverless instance.
+                    description: |-
+                        Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
+
+                         - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.
+                         - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.
+                         - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.
+                         - `DELETING`: The cluster is in the process of deletion and will soon be deleted.
+                         - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.
                     enum:
                         - IDLE
                         - CREATING
@@ -34964,7 +35051,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 4f04d01ea04341498f7d598b3cc4b4d469ea99de
+    x-xgen-sha: d70bb6eb8d29fcb0c5f0ca70520e7244f983db27
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -37830,6 +37917,8 @@ paths:
             summary: Create One Cluster in One Project
             tags:
                 - Clusters
+            x-xgen-changelog:
+                "2025-06-05": Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:
         delete:
@@ -38010,6 +38099,8 @@ paths:
             summary: Update One Cluster in One Project
             tags:
                 - Clusters
+            x-xgen-changelog:
+                "2025-06-05": Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateCluster
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/{clusterView}/{databaseName}/{collectionName}/collStats/measurements:
         get:
@@ -55660,6 +55751,10 @@ paths:
                         application/vnd.atlas.2023-11-15+json:
                             schema:
                                 $ref: '#/components/schemas/ControlPlaneIPAddresses'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-110-collections-response-define-links-array: Content predates IPA validation
+                                xgen-IPA-110-collections-response-define-results-array: Content predates IPA validation
+                                xgen-IPA-110-collections-use-paginated-prefix: Content predates IPA validation
                             x-xgen-version: "2023-11-15"
                     description: OK
                 "500":
