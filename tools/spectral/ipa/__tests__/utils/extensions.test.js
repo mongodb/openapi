@@ -21,7 +21,7 @@ const customMethod = {
 
 const endpointWithMethodExtension = {
   delete: {
-    'x-xgen-method-verb-override': { verb: '‘remove’', customMethod: true },
+    'x-xgen-method-verb-override': { verb: 'remove', customMethod: true },
   },
 };
 
