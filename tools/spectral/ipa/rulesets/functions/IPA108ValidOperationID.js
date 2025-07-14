@@ -10,11 +10,7 @@ const ERROR_MESSAGE = 'Invalid OperationID.';
 export default (input, { methodName }, { path }) => {
   const resourcePath = path[1];
 
-  if (
-    isCustomMethodIdentifier(resourcePath) ||
-    !isSingleResourceIdentifier(resourcePath) ||
-    isLegacyCustomMethod(input)
-  ) {
+  if (isCustomMethodIdentifier(resourcePath) || isLegacyCustomMethod(input)) {
     return;
   }
 

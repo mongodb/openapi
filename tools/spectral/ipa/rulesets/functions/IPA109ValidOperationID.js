@@ -34,7 +34,15 @@ export default (input, _, { path }) => {
     }
 
     const operationId = obj.operationId;
-    errors.push(checkViolationAndReturnError(operationId, expectedOperationID, path));
+    if (operationId !== expectedOperationID) {
+      const errors = [
+        {
+          path,
+          message: `${ERROR_MESSAGE} Found ${operationId}, expected ${expectedOperationID}.`,
+        },
+      ];
+      return collectAndReturnViolation(path, RULE_NAME, errors);
+    }
   } else if (hasMethodWithVerbOverride(input)) {
     const methods = Object.keys(input);
     for (let i = 0; i < methods.length; i++) {
@@ -42,7 +50,12 @@ export default (input, _, { path }) => {
       const operationId = obj.operationId;
       if (isLegacyCustomMethod(obj)) {
         expectedOperationID = generateOperationID(obj['x-xgen-method-verb-override'].verb, resourcePath);
-        errors.push(checkViolationAndReturnError(operationId, expectedOperationID, path));
+        if (operationId !== expectedOperationID) {
+          errors.push({
+            path,
+            message: `${ERROR_MESSAGE} Found ${operationId}, expected ${expectedOperationID}.`,
+          });
+        }
       }
     }
   } else {
@@ -55,13 +68,3 @@ export default (input, _, { path }) => {
 
   collectAdoption(path, RULE_NAME);
 };
-
-function checkViolationAndReturnError(oldOperationID, newOperationID, path) {
-  if (oldOperationID !== newOperationID) {
-    return {
-      path,
-      message: `${ERROR_MESSAGE} Found ${oldOperationID}, expected ${newOperationID}.`,
-    };
-  }
-  return;
-}
