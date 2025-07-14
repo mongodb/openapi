@@ -8,11 +8,7 @@ export const VERB_OVERRIDE_EXTENSION = 'x-xgen-method-verb-override';
  */
 export function hasMethodWithVerbOverride(endpoint) {
   const keys = Object.keys(endpoint);
-  for (let i = 0; i < keys.length; i++) {
-    if (hasVerbOverride(endpoint[keys[i]])) {
-      return true;
-    }
-  }
+return keys.contains(VERB_OVERRIDE_EXTENSION)
   return false;
 }
 
