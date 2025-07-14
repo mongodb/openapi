@@ -2,7 +2,7 @@ import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
-import { invalidListMethod } from './utils/methodLogic.js';
+import { isInvalidListMethod } from './utils/methodLogic.js';
 import { hasCustomMethodOverride, hasMethodVerbOverride } from './utils/extensions.js';
 
 const RULE_NAME = 'xgen-IPA-105-valid-operation-id';
@@ -17,7 +17,7 @@ export default (input, { methodName }, { path, documentInventory }) => {
     hasCustomMethodOverride(input) ||
     isCustomMethodIdentifier(resourcePath) ||
     hasMethodVerbOverride(input, 'get') ||
-    (invalidListMethod(resourcePath, resourcePaths) && !hasMethodVerbOverride(input, methodName))
+    (isInvalidListMethod(resourcePath, resourcePaths) && !hasMethodVerbOverride(input, methodName))
   ) {
     return;
   }

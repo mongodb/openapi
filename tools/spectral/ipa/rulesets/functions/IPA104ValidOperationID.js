@@ -3,7 +3,7 @@ import { collectAdoption, collectAndReturnViolation, collectException } from './
 import { hasException } from './utils/exceptions.js';
 import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { hasCustomMethodOverride, hasMethodVerbOverride } from './utils/extensions.js';
-import { invalidGetMethod } from './utils/methodLogic.js';
+import { isInvalidGetMethod } from './utils/methodLogic.js';
 
 const RULE_NAME = 'xgen-IPA-104-valid-operation-id';
 const ERROR_MESSAGE = 'Invalid OperationID.';
@@ -17,7 +17,7 @@ export default (input, { methodName }, { path, documentInventory }) => {
     hasCustomMethodOverride(input) ||
     isCustomMethodIdentifier(resourcePath) ||
     hasMethodVerbOverride(input, 'list') ||
-    (invalidGetMethod(resourcePath, resourcePaths) && !hasMethodVerbOverride(input, methodName))
+    (isInvalidGetMethod(resourcePath, resourcePaths) && !hasMethodVerbOverride(input, methodName))
   ) {
     return;
   }
