@@ -19,10 +19,7 @@ return keys.contains(VERB_OVERRIDE_EXTENSION)
  * @returns {boolean} true if the object has an extension with customMethod=True, otherwise false
  */
 export function hasCustomMethodOverride(object) {
-  if (hasVerbOverride(object)) {
-    return object[VERB_OVERRIDE_EXTENSION].customMethod;
-  }
-  return false;
+  return hasVerbOverride(object)) && object[VERB_OVERRIDE_EXTENSION].customMethod;
 }
 
 /**
@@ -32,12 +29,7 @@ export function hasCustomMethodOverride(object) {
  * @param verb the verb to inspect the extension for
  * @returns {boolean} true if the object has the extension with the given verb, otherwise false
  */
-export function hasMethodVerbOverride(object, verb) {
-  if (hasVerbOverride(object)) {
-    return object[VERB_OVERRIDE_EXTENSION].verb === verb;
-  }
-  return false;
-}
+return hasVerbOverride(object) && object[VERB_OVERRIDE_EXTENSION].verb === verb
 
 /**
  * Checks if the object has an extension "x-xgen-method-verb-override"
