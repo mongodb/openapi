@@ -28,7 +28,7 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
     expect(generateOperationID('addNode', '/groups/{groupId}/clusters/{clusterName}')).toEqual('addGroupClusterNode');
     expect(generateOperationID('get', '/api/atlas/v2/groups/byName/{groupName}')).toEqual('getGroupByName');
     expect(generateOperationID('', '/api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}')).toEqual(
-      'exportGroupBackupBuckets'
+      'exportGroupBackupBucket'
     );
   });
 
