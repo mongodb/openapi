@@ -1,6 +1,6 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
-import { isCustomMethodIdentifier, isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
+import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
 import { hasCustomMethodOverride } from './utils/extensions.js';
 
