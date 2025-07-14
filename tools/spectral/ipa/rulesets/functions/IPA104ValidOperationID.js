@@ -16,7 +16,7 @@ export default (input, { methodName }, { path, documentInventory }) => {
   if (
     hasCustomMethodOverride(input) ||
     isCustomMethodIdentifier(resourcePath) ||
-    hasMethodVerbOverride(input, "list") ||
+    hasMethodVerbOverride(input, 'list') ||
     (invalidGetMethod(resourcePath, resourcePaths) && !hasMethodVerbOverride(input, methodName))
   ) {
     return;

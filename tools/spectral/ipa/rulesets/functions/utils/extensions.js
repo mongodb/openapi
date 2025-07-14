@@ -3,8 +3,8 @@ export const VERB_OVERRIDE_EXTENSION = 'x-xgen-method-verb-override';
 /**
  * Checks if the endpoint has a method with an extension "x-xgen-method-verb-override"
  *
- * @param object the object to evaluate
- * @returns {boolean} true if the object has the extension, otherwise false
+ * @param endpoint the endpoint to evaluate
+ * @returns {boolean} true if the endpoint has a nested method with the extension, otherwise false
  */
 export function hasMethodWithVerbOverride(endpoint) {
   const keys = Object.keys(endpoint);

@@ -1,28 +1,32 @@
 import { describe, it, expect, toBe } from '@jest/globals';
-import { hasMethodWithVerbOverride, hasCustomMethodOverride, hasMethodVerbOverride } from '../../rulesets/functions/utils/extensions';
+import {
+  hasMethodWithVerbOverride,
+  hasCustomMethodOverride,
+  hasMethodVerbOverride,
+} from '../../rulesets/functions/utils/extensions';
 
 const methodWithExtension = {
-    'x-xgen-method-verb-override': {
-      verb: 'get',
-      customMethod: false,
-    },
+  'x-xgen-method-verb-override': {
+    verb: 'get',
+    customMethod: false,
+  },
 };
 
 const customMethod = {
-    'x-xgen-method-verb-override': {
-      verb: 'add',
-      customMethod: true,
-    },
-}
+  'x-xgen-method-verb-override': {
+    verb: 'add',
+    customMethod: true,
+  },
+};
 
 const endpointWithMethodExtension = {
   delete: {
-    'x-xgen-method-verb-override': { verb: '‘remove’', customMethod: true }
-  }
+    'x-xgen-method-verb-override': { verb: '‘remove’', customMethod: true },
+  },
 };
 
 const endpointWithNoMethodExtension = {
-    'exception' : true
+  exception: true,
 };
 
 describe('tools/spectral/ipa/rulesets/functions/utils/extensions.js', () => {
@@ -53,13 +57,13 @@ describe('tools/spectral/ipa/rulesets/functions/utils/extensions.js', () => {
 describe('tools/spectral/ipa/rulesets/functions/utils/extensions.js', () => {
   describe('hasMethodVerbOverride', () => {
     it('returns true if the method has the extension with the expected verb', () => {
-      expect(hasMethodVerbOverride(methodWithExtension, "get")).toBe(true);
+      expect(hasMethodVerbOverride(methodWithExtension, 'get')).toBe(true);
     });
     it('returns false if the method does not have the extension', () => {
-      expect(hasMethodVerbOverride({}, "get")).toBe(false);
+      expect(hasMethodVerbOverride({}, 'get')).toBe(false);
     });
     it('returns false if the method has the extension but with an unexpected verb', () => {
-      expect(hasMethodVerbOverride(methodWithExtension, "put")).toBe(false);
+      expect(hasMethodVerbOverride(methodWithExtension, 'put')).toBe(false);
     });
   });
 });
