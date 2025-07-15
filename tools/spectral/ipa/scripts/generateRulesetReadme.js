@@ -102,8 +102,7 @@ function getIpaRulesetUrl(ipaNumber) {
   if (parts.length > 1) {
     parts[1] = parts[1].replace(/^0+/, '');
   }
-  const ipaNumberFormatted = parts.join('-');
-  return `[http://go/ipa/${ipaNumberFormatted}](http://go/ipa/${ipaNumberFormatted})`;
+  return `[https://mongodb.github.io/ipa/${parts[1]}](https://mongodb.github.io/ipa/${parts[1]})`;
 }
 
 function filterRulesByIpaNumber(ipaNumber, rules) {
