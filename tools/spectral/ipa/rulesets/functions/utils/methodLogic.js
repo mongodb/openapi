@@ -1,5 +1,4 @@
 import { isResourceCollectionIdentifier, isSingletonResource } from './resourceEvaluation.js';
-import { isPathParam } from './resourceEvaluation.js';
 
 /**
  * Checks whether the get method at a given path is valid
