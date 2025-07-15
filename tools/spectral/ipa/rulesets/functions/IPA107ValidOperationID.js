@@ -1,27 +1,16 @@
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
-import {
-  isSingleResourceIdentifier,
-  isResourceCollectionIdentifier,
-  isSingletonResource,
-  getResourcePathItems,
-  isCustomMethodIdentifier,
-} from './utils/resourceEvaluation.js';
+import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
+import { hasCustomMethodOverride } from './utils/extensions.js';
 
 const RULE_NAME = 'xgen-IPA-107-valid-operation-id';
 const ERROR_MESSAGE = 'Invalid OperationID.';
 
-export default (input, { methodName }, { path, documentInventory }) => {
+export default (input, { methodName }, { path }) => {
   const resourcePath = path[1];
-  const oas = documentInventory.resolved;
-  const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
-  if (
-    isCustomMethodIdentifier(resourcePath) ||
-    (!isSingleResourceIdentifier(resourcePath) &&
-      !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths)))
-  ) {
+  if (isCustomMethodIdentifier(resourcePath) || hasCustomMethodOverride(input)) {
     return;
   }
 

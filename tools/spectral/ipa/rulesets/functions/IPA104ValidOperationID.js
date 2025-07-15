@@ -1,13 +1,9 @@
 import { generateOperationID } from './utils/operationIdGeneration.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { hasException } from './utils/exceptions.js';
-import {
-  isSingleResourceIdentifier,
-  isResourceCollectionIdentifier,
-  isSingletonResource,
-  getResourcePathItems,
-  isCustomMethodIdentifier,
-} from './utils/resourceEvaluation.js';
+import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
+import { hasCustomMethodOverride, hasMethodVerbOverride } from './utils/extensions.js';
+import { isInvalidGetMethod } from './utils/methodLogic.js';
 
 const RULE_NAME = 'xgen-IPA-104-valid-operation-id';
 const ERROR_MESSAGE = 'Invalid OperationID.';
@@ -18,9 +14,10 @@ export default (input, { methodName }, { path, documentInventory }) => {
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
 
   if (
+    hasCustomMethodOverride(input) ||
     isCustomMethodIdentifier(resourcePath) ||
-    (!isSingleResourceIdentifier(resourcePath) &&
-      !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePaths)))
+    hasMethodVerbOverride(input, 'list') ||
+    (isInvalidGetMethod(resourcePath, resourcePaths) && !hasMethodVerbOverride(input, methodName))
   ) {
     return;
   }

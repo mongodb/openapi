@@ -10,7 +10,15 @@ const CAMEL_CASE = /[A-Z]?[a-z]+/g;
  * @param path the path for the endpoint
  */
 export function generateOperationID(method, path) {
+  if (!path) {
+    return method;
+  }
+
   let resourceIdentifier = removePrefix(path);
+  if (resourceIdentifier.includes('.')) {
+    resourceIdentifier = resourceIdentifier.substring(0, resourceIdentifier.lastIndexOf('.'));
+  }
+
   let nouns = resourceIdentifier.split('/').filter((section) => section.length > 0 && !isPathParam(section));
 
   // legacy custom method - use end of path as custom method name
@@ -33,7 +41,11 @@ export function generateOperationID(method, path) {
   }
 
   // singularize final noun, dependent on resource identifier
-  if (isSingleResourceIdentifier(resourceIdentifier) || verb === 'create') {
+  if (
+    isPathParam(resourceIdentifier.split('/').pop()) ||
+    isSingleResourceIdentifier(resourceIdentifier) ||
+    verb === 'create'
+  ) {
     nouns[nouns.length - 1] = inflection.singularize(nouns[nouns.length - 1]);
   }
 
