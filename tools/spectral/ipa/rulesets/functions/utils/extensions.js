@@ -7,7 +7,7 @@ export const VERB_OVERRIDE_EXTENSION = 'x-xgen-method-verb-override';
  * @returns {boolean} true if the endpoint has a nested method with the extension, otherwise false
  */
 export function hasMethodWithVerbOverride(endpoint) {
-  return Object.values(endpoint).some(hasVerbOverride);  
+  return Object.values(endpoint).some(hasVerbOverride);
 }
 
 /**
@@ -27,10 +27,9 @@ export function hasCustomMethodOverride(object) {
  * @param verb the verb to inspect the extension for
  * @returns {boolean} true if the object has the extension with the given verb, otherwise false
  */
-export function hasMethodVerbOverride(object, verb){
-  return hasVerbOverride(object) && object[VERB_OVERRIDE_EXTENSION].verb === verb
+export function hasMethodVerbOverride(object, verb) {
+  return hasVerbOverride(object) && object[VERB_OVERRIDE_EXTENSION].verb === verb;
 }
-
 
 /**
  * Checks if the object has an extension "x-xgen-method-verb-override"
