@@ -30,5 +30,5 @@ function lastIdentifierIsPathParam(resourceIdentifier) {
   if (resourceIdentifier.includes('.')) {
     resourceIdentifier = resourceIdentifier.substring(0, resourceIdentifier.lastIndexOf('.'));
   }
-  return isPathParam(resourceIdentifier.split('/').pop());
+  return resourceIdentifier.at(-1) === '}';
 }
