@@ -1,8 +1,6 @@
 # IPA Validation
 
-The IPA validation uses [Spectral](https://docs.stoplight.io/docs/spectral/9ffa04e052cc1-spectral-cli) to validate the [MongoDB Atlas Admin API OpenAPI Specification](https://github.com/mongodb/openapi/tree/main/openapi). The rules cover MongoDB best-practices for API design.
-
-**Note:** For MongoDB engineers, please review https://go/ipa-validation for additional information.
+The IPA validation uses [Spectral](https://docs.stoplight.io/docs/spectral/9ffa04e052cc1-spectral-cli) to validate the [MongoDB Atlas Admin API OpenAPI Specification](https://github.com/mongodb/openapi/tree/main/openapi). The rules cover MongoDB's [Improvement Proposal for APIs](https://mongodb.github.io/ipa/) (IPA), which are best-practices for API design.
 
 ## Running Locally
 
