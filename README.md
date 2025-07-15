@@ -15,8 +15,8 @@ The [tools/cli](tools/cli) directory hosts a Go-based CLI tool used to merge mul
 For more details, please refer to the [CLI’s README.md](tools/cli/README.md).
 
 ### Spectral
-The [tools/spectral](tools/spectral) directory contains MongoDB-specific [Spectral](https://github.com/stoplightio/spectral) rule definitions.
-These rules are used to validate that the generated OpenAPI specifications comply with MongoDB’s guidelines.
+The [tools/spectral](tools/spectral) directory contains [Spectral](https://github.com/stoplightio/spectral) rule definitions.
+These rules are used to validate that the generated OpenAPI specifications comply with MongoDB's [Improvement Proposal for APIs](https://mongodb.github.io/ipa/) (IPA).
 
 For more details, please refer to the [Spectral’s README.md](tools/spectral/README.md).
 

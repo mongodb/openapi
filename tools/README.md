@@ -8,7 +8,7 @@ Includes resources and scripts to generate [MongoDB Atlas Postman Collections](h
 
 ## Spectral
 
-MongoDB [Spectral](https://github.com/stoplightio/spectral) OpenAPI specification validation rules
+MongoDB [Spectral](https://github.com/stoplightio/spectral) OpenAPI specification validation rules for IPA-compliance.
 
 ## CLI
 

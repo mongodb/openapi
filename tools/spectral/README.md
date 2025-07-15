@@ -10,7 +10,10 @@ A set of custom validator rules for the MongoDB Atlas Programmatic API, adhering
 
 For a complete list of implemented rules, please refer to the [Ruleset Documentation](./ipa/rulesets/README.md).
 
+### External Documentation
+
+- Refer to the [IPA Standards](https://mongodb.github.io/ipa/) for specific rules.
+
 ### Internal Documentation
 
-- Refer to the [IPA Standards](http://go/ipa) for specific rules.
 - Visit the [Spectral Wiki](http://go/openapi-spectral-updates) for additional information.

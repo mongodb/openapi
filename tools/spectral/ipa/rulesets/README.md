@@ -10,7 +10,7 @@ Below is a list of all available rules, their descriptions and severity levels.
 
 ### IPA-005
 
-Rules are based on [http://go/ipa/IPA-5](http://go/ipa/IPA-5).
+Rules are based on [https://mongodb.github.io/ipa/5](https://mongodb.github.io/ipa/5).
 
 #### xgen-IPA-005-exception-extension-format
 
@@ -27,7 +27,7 @@ Rule checks for the following conditions:
 
 ### IPA-102
 
-Rules are based on [http://go/ipa/IPA-102](http://go/ipa/IPA-102).
+Rules are based on [https://mongodb.github.io/ipa/102](https://mongodb.github.io/ipa/102).
 
 #### xgen-IPA-102-collection-identifier-camelCase
 
@@ -76,7 +76,7 @@ Rule checks for the following conditions:
 
 ### IPA-104
 
-Rules are based on [http://go/ipa/IPA-104](http://go/ipa/IPA-104).
+Rules are based on [https://mongodb.github.io/ipa/104](https://mongodb.github.io/ipa/104).
 
 #### xgen-IPA-104-resource-has-GET
 
@@ -143,7 +143,7 @@ Rule checks for the following conditions:
 
 ### IPA-105
 
-Rules are based on [http://go/ipa/IPA-105](http://go/ipa/IPA-105).
+Rules are based on [https://mongodb.github.io/ipa/105](https://mongodb.github.io/ipa/105).
 
 #### xgen-IPA-105-list-method-response-code-is-200
 
@@ -197,7 +197,7 @@ The response body of the List method should consist of the same resource object 
 
 ### IPA-106
 
-Rules are based on [http://go/ipa/IPA-106](http://go/ipa/IPA-106).
+Rules are based on [https://mongodb.github.io/ipa/106](https://mongodb.github.io/ipa/106).
 
 #### xgen-IPA-106-create-method-request-body-is-request-suffixed-object
 
@@ -277,7 +277,7 @@ Rule checks for the following conditions:
 
 ### IPA-107
 
-Rules are based on [http://go/ipa/IPA-107](http://go/ipa/IPA-107).
+Rules are based on [https://mongodb.github.io/ipa/107](https://mongodb.github.io/ipa/107).
 
 #### xgen-IPA-107-update-must-not-have-query-params
 
@@ -348,7 +348,7 @@ Rule checks for the following conditions:
 
 ### IPA-108
 
-Rules are based on [http://go/ipa/IPA-108](http://go/ipa/IPA-108).
+Rules are based on [https://mongodb.github.io/ipa/108](https://mongodb.github.io/ipa/108).
 
 #### xgen-IPA-108-delete-response-should-be-empty
 
@@ -392,7 +392,7 @@ Rule checks for the following conditions:
 
 ### IPA-109
 
-Rules are based on [http://go/ipa/IPA-109](http://go/ipa/IPA-109).
+Rules are based on [https://mongodb.github.io/ipa/109](https://mongodb.github.io/ipa/109).
 
 #### xgen-IPA-109-custom-method-must-be-GET-or-POST
 
@@ -437,7 +437,7 @@ Rule checks for the following conditions:
 
 ### IPA-110
 
-Rules are based on [http://go/ipa/IPA-110](http://go/ipa/IPA-110).
+Rules are based on [https://mongodb.github.io/ipa/110](https://mongodb.github.io/ipa/110).
 
 #### xgen-IPA-110-collections-use-paginated-prefix
 
@@ -513,7 +513,7 @@ Rule checks for the following conditions:
 
 ### IPA-112
 
-Rules are based on [http://go/ipa/IPA-112](http://go/ipa/IPA-112).
+Rules are based on [https://mongodb.github.io/ipa/112](https://mongodb.github.io/ipa/112).
 
 #### xgen-IPA-112-avoid-project-field-names
 
@@ -554,7 +554,7 @@ Rule checks for the following conditions:
 
 ### IPA-113
 
-Rules are based on [http://go/ipa/IPA-113](http://go/ipa/IPA-113).
+Rules are based on [https://mongodb.github.io/ipa/113](https://mongodb.github.io/ipa/113).
 
 #### xgen-IPA-113-singleton-must-not-have-id
 
@@ -593,7 +593,7 @@ Rule checks for the following conditions:
 
 ### IPA-114
 
-Rules are based on [http://go/ipa/IPA-114](http://go/ipa/IPA-114).
+Rules are based on [https://mongodb.github.io/ipa/114](https://mongodb.github.io/ipa/114).
 
 #### xgen-IPA-114-error-responses-refer-to-api-error
 
@@ -638,7 +638,7 @@ is not found.
 
 ### IPA-117
 
-Rules are based on [http://go/ipa/IPA-117](http://go/ipa/IPA-117).
+Rules are based on [https://mongodb.github.io/ipa/117](https://mongodb.github.io/ipa/117).
 
 #### xgen-IPA-117-description
 
@@ -774,7 +774,7 @@ The rule checks for the presence of the `schema`, `examples` or `example` proper
 
 ### IPA-118
 
-Rules are based on [http://go/ipa/IPA-118](http://go/ipa/IPA-118).
+Rules are based on [https://mongodb.github.io/ipa/118](https://mongodb.github.io/ipa/118).
 
 #### xgen-IPA-118-no-additional-properties-false
 
@@ -790,7 +790,7 @@ This rule checks all nested schemas, but only parent schemas can be marked for e
 
 ### IPA-119
 
-Rules are based on [http://go/ipa/IPA-119](http://go/ipa/IPA-119).
+Rules are based on [https://mongodb.github.io/ipa/119](https://mongodb.github.io/ipa/119).
 
 #### xgen-IPA-119-no-default-for-cloud-providers
 
@@ -804,7 +804,7 @@ All cloudProviderEnumValues should be listed in the enum array.
 
 ### IPA-121
 
-Rules are based on [http://go/ipa/IPA-121](http://go/ipa/IPA-121).
+Rules are based on [https://mongodb.github.io/ipa/121](https://mongodb.github.io/ipa/121).
 
 #### xgen-IPA-121-date-time-fields-mention-iso-8601
 
@@ -816,7 +816,7 @@ It collects adoption metrics at schema property level and parameter level
 
 ### IPA-123
 
-Rules are based on [http://go/ipa/IPA-123](http://go/ipa/IPA-123).
+Rules are based on [https://mongodb.github.io/ipa/123](https://mongodb.github.io/ipa/123).
 
 #### xgen-IPA-123-enum-values-must-be-upper-snake-case
 
@@ -847,7 +847,7 @@ Rule checks for the following conditions:
 
 ### IPA-124
 
-Rules are based on [http://go/ipa/IPA-124](http://go/ipa/IPA-124).
+Rules are based on [https://mongodb.github.io/ipa/124](https://mongodb.github.io/ipa/124).
 
 #### xgen-IPA-124-array-max-items
 
@@ -868,7 +868,7 @@ Rule checks for the following conditions:
 
 ### IPA-125
 
-Rules are based on [http://go/ipa/IPA-125](http://go/ipa/IPA-125).
+Rules are based on [https://mongodb.github.io/ipa/125](https://mongodb.github.io/ipa/125).
 
 #### xgen-IPA-125-oneOf-must-have-discriminator
 
@@ -922,7 +922,7 @@ object types with clear discriminators.
 
 ### IPA-126
 
-Rules are based on [http://go/ipa/IPA-126](http://go/ipa/IPA-126).
+Rules are based on [https://mongodb.github.io/ipa/126](https://mongodb.github.io/ipa/126).
 
 #### xgen-IPA-126-tag-names-should-use-title-case
 
