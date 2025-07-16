@@ -28,13 +28,16 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
     expect(generateOperationID('addNode', '/groups/{groupId}/clusters/{clusterName}')).toEqual('addGroupClusterNode');
     expect(generateOperationID('get', '/api/atlas/v2/groups/byName/{groupName}')).toEqual('getGroupByName');
     expect(generateOperationID('', '/api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}')).toEqual(
-      'exportGroupBackupBucket'
+      'exportGroupBackupBuckets'
     );
   });
 
   it('should accommodate legacy custom methods', () => {
     expect(generateOperationID('', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries')).toEqual(
       'restartGroupClusterPrimaries'
+    );
+    expect(generateOperationID('', '/api/atlas/v2/groups/{groupId}/pipelines/{pipelineName}/pause')).toEqual(
+      'pauseGroupPipeline'
     );
   });
 });
