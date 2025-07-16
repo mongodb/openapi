@@ -1507,7 +1507,7 @@
             "type": "string"
           },
           "stateName": {
-            "description": "Human-readable label that indicates the current operating condition of this cluster.",
+            "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
             "enum": [
               "IDLE",
               "CREATING",
@@ -3248,6 +3248,12 @@
             "readOnly": true,
             "type": "string"
           },
+          "targetPublicKey": {
+            "description": "Public part of the API key that this event targets.",
+            "example": "zmmrboas",
+            "readOnly": true,
+            "type": "string"
+          },
           "userId": {
             "description": "Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.",
             "example": "32b6e34b3d91647abb20e7b8",
@@ -3258,6 +3264,12 @@
           "username": {
             "description": "Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.",
             "format": "email",
+            "readOnly": true,
+            "type": "string"
+          },
+          "whitelistEntry": {
+            "description": "Entry in the list of source host addresses that the API key accepts and this event targets.",
+            "example": "0.0.0.0",
             "readOnly": true,
             "type": "string"
           }
@@ -3353,6 +3365,12 @@
             "readOnly": true,
             "type": "string"
           },
+          "targetPublicKey": {
+            "description": "Public part of the API key that this event targets.",
+            "example": "zmmrboas",
+            "readOnly": true,
+            "type": "string"
+          },
           "userId": {
             "description": "Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the **apiKeyId** parameter.",
             "example": "32b6e34b3d91647abb20e7b8",
@@ -3363,6 +3381,12 @@
           "username": {
             "description": "Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the **publicApiKey** parameter.",
             "format": "email",
+            "readOnly": true,
+            "type": "string"
+          },
+          "whitelistEntry": {
+            "description": "Entry in the list of source host addresses that the API key accepts and this event targets.",
+            "example": "0.0.0.0",
             "readOnly": true,
             "type": "string"
           }
@@ -11242,6 +11266,9 @@
             "pattern": "^([a-f0-9]{24})$",
             "type": "string"
           },
+          "serviceAccount": {
+            "$ref": "#/components/schemas/OrgServiceAccountRequest"
+          },
           "skipDefaultAlertsSettings": {
             "default": false,
             "description": "Disables automatic alert creation. When set to true, no organization level alerts will be created automatically.",
@@ -11274,6 +11301,9 @@
           },
           "organization": {
             "$ref": "#/components/schemas/AtlasOrganization"
+          },
+          "serviceAccount": {
+            "$ref": "#/components/schemas/OrgServiceAccount"
           },
           "skipDefaultAlertsSettings": {
             "default": false,
@@ -17809,6 +17839,8 @@
               "CLUSTER_IP_ROLLED_BACK",
               "AZ_BALANCING_OVERRIDE_MODIFIED",
               "FTDC_SETTINGS_UPDATED",
+              "MONGOTUNE_ENABLED",
+              "MONGOTUNE_DISABLED",
               "PROXY_PROTOCOL_FOR_PRIVATE_LINK_MODE_UPDATED"
             ],
             "title": "NDS Audit Types",
@@ -20491,9 +20523,8 @@
           },
           "withDefaultAlertsSettings": {
             "default": true,
-            "description": "Flag that indicates whether to create the project with default alert settings.",
-            "type": "boolean",
-            "writeOnly": true
+            "description": "Flag that indicates whether to create the project with default alert settings. This setting cannot be updated after project creation.",
+            "type": "boolean"
           }
         },
         "required": [
@@ -24078,7 +24109,7 @@
             "type": "string"
           },
           "stateName": {
-            "description": "Human-readable label that indicates the current operating condition of the cluster.",
+            "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
             "enum": [
               "IDLE",
               "CREATING",
@@ -24415,7 +24446,7 @@
             "type": "string"
           },
           "stateName": {
-            "description": "Human-readable label that indicates the current operating condition of the cluster.",
+            "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
             "enum": [
               "IDLE",
               "CREATING",
@@ -24932,7 +24963,8 @@
           "SECONDARY",
           "ARBITER",
           "MONGOS",
-          "CONFIG"
+          "CONFIG",
+          "MONGOT"
         ],
         "example": "STANDALONE",
         "title": "Matcher Host Types",
@@ -25704,6 +25736,8 @@
           "CLUSTER_IP_ROLLED_BACK",
           "AZ_BALANCING_OVERRIDE_MODIFIED",
           "FTDC_SETTINGS_UPDATED",
+          "MONGOTUNE_ENABLED",
+          "MONGOTUNE_DISABLED",
           "PROXY_PROTOCOL_FOR_PRIVATE_LINK_MODE_UPDATED"
         ],
         "example": "CLUSTER_CREATED",
@@ -27579,6 +27613,105 @@
           "orgMembershipStatus",
           "roles",
           "username"
+        ],
+        "type": "object"
+      },
+      "OrgServiceAccount": {
+        "description": "Organization Service Account that Atlas created for the organization.",
+        "properties": {
+          "clientId": {
+            "description": "The Client ID of the Service Account.",
+            "example": "mdb_sa_id_1234567890abcdef12345678",
+            "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "The date that the Service Account was created on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human readable description for the Service Account.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable name for the Service Account.",
+            "type": "string"
+          },
+          "roles": {
+            "description": "A list of Organization roles associated with the Service Account.",
+            "items": {
+              "description": "Organization roles available for Service Accounts.",
+              "enum": [
+                "ORG_MEMBER",
+                "ORG_READ_ONLY",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_GROUP_CREATOR",
+                "ORG_OWNER"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "secrets": {
+            "description": "A list of secrets associated with the specified Service Account.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountSecret"
+            },
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "readOnly": true,
+        "type": "object"
+      },
+      "OrgServiceAccountRequest": {
+        "description": "Organization Service Account that Atlas creates for this organization. If omitted, Atlas doesn't create an organization Service Account for this organization. If specified, this object requires all body parameters.",
+        "properties": {
+          "description": {
+            "description": "Human readable description for the Service Account.",
+            "maxLength": 250,
+            "minLength": 1,
+            "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
+            "type": "string"
+          },
+          "roles": {
+            "description": "A list of organization-level roles for the Service Account.",
+            "items": {
+              "description": "Organization roles available for Service Accounts.",
+              "enum": [
+                "ORG_MEMBER",
+                "ORG_READ_ONLY",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_GROUP_CREATOR",
+                "ORG_OWNER"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "secretExpiresAfterHours": {
+            "description": "The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.",
+            "example": 8,
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "description",
+          "name",
+          "roles",
+          "secretExpiresAfterHours"
         ],
         "type": "object"
       },
@@ -31257,7 +31390,7 @@
             "type": "integer"
           },
           "regionConfigs": {
-            "description": "Hardware specifications for nodes set for a given region. Each **regionConfigs** object describes the region's priority in elections and the number and type of MongoDB nodes that MongoDB Cloud deploys to the region. Each **regionConfigs** object must have either an **analyticsSpecs** object, **electableSpecs** object, or **readOnlySpecs** object. Tenant clusters only require **electableSpecs. Dedicated** clusters can specify any of these specifications, but must have at least one **electableSpecs** object within a **replicationSpec**. Every hardware specification must use the same **instanceSize**.\n\n**Example:**\n\nIf you set `\"replicationSpecs[n].regionConfigs[m].analyticsSpecs.instanceSize\" : \"M30\"`, set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize\" : `\"M30\"` if you have electable nodes and `\"replicationSpecs[n].regionConfigs[m].readOnlySpecs.instanceSize\" : `\"M30\"` if you have read-only nodes.",
+            "description": "Hardware specifications for nodes set for a given region. Each **regionConfigs** object must be unique by region and cloud provider within the **replicationSpec**. Each **regionConfigs** object describes the region's priority in elections and the number and type of MongoDB nodes that MongoDB Cloud deploys to the region. Each **regionConfigs** object must have either an **analyticsSpecs** object, **electableSpecs** object, or **readOnlySpecs** object. Tenant clusters only require **electableSpecs. Dedicated** clusters can specify any of these specifications, but must have at least one **electableSpecs** object within a **replicationSpec**. Every hardware specification must use the same **instanceSize**.\n\n**Example:**\n\nIf you set `\"replicationSpecs[n].regionConfigs[m].analyticsSpecs.instanceSize\" : \"M30\"`, set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize\" : `\"M30\"` if you have electable nodes and `\"replicationSpecs[n].regionConfigs[m].readOnlySpecs.instanceSize\" : `\"M30\"` if you have read-only nodes.",
             "items": {
               "$ref": "#/components/schemas/CloudRegionConfig"
             },
@@ -32809,7 +32942,7 @@
             "$ref": "#/components/schemas/ClusterServerlessBackupOptions"
           },
           "stateName": {
-            "description": "Human-readable label that indicates the current operating condition of the serverless instance.",
+            "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
             "enum": [
               "IDLE",
               "CREATING",
@@ -32884,7 +33017,7 @@
             "$ref": "#/components/schemas/ClusterServerlessBackupOptions"
           },
           "stateName": {
-            "description": "Human-readable label that indicates the current operating condition of the serverless instance.",
+            "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
             "enum": [
               "IDLE",
               "CREATING",
@@ -33531,6 +33664,53 @@
           "id"
         ],
         "title": "ServiceAccount Events",
+        "type": "object"
+      },
+      "ServiceAccountSecret": {
+        "properties": {
+          "createdAt": {
+            "description": "The date that the secret was created on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expiresAt": {
+            "description": "The date for the expiration of the secret. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies the secret.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "lastUsedAt": {
+            "description": "The last time the secret was used. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "maskedSecretValue": {
+            "description": "The masked Service Account secret.",
+            "example": "mdb_sa_sk_...",
+            "readOnly": true,
+            "type": "string"
+          },
+          "secret": {
+            "description": "The secret for the Service Account. It will be returned only the first time after creation.",
+            "example": "mdb_sa_sk_...",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "expiresAt",
+          "id"
+        ],
         "type": "object"
       },
       "ShardEntry": {
@@ -35012,6 +35192,9 @@
             "properties": {
               "aws": {
                 "$ref": "#/components/schemas/StreamsAWSConnectionConfig"
+              },
+              "networking": {
+                "$ref": "#/components/schemas/StreamsKafkaNetworking"
               }
             },
             "type": "object"
@@ -38814,7 +38997,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "7ebc356024c9b5ce4badb8d04f552f5be6435c79"
+    "x-xgen-sha": "e04964508df97114dc44ce14c37b5ec0ded2be0e"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -44098,6 +44281,9 @@
           }
         ],
         "x-sunset": "2026-03-01",
+        "x-xgen-changelog": {
+          "2025-06-05": "Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec"
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster"
       }
     },
@@ -44662,6 +44848,9 @@
           }
         ],
         "x-sunset": "2026-03-01",
+        "x-xgen-changelog": {
+          "2025-06-05": "Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec"
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateCluster"
       }
     },
