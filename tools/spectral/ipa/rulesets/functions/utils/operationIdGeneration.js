@@ -24,6 +24,7 @@ export function generateOperationID(method, path) {
   // legacy custom method - use end of path as custom method name
   if (!method) {
     method = nouns.pop();
+    resourceIdentifier = resourceIdentifier.slice(0, resourceIdentifier.lastIndexOf('/'));
   }
 
   nouns = nouns.map((noun) => capitalize(noun));
