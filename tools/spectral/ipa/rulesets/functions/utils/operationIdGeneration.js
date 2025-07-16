@@ -30,9 +30,10 @@ export function generateOperationID(method, path) {
   nouns = nouns.map((noun) => capitalize(noun));
 
   let verb = deriveActionVerb(method);
+  const camelCaseCustomMethod = method.length > verb.length;
 
   // if custom method name is multiple words, add trailing nouns to the operation ID
-  if (method.length > verb.length) {
+  if (camelCaseCustomMethod) {
     nouns.push(method.slice(verb.length));
   }
 
@@ -41,10 +42,10 @@ export function generateOperationID(method, path) {
     opID += inflection.singularize(nouns[i]);
   }
 
-  // singularize final noun, dependent on resource identifier
+  // singularize final noun, dependent on resource identifier - leave custom nouns alone
   if (
-    isPathParam(resourceIdentifier.split('/').pop()) ||
-    isSingleResourceIdentifier(resourceIdentifier) ||
+    ((isPathParam(resourceIdentifier.split('/').pop()) || isSingleResourceIdentifier(resourceIdentifier)) &&
+      !camelCaseCustomMethod) ||
     verb === 'create'
   ) {
     nouns[nouns.length - 1] = inflection.singularize(nouns[nouns.length - 1]);
