@@ -36,5 +36,6 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
     expect(generateOperationID('', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries')).toEqual(
       'restartGroupClusterPrimaries'
     );
+    expect(generateOperationID('','/api/atlas/v2/groups/{groupId}/pipelines/{pipelineName}/pause')).toEqual('pauseGroupPipeline')
   });
 });
