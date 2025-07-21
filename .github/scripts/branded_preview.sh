@@ -1,14 +1,12 @@
 #!/bin/bash
-# set -eou pipefail
+set -eou pipefail
 
-# foascli versions -s v2.json --env "${target_env:?}" -o versions.json
+foascli versions -s v2.json --env "${target_env:?}" -o versions.json
 
-# branch_name=${target_env:?}
-# if [[ "$branch_name" == "prod" ]]; then
-#     branch_name="main"
-# fi
-
-branch_name="main"
+branch_name=${target_env:?}
+if [[ "$branch_name" == "prod" ]]; then
+    branch_name="main"
+fi
 
 # Load versions from versions.json
 versions=()
@@ -17,7 +15,7 @@ versions=()
 while IFS= read -r version; do
     versions+=("$version")
 # done < <(jq -r '.[]' versions.json)
-done < <(jq -r '.[]' ../../openapi/v2/versions.json)
+done < <(jq -r '.[]' versions.json)
 
 all_urls=()
 
@@ -102,4 +100,4 @@ cat << EOF > branded-preview.html
 </html>
 EOF
 
-# rm -f versions.json
+rm -f versions.json
