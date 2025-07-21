@@ -14,7 +14,6 @@ versions=()
 # Read versions from versions.json into an array
 while IFS= read -r version; do
     versions+=("$version")
-# done < <(jq -r '.[]' versions.json)
 done < <(jq -r '.[]' versions.json)
 
 all_urls=()
