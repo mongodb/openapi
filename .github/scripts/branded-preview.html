@@ -23,22 +23,34 @@
 
                 previewSpan.innerHTML = 'Loading...';
 
-                const buildPreviewEndpoint = 'https://populate-data-ext-rr.netlify.app/.netlify/functions/create-bump-preview';
-                const res = await fetch(buildPreviewEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ url }),
-                });
-                const { public_url: previewUrl } = await res.json();
+                try {
+                    const buildPreviewEndpoint = 'https://populate-data-ext-rr.netlify.app/.netlify/functions/create-bump-preview';
+                    const res = await fetch(buildPreviewEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url }),
+                    });
 
-                previewSpan.innerHTML = '';
-                const link = document.createElement('a');
-                link.href = previewUrl;
-                link.textContent = previewUrl;
-                link.target = '_blank';
-                previewSpan.appendChild(link);
+                    if (res.status === 201) {
+                        const { public_url: previewUrl } = await res.json();
+                        previewSpan.innerHTML = '';
+                        const link = document.createElement('a');
+                        link.href = previewUrl;
+                        link.textContent = previewUrl;
+                        link.target = '_blank';
+                        previewSpan.appendChild(link);
+                    }
+
+                    if (res.status === 422) {
+                        const resText = await res.text();
+                        previewSpan.innerHTML = resText;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    previewSpan.innerHTML = 'Error!';
+                }
             }
         </script>
     </body>

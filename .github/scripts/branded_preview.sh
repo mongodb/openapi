@@ -1,12 +1,14 @@
 #!/bin/bash
-set -eou pipefail
+# set -eou pipefail
 
-foascli versions -s v2.json --env "${target_env:?}" -o versions.json
+# foascli versions -s v2.json --env "${target_env:?}" -o versions.json
 
-branch_name=${target_env:?}
-if [[ "$branch_name" == "prod" ]]; then
-    branch_name="main"
-fi
+# branch_name=${target_env:?}
+# if [[ "$branch_name" == "prod" ]]; then
+#     branch_name="main"
+# fi
+
+branch_name="main"
 
 # Load versions from versions.json
 versions=()
@@ -14,7 +16,8 @@ versions=()
 # Read versions from versions.json into an array
 while IFS= read -r version; do
     versions+=("$version")
-done < <(jq -r '.[]' versions.json)
+# done < <(jq -r '.[]' versions.json)
+done < <(jq -r '.[]' ../../openapi/v2/versions.json)
 
 all_urls=()
 
@@ -38,6 +41,7 @@ for url in "${all_urls[@]}"; do
     links="${links}<div class='url-container'><button onclick=\"generateLink('preview-url-$URL_COUNT', '$url')\">Generate preview link for ${filename}</button><span class='preview-span' id='preview-url-$URL_COUNT'></span></div>"
 done
 
+# Uses a proxied endpoint for creating preview links to prevent CORS issues
 cat << EOF > branded-preview.html
 <!DOCTYPE html>
 <html lang="en">
@@ -64,26 +68,38 @@ cat << EOF > branded-preview.html
 
                 previewSpan.innerHTML = 'Loading...';
 
-                const buildPreviewEndpoint = 'https://populate-data-ext-rr.netlify.app/.netlify/functions/create-bump-preview';
-                const res = await fetch(buildPreviewEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ url }),
-                });
-                const { public_url: previewUrl } = await res.json();
+                try {
+                    const buildPreviewEndpoint = 'https://populate-data-ext-rr.netlify.app/.netlify/functions/create-bump-preview';
+                    const res = await fetch(buildPreviewEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url }),
+                    });
 
-                previewSpan.innerHTML = '';
-                const link = document.createElement('a');
-                link.href = previewUrl;
-                link.textContent = previewUrl;
-                link.target = '_blank';
-                previewSpan.appendChild(link);
+                    if (res.status === 201) {
+                        const { public_url: previewUrl } = await res.json();
+                        previewSpan.innerHTML = '';
+                        const link = document.createElement('a');
+                        link.href = previewUrl;
+                        link.textContent = previewUrl;
+                        link.target = '_blank';
+                        previewSpan.appendChild(link);
+                    }
+
+                    if (res.status === 422) {
+                        const resText = await res.text();
+                        previewSpan.innerHTML = resText;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    previewSpan.innerHTML = 'Error!';
+                }
             }
         </script>
     </body>
 </html>
 EOF
 
-rm -f versions.json
+# rm -f versions.json
