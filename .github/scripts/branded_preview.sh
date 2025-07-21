@@ -35,7 +35,7 @@ for url in "${all_urls[@]}"; do
     URL_COUNT=$((URL_COUNT + 1))
     filename=$(basename "$url")
     echo "$url"
-    links="${links}<div class='url-container'><button onclick=\"generateLink('preview-url-$URL_COUNT', '$url')\">Generate preview link for ${filename}</button><span class='preview-span' id='preview-url-$URL_COUNT'></span></div>"
+    links="${links}<div class='url-container'><button onclick=\"generateLink(this, 'preview-url-$URL_COUNT', '$url')\">Generate preview link for ${filename}</button><span class='preview-span' id='preview-url-$URL_COUNT'></span></div>"
 done
 
 # Uses a proxied endpoint for creating preview links to prevent CORS issues
@@ -57,12 +57,13 @@ cat << EOF > branded-preview.html
         <h2>Preview docs for:</h2>
         ${links}
         <script>
-            async function generateLink(elId, url) {
+            async function generateLink(buttonEl, elId, url) {
                 const previewSpan = document.getElementById(elId);
                 if (!previewSpan) {
                     return;
                 }
 
+                buttonEl.disabled = true;
                 previewSpan.innerHTML = 'Loading...';
 
                 try {
