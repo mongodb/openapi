@@ -1,12 +1,11 @@
-import { generateOperationID } from './utils/operationIdGeneration.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { hasCustomMethodOverride, hasMethodVerbOverride } from './utils/extensions.js';
 import { isInvalidGetMethod } from './utils/methodLogic.js';
+import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-104-valid-operation-id';
-const ERROR_MESSAGE = 'Invalid OperationID.';
 
 export default (input, { methodName }, { path, documentInventory }) => {
   const resourcePath = path[1];
@@ -27,14 +26,9 @@ export default (input, { methodName }, { path, documentInventory }) => {
     return;
   }
 
-  const expectedOperationId = generateOperationID(methodName, resourcePath);
-  if (expectedOperationId !== input.operationId) {
-    const errors = [
-      {
-        path,
-        message: `${ERROR_MESSAGE} Found ${input.operationId}, expected ${expectedOperationId}.`,
-      },
-    ];
+  const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path);
+
+  if (errors.length > 0) {
     return collectAndReturnViolation(path, RULE_NAME, errors);
   }
 

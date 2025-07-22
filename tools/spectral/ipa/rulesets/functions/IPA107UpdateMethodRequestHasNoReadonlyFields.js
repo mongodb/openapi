@@ -7,7 +7,7 @@ import {
 import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { checkForbiddenPropertyAttributesAndReturnErrors } from './utils/validations.js';
+import { checkForbiddenPropertyAttributesAndReturnErrors } from './utils/validations/checkForbiddenPropertyAttributesAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-107-update-method-request-has-no-readonly-fields';
 const ERROR_MESSAGE = 'The Update method request object must not include input fields (readOnly properties).';

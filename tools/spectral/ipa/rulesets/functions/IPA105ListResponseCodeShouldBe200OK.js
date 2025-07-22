@@ -5,7 +5,7 @@ import {
   isResourceCollectionIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { checkResponseCodeAndReturnErrors } from './utils/validations.js';
+import { checkResponseCodeAndReturnErrors } from './utils/validations/checkResponseCodeAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-105-list-method-response-code-is-200';
 const ERROR_MESSAGE =
