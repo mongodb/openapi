@@ -1,0 +1,47 @@
+name: Spectral Semantic Commit Check
+
+# Q: need to run for package.json in parent dir?
+on:
+  pull_request:
+    paths:
+      - 'tools/spectral/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/spectral/**'
+
+jobs:
+  semantic-commit:
+    runs-on: ubuntu-latest
+    name: Check Semantic Commits
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          fetch-depth: 0 # Q: Change to match .github/workflows/spectral-lint.yml (ie: sparse checkout?)
+
+      - name: Check PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+          subjectPattern: "^[A-Z].+[^.]$"
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            starts with an uppercase letter and doesn't end with a period.
+          validateSingleCommit: false
