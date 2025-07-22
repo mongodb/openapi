@@ -6,7 +6,7 @@ import {
 } from './utils/resourceEvaluation.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { checkResponseCodeAndReturnErrors } from './utils/validations.js';
+import { checkResponseCodeAndReturnErrors } from './utils/validations/checkResponseCodeAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-response-code-is-201';
 const ERROR_MESSAGE =

@@ -7,7 +7,7 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { checkForbiddenPropertyAttributesAndReturnErrors } from './utils/validations.js';
+import { checkForbiddenPropertyAttributesAndReturnErrors } from './utils/validations/checkForbiddenPropertyAttributesAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-104-get-method-response-has-no-input-fields';
 const ERROR_MESSAGE = 'The get method response object must not include output fields (writeOnly properties).';

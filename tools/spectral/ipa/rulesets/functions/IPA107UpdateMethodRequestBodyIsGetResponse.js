@@ -8,7 +8,7 @@ import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
 import { getGETMethodResponseSchemaFromPathItem } from './utils/methodUtils.js';
-import { checkRequestResponseResourceEqualityAndReturnErrors } from './utils/validations.js';
+import { checkRequestResponseResourceEqualityAndReturnErrors } from './utils/validations/checkRequestResponseResourceEqualityAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-107-update-method-request-body-is-get-method-response';
 const ERROR_MESSAGE =
