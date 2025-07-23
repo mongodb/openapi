@@ -5,7 +5,7 @@ import {
   isResourceCollectionIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { checkPaginationQueryParameterAndReturnErrors } from './utils/validations.js';
+import { checkPaginationQueryParameterAndReturnErrors } from './utils/validations/checkPaginationQueryParameterAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-110-collections-request-has-pageNum-query-param';
 

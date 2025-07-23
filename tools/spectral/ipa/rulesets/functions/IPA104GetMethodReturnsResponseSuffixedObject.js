@@ -7,7 +7,7 @@ import {
 import { resolveObject } from './utils/componentUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations.js';
+import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations/checkSchemaRefSuffixAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-104-get-method-returns-response-suffixed-object';
 

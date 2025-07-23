@@ -6,7 +6,7 @@ import {
   isSingleResourceIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { checkResponseCodeAndReturnErrors } from './utils/validations.js';
+import { checkResponseCodeAndReturnErrors } from './utils/validations/checkResponseCodeAndReturnErrors.js';
 
 const ERROR_MESSAGE =
   'The Update method response status code should be 200 OK. This method either lacks a 200 OK response or defines a different 2xx status code.';

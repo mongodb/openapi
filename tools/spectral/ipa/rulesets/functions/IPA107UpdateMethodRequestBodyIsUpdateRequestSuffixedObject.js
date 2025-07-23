@@ -7,7 +7,7 @@ import {
   isSingleResourceIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations.js';
+import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations/checkSchemaRefSuffixAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object';
 
