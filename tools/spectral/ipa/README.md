@@ -14,10 +14,12 @@ The IPA validation uses [Spectral](https://docs.stoplight.io/docs/spectral/9ffa0
 To run the IPA validation locally, install necessary dependencies with `npm install` if you haven't already. Then, simply run:
 
 ```
-npm run ipa-validation
+npm run ipa-validation --file="{your/file/name}"
 ```
 
-This command will run Spectral CLI for the ruleset [ipa-spectral.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/ipa-spectral.yaml) on the raw [v2.yaml](https://github.com/mongodb/openapi/blob/main/openapi/.raw/v2.yaml) OpenAPI spec.
+This command will run Spectral CLI for the ruleset [ipa-spectral.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/ipa-spectral.yaml).
+
+For use on the OpenAPI specification, run `npm run ipa-validation` from the root directory of the OpenAPI repo, which will validate the raw [v2.yaml](https://github.com/mongodb/openapi/blob/main/openapi/.raw/v2.yaml) OpenAPI spec.
 
 The Spectral CLI can also be used to run the validation on any valid OpenAPI file (`json` or `yaml`).
 
@@ -73,6 +75,8 @@ overrides:
          x-xgen-IPA-xxx-rule: 'off'
 ```
 
+or by changing the severity in your local `IPAXXX.yaml` file to `off`.
+
 ### CI/CD Integration
 
 #### GitHub Actions Example
@@ -81,7 +85,7 @@ If you use GitHub Actions, you can define a workflow step to include IPA validat
 
 ```
 - name: IPA validation action
-run: npx spectral lint <openapi-spec-file> --ruleset=<spectral-ruleset-file>
+run: npx spectral lint <spec-file> --ruleset=<spectral-ruleset-file>
 ```
 
 or
@@ -90,7 +94,7 @@ or
     - name: IPA validation - Spectral GitHub action
       uses: stoplightio/spectral-action@2ad0b9302e32a77c1caccf474a9b2191a8060d83
       with:
-        file_glob: <openapi-spec-file>
+        file_glob: <spec-file>
         spectral_ruleset: <spectral-ruleset-file>
 ```
 
@@ -104,7 +108,7 @@ You can create a validation script similar to this:
 
 ```bash
 #!/bin/bash
-spectral lint <openapi-spec-file> --ruleset=<spectral-ruleset-file>
+spectral lint <spec-file> --ruleset=<spectral-ruleset-file>
 if [ $? -ne 0 ]; then
 echo "API validation failed"
 exit 1
