@@ -8,6 +8,21 @@ on:
       - 'tools/spectral/**'
 
 jobs:
+  generate-changelog:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v4
+     - run: npm install -g conventional-changelog-cli
+     - name: Generate and Commit Changelog
+       run: |
+        npm run gen-ipa-changelog
+        git add CHANGELOG.md
+        git commit -m "chore(changelog): Update changelog"
+     - name: Push Changelog
+       uses: ad-m/github-push-action@master
+       with:
+         github_token: ${{ secrets.GITHUB_TOKEN }}
+         branch: main
   publish:
     runs-on: ubuntu-latest
     steps:
