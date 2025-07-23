@@ -67,7 +67,7 @@ cat << EOF > branded-preview.html
                 previewSpan.innerHTML = 'Loading...';
 
                 try {
-                    const buildPreviewEndpoint = 'https://populate-data-ext-rr.netlify.app/.netlify/functions/create-bump-preview';
+                    const buildPreviewEndpoint = 'https://populate-data-extension.netlify.app/.netlify/functions/create-bump-preview';
                     const res = await fetch(buildPreviewEndpoint, {
                         method: 'POST',
                         headers: {
