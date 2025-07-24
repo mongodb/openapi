@@ -31,11 +31,12 @@ for version in "${versions[@]}"; do
 done
 
 links=""
+URL_COUNT=0
 for url in "${all_urls[@]}"; do
     URL_COUNT=$((URL_COUNT + 1))
-    filename=$(basename "$url")
-    echo "$url"
-    links="${links}<div class='url-container'><button onclick=\"generateLink(this, 'preview-url-$URL_COUNT', '$url')\">Generate preview link for ${filename}</button><span class='preview-span' id='preview-url-$URL_COUNT'></span></div>"
+    filename=$(basename "${url}")
+    echo "${url}"
+    links="${links}<div class='url-container'><button onclick=\"generateLink(this, 'preview-url-${URL_COUNT}', '$url')\">Generate preview link for ${filename}</button><span class='preview-span' id='preview-url-${URL_COUNT}'></span></div>"
 done
 
 # Uses a proxied endpoint for creating preview links to prevent CORS issues
