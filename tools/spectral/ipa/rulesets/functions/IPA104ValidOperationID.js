@@ -1,4 +1,9 @@
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import {
+  collectAdoption,
+  collectAndReturnViolation,
+  collectException,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { hasCustomMethodOverride, hasMethodVerbOverride } from './utils/extensions.js';
@@ -26,11 +31,15 @@ export default (input, { methodName }, { path, documentInventory }) => {
     return;
   }
 
-  const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path);
+  try {
+    const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path);
 
-  if (errors.length > 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
+    if (errors.length > 0) {
+      return collectAndReturnViolation(path, RULE_NAME, errors);
+    }
+
+    return collectAdoption(path, RULE_NAME);
+  } catch (e) {
+    return handleInternalError(RULE_NAME, path, e);
   }
-
-  return collectAdoption(path, RULE_NAME);
 };

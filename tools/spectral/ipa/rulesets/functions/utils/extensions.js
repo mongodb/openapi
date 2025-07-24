@@ -1,14 +1,5 @@
 export const VERB_OVERRIDE_EXTENSION = 'x-xgen-method-verb-override';
-
-/**
- * Checks if the endpoint has a method with an extension "x-xgen-method-verb-override"
- *
- * @param endpoint the endpoint to evaluate
- * @returns {boolean} true if the endpoint has a nested method with the extension, otherwise false
- */
-export function hasMethodWithVerbOverride(endpoint) {
-  return Object.values(endpoint).some(hasVerbOverride);
-}
+export const OPERATION_ID_OVERRIDE_EXTENSION = 'x-xgen-operation-id-override';
 
 /**
  * Checks if the object has an extension "x-xgen-method-verb-override" with the customMethod boolean set to true
@@ -32,14 +23,31 @@ export function hasMethodVerbOverride(object, verb) {
 }
 
 /**
- * Checks if the object has an extension "x-xgen-method-verb-override"
+ * Checks if the operation has an extension "x-xgen-method-verb-override"
  *
- * @param object the object to evaluate
- * @returns {boolean} true if the object has the extension, otherwise false
+ * @param operation the operation to evaluate
+ * @returns {boolean} true if the operation has the extension, otherwise false
  */
-function hasVerbOverride(object) {
-  if (!object[VERB_OVERRIDE_EXTENSION]) {
-    return false;
-  }
-  return true;
+export function hasVerbOverride(operation) {
+  return Object.keys(operation).includes(VERB_OVERRIDE_EXTENSION);
+}
+
+/**
+ * Checks if the endpoint has a method with an extension "x-xgen-operation-id-override"
+ *
+ * @param operation the endpoint to evaluate
+ * @returns {boolean} true if the endpoint has a nested method with the extension, otherwise false
+ */
+export function hasOperationIdOverride(operation) {
+  return Object.keys(operation).includes(OPERATION_ID_OVERRIDE_EXTENSION);
+}
+
+/**
+ * Returns the operation id override from the endpoint.
+ *
+ * @param endpoint the endpoint to evaluate
+ * @returns {string|undefined} the operation id override if it exists, otherwise undefined
+ */
+export function getOperationIdOverride(endpoint) {
+  return endpoint[OPERATION_ID_OVERRIDE_EXTENSION];
 }
