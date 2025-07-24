@@ -49,13 +49,11 @@ export function validateOperationIdAndReturnErrors(methodName, resourcePath, ope
       expectedOperationId
     );
     errors.push(...overrideErrors);
-  } else {
-    if (hasOperationIdOverride(operationObject)) {
-      errors.push({
-        path: operationIdOverridePath,
-        message: REMOVE_OP_ID_OVERRIDE_ERROR_MESSAGE,
-      });
-    }
+  } else if (hasOperationIdOverride(operationObject)) {
+    errors.push({
+      path: operationIdOverridePath,
+      message: REMOVE_OP_ID_OVERRIDE_ERROR_MESSAGE,
+    });
   }
   return errors;
 }
