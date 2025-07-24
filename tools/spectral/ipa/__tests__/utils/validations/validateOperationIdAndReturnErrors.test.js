@@ -272,7 +272,8 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
     ).toEqual([
       {
         path: ['paths', '/some/{id}/resource/{resourceId}', 'get', 'x-xgen-operation-id-override'],
-        message: "Please remove the 'x-xgen-operation-id-override' extension from the operation.",
+        message:
+          "Please remove the 'x-xgen-operation-id-override' extension from the operation. The Operation ID already has a valid length (<=4 words).",
       },
     ]);
   });

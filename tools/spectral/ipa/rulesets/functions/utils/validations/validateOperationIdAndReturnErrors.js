@@ -9,7 +9,9 @@ const TOO_LONG_OP_ID_ERROR_MESSAGE =
   OPERATION_ID_OVERRIDE_EXTENSION +
   "' extension to the operation with a shorter operation ID.";
 const REMOVE_OP_ID_OVERRIDE_ERROR_MESSAGE =
-  "Please remove the '" + OPERATION_ID_OVERRIDE_EXTENSION + "' extension from the operation.";
+  "Please remove the '" +
+  OPERATION_ID_OVERRIDE_EXTENSION +
+  "' extension from the operation. The Operation ID already has a valid length (<=4 words).";
 
 /**
  * Validates the operationId of an operation object and returns errors if it does not match the expected format. Also validates that the operationId override, if present, follows the expected rules.
