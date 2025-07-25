@@ -57,6 +57,28 @@ export function generateOperationID(method, path) {
 }
 
 /**
+ * Counts the number of words in a camelCase string.
+ * @param operationId
+ * @returns {number}
+ */
+export function numberOfWords(operationId) {
+  return operationId.match(CAMEL_CASE)?.length || 0;
+}
+
+/**
+ * Shortens an operation ID to the first word (verb) and last 3 words.
+ * @param operationId
+ * @returns {string}
+ */
+export function shortenOperationId(operationId) {
+  const words = operationId.match(CAMEL_CASE);
+  if (!words || words.length < 4) {
+    return operationId; // Return as is if there are not enough words to shorten
+  }
+  return words[0] + words.slice(words.length - 3).join('');
+}
+
+/**
  * Derives action verb from custom method name. Returns standard method names as is.
  * Assumes the first word of camelCase method names is the action verb.
  *

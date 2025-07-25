@@ -1,16 +1,20 @@
 import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectException, collectAndReturnViolation } from './utils/collectionUtils.js';
+import {
+  collectAdoption,
+  collectException,
+  collectAndReturnViolation,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier, getCustomMethodName, stripCustomMethodName } from './utils/resourceEvaluation.js';
-import { generateOperationID } from './utils/operationIdGeneration.js';
-import { hasMethodWithVerbOverride, hasCustomMethodOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
+import { hasCustomMethodOverride, VERB_OVERRIDE_EXTENSION, hasVerbOverride } from './utils/extensions.js';
+import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-109-valid-operation-id';
-const ERROR_MESSAGE = 'Invalid OperationID.';
 
 export default (input, _, { path }) => {
-  let resourcePath = path[1];
+  const resourcePath = path[1];
 
-  if (!isCustomMethodIdentifier(resourcePath) && !hasMethodWithVerbOverride(input)) {
+  if (!isCustomMethodIdentifier(resourcePath) && !hasCustomMethodOverride(input)) {
     return;
   }
 
@@ -19,52 +23,30 @@ export default (input, _, { path }) => {
     return;
   }
 
-  if (isCustomMethodIdentifier(resourcePath)) {
-    let obj;
-    if (input.post) {
-      obj = input.post;
-    } else if (input.get) {
-      obj = input.get;
+  let methodName;
+  let endpointUrl = resourcePath;
+
+  try {
+    if (isCustomMethodIdentifier(resourcePath)) {
+      // Standard custom methods
+      methodName = getCustomMethodName(resourcePath);
+      endpointUrl = stripCustomMethodName(resourcePath);
+    } else if (hasVerbOverride(input)) {
+      // Legacy custom methods
+      methodName = input[VERB_OVERRIDE_EXTENSION].verb;
+      endpointUrl = resourcePath;
     } else {
       return;
     }
 
-    const operationId = obj.operationId;
-    const expectedOperationID = generateOperationID(
-      getCustomMethodName(resourcePath),
-      stripCustomMethodName(resourcePath)
-    );
-    if (operationId !== expectedOperationID) {
-      const errors = [
-        {
-          path,
-          message: `${ERROR_MESSAGE} Found ${operationId}, expected ${expectedOperationID}.`,
-        },
-      ];
-      return collectAndReturnViolation(path, RULE_NAME, errors);
-    }
-  } else if (hasMethodWithVerbOverride(input)) {
-    const methods = Object.values(input);
-    let errors = [];
-    methods.forEach((method) => {
-      if (hasCustomMethodOverride(method)) {
-        const operationId = method.operationId;
-        const expectedOperationID = generateOperationID(method[VERB_OVERRIDE_EXTENSION].verb, resourcePath);
-        if (operationId !== expectedOperationID) {
-          errors.push({
-            path,
-            message: `${ERROR_MESSAGE} Found ${operationId}, expected ${expectedOperationID}.`,
-          });
-        }
-      }
-    });
+    const errors = validateOperationIdAndReturnErrors(methodName, endpointUrl, input, path);
 
     if (errors.length !== 0) {
       return collectAndReturnViolation(path, RULE_NAME, errors);
     }
-  } else {
-    return;
-  }
 
-  collectAdoption(path, RULE_NAME);
+    collectAdoption(path, RULE_NAME);
+  } catch (e) {
+    return handleInternalError(RULE_NAME, path, e);
+  }
 };
