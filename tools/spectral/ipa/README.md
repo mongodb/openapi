@@ -2,6 +2,20 @@
 
 The IPA validation uses [Spectral](https://docs.stoplight.io/docs/spectral/9ffa04e052cc1-spectral-cli) to validate the [MongoDB Atlas Admin API OpenAPI Specification](https://github.com/mongodb/openapi/tree/main/openapi). The rules cover MongoDB's [Improvement Proposal for APIs](https://mongodb.github.io/ipa/) (IPA), which are best-practices for API design.
 
+
+## Quick Links
+
+| Site                        | Link                                                                                                     |
+| --------------------------- | -------------------------------------------------------------------------------------------------------- |
+| MongoDB API Standards (IPA) | [https://mongodb.github.io/ipa/](https://mongodb.github.io/ipa/)                                         |
+| Installation & Usage           | [IPA README](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa#readme) |
+| Implemented Rules           | [Ruleset Documentation](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/rulesets#readme) |
+| Spectral Docs               | [Spectral](https://docs.stoplight.io/docs/spectral/674b27b261c3c-overview)                               |
+| Spectral Wiki (Internal)    | [http://go/openapi-spectral-updates](http://go/openapi-spectral-updates)                                 |
+| Contributing                | [CONTRIBUTING.md](https://github.com/mongodb/openapi/blob/main/tools/spectral/CONTRIBUTING.md)           |
+| Changelog                   | [CHANGELOG.md](https://github.com/mongodb/openapi/blob/main/tools/spectral/CHANGELOG.md)                 |
+| Issues                      | [https://github.com/mongodb/openapi/issues](https://github.com/mongodb/openapi/issues)                   |
+
 ## Running Locally
 
 ### Prerequisites
@@ -17,19 +31,28 @@ To run the IPA validation locally, install necessary dependencies with `npm inst
 npm run ipa-validation
 ```
 
-This command will run Spectral CLI for the ruleset [ipa-spectral.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/ipa-spectral.yaml) on the raw [v2.yaml](https://github.com/mongodb/openapi/blob/main/openapi/.raw/v2.yaml) OpenAPI spec.
+This command will run Spectral CLI for the ruleset [ipa-spectral.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/ipa-spectral.yaml).
 
-The Spectral CLI can also be used to run the validation on any valid OpenAPI file (`json` or `yaml`).
-
-```
-spectral lint {path/to/oas/file} --ruleset=./tools/spectral/ipa/ipa-spectral.yaml
-```
+For use on the OpenAPI specification, run `npm run ipa-validation` from the root directory of the OpenAPI repo, which will validate the raw [v2.yaml](https://github.com/mongodb/openapi/blob/main/openapi/.raw/v2.yaml) OpenAPI spec.
 
 ## Integrating IPA Validations
 
 To incorporate the IPA Spectral ruleset for OpenAPI specification validation in your repositories, you can follow these implementation approaches:
 
 ### Installation Options
+
+#### Package-based Installation
+
+Run:
+```
+npm install @mongodb/ipa-validation-ruleset
+```
+
+Then reference the ruleset directly in your `.spectral.yaml` file:
+```
+extends:
+- "@mongodb/ipa-validation-ruleset"
+```
 
 #### Server-based Installation
 
@@ -40,10 +63,6 @@ extends:
 - https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
 ```
 
-#### Package-based Installation
-
-Not supported yet
-
 ### Integration Methods
 
 #### Local Configuration
@@ -53,6 +72,13 @@ Create a `.spectral.yaml` file that extends our ruleset:
 ```
 extends:
 - https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
+```
+
+or 
+
+```
+extends:
+- "@mongodb/ipa-validation-ruleset"
 ```
 
 For more information about how to extend rulesets, see the [web page](https://meta.stoplight.io/docs/spectral/83527ef2dd8c0-extending-rulesets).
@@ -73,6 +99,8 @@ overrides:
          x-xgen-IPA-xxx-rule: 'off'
 ```
 
+or by changing the severity in your local `IPAXXX.yaml` file to `off`.
+
 ### CI/CD Integration
 
 #### GitHub Actions Example
@@ -81,7 +109,7 @@ If you use GitHub Actions, you can define a workflow step to include IPA validat
 
 ```
 - name: IPA validation action
-run: npx spectral lint <openapi-spec-file> --ruleset=<spectral-ruleset-file>
+run: npx spectral lint <spec-file> --ruleset=<spectral-ruleset-file>
 ```
 
 or
@@ -90,7 +118,7 @@ or
     - name: IPA validation - Spectral GitHub action
       uses: stoplightio/spectral-action@2ad0b9302e32a77c1caccf474a9b2191a8060d83
       with:
-        file_glob: <openapi-spec-file>
+        file_glob: <spec-file>
         spectral_ruleset: <spectral-ruleset-file>
 ```
 
@@ -104,7 +132,7 @@ You can create a validation script similar to this:
 
 ```bash
 #!/bin/bash
-spectral lint <openapi-spec-file> --ruleset=<spectral-ruleset-file>
+spectral lint <spec-file> --ruleset=<spectral-ruleset-file>
 if [ $? -ne 0 ]; then
 echo "API validation failed"
 exit 1

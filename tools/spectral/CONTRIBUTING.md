@@ -34,6 +34,31 @@ Instead of using the [Spectral overrides approach](https://docs.stoplight.io/doc
     "xgen-IPA-104-resource-has-GET": "Legacy API, not used by infrastructure-as-code tooling",
 }
 ```
+
+### Overrides
+
+We also use custom OAS extensions to handle overrides for IPA validation rules for OperationIDs. Override extensions are added to a component to adapt how it is validated against naming guidelines.
+
+#### Verb Override
+The verb override is used to alter the default method verb (Get, List, Create, Update, Delete). With the `customMethod` boolean set to true, validation will occur as part of IPA109. It should be set to false to differentiate between `Get` and `List` methods.
+```
+"x-xgen-method-verb-override": {
+    "verb": "{custom verb}",
+    "customMethod" : <bool>
+}
+```
+
+#### Length Override
+The length override is used internally to reconcile lengthy OperationID in downstream tooling. The chosen override value must:
+1. Begin with the default or overridden verb
+2. Have a length of 4 words (the verb + 3 nouns)
+3. Have only nouns that appear in the resource path
+4. End with the last noun in the resource path
+
+When the override is required, a recommended override will be provided. If overrides are required frequently but OperationIDs are not required for your tooling, it is advisable to disable OperationID validation.
+```
+{ "x-xgen-operation-id-override": "myOperationID" }
+```
 ---
 ## Testing
 
@@ -73,6 +98,7 @@ npx prettier . --write
 
 ```
 npm run gen-ipa-docs
+npm run gen-ipa-changelog
 ```
 
 - [ ] Reference related issues (e.g., Closes #123)

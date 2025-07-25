@@ -1,0 +1,41 @@
+name: Publish IPA Validation Framework Package
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - CLOUDP-329998
+    paths:
+      - 'tools/spectral/ipa/**'
+
+jobs:
+  generate-changelog:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v4
+     - run: npm install -g conventional-changelog-cli
+     - name: Generate and Commit Changelog
+       run: |
+        npm run gen-ipa-changelog
+        git add tools/spectral/ipa/CHANGELOG.md
+        git commit -m "chore(changelog): Update changelog"
+     - name: Push Changelog
+       uses: ad-m/github-push-action@master
+       with:
+         github_token: ${{ secrets.GITHUB_TOKEN }}
+         branch: main
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+      - uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.IPA_VALIDATION_NPM_TOKEN }}
+          package: "tools/spectral/ipa/package.json"
