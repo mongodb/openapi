@@ -16,10 +16,10 @@ package outputfilter
 import (
 	"encoding/json"
 
+	"github.com/oasdiff/oasdiff/checker"
+	"github.com/oasdiff/oasdiff/formatters"
+	"github.com/oasdiff/oasdiff/load"
 	"github.com/spf13/afero"
-	"github.com/tufin/oasdiff/checker"
-	"github.com/tufin/oasdiff/formatters"
-	"github.com/tufin/oasdiff/load"
 )
 
 const lan = "en" // language for localized output
@@ -52,7 +52,8 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 		return nil, err
 	}
 
-	bytes, err := formatter.RenderChangelog(checkers, formatters.RenderOpts{ColorMode: checker.ColorAuto}, specInfoPair)
+	bytes, err := formatter.RenderChangelog(checkers, formatters.RenderOpts{ColorMode: checker.ColorAuto},
+		specInfoPair.Base.Version, specInfoPair.Revision.Version)
 	if err != nil {
 		return nil, err
 	}

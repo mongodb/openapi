@@ -21,8 +21,8 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
-	"github.com/tufin/oasdiff/diff"
-	"github.com/tufin/oasdiff/load"
+	"github.com/oasdiff/oasdiff/diff"
+	"github.com/oasdiff/oasdiff/load"
 )
 
 type OasDiff struct {

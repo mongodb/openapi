@@ -20,8 +20,8 @@ import (
 	"log"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/tufin/oasdiff/diff"
-	"github.com/tufin/oasdiff/load"
+	"github.com/oasdiff/oasdiff/diff"
+	"github.com/oasdiff/oasdiff/load"
 )
 
 // Spec is a struct is a 1-to-1 copy of the Spec struct in the openapi3 package.

@@ -13,8 +13,8 @@ import (
 	reflect "reflect"
 
 	openapi3 "github.com/getkin/kin-openapi/openapi3"
-	diff "github.com/tufin/oasdiff/diff"
-	load "github.com/tufin/oasdiff/load"
+	diff "github.com/oasdiff/oasdiff/diff"
+	load "github.com/oasdiff/oasdiff/load"
 	gomock "go.uber.org/mock/gomock"
 )
 

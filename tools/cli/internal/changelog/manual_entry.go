@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
-	"github.com/tufin/oasdiff/checker"
+	"github.com/oasdiff/oasdiff/checker"
 )
 
 const manualChangelogEntry = "manual-changelog-entry"
