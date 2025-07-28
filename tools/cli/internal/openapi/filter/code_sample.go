@@ -221,14 +221,23 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 // If no such content type is found, it defaults to returning "json".
 func getSupportedFormat(op *openapi3.Operation) string {
 	responseMap := successResponseExtensions(op.Responses.Map())
+	format := "json"
 	for k := range responseMap {
 		// k is a string with the format "application/vnd.atlas.<api_version>+<supported_format>"
 		parts := strings.Split(k, "+")
-		if len(parts) > 1 {
-			return parts[len(parts)-1]
+		if len(parts) == 0 {
+			continue
+		}
+
+		format = parts[len(parts)-1]
+		// If the endpoint supports "json", we return it as "json" is the best supported format in our APIs
+		// and users should use it when available.
+		if format == "json" {
+			return format
 		}
 	}
-	return "json"
+
+	return format
 }
 
 // successResponseExtensions returns the Content object of the first successful HTTP response (status 200, 201, 202, or 204)
