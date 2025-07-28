@@ -71,6 +71,7 @@ list: ## List all make targets
 .PHONY: e2e-test
 e2e-test: build ## Run E2E tests
 	@echo "==> Running E2E tests..."
+	rm -rf test/e2e/cli/output
 	$(TEST_CMD) -v -p 1 -parallel $(E2E_PARALLEL) -timeout $(E2E_TIMEOUT)  ./test/e2e... $(E2E_EXTRA_ARGS)
 
 .PHONY: gen-docs

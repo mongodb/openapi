@@ -65,6 +65,15 @@ func (f *CodeSampleFilter) Apply() error {
 	return nil
 }
 
+func getFileExtension(format string) string {
+	switch format {
+	case "gzip":
+		return "gz"
+	default:
+		return format
+	}
+}
+
 func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
 	source := "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
@@ -75,7 +84,7 @@ func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMeth
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName
 		if format == "gzip" {
 			source += "\" \\\n  "
-			source += "--output \"file_name." + format + "\""
+			source += "--output \"file_name." + getFileExtension(format) + "\""
 		} else {
 			source += "?pretty=true\""
 		}
@@ -105,7 +114,7 @@ func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName
 		if format == "gzip" {
 			source += "\" \\\n  "
-			source += "--output \"file_name." + format + "\""
+			source += "--output \"file_name." + getFileExtension(format) + "\""
 		} else {
 			source += "?pretty=true\""
 		}
