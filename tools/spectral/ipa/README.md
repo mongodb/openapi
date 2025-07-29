@@ -48,7 +48,7 @@ extends:
 ```
 
 ##### Limitations
-The IPA Validation Framework uses a third party dependency to validate OperationIDs. With this approach, server based installation is only supported via cloning the repo or via package-based installation.
+The IPA Validation Framework uses third party dependencies for certain rules. With this approach, server based installation is not supported. Instead, use the recommended package-based installation or clone the repo.
 
 #### Package-based Installation (**TO BE RELEASED**)
 Run:
@@ -73,17 +73,8 @@ extends:
 - "@mongodb/ipa-validation-ruleset"
 ```
 
-or 
-
-```
-extends:
-- https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
-```
 
 For more information about how to extend rulesets, see the [web page](https://meta.stoplight.io/docs/spectral/83527ef2dd8c0-extending-rulesets).
-
-##### Limitations
-Due to usage of a third party dependency to validate OperationIDs, the server based appraoch is only supported via cloning the repo.
 
 #### Customization Options
 
