@@ -38,23 +38,14 @@ To incorporate the IPA Spectral ruleset for OpenAPI specification validation in 
 
 ### Installation Options
 
-#### Server-based Installation
-
-You can reference our ruleset directly in your `.spectral.yaml` file without installation:
-
-```
-extends:
-- https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
-```
-
-##### Limitations
-The IPA Validation Framework uses third party dependencies for certain rules. With this approach, server based installation is not supported. Instead, use the recommended package-based installation or clone the repo.
-
 #### Package-based Installation (**TO BE RELEASED**)
 Run:
 ```
 npm install @mongodb-js/ipa-validation-ruleset
 ```
+
+#### Limitations
+The IPA Validation Framework uses third party dependencies for certain rules. With this approach, [server based installation](https://docs.stoplight.io/docs/spectral/7895ff1196448-sharing-and-distributing-rulesets#http-server) is not supported. Instead, use the recommended package-based installation or clone the repo.
 
 ### Integration Methods
 
