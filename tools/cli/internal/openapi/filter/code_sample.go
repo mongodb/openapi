@@ -65,14 +65,30 @@ func (f *CodeSampleFilter) Apply() error {
 	return nil
 }
 
-func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
+func getFileExtension(format string) string {
+	switch format {
+	case "gzip":
+		return "gz"
+	default:
+		return format
+	}
+}
+
+func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
 	source := "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
-		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
+		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
 
 	switch opMethod {
 	case "GET":
-		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "?pretty=true\""
+		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName
+		if format == "gzip" {
+			source += "\" \\\n  "
+			source += "--output \"file_name." + getFileExtension(format) + "\""
+		} else {
+			source += "?pretty=true\""
+		}
+
 	case "DELETE":
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
 	case "POST", "PATCH", "PUT":
@@ -88,14 +104,20 @@ func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMeth
 	}
 }
 
-func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod string) codeSample {
+func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
 	source := "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
-		"--header \"Accept: application/vnd.atlas." + version + "+json\" \\\n  "
+		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
 
 	switch opMethod {
 	case "GET":
-		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "?pretty=true\""
+		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName
+		if format == "gzip" {
+			source += "\" \\\n  "
+			source += "--output \"file_name." + getFileExtension(format) + "\""
+		} else {
+			source += "?pretty=true\""
+		}
 	case "DELETE":
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
 	case "POST", "PATCH", "PUT":
@@ -193,10 +215,55 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 		codeSamples = append(codeSamples, *sdkSample)
 	}
 
+	supportedFormat := getSupportedFormat(op)
 	codeSamples = append(
 		codeSamples,
-		f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod),
-		f.newDigestCurlCodeSamplesForOperation(pathName, opMethod))
+		f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat),
+		f.newDigestCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
 	op.Extensions[codeSampleExtensionName] = codeSamples
+	return nil
+}
+
+// getSupportedFormat inspects the response content types of a given OpenAPI operation,
+// looking for a content type string in the format "application/vnd.atlas.<api_version>+<supported_format>".
+// It splits the content type on the '+' character and returns the last part, which represents the supported format (e.g., "json").
+// If no such content type is found, it defaults to returning "json".
+func getSupportedFormat(op *openapi3.Operation) string {
+	responseMap := successResponseExtensions(op.Responses.Map())
+	format := "json"
+	for k := range responseMap {
+		// k is a string with the format "application/vnd.atlas.<api_version>+<supported_format>"
+		parts := strings.Split(k, "+")
+		if len(parts) == 0 {
+			continue
+		}
+
+		format = parts[len(parts)-1]
+		// If the endpoint supports "json", we return it as "json" is the best supported format in our APIs
+		// and users should use it when available.
+		if format == "json" {
+			return format
+		}
+	}
+
+	return format
+}
+
+// successResponseExtensions returns the Content object of the first successful HTTP response (status 200, 201, 202, or 204)
+// found in the provided responses map.
+func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) openapi3.Content {
+	if val, ok := responsesMap["200"]; ok {
+		return val.Value.Content
+	}
+	if val, ok := responsesMap["201"]; ok {
+		return val.Value.Content
+	}
+	if val, ok := responsesMap["202"]; ok {
+		return val.Value.Content
+	}
+	if val, ok := responsesMap["204"]; ok {
+		return val.Value.Content
+	}
+
 	return nil
 }
