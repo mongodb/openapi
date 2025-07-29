@@ -56,12 +56,6 @@ Run:
 npm install @mongodb-js/ipa-validation-ruleset
 ```
 
-Then reference the ruleset directly in your `.spectral.yaml` file:
-```
-extends:
-- "@mongodb-js/ipa-validation-ruleset"
-```
-
 ### Integration Methods
 
 #### Local Configuration
@@ -73,7 +67,6 @@ extends:
 - "@mongodb/ipa-validation-ruleset"
 ```
 
-
 For more information about how to extend rulesets, see the [web page](https://meta.stoplight.io/docs/spectral/83527ef2dd8c0-extending-rulesets).
 
 #### Customization Options
@@ -82,7 +75,7 @@ You can override specific rules from our ruleset by adding them to your local `.
 
 ```
 extends:
-- https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
+- "@mongodb/ipa-validation-ruleset"
 
 overrides:
     - files:
