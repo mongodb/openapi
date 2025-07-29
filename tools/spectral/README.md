@@ -1,6 +1,6 @@
 # MongoDB API Spectral Validation
 
-A set of custom validation rules for the MongoDB Atlas Programmatic API, adhering to API Standards (IPA).
+A set of custom validation rules for the MongoDB Atlas Programmatic API, adhering to MongoDB API standards - [Improvement Proposal for APIs](https://mongodb.github.io/ipa/) (IPA).
 
 ## Structure
 

@@ -11,7 +11,6 @@ The IPA validation uses [Spectral](https://docs.stoplight.io/docs/spectral/9ffa0
 | Installation & Usage           | [IPA README](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa#readme) |
 | Implemented Rules           | [Ruleset Documentation](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/rulesets#readme) |
 | Spectral Docs               | [Spectral](https://docs.stoplight.io/docs/spectral/674b27b261c3c-overview)                               |
-| Spectral Wiki (Internal)    | [http://go/openapi-spectral-updates](http://go/openapi-spectral-updates)                                 |
 | Contributing                | [CONTRIBUTING.md](https://github.com/mongodb/openapi/blob/main/tools/spectral/CONTRIBUTING.md)           |
 | Changelog                   | [CHANGELOG.md](https://github.com/mongodb/openapi/blob/main/tools/spectral/CHANGELOG.md)                 |
 | Issues                      | [https://github.com/mongodb/openapi/issues](https://github.com/mongodb/openapi/issues)                   |
@@ -48,6 +47,9 @@ extends:
 - https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
 ```
 
+##### Limitations
+The IPA Validation Framework uses a third party dependency to validate OperationIDs. With this approach, server based installation is only supported via cloning the repo or via package-based installation.
+
 #### Package-based Installation (**TO BE RELEASED**)
 Run:
 ```
@@ -68,17 +70,20 @@ Create a `.spectral.yaml` file that extends our ruleset:
 
 ```
 extends:
-- https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
+- "@mongodb/ipa-validation-ruleset"
 ```
 
 or 
 
 ```
 extends:
-- "@mongodb/ipa-validation-ruleset"
+- https://raw.githubusercontent.com/mongodb/openapi/<latest-git-commit-sha>/tools/spectral/ipa/ipa-spectral.yaml
 ```
 
 For more information about how to extend rulesets, see the [web page](https://meta.stoplight.io/docs/spectral/83527ef2dd8c0-extending-rulesets).
+
+##### Limitations
+Due to usage of a third party dependency to validate OperationIDs, the server based appraoch is only supported via cloning the repo.
 
 #### Customization Options
 
