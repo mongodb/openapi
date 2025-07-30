@@ -3,43 +3,21 @@ name: IPA Commit Check
 on:  
   pull_request:  
     types: [opened, synchronize, reopened, edited]
+    paths:
+      - 'tools/spectral/ipa/**'
   
 jobs:  
   check-pr-title:  
     runs-on: ubuntu-latest  
   
     steps:  
-    # Check out the repository  
-    - name: Checkout repository  
-      uses: actions/checkout@v692973e3d937129bcbf40652eb9f2f61becf3332 
-  
-    # Fetch PR changes  
-    - name: Get List of Changed Files  
-      id: changes  
+    - name: Validate PR Title with IPA scope 
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}  
       run: |  
-        git fetch origin "${{ github.event.pull_request.base.ref }}" --depth=1  
-        git diff --name-only "origin/${{ github.event.pull_request.base.ref }}" > changed_files.txt  
-        if grep -qE "^tools/spectral/ipa/" changed_files.txt; then  
-          echo "ipa_changes=true" >> $GITHUB_ENV
-        else  
-          echo "ipa_changes=false" >> $GITHUB_ENV
-        fi   
-      shell: bash  
-      continue-on-error: false  
-  
-    # Validate PR title using a conventional commit format with (ipa) scope  
-    - name: Validate PR Title  
-      if: env.ipa_changes == 'true'  
-      run: |  
-        TITLE="${{ github.event.pull_request.title }}"
         PATTERN="^[a-z]+\(ipa\): .+$"
-        if [[ ! "$TITLE" =~ $PATTERN ]]; then  
-          echo "Error: PR title must follow the conventional commit format with (ipa) as the scope."  
+        if [[ ! "$PR_TITLE" =~ $PATTERN ]]; then  
+          echo "PR title must follow the conventional commit format with (ipa) as the scope."  
           echo "Example: feat(ipa): My New Rule"  
           exit 1  
         fi
-    
-    - name: Skip validation when IPA directory untouched  
-      if: env.ipa_changes == 'false'  
-      run: |  
-        echo "No files were modified in tools/spectral/ipa. Skipping IPA-specific commit validation."
