@@ -25,8 +25,13 @@ jobs:
         current_version=$(jq '.version' package.json)
         echo "Current version: $current_version"
 
-        git fetch --tags
-        previous_version=$(git tag --sort=-v:refname | head -n 1 || echo "none")
+        git fetch origin ${{ github.event.pull_request.base.ref }}  
+        git checkout ${{ github.event.pull_request.base.ref }}  
+        previous_version=$(jq -r '.version' package.json)  
+  
+        if [[ -z "$previous_version" || "$previous_version" == "null" ]]; then   
+          previous_version="none"  
+        fi 
         echo "Previous version: $previous_version"
 
         version_bump=$([[ "$previous_version" != "v$current_version" ]] && echo "true" || echo "false")
