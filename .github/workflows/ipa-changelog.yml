@@ -1,0 +1,51 @@
+name: IPA Changelog Check
+
+on:  
+  pull_request:  
+    types: [opened, synchronize, reopened, edited]
+    paths:
+      - 'tools/spectral/ipa/package.json'
+
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest  
+    
+    steps:
+    - name: Checkout Repository  
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  
+  
+    - name: Navigate to IPA Directory  
+      working-directory: tools/spectral/ipa  
+      run: |  
+        echo "Navigated to IPA directory." 
+        
+    - name: Check Version Bump
+      id: version_check
+      run: |
+        current_version=$(jq -r '.version' package.json)
+        echo "Current version: $current_version"
+
+        git fetch --tags
+        previous_version=$(git tag --sort=-v:refname | head -n 1 || echo "none")
+        echo "Previous version: $previous_version"
+
+        version_bump=$([[ "$previous_version" != "v$current_version" ]])
+    - name: Check Changelog
+      env: 
+        NEW_VERSION: ${{ steps.version_check.outputs.version_bump }}
+      run: | 
+        npm run gen-ipa-changelog
+
+        # Check for uncommitted changes specific to CHANGELOG.md  
+        uncommitted_changes=$(git status --porcelain | grep "CHANGELOG.md" || echo "")  
+  
+        if [[ "$VERSION_BUMP" == "false" && -n "$uncommitted_changes" ]]; then  
+          echo "Error: Changelog should only be updated alongside a version bump. Please restore the changelog."  
+          exit 1  
+        fi  
+  
+        if [[ "$VERSION_BUMP" == "true" && -z "$uncommitted_changes" ]]; then  
+          echo "Error: Changelog must be updated alongside a version bump. Please run 'npm run gen-ipa-changelog' from the ipa directory and commit the changes."  
+          exit 1  
+        fi 
+        exit 0
