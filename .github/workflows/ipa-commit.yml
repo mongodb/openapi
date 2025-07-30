@@ -1,0 +1,23 @@
+name: IPA Commit Check 
+  
+on:  
+  pull_request:  
+    types: [opened, synchronize, reopened, edited]
+    paths:
+      - 'tools/spectral/ipa/**'
+  
+jobs:  
+  check-pr-title:  
+    runs-on: ubuntu-latest  
+  
+    steps:  
+    - name: Validate PR Title with IPA scope 
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}  
+      run: |  
+        PATTERN="^[a-z]+\(ipa\): .+$"
+        if [[ ! "$PR_TITLE" =~ $PATTERN ]]; then  
+          echo "PR title must follow the conventional commit format with (ipa) as the scope."  
+          echo "Example: feat(ipa): My New Rule"  
+          exit 1  
+        fi

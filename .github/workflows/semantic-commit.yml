@@ -1,0 +1,38 @@
+name: Semantic Commit Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  semantic-commit:
+    runs-on: ubuntu-latest
+    name: Check Semantic PRs titles
+    steps:
+      - name: Check PR title
+        uses: amannn/action-semantic-pull-request@335288255954904a41ddda8947c8f2c844b8bfeb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          scopes: |
+            ipa
+            prod
+          requireScope: false
+          subjectPattern: "^[A-Z].+[^.]$"
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            starts with an uppercase letter and doesn't end with a period.
+          validateSingleCommit: false
