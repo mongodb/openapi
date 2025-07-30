@@ -12,9 +12,12 @@ jobs:
     
     steps:
     - name: Checkout Repository  
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      with:
+          sparse-checkout: |
+            tools/spectral/ipa  
         
-    - name: Check Version Bump
+    - name: Fetch Versions
       working-directory: tools/spectral/ipa
       id: version_check
       run: |
@@ -28,11 +31,10 @@ jobs:
         fi 
         echo "Previous version: $previous_version"
 
-        version_bump=$([[ "$previous_version" != "v$current_version" ]] && echo "true" || echo "false")
     - name: Check Changelog
       working-directory: tools/spectral/ipa
       env: 
-        NEW_VERSION: ${{ steps.version_check.outputs.version_bump }}
+        VERSION_BUMP: ${{ steps.version_check.outputs.current_version != steps.version_check.outputs.previous_version && 'true' || 'false' }}
       run: | 
         npm run gen-ipa-changelog
 
