@@ -12,7 +12,7 @@ package openapi
 import (
 	reflect "reflect"
 
-	load "github.com/tufin/oasdiff/load"
+	load "github.com/oasdiff/oasdiff/load"
 	gomock "go.uber.org/mock/gomock"
 )
 

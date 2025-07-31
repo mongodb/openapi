@@ -20,9 +20,9 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/oasdiff/oasdiff/load"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
-	"github.com/tufin/oasdiff/load"
 )
 
 func TestSuccessfulSplit_Run(t *testing.T) {

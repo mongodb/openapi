@@ -6,16 +6,17 @@ toolchain go1.24.0
 
 require (
 	github.com/getkin/kin-openapi v0.132.0
+	github.com/oasdiff/oasdiff v1.11.4
 	github.com/spf13/afero v1.14.0
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
-	github.com/tufin/oasdiff v1.10.29
 	go.uber.org/mock v0.5.2
+	golang.org/x/text v0.24.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	cloud.google.com/go v0.118.3 // indirect
+	cloud.google.com/go v0.121.0 // indirect
 	github.com/TwiN/go-color v1.4.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
@@ -35,7 +36,6 @@ require (
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/wI2L/jsondiff v0.6.1 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
-	github.com/yuin/goldmark v1.7.8 // indirect
-	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa // indirect
-	golang.org/x/text v0.23.0 // indirect
+	github.com/yuin/goldmark v1.7.11 // indirect
+	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 )

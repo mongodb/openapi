@@ -17,9 +17,9 @@ package openapi
 //go:generate mockgen -destination=../openapi/mock_oasdiff_result.go -package=openapi github.com/mongodb/openapi/tools/cli/internal/openapi DiffGetter
 import (
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/tufin/oasdiff/diff"
-	"github.com/tufin/oasdiff/flatten/allof"
-	"github.com/tufin/oasdiff/load"
+	"github.com/oasdiff/oasdiff/diff"
+	"github.com/oasdiff/oasdiff/flatten/allof"
+	"github.com/oasdiff/oasdiff/load"
 )
 
 // DiffGetter defines an interface for getting diffs.

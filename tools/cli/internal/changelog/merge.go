@@ -21,7 +21,7 @@ import (
 	"sort"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog/outputfilter"
-	"github.com/tufin/oasdiff/checker"
+	"github.com/oasdiff/oasdiff/checker"
 )
 
 const (

@@ -21,11 +21,11 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/mongodb/openapi/tools/cli/internal/pointer"
+	"github.com/oasdiff/oasdiff/diff"
+	"github.com/oasdiff/oasdiff/load"
+	"github.com/oasdiff/oasdiff/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/tufin/oasdiff/diff"
-	"github.com/tufin/oasdiff/load"
-	"github.com/tufin/oasdiff/utils"
 	gomock "go.uber.org/mock/gomock"
 )
 

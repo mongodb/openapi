@@ -21,7 +21,7 @@ import (
 	"sort"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/tufin/oasdiff/load"
+	"github.com/oasdiff/oasdiff/load"
 )
 
 const (
