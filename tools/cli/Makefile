@@ -34,6 +34,7 @@ deps:  ## Download go module dependencies
 devtools:  ## Install dev tools
 	@echo "==> Installing dev tools..."
 	go install go.uber.org/mock/mockgen@latest
+	go install github.com/tufin/oasdiff@v1.10.29
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin $(GOLANGCI_VERSION)
 
 .PHONY: setup
@@ -70,6 +71,7 @@ list: ## List all make targets
 .PHONY: e2e-test
 e2e-test: build ## Run E2E tests
 	@echo "==> Running E2E tests..."
+	rm -rf test/e2e/cli/output
 	$(TEST_CMD) -v -p 1 -parallel $(E2E_PARALLEL) -timeout $(E2E_TIMEOUT)  ./test/e2e... $(E2E_EXTRA_ARGS)
 
 .PHONY: gen-docs
