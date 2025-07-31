@@ -66,3 +66,5 @@ When working in the `tools/cli` directory:
 - `make e2e-test` - Run end-to-end tests
 - `make build` - Build the CLI binary
 - `make gen-docs` - Generate CLI documentation
+
+**Note: Please ensure the usage of [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in PR titles**
