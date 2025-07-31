@@ -20,17 +20,20 @@ jobs:
           sparse-checkout: |
             tools/spectral/ipa  
             .github/scripts
-        
-    - name: Check Version Bump
+    - name: Fetch Versions
       id: version_check
       run: |
         chmod +x ./.github/scripts/ipa_version_check.sh 
         version_changed=$(./.github/scripts/ipa_version_check.sh)  
         echo "Version changed? ${version_changed}"  
-        if [[ ${{ version_changed }} == "false" ]]; then
-          echo "No version bump to release".
-          exit 0
-        fi 
+        echo "version_changed=${version_changed}" >> "${GITHUB_ENV}"
+    - name: Check Version Bump
+      run: |
+        if [[ "${{ env.version_changed }}" == "false" ]]; then  
+          echo "No version bump to release."  
+          exit 0  
+        fi
+  
   publish:
     needs: check-version
     runs-on: ubuntu-latest
