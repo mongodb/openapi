@@ -36,13 +36,15 @@ jobs:
 
         # Check for uncommitted changes specific to CHANGELOG.md  
         uncommitted_changes=$(git status --porcelain | grep "CHANGELOG.md" || echo "")  
+
+        diff_changelog=$(git diff -- tools/spectral/ipa/CHANGELOG.md || echo "")  
   
         if [[ "${VERSION_BUMP}" == "false" && -n "${uncommitted_changes}" ]]; then  
           echo "Error: Changelog should only be updated alongside a version bump. Please restore the changelog."  
           exit 1  
         fi  
   
-        if [[ "${VERSION_BUMP}" == "true" && -z "${uncommitted_changes}" ]]; then  
+        if [[ "${VERSION_BUMP}" == "true" && -n "${diff_changelog}" ]]; then  
           echo "Error: Changelog must be updated alongside a version bump. Please run 'npm run gen-ipa-changelog' from the ipa directory and commit the changes."  
           exit 1  
         fi 
