@@ -7,7 +7,7 @@ import {
 } from './utils/collectionUtils.js';
 import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { isInvalidListMethod } from './utils/methodLogic.js';
-import { hasCustomMethodOverride, hasMethodVerbOverride } from './utils/extensions.js';
+import { hasCustomMethodOverride, hasMethodVerbOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
 import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-105-valid-operation-id';
@@ -29,6 +29,10 @@ export default (input, { methodName }, { path, documentInventory }) => {
   if (hasException(input, RULE_NAME)) {
     collectException(input, RULE_NAME, path);
     return;
+  }
+
+  if (hasMethodVerbOverride(input, methodName)) {
+    methodName = input[VERB_OVERRIDE_EXTENSION].verb;
   }
 
   try {

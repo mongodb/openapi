@@ -8,10 +8,6 @@ const TOO_LONG_OP_ID_ERROR_MESSAGE =
   "The Operation ID is longer than 4 words. Please add an '" +
   OPERATION_ID_OVERRIDE_EXTENSION +
   "' extension to the operation with a shorter operation ID.";
-const REMOVE_OP_ID_OVERRIDE_ERROR_MESSAGE =
-  "Please remove the '" +
-  OPERATION_ID_OVERRIDE_EXTENSION +
-  "' extension from the operation. The Operation ID already has a valid length (<=4 words).";
 
 /**
  * Validates the operationId of an operation object and returns errors if it does not match the expected format. Also validates that the operationId override, if present, follows the expected rules.
@@ -37,26 +33,23 @@ export function validateOperationIdAndReturnErrors(methodName, resourcePath, ope
   }
 
   const operationIdOverridePath = path.concat([OPERATION_ID_OVERRIDE_EXTENSION]);
-  if (numberOfWords(operationId) > 4) {
-    if (!hasOperationIdOverride(operationObject)) {
-      errors.push({
-        path: operationIdPath,
-        message: TOO_LONG_OP_ID_ERROR_MESSAGE + " For example: '" + shortenOperationId(expectedOperationId) + "'.",
-      });
-      return errors;
-    }
+  if (numberOfWords(operationId) > 4 && !hasOperationIdOverride(operationObject)) {
+    errors.push({
+      path: operationIdPath,
+      message: TOO_LONG_OP_ID_ERROR_MESSAGE + " For example: '" + shortenOperationId(expectedOperationId) + "'.",
+    });
+    return errors;
+  }
+
+  if (hasOperationIdOverride(operationObject)) {
     const overrideErrors = validateOperationIdOverride(
       operationIdOverridePath,
       getOperationIdOverride(operationObject),
       expectedOperationId
     );
     errors.push(...overrideErrors);
-  } else if (hasOperationIdOverride(operationObject)) {
-    errors.push({
-      path: operationIdOverridePath,
-      message: REMOVE_OP_ID_OVERRIDE_ERROR_MESSAGE,
-    });
   }
+
   return errors;
 }
 
