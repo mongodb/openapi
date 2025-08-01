@@ -28,6 +28,25 @@ const validatePathStructure = (elements) => {
   });
 };
 
+const findExceptionInPathHierarchy = (oas, currentPath, ruleName) => {
+  // Check current path first
+  if (hasException(oas.paths[currentPath], ruleName)) {
+    return currentPath;
+  }
+
+  // Check parent paths by removing segments from the end
+  const pathSegments = currentPath.split('/').filter(segment => segment !== '');
+
+  for (let i = pathSegments.length - 1; i > 0; i--) {
+    const parentPath = '/' + pathSegments.slice(0, i).join('/');
+    if (oas.paths[parentPath] && hasException(oas.paths[parentPath], ruleName)) {
+      return parentPath;
+    }
+  }
+
+  return null;
+}
+
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
 
@@ -41,8 +60,9 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(oas.paths[input], RULE_NAME)) {
-    collectException(oas.paths[input], RULE_NAME, path);
+  const exceptionPath = findExceptionInPathHierarchy(oas, input, RULE_NAME);
+  if (exceptionPath) {
+    collectException(oas.paths[exceptionPath], RULE_NAME, path);
     return;
   }
 
