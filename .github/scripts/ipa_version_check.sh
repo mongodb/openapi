@@ -1,16 +1,12 @@
-#!/bin/bash  
-set -eou pipefail
+#!/bin/bash      
+set -eou pipefail    
+    
+current_version=$(jq -r '.version' tools/spectral/ipa/package.json)    
   
-current_version=$(jq -r '.version' tools/spectral/ipa/package.json)  
-
-previous_version=$(git show origin/"${BASE_BRANCH}":tools/spectral/ipa/package.json | jq -r '.version')  
+previous_version=$(git show HEAD^:tools/spectral/ipa/package.json | jq -r '.version' || echo "none")    
   
-if [[ -z "${previous_version}" || "${previous_version}" == "null" ]]; then  
-  previous_version="none"  
-fi  
-  
-if [[ "${previous_version}" == "${current_version}" ]]; then  
-  echo "false"  
-else  
-  echo "true"  
+if [[ "${previous_version}" == "${current_version}" ]]; then    
+  echo "false"    
+else    
+  echo "true"    
 fi  
