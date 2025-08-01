@@ -19,7 +19,7 @@ export function hasCustomMethodOverride(object) {
  * @returns {boolean} true if the object has the extension with the given verb, otherwise false
  */
 export function hasMethodVerbOverride(object, verb) {
-  return hasVerbOverride(object) && object[VERB_OVERRIDE_EXTENSION].verb === verb;
+  return hasVerbOverride(object) && object[VERB_OVERRIDE_EXTENSION].verb.startsWith(verb);
 }
 
 /**

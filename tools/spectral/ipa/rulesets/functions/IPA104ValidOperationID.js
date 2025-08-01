@@ -6,7 +6,7 @@ import {
 } from './utils/collectionUtils.js';
 import { hasException } from './utils/exceptions.js';
 import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
-import { hasCustomMethodOverride, hasMethodVerbOverride } from './utils/extensions.js';
+import { hasCustomMethodOverride, hasMethodVerbOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
 import { isInvalidGetMethod } from './utils/methodLogic.js';
 import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
 
@@ -32,6 +32,9 @@ export default (input, { methodName }, { path, documentInventory }) => {
   }
 
   try {
+    if (hasMethodVerbOverride(input, methodName)) {
+      methodName = input[VERB_OVERRIDE_EXTENSION].verb;
+    }
     const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path);
 
     if (errors.length > 0) {
