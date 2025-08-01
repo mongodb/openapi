@@ -74,12 +74,17 @@ npm run gen-ipa-docs
 
 A new version of the IPA package will be released when the version in the package.json is changed. To release a new version:
 
-- [ ] Determine whether your update is [major/minor/patch] following [semantic versioning](https://semver.org/)
+- [ ] Ensure your branch is clean and you have no outstanding changes. Release PRs should only contain the updated changelog and edits to the package.json
+- [ ] Determine whether your update is major/minor/patch. We follow [semantic versioning](https://semver.org/) custom to the ruleset where: 
+    - major (X.0.0) - Changes in behaviour to existing rules, breaking changes
+    - minor (0.X.0) - New rules or custom extensions
+    - patch (0.0.X) - Backwards-compatible bug fixes 
 - [ ] Update the version number in package.json
-- [ ] Run `npm run gen-ipa-changelog` and commit the changes.
-- [ ] Open a PR and ensure the title is conventional and scoped to IPA (ie: `ci(ipa): new version`)
+- [ ] Run `npm run gen-ipa-changelog` and commit the changes. The changelog must be updated alongside a new release.
+- [ ] Open a PR and ensure the title is conventional and scoped to IPA (ie: `ci(ipa): release new version`)
 
-The changelog must only be updated alongside a version bump. A PR for a version release should not include other changes.
+When your PR is approved and merged to main, the package will be automatically published to the NPM registry.
+
 ---
 ## Getting Started with IPA Rule Development
 
