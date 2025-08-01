@@ -202,6 +202,19 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
         ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource/{id}', 'get']
       )
     ).toHaveLength(0);
+
+    // valid override on short opID
+    expect(
+      validateOperationIdAndReturnErrors(
+        'get',
+        '/some/{id}/resource/{resourceId}',
+        {
+          operationId: 'getSomeResource',
+          'x-xgen-operation-id-override': 'getResource',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}', 'get']
+      )
+    ).toHaveLength(0);
   });
 
   it('should return errors for invalid operation ID', () => {
@@ -254,26 +267,6 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
         path: ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post', 'operationId'],
         message:
           "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. For example: 'createLongChildResource'.",
-      },
-    ]);
-  });
-
-  it('should return errors for valid operation ID with unnecessary override', () => {
-    expect(
-      validateOperationIdAndReturnErrors(
-        'get',
-        '/some/{id}/resource/{resourceId}',
-        {
-          operationId: 'getSomeResource',
-          'x-xgen-operation-id-override': 'getResource',
-        },
-        ['paths', '/some/{id}/resource/{resourceId}', 'get']
-      )
-    ).toEqual([
-      {
-        path: ['paths', '/some/{id}/resource/{resourceId}', 'get', 'x-xgen-operation-id-override'],
-        message:
-          "Please remove the 'x-xgen-operation-id-override' extension from the operation. The Operation ID already has a valid length (<=4 words).",
       },
     ]);
   });
