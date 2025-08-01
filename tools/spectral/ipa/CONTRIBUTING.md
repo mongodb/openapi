@@ -68,14 +68,18 @@ npm run gen-ipa-docs
 
 - [ ] Reference related issues (e.g., Closes #123)
 
-#### For IPA Package version bump
+---
 
-A new version of the IPA package will be released when the version is bumped. Before merging, please run
-```
-npm run gen-ipa-changelog
-```
-and commit the changes. The changelog must only be updated alongside a version bump.
+## IPA Package Release
 
+A new version of the IPA package will be released when the version in the package.json is changed. To release a new version:
+
+- [ ] Determine whether your update is [major/minor/patch] following [semantic versioning](https://semver.org/)
+- [ ] Update the version number in package.json
+- [ ] Run `npm run gen-ipa-changelog` and commit the changes.
+- [ ] Open a PR and ensure the title is conventional and scoped to IPA (ie: `ci(ipa): new version`)
+
+The changelog must only be updated alongside a version bump. A PR for a version release should not include other changes.
 ---
 ## Getting Started with IPA Rule Development
 
