@@ -1,0 +1,51 @@
+name: Release IPA Package
+
+on:  
+  workflow_dispatch:
+  push: 
+    branches:
+      - main
+    paths:
+      - 'tools/spectral/ipa/package.json'
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest  
+    outputs:  
+      version_changed: ${{ steps.version_check.outputs.version_changed }}  
+      
+    steps:
+    - name: Checkout Repository  
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      with:
+          fetch-depth: 0
+          sparse-checkout: |
+            tools/spectral/ipa  
+            .github/scripts
+    - name: Fetch Versions
+      id: version_check
+      run: |
+        version_changed=$(./.github/scripts/ipa_version_check.sh)  
+        echo "Version changed? ${version_changed}"  
+        echo "version_changed=${version_changed}" >> "${GITHUB_ENV}"
+  
+  publish:
+    needs: check-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    if: ${{ needs.check-version.outputs.version_changed == 'true' }}
+
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+        working-directory: tools/spectral/ipa
+      - run: npm publish --access public
+        working-directory: tools/spectral/ipa
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.IPA_VALIDATION_TOKEN }}
