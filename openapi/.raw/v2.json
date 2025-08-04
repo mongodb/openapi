@@ -39383,6 +39383,38 @@
         },
         "type": "object"
       },
+      "PaginatedApiStreamsTransitGatewayAttachmentResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/StreamsTransitGatewayAttachmentResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PaginatedApiStreamsTransitGatewayRouteResponse": {
         "properties": {
           "links": {
@@ -48455,10 +48487,6 @@
       },
       "StreamsTransitGatewayAttachmentResponse": {
         "properties": {
-          "cloudProvider": {
-            "description": "Provider for the transit gateway resources.",
-            "type": "string"
-          },
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
             "externalDocs": {
@@ -48471,10 +48499,6 @@
             "readOnly": true,
             "type": "array"
           },
-          "regionName": {
-            "description": "AWS region name.",
-            "type": "string"
-          },
           "tgwAttachmentId": {
             "description": "The AWS Transit Gateway Attachment ID.",
             "pattern": "^(tgw-attach-)[0-9a-zA-Z]+$",
@@ -48484,11 +48508,6 @@
           "tgwId": {
             "description": "AWS transit gateway ID.",
             "pattern": "^(tgw-)[0-9a-zA-Z]+$",
-            "type": "string"
-          },
-          "vpcId": {
-            "description": "AWS VPC ID.",
-            "pattern": "^(vpc-)[0-9a-zA-Z]+$",
             "type": "string"
           }
         },
@@ -53017,7 +53036,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "38815ad5e385605c32578a665858a9478ee9d744"
+    "x-xgen-sha": "df3667df412f72b8197f62c7919c591e043e8e8f"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -80947,6 +80966,64 @@
       }
     },
     "/api/atlas/v2/groups/{groupId}/streamsTransitGatewayAttachments": {
+      "get": {
+        "description": "Returns the Transit Gateway Attachments for this group in the shared Atlas AWS Account.",
+        "operationId": "listGroupStreamsTransitGatewayAttachments",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiStreamsTransitGatewayAttachmentResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "aws-transit-gateway"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Returns the Transit Gateway Attachments for this group in the shared Atlas AWS Account.",
+        "tags": [
+          "Streams"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/listGroupStreamsTransitGatewayAttachments",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
+        "x-xgen-owner-team": "Atlas Streams"
+      },
       "post": {
         "description": "Creates Transit Gateway Attachment with the provided VPC for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.",
         "operationId": "createGroupStreamsTransitGatewayAttachment",
@@ -81011,8 +81088,7 @@
         "x-xgen-owner-team": "Atlas Streams"
       },
       "x-xgen-IPA-exception": {
-        "xgen-IPA-104-resource-has-GET": "GET will be added by CLOUDP-323903",
-        "xgen-IPA-105-resource-has-list": "List will be added by CLOUDP-323902"
+        "xgen-IPA-104-resource-has-GET": "GET will be added by CLOUDP-323903"
       }
     },
     "/api/atlas/v2/groups/{groupId}/streamsTransitGatewayInvitations": {
