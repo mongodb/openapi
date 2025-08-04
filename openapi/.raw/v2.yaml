@@ -11012,7 +11012,7 @@ components:
             title: AWS
             type: object
         CreateAtlasOrganizationApiKey:
-            description: Details of the programmatic API key to be created.
+            description: Organization Service Account that Atlas creates for this organization. If omitted, Atlas doesn't create an organization Service Account for this organization. If specified, this object requires all body parameters. Note that API Keys cannot be specified in the same request.
             properties:
                 desc:
                     description: Purpose or explanation provided when someone created this organization API key.
@@ -30020,7 +30020,7 @@ components:
             readOnly: true
             type: object
         OrgServiceAccountRequest:
-            description: Organization Service Account that Atlas creates for this organization. If omitted, Atlas doesn't create an organization Service Account for this organization. If specified, this object requires all body parameters.
+            description: Organization Service Account that Atlas creates for this organization. If omitted, Atlas doesn't create an organization Service Account for this organization. If specified, this object requires all body parameters. Note that API Keys cannot be specified in the same request.
             properties:
                 description:
                     description: Human readable description for the Service Account.
@@ -38073,7 +38073,24 @@ components:
                 streamConfig:
                     $ref: '#/components/schemas/StreamConfig'
             type: object
-        StreamsTransitGatewayAttachment:
+        StreamsTransitGatewayAttachmentRequest:
+            properties:
+                cloudProvider:
+                    description: Provider for the transit gateway resources.
+                    type: string
+                regionName:
+                    description: AWS region name.
+                    type: string
+                tgwId:
+                    description: AWS transit gateway ID.
+                    pattern: ^(tgw-)[0-9a-zA-Z]+$
+                    type: string
+                vpcId:
+                    description: AWS VPC ID.
+                    pattern: ^(vpc-)[0-9a-zA-Z]+$
+                    type: string
+            type: object
+        StreamsTransitGatewayAttachmentResponse:
             properties:
                 cloudProvider:
                     description: Provider for the transit gateway resources.
@@ -38088,10 +38105,10 @@ components:
                     readOnly: true
                     type: array
                 regionName:
-                    description: Region name where the resources are in the cloud provider's format.
+                    description: AWS region name.
                     type: string
                 tgwAttachmentId:
-                    description: The AWS Transit Gateway Attachment ID as a result of creating the attachment successfully.
+                    description: The AWS Transit Gateway Attachment ID.
                     pattern: ^(tgw-attach-)[0-9a-zA-Z]+$
                     readOnly: true
                     type: string
@@ -41693,7 +41710,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: ba2c37684a540e2016ca44c1f6fdddc8a2b776ce
+    x-xgen-sha: 6a052ab1defe58fa89e982fd58129a8d11bc6d82
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -59760,47 +59777,6 @@ paths:
             x-xgen-owner-team: Atlas Streams
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-    /api/atlas/v2/groups/{groupId}/streams:createTgwAttachment:
-        post:
-            description: Creates Transit Gateway Attachment with the provided VPC for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.
-            operationId: createTransitGatewayAttachment
-            parameters:
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/envelope'
-            requestBody:
-                content:
-                    application/vnd.atlas.preview+json:
-                        schema:
-                            $ref: '#/components/schemas/StreamsTransitGatewayAttachment'
-                description: Detailed information on creating a transit gateway attachment.
-                required: true
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/StreamsTransitGatewayAttachment'
-                            x-xgen-preview:
-                                name: aws-transit-gateway
-                            x-xgen-version: preview
-                    description: OK
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Creates Transit Gateway Attachment with the provided VPC for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.
-            tags:
-                - Streams
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createTransitGatewayAttachment
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
-            x-xgen-owner-team: Atlas Streams
     /api/atlas/v2/groups/{groupId}/streams:rejectTgwResourceShareInvitation:
         post:
             description: Rejects AWS RAM Resource Share for a Transit Gateway that has been shared with an Atlas AWS account.
@@ -59878,6 +59854,50 @@ paths:
                 - Streams
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createStreamInstanceWithSampleConnections
             x-xgen-owner-team: Atlas Streams
+    /api/atlas/v2/groups/{groupId}/streamsTransitGatewayAttachments:
+        post:
+            description: Creates Transit Gateway Attachment with the provided VPC for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.
+            operationId: createGroupStreamsTransitGatewayAttachment
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsTransitGatewayAttachmentRequest'
+                description: Metadata needed for creating a transit gateway attachment.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsTransitGatewayAttachmentResponse'
+                            x-xgen-preview:
+                                name: aws-transit-gateway
+                            x-xgen-version: preview
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Creates Transit Gateway Attachment with the provided VPC for a Transit Gateway that has been shared with an Atlas AWS Account. This Transit Gateway will be used in Atlas Streams private networking connections.
+            tags:
+                - Streams
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createGroupStreamsTransitGatewayAttachment
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Atlas Streams
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: GET will be added by CLOUDP-323903
+            xgen-IPA-105-resource-has-list: List will be added by CLOUDP-323902
     /api/atlas/v2/groups/{groupId}/streamsTransitGatewayInvitations:
         get:
             description: Returns the AWS RAM Resource Shares and Transit Gateway IDs for a Transit Gateway that has been shared with an Atlas AWS Account. This only returns the resource shares cached for Atlas Streams Processing.
