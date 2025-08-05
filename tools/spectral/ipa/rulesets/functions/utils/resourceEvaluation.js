@@ -11,8 +11,8 @@ export const PREFIXES = [AUTH_PREFIX, UNAUTH_PREFIX];
  * @param {string} path the path to evaluate
  * @returns {boolean} true if the path represents a collection of resources/singleton resource, false otherwise
  */
-export function isResourceCollectionIdentifier(path) {
-  const p = removePrefix(path);
+export function isResourceCollectionIdentifier(path, prefixes = PREFIXES) {
+  const p = removePrefix(path, prefixes);
   const childPattern = new RegExp(`^.*}/[a-zA-Z]+$`);
   const basePattern = new RegExp(`^/[a-zA-Z]+$`);
   return basePattern.test(p) || childPattern.test(p);
@@ -29,8 +29,8 @@ export function isResourceCollectionIdentifier(path) {
  * @param {string} path the path to evaluate
  * @returns {boolean} true if the path represents a single resource, false otherwise
  */
-export function isSingleResourceIdentifier(path) {
-  const p = removePrefix(path);
+export function isSingleResourceIdentifier(path, prefixes = PREFIXES) {
+  const p = removePrefix(path, prefixes);
 
   // Check if the path ends with /{paramName} pattern
   const endsWithParamPattern = /\/\{[a-zA-Z][a-zA-Z0-9]*}$/;
@@ -73,7 +73,7 @@ export function isPathParam(string) {
  * @param resourcePathItems all path items for the resource to be evaluated as an array of strings
  * @returns {boolean}
  */
-export function isSingletonResource(resourcePathItems) {
+export function isSingletonResource(resourcePathItems, prefixes = PREFIXES) {
   const resourcePaths = Object.keys(resourcePathItems);
   const collectionIdentifier = resourcePaths.filter((p) => isResourceCollectionIdentifier(p));
   if (collectionIdentifier.length !== 1) {
@@ -81,7 +81,9 @@ export function isSingletonResource(resourcePathItems) {
   }
 
   if (resourcePaths.length === 1) {
-    return resourceBelongsToSingleParent(resourcePaths[0]) && !hasPostMethod(resourcePathItems[resourcePaths[0]]);
+    return (
+      resourceBelongsToSingleParent(resourcePaths[0], prefixes) && !hasPostMethod(resourcePathItems[resourcePaths[0]])
+    );
   }
   const additionalPaths = resourcePaths.splice(resourcePaths.indexOf(collectionIdentifier[0]), 1);
   return additionalPaths.every(isCustomMethodIdentifier);
@@ -170,9 +172,9 @@ export function getResourcePathItems(resourceCollectionPath, allPathItems) {
  * @param {string} resourcePath a path for a resource
  * @returns {boolean}
  */
-function resourceBelongsToSingleParent(resourcePath) {
+function resourceBelongsToSingleParent(resourcePath, prefixes = PREFIXES) {
   // Ignore /api/atlas/v2 and /api/atlas/v2/unauth
-  const path = removePrefix(resourcePath);
+  const path = removePrefix(resourcePath, prefixes);
   if (path === '') {
     return true;
   }
@@ -193,6 +195,7 @@ function resourceBelongsToSingleParent(resourcePath) {
   const parentResourceSection = resourcePathSections[resourcePathSections.length - 2];
   return isPathParam(parentResourceSection);
 }
+
 /**
  * Removes prefix from resource path if it exists. If no prefixes are given, will use Atlas Admin API defaults.
  *
