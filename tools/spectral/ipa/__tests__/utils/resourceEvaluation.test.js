@@ -4,6 +4,7 @@ import {
   isResourceCollectionIdentifier,
   isSingleResourceIdentifier,
   isSingletonResource,
+  removePrefix,
 } from '../../rulesets/functions/utils/resourceEvaluation';
 
 const resource = {
@@ -248,6 +249,17 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       it(`returns ${testCase.isSingleResourceIdentifier} for ${testCase.description}`, () => {
         expect(isSingleResourceIdentifier(testCase.path)).toEqual(testCase.isSingleResourceIdentifier);
       });
+    });
+  });
+
+  describe('removePrefix', () => {
+    it('should strip auth and unauth prefixes correctly', () => {
+      expect(removePrefix('/api/atlas/v2/groups/{groupId}/access')).toEqual('/groups/{groupId}/access');
+      expect(removePrefix('/api/atlas/v2/unauth/groups/{groupId}/access')).toEqual('/groups/{groupId}/access');
+    });
+    it('should work for custom prefix sets', () => {
+      expect(removePrefix('/my/prefix/testCase', ['/my/prefix', '/my'])).toEqual('/testCase');
+      expect(removePrefix('/my/testCase', ['/my/prefix', '/my'])).toEqual('/testCase');
     });
   });
 });
