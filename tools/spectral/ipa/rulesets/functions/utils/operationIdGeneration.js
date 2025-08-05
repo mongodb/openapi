@@ -1,7 +1,7 @@
 const inflection = require('inflection');
 import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourceEvaluation.js';
 
-const CAMEL_CASE = /[A-Z]*[a-z]+|[A-Z]+(?![a-z])/g;
+const CAMEL_CASE = /[A-Z]?[a-z]+/g;
 const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z])|[A-Z]*[a-z]+/g;
 
 /**
