@@ -47,7 +47,7 @@ export function isSingleResourceIdentifier(path, prefixes = PREFIXES) {
 
   // Check if the preceding part is a valid resource collection identifier
   const collectionPath = p.substring(0, lastSlashBeforeParam);
-  return isResourceCollectionIdentifier(collectionPath);
+  return isResourceCollectionIdentifier(collectionPath, prefixes);
 }
 
 export function isCustomMethodIdentifier(path) {
@@ -75,7 +75,7 @@ export function isPathParam(string) {
  */
 export function isSingletonResource(resourcePathItems, prefixes = PREFIXES) {
   const resourcePaths = Object.keys(resourcePathItems);
-  const collectionIdentifier = resourcePaths.filter((p) => isResourceCollectionIdentifier(p));
+  const collectionIdentifier = resourcePaths.filter((p) => isResourceCollectionIdentifier(p, prefixes));
   if (collectionIdentifier.length !== 1) {
     return false;
   }

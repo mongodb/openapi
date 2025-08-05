@@ -257,6 +257,9 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       expect(removePrefix('/api/atlas/v2/groups/{groupId}/access')).toEqual('/groups/{groupId}/access');
       expect(removePrefix('/api/atlas/v2/unauth/groups/{groupId}/access')).toEqual('/groups/{groupId}/access');
     });
+    it('should use defaults when receiving a undefined value', () => {
+      expect(removePrefix('/api/atlas/v2/groups/{groupId}/access', undefined)).toEqual('/groups/{groupId}/access');
+    });
     it('should work for custom prefix sets', () => {
       expect(removePrefix('/my/prefix/testCase', ['/my/prefix', '/my'])).toEqual('/testCase');
       expect(removePrefix('/my/testCase', ['/my/prefix', '/my'])).toEqual('/testCase');
