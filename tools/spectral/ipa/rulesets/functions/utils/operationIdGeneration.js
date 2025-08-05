@@ -1,7 +1,8 @@
 const inflection = require('inflection');
 import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourceEvaluation.js';
 
-const CAMEL_CASE = /[A-Z]?[a-z]+/g;
+const CAMEL_CASE = /[A-Z]*[a-z]+|[A-Z]+(?![a-z])/g;
+const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z])|[A-Z]*[a-z]+/g;
 
 /**
  * Returns IPA Compliant Operation ID.
@@ -57,12 +58,12 @@ export function generateOperationID(method, path) {
 }
 
 /**
- * Counts the number of words in a camelCase string.
+ * Counts the number of words in a camelCase string. Allows for abbreviations (e.g. 'getOpenAPI').
  * @param operationId
  * @returns {number}
  */
 export function numberOfWords(operationId) {
-  return operationId.match(CAMEL_CASE)?.length || 0;
+  return operationId.match(CAMEL_CASE_WITH_ABBREVIATIONS)?.length || 0;
 }
 
 /**
@@ -71,7 +72,7 @@ export function numberOfWords(operationId) {
  * @returns {string}
  */
 export function shortenOperationId(operationId) {
-  const words = operationId.match(CAMEL_CASE);
+  const words = operationId.match(CAMEL_CASE_WITH_ABBREVIATIONS);
   if (!words || words.length < 4) {
     return operationId; // Return as is if there are not enough words to shorten
   }

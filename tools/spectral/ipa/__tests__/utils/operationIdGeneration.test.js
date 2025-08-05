@@ -58,6 +58,8 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
       expect(numberOfWords('createGroup')).toEqual(2);
       expect(numberOfWords('createGroupCluster')).toEqual(3);
       expect(numberOfWords('createGroupClusterIndex')).toEqual(4);
+      expect(numberOfWords('getOpenAPIInfo')).toEqual(4);
+      expect(numberOfWords('getCustomDNS')).toEqual(3);
       expect(numberOfWords('')).toEqual(0);
     });
   });
@@ -68,6 +70,8 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
         'createAutoScalingConfiguration'
       );
       expect(shortenOperationId('getFederationSettingConnectedOrgConfigRoleMapping')).toEqual('getConfigRoleMapping');
+      expect(shortenOperationId('getGroupAwsCustomDNS')).toEqual('getAwsCustomDNS');
+      expect(shortenOperationId('getExampleOpenAPIInfo')).toEqual('getOpenAPIInfo');
     });
 
     it('should make no change if the operation ID is <= 4 words long or undefined', () => {
