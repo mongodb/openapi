@@ -38093,9 +38093,11 @@ components:
                 cloudProvider:
                     description: Provider for the transit gateway resources.
                     type: string
+                    writeOnly: true
                 regionName:
                     description: AWS region name.
                     type: string
+                    writeOnly: true
                 tgwId:
                     description: AWS transit gateway ID.
                     pattern: ^(tgw-)[0-9a-zA-Z]+$
@@ -38104,6 +38106,7 @@ components:
                     description: AWS VPC ID.
                     pattern: ^(vpc-)[0-9a-zA-Z]+$
                     type: string
+                    writeOnly: true
             type: object
         StreamsTransitGatewayAttachmentResponse:
             properties:
@@ -41715,7 +41718,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 995a633d6b08e1d5ab5978ff428929807a7c9959
+    x-xgen-sha: 5900158df19cc68858655c4908106d043525f6ba
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -59782,45 +59785,6 @@ paths:
             x-xgen-owner-team: Atlas Streams
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
-    /api/atlas/v2/groups/{groupId}/streams:rejectTgwResourceShareInvitation:
-        post:
-            description: Rejects AWS RAM Resource Share for a Transit Gateway that has been shared with an Atlas AWS account.
-            operationId: rejectTransitGatewayResourcesShare
-            parameters:
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/envelope'
-            requestBody:
-                content:
-                    application/vnd.atlas.preview+json:
-                        schema:
-                            $ref: '#/components/schemas/StreamsTransitGatewayResourceShare'
-                description: Detailed information on rejecting a transit gateway resource share invitation.
-                required: true
-            responses:
-                "204":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            x-xgen-preview:
-                                name: aws-transit-gateway
-                            x-xgen-version: preview
-                    description: This endpoint does not return a response body.
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Rejects AWS RAM Resource Share for a Transit Gateway that has been shared with an Atlas AWS Account.
-            tags:
-                - Streams
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/rejectTransitGatewayResourcesShare
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
-            x-xgen-owner-team: Atlas Streams
     /api/atlas/v2/groups/{groupId}/streams:withSampleConnections:
         post:
             description: Creates one stream instance in the specified project with sample connections. To use this resource the requesting Service Account or API Key must have the Project Data Access Admin role, Project Owner role or Project Stream Processing Owner role.
@@ -59935,8 +59899,48 @@ paths:
             x-xgen-hidden-env:
                 envs: qa,stage,prod
             x-xgen-owner-team: Atlas Streams
-        x-xgen-IPA-exception:
-            xgen-IPA-104-resource-has-GET: GET will be added by CLOUDP-323903
+    /api/atlas/v2/groups/{groupId}/streamsTransitGatewayAttachments/{attachmentId}:
+        get:
+            description: Returns one Transit Gateway Attachment for this group from the shared Atlas AWS Account.
+            operationId: getGroupStreamsTransitGatewayAttachment
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Unique identifier that identifies the Transit Gateway Attachment.
+                  in: path
+                  name: attachmentId
+                  required: true
+                  schema:
+                    example: tgw-attach-01f8100bc7EXAMPLE
+                    pattern: ^tgw-attach-[0-9a-zA-Z]+$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsTransitGatewayAttachmentResponse'
+                            x-xgen-preview:
+                                name: aws-transit-gateway
+                            x-xgen-version: preview
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Returns one Transit Gateway Attachment for this group from the shared Atlas AWS Account.
+            tags:
+                - Streams
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/getGroupStreamsTransitGatewayAttachment
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Atlas Streams
     /api/atlas/v2/groups/{groupId}/streamsTransitGatewayInvitations:
         get:
             description: Returns the AWS RAM Resource Shares and Transit Gateway IDs for a Transit Gateway that has been shared with an Atlas AWS Account. This only returns the resource shares cached for Atlas Streams Processing.
@@ -60086,6 +60090,45 @@ paths:
             tags:
                 - Streams
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/acceptTransitGatewayResourcesShare
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Atlas Streams
+    /api/atlas/v2/groups/{groupId}/streamsTransitGatewayInvitations:reject:
+        post:
+            description: Rejects AWS RAM Resource Share for a Transit Gateway that has been shared with an Atlas AWS account.
+            operationId: rejectGroupStreamsTransitGatewayInvitation
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsTransitGatewayResourceShare'
+                description: Detailed information on rejecting a transit gateway resource share invitation.
+                required: true
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            x-xgen-preview:
+                                name: aws-transit-gateway
+                            x-xgen-version: preview
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Rejects AWS RAM Resource Share for a Transit Gateway that has been shared with an Atlas AWS Account.
+            tags:
+                - Streams
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/rejectGroupStreamsTransitGatewayInvitation
             x-xgen-hidden-env:
                 envs: qa,stage,prod
             x-xgen-owner-team: Atlas Streams
