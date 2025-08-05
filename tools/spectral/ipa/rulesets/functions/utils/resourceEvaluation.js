@@ -1,5 +1,6 @@
 export const AUTH_PREFIX = '/api/atlas/v2';
 export const UNAUTH_PREFIX = '/api/atlas/v2/unauth';
+export const PREFIXES = [AUTH_PREFIX, UNAUTH_PREFIX];
 
 /**
  * Checks if a path represents a collection of resources/a singleton resource. For example:
@@ -192,14 +193,19 @@ function resourceBelongsToSingleParent(resourcePath) {
   const parentResourceSection = resourcePathSections[resourcePathSections.length - 2];
   return isPathParam(parentResourceSection);
 }
-
-// TODO move prefixes to be rule arguments
-export function removePrefix(path) {
-  if (path.startsWith(UNAUTH_PREFIX)) {
-    return path.slice(UNAUTH_PREFIX.length);
-  }
-  if (path.startsWith(AUTH_PREFIX)) {
-    return path.slice(AUTH_PREFIX.length);
+/**
+ * Removes prefix from resource path if it exists. If no prefixes are given, will use Atlas Admin API defaults.
+ *
+ * @param {string} path the resource path to strip
+ * @param {string[]} prefixes the prefixes to strip if they appear
+ * @returns
+ */
+export function removePrefix(path, prefixes = PREFIXES) {
+  const sortedPrefixes = [...prefixes].sort((a, b) => b.length - a.length);
+  for (const prefix of sortedPrefixes) {
+    if (path.startsWith(prefix)) {
+      return path.slice(prefix.length);
+    }
   }
   return path;
 }
