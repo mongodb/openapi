@@ -64,6 +64,63 @@ testRule('xgen-IPA-105-valid-operation-id', [
     ],
   },
   {
+    name: 'valid methods with valid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/backup/exportBuckets': {
+          get: {
+            operationId: 'listGroupBackupExportBuckets',
+            'x-xgen-operation-id-override': 'listExportBuckets',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid methods with invalid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/backup/exportBuckets': {
+          get: {
+            operationId: 'listGroupBackupExportBuckets',
+            'x-xgen-operation-id-override': 'listMyExports',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-105-valid-operation-id',
+        message:
+          "The operation ID override must only contain nouns from the operation ID 'listGroupBackupExportBuckets'. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/backup/exportBuckets', 'get', 'x-xgen-operation-id-override'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-105-valid-operation-id',
+        message: "The operation ID override must end with the noun 'Buckets'. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/backup/exportBuckets', 'get', 'x-xgen-operation-id-override'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'valid method with verb overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/serverless': {
+          get: {
+            operationId: 'listGroupServerlessInstances',
+            'x-xgen-method-verb-override': { verb: 'listInstances', customMethod: false },
+            'x-xgen-operation-id-override': 'listServerlessInstances',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid methods with exceptions',
     document: {
       paths: {
