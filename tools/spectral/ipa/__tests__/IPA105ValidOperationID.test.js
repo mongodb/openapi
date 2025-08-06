@@ -1,8 +1,6 @@
 import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
-// TODO: add tests for xgen-custom-method extension - CLOUDP-306294
-
 testRule('xgen-IPA-105-valid-operation-id', [
   {
     name: 'valid methods',
@@ -16,6 +14,26 @@ testRule('xgen-IPA-105-valid-operation-id', [
       },
     },
     errors: [],
+  },
+  {
+    name: 'invalid methods with short opIDs',
+    document: {
+      paths: {
+        '/api/atlas/v2/unauth/openapi/versions': {
+          get: {
+            operationId: 'getApiVersions',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-105-valid-operation-id',
+        message: 'Invalid OperationID. ',
+        path: ['paths', '/api/atlas/v2/unauth/openapi/versions', 'get', 'operationId'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
   },
   {
     name: 'invalid methods with too long opIDs',
@@ -38,7 +56,7 @@ testRule('xgen-IPA-105-valid-operation-id', [
       {
         code: 'xgen-IPA-105-valid-operation-id',
         message:
-          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. For example: 'listPlaneIPAddresses'. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-105-valid-operation-id",
+          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
         path: ['paths', '/api/atlas/v2/unauth/controlPlaneIPAddresses', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },

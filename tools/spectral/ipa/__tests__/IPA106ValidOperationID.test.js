@@ -1,8 +1,6 @@
 import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
-// TODO: add tests for xgen-custom-method extension - CLOUDP-306294
-
 testRule('xgen-IPA-106-valid-operation-id', [
   {
     name: 'valid methods',
@@ -18,7 +16,7 @@ testRule('xgen-IPA-106-valid-operation-id', [
     errors: [],
   },
   {
-    name: 'invalid methods',
+    name: 'invalid methods with short opIds',
     document: {
       paths: {
         '/api/atlas/v2/groups/{groupId}/access': {
@@ -46,6 +44,33 @@ testRule('xgen-IPA-106-valid-operation-id', [
         message:
           "Invalid OperationID. Found 'createProjectInvitation', expected 'createGroupInvite'. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-106-valid-operation-id",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/invites', 'post', 'operationId'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid methods with too long opIDs',
+    document: {
+      paths: {
+        '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList': {
+          post: {
+            operationId: 'createServiceAccountAccessList',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-106-valid-operation-id',
+        message: 'Invalid OperationID. ',
+        path: ['paths', '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList', 'post', 'operationId'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-106-valid-operation-id',
+        message:
+          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
+        path: ['paths', '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList', 'post', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
