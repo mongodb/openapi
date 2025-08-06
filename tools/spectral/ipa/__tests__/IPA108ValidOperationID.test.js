@@ -85,6 +85,73 @@ testRule('xgen-IPA-108-valid-operation-id', [
     ],
   },
   {
+    name: 'valid methods with valid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}': {
+          delete: {
+            operationId: 'deleteFederationSettingConnectedOrgConfigRoleMapping',
+            'x-xgen-operation-id-override': 'deleteRoleMapping',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid methods with invalid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}': {
+          delete: {
+            operationId: 'deleteFederationSettingConnectedOrgConfigRoleMapping',
+            'x-xgen-operation-id-override': 'deleteMappingConfigTest',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-108-valid-operation-id',
+        message:
+          "The operation ID override must only contain nouns from the operation ID 'deleteFederationSettingConnectedOrgConfigRoleMapping'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}',
+          'delete',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-108-valid-operation-id',
+        message: "The operation ID override must end with the noun 'Mapping'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}',
+          'delete',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'valid method with verb overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/serverless': {
+          delete: {
+            operationId: 'deleteGroupServerlessInstance',
+            'x-xgen-method-verb-override': { verb: 'deleteInstance', customMethod: false },
+            'x-xgen-operation-id-override': 'deleteServerlessInstance',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid methods with exceptions',
     document: {
       paths: {
