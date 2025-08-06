@@ -80,11 +80,78 @@ testRule('xgen-IPA-107-valid-operation-id', [
     ],
   },
   {
+    name: 'valid methods with valid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/schedule': {
+          patch: {
+            operationId: 'updateGroupClusterBackupSchedule',
+            'x-xgen-operation-id-override': 'updateBackupSchedule',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid methods with invalid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/schedule': {
+          patch: {
+            operationId: 'updateGroupClusterBackupSchedule',
+            'x-xgen-operation-id-override': 'updateScheduleBackupMissing',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-107-valid-operation-id',
+        message:
+          "The operation ID override must only contain nouns from the operation ID 'updateGroupClusterBackupSchedule'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/schedule',
+          'patch',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-107-valid-operation-id',
+        message: "The operation ID override must end with the noun 'Schedule'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/schedule',
+          'patch',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'valid method with verb overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/serverless': {
+          patch: {
+            operationId: 'updateGroupServerlessInstance',
+            'x-xgen-method-verb-override': { verb: 'updateInstance', customMethod: false },
+            'x-xgen-operation-id-override': 'updateServerlessInstance',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid methods with exceptions',
     document: {
       paths: {
         '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index ': {
-          post: {
+          put: {
             operationId: 'updateRollingIndex',
             'x-xgen-IPA-exception': {
               'xgen-IPA-107-valid-operation-id': 'Reason',
