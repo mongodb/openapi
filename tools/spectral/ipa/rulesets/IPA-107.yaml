@@ -8,6 +8,7 @@ functions:
   - IPA107UpdateMethodRequestHasNoReadonlyFields
   - IPA107UpdateMethodRequestBodyIsGetResponse
   - IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject
+  - IPA107ValidOperationID
 
 aliases:
   UpdateOperationObject:
@@ -112,3 +113,20 @@ rules:
     then:
       field: '@key'
       function: 'IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject'
+  xgen-IPA-107-valid-operation-id:
+    description: |
+      The Operation ID must start with the verb “update” and should be followed by a noun or compound noun.
+      The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
+      If the resource is a singleton resource, the last noun may be the plural form of the collection identifier.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to PUT/PATCH methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+        - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-valid-operation-id'
+    severity: warn
+    given: '#UpdateOperationObject'
+    then:
+      function: 'IPA107ValidOperationID'
+      functionOptions:
+        methodName: 'update'

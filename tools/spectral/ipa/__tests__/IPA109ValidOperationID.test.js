@@ -1,7 +1,5 @@
 import testRule from './__helpers__/testRule';
-
-// TODO: add tests for xgen-custom-method extension - CLOUDP-306294
-// TOOD: enable tests for invalid methods (after rules are upgraded to warning) - CLOUDP-329722
+import { DiagnosticSeverity } from '@stoplight/types';
 
 testRule('xgen-IPA-109-valid-operation-id', [
   {
@@ -22,9 +20,8 @@ testRule('xgen-IPA-109-valid-operation-id', [
     },
     errors: [],
   },
-  // This test will be enable when the xgen-IPA-109-valid-operation-id is set to warning severity - CLOUDP-329722
-  /* {
-    name: 'invalid methods',
+  {
+    name: 'invalid methods with short opIds',
     document: {
       paths: {
         '/api/atlas/v2/groups/{groupId}/clusters:search': {
@@ -32,6 +29,21 @@ testRule('xgen-IPA-109-valid-operation-id', [
             operationId: 'searchClusters',
           },
         },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-109-valid-operation-id',
+        message: "Invalid OperationID. Found 'searchClusters', expected 'searchGroupClusters'. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/clusters:search', 'post', 'operationId'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid methods with too long opIDs',
+    document: {
+      paths: {
         '/api/atlas/v2/groups/{groupId}:migrate': {
           post: {
             operationId: 'migrateProjectToAnotherOrg',
@@ -42,20 +54,73 @@ testRule('xgen-IPA-109-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-109-valid-operation-id',
-        message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/groups/{groupId}/clusters:search'],
+        message: "Invalid OperationID. Found 'migrateProjectToAnotherOrg', expected 'migrateGroup'. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}:migrate', 'post', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-109-valid-operation-id',
         message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/groups/{groupId}:migrate'],
+          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}:migrate', 'post', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
-  }, */
+  },
+  {
+    name: 'valid methods with valid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}': {
+          delete: {
+            operationId: 'removeFederationSettingConnectedOrgConfig',
+            'x-xgen-method-verb-override': { verb: 'remove', customMethod: true },
+            'x-xgen-operation-id-override': 'removeConnectedOrgConfig',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid methods with invalid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}': {
+          delete: {
+            operationId: 'removeFederationSettingConnectedOrgConfig',
+            'x-xgen-method-verb-override': { verb: 'remove', customMethod: true },
+            'x-xgen-operation-id-override': 'removeOrgConfigTest',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-109-valid-operation-id',
+        message:
+          "The operation ID override must only contain nouns from the operation ID 'removeFederationSettingConnectedOrgConfig'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}',
+          'delete',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-109-valid-operation-id',
+        message: "The operation ID override must end with the noun 'Config'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}',
+          'delete',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
   {
     name: 'invalid methods with exceptions',
     document: {

@@ -1,7 +1,5 @@
 import testRule from './__helpers__/testRule';
-
-// TODO: add tests for xgen-custom-method extension - CLOUDP-306294
-// TOOD: enable tests for invalid methods (after rules are upgraded to warning) - CLOUDP-329722
+import { DiagnosticSeverity } from '@stoplight/types';
 
 testRule('xgen-IPA-105-valid-operation-id', [
   {
@@ -17,19 +15,33 @@ testRule('xgen-IPA-105-valid-operation-id', [
     },
     errors: [],
   },
-  // This test will be enable when the xgen-IPA-105-valid-operation-id is set to warning severity - CLOUDP-329722
-  /* {
-    name: 'invalid methods',
+  {
+    name: 'invalid methods with short opIDs',
     document: {
       paths: {
-        '/api/atlas/v2/orgs/{orgId}/teams/{teamId}/users': {
+        '/api/atlas/v2/unauth/openapi/versions': {
           get: {
-            operationId: 'listTeamUsers',
+            operationId: 'getApiVersions',
           },
         },
-        '/api/atlas/v2/orgs/{orgId}/events': {
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-105-valid-operation-id',
+        message: "Invalid OperationID. Found 'getApiVersions', expected 'listOpenapiVersions'. ",
+        path: ['paths', '/api/atlas/v2/unauth/openapi/versions', 'get', 'operationId'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid methods with too long opIDs',
+    document: {
+      paths: {
+        '/api/atlas/v2/unauth/controlPlaneIPAddresses': {
           get: {
-            operationId: 'listOrganizationEvents',
+            operationId: 'returnAllControlPlaneIpAddresses',
           },
         },
       },
@@ -38,19 +50,76 @@ testRule('xgen-IPA-105-valid-operation-id', [
       {
         code: 'xgen-IPA-105-valid-operation-id',
         message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/groups/{groupId}/databaseUsers/{username}/certs', 'get'],
+          "Invalid OperationID. Found 'returnAllControlPlaneIpAddresses', expected 'listControlPlaneIPAddresses'. ",
+        path: ['paths', '/api/atlas/v2/unauth/controlPlaneIPAddresses', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-105-valid-operation-id',
         message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/orgs/{orgId}/events', 'get'],
+          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
+        path: ['paths', '/api/atlas/v2/unauth/controlPlaneIPAddresses', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
-  }, */
+  },
+  {
+    name: 'valid methods with valid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/backup/exportBuckets': {
+          get: {
+            operationId: 'listGroupBackupExportBuckets',
+            'x-xgen-operation-id-override': 'listExportBuckets',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid methods with invalid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/backup/exportBuckets': {
+          get: {
+            operationId: 'listGroupBackupExportBuckets',
+            'x-xgen-operation-id-override': 'listMyExports',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-105-valid-operation-id',
+        message:
+          "The operation ID override must only contain nouns from the operation ID 'listGroupBackupExportBuckets'. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/backup/exportBuckets', 'get', 'x-xgen-operation-id-override'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-105-valid-operation-id',
+        message: "The operation ID override must end with the noun 'Buckets'. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/backup/exportBuckets', 'get', 'x-xgen-operation-id-override'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'valid method with verb overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/serverless': {
+          get: {
+            operationId: 'listGroupServerlessInstances',
+            'x-xgen-method-verb-override': { verb: 'listInstances', customMethod: false },
+            'x-xgen-operation-id-override': 'listServerlessInstances',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
   {
     name: 'invalid methods with exceptions',
     document: {

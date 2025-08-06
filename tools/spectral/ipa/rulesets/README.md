@@ -139,6 +139,18 @@ Rule checks for the following conditions:
   - Applies only to GET methods on single resources or singleton resources
   - Verifies that the operation object does not contain a requestBody property
 
+#### xgen-IPA-104-valid-operation-id
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Operation ID must start with the verb “get” and should be followed by a noun or compound noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
+If the resource is a singleton resource, the last noun may be the plural form of the collection identifier.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on single resources or singleton resources
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
+
 
 
 ### IPA-105
@@ -193,6 +205,18 @@ The response body of the List method should consist of the same resource object 
   - Fails if the Get method doesn't have a schema reference or if the schemas don't match
   - Validation ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+#### xgen-IPA-105-valid-operation-id
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Operation ID must start with the verb “list” and should be followed by a noun or compound noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form, where the last noun is in plural form.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on resource collection paths
+  - Ignores singleton resources
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
+
 
 
 ### IPA-106
@@ -273,6 +297,17 @@ Rule checks for the following conditions:
   - Ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-106-valid-operation-id
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Operation ID must start with the verb “create” and should be followed by a noun or compound noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
+
 
 
 ### IPA-107
@@ -344,6 +379,18 @@ Rule checks for the following conditions:
   - Validation only applies to schema references to a predefined schema (not inline)
   - Confirms the referenced schema name ends with "Request" suffix
 
+#### xgen-IPA-107-valid-operation-id
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Operation ID must start with the verb “update” and should be followed by a noun or compound noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
+If the resource is a singleton resource, the last noun may be the plural form of the collection identifier.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to PUT/PATCH methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
+
 
 
 ### IPA-108
@@ -387,6 +434,17 @@ Rule checks for the following conditions:
   - Verifies that the operation object does not contain a requestBody property
   - Fails if any requestBody is defined for the DELETE method
   - Skips validation for collection endpoints (without path parameters)
+
+#### xgen-IPA-108-valid-operation-id
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Operation ID must start with the verb “delete” and should be followed by a noun or compound noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to DELETE methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
 
@@ -432,6 +490,21 @@ Rule checks for the following conditions:
   - Fails if a slash appears before a colon
   - Fails if multiple colons appear in the path
   - Fails if other than an alphabetical character or a closing curly brace appears before a colon
+
+#### xgen-IPA-109-valid-operation-id
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The Operation ID must start with the custom method verb (the custom method path section delimited by the colon (:) character) and should be followed by a noun or compound noun.
+If the custom Operation ID has a verb + noun, the Operation ID should end with the noun.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier.
+The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form, where the last noun:
+  - Is in plural form if the method applies to a collection of resources
+  - Is in singular form if the method applies to a single resource
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths containing custom method identifiers (with colon format)
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
 

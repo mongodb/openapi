@@ -1,7 +1,5 @@
 import testRule from './__helpers__/testRule';
-
-// TODO: add tests for xgen-custom-method extension - CLOUDP-306294
-// TOOD: enable tests for invalid methods (after rules are upgraded to warning) - CLOUDP-329722
+import { DiagnosticSeverity } from '@stoplight/types';
 
 testRule('xgen-IPA-104-valid-operation-id', [
   {
@@ -17,19 +15,33 @@ testRule('xgen-IPA-104-valid-operation-id', [
     },
     errors: [],
   },
-  // This test will be enable when the xgen-IPA-104-valid-operation-id is set to warning severity - CLOUDP-329722
-  /* {
-    name: 'invalid methods',
+  {
+    name: 'invalid methods with short opIDs',
     document: {
       paths: {
-        '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}/status': {
+        '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}': {
           get: {
-            operationId: 'getProjectIpAccessListStatus',
+            operationId: 'getProjectIpList',
           },
         },
-        '/api/atlas/v2/groups/{groupId}/dataFederation/{tenantName}/limits/{limitName}': {
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-104-valid-operation-id',
+        message: "Invalid OperationID. Found 'getProjectIpList', expected 'getGroupAccessList'. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}', 'get', 'operationId'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid methods with long opIDs',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs': {
           get: {
-            operationId: 'returnFederatedDatabaseQueryLimit',
+            operationId: 'listAlertConfigurationsByAlertId',
           },
         },
       },
@@ -38,19 +50,85 @@ testRule('xgen-IPA-104-valid-operation-id', [
       {
         code: 'xgen-IPA-104-valid-operation-id',
         message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}/status', 'get'],
+          "Invalid OperationID. Found 'listAlertConfigurationsByAlertId', expected 'getGroupAlertAlertConfigs'. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-104-valid-operation-id',
         message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/groups/{groupId}/dataFederation/{tenantName}/limits/{limitName}', 'get'],
+          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
-  }, */
+  },
+  {
+    name: 'valid methods with valid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}': {
+          get: {
+            operationId: 'getFederationSettingConnectedOrgConfigRoleMapping',
+            'x-xgen-operation-id-override': 'getRoleMapping',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid methods with invalid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}': {
+          get: {
+            operationId: 'getFederationSettingConnectedOrgConfigRoleMapping',
+            'x-xgen-operation-id-override': 'getGroupRoleConfig',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-104-valid-operation-id',
+        message:
+          "The operation ID override must only contain nouns from the operation ID 'getFederationSettingConnectedOrgConfigRoleMapping'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}',
+          'get',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-104-valid-operation-id',
+        message: "The operation ID override must end with the noun 'Mapping'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}',
+          'get',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'valid method with verb overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/streams/{tenantName}': {
+          get: {
+            operationId: 'getGroupStreamWorkspace',
+            'x-xgen-method-verb-override': { verb: 'getWorkspace', customMethod: false },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
   {
     name: 'invalid methods with exceptions',
     document: {
