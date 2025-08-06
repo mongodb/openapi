@@ -29,7 +29,7 @@ testRule('xgen-IPA-105-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-105-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message: "Invalid OperationID. Found 'getApiVersions', expected 'listOpenapiVersions'. ",
         path: ['paths', '/api/atlas/v2/unauth/openapi/versions', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -49,7 +49,8 @@ testRule('xgen-IPA-105-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-105-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message:
+          "Invalid OperationID. Found 'returnAllControlPlaneIpAddresses', expected 'listControlPlaneIPAddresses'. ",
         path: ['paths', '/api/atlas/v2/unauth/controlPlaneIPAddresses', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },

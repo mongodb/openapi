@@ -34,15 +34,13 @@ testRule('xgen-IPA-106-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-106-valid-operation-id',
-        message:
-          "Invalid OperationID. Found 'addUserToProject', expected 'createGroupAccess'. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-106-valid-operation-id",
+        message: "Invalid OperationID. Found 'addUserToProject', expected 'createGroupAccess'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/access', 'post', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-106-valid-operation-id',
-        message:
-          "Invalid OperationID. Found 'createProjectInvitation', expected 'createGroupInvite'. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-106-valid-operation-id",
+        message: "Invalid OperationID. Found 'createProjectInvitation', expected 'createGroupInvite'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/invites', 'post', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -62,7 +60,8 @@ testRule('xgen-IPA-106-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-106-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message:
+          "Invalid OperationID. Found 'createServiceAccountAccessList', expected 'createOrgServiceAccountAccessList'. ",
         path: ['paths', '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList', 'post', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },

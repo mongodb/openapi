@@ -29,7 +29,7 @@ testRule('xgen-IPA-104-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-104-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message: "Invalid OperationID. Found 'getProjectIpList', expected 'getGroupAccessList'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -49,7 +49,8 @@ testRule('xgen-IPA-104-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-104-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message:
+          "Invalid OperationID. Found 'listAlertConfigurationsByAlertId', expected 'getGroupAlertAlertConfigs'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },

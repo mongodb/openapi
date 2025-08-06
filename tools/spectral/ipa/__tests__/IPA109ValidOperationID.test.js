@@ -34,7 +34,7 @@ testRule('xgen-IPA-109-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-109-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message: "Invalid OperationID. Found 'searchClusters', expected 'searchGroupClusters'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/clusters:search', 'post', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -54,7 +54,7 @@ testRule('xgen-IPA-109-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-109-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message: "Invalid OperationID. Found 'migrateProjectToAnotherOrg', expected 'migrateGroup'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}:migrate', 'post', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },

@@ -39,13 +39,13 @@ testRule('xgen-IPA-107-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-107-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message: "Invalid OperationID. Found 'setProjectLimit', expected 'updateGroupLimit'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/limits/{limitName}', 'patch', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-107-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message: "Invalid OperationID. Found 'updateProjectSettings', expected 'updateGroupSettings'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/settings', 'put', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -65,7 +65,8 @@ testRule('xgen-IPA-107-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-107-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message:
+          "Invalid OperationID. Found 'updatePushBasedLogConfiguration', expected 'updateGroupPushBasedLogExport'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/pushBasedLogExport', 'patch', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },

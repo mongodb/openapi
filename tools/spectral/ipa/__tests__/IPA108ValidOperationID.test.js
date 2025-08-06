@@ -34,13 +34,13 @@ testRule('xgen-IPA-108-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-108-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message: "Invalid OperationID. Found 'removeProjectApiKey', expected 'deleteGroupApiKey'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/apiKeys/{apiUserId}', 'delete', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-108-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message: "Invalid OperationID. Found 'deleteProject', expected 'deleteGroup'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}', 'delete', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -60,7 +60,8 @@ testRule('xgen-IPA-108-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-108-valid-operation-id',
-        message: 'Invalid OperationID. ',
+        message:
+          "Invalid OperationID. Found 'deleteOneDataFederationInstanceQueryLimit', expected 'deleteGroupDataFederationLimit'. ",
         path: [
           'paths',
           '/api/atlas/v2/groups/{groupId}/dataFederation/{tenantName}/limits/{limitName}',
