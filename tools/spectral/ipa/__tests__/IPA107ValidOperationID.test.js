@@ -1,7 +1,7 @@
 import testRule from './__helpers__/testRule';
+import { DiagnosticSeverity } from '@stoplight/types';
 
 // TODO: add tests for xgen-custom-method extension - CLOUDP-306294
-// TOOD: enable tests for invalid methods (after rules are upgraded to warning) - CLOUDP-329722
 
 testRule('xgen-IPA-107-valid-operation-id', [
   {
@@ -22,8 +22,7 @@ testRule('xgen-IPA-107-valid-operation-id', [
     },
     errors: [],
   },
-  // This test will be enable when the xgen-IPA-107-valid-operation-id is set to warning severity - CLOUDP-329722
-  /* {
+  {
     name: 'invalid methods',
     document: {
       paths: {
@@ -42,20 +41,18 @@ testRule('xgen-IPA-107-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-107-valid-operation-id',
-        message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/groups/{groupId}/limits/{limitName}', 'patch'],
+        message: 'Invalid OperationID. ',
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/limits/{limitName}', 'patch', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-107-valid-operation-id',
-        message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/groups/{groupId}/settings', 'put'],
+        message: 'Invalid OperationID. ',
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/settings', 'put', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
-  }, */
+  },
   {
     name: 'invalid methods with exceptions',
     document: {
