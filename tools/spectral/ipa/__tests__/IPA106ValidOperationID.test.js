@@ -75,6 +75,84 @@ testRule('xgen-IPA-106-valid-operation-id', [
     ],
   },
   {
+    name: 'valid methods with valid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings': {
+          post: {
+            operationId: 'createFederationSettingConnectedOrgConfigRoleMapping',
+            'x-xgen-operation-id-override': 'createRoleMapping',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid methods with invalid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings': {
+          post: {
+            operationId: 'createFederationSettingConnectedOrgConfigRoleMapping',
+            'x-xgen-operation-id-override': 'createSettingIDConfigTest',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-106-valid-operation-id',
+        message: 'The operation ID override is longer than 4 words. Please shorten it. ',
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings',
+          'post',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-106-valid-operation-id',
+        message:
+          "The operation ID override must only contain nouns from the operation ID 'createFederationSettingConnectedOrgConfigRoleMapping'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings',
+          'post',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-106-valid-operation-id',
+        message: "The operation ID override must end with the noun 'Mapping'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings',
+          'post',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'valid method with verb overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/serverless': {
+          post: {
+            operationId: 'createGroupServerlessInstance',
+            'x-xgen-method-verb-override': { verb: 'createInstance', customMethod: false },
+            'x-xgen-operation-id-override': 'createServerlessInstance',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid methods with exceptions',
     document: {
       paths: {
