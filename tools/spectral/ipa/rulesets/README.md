@@ -149,8 +149,7 @@ If the resource is a singleton resource, the last noun may be the plural form of
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to GET methods on single resources or singleton resources
-  - Generates the expected OperationId given the resource identifier
-  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
 
@@ -216,8 +215,7 @@ The noun(s) in the Operation ID should be the collection identifiers from the re
 Rule checks for the following conditions:
   - Applies only to GET methods on resource collection paths
   - Ignores singleton resources
-  - Generates the expected OperationId given the resource identifier
-  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
 
@@ -308,8 +306,7 @@ The noun(s) in the Operation ID should be the collection identifiers from the re
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to POST methods on resource collection paths
-  - Generates the expected OperationId given the resource identifier
-  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
 
@@ -392,8 +389,7 @@ If the resource is a singleton resource, the last noun may be the plural form of
 ##### Implementation details
 Rule checks for the following conditions:
   - Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
-  - Generates the expected OperationId given the resource identifier
-  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
 
@@ -448,8 +444,7 @@ The noun(s) in the Operation ID should be the collection identifiers from the re
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies to all DELETE methods for single resource endpoints (with path parameters)
-  - Generates the expected OperationId given the resource identifier
-  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
 
@@ -509,8 +504,7 @@ The noun(s) in the Operation ID should be the collection identifiers from the re
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to paths containing custom method identifiers (with colon format)
-  - Generates the expected OperationId given the resource identifier and the method name portion following the colon
-  - Confirms that the existing operationId is compliant with generated IPA Compliant OperationId
+  - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
 
