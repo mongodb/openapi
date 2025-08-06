@@ -1,7 +1,5 @@
 import testRule from './__helpers__/testRule';
-
-// TODO: add tests for xgen-custom-method extension - CLOUDP-306294
-// TOOD: enable tests for invalid methods (after rules are upgraded to warning) - CLOUDP-329722
+import { DiagnosticSeverity } from '@stoplight/types';
 
 testRule('xgen-IPA-104-valid-operation-id', [
   {
@@ -17,19 +15,13 @@ testRule('xgen-IPA-104-valid-operation-id', [
     },
     errors: [],
   },
-  // This test will be enable when the xgen-IPA-104-valid-operation-id is set to warning severity - CLOUDP-329722
-  /* {
-    name: 'invalid methods',
+  {
+    name: 'invalid methods with short opIDs',
     document: {
       paths: {
-        '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}/status': {
+        '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}': {
           get: {
-            operationId: 'getProjectIpAccessListStatus',
-          },
-        },
-        '/api/atlas/v2/groups/{groupId}/dataFederation/{tenantName}/limits/{limitName}': {
-          get: {
-            operationId: 'returnFederatedDatabaseQueryLimit',
+            operationId: 'getProjectIpList',
           },
         },
       },
@@ -37,20 +29,37 @@ testRule('xgen-IPA-104-valid-operation-id', [
     errors: [
       {
         code: 'xgen-IPA-104-valid-operation-id',
-        message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}/status', 'get'],
-        severity: DiagnosticSeverity.Warning,
-      },
-      {
-        code: 'xgen-IPA-104-valid-operation-id',
-        message:
-          'Invalid OperationID. ',
-        path: ['paths', '/api/atlas/v2/groups/{groupId}/dataFederation/{tenantName}/limits/{limitName}', 'get'],
+        message: 'Invalid OperationID. ',
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
-  }, */
+  },
+  {
+    name: 'invalid methods with long opIDs',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/queryShapeInsights/{queryShapeHash}/details': {
+          get: {
+            operationId: 'getShardedClusterBackup',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-104-valid-operation-id',
+        message: 'Invalid OperationID. ',
+        path: [
+          'paths',
+          '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/queryShapeInsights/{queryShapeHash}/details',
+          'get',
+          'operationId',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
   {
     name: 'invalid methods with exceptions',
     document: {
