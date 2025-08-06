@@ -39,9 +39,9 @@ testRule('xgen-IPA-104-valid-operation-id', [
     name: 'invalid methods with long opIDs',
     document: {
       paths: {
-        '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/queryShapeInsights/{queryShapeHash}/details': {
+        '/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs': {
           get: {
-            operationId: 'getShardedClusterBackup',
+            operationId: 'listAlertConfigurationsByAlertId',
           },
         },
       },
@@ -50,12 +50,14 @@ testRule('xgen-IPA-104-valid-operation-id', [
       {
         code: 'xgen-IPA-104-valid-operation-id',
         message: 'Invalid OperationID. ',
-        path: [
-          'paths',
-          '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/queryShapeInsights/{queryShapeHash}/details',
-          'get',
-          'operationId',
-        ],
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs', 'get', 'operationId'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-104-valid-operation-id',
+        message:
+          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
+        path: ['paths', '/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
