@@ -305,7 +305,7 @@ The noun(s) in the Operation ID should be the collection identifiers from the re
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to POST methods on resource collection paths
+  - Applies only to POST methods that are not [custom methods](https://mongodb.github.io/ipa/109)
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
@@ -388,7 +388,7 @@ If the resource is a singleton resource, the last noun may be the plural form of
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Validation checks the PATCH/PUT methods for single resource paths and [singleton resources](https://go/ipa/113).
+  - Applies only to PUT/PATCH methods that are not [custom methods](https://mongodb.github.io/ipa/109)
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
@@ -443,7 +443,7 @@ The noun(s) in the Operation ID should be the collection identifiers from the re
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to all DELETE methods for single resource endpoints (with path parameters)
+  - Applies only to DELETE methods that are not [custom methods](https://mongodb.github.io/ipa/109)
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 
