@@ -68,6 +68,60 @@ testRule('xgen-IPA-109-valid-operation-id', [
     ],
   },
   {
+    name: 'valid methods with valid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}': {
+          delete: {
+            operationId: 'removeFederationSettingConnectedOrgConfig',
+            'x-xgen-method-verb-override': { verb: 'remove', customMethod: true },
+            'x-xgen-operation-id-override': 'removeConnectedOrgConfig',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid methods with invalid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}': {
+          delete: {
+            operationId: 'removeFederationSettingConnectedOrgConfig',
+            'x-xgen-method-verb-override': { verb: 'remove', customMethod: true },
+            'x-xgen-operation-id-override': 'removeOrgConfigTest',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-109-valid-operation-id',
+        message:
+          "The operation ID override must only contain nouns from the operation ID 'removeFederationSettingConnectedOrgConfig'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}',
+          'delete',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-109-valid-operation-id',
+        message: "The operation ID override must end with the noun 'Config'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}',
+          'delete',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
     name: 'invalid methods with exceptions',
     document: {
       paths: {
