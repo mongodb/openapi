@@ -64,6 +64,72 @@ testRule('xgen-IPA-104-valid-operation-id', [
     ],
   },
   {
+    name: 'valid methods with valid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}': {
+          get: {
+            operationId: 'getFederationSettingConnectedOrgConfigRoleMapping',
+            'x-xgen-operation-id-override': 'getRoleMapping',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid methods with invalid overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}': {
+          get: {
+            operationId: 'getFederationSettingConnectedOrgConfigRoleMapping',
+            'x-xgen-operation-id-override': 'getGroupRoleConfig',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-104-valid-operation-id',
+        message:
+          "The operation ID override must only contain nouns from the operation ID 'getFederationSettingConnectedOrgConfigRoleMapping'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}',
+          'get',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-104-valid-operation-id',
+        message: "The operation ID override must end with the noun 'Mapping'. ",
+        path: [
+          'paths',
+          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}',
+          'get',
+          'x-xgen-operation-id-override',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'valid method with verb overrides',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/streams/{tenantName}': {
+          get: {
+            operationId: 'getGroupStreamWorkspace',
+            'x-xgen-method-verb-override': { verb: 'getWorkspace', customMethod: false },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid methods with exceptions',
     document: {
       paths: {
