@@ -7391,6 +7391,15 @@ components:
                         pattern: ^([a-f0-9]{24})$
                         readOnly: true
                         type: string
+                    status:
+                        description: Provision status of the service account.
+                        enum:
+                            - IN_PROGRESS
+                            - COMPLETE
+                            - FAILED
+                            - NOT_INITIATED
+                        readOnly: true
+                        type: string
                   type: object
             description: Details that describe the features linked to the GCP Service Account.
             required:
@@ -7518,6 +7527,11 @@ components:
                     description: List that contains the Azure Service Principals registered with MongoDB Cloud.
                     items:
                         $ref: '#/components/schemas/CloudProviderAccessAzureServicePrincipal'
+                    type: array
+                gcpServiceAccounts:
+                    description: List that contains the Google Service Accounts registered and authorized with MongoDB Cloud.
+                    items:
+                        $ref: '#/components/schemas/CloudProviderAccessGCPServiceAccount'
                     type: array
             type: object
         CloudProviderAzureAutoScaling:
@@ -36909,7 +36923,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: c2854393045dc2a5b97a2c211572f894f84554d4
+    x-xgen-sha: a9bca3dc888dcd84173e7b3de7d2cc4ff9a99faf
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -41876,7 +41890,7 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/cloudProviderAccess?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/listCloudProviderAccessRoles
         post:
-            description: Creates one access role for the specified cloud provider. Some MongoDB Cloud features use these cloud provider access roles for authentication. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: Creates one access role for the specified cloud provider. Some MongoDB Cloud features use these cloud provider access roles for authentication. To use this resource, the requesting Service Account or API Key must have the Project Owner role. For the GCP provider, if the project folder is not yet provisioned, Atlas will now create the role asynchronously. An intermediate role with status `IN_PROGRESS` will be returned, and the final service account will be provisioned. Once the GCP project is set up, subsequent requests will create the service account synchronously.
             externalDocs:
                 description: Set Up Access to Cloud Providers
                 url: https://www.mongodb.com/docs/atlas/security/cloud-provider-access/
