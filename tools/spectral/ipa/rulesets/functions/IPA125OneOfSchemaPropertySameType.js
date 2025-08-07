@@ -48,7 +48,6 @@ function checkViolationsAndReturnErrors(schemas, path) {
     propertiesAcrossMultipleOneOf.forEach(({ propertyKey, propertySchemas }) => {
       // Check schemas for properties of the same name have the same type/schema
       if (!hasSameType(propertySchemas)) {
-        console.log('Error for', propertyKey, 'with values', propertySchemas);
         errors.push({
           path,
           message: `Property '${propertyKey}' has different types or schemas in oneOf items.`,
