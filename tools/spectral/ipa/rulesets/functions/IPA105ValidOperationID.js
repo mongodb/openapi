@@ -5,7 +5,7 @@ import {
   collectException,
   handleInternalError,
 } from './utils/collectionUtils.js';
-import { getResourcePathItems, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
+import { getResourcePathItems } from './utils/resourceEvaluation.js';
 import { isInvalidListMethod } from './utils/methodLogic.js';
 import { hasCustomMethodOverride, hasMethodVerbOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
 import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
@@ -19,7 +19,6 @@ export default (input, { methodName }, { path, documentInventory }) => {
 
   if (
     hasCustomMethodOverride(input) ||
-    isCustomMethodIdentifier(resourcePath) ||
     hasMethodVerbOverride(input, 'get') ||
     (isInvalidListMethod(resourcePath, resourcePaths) && !hasMethodVerbOverride(input, methodName))
   ) {
