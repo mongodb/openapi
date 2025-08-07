@@ -991,6 +991,16 @@ Using oneOf with multiple primitive types can lead to ambiguity and validation p
 be able to properly determine which type to use in which context. Instead, use more specific 
 object types with clear discriminators.
 
+#### xgen-IPA-125-oneOf-schema-property-same-type
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+If multiple `oneOf` models define a property with the same name, that property **must** have the same base type or schema in each model
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to object type schemas with `oneOf`
+  - Ensures that if a property is defined in multiple `oneOf` schemas, it must have the same type in each schema (base type or object schema)
+
 
 
 ### IPA-126
