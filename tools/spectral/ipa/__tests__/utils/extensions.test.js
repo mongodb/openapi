@@ -4,30 +4,21 @@ import {
   hasMethodVerbOverride,
   hasOperationIdOverride,
   getOperationIdOverride,
+  hasVerbOverride,
 } from '../../rulesets/functions/utils/extensions';
 
-const methodWithExtension = {
+const operationWithVerbOverride = {
   'x-xgen-method-verb-override': {
     verb: 'get',
     customMethod: false,
   },
 };
 
-const customMethod = {
+const operationWithCustomMethodVerbOverride = {
   'x-xgen-method-verb-override': {
     verb: 'add',
     customMethod: true,
   },
-};
-
-const endpointWithMethodExtension = {
-  delete: {
-    'x-xgen-method-verb-override': { verb: 'remove', customMethod: true },
-  },
-};
-
-const endpointWithNoMethodExtension = {
-  exception: true,
 };
 
 const operationWithOperationIdOverride = {
@@ -40,32 +31,32 @@ const operationWithEmptyOperationIdOverride = {
   'x-xgen-operation-id-override': '',
 };
 
-const operationWithNoOperationIdOverride = {
+const operationWithNoOverrides = {
   operationId: 'operationId',
 };
 
 describe('tools/spectral/ipa/rulesets/functions/utils/extensions.js', () => {
   describe('hasCustomMethodOverride', () => {
     it('returns true if the method has the extension with the customMethod boolean set to true', () => {
-      expect(hasCustomMethodOverride(customMethod)).toBe(true);
+      expect(hasCustomMethodOverride(operationWithCustomMethodVerbOverride)).toBe(true);
     });
     it('returns false if the method does not have the extension', () => {
       expect(hasCustomMethodOverride({})).toBe(false);
     });
     it('returns false if the method has the extension but is not a custom method', () => {
-      expect(hasCustomMethodOverride(methodWithExtension)).toBe(false);
+      expect(hasCustomMethodOverride(operationWithVerbOverride)).toBe(false);
     });
   });
 
   describe('hasMethodVerbOverride', () => {
     it('returns true if the method has the extension with the expected verb', () => {
-      expect(hasMethodVerbOverride(methodWithExtension, 'get')).toBe(true);
+      expect(hasMethodVerbOverride(operationWithVerbOverride, 'get')).toBe(true);
     });
     it('returns false if the method does not have the extension', () => {
       expect(hasMethodVerbOverride({}, 'get')).toBe(false);
     });
     it('returns false if the method has the extension but with an unexpected verb', () => {
-      expect(hasMethodVerbOverride(methodWithExtension, 'put')).toBe(false);
+      expect(hasMethodVerbOverride(operationWithVerbOverride, 'put')).toBe(false);
     });
   });
 
@@ -77,7 +68,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/extensions.js', () => {
       expect(hasOperationIdOverride(operationWithEmptyOperationIdOverride)).toBe(true);
     });
     it('returns false if the method does not have the extension', () => {
-      expect(hasOperationIdOverride(operationWithNoOperationIdOverride)).toBe(false);
+      expect(hasOperationIdOverride(operationWithNoOverrides)).toBe(false);
     });
   });
 
@@ -89,7 +80,17 @@ describe('tools/spectral/ipa/rulesets/functions/utils/extensions.js', () => {
       expect(getOperationIdOverride(operationWithEmptyOperationIdOverride)).toBe('');
     });
     it('returns undefined if the method does not have the extension', () => {
-      expect(getOperationIdOverride(operationWithNoOperationIdOverride)).toBe(undefined);
+      expect(getOperationIdOverride(operationWithNoOverrides)).toBe(undefined);
+    });
+  });
+
+  describe('hasVerbOverride', () => {
+    it('returns true if the method has the extension', () => {
+      expect(hasVerbOverride(operationWithVerbOverride)).toBe(true);
+      expect(hasVerbOverride(operationWithCustomMethodVerbOverride)).toBe(true);
+    });
+    it('returns false if the method does not have the extension', () => {
+      expect(hasVerbOverride(operationWithNoOverrides)).toBe(false);
     });
   });
 });

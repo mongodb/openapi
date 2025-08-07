@@ -3,6 +3,8 @@ import {
   getAllSuccessfulResponseSchemas,
   getResponseOfGetMethodByMediaType,
   getResponseOfListMethodByMediaType,
+  getSchemaNameFromRef,
+  getSchemaRef,
 } from '../../rulesets/functions/utils/methodUtils.js';
 
 describe('tools/spectral/ipa/rulesets/functions/utils/methodUtils.js', () => {
@@ -180,6 +182,39 @@ describe('tools/spectral/ipa/rulesets/functions/utils/methodUtils.js', () => {
           expect(result).toEqual(oas.paths['/resource'].get.responses['200'].content[testCase.expectedMatch]);
         }
       });
+    });
+  });
+
+  describe('getSchemaRef', () => {
+    it('returns the ref value for a schema with $ref', () => {
+      expect(
+        getSchemaRef({
+          $ref: '#/components/schemas/ExampleSchema',
+        })
+      ).toEqual('#/components/schemas/ExampleSchema');
+    });
+    it('returns the ref value for a schema with items of $ref', () => {
+      expect(
+        getSchemaRef({
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/ExampleItemsSchema',
+          },
+        })
+      ).toEqual('#/components/schemas/ExampleItemsSchema');
+    });
+    it('returns undefined for a schema with no $ref', () => {
+      expect(
+        getSchemaRef({
+          type: 'string',
+        })
+      ).toEqual(undefined);
+    });
+  });
+
+  describe('getSchemaNameFromRef', () => {
+    it('returns the schema name from a schema $ref', () => {
+      expect(getSchemaNameFromRef('#/components/schemas/ExampleSchema')).toEqual('ExampleSchema');
     });
   });
 });
