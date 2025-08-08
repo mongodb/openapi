@@ -4,6 +4,7 @@
 functions:
   - IPA125OneOfMustHaveDiscriminator
   - IPA125OneOfNoBaseTypes
+  - IPA125OneOfSchemaPropertySameType
 
 rules:
   xgen-IPA-125-oneOf-must-have-discriminator:
@@ -63,3 +64,18 @@ rules:
     given: '$.components.schemas[*]'
     then:
       function: 'IPA125OneOfNoBaseTypes'
+
+  xgen-IPA-125-oneOf-schema-property-same-type:
+    description: |
+      If multiple `oneOf` models define a property with the same name, that property **must** have the same base type or schema in each model
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to object type schemas with `oneOf`
+        - Ensures that if a property is defined in multiple `oneOf` schemas, it must have the same type in each schema (base type or object schema)
+
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-125-oneOf-schema-property-same-type'
+    severity: warn
+    given: '$.components.schemas..oneOf'
+    then:
+      function: 'IPA125OneOfSchemaPropertySameType'
