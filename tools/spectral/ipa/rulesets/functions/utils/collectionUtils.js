@@ -12,7 +12,7 @@ import { EXCEPTION_EXTENSION, hasException } from './exceptions.js';
  * @param {Array<string>} objectPath the JSON path to the object
  * @returns {Array<{path: Array<string>, message: string}>|undefined} an array of the validation errors, or undefined if there are no errors
  */
-export function collectExceptionAdoptionViolations(validationErrors, ruleName, object, objectPath) {
+export function evaluateAndCollectAdoptionStatus(validationErrors, ruleName, object, objectPath) {
   if (validationErrors.length !== 0) {
     if (hasException(object, ruleName)) {
       collectException(object, ruleName, objectPath);
@@ -40,7 +40,7 @@ export function collectExceptionAdoptionViolations(validationErrors, ruleName, o
  * @param {Array<string>} objectPath the JSON path to the object
  * @returns {Array<{path: Array<string>, message: string}>|undefined} an array of the validation errors, or undefined if there are no errors
  */
-export function collectAdoptionViolations(validationErrors, ruleName, objectPath) {
+export function evaluateAndCollectAdoptionStatusWithoutExceptions(validationErrors, ruleName, objectPath) {
   if (validationErrors.length !== 0) {
     return collectAndReturnViolation(objectPath, ruleName, validationErrors);
   }

@@ -5,7 +5,7 @@ import {
   isResourceCollectionIdentifier,
   isSingleResourceIdentifier,
 } from './utils/resourceEvaluation.js';
-import { collectExceptionAdoptionViolations, handleInternalError } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-104-resource-has-GET';
 const ERROR_MESSAGE = 'APIs must provide a get method for resources.';
@@ -19,7 +19,7 @@ export default (input, _, { path, documentInventory }) => {
 
   const errors = checkViolationsAndReturnErrors(oas.paths, input, path);
 
-  return collectExceptionAdoptionViolations(errors, RULE_NAME, oas.paths[input], path);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, oas.paths[input], path);
 };
 
 function checkViolationsAndReturnErrors(oasPaths, input, path) {

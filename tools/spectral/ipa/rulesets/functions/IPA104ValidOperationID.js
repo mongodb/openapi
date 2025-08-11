@@ -1,4 +1,4 @@
-import { collectExceptionAdoptionViolations, handleInternalError } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { getResourcePathItems } from './utils/resourceEvaluation.js';
 import { hasCustomMethodOverride, hasMethodVerbOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
 import { isInvalidGetMethod } from './utils/methodLogic.js';
@@ -25,7 +25,7 @@ export default (input, { methodName }, { path, documentInventory }) => {
     }
     const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path);
 
-    return collectExceptionAdoptionViolations(errors, RULE_NAME, input, path);
+    return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
   } catch (e) {
     return handleInternalError(RULE_NAME, path, e);
   }

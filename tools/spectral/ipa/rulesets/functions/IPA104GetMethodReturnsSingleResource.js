@@ -4,7 +4,7 @@ import {
   isSingleResourceIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { collectExceptionAdoptionViolations, handleInternalError } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { schemaIsArray, schemaIsPaginated } from './utils/schemaUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
@@ -36,7 +36,7 @@ export default (input, _, { path, documentInventory }) => {
 
   const errors = checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton);
 
-  return collectExceptionAdoptionViolations(errors, RULE_NAME, contentPerMediaType, path);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, contentPerMediaType, path);
 };
 
 function checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton) {

@@ -1,4 +1,4 @@
-import { collectExceptionAdoptionViolations } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import {
   getResourcePathItems,
   isResourceCollectionIdentifier,
@@ -25,5 +25,5 @@ export default (input, _, { path, documentInventory }) => {
 
   const errors = checkResponseCodeAndReturnErrors(input, '200', path, RULE_NAME, ERROR_MESSAGE);
 
-  return collectExceptionAdoptionViolations(errors, RULE_NAME, input, path);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };

@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
-import { collectExceptionAdoptionViolations } from '../../rulesets/functions/utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  evaluateAndCollectAdoptionStatusWithoutExceptions,
+} from '../../rulesets/functions/utils/collectionUtils.js';
 import collector from '../../metrics/collector.js';
 
 const TEST_ERROR_MESSAGE = 'error message';
@@ -36,7 +39,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js', () =>
         },
       ];
 
-      const result = collectExceptionAdoptionViolations(testErrors, testRuleName, testObject, testPath);
+      const result = evaluateAndCollectAdoptionStatus(testErrors, testRuleName, testObject, testPath);
 
       expect(result).toEqual(testErrors);
       expect(collector.add).toHaveBeenCalledTimes(1);
@@ -59,7 +62,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js', () =>
         },
       ];
 
-      const result = collectExceptionAdoptionViolations(testErrors, testRuleName, testObject, testPath);
+      const result = evaluateAndCollectAdoptionStatus(testErrors, testRuleName, testObject, testPath);
 
       expect(result).toEqual(testErrors);
       expect(collector.add).toHaveBeenCalledTimes(1);
@@ -74,7 +77,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js', () =>
       };
       const testNoErrors = [];
 
-      const result = collectExceptionAdoptionViolations(testNoErrors, testRuleName, testObject, testPath);
+      const result = evaluateAndCollectAdoptionStatus(testNoErrors, testRuleName, testObject, testPath);
 
       expect(result).toEqual(undefined);
       expect(collector.add).toHaveBeenCalledTimes(1);
@@ -97,7 +100,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js', () =>
         },
       ];
 
-      const result = collectExceptionAdoptionViolations(testErrors, testRuleName, testObject, testPath);
+      const result = evaluateAndCollectAdoptionStatus(testErrors, testRuleName, testObject, testPath);
 
       expect(result).toEqual(undefined);
       expect(collector.add).toHaveBeenCalledTimes(1);
@@ -114,7 +117,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js', () =>
         },
       };
 
-      const result = collectExceptionAdoptionViolations([], testRuleName, testObject, testPath);
+      const result = evaluateAndCollectAdoptionStatus([], testRuleName, testObject, testPath);
 
       expect(result.length).toEqual(1);
       expect(Object.keys(result[0])).toEqual(['path', 'message']);
@@ -124,6 +127,41 @@ describe('tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js', () =>
       );
       expect(collector.add).toHaveBeenCalledTimes(1);
       expect(collector.add).toHaveBeenCalledWith(TEST_ENTRY_TYPE.VIOLATION, testPath, testRuleName);
+    });
+  });
+
+  describe('evaluateAndCollectAdoptionStatusWithoutExceptions', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('returns errors and collects violations when there are errors', () => {
+      const testRuleName = 'xgen-IPA-XXX-rule';
+      const testPath = ['paths', '/resource'];
+      const testErrors = [
+        {
+          path: testPath,
+          message: TEST_ERROR_MESSAGE,
+        },
+      ];
+
+      const result = evaluateAndCollectAdoptionStatusWithoutExceptions(testErrors, testRuleName, testPath);
+
+      expect(result).toEqual(testErrors);
+      expect(collector.add).toHaveBeenCalledTimes(1);
+      expect(collector.add).toHaveBeenCalledWith(TEST_ENTRY_TYPE.VIOLATION, testPath, testRuleName);
+    });
+
+    it('returns empty and collects adoptions when there are no errors', () => {
+      const testRuleName = 'xgen-IPA-XXX-rule';
+      const testPath = ['paths', '/resource'];
+      const testNoErrors = [];
+
+      const result = evaluateAndCollectAdoptionStatusWithoutExceptions(testNoErrors, testRuleName, testPath);
+
+      expect(result).toEqual(undefined);
+      expect(collector.add).toHaveBeenCalledTimes(1);
+      expect(collector.add).toHaveBeenCalledWith(TEST_ENTRY_TYPE.ADOPTION, testPath, testRuleName);
     });
   });
 });

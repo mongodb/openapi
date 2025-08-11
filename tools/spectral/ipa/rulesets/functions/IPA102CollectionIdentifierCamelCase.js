@@ -1,4 +1,4 @@
-import { collectExceptionAdoptionViolations, handleInternalError } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isPathParam } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
 
@@ -21,7 +21,7 @@ export default (input, options, { path, documentInventory }) => {
 
   const violations = checkViolations(pathKey, path, ignoredValues);
 
-  return collectExceptionAdoptionViolations(violations, RULE_NAME, oas.paths[input], path);
+  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, oas.paths[input], path);
 };
 
 function checkViolations(pathKey, path, ignoredValues = []) {
