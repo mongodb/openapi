@@ -4,13 +4,7 @@ import {
   isSingleResourceIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
-import { hasException } from './utils/exceptions.js';
+import { collectExceptionAdoptionViolations, handleInternalError } from './utils/collectionUtils.js';
 import { schemaIsArray, schemaIsPaginated } from './utils/schemaUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
@@ -40,17 +34,9 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(contentPerMediaType, RULE_NAME)) {
-    collectException(contentPerMediaType, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton);
 
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  return collectAdoption(path, RULE_NAME);
+  return collectExceptionAdoptionViolations(errors, RULE_NAME, contentPerMediaType, path);
 };
 
 function checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton) {

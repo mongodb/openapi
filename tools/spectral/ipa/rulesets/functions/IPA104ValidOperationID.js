@@ -1,10 +1,4 @@
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
-import { hasException } from './utils/exceptions.js';
+import { collectExceptionAdoptionViolations, handleInternalError } from './utils/collectionUtils.js';
 import { getResourcePathItems } from './utils/resourceEvaluation.js';
 import { hasCustomMethodOverride, hasMethodVerbOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
 import { isInvalidGetMethod } from './utils/methodLogic.js';
@@ -25,22 +19,13 @@ export default (input, { methodName }, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
   try {
     if (hasMethodVerbOverride(input, methodName)) {
       methodName = input[VERB_OVERRIDE_EXTENSION].verb;
     }
     const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path);
 
-    if (errors.length > 0) {
-      return collectAndReturnViolation(path, RULE_NAME, errors);
-    }
-
-    return collectAdoption(path, RULE_NAME);
+    return collectExceptionAdoptionViolations(errors, RULE_NAME, input, path);
   } catch (e) {
     return handleInternalError(RULE_NAME, path, e);
   }

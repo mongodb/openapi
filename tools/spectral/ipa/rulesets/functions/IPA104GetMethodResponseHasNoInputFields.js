@@ -1,5 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { collectExceptionAdoptionViolations } from './utils/collectionUtils.js';
 import {
   getResourcePathItems,
   isResourceCollectionIdentifier,
@@ -30,11 +29,6 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(contentPerMediaType, RULE_NAME)) {
-    collectException(contentPerMediaType, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkForbiddenPropertyAttributesAndReturnErrors(
     contentPerMediaType.schema,
     'writeOnly',
@@ -43,8 +37,5 @@ export default (input, _, { path, documentInventory }) => {
     ERROR_MESSAGE
   );
 
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  return collectAdoption(path, RULE_NAME);
+  return collectExceptionAdoptionViolations(errors, RULE_NAME, contentPerMediaType, path);
 };

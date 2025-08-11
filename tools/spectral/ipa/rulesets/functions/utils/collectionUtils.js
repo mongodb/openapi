@@ -1,5 +1,51 @@
 import collector, { EntryType } from '../../../metrics/collector.js';
-import { EXCEPTION_EXTENSION } from './exceptions.js';
+import { EXCEPTION_EXTENSION, hasException } from './exceptions.js';
+
+/**
+ * Evaluates and collects adoptions, exceptions and violations based on the rule, evaluated object and the validation errors.
+ * If the object is violating the rule, but has an exception, the validation error is ignored
+ * If the object is adopting the rule, but has an exception, a validation error will be returned
+ *
+ * @param validationErrors the error results from the rule
+ * @param ruleName the name of the rule
+ * @param object the object evaluated for the rule, should contain an exception object if an exception is needed
+ * @param objectPath the JSON path to the object
+ * @returns {Array<{path: Array<string>, message: string}>|undefined} an array of the validation errors, or undefined if there are no errors
+ */
+export function collectExceptionAdoptionViolations(validationErrors, ruleName, object, objectPath) {
+  if (validationErrors.length !== 0) {
+    if (hasException(object, ruleName)) {
+      collectException(object, ruleName, objectPath);
+      return;
+    }
+    return collectAndReturnViolation(objectPath, ruleName, validationErrors);
+  }
+  if (hasException(object, ruleName)) {
+    const error = {
+      path: [...objectPath, EXCEPTION_EXTENSION, ruleName],
+      message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
+    };
+    validationErrors.push(error);
+    return collectAndReturnViolation(objectPath, ruleName, [error]);
+  }
+  collectAdoption(objectPath, ruleName);
+}
+
+/**
+ * Evaluates and collects adoptions and violations based on the rule, evaluated object and the validation errors.
+ * No exceptions are allowed.
+ *
+ * @param validationErrors the error results from the rule
+ * @param ruleName the name of the rule
+ * @param objectPath the JSON path to the object
+ * @returns {Array<{path: Array<string>, message: string}>|undefined} an array of the validation errors, or undefined if there are no errors
+ */
+export function collectAdoptionViolations(validationErrors, ruleName, objectPath) {
+  if (validationErrors.length !== 0) {
+    return collectAndReturnViolation(objectPath, ruleName, validationErrors);
+  }
+  collectAdoption(objectPath, ruleName);
+}
 
 /**
  * Collects a violation entry and returns formatted error data.
