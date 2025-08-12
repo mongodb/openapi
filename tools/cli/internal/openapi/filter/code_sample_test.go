@@ -81,7 +81,7 @@ func TestCodeSampleFilter(t *testing.T) {
 								{
 									Lang:   "cURL",
 									Label:  "Atlas CLI",
-									Source: "atlas api testOperationID --help",
+									Source: "atlas api testTag testOperationId --help",
 								},
 								{
 									Lang:  "go",
@@ -127,6 +127,7 @@ func TestCodeSampleFilter(t *testing.T) {
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
 						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
 							Content: openapi3.Content{
 								"application/vnd.atlas.preview+json": {
@@ -150,6 +151,7 @@ func TestCodeSampleFilter(t *testing.T) {
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
 						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
 							Content: openapi3.Content{
 								"application/vnd.atlas.preview+json": {
@@ -168,7 +170,7 @@ func TestCodeSampleFilter(t *testing.T) {
 								{
 									Lang:   "cURL",
 									Label:  "Atlas CLI",
-									Source: "atlas api testOperationID --help",
+									Source: "atlas api testTag testOperationId --help",
 								},
 								{
 									Lang:  "cURL",
@@ -196,6 +198,7 @@ func TestCodeSampleFilter(t *testing.T) {
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
 						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
 							Content: openapi3.Content{
 								"application/vnd.atlas.2025-01-01.upcoming+json": {
@@ -219,6 +222,7 @@ func TestCodeSampleFilter(t *testing.T) {
 					Get: &openapi3.Operation{
 						OperationID: "testOperationID",
 						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
 						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
 							Content: openapi3.Content{
 								"application/vnd.atlas.2025-01-01.upcoming+json": {
@@ -237,7 +241,7 @@ func TestCodeSampleFilter(t *testing.T) {
 								{
 									Lang:   "cURL",
 									Label:  "Atlas CLI",
-									Source: "atlas api testOperationID --help",
+									Source: "atlas api testTag testOperationId --help",
 								},
 								{
 									Lang:  "cURL",
@@ -308,7 +312,7 @@ func TestCodeSampleFilter(t *testing.T) {
 								{
 									Lang:   "cURL",
 									Label:  "Atlas CLI",
-									Source: "atlas api testOperationID --help",
+									Source: "atlas api testTag testOperationId --help",
 								},
 								{
 									Lang:  "go",
