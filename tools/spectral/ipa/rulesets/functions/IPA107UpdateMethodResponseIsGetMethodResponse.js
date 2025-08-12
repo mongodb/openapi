@@ -5,13 +5,7 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { getSchemaRef, getGETMethodResponseSchemaFromPathItem } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-107-update-method-response-is-get-method-response';
@@ -46,11 +40,6 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(updateMethodResponse, RULE_NAME)) {
-    collectException(updateMethodResponse, RULE_NAME, path);
-    return;
-  }
-
   // Ignore if there is no matching Get method
   const getMethodResponseContentPerMediaType = getGETMethodResponseSchemaFromPathItem(
     oas.paths[resourcePath],
@@ -61,12 +50,7 @@ export default (input, _, { path, documentInventory }) => {
   }
 
   const errors = checkViolationsAndReturnErrors(path, updateMethodResponse, getMethodResponseContentPerMediaType);
-
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, updateMethodResponse, path);
 };
 
 function checkViolationsAndReturnErrors(path, updateMethodResponseContent, getMethodResponseContent) {

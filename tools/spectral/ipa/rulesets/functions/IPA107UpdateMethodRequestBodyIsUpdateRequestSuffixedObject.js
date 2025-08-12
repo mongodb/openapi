@@ -1,5 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 import {
   getResourcePathItems,
@@ -26,14 +25,6 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(contentPerMediaType, RULE_NAME)) {
-    collectException(contentPerMediaType, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'UpdateRequest', RULE_NAME);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, contentPerMediaType, path);
 };
