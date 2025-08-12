@@ -1,11 +1,5 @@
 import { isPathParam } from './utils/componentUtils.js';
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { AUTH_PREFIX, UNAUTH_PREFIX } from './utils/resourceEvaluation.js';
 
 const RULE_NAME = 'xgen-IPA-102-path-alternate-resource-name-path-param';
@@ -41,16 +35,9 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(oas.paths[input], RULE_NAME)) {
-    collectException(oas.paths[input], RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(suffixWithLeadingSlash, path);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, oas.paths[input], path);
 };
 
 function checkViolationsAndReturnErrors(suffixWithLeadingSlash, path) {

@@ -1,5 +1,4 @@
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
-import { hasException } from './utils/exceptions.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-102-collection-identifier-pattern';
 const ERROR_MESSAGE =
@@ -15,20 +14,10 @@ const VALID_IDENTIFIER_PATTERN = /^[a-z][a-zA-Z0-9]*$/;
  */
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
-  const pathKey = input;
 
-  // Check for exception at the path level
-  if (hasException(oas.paths[input], RULE_NAME)) {
-    collectException(oas.paths[input], RULE_NAME, path);
-    return;
-  }
+  const violations = checkViolations(input, path);
 
-  const violations = checkViolations(pathKey, path);
-  if (violations.length > 0) {
-    return collectAndReturnViolation(path, RULE_NAME, violations);
-  }
-
-  return collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, oas.paths[input], path);
 };
 
 function checkViolations(pathKey, path) {

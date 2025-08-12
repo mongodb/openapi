@@ -1,10 +1,4 @@
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
-import { hasException } from './utils/exceptions.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isPathParam } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
 
@@ -22,21 +16,12 @@ export default (input, options, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const pathKey = input;
 
-  // Check for exception at the path level
-  if (hasException(oas.paths[input], RULE_NAME)) {
-    collectException(oas.paths[input], RULE_NAME, path);
-    return;
-  }
-
   // Extract ignored values from options
   const ignoredValues = options?.ignoredValues || [];
 
   const violations = checkViolations(pathKey, path, ignoredValues);
-  if (violations.length > 0) {
-    return collectAndReturnViolation(path, RULE_NAME, violations);
-  }
 
-  return collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, oas.paths[input], path);
 };
 
 function checkViolations(pathKey, path, ignoredValues = []) {
