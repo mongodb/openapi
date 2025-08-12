@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-119-no-default-for-cloud-providers';
@@ -18,101 +12,68 @@ export default (input, { propertyNameToLookFor, cloudProviderEnumValues }, { pat
     return;
   }
 
-  if (hasException(propertyObject, RULE_NAME)) {
-    collectException(propertyObject, RULE_NAME, path);
+  if (!inputIsCloudProviderField(fieldType, input, propertyObject, propertyNameToLookFor, cloudProviderEnumValues)) {
     return;
   }
 
-  const result = checkViolationsAndReturnErrors(
-    input,
-    propertyObject,
-    path,
-    propertyNameToLookFor,
-    fieldType,
-    cloudProviderEnumValues
-  );
-  if (result.errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, result.errors);
-  }
-  if (result.isCloudProviderField) {
-    collectAdoption(path, RULE_NAME);
-  }
+  const errors = checkViolationsAndReturnErrors(propertyObject, path, fieldType);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, propertyObject, path);
 };
 
-function checkViolationsAndReturnErrors(
+function inputIsCloudProviderField(
+  fieldType,
   propertyName,
   propertyObject,
-  path,
   propertyNameToLookFor,
-  fieldType,
   cloudProviderEnumValues
 ) {
-  try {
-    const result = {
-      errors: [],
-      isCloudProviderField: false,
-    };
-
-    if (fieldType === 'properties') {
-      if (propertyName === propertyNameToLookFor) {
-        result.isCloudProviderField = true;
-        if (propertyObject.default !== undefined) {
-          result.errors.push({
-            path,
-            message: ERROR_MESSAGE,
-          });
-          return result;
-        }
-      }
-
-      if (Array.isArray(propertyObject.enum) && propertyObject.enum.length > 0) {
-        const enumValues = propertyObject.enum;
-        const hasCloudProviderEnumValue = cloudProviderEnumValues.every((cloudProviderValue) =>
-          enumValues.includes(cloudProviderValue)
-        );
-        if (hasCloudProviderEnumValue) {
-          result.isCloudProviderField = true;
-          if (propertyObject.default !== undefined) {
-            result.errors.push({
-              path,
-              message: ERROR_MESSAGE,
-            });
-            return result;
-          }
-        }
-      }
-    } else if (fieldType === 'parameters') {
-      if (propertyObject.name === propertyNameToLookFor) {
-        result.isCloudProviderField = true;
-        if (propertyObject.schema.default !== undefined) {
-          result.errors.push({
-            path,
-            message: ERROR_MESSAGE,
-          });
-          return result;
-        }
-      }
-
-      if (Array.isArray(propertyObject.schema.enum) && propertyObject.schema.enum.length > 0) {
-        const enumValues = propertyObject.schema.enum;
-        const hasCloudProviderEnumValue = cloudProviderEnumValues.every((cloudProviderValue) =>
-          enumValues.includes(cloudProviderValue)
-        );
-
-        if (hasCloudProviderEnumValue) {
-          result.isCloudProviderField = true;
-          if (propertyObject.schema.default !== undefined) {
-            result.errors.push({
-              path,
-              message: ERROR_MESSAGE,
-            });
-            return result;
-          }
-        }
-      }
+  let isCloudProviderField = false;
+  if (fieldType === 'properties') {
+    if (propertyName === propertyNameToLookFor) {
+      isCloudProviderField = true;
     }
 
-    return result;
+    if (Array.isArray(propertyObject.enum) && propertyObject.enum.length > 0) {
+      isCloudProviderField = cloudProviderEnumValues.every((cloudProviderValue) =>
+        propertyObject.enum.includes(cloudProviderValue)
+      );
+    }
+  } else if (fieldType === 'parameters') {
+    if (propertyObject.name === propertyNameToLookFor) {
+      isCloudProviderField = true;
+    }
+
+    if (Array.isArray(propertyObject.schema.enum) && propertyObject.schema.enum.length > 0) {
+      isCloudProviderField = cloudProviderEnumValues.every((cloudProviderValue) =>
+        propertyObject.schema.enum.includes(cloudProviderValue)
+      );
+    }
+  }
+  return isCloudProviderField;
+}
+
+function checkViolationsAndReturnErrors(propertyObject, path, fieldType) {
+  try {
+    const errors = [];
+
+    if (fieldType === 'properties') {
+      if (propertyObject.default !== undefined) {
+        errors.push({
+          path,
+          message: ERROR_MESSAGE,
+        });
+        return errors;
+      }
+    } else if (fieldType === 'parameters') {
+      if (propertyObject.schema.default !== undefined) {
+        errors.push({
+          path,
+          message: ERROR_MESSAGE,
+        });
+        return errors;
+      }
+    }
+    return errors;
   } catch (e) {
     handleInternalError(RULE_NAME, path, e);
   }

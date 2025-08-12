@@ -1,10 +1,4 @@
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
-import { hasException } from './utils/exceptions.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-124-array-max-items';
 
@@ -16,12 +10,6 @@ const RULE_NAME = 'xgen-IPA-124-array-max-items';
  * @param {object} context - The context object containing the path and documentInventory
  */
 export default (input, { maxAllowedValue, ignore = [] }, { path }) => {
-  // Check for exception at the schema level
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
   let propertyName;
   if (path.includes('parameters')) {
     propertyName = input.name;
@@ -37,11 +25,7 @@ export default (input, { maxAllowedValue, ignore = [] }, { path }) => {
   }
 
   const errors = checkViolationsAndReturnErrors(input, path, maxAllowedValue);
-  if (errors.length > 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
 
 function checkViolationsAndReturnErrors(input, path, maxAllowedValue) {

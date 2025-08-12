@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-117-plaintext-response-must-have-example';
@@ -40,16 +34,8 @@ export default (input, { allowedTypes }, { documentInventory, path }) => {
     return;
   }
 
-  if (hasException(response, RULE_NAME)) {
-    collectException(response, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(response, path);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, response, path);
 };
 
 function checkViolationsAndReturnErrors(response, path) {

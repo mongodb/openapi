@@ -97,7 +97,7 @@ testRule('xgen-IPA-117-description-must-not-use-html', [
                 },
               },
               selfClosingHtml: {
-                description: 'This is something.</br>With a line break.',
+                description: 'This is something.<br/>With a line break.',
                 'x-xgen-IPA-exception': {
                   'xgen-IPA-117-description-must-not-use-html': 'reason',
                 },

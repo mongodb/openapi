@@ -57,7 +57,7 @@ export function evaluateAndCollectAdoptionStatusWithoutExceptions(validationErro
  * @throws {Error} Throws an error if errorData is neither a string nor an array.
  *
  */
-export function collectAndReturnViolation(jsonPath, ruleName, errorData) {
+function collectAndReturnViolation(jsonPath, ruleName, errorData) {
   collector.add(EntryType.VIOLATION, jsonPath, ruleName);
 
   if (typeof errorData === 'string') {
@@ -75,7 +75,7 @@ export function collectAndReturnViolation(jsonPath, ruleName, errorData) {
  * @param {Array<string>} jsonPath - The JSON path array for the object where the rule violation occurred. Example: ["paths","./pets","get"]
  * @param {string} ruleName - The name of the rule that was adopted.
  */
-export function collectAdoption(jsonPath, ruleName) {
+function collectAdoption(jsonPath, ruleName) {
   collector.add(EntryType.ADOPTION, jsonPath, ruleName);
 }
 
@@ -86,7 +86,7 @@ export function collectAdoption(jsonPath, ruleName) {
  * @param {Array<string>} jsonPath - The JSON path array for the object where the rule violation occurred. Example: ["paths","./pets","get"]
  * @param {string} ruleName - The name of the rule that the exception is defined for.
  */
-export function collectException(object, ruleName, jsonPath) {
+function collectException(object, ruleName, jsonPath) {
   let exceptionReason = object[EXCEPTION_EXTENSION][ruleName];
   if (exceptionReason) {
     collector.add(EntryType.EXCEPTION, jsonPath, ruleName, exceptionReason);
