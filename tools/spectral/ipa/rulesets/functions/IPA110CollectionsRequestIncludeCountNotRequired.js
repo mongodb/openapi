@@ -1,5 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import {
   getResourcePathItems,
   isResourceCollectionIdentifier,
@@ -20,19 +19,19 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
   const includeCountParam = input?.parameters?.find((p) => p.name === 'includeCount' && p.in === 'query');
   if (!includeCountParam) {
     return;
   }
 
+  let errors = [];
   if (includeCountParam.required) {
-    return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
+    errors = [
+      {
+        path,
+        message: ERROR_MESSAGE,
+      },
+    ];
   }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };

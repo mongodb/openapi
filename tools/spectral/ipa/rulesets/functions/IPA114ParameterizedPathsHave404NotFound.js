@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-114-parameterized-paths-have-404-not-found';
 const ERROR_MESSAGE = `Parameterized path must define a 404 response.`;
@@ -24,18 +18,8 @@ export default (input, _, { path }) => {
     return;
   }
 
-  // Check for exception at operation level
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(input.responses, path);
-  if (errors.length > 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
 
 /**

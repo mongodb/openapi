@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { getSchemaNameFromRef } from './utils/methodUtils.js';
 
@@ -22,18 +16,8 @@ export default (input, _, { path, documentInventory }) => {
   const apiResponseObject = resolveObject(oas, path);
   const errorCode = path[path.length - 1];
 
-  // Check for exception at response level
-  if (hasException(apiResponseObject, RULE_NAME)) {
-    collectException(apiResponseObject, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, apiResponseObject, path);
 };
 
 function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode) {
@@ -47,11 +31,21 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
       const schemaName = getSchemaNameFromRef(apiResponseObject.$ref);
       const responseSchema = resolveObject(oas, ['components', 'responses', schemaName]);
       if (!responseSchema) {
-        return [{ path, message: `${errorCode} response must define content with a valid reference.` }];
+        return [
+          {
+            path,
+            message: `${errorCode} response must define content with a valid reference.`,
+          },
+        ];
       }
       content = responseSchema.content;
     } else {
-      return [{ path, message: `${errorCode} response must define content with ApiError schema reference.` }];
+      return [
+        {
+          path,
+          message: `${errorCode} response must define content with ApiError schema reference.`,
+        },
+      ];
     }
 
     for (const [mediaType, mediaTypeObj] of Object.entries(content)) {

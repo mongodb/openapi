@@ -1,4 +1,4 @@
-import { collectAdoption, collectAndReturnViolation, handleInternalError } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-114-api-error-has-bad-request-detail';
 
@@ -11,11 +11,7 @@ const RULE_NAME = 'xgen-IPA-114-api-error-has-bad-request-detail';
  */
 export default (input, _, { path, documentInventory }) => {
   const errors = checkViolationsAndReturnErrors(input, documentInventory, path);
-  if (errors.length > 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
 
 /**
@@ -63,6 +59,11 @@ function checkViolationsAndReturnErrors(apiErrorSchema, documentInventory, path)
     return [];
   } catch (e) {
     handleInternalError(RULE_NAME, path, e);
-    return [{ path, message: `Internal error during validation: ${e.message}` }];
+    return [
+      {
+        path,
+        message: `Internal error during validation: ${e.message}`,
+      },
+    ];
   }
 }

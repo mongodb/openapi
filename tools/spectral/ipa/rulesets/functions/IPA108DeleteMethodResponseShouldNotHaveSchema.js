@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
 
 const RULE_NAME = 'xgen-IPA-108-delete-response-should-be-empty';
@@ -22,26 +16,15 @@ export default (input, _, { path }) => {
     return;
   }
 
-  // 1. Handle exception on OpenAPI schema
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
-  // 2. Validation
   const errors = checkViolationsAndReturnErrors(input, path);
-  if (errors.length > 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
 
 /**
  * Check if the operation has validation issues
- * @param {object} input - The  object to vefify
- * @param {object} jsonPathArray - The jsonPathArray covering location in the OpenAPI schema
- * @return {Array<string>} - errors array ()
+ * @param {object} input - The  object to verify
+ * @param {Array<string>} jsonPathArray - The jsonPathArray covering location in the OpenAPI schema
+ * @return {Array<{path: Array<string>, message: string}>} - errors array ()
  */
 function checkViolationsAndReturnErrors(input, jsonPathArray) {
   const errors = [];
