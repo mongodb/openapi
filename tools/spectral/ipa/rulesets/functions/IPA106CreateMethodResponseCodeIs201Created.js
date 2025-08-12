@@ -4,8 +4,7 @@ import {
   isResourceCollectionIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { checkResponseCodeAndReturnErrors } from './utils/validations/checkResponseCodeAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-response-code-is-201';
@@ -22,14 +21,6 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkResponseCodeAndReturnErrors(input, '201', path, RULE_NAME, ERROR_MESSAGE);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };

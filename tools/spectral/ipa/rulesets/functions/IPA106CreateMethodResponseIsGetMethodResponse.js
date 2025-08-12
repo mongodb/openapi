@@ -4,13 +4,7 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { getSchemaRef, getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-response-is-get-method-response';
@@ -37,11 +31,6 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(createMethodResponse, RULE_NAME)) {
-    collectException(createMethodResponse, RULE_NAME, path);
-    return;
-  }
-
   // Ignore if there is no matching Get method
   const getMethodResponseContentPerMediaType = getResponseOfGetMethodByMediaType(mediaType, resourcePath, oas);
   if (!getMethodResponseContentPerMediaType) {
@@ -49,12 +38,7 @@ export default (input, _, { path, documentInventory }) => {
   }
 
   const errors = checkViolationsAndReturnErrors(path, createMethodResponse, getMethodResponseContentPerMediaType);
-
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, createMethodResponse, path);
 };
 
 function checkViolationsAndReturnErrors(path, createMethodResponseContent, getMethodResponseContent) {

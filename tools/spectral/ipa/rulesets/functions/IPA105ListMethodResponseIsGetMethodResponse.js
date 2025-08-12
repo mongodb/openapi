@@ -4,13 +4,7 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { getSchemaRef, getSchemaNameFromRef, getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
 import { schemaIsPaginated } from './utils/schemaUtils.js';
 
@@ -35,11 +29,6 @@ export default (input, _, { path, documentInventory }) => {
   const listMethodResponse = resolveObject(oas, path);
 
   if (!listMethodResponse || !listMethodResponse.schema) {
-    return;
-  }
-
-  if (hasException(listMethodResponse, RULE_NAME)) {
-    collectException(listMethodResponse, RULE_NAME, path);
     return;
   }
 
@@ -70,11 +59,7 @@ export default (input, _, { path, documentInventory }) => {
     getMethodResponseContentPerMediaType
   );
 
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, listMethodResponse, path);
 };
 
 function checkViolationsAndReturnErrors(path, listMethodResultItems, getMethodResponseContent) {

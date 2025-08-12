@@ -5,8 +5,7 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { getGETMethodResponseSchemaFromPathItem } from './utils/methodUtils.js';
 import { checkRequestResponseResourceEqualityAndReturnErrors } from './utils/validations/checkRequestResponseResourceEqualityAndReturnErrors.js';
 
@@ -43,11 +42,6 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(updateMethodRequest, RULE_NAME)) {
-    collectException(updateMethodRequest, RULE_NAME, path);
-    return;
-  }
-
   // Ignore if there is no matching Get method
   const getMethodResponse = getGETMethodResponseSchemaFromPathItem(oas.paths[resourcePath], mediaType);
   if (!getMethodResponse) {
@@ -70,10 +64,5 @@ export default (input, _, { path, documentInventory }) => {
     'Get',
     ERROR_MESSAGE
   );
-
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, updateMethodRequest, path);
 };
