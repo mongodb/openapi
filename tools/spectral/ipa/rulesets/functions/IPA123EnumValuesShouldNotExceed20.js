@@ -1,5 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { getSchemaPathFromEnumPath } from './utils/schemaUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
@@ -16,24 +15,19 @@ export default (input, { maxEnumValues }, { path, documentInventory }) => {
     return;
   }
 
-  // Check for exceptions
-  if (hasException(schemaObject, RULE_NAME)) {
-    collectException(schemaObject, RULE_NAME, path);
-    return;
-  }
-
   if (!Array.isArray(input)) {
     return;
   }
 
+  let errors = [];
   if (input.length > maxEnumValues) {
-    return collectAndReturnViolation(path, RULE_NAME, [
+    errors = [
       {
         path,
         message: `${ERROR_MESSAGE}${input.length}`,
       },
-    ]);
+    ];
   }
 
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, schemaObject, path);
 };

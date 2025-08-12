@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { findAdditionalPropertiesFalsePaths } from './utils/compareUtils.js';
 
@@ -21,17 +15,8 @@ export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const schemaObject = resolveObject(oas, path);
 
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(schemaObject, path);
-  if (errors.length > 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
 
 function checkViolationsAndReturnErrors(schemaObject, path) {

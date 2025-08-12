@@ -1,5 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-121-date-time-fields-mention-iso-8601';
 const ERROR_MESSAGE =
@@ -7,30 +6,26 @@ const ERROR_MESSAGE =
 
 export default (input, options, { path }) => {
   const fieldType = path[path.length - 2];
-
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
+  const description = input.description;
 
   let format;
-  let description = input.description;
   if (fieldType === 'parameters') {
     format = input.schema?.format;
   } else if (fieldType === 'properties') {
     format = input.format;
   }
 
+  let errors = [];
   if (format === 'date-time') {
     if (!description?.includes('ISO 8601') && !description?.includes('UTC')) {
-      return collectAndReturnViolation(path, RULE_NAME, [
+      errors = [
         {
           path,
           message: ERROR_MESSAGE,
         },
-      ]);
+      ];
     }
 
-    collectAdoption(path, RULE_NAME);
+    return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
   }
 };

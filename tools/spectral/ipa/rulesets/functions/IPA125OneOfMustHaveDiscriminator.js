@@ -1,6 +1,5 @@
-import { collectAdoption, collectAndReturnViolation } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-125-oneOf-must-have-discriminator';
 const MISSING_DISCRIMINATOR_MESSAGE = 'The schema has oneOf but no discriminator property.';
@@ -15,15 +14,9 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
   const schema = resolveObject(documentInventory.unresolved, path);
-  if (hasException(schema, RULE_NAME)) {
-    return;
-  }
 
   const errors = checkViolationsAndReturnErrors(schema, path);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, schema, path);
 };
 
 function checkViolationsAndReturnErrors(schema, path) {
@@ -57,7 +50,12 @@ function checkViolationsAndReturnErrors(schema, path) {
   // Check for discriminator mappings that don't match any oneOf reference
   const unmatchedMappings = mappingValues.filter((mapping) => !oneOfRefs.includes(mapping));
   if (unmatchedMappings.length > 0) {
-    return [{ path, message: `${MAPPING_ERROR_MESSAGE} ${unmatchedMappings.join(', ')}` }];
+    return [
+      {
+        path,
+        message: `${MAPPING_ERROR_MESSAGE} ${unmatchedMappings.join(', ')}`,
+      },
+    ];
   }
   return [];
 }
