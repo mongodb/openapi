@@ -1,11 +1,5 @@
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
-import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-109-custom-method-identifier-format';
 
@@ -25,16 +19,8 @@ export default (input, _, { path }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(pathKey, path);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
 
 function checkViolationsAndReturnErrors(pathKey, path) {
@@ -42,7 +28,12 @@ function checkViolationsAndReturnErrors(pathKey, path) {
     // Check for multiple colons
     const colonCount = (pathKey.match(/:/g) || []).length;
     if (colonCount > 1) {
-      return [{ path, message: `Multiple colons found in "${pathKey}".` }];
+      return [
+        {
+          path,
+          message: `Multiple colons found in "${pathKey}".`,
+        },
+      ];
     }
 
     // Check for slash before colon

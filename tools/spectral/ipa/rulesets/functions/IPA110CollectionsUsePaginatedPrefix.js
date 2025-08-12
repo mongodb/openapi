@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import {
   getResourcePathItems,
   isResourceCollectionIdentifier,
@@ -19,10 +13,8 @@ const ERROR_MESSAGE = 'List methods response must reference a paginated response
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
-  const mediaType = input;
-
   if (
-    !mediaType.endsWith('json') ||
+    !input.endsWith('json') ||
     !isResourceCollectionIdentifier(resourcePath) ||
     isSingletonResource(getResourcePathItems(resourcePath, oas.paths))
   ) {
@@ -31,18 +23,8 @@ export default (input, _, { path, documentInventory }) => {
 
   const listMethodResponse = resolveObject(oas, path);
 
-  if (hasException(listMethodResponse, RULE_NAME)) {
-    collectException(listMethodResponse, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(listMethodResponse, oas, path);
-
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, listMethodResponse, path);
 };
 
 function checkViolationsAndReturnErrors(listMethodResponse, oas, path) {

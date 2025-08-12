@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectException,
-  collectAndReturnViolation,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { handleInternalError, evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier, getCustomMethodName, stripCustomMethodName } from './utils/resourceEvaluation.js';
 import { hasCustomMethodOverride, VERB_OVERRIDE_EXTENSION, hasVerbOverride } from './utils/extensions.js';
 import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
@@ -15,11 +9,6 @@ export default (input, _, { path }) => {
   const resourcePath = path[1];
 
   if (!isCustomMethodIdentifier(resourcePath) && !hasCustomMethodOverride(input)) {
-    return;
-  }
-
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
     return;
   }
 
@@ -40,12 +29,7 @@ export default (input, _, { path }) => {
     }
 
     const errors = validateOperationIdAndReturnErrors(methodName, endpointUrl, input, path);
-
-    if (errors.length !== 0) {
-      return collectAndReturnViolation(path, RULE_NAME, errors);
-    }
-
-    collectAdoption(path, RULE_NAME);
+    return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
   } catch (e) {
     return handleInternalError(RULE_NAME, path, e);
   }

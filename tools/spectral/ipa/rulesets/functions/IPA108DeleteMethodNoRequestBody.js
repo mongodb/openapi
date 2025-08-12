@@ -1,6 +1,5 @@
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
-import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-108-delete-request-no-body';
 const ERROR_MESSAGE = 'DELETE method should not have a request body.';
@@ -20,14 +19,14 @@ export default (input, _, { path }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
+  let errors = [];
+  if (input.requestBody) {
+    errors = [
+      {
+        path,
+        message: ERROR_MESSAGE,
+      },
+    ];
   }
-
-  const requestBody = input.requestBody;
-  if (requestBody) {
-    return collectAndReturnViolation(path, RULE_NAME, ERROR_MESSAGE);
-  }
-  return collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
