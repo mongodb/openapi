@@ -81,7 +81,7 @@ A new version of the IPA package will be released when the version in the packag
     - patch (0.0.X) - Backwards-compatible bug fixes 
 - [ ] Update the version number in package.json
 - [ ] Run `npm run gen-ipa-changelog` and commit the changes. The changelog must be updated alongside a new release.
-- [ ] Open a PR and ensure the title is conventional and scoped to IPA (ie: `ci(ipa): release new version`)
+- [ ] Open a PR and ensure the title is conventional and scoped to IPA (ie: `ci(ipa): release new version x.x.x`)
 
 When your PR is approved and merged to main, the package will be automatically published to the NPM registry.
 
