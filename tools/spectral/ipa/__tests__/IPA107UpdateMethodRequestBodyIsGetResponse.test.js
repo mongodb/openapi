@@ -681,7 +681,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaTwoRequest',
+                    $ref: '#/components/schemas/SchemaThree',
                   },
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-107-update-method-request-body-is-get-method-response': 'reason',
@@ -689,7 +689,7 @@ testRule('xgen-IPA-107-update-method-request-body-is-get-method-response', [
                 },
                 'application/vnd.atlas.2024-01-01+json': {
                   schema: {
-                    $ref: '#/components/schemas/SchemaTwoRequest',
+                    $ref: '#/components/schemas/SchemaThree',
                   },
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-107-update-method-request-body-is-get-method-response': 'reason',

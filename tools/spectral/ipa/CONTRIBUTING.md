@@ -81,7 +81,7 @@ A new version of the IPA package will be released when the version in the packag
     - patch (0.0.X) - Backwards-compatible bug fixes 
 - [ ] Update the version number in package.json
 - [ ] Run `npm run gen-ipa-changelog` and commit the changes. The changelog must be updated alongside a new release.
-- [ ] Open a PR and ensure the title is conventional and scoped to IPA (ie: `ci(ipa): release new version`)
+- [ ] Open a PR and ensure the title is conventional and scoped to IPA (ie: `ci(ipa): release new version x.x.x`)
 
 When your PR is approved and merged to main, the package will be automatically published to the NPM registry.
 
@@ -93,11 +93,16 @@ When your PR is approved and merged to main, the package will be automatically p
 Spectral custom rule functions follow this format:
 
 ```js
-export default (input, _, { path, documentInventory })
+export default (input, options, context)
 ```
+
 - `input`: The current component from the OpenAPI spec. Derived from the given and field values in the rule definition.
-- `path`: JSONPath array to the current component.
-- `documentInventory`: The entire OpenAPI specification (use `resolved` or `unresolved` depending on rule context).
+- `options`: Optional input options passed from the rule definition.
+- `context`: Additional input context such as the OAS being evaluated, the following properties are commonly used:
+  - `context.path`: JSONPath array to the current component.
+  - `context.documentInventory`: The entire OpenAPI specification (use `resolved` or `unresolved` depending on rule context).
+
+To learn more about Spectral custom functions, see the [Spectral Documentation](https://docs.stoplight.io/docs/spectral/a781e290eb9f9-custom-functions).
 
 ---
 
@@ -144,11 +149,14 @@ As a rule developer, you need to define:
 ---
 #### Helper Functions
 
-Use the following helper functions from the `collectionUtils` module:
+Use the following helper function from the `collectionUtils` module:
 
-- [`collectAndReturnViolation(jsonPath, ruleName, errorData)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L14) — for reporting rule violations.
-- [`collectAdoption(jsonPath, ruleName)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L32) — for marking rule adoption.
-- [`collectException(object, ruleName, jsonPath)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L32) — for recording rule exceptions.
+[`evaluateAndCollectAdoptionStatus(errors, ruleName, object, jsonPath)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L14)
+
+Passing the validation errors, the name of the rule, the object (which may contain an exception), and the path to the object, the helper function will collect adoptions, violations and exceptions accordingly. If the object adopts the rule (i.e. there are no errors passed) but the object has an exception. An error message will be returned informing the developer to remove the unnecessary exception.
+
+The helper [`evaluateAndCollectAdoptionStatusWithoutExceptions(errors, ruleName, jsonPath)`](https://github.com/mongodb/openapi/blob/cd4e085a68cb3bb6078e85dba85ad8ce1674f7da/tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js#L32) is used for reporting rule adoptions and violations (exceptions will be ignored - used for rules that do not allow exceptions).
+
 ---
 
 #### How to Decide the component level at which the rule will be processed
@@ -183,7 +191,7 @@ When designing a rule, it is important to decide at which component level the ru
   }
 }
 ```
-3. In the rule implementation, use the `collectException(object, ruleName, jsonPath)` helper function to collect exceptions. The object here is what you get when you traverse the path defined by the `jsonPath`.
+3. In the rule implementation, use the `evaluateAndCollectAdoptionStatus(errors, ruleName, object, jsonPath)` helper function to collect adoptions, violations and exceptions. The `object` here is what you get when you traverse the path defined by the `jsonPath`. In this example, `jsonPath` would be `['components', 'schemas', 'SchemaName]`.
 
 Exceptions can be defined at different levels, such as:
 - Resource level
@@ -274,14 +282,13 @@ A rule must collect **only one** of the following for each evaluation:
 
 You can include **multiple error messages** for a violation. To do so:
   - Gather the messages into an array
-  - Pass them to `collectAndReturnViolation`
+  - Pass them to `evaluateAndCollectAdoptionStatus`
 
 ###### Considerations
 
 - Use the **same `jsonPath`** for:
-  - `collectAndReturnViolation`
-  - `collectAdoption`
-  - `collectException`
+  - The `path` property in the errors/violations collected
+  - The `path` property passed to `evaluateAndCollectAdoptionStatus`
 
   > 💡 This path should either be the `path` parameter from the rule function or a derived value from it.
 
@@ -294,39 +301,39 @@ You can include **multiple error messages** for a violation. To do so:
 const RULE_NAME = 'xgen-IPA-xxx-rule-name'
 
 export default (input, opts, { path, documentInventory }) => {
-  //Optional filter cases that we do not want to handle
+  // Optional filter cases that we do not want to handle
   // Return no response for those cases.
+  if (!Array.isArray(input)) {
+      return;
+  }
   
-  //Decide the jsonPath (component level) at which you want to collect exceptions, adoption, and violation
-  //It can be "path" parameter of custom rule function
-  //Or, a derived path from "path" parameter
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, jsonPath);
-    return;
-  }
+  // Decide the jsonPath (component level) at which you want to collect exceptions, adoption, and violation
+  // It can be "path" parameter of custom rule function
+  // Or, a derived path from "path" parameter
 
-  errors = checkViolationsAndReturnErrors(...);
-  if (errors.length != 0) {
-    return collectAndReturnViolation(jsonPath, RULE_NAME, errors);
-  }
-  return collectAdoption(jsonPath, RULE_NAME);
+  const errors = checkViolationsAndReturnErrors(input);
+  
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
 
 
-//This function can accept "input", "path", "documentInventory", or other derived parameters
-function checkViolationsAndReturnErrors(...){
+// This function can accept "input", "path", "documentInventory", or other derived parameters
+function checkViolationsAndReturnErrors(enums){
   try {
     const errors = [];
-    for (const value of enumValues) {
-      if (!isUpperSnakeCase(value)) {
-        errors.push({
-          path: [...path, 'enum'],
-          message: `${value} is not in UPPER_SNAKE_CASE`,
-        });
-      }
+    enums.forEach((index, enumValue) => {
+        if (!isUpperSnakeCase(enumValue)) {
+          // Append the enum index to the path to collect multiple errors
+          errors.push({
+            path: [...path, index],
+            message: `${enumValue} is not in UPPER_SNAKE_CASE`,
+          });
+        }
+      });
     }
     return errors;
   } catch(e) {
+    // Use common error handler to return useful error messages in case of unexpected failures
     handleInternalError(RULE_NAME, jsonPathArray, e);
   }
 }

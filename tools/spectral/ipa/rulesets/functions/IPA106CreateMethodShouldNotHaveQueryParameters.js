@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import {
   getResourcePathItems,
   isCustomMethodIdentifier,
@@ -37,16 +31,8 @@ export default (input, opts, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(postMethod, RULE_NAME)) {
-    collectException(postMethod, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(postMethod.parameters, path, opts);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, postMethod, path);
 };
 
 function checkViolationsAndReturnErrors(postMethodParameters, path, opts) {

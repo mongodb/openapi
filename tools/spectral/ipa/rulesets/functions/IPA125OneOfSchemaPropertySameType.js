@@ -1,5 +1,4 @@
-import { collectAdoption, collectAndReturnViolation } from './utils/collectionUtils.js';
-import { hasException } from './utils/exceptions.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { isEqual, uniq } from 'lodash';
 import { resolveObject } from './utils/componentUtils.js';
 
@@ -9,20 +8,13 @@ export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
   const parentSchema = resolveObject(oas, path.slice(0, path.length - 1));
 
-  if (hasException(parentSchema, RULE_NAME)) {
-    return;
-  }
-
   // Ignore base types, see IPA125OneOfNoBaseTypes.js
   if (input.some((oneOfOption) => oneOfOption.type !== 'object')) {
     return;
   }
 
   const errors = checkViolationsAndReturnErrors(input, path);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, parentSchema, path);
 };
 
 function checkViolationsAndReturnErrors(schemas, path) {

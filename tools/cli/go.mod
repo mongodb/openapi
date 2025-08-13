@@ -6,6 +6,7 @@ toolchain go1.24.0
 
 require (
 	github.com/getkin/kin-openapi v0.132.0
+	github.com/iancoleman/strcase v0.3.0
 	github.com/oasdiff/oasdiff v1.11.4
 	github.com/spf13/afero v1.14.0
 	github.com/spf13/cobra v1.9.1

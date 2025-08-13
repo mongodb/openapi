@@ -910,9 +910,7 @@ Allowable enum values should not exceed 20 entries.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to inline enum values
-  - Validates that each enum array has 20 or fewer values
-  - Reusable enum schemas will be ignored
+  - Validates that each enum set has 20 or fewer values
   - Skips validation if the schema has an exception defined for this rule
   - This validation threshold can be adjusted by changing the functionOptions.maxEnumValues parameter
 

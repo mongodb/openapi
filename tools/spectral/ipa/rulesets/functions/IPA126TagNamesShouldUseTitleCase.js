@@ -1,27 +1,22 @@
-import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-126-tag-names-should-use-title-case';
 
 export default (input, { ignoreList, grammaticalWords }, { path }) => {
   const tagName = input.name;
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
 
   // Check if the tag name uses Title Case
+  let errors = [];
   if (!isTitleCase(tagName, ignoreList, grammaticalWords)) {
-    return collectAndReturnViolation(path, RULE_NAME, [
+    errors = [
       {
         path,
         message: `Tag name should use Title Case, found: "${tagName}".`,
       },
-    ]);
+    ];
   }
 
-  // Tag name uses Title Case
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
 
 function isTitleCase(str, ignoreList, grammaticalWords) {

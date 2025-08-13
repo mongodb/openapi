@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/iancoleman/strcase"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -147,10 +148,12 @@ func apiVersion(version *apiversion.APIVersion) string {
 }
 
 func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
+	tag := strcase.ToLowerCamel(op.Tags[0])
+	operationID := strcase.ToLowerCamel(op.OperationID)
 	return codeSample{
 		Lang:   "cURL",
 		Label:  "Atlas CLI",
-		Source: "atlas api " + op.OperationID + " --help",
+		Source: "atlas api " + tag + " " + operationID + " --help",
 	}
 }
 

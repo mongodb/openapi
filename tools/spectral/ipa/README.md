@@ -38,7 +38,7 @@ To incorporate the IPA Spectral ruleset for OpenAPI specification validation in 
 
 ### Installation Options
 
-#### Package-based Installation (**TO BE RELEASED**)
+#### Package-based Installation
 Run:
 ```
 npm install @mongodb-js/ipa-validation-ruleset

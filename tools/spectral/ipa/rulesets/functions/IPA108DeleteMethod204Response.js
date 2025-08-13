@@ -1,11 +1,5 @@
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
-import { hasException } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-108-delete-method-return-204-response';
 const ERROR_MESSAGE = 'DELETE method should return 204 No Content status code.';
@@ -25,16 +19,8 @@ export default (input, _, { path }) => {
     return;
   }
 
-  if (hasException(input, RULE_NAME)) {
-    collectException(input, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(input, path);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
 };
 
 function checkViolationsAndReturnErrors(input, path) {

@@ -5,8 +5,7 @@ import {
   isResourceCollectionIdentifier,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { hasException } from './utils/exceptions.js';
-import { collectAdoption, collectAndReturnViolation, collectException } from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations/checkSchemaRefSuffixAndReturnErrors.js';
 
 const RULE_NAME = 'xgen-IPA-104-get-method-returns-response-suffixed-object';
@@ -29,15 +28,7 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(contentPerMediaType, RULE_NAME)) {
-    collectException(contentPerMediaType, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'Response', RULE_NAME);
 
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, contentPerMediaType, path);
 };

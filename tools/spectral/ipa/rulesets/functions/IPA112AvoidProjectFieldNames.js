@@ -1,10 +1,4 @@
-import { hasException } from './utils/exceptions.js';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { splitCamelCase } from './utils/schemaUtils.js';
 
@@ -25,16 +19,8 @@ export default (input, options, { path, documentInventory }) => {
     return;
   }
 
-  if (hasException(property, RULE_NAME)) {
-    collectException(property, RULE_NAME, path);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(input, options, path);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(path, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, property, path);
 };
 
 function checkViolationsAndReturnErrors(input, options, path) {

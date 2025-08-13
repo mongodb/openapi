@@ -6883,7 +6883,7 @@
           "Cloud Provider Access"
         ],
         "summary": "Create One Cloud Provider Access Role",
-        "description": "Creates one access role for the specified cloud provider. Some MongoDB Cloud features use these cloud provider access roles for authentication. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
+        "description": "Creates one access role for the specified cloud provider. Some MongoDB Cloud features use these cloud provider access roles for authentication. To use this resource, the requesting Service Account or API Key must have the Project Owner role. For the GCP provider, if the project folder is not yet provisioned, Atlas will now create the role asynchronously. An intermediate role with status `IN_PROGRESS` will be returned, and the final service account will be provisioned. Once the GCP project is set up, subsequent requests will create the service account synchronously.",
         "externalDocs": {
           "description": "Set Up Access to Cloud Providers",
           "url": "https://www.mongodb.com/docs/atlas/security/cloud-provider-access/"
@@ -48825,6 +48825,17 @@
                 "description": "Unique 24-hexadecimal digit string that identifies the role.",
                 "readOnly": true,
                 "example": "32b6e34b3d91647abb20e7b8"
+              },
+              "status": {
+                "type": "string",
+                "description": "Provision status of the service account.",
+                "readOnly": true,
+                "enum": [
+                  "IN_PROGRESS",
+                  "COMPLETE",
+                  "FAILED",
+                  "NOT_INITIATED"
+                ]
               }
             }
           }
@@ -49109,6 +49120,16 @@
             },
             "items": {
               "$ref": "#/components/schemas/CloudProviderAccessAzureServicePrincipal"
+            }
+          },
+          "gcpServiceAccounts": {
+            "type": "array",
+            "description": "List that contains the Google Service Accounts registered and authorized with MongoDB Cloud.",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
+            },
+            "items": {
+              "$ref": "#/components/schemas/CloudProviderAccessGCPServiceAccount"
             }
           }
         }

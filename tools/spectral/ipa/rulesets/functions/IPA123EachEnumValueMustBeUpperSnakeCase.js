@@ -1,12 +1,6 @@
-import { hasException } from './utils/exceptions.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
-import {
-  collectAdoption,
-  collectAndReturnViolation,
-  collectException,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { getSchemaPathFromEnumPath } from './utils/schemaUtils.js';
 
 const RULE_NAME = 'xgen-IPA-123-enum-values-must-be-upper-snake-case';
@@ -17,16 +11,8 @@ export default (input, _, { path, documentInventory }) => {
   const schemaPath = getSchemaPathFromEnumPath(path);
   const schemaObject = resolveObject(oas, schemaPath);
 
-  if (hasException(schemaObject, RULE_NAME)) {
-    collectException(schemaObject, RULE_NAME, schemaPath);
-    return;
-  }
-
   const errors = checkViolationsAndReturnErrors(input, schemaPath);
-  if (errors.length !== 0) {
-    return collectAndReturnViolation(path, RULE_NAME, errors);
-  }
-  collectAdoption(schemaPath, RULE_NAME);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, schemaObject, path);
 };
 
 function checkViolationsAndReturnErrors(input, schemaPath) {

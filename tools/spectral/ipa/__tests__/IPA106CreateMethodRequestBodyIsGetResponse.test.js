@@ -563,7 +563,7 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
-                      $ref: '#/components/schemas/SchemaTwoResponse',
+                      $ref: '#/components/schemas/SchemaThree',
                     },
                   },
                 },
