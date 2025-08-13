@@ -8,6 +8,9 @@ on:
         type: boolean
         required: false
         default: true
+      use_existing_tag:
+        description: 'Set value to `true` to use an existing tag for the release process, default is `false`'
+        default: 'false'
   push: 
     branches:
       - main
@@ -19,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version_changed: ${{ steps.version_check.outputs.version_changed }}
+      current_version: ${{ steps.version_check.outputs.current_version }}
 
     steps:
     - name: Checkout Repository
@@ -36,7 +40,31 @@ jobs:
         version_changed=$(./.github/scripts/ipa_version_check.sh)  
         echo "Version changed? ${version_changed}"  
         echo "version_changed=${version_changed}" >> "${GITHUB_OUTPUT}"
-  
+        echo "current_version=${jq -r '.version' tools/spectral/ipa/package.json}" >> "${GITHUB_OUTPUT}"
+
+  create-tag:
+    runs-on: ubuntu-latest
+    needs: check-version
+    if: >-
+      !cancelled()
+      && inputs.use_existing_tag == 'false'
+    steps:
+      - name: Validation of version format
+        run: |
+          echo "${{ needs.check-version.outputs.current_version }}" | grep -P '^\d+\.\d+\.\d+$'
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Get the latest commit SHA
+        id: get-sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Create release tag
+        uses: rickstaa/action-create-tag@a1c7777fcb2fee4f19b0f283ba888afa11678b72
+        with:
+          tag: 'ipa-validation-ruleset-v${{ needs.check-version.outputs.current_version }}'
+          commit_sha: ${{ steps.get-sha.outputs.sha }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg_passphrase: ${{ secrets.PASSPHRASE }}
+
   publish:
     needs: check-version
     runs-on: ubuntu-latest
