@@ -35,7 +35,7 @@ jobs:
     - name: Fetch Versions
       id: version_check
       env:
-        BASE_BRANCH: "CLOUDP-337866~1"
+        BASE_BRANCH: "main~1"
       run: |
         version_changed=$(./.github/scripts/ipa_version_check.sh)  
         echo "Version changed? ${version_changed}"  
@@ -60,7 +60,7 @@ jobs:
       - name: Create release tag
         uses: rickstaa/action-create-tag@a1c7777fcb2fee4f19b0f283ba888afa11678b72
         with:
-          tag: 'ipa-validation-ruleset-v${{ inputs.version_number }}'
+          tag: 'ipa-validation-ruleset-v${{ needs.check-version.outputs.current_version }}'
           commit_sha: ${{ steps.get-sha.outputs.sha }}
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg_passphrase: ${{ secrets.PASSPHRASE }}
@@ -78,11 +78,10 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: echo "Skipping release"
-#      - run: npm ci
-#        working-directory: tools/spectral/ipa
-#      - run: npm publish --access public
-#        working-directory: tools/spectral/ipa
-#        env:
-#          NODE_AUTH_TOKEN: ${{ secrets.IPA_VALIDATION_NPM_TOKEN }}
+      - run: npm ci
+        working-directory: tools/spectral/ipa
+      - run: npm publish --access public
+        working-directory: tools/spectral/ipa
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.IPA_VALIDATION_NPM_TOKEN }}
           
