@@ -89,14 +89,14 @@ testRule('xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf', [
           Schema: {
             discriminator: {
               propertyName: 'type',
-              'x-xgen-IPA-exception': {
-                'xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf': 'reason',
-              },
             },
             properties: {
               type: {
                 type: 'string',
               },
+            },
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf': 'reason',
             },
           },
           NestedSchema: {
@@ -105,14 +105,14 @@ testRule('xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf', [
                 type: 'object',
                 discriminator: {
                   propertyName: 'first',
-                  'x-xgen-IPA-exception': {
-                    'xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf': 'reason',
-                  },
                 },
                 properties: {
                   first: {
                     type: 'string',
                   },
+                },
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf': 'reason',
                 },
               },
               address: {
