@@ -6,15 +6,16 @@ const RULE_NAME = 'xgen-IPA-125-oneOf-schema-property-same-type';
 
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
-  const parentSchema = resolveObject(oas, path.slice(0, path.length - 1));
+  const schemaPath = path.slice(0, path.length - 1);
+  const parentSchema = resolveObject(oas, schemaPath);
 
   // Ignore base types, see IPA125OneOfNoBaseTypes.js
   if (input.some((oneOfOption) => oneOfOption.type !== 'object')) {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, parentSchema, path);
+  const errors = checkViolationsAndReturnErrors(input, schemaPath);
+  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, parentSchema, schemaPath);
 };
 
 function checkViolationsAndReturnErrors(schemas, path) {

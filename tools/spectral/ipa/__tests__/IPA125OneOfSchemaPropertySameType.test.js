@@ -59,7 +59,7 @@ testRule('xgen-IPA-125-oneOf-schema-property-same-type', [
     errors: [
       {
         code: 'xgen-IPA-125-oneOf-schema-property-same-type',
-        path: ['components', 'schemas', 'ExampleSchemaInvalid', 'oneOf'],
+        path: ['components', 'schemas', 'ExampleSchemaInvalid'],
         message: "Property 'id' has different types or schemas in oneOf items.",
         severity: DiagnosticSeverity.Warning,
       },
@@ -94,13 +94,13 @@ testRule('xgen-IPA-125-oneOf-schema-property-same-type', [
     errors: [
       {
         code: 'xgen-IPA-125-oneOf-schema-property-same-type',
-        path: ['components', 'schemas', 'ExampleSchemaInvalid', 'oneOf'],
+        path: ['components', 'schemas', 'ExampleSchemaInvalid'],
         message: "Property 'id' has different types or schemas in oneOf items.",
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-125-oneOf-schema-property-same-type',
-        path: ['components', 'schemas', 'ExampleSchemaInvalid', 'oneOf'],
+        path: ['components', 'schemas', 'ExampleSchemaInvalid'],
         message: "Property 'age' has different types or schemas in oneOf items.",
         severity: DiagnosticSeverity.Warning,
       },
@@ -237,13 +237,13 @@ testRule('xgen-IPA-125-oneOf-schema-property-same-type', [
     errors: [
       {
         code: 'xgen-IPA-125-oneOf-schema-property-same-type',
-        path: ['components', 'schemas', 'ExampleSchemaInvalid', 'oneOf'],
+        path: ['components', 'schemas', 'ExampleSchemaInvalid'],
         message: "Property 'name' has different types or schemas in oneOf items.",
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-125-oneOf-schema-property-same-type',
-        path: ['components', 'schemas', 'ExampleSchemaInvalid', 'oneOf'],
+        path: ['components', 'schemas', 'ExampleSchemaInvalid'],
         message: "Property 'address' has different types or schemas in oneOf items.",
         severity: DiagnosticSeverity.Warning,
       },
@@ -386,7 +386,7 @@ testRule('xgen-IPA-125-oneOf-schema-property-same-type', [
     errors: [
       {
         code: 'xgen-IPA-125-oneOf-schema-property-same-type',
-        path: ['components', 'schemas', 'ExampleSchema', 'properties', 'name', 'oneOf'],
+        path: ['components', 'schemas', 'ExampleSchema', 'properties', 'name'],
         message: "Property 'first' has different types or schemas in oneOf items.",
         severity: DiagnosticSeverity.Warning,
       },
@@ -537,7 +537,7 @@ testRule('xgen-IPA-125-oneOf-schema-property-same-type', [
     errors: [
       {
         code: 'xgen-IPA-125-oneOf-schema-property-same-type',
-        path: ['components', 'schemas', 'ExampleSchema', 'oneOf'],
+        path: ['components', 'schemas', 'ExampleSchema'],
         message: "Property 'counter' has different types or schemas in oneOf items.",
         severity: DiagnosticSeverity.Warning,
       },
@@ -680,7 +680,7 @@ testRule('xgen-IPA-125-oneOf-schema-property-same-type', [
     errors: [
       {
         code: 'xgen-IPA-125-oneOf-schema-property-same-type',
-        path: ['components', 'schemas', 'ExampleSchema', 'oneOf'],
+        path: ['components', 'schemas', 'ExampleSchema'],
         message: "Property 'threshold' has different types or schemas in oneOf items.",
         severity: DiagnosticSeverity.Warning,
       },
