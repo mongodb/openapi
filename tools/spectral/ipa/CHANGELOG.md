@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [1.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v0.0.1...1.0.0)
+#### [1.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v1.0.0...1.1.0)
+
+- feat(ipa): New rule xgen-IPA-125-oneOf-schema-property-same-type [`#873`](https://github.com/mongodb/openapi/pull/873)
+
+### [ipa-validation-ruleset-v1.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v0.0.1...ipa-validation-ruleset-v1.0.0)
+
+> 13 August 2025
 
 - fix(ipa): Validate both inline and reusable enums [`#890`](https://github.com/mongodb/openapi/pull/890)
 - feat(ipa): error on unneeded exceptions IPA 117-126 [`#881`](https://github.com/mongodb/openapi/pull/881)
