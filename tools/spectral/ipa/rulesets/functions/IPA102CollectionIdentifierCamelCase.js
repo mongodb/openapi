@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { isPathParam } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
 import { findExceptionInPathHierarchy } from './utils/exceptions.js';
@@ -29,9 +32,9 @@ export default (input, options, { path, documentInventory }) => {
   if (result?.error) {
     return result.error;
   }
-  const objectToCheck = result ? oas.paths[result.parentPath] : oas.paths[input];
+  const objectToCheckForException = result ? oas.paths[result.parentPath] : oas.paths[input];
 
-  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, objectToCheck, path);
+  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, objectToCheckForException, path);
 };
 
 function checkViolations(pathKey, path, ignoredValues = []) {

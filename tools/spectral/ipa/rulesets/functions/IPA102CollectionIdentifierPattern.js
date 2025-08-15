@@ -25,9 +25,9 @@ export default (input, _, { path, documentInventory }) => {
   if (result?.error) {
     return result.error;
   }
-  const objectToCheck = result ? oas.paths[result.parentPath] : oas.paths[input];
+  const objectToCheckForException = result ? oas.paths[result.parentPath] : oas.paths[input];
 
-  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, objectToCheck, path);
+  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, objectToCheckForException, path);
 };
 
 function checkViolations(pathKey, path) {
