@@ -741,6 +741,7 @@ Rule checks the format of the description property in the following components:
   - Inline schema properties for operation object requests and responses
   - Parameter objects (in operations and components)
   - Schema properties
+  - Schemas
 
 #### xgen-IPA-117-description-ends-with-period
 
@@ -755,6 +756,7 @@ Rule checks the format of the description property in the following components:
   - Inline schema properties for operation object requests and responses
   - Parameter objects (in operations and components)
   - Schema properties
+  - Schemas
 The rule ignores descriptions that end with `|`, i.e. inline markdown tables
 
 #### xgen-IPA-117-description-must-not-use-html
@@ -770,6 +772,7 @@ Rule checks the format of the descriptions for components:
   - Inline schema properties for operation object requests and responses
   - Parameter objects (in operations and components)
   - Schema properties
+  - Schemas
 The rule validates that the description content does not include opening and/or closing HTML tags.
 
 #### xgen-IPA-117-description-should-not-use-inline-tables
@@ -785,6 +788,7 @@ Rule checks the format of the descriptions for components:
   - Inline schema properties for operation object requests and responses
   - Parameter objects (in operations and components)
   - Schema properties
+  - Schemas
 The rule validates that the description content does not include inline markdown tables.
 
 #### xgen-IPA-117-description-should-not-use-inline-links
@@ -799,6 +803,7 @@ Rule checks the format of the descriptions for components:
   - Inline schema properties for operation object requests and responses
   - Parameter objects (in operations and components)
   - Schema properties
+  - Schemas
 The rule validates that the description content does not include inline markdown links. The rule ignores HTML `<a>` links - this is covered by `xgen-IPA-117-description-must-not-use-html`.
 
 #### xgen-IPA-117-plaintext-response-must-have-example
