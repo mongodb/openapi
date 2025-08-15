@@ -11808,6 +11808,10 @@ components:
                     default: false
                     description: Toggle sending database metrics that includes database names and metrics on the number of collections, storage size, and index size.
                     type: boolean
+                sendQueryStatsMetrics:
+                    default: false
+                    description: Toggle sending query shape metrics that includes query hash and metrics on latency, execution frequency, documents returned, and timestamps.
+                    type: boolean
                 sendUserProvidedResourceTags:
                     default: false
                     description: Toggle sending user provided group and cluster resource tags with the datadog metrics.
@@ -36925,7 +36929,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 13a6f5c32f0bb89516c38198a94f90fdb16d071f
+    x-xgen-sha: ea2b8ad6cc0a020a8bf3af453fad68f2940ba1ab
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -38882,7 +38886,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Group'
                             x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-response-has-no-input-fields: API predates IPA validation
                                 xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
@@ -55146,7 +55149,7 @@ paths:
             externalDocs:
                 description: Validate Migration
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateMigration
-            operationId: createPushMigration
+            operationId: createGroupLiveMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
@@ -55183,7 +55186,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService createPushMigration --help
+                  source: atlas api cloudMigrationService createGroupLiveMigration --help
                 - label: Go
                   lang: go
                   source: |
@@ -55206,9 +55209,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreatePushMigrationApiParams{}
+                    	params = &sdk.CreateGroupLiveMigrationApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		CreatePushMigrationWithParams(ctx, params).
+                    		CreateGroupLiveMigrationWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -55229,11 +55232,11 @@ paths:
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations" \
                       -d '{ <Payload> }'
             x-sunset: "2026-11-30"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createPushMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createGroupLiveMigration
     /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}:
         get:
             description: Return details of one cluster migration job. Each push live migration job uses one migration host. Your API Key must have the Organization Member role to successfully call this resource.
-            operationId: getPushMigration
+            operationId: getGroupLiveMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/liveMigrationId'
@@ -55261,7 +55264,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService getPushMigration --help
+                  source: atlas api cloudMigrationService getGroupLiveMigration --help
                 - label: Go
                   lang: go
                   source: |
@@ -55284,9 +55287,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.GetPushMigrationApiParams{}
+                    	params = &sdk.GetGroupLiveMigrationApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		GetPushMigrationWithParams(ctx, params).
+                    		GetGroupLiveMigrationWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -55302,11 +55305,11 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2023-11-15+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getPushMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getGroupLiveMigration
     /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}/cutover:
         put:
             description: Cut over the migrated cluster to MongoDB Atlas. Confirm when the cut over completes. When the cut over completes, MongoDB Atlas completes the live migration process and stops synchronizing with the source cluster. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: cutoverMigration
+            operationId: cutoverGroupLiveMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/liveMigrationId'
@@ -55334,7 +55337,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService cutoverMigration --help
+                  source: atlas api cloudMigrationService cutoverGroupLiveMigration --help
                 - label: Go
                   lang: go
                   source: |
@@ -55357,9 +55360,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CutoverMigrationApiParams{}
+                    	params = &sdk.CutoverGroupLiveMigrationApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		CutoverMigrationWithParams(ctx, params).
+                    		CutoverGroupLiveMigrationWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -55379,14 +55382,15 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PUT "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}/cutover" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/cutoverMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/cutoverGroupLiveMigration
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
+            x-xgen-operation-id-override: cutoverMigration
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate:
         post:
             deprecated: true
             description: Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: validateMigration
+            operationId: validateGroupLiveMigrations
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
@@ -55423,7 +55427,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService validateMigration --help
+                  source: atlas api cloudMigrationService validateGroupLiveMigrations --help
                 - label: Go
                   lang: go
                   source: |
@@ -55446,9 +55450,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.ValidateMigrationApiParams{}
+                    	params = &sdk.ValidateGroupLiveMigrationsApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		ValidateMigrationWithParams(ctx, params).
+                    		ValidateGroupLiveMigrationsWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -55469,13 +55473,14 @@ paths:
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/validate" \
                       -d '{ <Payload> }'
             x-sunset: "2026-11-30"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateGroupLiveMigrations
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
+            x-xgen-operation-id-override: validateLiveMigrations
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}:
         get:
             description: Return the status of one migration validation job. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: getValidationStatus
+            operationId: getGroupLiveMigrationValidateStatus
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - description: Unique 24-hexadecimal digit string that identifies the validation job.
@@ -55511,7 +55516,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService getValidationStatus --help
+                  source: atlas api cloudMigrationService getGroupLiveMigrationValidateStatus --help
                 - label: Go
                   lang: go
                   source: |
@@ -55534,9 +55539,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.GetValidationStatusApiParams{}
+                    	params = &sdk.GetGroupLiveMigrationValidateStatusApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		GetValidationStatusWithParams(ctx, params).
+                    		GetGroupLiveMigrationValidateStatusWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -55552,10 +55557,11 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2023-11-15+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getValidationStatus
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getGroupLiveMigrationValidateStatus
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
                 verb: getStatus
+            x-xgen-operation-id-override: getMigrationValidateStatus
     /api/atlas/v2/groups/{groupId}/maintenanceWindow:
         delete:
             description: Resets the maintenance window for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
@@ -67598,7 +67604,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/PaginatedAtlasGroupView'
                             x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-response-has-no-input-fields: Content predates IPA validation
                                 xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation
                                 xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
@@ -68611,7 +68616,7 @@ paths:
     /api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects:
         get:
             description: Return all projects that you can migrate to the specified organization.
-            operationId: listSourceProjects
+            operationId: listOrgLiveMigrationAvailableProjects
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -68644,7 +68649,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService listSourceProjects --help
+                  source: atlas api cloudMigrationService listOrgLiveMigrationAvailableProjects --help
                 - label: Go
                   lang: go
                   source: |
@@ -68667,9 +68672,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.ListSourceProjectsApiParams{}
+                    	params = &sdk.ListOrgLiveMigrationAvailableProjectsApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		ListSourceProjectsWithParams(ctx, params).
+                    		ListOrgLiveMigrationAvailableProjectsWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -68685,11 +68690,12 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2023-11-15+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/listSourceProjects
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/listOrgLiveMigrationAvailableProjects
+            x-xgen-operation-id-override: listAvailableProjects
     /api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens:
         delete:
             description: Remove one organization link and its associated public API key. MongoDB Atlas uses the link-token for push live migrations only. Live migrations (push) let you securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: deleteLinkToken
+            operationId: deleteOrgLiveMigrationLinkTokens
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -68715,7 +68721,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService deleteLinkToken --help
+                  source: atlas api cloudMigrationService deleteOrgLiveMigrationLinkTokens --help
                 - label: Go
                   lang: go
                   source: |
@@ -68738,9 +68744,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.DeleteLinkTokenApiParams{}
+                    	params = &sdk.DeleteOrgLiveMigrationLinkTokensApiParams{}
                     	httpResp, err := client.CloudMigrationServiceApi.
-                    		DeleteLinkTokenWithParams(ctx, params).
+                    		DeleteOrgLiveMigrationLinkTokensWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -68756,10 +68762,11 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2023-11-15+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/deleteLinkToken
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/deleteOrgLiveMigrationLinkTokens
+            x-xgen-operation-id-override: deleteLinkTokens
         post:
             description: Create one link-token that contains all the information required to complete the link. MongoDB Atlas uses the link-token for push live migrations only. Live migration (push) allows you to securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: createLinkToken
+            operationId: createOrgLiveMigrationLinkToken
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -68795,7 +68802,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService createLinkToken --help
+                  source: atlas api cloudMigrationService createOrgLiveMigrationLinkToken --help
                 - label: Go
                   lang: go
                   source: |
@@ -68818,9 +68825,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreateLinkTokenApiParams{}
+                    	params = &sdk.CreateOrgLiveMigrationLinkTokenApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		CreateLinkTokenWithParams(ctx, params).
+                    		CreateOrgLiveMigrationLinkTokenWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -68840,7 +68847,8 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createLinkToken
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createOrgLiveMigrationLinkToken
+            x-xgen-operation-id-override: createLinkToken
     /api/atlas/v2/orgs/{orgId}/settings:
         get:
             description: Returns details about the specified organization's settings. To use this resource, the requesting Service Account or API Key must have the Organization Member role.

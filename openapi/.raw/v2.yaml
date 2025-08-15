@@ -700,8 +700,6 @@ components:
                         - STANDARD
                         - PROVISIONED
                     type: string
-                    x-xgen-IPA-exception:
-                        xgen-IPA-112-field-names-are-camel-case: Schema predates IPA validation
                 instanceSize:
                     description: Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as "base nodes") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.
                     enum:
@@ -13387,6 +13385,10 @@ components:
                 sendDatabaseMetrics:
                     default: false
                     description: Toggle sending database metrics that includes database names and metrics on the number of collections, storage size, and index size.
+                    type: boolean
+                sendQueryStatsMetrics:
+                    default: false
+                    description: Toggle sending query shape metrics that includes query hash and metrics on latency, execution frequency, documents returned, and timestamps.
                     type: boolean
                 sendUserProvidedResourceTags:
                     default: false
@@ -41737,7 +41739,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 13a6f5c32f0bb89516c38198a94f90fdb16d071f
+    x-xgen-sha: ea2b8ad6cc0a020a8bf3af453fad68f2940ba1ab
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -42747,7 +42749,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Group'
                             x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-response-has-no-input-fields: API predates IPA validation
                                 xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
@@ -53857,7 +53858,7 @@ paths:
             externalDocs:
                 description: Validate Migration
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateMigration
-            operationId: createPushMigration
+            operationId: createGroupLiveMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
@@ -53907,14 +53908,14 @@ paths:
             summary: Migrate One Local Managed Cluster to MongoDB Atlas
             tags:
                 - Cloud Migration Service
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createPushMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createGroupLiveMigration
             x-xgen-owner-team: Atlas Migrations
         x-xgen-IPA-exception:
             xgen-IPA-105-resource-has-list: List method doesn't apply for custom method
     /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}:
         get:
             description: Return details of one cluster migration job. Each push live migration job uses one migration host. Your API Key must have the Organization Member role to successfully call this resource.
-            operationId: getPushMigration
+            operationId: getGroupLiveMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/liveMigrationId'
@@ -53939,12 +53940,12 @@ paths:
             summary: Return One Migration Job
             tags:
                 - Cloud Migration Service
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getPushMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getGroupLiveMigration
             x-xgen-owner-team: Atlas Migrations
     /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}/cutover:
         put:
             description: Cut over the migrated cluster to MongoDB Atlas. Confirm when the cut over completes. When the cut over completes, MongoDB Atlas completes the live migration process and stops synchronizing with the source cluster. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: cutoverMigration
+            operationId: cutoverGroupLiveMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/liveMigrationId'
@@ -53971,16 +53972,17 @@ paths:
                 - Cloud Migration Service
             x-xgen-IPA-exception:
                 xgen-IPA-107-update-method-response-code-is-200: 202 response code is valid for long-running operations
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/cutoverMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/cutoverGroupLiveMigration
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
+            x-xgen-operation-id-override: cutoverMigration
             x-xgen-owner-team: Atlas Migrations
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate:
         post:
             description: Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: validateMigration
+            operationId: validateGroupLiveMigrations
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
@@ -54023,16 +54025,17 @@ paths:
             summary: Validate One Migration Request
             tags:
                 - Cloud Migration Service
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateGroupLiveMigrations
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
+            x-xgen-operation-id-override: validateLiveMigrations
             x-xgen-owner-team: Atlas Migrations
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}:
         get:
             description: Return the status of one migration validation job. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: getValidationStatus
+            operationId: getGroupLiveMigrationValidateStatus
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - description: Unique 24-hexadecimal digit string that identifies the validation job.
@@ -54065,10 +54068,11 @@ paths:
             summary: Return One Migration Validation Job
             tags:
                 - Cloud Migration Service
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getValidationStatus
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getGroupLiveMigrationValidateStatus
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
                 verb: getStatus
+            x-xgen-operation-id-override: getMigrationValidateStatus
             x-xgen-owner-team: Atlas Migrations
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -57305,8 +57309,6 @@ paths:
                     application/vnd.atlas.2023-01-01+json:
                         schema:
                             $ref: '#/components/schemas/CreatePushBasedLogExportProjectRequest'
-                        x-xgen-IPA-exception:
-                            xgen-IPA-106-create-method-request-has-no-readonly-fields: Content predates IPA validation
                         x-xgen-version: "2023-01-01"
                 description: The project configuration details. The S3 bucket name, IAM role ID, and prefix path fields are required.
                 required: true
@@ -58032,7 +58034,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/serviceAccounts:
         get:
             description: Returns all Service Accounts for the specified Project.
-            operationId: listProjectServiceAccounts
+            operationId: listGroupServiceAccounts
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/itemsPerPage'
@@ -58058,11 +58060,11 @@ paths:
             summary: Return All Project Service Accounts
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listProjectServiceAccounts
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listGroupServiceAccounts
             x-xgen-owner-team: IAM Workload Identity
         post:
             description: Creates one Service Account for the specified Project. The Service Account will automatically be added as an Organization Member to the Organization that the specified Project is a part of.
-            operationId: createProjectServiceAccount
+            operationId: createGroupServiceAccount
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
@@ -58098,12 +58100,12 @@ paths:
             summary: Create One Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createGroupServiceAccount
             x-xgen-owner-team: IAM Workload Identity
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:
         delete:
             description: Removes the specified Service Account from the specified project. The Service Account will still be a part of the Organization it was created in, and the credentials will remain active until expired or manually revoked.
-            operationId: deleteProjectServiceAccount
+            operationId: deleteGroupServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -58134,11 +58136,11 @@ paths:
             summary: Remove One Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteGroupServiceAccount
             x-xgen-owner-team: IAM Workload Identity
         get:
             description: Returns one Service Account in the specified Project.
-            operationId: getProjectServiceAccount
+            operationId: getGroupServiceAccount
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - description: The Client ID of the Service Account.
@@ -58172,11 +58174,11 @@ paths:
             summary: Return One Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getGroupServiceAccount
             x-xgen-owner-team: IAM Workload Identity
         patch:
             description: Updates one Service Account in the specified Project.
-            operationId: updateProjectServiceAccount
+            operationId: updateGroupServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -58219,12 +58221,12 @@ paths:
             summary: Update One Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateGroupServiceAccount
             x-xgen-owner-team: IAM Workload Identity
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList:
         get:
             description: Returns all access list entries that you configured for the specified Service Account for the project.
-            operationId: listProjectServiceAccountAccessList
+            operationId: listGroupServiceAccountAccessList
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/includeCount'
@@ -58259,11 +58261,12 @@ paths:
             summary: Return All Access List Entries for One Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listProjectServiceAccountAccessList
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listGroupServiceAccountAccessList
+            x-xgen-operation-id-override: listAccessList
             x-xgen-owner-team: IAM Workload Identity
         post:
             description: Add Access List Entries for the specified Service Account for the project. Resources require all API requests to originate from IP addresses on the API access list.
-            operationId: createProjectServiceAccountAccessList
+            operationId: createGroupServiceAccountAccessList
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/includeCount'
@@ -58321,14 +58324,15 @@ paths:
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
                 xgen-IPA-106-create-method-should-not-have-query-parameters: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createProjectServiceAccountAccessList
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createGroupServiceAccountAccessList
+            x-xgen-operation-id-override: createAccessList
             x-xgen-owner-team: IAM Workload Identity
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
             description: Removes the specified access list entry from the specified Service Account for the project. You can't remove the requesting IP address from the access list.
-            operationId: deleteProjectServiceAccountAccessListEntry
+            operationId: deleteGroupServiceAccountAccessListEntry
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -58368,12 +58372,16 @@ paths:
             summary: Remove One Access List Entry from One Project Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteProjectServiceAccountAccessListEntry
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteGroupServiceAccountAccessListEntry
+            x-xgen-method-verb-override:
+                customMethod: "false"
+                verb: deleteEntry
+            x-xgen-operation-id-override: deleteGroupAccessEntry
             x-xgen-owner-team: IAM Workload Identity
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets:
         post:
             description: Create a secret for the specified Service Account in the specified Project.
-            operationId: createProjectServiceAccountSecret
+            operationId: createGroupServiceAccountSecret
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - description: The Client ID of the Service Account.
@@ -58414,7 +58422,8 @@ paths:
             summary: Create One Project Service Account Secret
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createProjectServiceAccountSecret
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createGroupServiceAccountSecret
+            x-xgen-operation-id-override: createGroupSecret
             x-xgen-owner-team: IAM Workload Identity
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
@@ -58422,7 +58431,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets/{secretId}:
         delete:
             description: Deletes the specified Service Account secret.
-            operationId: deleteProjectServiceAccountSecret
+            operationId: deleteGroupServiceAccountSecret
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -58458,12 +58467,13 @@ paths:
             summary: Delete One Project Service Account Secret
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteProjectServiceAccountSecret
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteGroupServiceAccountSecret
+            x-xgen-operation-id-override: deleteGroupSecret
             x-xgen-owner-team: IAM Workload Identity
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:invite:
         post:
             description: Assigns the specified Service Account to the specified Project.
-            operationId: addProjectServiceAccount
+            operationId: inviteGroupServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -58503,7 +58513,7 @@ paths:
             summary: Assign One Service Account to One Project
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/addProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/inviteGroupServiceAccount
             x-xgen-owner-team: IAM Workload Identity
     /api/atlas/v2/groups/{groupId}/settings:
         get:
@@ -62174,7 +62184,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/PaginatedAtlasGroupView'
                             x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-response-has-no-input-fields: Content predates IPA validation
                                 xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation
                                 xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
@@ -62767,7 +62776,7 @@ paths:
     /api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects:
         get:
             description: Return all projects that you can migrate to the specified organization.
-            operationId: listSourceProjects
+            operationId: listOrgLiveMigrationAvailableProjects
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -62797,14 +62806,15 @@ paths:
             summary: Return All Projects Available for Migration
             tags:
                 - Cloud Migration Service
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/listSourceProjects
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/listOrgLiveMigrationAvailableProjects
+            x-xgen-operation-id-override: listAvailableProjects
             x-xgen-owner-team: Atlas Migrations
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens:
         delete:
             description: Remove one organization link and its associated public API key. MongoDB Atlas uses the link-token for push live migrations only. Live migrations (push) let you securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: deleteLinkToken
+            operationId: deleteOrgLiveMigrationLinkTokens
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -62827,11 +62837,12 @@ paths:
             summary: Remove One Link-Token
             tags:
                 - Cloud Migration Service
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/deleteLinkToken
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/deleteOrgLiveMigrationLinkTokens
+            x-xgen-operation-id-override: deleteLinkTokens
             x-xgen-owner-team: Atlas Migrations
         post:
             description: Create one link-token that contains all the information required to complete the link. MongoDB Atlas uses the link-token for push live migrations only. Live migration (push) allows you to securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: createLinkToken
+            operationId: createOrgLiveMigrationLinkToken
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -62864,7 +62875,8 @@ paths:
             summary: Create One Link-Token
             tags:
                 - Cloud Migration Service
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createLinkToken
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createOrgLiveMigrationLinkToken
+            x-xgen-operation-id-override: createLinkToken
             x-xgen-owner-team: Atlas Migrations
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -63209,7 +63221,7 @@ paths:
     /api/atlas/v2/orgs/{orgId}/serviceAccounts:
         get:
             description: Returns all Service Accounts for the specified Organization.
-            operationId: listServiceAccounts
+            operationId: listOrgServiceAccounts
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/itemsPerPage'
@@ -63235,11 +63247,11 @@ paths:
             summary: Return All Organization Service Accounts
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listServiceAccounts
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listOrgServiceAccounts
             x-xgen-owner-team: IAM Workload Identity
         post:
             description: Creates one Service Account for the specified Organization.
-            operationId: createServiceAccount
+            operationId: createOrgServiceAccount
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -63274,12 +63286,12 @@ paths:
             summary: Create One Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createOrgServiceAccount
             x-xgen-owner-team: IAM Workload Identity
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}:
         delete:
             description: Deletes the specified Service Account.
-            operationId: deleteServiceAccount
+            operationId: deleteOrgServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -63309,11 +63321,11 @@ paths:
             summary: Delete One Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteOrgServiceAccount
             x-xgen-owner-team: IAM Workload Identity
         get:
             description: Returns the specified Service Account.
-            operationId: getServiceAccount
+            operationId: getOrgServiceAccount
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - description: The Client ID of the Service Account.
@@ -63347,11 +63359,11 @@ paths:
             summary: Return One Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getOrgServiceAccount
             x-xgen-owner-team: IAM Workload Identity
         patch:
             description: Updates the specified Service Account in the specified Organization.
-            operationId: updateServiceAccount
+            operationId: updateOrgServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -63394,12 +63406,12 @@ paths:
             summary: Update One Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateOrgServiceAccount
             x-xgen-owner-team: IAM Workload Identity
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList:
         get:
             description: Returns all access list entries that you configured for the specified Service Account for the organization.
-            operationId: listServiceAccountAccessList
+            operationId: listOrgServiceAccountAccessList
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/includeCount'
@@ -63434,11 +63446,12 @@ paths:
             summary: Return All Access List Entries for One Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listServiceAccountAccessList
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listOrgServiceAccountAccessList
+            x-xgen-operation-id-override: listOrgAccessList
             x-xgen-owner-team: IAM Workload Identity
         post:
             description: Add Access List Entries for the specified Service Account for the organization. Resources require all API requests to originate from IP addresses on the API access list.
-            operationId: createServiceAccountAccessList
+            operationId: createOrgServiceAccountAccessList
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/includeCount'
@@ -63496,14 +63509,15 @@ paths:
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
                 xgen-IPA-106-create-method-should-not-have-query-parameters: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createServiceAccountAccessList
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createOrgServiceAccountAccessList
+            x-xgen-operation-id-override: createOrgAccessList
             x-xgen-owner-team: IAM Workload Identity
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
             description: Removes the specified access list entry from the specified Service Account for the organization. You can't remove the requesting IP address from the access list.
-            operationId: deleteServiceAccountAccessListEntry
+            operationId: deleteOrgServiceAccountAccessListEntry
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/orgId'
@@ -63543,15 +63557,16 @@ paths:
             summary: Remove One Access List Entry from One Organization Service Account
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteServiceAccountAccessListEntry
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteOrgServiceAccountAccessListEntry
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
                 verb: deleteEntry
+            x-xgen-operation-id-override: deleteOrgAccessEntry
             x-xgen-owner-team: IAM Workload Identity
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/groups:
         get:
             description: Returns a list of all projects the specified Service Account is a part of.
-            operationId: listServiceAccountProjects
+            operationId: getOrgServiceAccountGroups
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - description: The Client ID of the Service Account.
@@ -63588,14 +63603,15 @@ paths:
             summary: Return All Service Account Project Assignments
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listServiceAccountProjects
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getOrgServiceAccountGroups
+            x-xgen-operation-id-override: getServiceAccountGroups
             x-xgen-owner-team: IAM Workload Identity
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-should-have-update-method: API predates IPA validation
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets:
         post:
             description: Create a secret for the specified Service Account.
-            operationId: createServiceAccountSecret
+            operationId: createOrgServiceAccountSecret
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - description: The Client ID of the Service Account.
@@ -63636,7 +63652,8 @@ paths:
             summary: Create One Organization Service Account Secret
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createServiceAccountSecret
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createOrgServiceAccountSecret
+            x-xgen-operation-id-override: createOrgSecret
             x-xgen-owner-team: IAM Workload Identity
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
@@ -63644,7 +63661,7 @@ paths:
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets/{secretId}:
         delete:
             description: Deletes the specified Service Account secret.
-            operationId: deleteServiceAccountSecret
+            operationId: deleteOrgServiceAccountSecret
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -63680,7 +63697,8 @@ paths:
             summary: Delete One Organization Service Account Secret
             tags:
                 - Service Accounts
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteServiceAccountSecret
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteOrgServiceAccountSecret
+            x-xgen-operation-id-override: deleteOrgSecret
             x-xgen-owner-team: IAM Workload Identity
     /api/atlas/v2/orgs/{orgId}/settings:
         get:

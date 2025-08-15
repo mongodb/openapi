@@ -15459,6 +15459,11 @@
             "description": "Toggle sending database metrics that includes database names and metrics on the number of collections, storage size, and index size.",
             "type": "boolean"
           },
+          "sendQueryStatsMetrics": {
+            "default": false,
+            "description": "Toggle sending query shape metrics that includes query hash and metrics on latency, execution frequency, documents returned, and timestamps.",
+            "type": "boolean"
+          },
           "sendUserProvidedResourceTags": {
             "default": false,
             "description": "Toggle sending user provided group and cluster resource tags with the datadog metrics.",
@@ -49669,7 +49674,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "13a6f5c32f0bb89516c38198a94f90fdb16d071f"
+    "x-xgen-sha": "ea2b8ad6cc0a020a8bf3af453fad68f2940ba1ab"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -51684,7 +51689,6 @@
                   "$ref": "#/components/schemas/Group"
                 },
                 "x-xgen-IPA-exception": {
-                  "xgen-IPA-104-get-method-response-has-no-input-fields": "API predates IPA validation",
                   "xgen-IPA-104-get-method-returns-response-suffixed-object": "API predates IPA validation"
                 },
                 "x-xgen-version": "2023-01-01"
@@ -71335,7 +71339,7 @@
           "description": "Validate Migration",
           "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateMigration"
         },
-        "operationId": "createPushMigration",
+        "operationId": "createGroupLiveMigration",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
@@ -71395,12 +71399,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api cloudMigrationService createPushMigration --help"
+            "source": "atlas api cloudMigrationService createGroupLiveMigration --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreatePushMigrationApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tCreatePushMigrationWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateGroupLiveMigrationApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tCreateGroupLiveMigrationWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -71413,13 +71417,13 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createPushMigration"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createGroupLiveMigration"
       }
     },
     "/api/atlas/v2/groups/{groupId}/liveMigrations/validate": {
       "post": {
         "description": "Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource. Deprecated versions: v2-{2023-01-01}",
-        "operationId": "validateMigration",
+        "operationId": "validateGroupLiveMigrations",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
@@ -71479,12 +71483,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api cloudMigrationService validateMigration --help"
+            "source": "atlas api cloudMigrationService validateGroupLiveMigrations --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ValidateMigrationApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tValidateMigrationWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ValidateGroupLiveMigrationsApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tValidateGroupLiveMigrationsWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -71497,16 +71501,17 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/validate\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateMigration",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateGroupLiveMigrations",
         "x-xgen-method-verb-override": {
-          "customMethod": "True"
-        }
+          "customMethod": true
+        },
+        "x-xgen-operation-id-override": "validateLiveMigrations"
       }
     },
     "/api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}": {
       "get": {
         "description": "Return the status of one migration validation job. Your API Key must have the Organization Owner role to successfully call this resource.",
-        "operationId": "getValidationStatus",
+        "operationId": "getGroupLiveMigrationValidateStatus",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
@@ -71562,12 +71567,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api cloudMigrationService getValidationStatus --help"
+            "source": "atlas api cloudMigrationService getGroupLiveMigrationValidateStatus --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetValidationStatusApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tGetValidationStatusWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupLiveMigrationValidateStatusApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tGetGroupLiveMigrationValidateStatusWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -71580,17 +71585,18 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getValidationStatus",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getGroupLiveMigrationValidateStatus",
         "x-xgen-method-verb-override": {
-          "customMethod": "True",
+          "customMethod": true,
           "verb": "getStatus"
-        }
+        },
+        "x-xgen-operation-id-override": "getMigrationValidateStatus"
       }
     },
     "/api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}": {
       "get": {
         "description": "Return details of one cluster migration job. Each push live migration job uses one migration host. Your API Key must have the Organization Member role to successfully call this resource.",
-        "operationId": "getPushMigration",
+        "operationId": "getGroupLiveMigration",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
@@ -71638,12 +71644,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api cloudMigrationService getPushMigration --help"
+            "source": "atlas api cloudMigrationService getGroupLiveMigration --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetPushMigrationApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tGetPushMigrationWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupLiveMigrationApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tGetGroupLiveMigrationWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -71656,13 +71662,13 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getPushMigration"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getGroupLiveMigration"
       }
     },
     "/api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}/cutover": {
       "put": {
         "description": "Cut over the migrated cluster to MongoDB Atlas. Confirm when the cut over completes. When the cut over completes, MongoDB Atlas completes the live migration process and stops synchronizing with the source cluster. Your API Key must have the Organization Owner role to successfully call this resource.",
-        "operationId": "cutoverMigration",
+        "operationId": "cutoverGroupLiveMigration",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
@@ -71710,12 +71716,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api cloudMigrationService cutoverMigration --help"
+            "source": "atlas api cloudMigrationService cutoverGroupLiveMigration --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CutoverMigrationApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tCutoverMigrationWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CutoverGroupLiveMigrationApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tCutoverGroupLiveMigrationWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -71728,10 +71734,11 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PUT \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}/cutover\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/cutoverMigration",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/cutoverGroupLiveMigration",
         "x-xgen-method-verb-override": {
-          "customMethod": "True"
-        }
+          "customMethod": true
+        },
+        "x-xgen-operation-id-override": "cutoverMigration"
       }
     },
     "/api/atlas/v2/groups/{groupId}/maintenanceWindow": {
@@ -79145,7 +79152,7 @@
     "/api/atlas/v2/groups/{groupId}/serviceAccounts": {
       "get": {
         "description": "Returns all Service Accounts for the specified Project.",
-        "operationId": "listProjectServiceAccounts",
+        "operationId": "listGroupServiceAccounts",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
@@ -79196,12 +79203,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts listProjectServiceAccounts --help"
+            "source": "atlas api serviceAccounts listGroupServiceAccounts --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListProjectServiceAccountsApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tListProjectServiceAccountsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupServiceAccountsApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tListGroupServiceAccountsWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -79214,11 +79221,11 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listProjectServiceAccounts"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listGroupServiceAccounts"
       },
       "post": {
         "description": "Creates one Service Account for the specified Project. The Service Account will automatically be added as an Organization Member to the Organization that the specified Project is a part of.",
-        "operationId": "createProjectServiceAccount",
+        "operationId": "createGroupServiceAccount",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
@@ -79278,12 +79285,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts createProjectServiceAccount --help"
+            "source": "atlas api serviceAccounts createGroupServiceAccount --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateProjectServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateProjectServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateGroupServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateGroupServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -79296,13 +79303,13 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createProjectServiceAccount"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createGroupServiceAccount"
       }
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}": {
       "delete": {
         "description": "Removes the specified Service Account from the specified project. The Service Account will still be a part of the Organization it was created in, and the credentials will remain active until expired or manually revoked.",
-        "operationId": "deleteProjectServiceAccount",
+        "operationId": "deleteGroupServiceAccount",
         "parameters": [
           {
             "description": "The Client ID of the Service Account.",
@@ -79356,12 +79363,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts deleteProjectServiceAccount --help"
+            "source": "atlas api serviceAccounts deleteGroupServiceAccount --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteProjectServiceAccountApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteProjectServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteGroupServiceAccountApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteGroupServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -79374,11 +79381,11 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteProjectServiceAccount"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteGroupServiceAccount"
       },
       "get": {
         "description": "Returns one Service Account in the specified Project.",
-        "operationId": "getProjectServiceAccount",
+        "operationId": "getGroupServiceAccount",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
@@ -79437,12 +79444,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts getProjectServiceAccount --help"
+            "source": "atlas api serviceAccounts getGroupServiceAccount --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetProjectServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tGetProjectServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tGetGroupServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -79455,11 +79462,11 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getProjectServiceAccount"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getGroupServiceAccount"
       },
       "patch": {
         "description": "Updates one Service Account in the specified Project.",
-        "operationId": "updateProjectServiceAccount",
+        "operationId": "updateGroupServiceAccount",
         "parameters": [
           {
             "description": "The Client ID of the Service Account.",
@@ -79529,12 +79536,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts updateProjectServiceAccount --help"
+            "source": "atlas api serviceAccounts updateGroupServiceAccount --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateProjectServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tUpdateProjectServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateGroupServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tUpdateGroupServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -79547,13 +79554,13 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateProjectServiceAccount"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateGroupServiceAccount"
       }
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList": {
       "get": {
         "description": "Returns all access list entries that you configured for the specified Service Account for the project.",
-        "operationId": "listProjectServiceAccountAccessList",
+        "operationId": "listGroupServiceAccountAccessList",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -79618,12 +79625,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts listProjectServiceAccountAccessList --help"
+            "source": "atlas api serviceAccounts listGroupServiceAccountAccessList --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListProjectServiceAccountAccessListApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tListProjectServiceAccountAccessListWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupServiceAccountAccessListApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tListGroupServiceAccountAccessListWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -79636,11 +79643,12 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listProjectServiceAccountAccessList"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listGroupServiceAccountAccessList",
+        "x-xgen-operation-id-override": "listAccessList"
       },
       "post": {
         "description": "Add Access List Entries for the specified Service Account for the project. Resources require all API requests to originate from IP addresses on the API access list.",
-        "operationId": "createProjectServiceAccountAccessList",
+        "operationId": "createGroupServiceAccountAccessList",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -79727,12 +79735,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts createProjectServiceAccountAccessList --help"
+            "source": "atlas api serviceAccounts createGroupServiceAccountAccessList --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateProjectServiceAccountAccessListApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateProjectServiceAccountAccessListWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateGroupServiceAccountAccessListApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateGroupServiceAccountAccessListWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -79745,13 +79753,14 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createProjectServiceAccountAccessList"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createGroupServiceAccountAccessList",
+        "x-xgen-operation-id-override": "createAccessList"
       }
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}": {
       "delete": {
         "description": "Removes the specified access list entry from the specified Service Account for the project. You can't remove the requesting IP address from the access list.",
-        "operationId": "deleteProjectServiceAccountAccessListEntry",
+        "operationId": "deleteGroupServiceAccountAccessListEntry",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -79818,12 +79827,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts deleteProjectServiceAccountAccessListEntry --help"
+            "source": "atlas api serviceAccounts deleteGroupServiceAccountAccessListEntry --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteProjectServiceAccountAccessListEntryApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteProjectServiceAccountAccessListEntryWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteGroupServiceAccountAccessListEntryApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteGroupServiceAccountAccessListEntryWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -79836,13 +79845,18 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteProjectServiceAccountAccessListEntry"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteGroupServiceAccountAccessListEntry",
+        "x-xgen-method-verb-override": {
+          "customMethod": "false",
+          "verb": "deleteEntry"
+        },
+        "x-xgen-operation-id-override": "deleteGroupAccessEntry"
       }
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets": {
       "post": {
         "description": "Create a secret for the specified Service Account in the specified Project.",
-        "operationId": "createProjectServiceAccountSecret",
+        "operationId": "createGroupServiceAccountSecret",
         "parameters": [
           {
             "$ref": "#/components/parameters/groupId"
@@ -79912,12 +79926,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts createProjectServiceAccountSecret --help"
+            "source": "atlas api serviceAccounts createGroupServiceAccountSecret --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateProjectServiceAccountSecretApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateProjectServiceAccountSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateGroupServiceAccountSecretApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateGroupServiceAccountSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -79930,13 +79944,14 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createProjectServiceAccountSecret"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createGroupServiceAccountSecret",
+        "x-xgen-operation-id-override": "createGroupSecret"
       }
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets/{secretId}": {
       "delete": {
         "description": "Deletes the specified Service Account secret.",
-        "operationId": "deleteProjectServiceAccountSecret",
+        "operationId": "deleteGroupServiceAccountSecret",
         "parameters": [
           {
             "description": "The Client ID of the Service Account.",
@@ -79998,12 +80013,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts deleteProjectServiceAccountSecret --help"
+            "source": "atlas api serviceAccounts deleteGroupServiceAccountSecret --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteProjectServiceAccountSecretApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteProjectServiceAccountSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteGroupServiceAccountSecretApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteGroupServiceAccountSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -80016,13 +80031,14 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets/{secretId}\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteProjectServiceAccountSecret"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteGroupServiceAccountSecret",
+        "x-xgen-operation-id-override": "deleteGroupSecret"
       }
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:invite": {
       "post": {
         "description": "Assigns the specified Service Account to the specified Project.",
-        "operationId": "addProjectServiceAccount",
+        "operationId": "inviteGroupServiceAccount",
         "parameters": [
           {
             "description": "The Client ID of the Service Account.",
@@ -80090,12 +80106,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts addProjectServiceAccount --help"
+            "source": "atlas api serviceAccounts inviteGroupServiceAccount --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.AddProjectServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tAddProjectServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.InviteGroupServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tInviteGroupServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -80108,7 +80124,7 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:invite\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/addProjectServiceAccount"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/inviteGroupServiceAccount"
       }
     },
     "/api/atlas/v2/groups/{groupId}/settings": {
@@ -85834,7 +85850,6 @@
                   "$ref": "#/components/schemas/PaginatedAtlasGroupView"
                 },
                 "x-xgen-IPA-exception": {
-                  "xgen-IPA-104-get-method-response-has-no-input-fields": "Content predates IPA validation",
                   "xgen-IPA-104-get-method-returns-response-suffixed-object": "API predates IPA validation",
                   "xgen-IPA-104-get-method-returns-single-resource": "API predates IPA validation"
                 },
@@ -86927,7 +86942,7 @@
     "/api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects": {
       "get": {
         "description": "Return all projects that you can migrate to the specified organization.",
-        "operationId": "listSourceProjects",
+        "operationId": "listOrgLiveMigrationAvailableProjects",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
@@ -86981,12 +86996,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api cloudMigrationService listSourceProjects --help"
+            "source": "atlas api cloudMigrationService listOrgLiveMigrationAvailableProjects --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListSourceProjectsApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tListSourceProjectsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListOrgLiveMigrationAvailableProjectsApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tListOrgLiveMigrationAvailableProjectsWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -86999,13 +87014,14 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/listSourceProjects"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/listOrgLiveMigrationAvailableProjects",
+        "x-xgen-operation-id-override": "listAvailableProjects"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens": {
       "delete": {
         "description": "Remove one organization link and its associated public API key. MongoDB Atlas uses the link-token for push live migrations only. Live migrations (push) let you securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.",
-        "operationId": "deleteLinkToken",
+        "operationId": "deleteOrgLiveMigrationLinkTokens",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
@@ -87047,12 +87063,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api cloudMigrationService deleteLinkToken --help"
+            "source": "atlas api cloudMigrationService deleteOrgLiveMigrationLinkTokens --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteLinkTokenApiParams{}\n\thttpResp, err := client.CloudMigrationServiceApi.\n\t\tDeleteLinkTokenWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteOrgLiveMigrationLinkTokensApiParams{}\n\thttpResp, err := client.CloudMigrationServiceApi.\n\t\tDeleteOrgLiveMigrationLinkTokensWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -87065,11 +87081,12 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/deleteLinkToken"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/deleteOrgLiveMigrationLinkTokens",
+        "x-xgen-operation-id-override": "deleteLinkTokens"
       },
       "post": {
         "description": "Create one link-token that contains all the information required to complete the link. MongoDB Atlas uses the link-token for push live migrations only. Live migration (push) allows you to securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.",
-        "operationId": "createLinkToken",
+        "operationId": "createOrgLiveMigrationLinkToken",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
@@ -87128,12 +87145,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api cloudMigrationService createLinkToken --help"
+            "source": "atlas api cloudMigrationService createOrgLiveMigrationLinkToken --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateLinkTokenApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tCreateLinkTokenWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateOrgLiveMigrationLinkTokenApiParams{}\n\tsdkResp, httpResp, err := client.CloudMigrationServiceApi.\n\t\tCreateOrgLiveMigrationLinkTokenWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -87146,7 +87163,8 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createLinkToken"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createOrgLiveMigrationLinkToken",
+        "x-xgen-operation-id-override": "createLinkToken"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/nonCompliantResources": {
@@ -87798,7 +87816,7 @@
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts": {
       "get": {
         "description": "Returns all Service Accounts for the specified Organization.",
-        "operationId": "listServiceAccounts",
+        "operationId": "listOrgServiceAccounts",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
@@ -87849,12 +87867,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts listServiceAccounts --help"
+            "source": "atlas api serviceAccounts listOrgServiceAccounts --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListServiceAccountsApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tListServiceAccountsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListOrgServiceAccountsApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tListOrgServiceAccountsWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -87867,11 +87885,11 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listServiceAccounts"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listOrgServiceAccounts"
       },
       "post": {
         "description": "Creates one Service Account for the specified Organization.",
-        "operationId": "createServiceAccount",
+        "operationId": "createOrgServiceAccount",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
@@ -87930,12 +87948,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts createServiceAccount --help"
+            "source": "atlas api serviceAccounts createOrgServiceAccount --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateOrgServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateOrgServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -87948,13 +87966,13 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createServiceAccount"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createOrgServiceAccount"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}": {
       "delete": {
         "description": "Deletes the specified Service Account.",
-        "operationId": "deleteServiceAccount",
+        "operationId": "deleteOrgServiceAccount",
         "parameters": [
           {
             "description": "The Client ID of the Service Account.",
@@ -88007,12 +88025,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts deleteServiceAccount --help"
+            "source": "atlas api serviceAccounts deleteOrgServiceAccount --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteServiceAccountApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteOrgServiceAccountApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteOrgServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -88025,11 +88043,11 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteServiceAccount"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteOrgServiceAccount"
       },
       "get": {
         "description": "Returns the specified Service Account.",
-        "operationId": "getServiceAccount",
+        "operationId": "getOrgServiceAccount",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
@@ -88088,12 +88106,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts getServiceAccount --help"
+            "source": "atlas api serviceAccounts getOrgServiceAccount --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tGetServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetOrgServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tGetOrgServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -88106,11 +88124,11 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getServiceAccount"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getOrgServiceAccount"
       },
       "patch": {
         "description": "Updates the specified Service Account in the specified Organization.",
-        "operationId": "updateServiceAccount",
+        "operationId": "updateOrgServiceAccount",
         "parameters": [
           {
             "description": "The Client ID of the Service Account.",
@@ -88180,12 +88198,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts updateServiceAccount --help"
+            "source": "atlas api serviceAccounts updateOrgServiceAccount --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tUpdateServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateOrgServiceAccountApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tUpdateOrgServiceAccountWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -88198,13 +88216,13 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateServiceAccount"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateOrgServiceAccount"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList": {
       "get": {
         "description": "Returns all access list entries that you configured for the specified Service Account for the organization.",
-        "operationId": "listServiceAccountAccessList",
+        "operationId": "listOrgServiceAccountAccessList",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -88269,12 +88287,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts listServiceAccountAccessList --help"
+            "source": "atlas api serviceAccounts listOrgServiceAccountAccessList --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListServiceAccountAccessListApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tListServiceAccountAccessListWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListOrgServiceAccountAccessListApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tListOrgServiceAccountAccessListWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -88287,11 +88305,12 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listServiceAccountAccessList"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listOrgServiceAccountAccessList",
+        "x-xgen-operation-id-override": "listOrgAccessList"
       },
       "post": {
         "description": "Add Access List Entries for the specified Service Account for the organization. Resources require all API requests to originate from IP addresses on the API access list.",
-        "operationId": "createServiceAccountAccessList",
+        "operationId": "createOrgServiceAccountAccessList",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -88378,12 +88397,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts createServiceAccountAccessList --help"
+            "source": "atlas api serviceAccounts createOrgServiceAccountAccessList --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateServiceAccountAccessListApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateServiceAccountAccessListWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateOrgServiceAccountAccessListApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateOrgServiceAccountAccessListWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -88396,13 +88415,14 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createServiceAccountAccessList"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createOrgServiceAccountAccessList",
+        "x-xgen-operation-id-override": "createOrgAccessList"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList/{ipAddress}": {
       "delete": {
         "description": "Removes the specified access list entry from the specified Service Account for the organization. You can't remove the requesting IP address from the access list.",
-        "operationId": "deleteServiceAccountAccessListEntry",
+        "operationId": "deleteOrgServiceAccountAccessListEntry",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -88469,12 +88489,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts deleteServiceAccountAccessListEntry --help"
+            "source": "atlas api serviceAccounts deleteOrgServiceAccountAccessListEntry --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteServiceAccountAccessListEntryApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteServiceAccountAccessListEntryWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteOrgServiceAccountAccessListEntryApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteOrgServiceAccountAccessListEntryWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -88487,17 +88507,18 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList/{ipAddress}\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteServiceAccountAccessListEntry",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteOrgServiceAccountAccessListEntry",
         "x-xgen-method-verb-override": {
-          "customMethod": "True",
+          "customMethod": true,
           "verb": "deleteEntry"
-        }
+        },
+        "x-xgen-operation-id-override": "deleteOrgAccessEntry"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/groups": {
       "get": {
         "description": "Returns a list of all projects the specified Service Account is a part of.",
-        "operationId": "listServiceAccountProjects",
+        "operationId": "getOrgServiceAccountGroups",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
@@ -88563,12 +88584,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts listServiceAccountProjects --help"
+            "source": "atlas api serviceAccounts getOrgServiceAccountGroups --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListServiceAccountProjectsApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tListServiceAccountProjectsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetOrgServiceAccountGroupsApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tGetOrgServiceAccountGroupsWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -88581,13 +88602,14 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/groups?pretty=true\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listServiceAccountProjects"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getOrgServiceAccountGroups",
+        "x-xgen-operation-id-override": "getServiceAccountGroups"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets": {
       "post": {
         "description": "Create a secret for the specified Service Account.",
-        "operationId": "createServiceAccountSecret",
+        "operationId": "createOrgServiceAccountSecret",
         "parameters": [
           {
             "$ref": "#/components/parameters/orgId"
@@ -88657,12 +88679,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts createServiceAccountSecret --help"
+            "source": "atlas api serviceAccounts createOrgServiceAccountSecret --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateServiceAccountSecretApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateServiceAccountSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateOrgServiceAccountSecretApiParams{}\n\tsdkResp, httpResp, err := client.ServiceAccountsApi.\n\t\tCreateOrgServiceAccountSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -88675,13 +88697,14 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets\" \\\n  -d '{ <Payload> }'"
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createServiceAccountSecret"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createOrgServiceAccountSecret",
+        "x-xgen-operation-id-override": "createOrgSecret"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets/{secretId}": {
       "delete": {
         "description": "Deletes the specified Service Account secret.",
-        "operationId": "deleteServiceAccountSecret",
+        "operationId": "deleteOrgServiceAccountSecret",
         "parameters": [
           {
             "description": "The Client ID of the Service Account.",
@@ -88743,12 +88766,12 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api serviceAccounts deleteServiceAccountSecret --help"
+            "source": "atlas api serviceAccounts deleteOrgServiceAccountSecret --help"
           },
           {
             "lang": "go",
             "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteServiceAccountSecretApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteServiceAccountSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20241113001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteOrgServiceAccountSecretApiParams{}\n\thttpResp, err := client.ServiceAccountsApi.\n\t\tDeleteOrgServiceAccountSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
           },
           {
             "lang": "cURL",
@@ -88761,7 +88784,8 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets/{secretId}\""
           }
         ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteServiceAccountSecret"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteOrgServiceAccountSecret",
+        "x-xgen-operation-id-override": "deleteOrgSecret"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/settings": {

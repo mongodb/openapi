@@ -12235,6 +12235,10 @@ components:
                     default: false
                     description: Toggle sending database metrics that includes database names and metrics on the number of collections, storage size, and index size.
                     type: boolean
+                sendQueryStatsMetrics:
+                    default: false
+                    description: Toggle sending query shape metrics that includes query hash and metrics on latency, execution frequency, documents returned, and timestamps.
+                    type: boolean
                 sendUserProvidedResourceTags:
                     default: false
                     description: Toggle sending user provided group and cluster resource tags with the datadog metrics.
@@ -38407,7 +38411,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 13a6f5c32f0bb89516c38198a94f90fdb16d071f
+    x-xgen-sha: ea2b8ad6cc0a020a8bf3af453fad68f2940ba1ab
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -40364,7 +40368,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Group'
                             x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-response-has-no-input-fields: API predates IPA validation
                                 xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation
                             x-xgen-version: "2023-01-01"
                     description: OK
@@ -58359,7 +58362,7 @@ paths:
             externalDocs:
                 description: Validate Migration
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateMigration
-            operationId: createPushMigration
+            operationId: createGroupLiveMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
@@ -58396,7 +58399,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService createPushMigration --help
+                  source: atlas api cloudMigrationService createGroupLiveMigration --help
                 - label: Go
                   lang: go
                   source: |
@@ -58419,9 +58422,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreatePushMigrationApiParams{}
+                    	params = &sdk.CreateGroupLiveMigrationApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		CreatePushMigrationWithParams(ctx, params).
+                    		CreateGroupLiveMigrationWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -58441,11 +58444,11 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createPushMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createGroupLiveMigration
     /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}:
         get:
             description: Return details of one cluster migration job. Each push live migration job uses one migration host. Your API Key must have the Organization Member role to successfully call this resource.
-            operationId: getPushMigration
+            operationId: getGroupLiveMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/liveMigrationId'
@@ -58473,7 +58476,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService getPushMigration --help
+                  source: atlas api cloudMigrationService getGroupLiveMigration --help
                 - label: Go
                   lang: go
                   source: |
@@ -58496,9 +58499,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.GetPushMigrationApiParams{}
+                    	params = &sdk.GetGroupLiveMigrationApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		GetPushMigrationWithParams(ctx, params).
+                    		GetGroupLiveMigrationWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -58514,11 +58517,11 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getPushMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getGroupLiveMigration
     /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}/cutover:
         put:
             description: Cut over the migrated cluster to MongoDB Atlas. Confirm when the cut over completes. When the cut over completes, MongoDB Atlas completes the live migration process and stops synchronizing with the source cluster. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: cutoverMigration
+            operationId: cutoverGroupLiveMigration
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/liveMigrationId'
@@ -58546,7 +58549,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService cutoverMigration --help
+                  source: atlas api cloudMigrationService cutoverGroupLiveMigration --help
                 - label: Go
                   lang: go
                   source: |
@@ -58569,9 +58572,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CutoverMigrationApiParams{}
+                    	params = &sdk.CutoverGroupLiveMigrationApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		CutoverMigrationWithParams(ctx, params).
+                    		CutoverGroupLiveMigrationWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -58591,13 +58594,14 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PUT "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}/cutover" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/cutoverMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/cutoverGroupLiveMigration
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
+            x-xgen-operation-id-override: cutoverMigration
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate:
         post:
             description: 'Verifies whether the provided credentials, available disk space, MongoDB versions, and so on meet the requirements of the migration request. If the check passes, the migration can proceed. Your API Key must have the Organization Owner role to successfully call this resource. Deprecated versions: v2-{2023-01-01}'
-            operationId: validateMigration
+            operationId: validateGroupLiveMigrations
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
@@ -58634,7 +58638,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService validateMigration --help
+                  source: atlas api cloudMigrationService validateGroupLiveMigrations --help
                 - label: Go
                   lang: go
                   source: |
@@ -58657,9 +58661,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.ValidateMigrationApiParams{}
+                    	params = &sdk.ValidateGroupLiveMigrationsApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		ValidateMigrationWithParams(ctx, params).
+                    		ValidateGroupLiveMigrationsWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -58679,13 +58683,14 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/validate" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateMigration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateGroupLiveMigrations
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
+            x-xgen-operation-id-override: validateLiveMigrations
     /api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}:
         get:
             description: Return the status of one migration validation job. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: getValidationStatus
+            operationId: getGroupLiveMigrationValidateStatus
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - description: Unique 24-hexadecimal digit string that identifies the validation job.
@@ -58721,7 +58726,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService getValidationStatus --help
+                  source: atlas api cloudMigrationService getGroupLiveMigrationValidateStatus --help
                 - label: Go
                   lang: go
                   source: |
@@ -58744,9 +58749,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.GetValidationStatusApiParams{}
+                    	params = &sdk.GetGroupLiveMigrationValidateStatusApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		GetValidationStatusWithParams(ctx, params).
+                    		GetGroupLiveMigrationValidateStatusWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -58762,10 +58767,11 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/validate/{validationId}?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getValidationStatus
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/getGroupLiveMigrationValidateStatus
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
                 verb: getStatus
+            x-xgen-operation-id-override: getMigrationValidateStatus
     /api/atlas/v2/groups/{groupId}/maintenanceWindow:
         delete:
             description: Resets the maintenance window for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
@@ -66059,7 +66065,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/serviceAccounts:
         get:
             description: Returns all Service Accounts for the specified Project.
-            operationId: listProjectServiceAccounts
+            operationId: listGroupServiceAccounts
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/itemsPerPage'
@@ -66088,7 +66094,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts listProjectServiceAccounts --help
+                  source: atlas api serviceAccounts listGroupServiceAccounts --help
                 - label: Go
                   lang: go
                   source: |
@@ -66111,9 +66117,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.ListProjectServiceAccountsApiParams{}
+                    	params = &sdk.ListGroupServiceAccountsApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		ListProjectServiceAccountsWithParams(ctx, params).
+                    		ListGroupServiceAccountsWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66129,10 +66135,10 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listProjectServiceAccounts
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listGroupServiceAccounts
         post:
             description: Creates one Service Account for the specified Project. The Service Account will automatically be added as an Organization Member to the Organization that the specified Project is a part of.
-            operationId: createProjectServiceAccount
+            operationId: createGroupServiceAccount
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
@@ -66169,7 +66175,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts createProjectServiceAccount --help
+                  source: atlas api serviceAccounts createGroupServiceAccount --help
                 - label: Go
                   lang: go
                   source: |
@@ -66192,9 +66198,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreateProjectServiceAccountApiParams{}
+                    	params = &sdk.CreateGroupServiceAccountApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		CreateProjectServiceAccountWithParams(ctx, params).
+                    		CreateGroupServiceAccountWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66214,11 +66220,11 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createGroupServiceAccount
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:
         delete:
             description: Removes the specified Service Account from the specified project. The Service Account will still be a part of the Organization it was created in, and the credentials will remain active until expired or manually revoked.
-            operationId: deleteProjectServiceAccount
+            operationId: deleteGroupServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -66252,7 +66258,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts deleteProjectServiceAccount --help
+                  source: atlas api serviceAccounts deleteGroupServiceAccount --help
                 - label: Go
                   lang: go
                   source: |
@@ -66275,9 +66281,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.DeleteProjectServiceAccountApiParams{}
+                    	params = &sdk.DeleteGroupServiceAccountApiParams{}
                     	httpResp, err := client.ServiceAccountsApi.
-                    		DeleteProjectServiceAccountWithParams(ctx, params).
+                    		DeleteGroupServiceAccountWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66293,10 +66299,10 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteGroupServiceAccount
         get:
             description: Returns one Service Account in the specified Project.
-            operationId: getProjectServiceAccount
+            operationId: getGroupServiceAccount
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - description: The Client ID of the Service Account.
@@ -66333,7 +66339,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts getProjectServiceAccount --help
+                  source: atlas api serviceAccounts getGroupServiceAccount --help
                 - label: Go
                   lang: go
                   source: |
@@ -66356,9 +66362,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.GetProjectServiceAccountApiParams{}
+                    	params = &sdk.GetGroupServiceAccountApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		GetProjectServiceAccountWithParams(ctx, params).
+                    		GetGroupServiceAccountWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66374,10 +66380,10 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getGroupServiceAccount
         patch:
             description: Updates one Service Account in the specified Project.
-            operationId: updateProjectServiceAccount
+            operationId: updateGroupServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -66421,7 +66427,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts updateProjectServiceAccount --help
+                  source: atlas api serviceAccounts updateGroupServiceAccount --help
                 - label: Go
                   lang: go
                   source: |
@@ -66444,9 +66450,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.UpdateProjectServiceAccountApiParams{}
+                    	params = &sdk.UpdateGroupServiceAccountApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		UpdateProjectServiceAccountWithParams(ctx, params).
+                    		UpdateGroupServiceAccountWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66466,11 +66472,11 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateGroupServiceAccount
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList:
         get:
             description: Returns all access list entries that you configured for the specified Service Account for the project.
-            operationId: listProjectServiceAccountAccessList
+            operationId: listGroupServiceAccountAccessList
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/includeCount'
@@ -66508,7 +66514,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts listProjectServiceAccountAccessList --help
+                  source: atlas api serviceAccounts listGroupServiceAccountAccessList --help
                 - label: Go
                   lang: go
                   source: |
@@ -66531,9 +66537,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.ListProjectServiceAccountAccessListApiParams{}
+                    	params = &sdk.ListGroupServiceAccountAccessListApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		ListProjectServiceAccountAccessListWithParams(ctx, params).
+                    		ListGroupServiceAccountAccessListWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66549,10 +66555,11 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listProjectServiceAccountAccessList
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listGroupServiceAccountAccessList
+            x-xgen-operation-id-override: listAccessList
         post:
             description: Add Access List Entries for the specified Service Account for the project. Resources require all API requests to originate from IP addresses on the API access list.
-            operationId: createProjectServiceAccountAccessList
+            operationId: createGroupServiceAccountAccessList
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/includeCount'
@@ -66605,7 +66612,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts createProjectServiceAccountAccessList --help
+                  source: atlas api serviceAccounts createGroupServiceAccountAccessList --help
                 - label: Go
                   lang: go
                   source: |
@@ -66628,9 +66635,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreateProjectServiceAccountAccessListApiParams{}
+                    	params = &sdk.CreateGroupServiceAccountAccessListApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		CreateProjectServiceAccountAccessListWithParams(ctx, params).
+                    		CreateGroupServiceAccountAccessListWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66650,11 +66657,12 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createProjectServiceAccountAccessList
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createGroupServiceAccountAccessList
+            x-xgen-operation-id-override: createAccessList
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
             description: Removes the specified access list entry from the specified Service Account for the project. You can't remove the requesting IP address from the access list.
-            operationId: deleteProjectServiceAccountAccessListEntry
+            operationId: deleteGroupServiceAccountAccessListEntry
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -66697,7 +66705,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts deleteProjectServiceAccountAccessListEntry --help
+                  source: atlas api serviceAccounts deleteGroupServiceAccountAccessListEntry --help
                 - label: Go
                   lang: go
                   source: |
@@ -66720,9 +66728,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.DeleteProjectServiceAccountAccessListEntryApiParams{}
+                    	params = &sdk.DeleteGroupServiceAccountAccessListEntryApiParams{}
                     	httpResp, err := client.ServiceAccountsApi.
-                    		DeleteProjectServiceAccountAccessListEntryWithParams(ctx, params).
+                    		DeleteGroupServiceAccountAccessListEntryWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66738,11 +66746,15 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteProjectServiceAccountAccessListEntry
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteGroupServiceAccountAccessListEntry
+            x-xgen-method-verb-override:
+                customMethod: "false"
+                verb: deleteEntry
+            x-xgen-operation-id-override: deleteGroupAccessEntry
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets:
         post:
             description: Create a secret for the specified Service Account in the specified Project.
-            operationId: createProjectServiceAccountSecret
+            operationId: createGroupServiceAccountSecret
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - description: The Client ID of the Service Account.
@@ -66786,7 +66798,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts createProjectServiceAccountSecret --help
+                  source: atlas api serviceAccounts createGroupServiceAccountSecret --help
                 - label: Go
                   lang: go
                   source: |
@@ -66809,9 +66821,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreateProjectServiceAccountSecretApiParams{}
+                    	params = &sdk.CreateGroupServiceAccountSecretApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		CreateProjectServiceAccountSecretWithParams(ctx, params).
+                    		CreateGroupServiceAccountSecretWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66831,11 +66843,12 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createProjectServiceAccountSecret
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createGroupServiceAccountSecret
+            x-xgen-operation-id-override: createGroupSecret
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets/{secretId}:
         delete:
             description: Deletes the specified Service Account secret.
-            operationId: deleteProjectServiceAccountSecret
+            operationId: deleteGroupServiceAccountSecret
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -66874,7 +66887,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts deleteProjectServiceAccountSecret --help
+                  source: atlas api serviceAccounts deleteGroupServiceAccountSecret --help
                 - label: Go
                   lang: go
                   source: |
@@ -66897,9 +66910,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.DeleteProjectServiceAccountSecretApiParams{}
+                    	params = &sdk.DeleteGroupServiceAccountSecretApiParams{}
                     	httpResp, err := client.ServiceAccountsApi.
-                    		DeleteProjectServiceAccountSecretWithParams(ctx, params).
+                    		DeleteGroupServiceAccountSecretWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -66915,11 +66928,12 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/secrets/{secretId}"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteProjectServiceAccountSecret
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteGroupServiceAccountSecret
+            x-xgen-operation-id-override: deleteGroupSecret
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:invite:
         post:
             description: Assigns the specified Service Account to the specified Project.
-            operationId: addProjectServiceAccount
+            operationId: inviteGroupServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -66962,7 +66976,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts addProjectServiceAccount --help
+                  source: atlas api serviceAccounts inviteGroupServiceAccount --help
                 - label: Go
                   lang: go
                   source: |
@@ -66985,9 +66999,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.AddProjectServiceAccountApiParams{}
+                    	params = &sdk.InviteGroupServiceAccountApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		AddProjectServiceAccountWithParams(ctx, params).
+                    		InviteGroupServiceAccountWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -67007,7 +67021,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}:invite" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/addProjectServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/inviteGroupServiceAccount
     /api/atlas/v2/groups/{groupId}/settings:
         get:
             description: Returns details about the specified project's settings. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
@@ -72613,7 +72627,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/PaginatedAtlasGroupView'
                             x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-response-has-no-input-fields: Content predates IPA validation
                                 xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation
                                 xgen-IPA-104-get-method-returns-single-resource: API predates IPA validation
                             x-xgen-version: "2023-01-01"
@@ -73715,7 +73728,7 @@ paths:
     /api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects:
         get:
             description: Return all projects that you can migrate to the specified organization.
-            operationId: listSourceProjects
+            operationId: listOrgLiveMigrationAvailableProjects
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -73748,7 +73761,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService listSourceProjects --help
+                  source: atlas api cloudMigrationService listOrgLiveMigrationAvailableProjects --help
                 - label: Go
                   lang: go
                   source: |
@@ -73771,9 +73784,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.ListSourceProjectsApiParams{}
+                    	params = &sdk.ListOrgLiveMigrationAvailableProjectsApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		ListSourceProjectsWithParams(ctx, params).
+                    		ListOrgLiveMigrationAvailableProjectsWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -73789,11 +73802,12 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/listSourceProjects
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/listOrgLiveMigrationAvailableProjects
+            x-xgen-operation-id-override: listAvailableProjects
     /api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens:
         delete:
             description: Remove one organization link and its associated public API key. MongoDB Atlas uses the link-token for push live migrations only. Live migrations (push) let you securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: deleteLinkToken
+            operationId: deleteOrgLiveMigrationLinkTokens
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -73819,7 +73833,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService deleteLinkToken --help
+                  source: atlas api cloudMigrationService deleteOrgLiveMigrationLinkTokens --help
                 - label: Go
                   lang: go
                   source: |
@@ -73842,9 +73856,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.DeleteLinkTokenApiParams{}
+                    	params = &sdk.DeleteOrgLiveMigrationLinkTokensApiParams{}
                     	httpResp, err := client.CloudMigrationServiceApi.
-                    		DeleteLinkTokenWithParams(ctx, params).
+                    		DeleteOrgLiveMigrationLinkTokensWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -73860,10 +73874,11 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/deleteLinkToken
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/deleteOrgLiveMigrationLinkTokens
+            x-xgen-operation-id-override: deleteLinkTokens
         post:
             description: Create one link-token that contains all the information required to complete the link. MongoDB Atlas uses the link-token for push live migrations only. Live migration (push) allows you to securely push data from Cloud Manager or Ops Manager into MongoDB Atlas. Your API Key must have the Organization Owner role to successfully call this resource.
-            operationId: createLinkToken
+            operationId: createOrgLiveMigrationLinkToken
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -73899,7 +73914,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudMigrationService createLinkToken --help
+                  source: atlas api cloudMigrationService createOrgLiveMigrationLinkToken --help
                 - label: Go
                   lang: go
                   source: |
@@ -73922,9 +73937,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreateLinkTokenApiParams{}
+                    	params = &sdk.CreateOrgLiveMigrationLinkTokenApiParams{}
                     	sdkResp, httpResp, err := client.CloudMigrationServiceApi.
-                    		CreateLinkTokenWithParams(ctx, params).
+                    		CreateOrgLiveMigrationLinkTokenWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -73944,7 +73959,8 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/liveMigrations/linkTokens" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createLinkToken
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createOrgLiveMigrationLinkToken
+            x-xgen-operation-id-override: createLinkToken
     /api/atlas/v2/orgs/{orgId}/nonCompliantResources:
         get:
             description: Return all non-compliant resources for an org.
@@ -74580,7 +74596,7 @@ paths:
     /api/atlas/v2/orgs/{orgId}/serviceAccounts:
         get:
             description: Returns all Service Accounts for the specified Organization.
-            operationId: listServiceAccounts
+            operationId: listOrgServiceAccounts
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/itemsPerPage'
@@ -74609,7 +74625,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts listServiceAccounts --help
+                  source: atlas api serviceAccounts listOrgServiceAccounts --help
                 - label: Go
                   lang: go
                   source: |
@@ -74632,9 +74648,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.ListServiceAccountsApiParams{}
+                    	params = &sdk.ListOrgServiceAccountsApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		ListServiceAccountsWithParams(ctx, params).
+                    		ListOrgServiceAccountsWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -74650,10 +74666,10 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listServiceAccounts
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listOrgServiceAccounts
         post:
             description: Creates one Service Account for the specified Organization.
-            operationId: createServiceAccount
+            operationId: createOrgServiceAccount
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - $ref: '#/components/parameters/envelope'
@@ -74689,7 +74705,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts createServiceAccount --help
+                  source: atlas api serviceAccounts createOrgServiceAccount --help
                 - label: Go
                   lang: go
                   source: |
@@ -74712,9 +74728,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreateServiceAccountApiParams{}
+                    	params = &sdk.CreateOrgServiceAccountApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		CreateServiceAccountWithParams(ctx, params).
+                    		CreateOrgServiceAccountWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -74734,11 +74750,11 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createOrgServiceAccount
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}:
         delete:
             description: Deletes the specified Service Account.
-            operationId: deleteServiceAccount
+            operationId: deleteOrgServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -74771,7 +74787,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts deleteServiceAccount --help
+                  source: atlas api serviceAccounts deleteOrgServiceAccount --help
                 - label: Go
                   lang: go
                   source: |
@@ -74794,9 +74810,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.DeleteServiceAccountApiParams{}
+                    	params = &sdk.DeleteOrgServiceAccountApiParams{}
                     	httpResp, err := client.ServiceAccountsApi.
-                    		DeleteServiceAccountWithParams(ctx, params).
+                    		DeleteOrgServiceAccountWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -74812,10 +74828,10 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteOrgServiceAccount
         get:
             description: Returns the specified Service Account.
-            operationId: getServiceAccount
+            operationId: getOrgServiceAccount
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - description: The Client ID of the Service Account.
@@ -74852,7 +74868,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts getServiceAccount --help
+                  source: atlas api serviceAccounts getOrgServiceAccount --help
                 - label: Go
                   lang: go
                   source: |
@@ -74875,9 +74891,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.GetServiceAccountApiParams{}
+                    	params = &sdk.GetOrgServiceAccountApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		GetServiceAccountWithParams(ctx, params).
+                    		GetOrgServiceAccountWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -74893,10 +74909,10 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getOrgServiceAccount
         patch:
             description: Updates the specified Service Account in the specified Organization.
-            operationId: updateServiceAccount
+            operationId: updateOrgServiceAccount
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -74940,7 +74956,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts updateServiceAccount --help
+                  source: atlas api serviceAccounts updateOrgServiceAccount --help
                 - label: Go
                   lang: go
                   source: |
@@ -74963,9 +74979,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.UpdateServiceAccountApiParams{}
+                    	params = &sdk.UpdateOrgServiceAccountApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		UpdateServiceAccountWithParams(ctx, params).
+                    		UpdateOrgServiceAccountWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -74985,11 +75001,11 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateServiceAccount
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/updateOrgServiceAccount
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList:
         get:
             description: Returns all access list entries that you configured for the specified Service Account for the organization.
-            operationId: listServiceAccountAccessList
+            operationId: listOrgServiceAccountAccessList
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/includeCount'
@@ -75027,7 +75043,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts listServiceAccountAccessList --help
+                  source: atlas api serviceAccounts listOrgServiceAccountAccessList --help
                 - label: Go
                   lang: go
                   source: |
@@ -75050,9 +75066,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.ListServiceAccountAccessListApiParams{}
+                    	params = &sdk.ListOrgServiceAccountAccessListApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		ListServiceAccountAccessListWithParams(ctx, params).
+                    		ListOrgServiceAccountAccessListWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -75068,10 +75084,11 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listServiceAccountAccessList
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listOrgServiceAccountAccessList
+            x-xgen-operation-id-override: listOrgAccessList
         post:
             description: Add Access List Entries for the specified Service Account for the organization. Resources require all API requests to originate from IP addresses on the API access list.
-            operationId: createServiceAccountAccessList
+            operationId: createOrgServiceAccountAccessList
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/includeCount'
@@ -75124,7 +75141,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts createServiceAccountAccessList --help
+                  source: atlas api serviceAccounts createOrgServiceAccountAccessList --help
                 - label: Go
                   lang: go
                   source: |
@@ -75147,9 +75164,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreateServiceAccountAccessListApiParams{}
+                    	params = &sdk.CreateOrgServiceAccountAccessListApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		CreateServiceAccountAccessListWithParams(ctx, params).
+                    		CreateOrgServiceAccountAccessListWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -75169,11 +75186,12 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createServiceAccountAccessList
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createOrgServiceAccountAccessList
+            x-xgen-operation-id-override: createOrgAccessList
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
             description: Removes the specified access list entry from the specified Service Account for the organization. You can't remove the requesting IP address from the access list.
-            operationId: deleteServiceAccountAccessListEntry
+            operationId: deleteOrgServiceAccountAccessListEntry
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/orgId'
@@ -75216,7 +75234,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts deleteServiceAccountAccessListEntry --help
+                  source: atlas api serviceAccounts deleteOrgServiceAccountAccessListEntry --help
                 - label: Go
                   lang: go
                   source: |
@@ -75239,9 +75257,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.DeleteServiceAccountAccessListEntryApiParams{}
+                    	params = &sdk.DeleteOrgServiceAccountAccessListEntryApiParams{}
                     	httpResp, err := client.ServiceAccountsApi.
-                    		DeleteServiceAccountAccessListEntryWithParams(ctx, params).
+                    		DeleteOrgServiceAccountAccessListEntryWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -75257,14 +75275,15 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList/{ipAddress}"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteServiceAccountAccessListEntry
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteOrgServiceAccountAccessListEntry
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
                 verb: deleteEntry
+            x-xgen-operation-id-override: deleteOrgAccessEntry
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/groups:
         get:
             description: Returns a list of all projects the specified Service Account is a part of.
-            operationId: listServiceAccountProjects
+            operationId: getOrgServiceAccountGroups
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - description: The Client ID of the Service Account.
@@ -75304,7 +75323,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts listServiceAccountProjects --help
+                  source: atlas api serviceAccounts getOrgServiceAccountGroups --help
                 - label: Go
                   lang: go
                   source: |
@@ -75327,9 +75346,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.ListServiceAccountProjectsApiParams{}
+                    	params = &sdk.GetOrgServiceAccountGroupsApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		ListServiceAccountProjectsWithParams(ctx, params).
+                    		GetOrgServiceAccountGroupsWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -75345,11 +75364,12 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/groups?pretty=true"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listServiceAccountProjects
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getOrgServiceAccountGroups
+            x-xgen-operation-id-override: getServiceAccountGroups
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets:
         post:
             description: Create a secret for the specified Service Account.
-            operationId: createServiceAccountSecret
+            operationId: createOrgServiceAccountSecret
             parameters:
                 - $ref: '#/components/parameters/orgId'
                 - description: The Client ID of the Service Account.
@@ -75393,7 +75413,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts createServiceAccountSecret --help
+                  source: atlas api serviceAccounts createOrgServiceAccountSecret --help
                 - label: Go
                   lang: go
                   source: |
@@ -75416,9 +75436,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.CreateServiceAccountSecretApiParams{}
+                    	params = &sdk.CreateOrgServiceAccountSecretApiParams{}
                     	sdkResp, httpResp, err := client.ServiceAccountsApi.
-                    		CreateServiceAccountSecretWithParams(ctx, params).
+                    		CreateOrgServiceAccountSecretWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -75438,11 +75458,12 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets" \
                       -d '{ <Payload> }'
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createServiceAccountSecret
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/createOrgServiceAccountSecret
+            x-xgen-operation-id-override: createOrgSecret
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets/{secretId}:
         delete:
             description: Deletes the specified Service Account secret.
-            operationId: deleteServiceAccountSecret
+            operationId: deleteOrgServiceAccountSecret
             parameters:
                 - description: The Client ID of the Service Account.
                   in: path
@@ -75481,7 +75502,7 @@ paths:
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api serviceAccounts deleteServiceAccountSecret --help
+                  source: atlas api serviceAccounts deleteOrgServiceAccountSecret --help
                 - label: Go
                   lang: go
                   source: |
@@ -75504,9 +75525,9 @@ paths:
                     		log.Fatalf("Error: %v", err)
                     	}
 
-                    	params = &sdk.DeleteServiceAccountSecretApiParams{}
+                    	params = &sdk.DeleteOrgServiceAccountSecretApiParams{}
                     	httpResp, err := client.ServiceAccountsApi.
-                    		DeleteServiceAccountSecretWithParams(ctx, params).
+                    		DeleteOrgServiceAccountSecretWithParams(ctx, params).
                     		Execute()
                     }
                 - label: curl (Service Accounts)
@@ -75522,7 +75543,8 @@ paths:
                       --digest \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets/{secretId}"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteServiceAccountSecret
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/deleteOrgServiceAccountSecret
+            x-xgen-operation-id-override: deleteOrgSecret
     /api/atlas/v2/orgs/{orgId}/settings:
         get:
             description: Returns details about the specified organization's settings. To use this resource, the requesting Service Account or API Key must have the Organization Member role.
