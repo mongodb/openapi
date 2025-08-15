@@ -8,6 +8,7 @@ testRule('xgen-IPA-117-description-starts-with-uppercase', [
       components: {
         schemas: {
           Schema: {
+            description: 'Description',
             properties: {
               id: {
                 description: 'Description',
@@ -25,6 +26,7 @@ testRule('xgen-IPA-117-description-starts-with-uppercase', [
       components: {
         schemas: {
           Schema: {
+            description: 'description',
             properties: {
               noUpperCase: {
                 description: 'description',
@@ -35,6 +37,12 @@ testRule('xgen-IPA-117-description-starts-with-uppercase', [
       },
     },
     errors: [
+      {
+        code: 'xgen-IPA-117-description-starts-with-uppercase',
+        message: 'Descriptions must start with Uppercase.',
+        path: ['components', 'schemas', 'Schema'],
+        severity: DiagnosticSeverity.Error,
+      },
       {
         code: 'xgen-IPA-117-description-starts-with-uppercase',
         message: 'Descriptions must start with Uppercase.',
@@ -49,6 +57,10 @@ testRule('xgen-IPA-117-description-starts-with-uppercase', [
       components: {
         schemas: {
           Schema: {
+            description: 'description',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-117-description-starts-with-uppercase': 'reason',
+            },
             properties: {
               noUpperCase: {
                 description: 'description',
