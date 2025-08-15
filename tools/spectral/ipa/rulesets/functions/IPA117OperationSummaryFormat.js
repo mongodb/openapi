@@ -10,16 +10,17 @@ export default (input, { ignoreList, grammaticalWords }, { path, rule, documentI
 };
 
 function checkViolationsAndReturnErrors(summary, ignoreList, grammaticalWords, path, ruleName) {
-  const errors = [];
   try {
     if (!isTitleCase(summary, ignoreList, grammaticalWords)) {
-      errors.push({
-        path,
-        message: `Operation summaries must be in Title Case, must not end with a period and must not use CommonMark.`,
-      });
+      return [
+        {
+          path,
+          message: `Operation summaries must be in Title Case, must not end with a period and must not use CommonMark.`,
+        },
+      ];
     }
+    return [];
   } catch (e) {
     handleInternalError(ruleName, path, e);
   }
-  return errors;
 }
