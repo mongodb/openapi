@@ -1,7 +1,7 @@
 import testRule from './__helpers__/testRule.js';
 import { DiagnosticSeverity } from '@stoplight/types';
 
-testRule('xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf', [
+testRule('xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf', [
   {
     name: 'valid schemas',
     document: {
@@ -68,13 +68,13 @@ testRule('xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf', [
     },
     errors: [
       {
-        code: 'xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf',
+        code: 'xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf',
         message: "Each discriminator property must be accompanied by a 'oneOf', 'anyOf' or 'allOf' property.",
         path: ['components', 'schemas', 'Schema', 'discriminator'],
         severity: DiagnosticSeverity.Warning,
       },
       {
-        code: 'xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf',
+        code: 'xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf',
         message: "Each discriminator property must be accompanied by a 'oneOf', 'anyOf' or 'allOf' property.",
         path: ['components', 'schemas', 'NestedSchema', 'properties', 'name', 'discriminator'],
         severity: DiagnosticSeverity.Warning,
@@ -96,7 +96,7 @@ testRule('xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf', [
               },
             },
             'x-xgen-IPA-exception': {
-              'xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf': 'reason',
+              'xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf': 'reason',
             },
           },
           NestedSchema: {
@@ -112,7 +112,7 @@ testRule('xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf', [
                   },
                 },
                 'x-xgen-IPA-exception': {
-                  'xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf': 'reason',
+                  'xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf': 'reason',
                 },
               },
               address: {
