@@ -4,10 +4,11 @@ import { resolveObject } from './utils/componentUtils.js';
 const ERROR_MESSAGE = "Each discriminator property must be accompanied by a 'oneOf', 'anyOf' or 'allOf' property.";
 
 export default (input, _, { path, documentInventory, rule }) => {
-  const siblings = resolveObject(documentInventory.resolved, path.slice(0, path.length - 1));
+  const siblingPath = path.slice(0, path.length - 1);
+  const siblings = resolveObject(documentInventory.resolved, siblingPath);
 
-  const errors = checkViolationsAndReturnErrors(input, path, Object.keys(siblings));
-  return evaluateAndCollectAdoptionStatus(errors, rule.name, siblings, path);
+  const errors = checkViolationsAndReturnErrors(input, siblingPath, Object.keys(siblings));
+  return evaluateAndCollectAdoptionStatus(errors, rule.name, siblings, siblingPath);
 };
 
 function checkViolationsAndReturnErrors(input, path, siblingKeys) {

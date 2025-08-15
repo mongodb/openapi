@@ -70,13 +70,13 @@ testRule('xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf', [
       {
         code: 'xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf',
         message: "Each discriminator property must be accompanied by a 'oneOf', 'anyOf' or 'allOf' property.",
-        path: ['components', 'schemas', 'Schema', 'discriminator'],
+        path: ['components', 'schemas', 'Schema'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf',
         message: "Each discriminator property must be accompanied by a 'oneOf', 'anyOf' or 'allOf' property.",
-        path: ['components', 'schemas', 'NestedSchema', 'properties', 'name', 'discriminator'],
+        path: ['components', 'schemas', 'NestedSchema', 'properties', 'name'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
