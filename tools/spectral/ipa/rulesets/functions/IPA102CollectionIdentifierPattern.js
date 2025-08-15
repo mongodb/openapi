@@ -1,4 +1,5 @@
 import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
+import { findExceptionInPathHierarchy } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-102-collection-identifier-pattern';
 const ERROR_MESSAGE =
@@ -17,7 +18,11 @@ export default (input, _, { path, documentInventory }) => {
 
   const violations = checkViolations(input, path);
 
-  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, oas.paths[input], path);
+  // Check for exceptions in path hierarchy
+  const pathWithException = findExceptionInPathHierarchy(oas, input, RULE_NAME);
+  const objectToCheck = pathWithException ? oas.paths[pathWithException] : oas.paths[input];
+
+  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, objectToCheck, path);
 };
 
 function checkViolations(pathKey, path) {

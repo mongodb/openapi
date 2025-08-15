@@ -152,4 +152,19 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
     },
     errors: [],
   },
+  {
+    name: 'child paths inherit parent exceptions',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName1/resourceName2': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'parent exception reason',
+          },
+        },
+        '/api/atlas/v2/resourceName1/resourceName2/child': {},
+        '/api/atlas/v2/resourceName1/resourceName2/child/{id}': {},
+      },
+    },
+    errors: [],
+  },
 ]);

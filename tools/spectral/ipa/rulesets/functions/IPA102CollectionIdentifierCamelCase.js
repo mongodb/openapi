@@ -1,6 +1,10 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { isPathParam } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
+import { findExceptionInPathHierarchy } from './utils/exceptions.js';
 
 const RULE_NAME = 'xgen-IPA-102-collection-identifier-camelCase';
 const ERROR_MESSAGE = 'Collection identifiers must be in camelCase.';
@@ -21,7 +25,11 @@ export default (input, options, { path, documentInventory }) => {
 
   const violations = checkViolations(pathKey, path, ignoredValues);
 
-  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, oas.paths[input], path);
+  // Check for exceptions in path hierarchy
+  const pathWithException = findExceptionInPathHierarchy(oas, pathKey, RULE_NAME);
+  const objectToCheck = pathWithException ? oas.paths[pathWithException] : oas.paths[input];
+
+  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, objectToCheck, path);
 };
 
 function checkViolations(pathKey, path, ignoredValues = []) {

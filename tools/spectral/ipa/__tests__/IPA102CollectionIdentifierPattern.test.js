@@ -89,4 +89,20 @@ testRule('xgen-IPA-102-collection-identifier-pattern', [
     },
     errors: [],
   },
+  {
+    name: 'child paths inherit parent exceptions',
+    document: {
+      paths: {
+        '/resource-groups': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-pattern': 'Legacy API path that cannot be changed',
+          },
+        },
+        '/resource-groups/{id}': {},
+        '/resource-groups/{id}/sub_resources': {},
+        '/resource-groups/{id}/sub_resources/{subId}': {},
+      },
+    },
+    errors: [],
+  },
 ]);

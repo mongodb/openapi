@@ -254,4 +254,20 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       },
     ],
   },
+  {
+    name: 'child paths inherit parent exceptions',
+    document: {
+      paths: {
+        '/resource_groups': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+          },
+        },
+        '/resource_groups/{id}': {},
+        '/resource_groups/{id}/User-Profiles': {},
+        '/resource_groups/{id}/User-Profiles/{profileId}': {},
+      },
+    },
+    errors: [],
+  },
 ]);

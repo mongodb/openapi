@@ -13,3 +13,32 @@ export function hasException(object, ruleName) {
   }
   return false;
 }
+
+/**
+ * Finds an exception in the path hierarchy of an OpenAPI Specification (OAS) document
+ * for a specific rule name, starting from the current path and traversing up to parent paths.
+ *
+ * @param {object} oas - OpenAPI Specification document containing the paths.
+ * @param {string} currentPath - Current path to check for exceptions.
+ * @param {string} ruleName - Name of the rule for which the exception is being checked.
+ * @return {string|null} Returns the path where the exception is found,
+ * or null if no exception is found in the current path or its hierarchy.
+ */
+export function findExceptionInPathHierarchy(oas, currentPath, ruleName) {
+  // Check current path first
+  if (hasException(oas.paths[currentPath], ruleName)) {
+    return currentPath;
+  }
+
+  // Check parent paths by removing segments from the end
+  const pathSegments = currentPath.split('/').filter(segment => segment !== '');
+
+  for (let i = pathSegments.length - 1; i > 0; i--) {
+    const parentPath = '/' + pathSegments.slice(0, i).join('/');
+    if (oas.paths[parentPath] && hasException(oas.paths[parentPath], ruleName)) {
+      return parentPath;
+    }
+  }
+
+  return null;
+}
