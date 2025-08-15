@@ -848,6 +848,19 @@ The rule checks for the presence of the `schema`, `examples` or `example` proper
   - Operation parameters
   - Parameters defined in `components/parameters`
 
+#### xgen-IPA-117-operation-summary-format
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Operation summaries must use Title Case, must not end with a period and must not use CommonMark.
+
+##### Implementation details
+The rule checks that the `summary` property of all operations are in Title Case.
+
+##### Configuration
+This rule includes two configuration options:
+  - `ignoreList`: Words that are allowed to maintain their specific casing (e.g., "API", "AWS", "DNS")
+  - `grammaticalWords`: Common words that can remain lowercase in titles (e.g., "and", "or", "the")
+
 
 
 ### IPA-118

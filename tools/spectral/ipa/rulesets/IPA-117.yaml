@@ -11,6 +11,7 @@ functions:
   - IPA117PlaintextResponseMustHaveExample
   - IPA117ObjectsMustBeWellDefined
   - IPA117ParameterHasExamplesOrSchema
+  - IPA117OperationSummaryFormat
 
 aliases:
   OperationObject:
@@ -222,3 +223,62 @@ rules:
       - '$.components.parameters[*]'
     then:
       function: 'IPA117ParameterHasExamplesOrSchema'
+  xgen-IPA-117-operation-summary-format:
+    description: |
+      Operation summaries must use Title Case, must not end with a period and must not use CommonMark.
+
+      ##### Implementation details
+      The rule checks that the `summary` property of all operations are in Title Case.
+
+      ##### Configuration
+      This rule includes two configuration options:
+        - `ignoreList`: Words that are allowed to maintain their specific casing (e.g., "API", "AWS", "DNS")
+        - `grammaticalWords`: Common words that can remain lowercase in titles (e.g., "and", "or", "the")
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-operation-summary-format'
+    severity: warn
+    given:
+      - '#OperationObject.summary'
+    then:
+      function: 'IPA117OperationSummaryFormat'
+      functionOptions:
+        ignoreList:
+          - 'ID'
+          - 'IDs'
+          - 'MongoDB'
+          - 'OpenAPI'
+          - 'API'
+          - 'AWS'
+          - 'GCP'
+          - 'IP'
+          - 'CIDR'
+          - 'DNS'
+          - 'LDAP'
+          - 'OIDC'
+          - 'JWKS'
+          - 'X.509'
+          - 'M2'
+          - 'M5'
+          - 'RAM'
+          - 'LTS'
+          - 'VPC'
+          - 'DN'
+          - 'CSV'
+        grammaticalWords:
+          - 'and'
+          - 'or'
+          - 'to'
+          - 'in'
+          - 'as'
+          - 'for'
+          - 'of'
+          - 'with'
+          - 'by'
+          - 'but'
+          - 'the'
+          - 'a'
+          - 'an'
+          - 'from'
+          - 'at'
+          - 'into'
+          - 'via'
+          - 'on'
