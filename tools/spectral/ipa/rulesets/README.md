@@ -989,7 +989,7 @@ Using oneOf with multiple primitive types can lead to ambiguity and validation p
 be able to properly determine which type to use in which context. Instead, use more specific 
 object types with clear discriminators.
 
-#### xgen-IPA-125-oneOf-must-accompany-oneOf-anyOf-allOf
+#### xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Each discriminator property must be accompanied by a `oneOf`, `anyOf` or `allOf` property 
