@@ -14,20 +14,28 @@ export function hasException(object, ruleName) {
   return false;
 }
 
+export function getUnnecessaryExceptionError(objectPath, ruleName) {
+  return [
+    {
+      path: [...objectPath, EXCEPTION_EXTENSION, ruleName],
+      message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
+    },
+  ];
+}
+
 /**
- * Finds an exception in the path hierarchy of an OpenAPI Specification (OAS) document
- * for a specific rule name, starting from the current path and traversing up to parent paths.
+ * Finds an exception for a specified rule name in the current path or its parent paths within the given OpenAPI Specification (OAS) object.
  *
- * @param {object} oas - OpenAPI Specification document containing the paths.
- * @param {string} currentPath - Current path to check for exceptions.
- * @param {string} ruleName - Name of the rule for which the exception is being checked.
- * @return {string|null} Returns the path where the exception is found,
- * or null if no exception is found in the current path or its hierarchy.
+ * @param {Object} oas - The OpenAPI Specification object containing path definitions.
+ * @param {string} currentPath - The path to start searching for exceptions.
+ * @param {string} ruleName - The name of the rule to check for exceptions.
+ * @param {string} jsonPath - The JSON path to the current operation or entity being checked.
+ * @return {string|null|Object} The parent path with the rule exception if found, or null if no exceptions exist.
  */
-export function findExceptionInPathHierarchy(oas, currentPath, ruleName) {
-  // Check current path first
+export function findExceptionInPathHierarchy(oas, currentPath, ruleName, jsonPath) {
+  let currentPathHasException = false;
   if (hasException(oas.paths[currentPath], ruleName)) {
-    return currentPath;
+    currentPathHasException = true;
   }
 
   // Check parent paths by removing segments from the end
@@ -36,7 +44,10 @@ export function findExceptionInPathHierarchy(oas, currentPath, ruleName) {
   for (let i = pathSegments.length - 1; i > 0; i--) {
     const parentPath = '/' + pathSegments.slice(0, i).join('/');
     if (oas.paths[parentPath] && hasException(oas.paths[parentPath], ruleName)) {
-      return parentPath;
+      if (currentPathHasException) {
+        return { error: getUnnecessaryExceptionError(jsonPath, ruleName) };
+      }
+      return { parentPath: parentPath };
     }
   }
 

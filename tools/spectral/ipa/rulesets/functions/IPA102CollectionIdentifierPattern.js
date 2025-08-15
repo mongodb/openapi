@@ -9,9 +9,11 @@ const VALID_IDENTIFIER_PATTERN = /^[a-z][a-zA-Z0-9]*$/;
 /**
  * Checks if collection identifiers in paths begin with a lowercase letter and contain only ASCII letters and numbers
  *
+ * The function checks the entire path hierarchy. If any parent path has an exception, the exception will be inherited.
+ *
  * @param {object} input - The paths object from the OpenAPI spec
  * @param {object} _ - Unused
- * @param {object} context - The context object containing the path
+ * @param {object} context - The context object containing the path and documentInventory
  */
 export default (input, _, { path, documentInventory }) => {
   const oas = documentInventory.resolved;
@@ -19,8 +21,11 @@ export default (input, _, { path, documentInventory }) => {
   const violations = checkViolations(input, path);
 
   // Check for exceptions in path hierarchy
-  const pathWithException = findExceptionInPathHierarchy(oas, input, RULE_NAME);
-  const objectToCheck = pathWithException ? oas.paths[pathWithException] : oas.paths[input];
+  const result = findExceptionInPathHierarchy(oas, input, RULE_NAME, path);
+  if (result?.error) {
+    return result.error;
+  }
+  const objectToCheck = result ? oas.paths[result.parentPath] : oas.paths[input];
 
   return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, objectToCheck, path);
 };

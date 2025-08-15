@@ -105,4 +105,64 @@ testRule('xgen-IPA-102-collection-identifier-pattern', [
     },
     errors: [],
   },
+  {
+    name: 'child paths have exceptions along with parent exceptions',
+    document: {
+      paths: {
+        '/resource-groups': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-pattern': 'Legacy API path that cannot be changed',
+          },
+        },
+        '/resource-groups/{id}': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-pattern': 'Legacy API path that cannot be changed',
+          },
+        },
+        '/resource-groups/{id}/sub_resources': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-pattern': 'Legacy API path that cannot be changed',
+          },
+        },
+        '/resource-groups/{id}/sub_resources/{subId}': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-pattern': 'Legacy API path that cannot be changed',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-102-collection-identifier-pattern',
+        message:
+          'This component adopts the rule and does not need an exception. Please remove the exception. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-102-collection-identifier-pattern',
+        path: ['paths', '/resource-groups/{id}', 'x-xgen-IPA-exception', 'xgen-IPA-102-collection-identifier-pattern'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-102-collection-identifier-pattern',
+        message:
+          'This component adopts the rule and does not need an exception. Please remove the exception. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-102-collection-identifier-pattern',
+        path: [
+          'paths',
+          '/resource-groups/{id}/sub_resources',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-102-collection-identifier-pattern',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-102-collection-identifier-pattern',
+        message:
+          'This component adopts the rule and does not need an exception. Please remove the exception. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-102-collection-identifier-pattern',
+        path: [
+          'paths',
+          '/resource-groups/{id}/sub_resources/{subId}',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-102-collection-identifier-pattern',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
 ]);

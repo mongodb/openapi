@@ -1,5 +1,5 @@
 import collector, { EntryType } from '../../../metrics/collector.js';
-import { EXCEPTION_EXTENSION, hasException } from './exceptions.js';
+import { EXCEPTION_EXTENSION, getUnnecessaryExceptionError, hasException } from './exceptions.js';
 
 /**
  * Evaluates and collects adoptions, exceptions and violations based on the rule, evaluated object and the validation errors.
@@ -21,12 +21,7 @@ export function evaluateAndCollectAdoptionStatus(validationErrors, ruleName, obj
     return collectAndReturnViolation(objectPath, ruleName, validationErrors);
   }
   if (hasException(object, ruleName)) {
-    return collectAndReturnViolation(objectPath, ruleName, [
-      {
-        path: [...objectPath, EXCEPTION_EXTENSION, ruleName],
-        message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
-      },
-    ]);
+    return returnViolation(getUnnecessaryExceptionError(objectPath, ruleName));
   }
   collectAdoption(objectPath, ruleName);
 }
@@ -60,6 +55,10 @@ export function evaluateAndCollectAdoptionStatusWithoutExceptions(validationErro
 function collectAndReturnViolation(jsonPath, ruleName, errorData) {
   collector.add(EntryType.VIOLATION, jsonPath, ruleName);
 
+  return returnViolation(errorData);
+}
+
+export function returnViolation(errorData) {
   if (typeof errorData === 'string') {
     return [{ message: errorData }];
   } else if (Array.isArray(errorData)) {
