@@ -44,6 +44,7 @@ Collection identifiers must be in camelCase.
    argument to the rule
    - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
    - Double slashes (//) are not allowed in paths
+   - If any parent path has an exception for this rule, the exception will be inherited.
 
 #### xgen-IPA-102-path-alternate-resource-name-path-param
 
@@ -57,6 +58,7 @@ Rule checks for the following conditions:
   - Even-indexed path segments should be resource names (not path parameters)
   - Odd-indexed path segments should be path parameters
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+  - If any parent path has an exception for this rule, the exception will be inherited.
 
 #### xgen-IPA-102-collection-identifier-pattern
 
@@ -71,6 +73,7 @@ Rule checks for the following conditions:
   - Custom methods (segments containing colons) are excluded from validation
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
   - Each non-parameter path segment must start with a lowercase letter followed by any combination of ASCII letters and numbers
+  - If any parent path has an exception for this rule, the exception will be inherited.
 
 
 

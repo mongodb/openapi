@@ -152,4 +152,67 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
     },
     errors: [],
   },
+  {
+    name: 'child paths inherit parent exceptions',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName1/resourceName2': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'parent exception reason',
+          },
+        },
+        '/api/atlas/v2/resourceName1/resourceName2/child': {},
+        '/api/atlas/v2/resourceName1/resourceName2/child/{id}': {},
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'child paths have exceptions along with parent exceptions',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName1/resourceName2': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'parent exception reason',
+          },
+        },
+        '/api/atlas/v2/resourceName1/resourceName2/child': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'child exception reason',
+          },
+        },
+        '/api/atlas/v2/resourceName1/resourceName2/child/{id}': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'child exception reason',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
+        message:
+          'This component adopts the rule and does not need an exception. Please remove the exception. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-102-path-alternate-resource-name-path-param',
+        path: [
+          'paths',
+          '/api/atlas/v2/resourceName1/resourceName2/child',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-102-path-alternate-resource-name-path-param',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
+        message:
+          'This component adopts the rule and does not need an exception. Please remove the exception. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-102-path-alternate-resource-name-path-param',
+        path: [
+          'paths',
+          '/api/atlas/v2/resourceName1/resourceName2/child/{id}',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-102-path-alternate-resource-name-path-param',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
 ]);

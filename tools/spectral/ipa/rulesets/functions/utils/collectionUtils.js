@@ -1,10 +1,10 @@
 import collector, { EntryType } from '../../../metrics/collector.js';
-import { EXCEPTION_EXTENSION, hasException } from './exceptions.js';
+import { EXCEPTION_EXTENSION, getUnnecessaryExceptionError, hasException } from './exceptions.js';
 
 /**
  * Evaluates and collects adoptions, exceptions and violations based on the rule, evaluated object and the validation errors.
  * If the object is violating the rule, but has an exception, the validation error is ignored
- * If the object is adopting the rule, but has an exception, a validation error will be returned
+ * If the object is adopting the rule, but has an exception, an unnecessary exception error is returned, but the object is counted as adopting the rule
  *
  * @param {Array<{path: Array<string>, message: string}>} validationErrors the error results from the rule
  * @param {string} ruleName the name of the rule
@@ -20,15 +20,11 @@ export function evaluateAndCollectAdoptionStatus(validationErrors, ruleName, obj
     }
     return collectAndReturnViolation(objectPath, ruleName, validationErrors);
   }
-  if (hasException(object, ruleName)) {
-    return collectAndReturnViolation(objectPath, ruleName, [
-      {
-        path: [...objectPath, EXCEPTION_EXTENSION, ruleName],
-        message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
-      },
-    ]);
-  }
   collectAdoption(objectPath, ruleName);
+
+  if (hasException(object, ruleName)) {
+    return returnViolation(getUnnecessaryExceptionError(objectPath, ruleName));
+  }
 }
 
 /**
@@ -60,6 +56,10 @@ export function evaluateAndCollectAdoptionStatusWithoutExceptions(validationErro
 function collectAndReturnViolation(jsonPath, ruleName, errorData) {
   collector.add(EntryType.VIOLATION, jsonPath, ruleName);
 
+  return returnViolation(errorData);
+}
+
+export function returnViolation(errorData) {
   if (typeof errorData === 'string') {
     return [{ message: errorData }];
   } else if (Array.isArray(errorData)) {

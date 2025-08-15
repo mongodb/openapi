@@ -254,4 +254,85 @@ testRule('xgen-IPA-102-collection-identifier-camelCase', [
       },
     ],
   },
+  {
+    name: 'child paths inherit parent exceptions',
+    document: {
+      paths: {
+        '/resource_groups': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+          },
+        },
+        '/resource_groups/{id}': {},
+        '/resource_groups/{id}/User-Profiles': {},
+        '/resource_groups/{id}/User-Profiles/{profileId}': {},
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'child paths have exceptions along with parent exceptions',
+    document: {
+      paths: {
+        '/resource_groups': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+          },
+        },
+        '/resource_groups/{id}': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+          },
+        },
+        '/resource_groups/{id}/User-Profiles': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+          },
+        },
+        '/resource_groups/{id}/User-Profiles/{profileId}': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-collection-identifier-camelCase': 'Legacy API path that cannot be changed',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-102-collection-identifier-camelCase',
+        message:
+          'This component adopts the rule and does not need an exception. Please remove the exception. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-102-collection-identifier-camelCase',
+        path: [
+          'paths',
+          '/resource_groups/{id}',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-102-collection-identifier-camelCase',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-102-collection-identifier-camelCase',
+        message:
+          'This component adopts the rule and does not need an exception. Please remove the exception. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-102-collection-identifier-camelCase',
+        path: [
+          'paths',
+          '/resource_groups/{id}/User-Profiles',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-102-collection-identifier-camelCase',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-102-collection-identifier-camelCase',
+        message:
+          'This component adopts the rule and does not need an exception. Please remove the exception. https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-102-collection-identifier-camelCase',
+        path: [
+          'paths',
+          '/resource_groups/{id}/User-Profiles/{profileId}',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-102-collection-identifier-camelCase',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
 ]);

@@ -125,8 +125,6 @@ describe('tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js', () =>
       expect(result[0].message).toEqual(
         'This component adopts the rule and does not need an exception. Please remove the exception.'
       );
-      expect(collector.add).toHaveBeenCalledTimes(1);
-      expect(collector.add).toHaveBeenCalledWith(TEST_ENTRY_TYPE.VIOLATION, testPath, testRuleName);
     });
   });
 
