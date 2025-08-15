@@ -864,6 +864,18 @@ This rule includes two configuration options:
   - `ignoreList`: Words that are allowed to maintain their specific casing (e.g., "API", "AWS", "DNS")
   - `grammaticalWords`: Common words that can remain lowercase in titles (e.g., "and", "or", "the")
 
+#### xgen-IPA-117-get-operation-summary-starts-with
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+In operation summaries, use 'Return' instead of 'Get' or 'List'. For example "Return One Identity Provider".
+
+##### Implementation details
+- The rule checks that the `summary` property of get and list operations use the word 'Return' as the first word.
+- The rule only applies to get and list methods and ignores custom methods
+##### Configuration
+This rule includes a configuration option:
+  - `allowedStartVerbs`: Allow list of verb that the operation summary can start with, defaults to `['Return']`
+
 
 
 ### IPA-118
