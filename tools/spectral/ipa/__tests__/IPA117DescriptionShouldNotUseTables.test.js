@@ -8,6 +8,7 @@ testRule('xgen-IPA-117-description-should-not-use-inline-tables', [
       components: {
         schemas: {
           Schema: {
+            description: 'Schema for request | response',
             properties: {
               valid: {
                 description: 'Description.',
@@ -28,6 +29,7 @@ testRule('xgen-IPA-117-description-should-not-use-inline-tables', [
       components: {
         schemas: {
           Schema: {
+            description: '|Title|\n|-----|\n|Description|',
             properties: {
               table: {
                 description: '|Title|\n|-----|\n|Description|',
@@ -50,6 +52,13 @@ testRule('xgen-IPA-117-description-should-not-use-inline-tables', [
       },
     },
     errors: [
+      {
+        code: 'xgen-IPA-117-description-should-not-use-inline-tables',
+        message:
+          'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
+        path: ['components', 'schemas', 'Schema'],
+        severity: DiagnosticSeverity.Error,
+      },
       {
         code: 'xgen-IPA-117-description-should-not-use-inline-tables',
         message:
@@ -93,6 +102,10 @@ testRule('xgen-IPA-117-description-should-not-use-inline-tables', [
       components: {
         schemas: {
           Schema: {
+            description: '|Title|\n|-----|\n|Description|',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-117-description-should-not-use-inline-tables': 'reason',
+            },
             properties: {
               table: {
                 description: '|Title|\n|-----|\n|Description|',

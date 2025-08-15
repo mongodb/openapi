@@ -7,6 +7,7 @@ testRule('xgen-IPA-117-description-must-not-use-html', [
     document: {
       components: {
         schemas: {
+          description: 'Must be < 250 characters.',
           Schema: {
             properties: {
               valid: {
@@ -31,6 +32,7 @@ testRule('xgen-IPA-117-description-must-not-use-html', [
       components: {
         schemas: {
           Schema: {
+            description: '<a>Description</a>',
             properties: {
               html: {
                 description: '<a>Description</a>',
@@ -50,6 +52,12 @@ testRule('xgen-IPA-117-description-must-not-use-html', [
       },
     },
     errors: [
+      {
+        code: 'xgen-IPA-117-description-must-not-use-html',
+        message: 'Descriptions must not use raw HTML.',
+        path: ['components', 'schemas', 'Schema'],
+        severity: DiagnosticSeverity.Error,
+      },
       {
         code: 'xgen-IPA-117-description-must-not-use-html',
         message: 'Descriptions must not use raw HTML.',
@@ -83,6 +91,10 @@ testRule('xgen-IPA-117-description-must-not-use-html', [
       components: {
         schemas: {
           Schema: {
+            description: '<a>Description</a>',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-117-description-must-not-use-html': 'reason',
+            },
             properties: {
               html: {
                 description: '<a>Description</a>',

@@ -8,6 +8,7 @@ testRule('xgen-IPA-117-description-ends-with-period', [
       components: {
         schemas: {
           Schema: {
+            description: 'Description.',
             properties: {
               id: {
                 description: 'Description.',
@@ -25,6 +26,7 @@ testRule('xgen-IPA-117-description-ends-with-period', [
       components: {
         schemas: {
           Schema: {
+            description: 'Description',
             properties: {
               noPeriod: {
                 description: 'Description',
@@ -35,6 +37,12 @@ testRule('xgen-IPA-117-description-ends-with-period', [
       },
     },
     errors: [
+      {
+        code: 'xgen-IPA-117-description-ends-with-period',
+        message: 'Descriptions must end with a full stop(.).',
+        path: ['components', 'schemas', 'Schema'],
+        severity: DiagnosticSeverity.Error,
+      },
       {
         code: 'xgen-IPA-117-description-ends-with-period',
         message: 'Descriptions must end with a full stop(.).',
@@ -49,6 +57,7 @@ testRule('xgen-IPA-117-description-ends-with-period', [
       components: {
         schemas: {
           Schema: {
+            description: 'Description\n| Table |',
             properties: {
               noPeriod: {
                 description: 'Description\n| Table |',
@@ -66,6 +75,10 @@ testRule('xgen-IPA-117-description-ends-with-period', [
       components: {
         schemas: {
           Schema: {
+            description: 'Description',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-117-description-ends-with-period': 'reason',
+            },
             properties: {
               noPeriod: {
                 description: 'Description',
