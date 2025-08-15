@@ -4,7 +4,7 @@ import { EXCEPTION_EXTENSION, getUnnecessaryExceptionError, hasException } from 
 /**
  * Evaluates and collects adoptions, exceptions and violations based on the rule, evaluated object and the validation errors.
  * If the object is violating the rule, but has an exception, the validation error is ignored
- * If the object is adopting the rule, but has an exception, a validation error will be returned
+ * If the object is adopting the rule, but has an exception, an unnecessary exception error is returned, but the object is counted as adopting the rule
  *
  * @param {Array<{path: Array<string>, message: string}>} validationErrors the error results from the rule
  * @param {string} ruleName the name of the rule
@@ -20,10 +20,11 @@ export function evaluateAndCollectAdoptionStatus(validationErrors, ruleName, obj
     }
     return collectAndReturnViolation(objectPath, ruleName, validationErrors);
   }
+  collectAdoption(objectPath, ruleName);
+
   if (hasException(object, ruleName)) {
     return returnViolation(getUnnecessaryExceptionError(objectPath, ruleName));
   }
-  collectAdoption(objectPath, ruleName);
 }
 
 /**
