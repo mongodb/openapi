@@ -8,6 +8,7 @@ testRule('xgen-IPA-117-description-should-not-use-inline-links', [
       components: {
         schemas: {
           Schema: {
+            description: 'Description.',
             properties: {
               valid: {
                 description: 'Description.',
@@ -37,6 +38,7 @@ testRule('xgen-IPA-117-description-should-not-use-inline-links', [
       components: {
         schemas: {
           Schema: {
+            description: 'Hello [world](https://www.mongodb.com).',
             properties: {
               invalidLink: {
                 description: 'Hello [world](https://www.mongodb.com).',
@@ -50,6 +52,13 @@ testRule('xgen-IPA-117-description-should-not-use-inline-links', [
       },
     },
     errors: [
+      {
+        code: 'xgen-IPA-117-description-should-not-use-inline-links',
+        message:
+          'Descriptions should not include inline links. Use the externalDocumentation property instead, see https://swagger.io/specification/#external-documentation-object.',
+        path: ['components', 'schemas', 'Schema'],
+        severity: DiagnosticSeverity.Error,
+      },
       {
         code: 'xgen-IPA-117-description-should-not-use-inline-links',
         message:
@@ -72,6 +81,10 @@ testRule('xgen-IPA-117-description-should-not-use-inline-links', [
       components: {
         schemas: {
           Schema: {
+            description: 'Hello [world](https://www.mongodb.com).',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-117-description-should-not-use-inline-links': 'reason',
+            },
             properties: {
               invalidLink: {
                 description: 'Hello [world](https://www.mongodb.com).',
