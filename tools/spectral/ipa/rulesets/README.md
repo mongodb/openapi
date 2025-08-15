@@ -1004,6 +1004,14 @@ Rule checks for the following conditions:
   - Applies only to object type schemas with `oneOf`
   - Ensures that if a property is defined in multiple `oneOf` schemas, it must have the same type in each schema (base type or object schema)
 
+#### xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Each discriminator property must be accompanied by a `oneOf`, `anyOf` or `allOf` property 
+
+##### Implementation details
+- Rule checks that a `discriminator` property has a `oneOf`, `anyOf` or `allOf` sibling
+
 
 
 ### IPA-126
