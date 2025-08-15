@@ -31,7 +31,7 @@ export function findExceptionInPathHierarchy(oas, currentPath, ruleName) {
   }
 
   // Check parent paths by removing segments from the end
-  const pathSegments = currentPath.split('/').filter(segment => segment !== '');
+  const pathSegments = currentPath.split('/').filter((segment) => segment !== '');
 
   for (let i = pathSegments.length - 1; i > 0; i--) {
     const parentPath = '/' + pathSegments.slice(0, i).join('/');

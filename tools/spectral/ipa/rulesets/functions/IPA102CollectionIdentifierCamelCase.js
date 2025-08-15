@@ -1,7 +1,4 @@
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isPathParam } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
 import { findExceptionInPathHierarchy } from './utils/exceptions.js';
