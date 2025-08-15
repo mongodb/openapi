@@ -13,7 +13,7 @@ testRule('xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf', [
             },
             oneOf: [{}],
           },
-          SchemaAnuOf: {
+          SchemaAnyOf: {
             discriminator: {
               propertyName: 'type',
             },
