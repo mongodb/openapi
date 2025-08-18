@@ -4,6 +4,9 @@ import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourc
 const CAMEL_CASE = /[A-Z]?[a-z]+/g;
 const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z])|[A-Z]*[a-z]+/g;
 
+// List of capitalized nouns that should not be pluralized in any case.
+const IGNORE_LIST = ['Fts'];
+
 /**
  * Returns IPA Compliant Operation ID.
  *
@@ -40,7 +43,7 @@ export function generateOperationID(method, path) {
 
   let opID = verb;
   for (let i = 0; i < nouns.length - 1; i++) {
-    opID += inflection.singularize(nouns[i]);
+    opID += singularize(nouns[i]);
   }
 
   // singularize final noun, dependent on resource identifier - leave custom nouns alone
@@ -49,7 +52,7 @@ export function generateOperationID(method, path) {
       !camelCaseCustomMethod) ||
     verb === 'create'
   ) {
-    nouns[nouns.length - 1] = inflection.singularize(nouns[nouns.length - 1]);
+    nouns[nouns.length - 1] = singularize(nouns[nouns.length - 1]);
   }
 
   opID += nouns.pop();
@@ -91,4 +94,11 @@ function deriveActionVerb(method) {
 
 function capitalize(val) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+}
+
+function singularize(noun) {
+  if (!IGNORE_LIST.includes(noun)) {
+    return inflection.singularize(noun);
+  }
+  return noun;
 }
