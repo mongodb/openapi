@@ -1145,6 +1145,48 @@ components:
             example: APPLICATION_ID
             title: App Services Metric Matcher Fields
             type: string
+        AtlasRateLimitBucketState:
+            description: Configuration and current state of a single rate limit token bucket.
+            properties:
+                capacity:
+                    description: The capacity of the bucket.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                name:
+                    description: The name of the bucket.
+                    readOnly: true
+                    type: string
+                remaining:
+                    description: The remaining tokens of the bucket.
+                    format: int64
+                    readOnly: true
+                    type: integer
+            readOnly: true
+            type: object
+        AtlasRateLimitInspectionResponse:
+            description: Rate limit inspection response containing bucket states for debugging and monitoring.
+            properties:
+                limits:
+                    description: List of bucket states.
+                    items:
+                        $ref: '#/components/schemas/AtlasRateLimitBucketState'
+                    readOnly: true
+                    type: array
+                scope:
+                    description: The scope type of the rate limit.
+                    enum:
+                        - GROUP
+                        - ORGANIZATION
+                        - USER
+                        - IP
+                    readOnly: true
+                    type: string
+                scopeId:
+                    description: The scope id associated to the bucket.
+                    readOnly: true
+                    type: string
+            type: object
         AtlasSearchAnalyzer:
             properties:
                 charFilters:
@@ -6517,28 +6559,6 @@ components:
                     type: string
             readOnly: true
             type: object
-        Info:
-            description: Information about the MongoDB Atlas Administration API OpenAPI Specification.
-            properties:
-                description:
-                    description: Description of the MongoDB Atlas Administration API.
-                    example: The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.
-                    type: string
-                license:
-                    $ref: '#/components/schemas/License'
-                termsOfService:
-                    description: Terms of Service URL.
-                    example: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
-                    type: string
-                title:
-                    description: Title of the MongoDB Atlas Administration API.
-                    example: MongoDB Atlas Administration API.
-                    type: string
-                version:
-                    description: Version of the MongoDB Atlas Administration API.
-                    example: "2.0"
-                    type: string
-            type: object
         IngestionSink:
             description: Ingestion destination of a Data Lake Pipeline.
             discriminator:
@@ -7212,18 +7232,6 @@ components:
                     type: string
             readOnly: true
             type: object
-        License:
-            description: License information of the MongoDB Atlas Administration API.
-            properties:
-                name:
-                    description: Name of the license.
-                    example: CC BY-NC-SA 3.0 US
-                    type: string
-                url:
-                    description: URL of the license.
-                    example: https://creativecommons.org/licenses/by-nc-sa/3.0/us/
-                    type: string
-            type: object
         Link:
             properties:
                 href:
@@ -7470,11 +7478,6 @@ components:
             required:
                 - type
             title: Online Archive Schedule
-            type: object
-        OpenApiInfo:
-            properties:
-                info:
-                    $ref: '#/components/schemas/Info'
             type: object
         OrgActiveUserResponse:
             allOf:
@@ -10723,7 +10726,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
+          --header "Accept: application/vnd.atlas.private-preview-rate-limit+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -10739,58 +10742,228 @@ info:
     x-xgen-sha: 8f27db659b42d845169bb43d489bc0229b9f6e0d
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/openapi/info:
+    /api/atlas/v2/groups/{groupId}/ratelimits:
         get:
-            description: 'This resource returns general information about the MongoDB Atlas Administration API OpenAPI Specification. Deprecated versions: v2-{2024-08-05}, v2-{2024-05-30}'
-            operationId: getOpenapiInfo
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Retrieve rate limiting bucket state for the specified group.
+            operationId: getGroupRateLimitState
             parameters:
-                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2025-09-22.upcoming+json:
+                        application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/OpenApiInfo'
-                            x-xgen-version: 2025-09-22.upcoming
+                                $ref: '#/components/schemas/AtlasRateLimitInspectionResponse'
+                            x-xgen-preview:
+                                name: rate-limit
+                                public: "false"
+                            x-xgen-version: private-preview-rate-limit
                     description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get group rate limit state
+            tags:
+                - Rate Limit
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api rateLimit getGroupRateLimitState --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/ratelimits?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/ratelimits?pretty=true"
+            x-state: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getGroupRateLimitState
+    /api/atlas/v2/orgs/{orgId}/ratelimits:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Retrieve rate limiting bucket state for the specified organization.
+            operationId: getOrganizationRateLimitState
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AtlasRateLimitInspectionResponse'
+                            x-xgen-preview:
+                                name: rate-limit
+                                public: "false"
+                            x-xgen-version: private-preview-rate-limit
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get organization rate limit state
+            tags:
+                - Rate Limit
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api rateLimit getOrganizationRateLimitState --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/ratelimits?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/ratelimits?pretty=true"
+            x-state: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getOrganizationRateLimitState
+    /api/atlas/v2/ratelimits:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Retrieve rate limiting bucket state for the current user.
+            operationId: getRateLimitState
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AtlasRateLimitInspectionResponse'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-110-collections-response-define-links-array: The API is in private preview. We will fix this before moving to stable.
+                                xgen-IPA-110-collections-response-define-results-array: The API is in private preview. We will fix this before moving to stable.
+                                xgen-IPA-110-collections-use-paginated-prefix: The API is in private preview. We will fix this before moving to stable.
+                            x-xgen-preview:
+                                name: rate-limit
+                                public: "false"
+                            x-xgen-version: private-preview-rate-limit
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return general information about the MongoDB Atlas Administration API OpenAPI Specification.
+            summary: Get user rate limit state
             tags:
-                - OpenAPI
+                - Rate Limit
+            x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api openApi getOpenapiInfo --help
+                  source: atlas api rateLimit getRateLimitState --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/openapi/info?pretty=true"
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/ratelimits?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest \
-                      --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/openapi/info?pretty=true"
-            x-state: UPCOMING
-            x-xgen-method-verb-override:
-                customMethod: "False"
-                verb: get
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/ratelimits?pretty=true"
+            x-state: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getRateLimitState
+    /api/atlas/v2/unauth/ratelimits:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Retrieve rate limiting bucket state for unauthenticated requests.
+            operationId: getRateLimitUnauthState
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AtlasRateLimitInspectionResponse'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-110-collections-response-define-links-array: The API is in private preview. We will fix this before moving to stable.
+                                xgen-IPA-110-collections-response-define-results-array: The API is in private preview. We will fix this before moving to stable.
+                                xgen-IPA-110-collections-use-paginated-prefix: The API is in private preview. We will fix this before moving to stable.
+                            x-xgen-preview:
+                                name: rate-limit
+                                public: "false"
+                            x-xgen-version: private-preview-rate-limit
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get unauthenticated rate limit state
+            tags:
+                - Rate Limit
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api rateLimit getRateLimitUnauthState --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/ratelimits?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/ratelimits?pretty=true"
+            x-state: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getRateLimitUnauthState
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns information about the MongoDB Atlas Specification.
-      name: OpenAPI
+    - description: Inspect Rate Limit bucket states.
+      name: Rate Limit
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/

@@ -3975,6 +3975,50 @@ components:
             required:
                 - name
             type: object
+        AtlasRateLimitBucketState:
+            description: Configuration and current state of a single rate limit token bucket.
+            properties:
+                capacity:
+                    description: The capacity of the bucket.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                name:
+                    description: The name of the bucket.
+                    readOnly: true
+                    type: string
+                remaining:
+                    description: The remaining tokens of the bucket.
+                    format: int64
+                    readOnly: true
+                    type: integer
+            readOnly: true
+            type: object
+        AtlasRateLimitInspectionResponse:
+            description: Rate limit inspection response containing bucket states for debugging and monitoring.
+            properties:
+                limits:
+                    description: List of bucket states.
+                    items:
+                        $ref: '#/components/schemas/AtlasRateLimitBucketState'
+                    readOnly: true
+                    type: array
+                    x-xgen-IPA-exception:
+                        xgen-IPA-124-array-max-items: The API is in private preview. We will fix this before moving to stable.
+                scope:
+                    description: The scope type of the rate limit.
+                    enum:
+                        - GROUP
+                        - ORGANIZATION
+                        - USER
+                        - IP
+                    readOnly: true
+                    type: string
+                scopeId:
+                    description: The scope id associated to the bucket.
+                    readOnly: true
+                    type: string
+            type: object
         AtlasResourcePolicyAuditForNdsGroup:
             description: Atlas resource policy audits indicate org level changes to resource policies
             properties:
@@ -21328,6 +21372,7 @@ components:
             type: object
             x-xgen-IPA-exception:
                 xgen-IPA-125-oneOf-must-have-discriminator: Schema predates IPA validation
+                xgen-IPA-125-oneOf-schema-property-same-type: Schema predates IPA validation
         GroupIPAddresses:
             description: List of IP addresses in a project.
             properties:
@@ -41739,7 +41784,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 107800aa79e6aef6501f1b8e4515b41a3b5c920e
+    x-xgen-sha: 8f27db659b42d845169bb43d489bc0229b9f6e0d
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -46897,7 +46942,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: createAtlasSearchIndexDeprecated
+            operationId: createGroupClusterFtIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46940,7 +46985,8 @@ paths:
             summary: Create One Atlas Search Index
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/createAtlasSearchIndexDeprecated
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/createGroupClusterFtIndex
+            x-xgen-operation-id-override: createClusterFtIndex
             x-xgen-owner-team: Search Web Platform
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -46951,7 +46997,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: listAtlasSearchIndexesDeprecated
+            operationId: listGroupClusterFtIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46999,7 +47045,8 @@ paths:
             summary: Return All Atlas Search Indexes for One Collection
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/listAtlasSearchIndexesDeprecated
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/listGroupClusterFtIndex
+            x-xgen-operation-id-override: listClusterFtIndex
             x-xgen-owner-team: Search Web Platform
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -47010,7 +47057,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: deleteAtlasSearchIndexDeprecated
+            operationId: deleteGroupClusterFtIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -47051,7 +47098,8 @@ paths:
             summary: Remove One Atlas Search Index
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteAtlasSearchIndexDeprecated
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteGroupClusterFtIndex
+            x-xgen-operation-id-override: deleteClusterFtIndex
             x-xgen-owner-team: Search Web Platform
         get:
             deprecated: true
@@ -47059,7 +47107,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: getAtlasSearchIndexDeprecated
+            operationId: getGroupClusterFtIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -47100,7 +47148,8 @@ paths:
             summary: Return One Atlas Search Index
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getAtlasSearchIndexDeprecated
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getGroupClusterFtIndex
+            x-xgen-operation-id-override: getClusterFtIndex
             x-xgen-owner-team: Search Web Platform
         patch:
             deprecated: true
@@ -47108,7 +47157,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: updateAtlasSearchIndexDeprecated
+            operationId: updateGroupClusterFtIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -47160,7 +47209,8 @@ paths:
             summary: Update One Atlas Search Index
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateAtlasSearchIndexDeprecated
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateGroupClusterFtIndex
+            x-xgen-operation-id-override: updateClusterFtIndex
             x-xgen-owner-team: Search Web Platform
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -48779,7 +48829,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment:
         delete:
             description: Deletes the Search Nodes for the specified cluster.
-            operationId: deleteAtlasSearchDeployment
+            operationId: deleteGroupClusterSearchDeployment
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -48818,11 +48868,12 @@ paths:
             summary: Delete Search Nodes
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteAtlasSearchDeployment
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteGroupClusterSearchDeployment
+            x-xgen-operation-id-override: deleteClusterSearchDeployment
             x-xgen-owner-team: Search Web Platform
         get:
             description: Returns the Search Nodes for the specified cluster.
-            operationId: getAtlasSearchDeployment
+            operationId: getGroupClusterSearchDeployment
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -48867,14 +48918,15 @@ paths:
                 - Atlas Search
             x-xgen-changelog:
                 "2025-03-12": Updates the return of the API when no nodes exist, the endpoint returns 200 with an empty JSON ({}) instead of 400.
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getAtlasSearchDeployment
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getGroupClusterSearchDeployment
             x-xgen-method-verb-override:
                 customMethod: "False"
                 verb: get
+            x-xgen-operation-id-override: getClusterSearchDeployment
             x-xgen-owner-team: Search Web Platform
         patch:
             description: Updates the Search Nodes for the specified cluster.
-            operationId: updateAtlasSearchDeployment
+            operationId: updateGroupClusterSearchDeployment
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -48924,11 +48976,12 @@ paths:
             summary: Update Search Nodes
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateAtlasSearchDeployment
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateGroupClusterSearchDeployment
+            x-xgen-operation-id-override: updateClusterSearchDeployment
             x-xgen-owner-team: Search Web Platform
         post:
             description: Creates Search Nodes for the specified cluster.
-            operationId: createAtlasSearchDeployment
+            operationId: createGroupClusterSearchDeployment
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -48981,7 +49034,8 @@ paths:
             summary: Create Search Nodes
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/createAtlasSearchDeployment
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/createGroupClusterSearchDeployment
+            x-xgen-operation-id-override: createClusterSearchDeployment
             x-xgen-owner-team: Search Web Platform
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -48992,7 +49046,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: listAtlasSearchIndexesCluster
+            operationId: listGroupClusterSearchIndexes
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49035,14 +49089,15 @@ paths:
             summary: Return All Atlas Search Indexes for One Cluster
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/listAtlasSearchIndexesCluster
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/listGroupClusterSearchIndexes
+            x-xgen-operation-id-override: listClusterSearchIndexes
             x-xgen-owner-team: Search Web Platform
         post:
             description: Creates one Atlas Search index on the specified collection. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. Only clusters running MongoDB v4.2 or later can use Atlas Search. To use this resource, the requesting Service Account or API Key must have the Project Data Access Admin role.
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: createAtlasSearchIndex
+            operationId: createGroupClusterSearchIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49084,7 +49139,8 @@ paths:
             summary: Create One Atlas Search Index
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/createAtlasSearchIndex
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/createGroupClusterSearchIndex
+            x-xgen-operation-id-override: createClusterSearchIndex
             x-xgen-owner-team: Search Web Platform
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -49094,7 +49150,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: listAtlasSearchIndexes
+            operationId: listGroupClusterSearchIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49149,7 +49205,8 @@ paths:
             summary: Return All Atlas Search Indexes for One Collection
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/listAtlasSearchIndexes
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/listGroupClusterSearchIndex
+            x-xgen-operation-id-override: listSearchIndex
             x-xgen-owner-team: Search Web Platform
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -49159,7 +49216,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: deleteAtlasSearchIndexByName
+            operationId: deleteGroupClusterSearchIndexByName
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49208,14 +49265,18 @@ paths:
             summary: Remove One Atlas Search Index by Name
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteAtlasSearchIndexByName
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteGroupClusterSearchIndexByName
+            x-xgen-method-verb-override:
+                customMethod: true
+                verb: deleteByName
+            x-xgen-operation-id-override: deleteIndexByName
             x-xgen-owner-team: Search Web Platform
         get:
             description: Returns one Atlas Search index in the specified project. You identify this index using its database, collection and name. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting Service Account or API Key must have the Project Data Access Read Write role.
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: getAtlasSearchIndexByName
+            operationId: getGroupClusterSearchIndexByName
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49266,17 +49327,18 @@ paths:
             summary: Return One Atlas Search Index by Name
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getAtlasSearchIndexByName
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getGroupClusterSearchIndexByName
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
                 verb: getByName
+            x-xgen-operation-id-override: getIndexByName
             x-xgen-owner-team: Search Web Platform
         patch:
             description: Updates one Atlas Search index that you identified with its database, collection name, and index name. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting Service Account or API Key must have the Project Data Access Admin role.
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: updateAtlasSearchIndexByName
+            operationId: updateGroupClusterSearchIndexByName
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49336,10 +49398,11 @@ paths:
             summary: Update One Atlas Search Index by Name
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateAtlasSearchIndexByName
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateGroupClusterSearchIndexByName
             x-xgen-method-verb-override:
-                customMethod: "True"
+                customMethod: true
                 verb: updateByName
+            x-xgen-operation-id-override: updateIndexByName
             x-xgen-owner-team: Search Web Platform
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -49349,7 +49412,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: deleteAtlasSearchIndex
+            operationId: deleteGroupClusterSearchIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49389,14 +49452,15 @@ paths:
             summary: Remove One Atlas Search Index by ID
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteAtlasSearchIndex
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteGroupClusterSearchIndex
+            x-xgen-operation-id-override: deleteClusterSearchIndex
             x-xgen-owner-team: Search Web Platform
         get:
             description: Returns one Atlas Search index in the specified project. You identify this index using its unique ID. Atlas Search index contains the indexed fields and the analyzers used to create the index. To use this resource, the requesting Service Account or API Key must have the Project Data Access Read Write role.
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: getAtlasSearchIndex
+            operationId: getGroupClusterSearchIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49444,14 +49508,15 @@ paths:
             summary: Return One Atlas Search Index by ID
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getAtlasSearchIndex
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getGroupClusterSearchIndex
+            x-xgen-operation-id-override: getClusterSearchIndex
             x-xgen-owner-team: Search Web Platform
         patch:
             description: Updates one Atlas Search index that you identified with its unique ID. Atlas Search indexes define the fields on which to create the index and the analyzers to use when creating the index. To use this resource, the requesting Service Account or API Key must have the Project Data Access Admin role.
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: updateAtlasSearchIndex
+            operationId: updateGroupClusterSearchIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49502,7 +49567,8 @@ paths:
             summary: Update One Atlas Search Index by ID
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateAtlasSearchIndex
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateGroupClusterSearchIndex
+            x-xgen-operation-id-override: updateClusterSearchIndex
             x-xgen-owner-team: Search Web Platform
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -57337,6 +57403,43 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
+    /api/atlas/v2/groups/{groupId}/ratelimits:
+        get:
+            description: Retrieve rate limiting bucket state for the specified group.
+            operationId: getGroupRateLimitState
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AtlasRateLimitInspectionResponse'
+                            x-xgen-preview:
+                                name: rate-limit
+                                public: "false"
+                            x-xgen-version: preview
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get group rate limit state
+            tags:
+                - Rate Limit
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getGroupRateLimitState
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: apix
+        x-xgen-IPA-exception:
+            xgen-IPA-113-singleton-should-have-update-method: The API is in private preview. We will fix this before moving to stable.
     /api/atlas/v2/groups/{groupId}/sampleDatasetLoad/{name}:
         post:
             description: Requests loading the MongoDB sample dataset into the specified cluster. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
@@ -62923,6 +63026,43 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-should-have-update-method: API predates IPA validation
+    /api/atlas/v2/orgs/{orgId}/ratelimits:
+        get:
+            description: Retrieve rate limiting bucket state for the specified organization.
+            operationId: getOrganizationRateLimitState
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AtlasRateLimitInspectionResponse'
+                            x-xgen-preview:
+                                name: rate-limit
+                                public: "false"
+                            x-xgen-version: preview
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get organization rate limit state
+            tags:
+                - Rate Limit
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getOrganizationRateLimitState
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: apix
+        x-xgen-IPA-exception:
+            xgen-IPA-113-singleton-should-have-update-method: The API is in private preview. We will fix this before moving to stable.
     /api/atlas/v2/orgs/{orgId}/resourcePolicies:
         get:
             description: Return all Atlas Resource Policies for the org.
@@ -64742,6 +64882,47 @@ paths:
                 - MongoDB Cloud Users
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrganizationRole
             x-xgen-owner-team: IAM
+    /api/atlas/v2/ratelimits:
+        get:
+            description: Retrieve rate limiting bucket state for the current user.
+            operationId: getRateLimitState
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AtlasRateLimitInspectionResponse'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-110-collections-response-define-links-array: The API is in private preview. We will fix this before moving to stable.
+                                xgen-IPA-110-collections-response-define-results-array: The API is in private preview. We will fix this before moving to stable.
+                                xgen-IPA-110-collections-use-paginated-prefix: The API is in private preview. We will fix this before moving to stable.
+                            x-xgen-preview:
+                                name: rate-limit
+                                public: "false"
+                            x-xgen-version: preview
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get user rate limit state
+            tags:
+                - Rate Limit
+            x-xgen-IPA-exception:
+                xgen-IPA-110-collections-request-has-itemsPerPage-query-param: The API is in private preview. We will fix this before moving to stable.
+                xgen-IPA-110-collections-request-has-pageNum-query-param: The API is in private preview. We will fix this before moving to stable.
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getRateLimitState
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: apix
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: The API is in private preview. We will fix this before moving to stable.
     /api/atlas/v2/unauth/controlPlaneIPAddresses:
         get:
             description: Returns all control plane IP addresses.
@@ -64828,6 +65009,43 @@ paths:
                 envs: qa,prod,stage
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
+    /api/atlas/v2/unauth/ratelimits:
+        get:
+            description: Retrieve rate limiting bucket state for unauthenticated requests.
+            operationId: getRateLimitUnauthState
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AtlasRateLimitInspectionResponse'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-110-collections-response-define-links-array: The API is in private preview. We will fix this before moving to stable.
+                                xgen-IPA-110-collections-response-define-results-array: The API is in private preview. We will fix this before moving to stable.
+                                xgen-IPA-110-collections-use-paginated-prefix: The API is in private preview. We will fix this before moving to stable.
+                            x-xgen-preview:
+                                name: rate-limit
+                                public: "false"
+                            x-xgen-version: preview
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Get unauthenticated rate limit state
+            tags:
+                - Rate Limit
+            x-xgen-IPA-exception:
+                xgen-IPA-110-collections-request-has-itemsPerPage-query-param: The API is in private preview. We will fix this before moving to stable.
+                xgen-IPA-110-collections-request-has-pageNum-query-param: The API is in private preview. We will fix this before moving to stable.
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getRateLimitUnauthState
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: apix
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: The API is in private preview. We will fix this before moving to stable.
     /api/atlas/v2/users:
         post:
             deprecated: true
@@ -65058,6 +65276,8 @@ tags:
       name: Projects
     - description: You can continually push logs from mongod, mongos, and audit logs to an AWS S3 bucket. Atlas exports logs every 5 minutes.
       name: Push-Based Log Export
+    - description: Inspect Rate Limit bucket states.
+      name: Rate Limit
     - description: Configure and manage Atlas Resource Policies within your organization.
       name: Resource Policies
     - description: Creates one index to a database deployment in a rolling manner. Rolling indexes build indexes on the applicable nodes sequentially and may reduce the performance impact of an index build if your deployment's average CPU utilization exceeds (N-1)/N-10% where N is the number of CPU threads available to mongod of if the WiredTiger cache fill ratio regularly exceeds 90%. If your deployment does not meet this criteria, use the default index build. You can't create a rolling index on an `M0` free cluster or `M2/M5` shared cluster.
