@@ -31,7 +31,6 @@ function checkViolationsAndReturnErrors(summary, allowedStartVerbs, path, ruleNa
     const firstWord = summary.split(' ')[0];
 
     if (!allowedStartVerbs.includes(firstWord)) {
-      console.log(summary, '\n');
       if (allowedStartVerbs.length === 1) {
         return [
           {
@@ -40,7 +39,6 @@ function checkViolationsAndReturnErrors(summary, allowedStartVerbs, path, ruleNa
           },
         ];
       } else {
-        console.log(summary, '\n');
         return [
           {
             path,
