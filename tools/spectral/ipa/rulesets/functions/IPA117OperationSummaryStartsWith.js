@@ -5,7 +5,7 @@ import { hasCustomMethodOverride } from './utils/extensions.js';
 
 /**
  * Checks if the operation summary starts with one of the allowed verbs in the 'allowedStartVerbs' list. The rule ignores custom methods.
- * Note: This rule is used by multiple rules evaluating get/list, update, delete and create.
+ * Note: This function is used by multiple rules evaluating get/list, update, delete and create.
  * @param input the operation summary to evaluate
  * @param allowedStartVerbs the list of allowed verbs that the operation summary must start with
  * @param path the path to the operation object summary in the document
