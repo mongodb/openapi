@@ -2,7 +2,9 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [2.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.0.0...2.1.0)
+#### [ipa-validation-ruleset-v2.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.0.0...ipa-validation-ruleset-v2.1.0)
+
+> 15 August 2025
 
 - feat(ipa): new rule xgen-IPA-117-operation-summary-format [`#897`](https://github.com/mongodb/openapi/pull/897)
 - fix(ipa): child path identifiers inherit parent path exceptions [`#896`](https://github.com/mongodb/openapi/pull/896)
