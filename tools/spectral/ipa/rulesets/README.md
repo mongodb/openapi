@@ -876,6 +876,42 @@ In operation summaries, use 'Return' instead of 'Get' or 'List'. For example "Re
 This rule includes a configuration option:
   - `allowedStartVerbs`: Allow list of verb that the operation summary can start with, defaults to `['Return']`
 
+#### xgen-IPA-117-update-operation-summary-starts-with
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+In operation summaries, use 'Update' instead of 'Modify' or 'Change'. For example "Update One Identity Provider".
+
+##### Implementation details
+- The rule checks that the `summary` property of update operations use the word 'Update' as the first word.
+- The rule only applies to update methods and ignores custom methods
+##### Configuration
+This rule includes a configuration option:
+  - `allowedStartVerbs`: Allow list of verb that the operation summary can start with, defaults to `['Update']`
+
+#### xgen-IPA-117-create-operation-summary-starts-with
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+In operation summaries, use 'Create' when the operation is creating a resource, and use 'Add' when the resource itself isn't being created. For example "Create One Identity Provider" or "Add One MongoDB Cloud User to One Project".
+
+##### Implementation details
+- The rule checks that the `summary` property of create operations use the word 'Create' or 'Add' as the first word.
+- The rule only applies to create methods and ignores custom methods
+##### Configuration
+This rule includes a configuration option:
+  - `allowedStartVerbs`: Allow list of verb that the operation summary can start with, defaults to `['Create', 'Add']`
+
+#### xgen-IPA-117-delete-operation-summary-starts-with
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+In operation summaries, use 'Delete' when the operation is destroying a resource, and use 'Remove' when the resource itself isn't being destroyed. For example "Delete One Identity Provider" or "Remove One MongoDB Cloud User from One Project".
+
+##### Implementation details
+- The rule checks that the `summary` property of delete operations use the word 'Delete' or 'Remove' as the first word.
+- The rule only applies to delete methods and ignores custom methods
+##### Configuration
+This rule includes a configuration option:
+  - `allowedStartVerbs`: Allow list of verb that the operation summary can start with, defaults to `['Delete', 'Remove']`
+
 
 
 ### IPA-118
