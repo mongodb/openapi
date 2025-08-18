@@ -4,7 +4,7 @@ import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourc
 const CAMEL_CASE = /[A-Z]?[a-z]+/g;
 const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z])|[A-Z]*[a-z]+/g;
 
-// List of capitalized nouns that should not be pluralized in any case.
+// List of capitalized nouns that should not be singularized in any case.
 const IGNORE_LIST = ['Fts'];
 
 /**
