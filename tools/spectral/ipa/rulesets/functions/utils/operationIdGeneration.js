@@ -4,16 +4,13 @@ import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourc
 const CAMEL_CASE = /[A-Z]?[a-z]+/g;
 const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z])|[A-Z]*[a-z]+/g;
 
-// List of capitalized nouns that should not be singularized in any case.
-const IGNORE_LIST = ['Fts'];
-
 /**
  * Returns IPA Compliant Operation ID.
  *
  * @param method the standard method name (create, update, get etc.), custom method name, or empty string (only for legacy custom methods)
  * @param path the path for the endpoint
  */
-export function generateOperationID(method, path) {
+export function generateOperationID(method, path, ignoreList = []) {
   if (!path) {
     return method;
   }
@@ -43,7 +40,7 @@ export function generateOperationID(method, path) {
 
   let opID = verb;
   for (let i = 0; i < nouns.length - 1; i++) {
-    opID += singularize(nouns[i]);
+    opID += singularize(nouns[i], ignoreList);
   }
 
   // singularize final noun, dependent on resource identifier - leave custom nouns alone
@@ -52,7 +49,7 @@ export function generateOperationID(method, path) {
       !camelCaseCustomMethod) ||
     verb === 'create'
   ) {
-    nouns[nouns.length - 1] = singularize(nouns[nouns.length - 1]);
+    nouns[nouns.length - 1] = singularize(nouns[nouns.length - 1], ignoreList);
   }
 
   opID += nouns.pop();
@@ -96,8 +93,8 @@ function capitalize(val) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }
 
-function singularize(noun) {
-  if (!IGNORE_LIST.includes(noun)) {
+function singularize(noun, ignoreList = []) {
+  if (!ignoreList.includes(noun)) {
     return inflection.singularize(noun);
   }
   return noun;

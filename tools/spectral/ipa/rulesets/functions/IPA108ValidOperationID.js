@@ -5,7 +5,7 @@ import { validateOperationIdAndReturnErrors } from './utils/validations/validate
 
 const RULE_NAME = 'xgen-IPA-108-valid-operation-id';
 
-export default (input, { methodName }, { path }) => {
+export default (input, { methodName, ignoreList }, { path }) => {
   const resourcePath = path[1];
 
   if (isCustomMethodIdentifier(resourcePath) || hasCustomMethodOverride(input)) {
@@ -17,7 +17,7 @@ export default (input, { methodName }, { path }) => {
   }
 
   try {
-    const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path);
+    const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path, ignoreList);
     return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
   } catch (e) {
     return handleInternalError(RULE_NAME, path, e);

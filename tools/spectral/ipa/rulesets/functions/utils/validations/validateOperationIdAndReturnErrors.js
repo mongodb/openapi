@@ -18,9 +18,9 @@ const TOO_LONG_OP_ID_ERROR_MESSAGE =
  * @param path the path to the operation object being evaluated, used for error reporting with Spectral.
  * @returns {[{path: string[], message: string}]} an array of error objects, each containing a path and a message, or an empty array if no errors are found.
  */
-export function validateOperationIdAndReturnErrors(methodName, resourcePath, operationObject, path) {
+export function validateOperationIdAndReturnErrors(methodName, resourcePath, operationObject, path, ignoreList) {
   const operationId = operationObject.operationId;
-  const expectedOperationId = generateOperationID(methodName, resourcePath);
+  const expectedOperationId = generateOperationID(methodName, resourcePath, ignoreList);
 
   const operationIdPath = path.concat(['operationId']);
 
