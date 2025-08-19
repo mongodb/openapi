@@ -145,4 +145,18 @@ testRule('xgen-IPA-104-valid-operation-id', [
     },
     errors: [],
   },
+  {
+    name: 'valid method that needs ignoreList',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes/{indexId} ': {
+          get: {
+            operationId: 'getGroupClusterFtsIndex',
+            'x-xgen-operation-id-override': 'getClusterFtsIndex',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
 ]);

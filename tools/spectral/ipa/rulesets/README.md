@@ -154,6 +154,11 @@ Rule checks for the following conditions:
   - Applies only to GET methods on single resources or singleton resources
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
 
 
 ### IPA-105
@@ -219,6 +224,11 @@ Rule checks for the following conditions:
   - Applies only to GET methods on resource collection paths
   - Ignores singleton resources
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
+
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 
 
@@ -311,6 +321,11 @@ Rule checks for the following conditions:
   - Applies only to POST methods that are not [custom methods](https://mongodb.github.io/ipa/109)
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
 
 
 ### IPA-107
@@ -394,6 +409,11 @@ Rule checks for the following conditions:
   - Applies only to PUT/PATCH methods that are not [custom methods](https://mongodb.github.io/ipa/109)
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
 
 
 ### IPA-108
@@ -448,6 +468,10 @@ The noun(s) in the Operation ID should be the collection identifiers from the re
 Rule checks for the following conditions:
   - Applies only to DELETE methods that are not [custom methods](https://mongodb.github.io/ipa/109)
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 
 
@@ -508,6 +532,10 @@ The noun(s) in the Operation ID should be the collection identifiers from the re
 Rule checks for the following conditions:
   - Applies only to paths containing custom method identifiers (with colon format)
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
+
+##### Configuration
+This rule includes one configuration options:
+  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 
 
@@ -863,6 +891,18 @@ The rule checks that the `summary` property of all operations are in Title Case.
 This rule includes two configuration options:
   - `ignoreList`: Words that are allowed to maintain their specific casing (e.g., "API", "AWS", "DNS")
   - `grammaticalWords`: Common words that can remain lowercase in titles (e.g., "and", "or", "the")
+
+#### xgen-IPA-117-get-operation-summary-starts-with
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+In operation summaries, use 'Return' instead of 'Get' or 'List'. For example "Return One Identity Provider".
+
+##### Implementation details
+- The rule checks that the `summary` property of get and list operations use the word 'Return' as the first word.
+- The rule only applies to get and list methods and ignores custom methods
+##### Configuration
+This rule includes a configuration option:
+  - `allowedStartVerbs`: Allow list of verb that the operation summary can start with, defaults to `['Return']`
 
 
 
