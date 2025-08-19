@@ -22,7 +22,7 @@ export async function runMetricCollectionJob(
     console.log('Extracting team ownership data...');
     const ownershipData = extractTeamOwnership(oasContent);
 
-    console.log('Getting rule severities...');
+    console.log(`Getting rule severities... ${rulesetFilePath}`);
     const ruleset = await loadRuleset(rulesetFilePath, spectral);
     const ruleSeverityMap = getSeverityPerRule(ruleset);
 
@@ -32,8 +32,28 @@ export async function runMetricCollectionJob(
     console.log('Merging results...');
     const mergedResults = merge(ownershipData, collectorResults, ruleSeverityMap);
 
+    const warningViolations = mergedResults.filter(result =>
+      result.severity_level === 1 && result.adoption_status === 'violated'
+    );
+
+    const processedWarnings = warningViolations.map(violation => ({
+      code: violation.ipa_rule,
+      message: `IPA rule ${violation.ipa_rule} violated`,
+      path: violation.component_id,
+      source: null
+    }));
+
+    console.log(`Found ${warningViolations.length} warning-level violations`);
+
+
     console.log('Metric collection job complete.');
-    return mergedResults;
+    return {
+      metrics: mergedResults,
+      warnings: {
+        count: warningViolations.length,
+        violations: processedWarnings
+      }
+    };
   } catch (error) {
     console.error('Error during metric collection:', error.message);
     throw error;

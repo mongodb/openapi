@@ -24,14 +24,15 @@ describe('tools/spectral/ipa/metrics/metricCollection.js runMetricCollectionJob'
 
   it('Outputs the expected metrics collection results', async () => {
     const expectedResults = JSON.parse(fs.readFileSync(expectedResultFilePath, 'utf8'));
+    console.log(expectedResults[expectedResults.length-1]);
     const spectral = new Spectral();
 
     const results = await runMetricCollectionJob(testConfig, spectral);
 
     expect(results).not.toBe(undefined);
-    expect(results.length).toEqual(expectedResults.length);
+    expect(results.metrics.length).toEqual(expectedResults.length);
 
-    results.forEach((entry, index) => {
+    results.metrics.forEach((entry, index) => {
       const expectedEntry = getEntry(expectedResults, entry['component_id'], entry['ipa_rule']);
       expect(entry['component_id']).toEqual(expectedEntry['component_id']);
       expect(entry['adoption_status']).toEqual(expectedEntry['adoption_status']);
