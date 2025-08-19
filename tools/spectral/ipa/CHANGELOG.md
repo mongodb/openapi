@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [2.1.1](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.1.0...2.1.1)
+#### [2.2.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.1.0...2.2.0)
 
 - fix(ipa): Add ignore list for nouns in OperationID Validation [`#901`](https://github.com/mongodb/openapi/pull/901)
 - feat(ipa): new rule xgen-IPA-117-get-operation-summary-starts-with [`#900`](https://github.com/mongodb/openapi/pull/900)
