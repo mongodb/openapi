@@ -6,7 +6,7 @@ import { validateOperationIdAndReturnErrors } from './utils/validations/validate
 
 const RULE_NAME = 'xgen-IPA-104-valid-operation-id';
 
-export default (input, { methodName }, { path, documentInventory }) => {
+export default (input, { methodName, ignorePluralizationList }, { path, documentInventory }) => {
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
@@ -23,7 +23,7 @@ export default (input, { methodName }, { path, documentInventory }) => {
     if (hasMethodVerbOverride(input, methodName)) {
       methodName = input[VERB_OVERRIDE_EXTENSION].verb;
     }
-    const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path);
+    const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path, ignorePluralizationList);
 
     return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
   } catch (e) {

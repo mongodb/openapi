@@ -136,4 +136,18 @@ testRule('xgen-IPA-105-valid-operation-id', [
     },
     errors: [],
   },
+  {
+    name: 'valid method that needs ignoreList',
+    document: {
+      paths: {
+        '/api/atlas/v2/groups/{groupId}/hosts/{processId}/fts/metrics': {
+          get: {
+            operationId: 'listGroupHostFtsMetrics',
+            'x-xgen-operation-id-override': 'listHostFtsMetrics',
+          },
+        },
+      },
+    },
+    errors: [],
+  },
 ]);
