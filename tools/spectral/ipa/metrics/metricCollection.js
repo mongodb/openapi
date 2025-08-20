@@ -32,27 +32,26 @@ export async function runMetricCollectionJob(
     console.log('Merging results...');
     const mergedResults = merge(ownershipData, collectorResults, ruleSeverityMap);
 
-    const warningViolations = mergedResults.filter(result =>
-      result.severity_level === 'warn' && result.adoption_status === 'violated'
+    const warningViolations = mergedResults.filter(
+      (result) => result.severity_level === 'warn' && result.adoption_status === 'violated'
     );
 
-    const processedWarnings = warningViolations.map(violation => ({
+    const processedWarnings = warningViolations.map((violation) => ({
       code: violation.ipa_rule,
       message: `IPA rule ${violation.ipa_rule} violated`,
       path: violation.component_id,
-      source: null
+      source: null,
     }));
 
     console.log(`Found ${warningViolations.length} warning-level violations`);
-
 
     console.log('Metric collection job complete.');
     return {
       metrics: mergedResults,
       warnings: {
         count: warningViolations.length,
-        violations: processedWarnings
-      }
+        violations: processedWarnings,
+      },
     };
   } catch (error) {
     console.error('Error during metric collection:', error.message);
