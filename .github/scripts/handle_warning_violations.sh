@@ -27,7 +27,7 @@ fi
 if [ "$DRY_RUN" = "true" ]; then
   echo "=== DRY RUN MODE ==="
   echo "Would create Jira ticket with:"
-  echo "Summary: Warning-level IPA violations found - $WARNING_COUNT violations"
+  echo "Summary: Warning-level IPA violations found"
   echo "Description:"
   echo "Warning-level violations were found during IPA validation. Please review and add exceptions if valid, or address false positives.
 
@@ -71,7 +71,7 @@ TICKET_RESPONSE=$(curl -s -X POST -H "Authorization: Bearer $JIRA_API_TOKEN" \
   -d "{
     \"fields\": {
       \"project\": {\"key\": \"CLOUDP\"},
-      \"summary\": \"Warning-level IPA violations found - $WARNING_COUNT violations\",
+      \"summary\": \"Warning-level IPA violations found\",
       \"description\": \"$DESCRIPTION\",
       \"issuetype\": {\"name\": \"Task\"},
       \"assignee\": {\"id\": \"$TEAM_ID\"}
