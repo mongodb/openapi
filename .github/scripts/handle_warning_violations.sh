@@ -6,7 +6,8 @@ TEAM_ID=$2
 JIRA_API_TOKEN=$3
 SLACK_BEARER_TOKEN=$4
 SLACK_CHANNEL_ID=$5
-DRY_RUN=${6:-false}  # Optional 6th parameter for dry run
+ONCALL_USER=$6
+DRY_RUN=${7:-false}  # Optional 7th parameter for dry run
 
 if [ "$WARNING_COUNT" -eq 0 ]; then
   echo "No warning violations found, skipping ticket creation"
@@ -40,7 +41,7 @@ Total violations: $WARNING_COUNT"
   if [ "$(echo "$VIOLATION_DETAILS" | wc -l)" -gt 3 ]; then
     SLACK_SUMMARY="$SLACK_SUMMARY\n... and more"
   fi
-  echo "Warning-level IPA violations found ($WARNING_COUNT violations).
+  echo "Warning-level IPA violations found ($WARNING_COUNT violations) ($ONCALL_USER).
 
 Jira ticket: [DRY RUN - no ticket created]"
   exit 0
@@ -93,7 +94,7 @@ if [ "$TICKET_KEY" != "null" ]; then
   fi
   
   # Send Slack notification with violation summary
-  SLACK_MESSAGE="Warning-level IPA violations found ($WARNING_COUNT violations).
+  SLACK_MESSAGE="Warning-level IPA violations found ($WARNING_COUNT violations) ($ONCALL_USER).
 
 Jira ticket: https://jira.mongodb.org/browse/$TICKET_KEY"
   
