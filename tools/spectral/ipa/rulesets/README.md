@@ -940,6 +940,19 @@ In operation summaries, use 'Delete' when the operation is destroying a resource
 This rule includes a configuration option:
   - `allowedStartVerbs`: Allow list of verb that the operation summary can start with, defaults to `['Delete', 'Remove']`
 
+#### xgen-IPA-117-operation-summary-single-item-wording
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+API Producers must use "One" when referring to a single item instead of "a" or "specified".
+
+##### Implementation details
+- The rule checks that the `summary` property of operations does not use the words "a", "specified" or "provided"
+- This rule applies to all operations, including custom methods
+##### Configuration
+This rule includes a configuration option:
+  - `preferredWords`: List of words that the operation summary should use for single items, defaults to `['one']`. Only used for error messages
+  - `forbiddenWords`: List of words (lowercase) that the operation summary should not use, defaults to `['a', 'specified']`
+
 
 
 ### IPA-118
