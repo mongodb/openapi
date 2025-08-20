@@ -38,9 +38,6 @@ export async function runMetricCollectionJob(
 
     const processedWarnings = warningViolations.map((violation) => ({
       code: violation.ipa_rule,
-      message: `IPA rule ${violation.ipa_rule} violated`,
-      path: violation.component_id,
-      source: null,
     }));
 
     console.log(`Found ${warningViolations.length} warning-level violations`);
