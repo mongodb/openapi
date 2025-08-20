@@ -1,9 +1,6 @@
 import { resolveObject } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { getSchemaPathFromEnumPath } from './utils/schemaUtils.js';
 
 const RULE_NAME = 'xgen-IPA-123-enum-values-must-be-upper-snake-case';

@@ -4,10 +4,7 @@ import {
   isSingleResourceIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { schemaIsArray, schemaIsPaginated } from './utils/schemaUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 

@@ -1,8 +1,5 @@
 import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-109-custom-method-must-be-GET-or-POST';
 const ERROR_MESSAGE = 'The HTTP method for custom methods must be GET or POST.';

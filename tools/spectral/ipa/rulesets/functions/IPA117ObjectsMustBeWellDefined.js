@@ -1,11 +1,5 @@
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
-import {
-  pathIsForRequestVersion,
-  pathIsForResponseVersion,
-} from './utils/componentUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import { pathIsForRequestVersion, pathIsForResponseVersion } from './utils/componentUtils.js';
 import { schemaIsObject } from './utils/schemaUtils.js';
 
 const RULE_NAME = 'xgen-IPA-117-objects-must-be-well-defined';
