@@ -34,6 +34,11 @@ testRule('xgen-IPA-117-operation-summary-single-item-wording', [
             summary: 'Return a Resource by ID',
           },
         },
+        '/resource4/{id}': {
+          get: {
+            summary: 'Return a Resource for the Provided Group',
+          },
+        },
       },
     },
     errors: [
@@ -53,6 +58,18 @@ testRule('xgen-IPA-117-operation-summary-single-item-wording', [
         code: 'xgen-IPA-117-operation-summary-single-item-wording',
         message: 'Operation summary referring to a single item must use "one" instead of "a".',
         path: ['paths', '/resource3/{id}', 'get'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-117-operation-summary-single-item-wording',
+        message: 'Operation summary referring to a single item must use "one" instead of "a".',
+        path: ['paths', '/resource4/{id}', 'get'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-117-operation-summary-single-item-wording',
+        message: 'Operation summary referring to a single item must use "one" instead of "provided".',
+        path: ['paths', '/resource4/{id}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
