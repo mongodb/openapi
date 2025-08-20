@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-114-api-error-has-bad-request-detail';
 
@@ -59,11 +62,5 @@ function checkViolationsAndReturnErrors(apiErrorSchema, documentInventory, path)
     return [];
   } catch (e) {
     return handleInternalError(RULE_NAME, path, e);
-    return [
-      {
-        path,
-        message: `Internal error during validation: ${e.message}`,
-      },
-    ];
   }
 }
