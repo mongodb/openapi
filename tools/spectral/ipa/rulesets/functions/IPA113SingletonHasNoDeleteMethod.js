@@ -1,10 +1,13 @@
 import {
   getResourcePathItems,
-  isSingletonResource,
-  isResourceCollectionIdentifier,
   hasDeleteMethod,
+  isResourceCollectionIdentifier,
+  isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-113-singleton-must-not-have-delete-method';
 const ERROR_MESSAGE =
@@ -30,6 +33,6 @@ function checkViolationsAndReturnErrors(input, path) {
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

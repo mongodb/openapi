@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { isPathParam } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
 import { findExceptionInPathHierarchy } from './utils/exceptions.js';
@@ -106,7 +109,7 @@ function checkViolations(pathKey, path, ignoredValues = []) {
       }
     });
   } catch (e) {
-    handleInternalError(RULE_NAME, [...path, pathKey], e);
+    return handleInternalError(RULE_NAME, [...path, pathKey], e);
   }
 
   return violations;

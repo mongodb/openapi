@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { getSchemaNameFromRef } from './utils/methodUtils.js';
 
@@ -75,6 +78,6 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
     }
     return errors;
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

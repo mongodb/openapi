@@ -1,5 +1,8 @@
 import { isPathParam } from './utils/componentUtils.js';
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { AUTH_PREFIX, UNAUTH_PREFIX } from './utils/resourceEvaluation.js';
 import { findExceptionInPathHierarchy } from './utils/exceptions.js';
 
@@ -67,6 +70,6 @@ function checkViolationsAndReturnErrors(suffixWithLeadingSlash, path) {
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

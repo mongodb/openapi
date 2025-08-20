@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatusWithoutExceptions, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatusWithoutExceptions,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-005-exception-extension-format';
 const ERROR_MESSAGE = 'IPA exceptions must have a valid rule name and a reason.';
@@ -29,6 +32,6 @@ function checkViolationsAndReturnErrors(input, path) {
     });
     return errors;
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

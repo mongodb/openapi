@@ -4,8 +4,15 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getSchemaRef, getSchemaNameFromRef, getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
+import {
+  getResponseOfGetMethodByMediaType,
+  getSchemaNameFromRef,
+  getSchemaRef,
+} from './utils/methodUtils.js';
 import { schemaIsPaginated } from './utils/schemaUtils.js';
 
 const RULE_NAME = 'xgen-IPA-105-list-method-response-is-get-method-response';
@@ -93,6 +100,6 @@ function checkViolationsAndReturnErrors(path, listMethodResultItems, getMethodRe
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

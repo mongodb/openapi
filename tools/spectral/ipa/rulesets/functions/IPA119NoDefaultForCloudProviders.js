@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-119-no-default-for-cloud-providers';
@@ -75,6 +78,6 @@ function checkViolationsAndReturnErrors(propertyObject, path, fieldType) {
     }
     return errors;
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

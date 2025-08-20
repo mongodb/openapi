@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { findAdditionalPropertiesFalsePaths } from './utils/compareUtils.js';
 
@@ -33,6 +36,6 @@ function checkViolationsAndReturnErrors(schemaObject, path) {
 
     return errors;
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

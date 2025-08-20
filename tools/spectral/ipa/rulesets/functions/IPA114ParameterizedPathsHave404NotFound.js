@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-114-parameterized-paths-have-404-not-found';
 const ERROR_MESSAGE = `Parameterized path must define a 404 response.`;
@@ -52,6 +55,6 @@ function checkViolationsAndReturnErrors(responses, path) {
 
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

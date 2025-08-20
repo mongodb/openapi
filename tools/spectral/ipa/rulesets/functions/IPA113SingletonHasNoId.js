@@ -1,11 +1,14 @@
 import {
   getResourcePathItems,
   hasGetMethod,
-  isSingletonResource,
   isResourceCollectionIdentifier,
+  isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { getAllSuccessfulResponseSchemas } from './utils/methodUtils.js';
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-113-singleton-must-not-have-id';
 const ERROR_MESSAGE = 'Singleton resources must not have a user-provided or system-generated ID.';
@@ -43,6 +46,6 @@ function checkViolationsAndReturnErrors(input, path) {
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

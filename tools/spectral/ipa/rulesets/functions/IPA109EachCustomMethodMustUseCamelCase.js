@@ -1,6 +1,12 @@
-import { getCustomMethodName, isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
+import {
+  getCustomMethodName,
+  isCustomMethodIdentifier,
+} from './utils/resourceEvaluation.js';
 import { casing } from '@stoplight/spectral-functions';
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-109-custom-method-must-use-camel-case';
 
@@ -30,6 +36,6 @@ function checkViolationsAndReturnErrors(pathKey, path) {
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

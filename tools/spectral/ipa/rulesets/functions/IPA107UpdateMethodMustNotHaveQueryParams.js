@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import {
   getResourcePathItems,
   isResourceCollectionIdentifier,
@@ -51,6 +54,6 @@ function checkViolationsAndReturnErrors(postMethodParameters, path, ruleName, op
     }
     return errors;
   } catch (e) {
-    handleInternalError(ruleName, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

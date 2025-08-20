@@ -1,5 +1,8 @@
 import { casing } from '@stoplight/spectral-functions';
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-112-field-names-are-camel-case';
@@ -26,6 +29,6 @@ function checkViolationsAndReturnErrors(input, path) {
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

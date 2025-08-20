@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { splitCamelCase } from './utils/schemaUtils.js';
 
@@ -47,6 +50,6 @@ function checkViolationsAndReturnErrors(input, options, path) {
 
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

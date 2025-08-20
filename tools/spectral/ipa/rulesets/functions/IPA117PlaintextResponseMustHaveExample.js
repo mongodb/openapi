@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
 const RULE_NAME = 'xgen-IPA-117-plaintext-response-must-have-example';
@@ -45,6 +48,6 @@ function checkViolationsAndReturnErrors(response, path) {
     }
     return [{ path, message: ERROR_MESSAGE }];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

@@ -1,4 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
 const RULE_NAME = 'xgen-IPA-117-parameter-has-examples-or-schema';
 const ERROR_MESSAGE = 'API producers must provide a well-defined schema or example(s) for parameters.';
@@ -15,6 +18,6 @@ function checkViolationsAndReturnErrors(object, path) {
     }
     return [{ path, message: ERROR_MESSAGE }];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

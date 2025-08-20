@@ -5,8 +5,14 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getSchemaRef, getGETMethodResponseSchemaFromPathItem } from './utils/methodUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
+import {
+  getGETMethodResponseSchemaFromPathItem,
+  getSchemaRef,
+} from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-107-update-method-response-is-get-method-response';
 const ERROR_MESSAGE =
@@ -84,6 +90,6 @@ function checkViolationsAndReturnErrors(path, updateMethodResponseContent, getMe
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }
