@@ -35,6 +35,6 @@ export function checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, e
     }
     return [];
   } catch (e) {
-    handleInternalError(ruleName, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

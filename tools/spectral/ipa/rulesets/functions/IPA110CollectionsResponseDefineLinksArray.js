@@ -44,6 +44,6 @@ function checkViolationsAndReturnErrors(listResponseSchema, oas, path) {
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

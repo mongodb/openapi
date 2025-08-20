@@ -21,6 +21,6 @@ function checkViolationsAndReturnErrors(summary, ignoreList, grammaticalWords, p
     }
     return [];
   } catch (e) {
-    handleInternalError(ruleName, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

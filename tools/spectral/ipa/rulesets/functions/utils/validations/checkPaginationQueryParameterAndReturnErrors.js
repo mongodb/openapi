@@ -65,7 +65,6 @@ export function checkPaginationQueryParameterAndReturnErrors(operation, path, pa
 
     return [];
   } catch (e) {
-    handleInternalError(ruleName, path, e);
-    return [];
+    return handleInternalError(ruleName, path, e);
   }
 }

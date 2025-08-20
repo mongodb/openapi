@@ -58,12 +58,6 @@ function checkViolationsAndReturnErrors(apiErrorSchema, documentInventory, path)
 
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
-    return [
-      {
-        path,
-        message: `Internal error during validation: ${e.message}`,
-      },
-    ];
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

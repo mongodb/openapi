@@ -5,7 +5,7 @@ import {
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getSchemaRef, getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
+import { getResponseOfGetMethodByMediaType, getSchemaRef } from './utils/methodUtils.js';
 
 const RULE_NAME = 'xgen-IPA-106-create-method-response-is-get-method-response';
 const ERROR_MESSAGE =
@@ -72,6 +72,6 @@ function checkViolationsAndReturnErrors(path, createMethodResponseContent, getMe
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

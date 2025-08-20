@@ -41,7 +41,7 @@ function checkViolationsAndReturnErrors(input, jsonPathArray) {
       }
     }
   } catch (e) {
-    handleInternalError(RULE_NAME, jsonPathArray, e);
+    return handleInternalError(RULE_NAME, jsonPathArray, e);
   }
   return errors;
 }

@@ -1,8 +1,8 @@
 import {
   getResourcePathItems,
   hasGetMethod,
-  isSingletonResource,
   isResourceCollectionIdentifier,
+  isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { getAllSuccessfulResponseSchemas } from './utils/methodUtils.js';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
@@ -43,6 +43,6 @@ function checkViolationsAndReturnErrors(input, path) {
     }
     return [];
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

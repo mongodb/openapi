@@ -106,7 +106,7 @@ function checkViolations(pathKey, path, ignoredValues = []) {
       }
     });
   } catch (e) {
-    handleInternalError(RULE_NAME, [...path, pathKey], e);
+    return handleInternalError(RULE_NAME, [...path, pathKey], e);
   }
 
   return violations;

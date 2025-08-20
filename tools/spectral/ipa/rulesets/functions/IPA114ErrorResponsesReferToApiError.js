@@ -75,6 +75,6 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
     }
     return errors;
   } catch (e) {
-    handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(RULE_NAME, path, e);
   }
 }

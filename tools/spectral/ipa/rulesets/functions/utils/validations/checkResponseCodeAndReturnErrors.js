@@ -27,6 +27,6 @@ export function checkResponseCodeAndReturnErrors(operationObject, expectedStatus
     }
     return [];
   } catch (e) {
-    handleInternalError(ruleName, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

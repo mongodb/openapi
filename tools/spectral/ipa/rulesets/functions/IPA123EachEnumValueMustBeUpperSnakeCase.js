@@ -30,6 +30,6 @@ function checkViolationsAndReturnErrors(input, schemaPath) {
     });
     return errors;
   } catch (e) {
-    handleInternalError(RULE_NAME, schemaPath, e);
+    return handleInternalError(RULE_NAME, schemaPath, e);
   }
 }

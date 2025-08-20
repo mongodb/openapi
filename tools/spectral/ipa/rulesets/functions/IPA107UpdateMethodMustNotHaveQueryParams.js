@@ -51,6 +51,6 @@ function checkViolationsAndReturnErrors(postMethodParameters, path, ruleName, op
     }
     return errors;
   } catch (e) {
-    handleInternalError(ruleName, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }
