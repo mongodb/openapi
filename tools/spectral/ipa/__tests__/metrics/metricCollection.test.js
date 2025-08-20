@@ -32,12 +32,14 @@ describe('tools/spectral/ipa/metrics/metricCollection.js runMetricCollectionJob'
     expect(results.metrics.length).toEqual(expectedResults.length);
 
     expect(results.warnings.count).toEqual(1);
-    const violations= [{
-      code: 'xgen-IPA-104-valid-operation-id',
-      message: 'IPA rule xgen-IPA-104-valid-operation-id violated',
-      path: 'paths./api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}.get',
-      source: null,
-    }];
+    const violations = [
+      {
+        code: 'xgen-IPA-104-valid-operation-id',
+        message: 'IPA rule xgen-IPA-104-valid-operation-id violated',
+        path: 'paths./api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}.get',
+        source: null,
+      },
+    ];
     expect(results.warnings.violations).toEqual(violations);
 
     results.metrics.forEach((entry, index) => {
