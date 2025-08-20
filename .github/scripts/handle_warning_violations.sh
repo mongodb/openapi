@@ -28,7 +28,7 @@ if [ "$DRY_RUN" = "true" ]; then
   echo "Would create Jira ticket with:"
   echo "Summary: Warning-level IPA violations found - $WARNING_COUNT violations"
   echo "Description:"
-  echo "Warning-level violations were found during IPA validation.
+  echo "Warning-level violations were found during IPA validation. Please review and add exceptions if valid, or address false positives.
 
 Violation Summary:
 $VIOLATION_DETAILS
@@ -37,13 +37,10 @@ Total violations: $WARNING_COUNT"
   echo ""
   echo "Would send Slack message:"
   SLACK_SUMMARY=$(echo "$VIOLATION_DETAILS" | head -3)
-  if [ $(echo "$VIOLATION_DETAILS" | wc -l) -gt 3 ]; then
+  if [ "$(echo "$VIOLATION_DETAILS" | wc -l)" -gt 3 ]; then
     SLACK_SUMMARY="$SLACK_SUMMARY\n... and more"
   fi
-  echo "Warning-level IPA violations found ($WARNING_COUNT violations). 
-
-Top violations:
-$SLACK_SUMMARY
+  echo "Warning-level IPA violations found ($WARNING_COUNT violations).
 
 Jira ticket: [DRY RUN - no ticket created]"
   exit 0
@@ -90,16 +87,13 @@ if [ "$TICKET_KEY" != "null" ]; then
   SLACK_SUMMARY=""
   if [ -n "$VIOLATION_DETAILS" ]; then
     SLACK_SUMMARY=$(echo "$VIOLATION_DETAILS" | head -3)
-    if [ $(echo "$VIOLATION_DETAILS" | wc -l) -gt 3 ]; then
+    if [ "$(echo "$VIOLATION_DETAILS" | wc -l)" -gt 3 ]; then
       SLACK_SUMMARY="$SLACK_SUMMARY\n... and more"
     fi
   fi
   
   # Send Slack notification with violation summary
-  SLACK_MESSAGE="Warning-level IPA violations found ($WARNING_COUNT violations). 
-
-Top violations:
-$SLACK_SUMMARY
+  SLACK_MESSAGE="Warning-level IPA violations found ($WARNING_COUNT violations).
 
 Jira ticket: https://jira.mongodb.org/browse/$TICKET_KEY"
   

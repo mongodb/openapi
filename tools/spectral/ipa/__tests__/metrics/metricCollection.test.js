@@ -30,6 +30,16 @@ describe('tools/spectral/ipa/metrics/metricCollection.js runMetricCollectionJob'
 
     expect(results).not.toBe(undefined);
     expect(results.metrics.length).toEqual(expectedResults.length);
+    results.metrics.forEach((entry, index) => {
+      const expectedEntry = getEntry(expectedResults, entry['component_id'], entry['ipa_rule']);
+      expect(entry['component_id']).toEqual(expectedEntry['component_id']);
+      expect(entry['adoption_status']).toEqual(expectedEntry['adoption_status']);
+      expect(entry['ipa']).toEqual(expectedEntry['ipa']);
+      expect(entry['ipa_rule']).toEqual(expectedEntry['ipa_rule']);
+      expect(entry['exception_reason']).toEqual(expectedEntry['exception_reason']);
+      expect(entry['owner_team']).toEqual(expectedEntry['owner_team']);
+      expect(entry['severity_level']).toEqual(expectedEntry['severity_level']);
+    });
 
     expect(results.warnings.count).toEqual(1);
     const violations = [
@@ -41,17 +51,6 @@ describe('tools/spectral/ipa/metrics/metricCollection.js runMetricCollectionJob'
       },
     ];
     expect(results.warnings.violations).toEqual(violations);
-
-    results.metrics.forEach((entry, index) => {
-      const expectedEntry = getEntry(expectedResults, entry['component_id'], entry['ipa_rule']);
-      expect(entry['component_id']).toEqual(expectedEntry['component_id']);
-      expect(entry['adoption_status']).toEqual(expectedEntry['adoption_status']);
-      expect(entry['ipa']).toEqual(expectedEntry['ipa']);
-      expect(entry['ipa_rule']).toEqual(expectedEntry['ipa_rule']);
-      expect(entry['exception_reason']).toEqual(expectedEntry['exception_reason']);
-      expect(entry['owner_team']).toEqual(expectedEntry['owner_team']);
-      expect(entry['severity_level']).toEqual(expectedEntry['severity_level']);
-    });
   });
 });
 
