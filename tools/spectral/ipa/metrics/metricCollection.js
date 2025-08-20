@@ -22,7 +22,7 @@ export async function runMetricCollectionJob(
     console.log('Extracting team ownership data...');
     const ownershipData = extractTeamOwnership(oasContent);
 
-    console.log(`Getting rule severities... ${rulesetFilePath}`);
+    console.log('Getting rule severities...');
     const ruleset = await loadRuleset(rulesetFilePath, spectral);
     const ruleSeverityMap = getSeverityPerRule(ruleset);
 
@@ -33,7 +33,7 @@ export async function runMetricCollectionJob(
     const mergedResults = merge(ownershipData, collectorResults, ruleSeverityMap);
 
     const warningViolations = mergedResults.filter(result =>
-      result.severity_level === 1 && result.adoption_status === 'violated'
+      result.severity_level === 'warn' && result.adoption_status === 'violated'
     );
 
     const processedWarnings = warningViolations.map(violation => ({

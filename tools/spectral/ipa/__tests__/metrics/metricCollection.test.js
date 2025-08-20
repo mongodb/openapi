@@ -24,13 +24,21 @@ describe('tools/spectral/ipa/metrics/metricCollection.js runMetricCollectionJob'
 
   it('Outputs the expected metrics collection results', async () => {
     const expectedResults = JSON.parse(fs.readFileSync(expectedResultFilePath, 'utf8'));
-    console.log(expectedResults[expectedResults.length-1]);
     const spectral = new Spectral();
 
     const results = await runMetricCollectionJob(testConfig, spectral);
 
     expect(results).not.toBe(undefined);
     expect(results.metrics.length).toEqual(expectedResults.length);
+
+    expect(results.warnings.count).toEqual(1);
+    const violations= [{
+      code: 'xgen-IPA-104-valid-operation-id',
+      message: 'IPA rule xgen-IPA-104-valid-operation-id violated',
+      path: 'paths./api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}.get',
+      source: null,
+    }];
+    expect(results.warnings.violations).toEqual(violations);
 
     results.metrics.forEach((entry, index) => {
       const expectedEntry = getEntry(expectedResults, entry['component_id'], entry['ipa_rule']);
