@@ -1,7 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-114-authenticated-endpoints-have-auth-errors';
-
 /**
  * Validates that authenticated endpoints have 401 and 403 responses defined
  *
@@ -13,7 +11,9 @@ const RULE_NAME = 'xgen-IPA-114-authenticated-endpoints-have-auth-errors';
  * @param {object} _ - Rule options (unused)
  * @param {object} context - The context object containing path and document information
  */
-export default (input, _, { path }) => {
+export default (input, _, { path, rule }) => {
+  const ruleName = rule.name;
+
   // Path components: [paths, pathName, methodName, ...]
   const pathName = path[1];
 
@@ -27,11 +27,11 @@ export default (input, _, { path }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input.responses, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(input.responses, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(responses, path) {
+function checkViolationsAndReturnErrors(responses, path, ruleName) {
   try {
     const errors = [];
 
@@ -61,6 +61,6 @@ function checkViolationsAndReturnErrors(responses, path) {
 
     return errors;
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

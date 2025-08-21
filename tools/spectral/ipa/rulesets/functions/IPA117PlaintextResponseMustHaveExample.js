@@ -1,7 +1,6 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-117-plaintext-response-must-have-example';
 const ERROR_MESSAGE = 'For APIs that respond with plain text, for example CSV, API producers must provide an example.';
 
 /**
@@ -11,7 +10,8 @@ const ERROR_MESSAGE = 'For APIs that respond with plain text, for example CSV, A
  * @param {{allowedTypes: string[]}} opts - Allowed type suffixes, if the type ends with one of these, it is ignored
  * @param {object} context - The context object containing the path and documentInventory
  */
-export default (input, { allowedTypes }, { documentInventory, path }) => {
+export default (input, { allowedTypes }, { documentInventory, path, rule }) => {
+  const ruleName = rule.name;
   const responseCode = path[4];
 
   // Ignore non-2xx responses
@@ -34,17 +34,17 @@ export default (input, { allowedTypes }, { documentInventory, path }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(response, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, response, path);
+  const errors = checkViolationsAndReturnErrors(response, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, response, path);
 };
 
-function checkViolationsAndReturnErrors(response, path) {
+function checkViolationsAndReturnErrors(response, path, ruleName) {
   try {
     if (response['example'] || (response['schema'] && response['schema']['example'])) {
       return [];
     }
     return [{ path, message: ERROR_MESSAGE }];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

@@ -9,7 +9,6 @@ import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
 import { checkRequestResponseResourceEqualityAndReturnErrors } from './utils/validations/checkRequestResponseResourceEqualityAndReturnErrors.js';
 
-const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-get-method-response';
 const ERROR_MESSAGE =
   'The request body schema properties must match the response body schema properties of the Get method.';
 
@@ -20,7 +19,8 @@ const ERROR_MESSAGE =
  * @param {object} _ - Unused
  * @param {{ path: string[], documentInventory: object}} context - The context object containing the path and document
  */
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const unresolvedOas = documentInventory.unresolved;
   const resourcePath = path[1];
@@ -59,5 +59,5 @@ export default (input, _, { path, documentInventory }) => {
     'Get',
     ERROR_MESSAGE
   );
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, postRequestContentPerMediaType, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, postRequestContentPerMediaType, path);
 };

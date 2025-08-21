@@ -1,10 +1,10 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-112-boolean-field-names-avoid-is-prefix';
 const IS_PREFIX_REGEX = /^is[A-Z]/;
 
-export default (input, options, { path, documentInventory }) => {
+export default (input, options, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const property = resolveObject(oas, path);
 
@@ -14,11 +14,11 @@ export default (input, options, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, property, path);
+  const errors = checkViolationsAndReturnErrors(input, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, property, path);
 };
 
-function checkViolationsAndReturnErrors(input, path) {
+function checkViolationsAndReturnErrors(input, path, ruleName) {
   try {
     if (IS_PREFIX_REGEX.test(input)) {
       const suggestedName = input.charAt(2).toLowerCase() + input.slice(3);
@@ -27,6 +27,6 @@ function checkViolationsAndReturnErrors(input, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

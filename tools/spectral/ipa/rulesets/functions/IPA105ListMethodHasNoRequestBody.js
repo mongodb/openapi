@@ -5,10 +5,10 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 
-const RULE_NAME = 'xgen-IPA-105-list-method-no-request-body';
 const ERROR_MESSAGE = 'The List method must not include a request body.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
 
@@ -21,7 +21,7 @@ export default (input, _, { path, documentInventory }) => {
 
   const errors = checkViolationsAndReturnErrors(input, path);
 
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
 function checkViolationsAndReturnErrors(getOperationObject, path) {

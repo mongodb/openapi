@@ -1,7 +1,6 @@
 import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { findExceptionInPathHierarchy } from './utils/exceptions.js';
 
-const RULE_NAME = 'xgen-IPA-102-collection-identifier-pattern';
 const ERROR_MESSAGE =
   'Collection identifiers must begin with a lowercase letter and contain only ASCII letters and numbers (/[a-z][a-zA-Z0-9]*/).';
 const VALID_IDENTIFIER_PATTERN = /^[a-z][a-zA-Z0-9]*$/;
@@ -15,19 +14,20 @@ const VALID_IDENTIFIER_PATTERN = /^[a-z][a-zA-Z0-9]*$/;
  * @param {object} _ - Unused
  * @param {object} context - The context object containing the path and documentInventory
  */
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
 
   const violations = checkViolations(input, path);
 
   // Check for exceptions in path hierarchy
-  const result = findExceptionInPathHierarchy(oas, input, RULE_NAME, path);
+  const result = findExceptionInPathHierarchy(oas, input, ruleName, path);
   if (result?.error) {
     return result.error;
   }
   const objectToCheckForException = result ? oas.paths[result.parentPath] : oas.paths[input];
 
-  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, objectToCheckForException, path);
+  return evaluateAndCollectAdoptionStatus(violations, ruleName, objectToCheckForException, path);
 };
 
 function checkViolations(pathKey, path) {

@@ -2,8 +2,6 @@ import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/c
 import { resolveObject } from './utils/componentUtils.js';
 import { getSchemaNameFromRef } from './utils/methodUtils.js';
 
-const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
-
 /**
  * Verifies that 4xx and 5xx responses reference the ApiError schema
  *
@@ -11,16 +9,17 @@ const RULE_NAME = 'xgen-IPA-114-error-responses-refer-to-api-error';
  * @param {object} _ - Rule options (unused)
  * @param {object} context - The context object containing path and document information
  */
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const apiResponseObject = resolveObject(oas, path);
   const errorCode = path[path.length - 1];
 
-  const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, apiResponseObject, path);
+  const errors = checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, apiResponseObject, path);
 };
 
-function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode) {
+function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode, ruleName) {
   try {
     const errors = [];
     let content;
@@ -75,6 +74,6 @@ function checkViolationsAndReturnErrors(apiResponseObject, oas, path, errorCode)
     }
     return errors;
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

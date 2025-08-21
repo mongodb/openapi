@@ -2,9 +2,8 @@ import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { isEqual, uniq } from 'lodash';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-125-oneOf-schema-property-same-type';
-
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const schemaPath = path.slice(0, path.length - 1);
   const parentSchema = resolveObject(oas, schemaPath);
@@ -15,7 +14,7 @@ export default (input, _, { path, documentInventory }) => {
   }
 
   const errors = checkViolationsAndReturnErrors(input, schemaPath);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, parentSchema, schemaPath);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, parentSchema, schemaPath);
 };
 
 function checkViolationsAndReturnErrors(schemas, path) {

@@ -7,11 +7,11 @@ import { resolveObject } from './utils/componentUtils.js';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { getResponseOfGetMethodByMediaType, getSchemaRef } from './utils/methodUtils.js';
 
-const RULE_NAME = 'xgen-IPA-106-create-method-response-is-get-method-response';
 const ERROR_MESSAGE =
   'The schema in the Create method response must be the same schema as the response of the Get method.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
   const mediaType = input;
@@ -37,11 +37,16 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(path, createMethodResponse, getMethodResponseContentPerMediaType);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, createMethodResponse, path);
+  const errors = checkViolationsAndReturnErrors(
+    path,
+    createMethodResponse,
+    getMethodResponseContentPerMediaType,
+    ruleName
+  );
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, createMethodResponse, path);
 };
 
-function checkViolationsAndReturnErrors(path, createMethodResponseContent, getMethodResponseContent) {
+function checkViolationsAndReturnErrors(path, createMethodResponseContent, getMethodResponseContent, ruleName) {
   try {
     // Error if the Get method does not have a schema
     if (!getMethodResponseContent.schema) {
@@ -72,6 +77,6 @@ function checkViolationsAndReturnErrors(path, createMethodResponseContent, getMe
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

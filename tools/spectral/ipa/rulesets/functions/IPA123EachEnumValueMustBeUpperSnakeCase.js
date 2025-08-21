@@ -3,19 +3,19 @@ import { casing } from '@stoplight/spectral-functions';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { getSchemaPathFromEnumPath } from './utils/schemaUtils.js';
 
-const RULE_NAME = 'xgen-IPA-123-enum-values-must-be-upper-snake-case';
 const ERROR_MESSAGE = 'enum value must be UPPER_SNAKE_CASE.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const schemaPath = getSchemaPathFromEnumPath(path);
   const schemaObject = resolveObject(oas, schemaPath);
 
-  const errors = checkViolationsAndReturnErrors(input, schemaPath);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, schemaObject, path);
+  const errors = checkViolationsAndReturnErrors(input, schemaPath, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, schemaObject, path);
 };
 
-function checkViolationsAndReturnErrors(input, schemaPath) {
+function checkViolationsAndReturnErrors(input, schemaPath, ruleName) {
   const errors = [];
   try {
     input.forEach((enumValue, index) => {
@@ -30,6 +30,6 @@ function checkViolationsAndReturnErrors(input, schemaPath) {
     });
     return errors;
   } catch (e) {
-    return handleInternalError(RULE_NAME, schemaPath, e);
+    return handleInternalError(ruleName, schemaPath, e);
   }
 }

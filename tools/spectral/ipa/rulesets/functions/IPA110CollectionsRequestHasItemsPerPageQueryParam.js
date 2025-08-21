@@ -6,9 +6,8 @@ import {
 } from './utils/resourceEvaluation.js';
 import { checkPaginationQueryParameterAndReturnErrors } from './utils/validations/checkPaginationQueryParameterAndReturnErrors.js';
 
-const RULE_NAME = 'xgen-IPA-110-collections-request-has-itemsPerPage-query-param';
-
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const resourcePath = path[1];
 
@@ -19,6 +18,6 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkPaginationQueryParameterAndReturnErrors(input, path, 'itemsPerPage', 100, RULE_NAME);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkPaginationQueryParameterAndReturnErrors(input, path, 'itemsPerPage', 100, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };

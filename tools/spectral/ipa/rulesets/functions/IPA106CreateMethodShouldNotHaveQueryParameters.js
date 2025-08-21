@@ -6,7 +6,6 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 
-const RULE_NAME = 'xgen-IPA-106-create-method-should-not-have-query-parameters';
 const ERROR_MESSAGE = 'Create operations should not have query parameters.';
 
 /**
@@ -16,7 +15,8 @@ const ERROR_MESSAGE = 'Create operations should not have query parameters.';
  * @param {{ignoredValues: string[]}} opts - Array of ignored query parameters
  * @param {object} context - The context object containing the path and document
  */
-export default (input, opts, { path, documentInventory }) => {
+export default (input, opts, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
@@ -31,11 +31,11 @@ export default (input, opts, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(postMethod.parameters, path, opts);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, postMethod, path);
+  const errors = checkViolationsAndReturnErrors(postMethod.parameters, path, opts, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, postMethod, path);
 };
 
-function checkViolationsAndReturnErrors(postMethodParameters, path, opts) {
+function checkViolationsAndReturnErrors(postMethodParameters, path, opts, ruleName) {
   const errors = [];
   try {
     const ignoredValues = opts?.ignoredValues || [];
@@ -50,6 +50,6 @@ function checkViolationsAndReturnErrors(postMethodParameters, path, opts) {
     }
     return errors;
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

@@ -1,6 +1,7 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-
-const RULE_NAME = 'xgen-IPA-114-api-error-has-bad-request-detail';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
 /**
  * Verifies that ApiError schema has badRequestDetail field with proper structure
@@ -9,9 +10,10 @@ const RULE_NAME = 'xgen-IPA-114-api-error-has-bad-request-detail';
  * @param {object} _ - Rule options (unused)
  * @param {object} context - The context object containing path and document information
  */
-export default (input, _, { path, documentInventory }) => {
-  const errors = checkViolationsAndReturnErrors(input, documentInventory, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
+  const errors = checkViolationsAndReturnErrors(input, documentInventory, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
 /**
@@ -20,9 +22,10 @@ export default (input, _, { path, documentInventory }) => {
  * @param {object} apiErrorSchema - The ApiError schema object to validate
  * @param {object} documentInventory - Contains document information
  * @param {Array} path - Path to the schema in the document
+ * @param ruleName the name of the Spectral rule under validation
  * @returns {Array} - Array of error objects
  */
-function checkViolationsAndReturnErrors(apiErrorSchema, documentInventory, path) {
+function checkViolationsAndReturnErrors(apiErrorSchema, documentInventory, path, ruleName) {
   try {
     // ApiError should have badRequestDetail property
     if (!apiErrorSchema.properties?.badRequestDetail) {
@@ -58,6 +61,6 @@ function checkViolationsAndReturnErrors(apiErrorSchema, documentInventory, path)
 
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

@@ -1,19 +1,22 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-117-description-must-not-use-html';
 const ERROR_MESSAGE = 'Descriptions must not use raw HTML.';
 
-export default (input, opts, { path }) => {
+export default (input, opts, { path, rule }) => {
+  const ruleName = rule.name;
   // Ignore missing descriptions
   if (!input['description']) {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input['description'], path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(input['description'], path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(description, path) {
+function checkViolationsAndReturnErrors(description, path, ruleName) {
   const htmlTagPattern = new RegExp(`<.*>.*</.*>`);
   const htmlTagSelfClosingPattern = new RegExp(`<.*/>`);
   const linkHtmlPattern = new RegExp(`<a.*>.*</a>`);
@@ -32,6 +35,6 @@ function checkViolationsAndReturnErrors(description, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

@@ -1,7 +1,6 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
 
-const RULE_NAME = 'xgen-IPA-108-delete-method-return-204-response';
 const ERROR_MESSAGE = 'DELETE method should return 204 No Content status code.';
 
 /**
@@ -11,7 +10,8 @@ const ERROR_MESSAGE = 'DELETE method should return 204 No Content status code.';
  * @param {object} _ - Unused
  * @param {object} context - The context object containing the path
  */
-export default (input, _, { path }) => {
+export default (input, _, { path, rule }) => {
+  const ruleName = rule.name;
   // Check if the path is for a single resource (e.g., has path parameter)
   // Extract the path from context.path which is an array
   const pathString = path[1]; // Assuming path is ['paths', '/resource/{id}', 'delete']
@@ -19,11 +19,11 @@ export default (input, _, { path }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(input, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(input, path) {
+function checkViolationsAndReturnErrors(input, path, ruleName) {
   try {
     const responses = input.responses;
     // If there is no 204 response, return a violation
@@ -37,6 +37,6 @@ function checkViolationsAndReturnErrors(input, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

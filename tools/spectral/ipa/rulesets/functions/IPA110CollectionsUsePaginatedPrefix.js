@@ -7,10 +7,10 @@ import {
 import { resolveObject } from './utils/componentUtils.js';
 import { getSchemaNameFromRef } from './utils/methodUtils.js';
 
-const RULE_NAME = 'xgen-IPA-110-collections-use-paginated-prefix';
 const ERROR_MESSAGE = 'List methods response must reference a paginated response schema.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
   if (
@@ -23,11 +23,11 @@ export default (input, _, { path, documentInventory }) => {
 
   const listMethodResponse = resolveObject(oas, path);
 
-  const errors = checkViolationsAndReturnErrors(listMethodResponse, oas, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, listMethodResponse, path);
+  const errors = checkViolationsAndReturnErrors(listMethodResponse, oas, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, listMethodResponse, path);
 };
 
-function checkViolationsAndReturnErrors(listMethodResponse, oas, path) {
+function checkViolationsAndReturnErrors(listMethodResponse, oas, path, ruleName) {
   try {
     if (!listMethodResponse.schema) {
       return [
@@ -61,6 +61,6 @@ function checkViolationsAndReturnErrors(listMethodResponse, oas, path) {
 
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

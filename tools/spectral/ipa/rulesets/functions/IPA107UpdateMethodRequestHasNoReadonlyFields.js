@@ -8,7 +8,6 @@ import { resolveObject } from './utils/componentUtils.js';
 import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { checkForbiddenPropertyAttributesAndReturnErrors } from './utils/validations/checkForbiddenPropertyAttributesAndReturnErrors.js';
 
-const RULE_NAME = 'xgen-IPA-107-update-method-request-has-no-readonly-fields';
 const ERROR_MESSAGE = 'The Update method request object must not include input fields (readOnly properties).';
 
 /**
@@ -18,7 +17,8 @@ const ERROR_MESSAGE = 'The Update method request object must not include input f
  * @param {object} _ - Unused
  * @param {{ path: string[], documentInventory: object}} context - The context object containing the path and document
  */
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
   const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
@@ -43,5 +43,5 @@ export default (input, _, { path, documentInventory }) => {
     [],
     ERROR_MESSAGE
   );
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, requestContentPerMediaType, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, requestContentPerMediaType, path);
 };

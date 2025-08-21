@@ -8,11 +8,11 @@ import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/c
 import { getResponseOfGetMethodByMediaType, getSchemaNameFromRef, getSchemaRef } from './utils/methodUtils.js';
 import { schemaIsPaginated } from './utils/schemaUtils.js';
 
-const RULE_NAME = 'xgen-IPA-105-list-method-response-is-get-method-response';
 const ERROR_MESSAGE =
   'The schema of each result in the List method response must be the same schema as the response of the Get method.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
   const mediaType = input;
@@ -56,13 +56,14 @@ export default (input, _, { path, documentInventory }) => {
   const errors = checkViolationsAndReturnErrors(
     path,
     resolvedListSchema.properties.results.items,
-    getMethodResponseContentPerMediaType
+    getMethodResponseContentPerMediaType,
+    ruleName
   );
 
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, listMethodResponse, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, listMethodResponse, path);
 };
 
-function checkViolationsAndReturnErrors(path, listMethodResultItems, getMethodResponseContent) {
+function checkViolationsAndReturnErrors(path, listMethodResultItems, getMethodResponseContent, ruleName) {
   try {
     // Error if the Get method does not have a schema
     if (!getMethodResponseContent.schema) {
@@ -93,6 +94,6 @@ function checkViolationsAndReturnErrors(path, listMethodResultItems, getMethodRe
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

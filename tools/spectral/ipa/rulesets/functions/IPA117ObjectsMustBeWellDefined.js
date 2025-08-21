@@ -1,8 +1,13 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { pathIsForRequestVersion, pathIsForResponseVersion } from './utils/componentUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
+import {
+  pathIsForRequestVersion,
+  pathIsForResponseVersion,
+} from './utils/componentUtils.js';
 import { schemaIsObject } from './utils/schemaUtils.js';
 
-const RULE_NAME = 'xgen-IPA-117-objects-must-be-well-defined';
 const ERROR_MESSAGE =
   'Components of type "object" must be well-defined with for example a schema, example(s) or properties.';
 
@@ -13,8 +18,10 @@ const ERROR_MESSAGE =
  * @param input the component to evaluate
  * @param {string[]} ignoredPaths paths to ignore, for example: 'components.schemas.MySchema'
  * @param path the path to the component being evaluated
+ * @param rule the Spectral rule under validation
  */
-export default (input, { ignoredPaths }, { path }) => {
+export default (input, { ignoredPaths }, { path, rule }) => {
+  const ruleName = rule.name;
   // Ignore paths that match the passed ignoredPaths
   const joinedPath = path.join('.');
   if (ignoredPaths.some((ignoredPath) => ignoredPath === joinedPath)) {
@@ -41,11 +48,11 @@ export default (input, { ignoredPaths }, { path }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(input, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(object, path) {
+function checkViolationsAndReturnErrors(object, path, ruleName) {
   try {
     const validProperties = [
       'schema',
@@ -62,6 +69,6 @@ function checkViolationsAndReturnErrors(object, path) {
     }
     return [{ path, message: ERROR_MESSAGE }];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

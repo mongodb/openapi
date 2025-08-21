@@ -7,22 +7,22 @@ import {
 } from './utils/resourceEvaluation.js';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-104-resource-has-GET';
 const ERROR_MESSAGE = 'APIs must provide a get method for resources.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   if (!isResourceCollectionIdentifier(input)) {
     return;
   }
 
   const oas = documentInventory.resolved;
 
-  const errors = checkViolationsAndReturnErrors(oas.paths, input, path);
+  const errors = checkViolationsAndReturnErrors(oas.paths, input, path, ruleName);
 
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, oas.paths[input], path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, oas.paths[input], path);
 };
 
-function checkViolationsAndReturnErrors(oasPaths, input, path) {
+function checkViolationsAndReturnErrors(oasPaths, input, path, ruleName) {
   try {
     const resourcePathItems = getResourcePathItems(input, oasPaths);
     const resourcePaths = Object.keys(resourcePathItems);
@@ -42,6 +42,6 @@ function checkViolationsAndReturnErrors(oasPaths, input, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

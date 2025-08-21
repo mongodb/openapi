@@ -1,18 +1,18 @@
 import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-125-oneOf-no-base-types';
 const ERROR_MESSAGE_MIXED = 'oneOf should not mix base types with references.';
 const ERROR_MESSAGE_MULTIPLE = 'oneOf should not contain multiple different base types.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   if (!input.oneOf || !Array.isArray(input.oneOf)) {
     return;
   }
   const schema = resolveObject(documentInventory.unresolved, path);
 
   const errors = checkViolationsAndReturnErrors(schema, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, schema, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, schema, path);
 };
 
 function checkViolationsAndReturnErrors(schema, path) {

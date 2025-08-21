@@ -1,9 +1,8 @@
 import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { isTitleCase } from './utils/casing.js';
 
-const RULE_NAME = 'xgen-IPA-126-tag-names-should-use-title-case';
-
-export default (input, { ignoreList, grammaticalWords }, { path }) => {
+export default (input, { ignoreList, grammaticalWords }, { path, rule }) => {
+  const ruleName = rule.name;
   const tagName = input.name;
 
   // Check if the tag name uses Title Case
@@ -17,5 +16,5 @@ export default (input, { ignoreList, grammaticalWords }, { path }) => {
     ];
   }
 
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };

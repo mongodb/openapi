@@ -1,16 +1,15 @@
 import {
-  isSingleResourceIdentifier,
-  isSingletonResource,
   getResourcePathItems,
   isResourceCollectionIdentifier,
+  isSingleResourceIdentifier,
+  isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations/checkSchemaRefSuffixAndReturnErrors.js';
 
-const RULE_NAME = 'xgen-IPA-104-get-method-returns-response-suffixed-object';
-
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const resourcePath = path[1];
   const responseCode = path[4];
   const oas = documentInventory.unresolved;
@@ -28,7 +27,7 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'Response', RULE_NAME);
+  const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'Response', ruleName);
 
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, contentPerMediaType, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, contentPerMediaType, path);
 };

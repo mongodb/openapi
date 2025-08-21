@@ -6,11 +6,11 @@ import {
 } from './utils/resourceEvaluation.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-110-collections-response-define-links-array';
 const ERROR_MESSAGE =
   'The response for collections should define a links array field, providing links to next and previous pages.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const resourcePath = path[1];
   if (
@@ -26,11 +26,11 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(listMethodResponse.schema, oas, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, listMethodResponse, path);
+  const errors = checkViolationsAndReturnErrors(listMethodResponse.schema, oas, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, listMethodResponse, path);
 };
 
-function checkViolationsAndReturnErrors(listResponseSchema, oas, path) {
+function checkViolationsAndReturnErrors(listResponseSchema, oas, path, ruleName) {
   try {
     const hasLinksArray = listResponseSchema.properties?.links?.type === 'array';
 
@@ -44,6 +44,6 @@ function checkViolationsAndReturnErrors(listResponseSchema, oas, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

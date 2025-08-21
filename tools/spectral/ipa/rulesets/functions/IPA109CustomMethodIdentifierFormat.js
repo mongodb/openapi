@@ -1,8 +1,6 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 
-const RULE_NAME = 'xgen-IPA-109-custom-method-identifier-format';
-
 /**
  * Validates custom method identifiers follow the correct format pattern.
  * Custom methods should be defined using a colon character followed by the method name.
@@ -12,18 +10,19 @@ const RULE_NAME = 'xgen-IPA-109-custom-method-identifier-format';
  * @param {object} _ - Unused
  * @param {object} context - The context object containing path and document information
  */
-export default (input, _, { path }) => {
+export default (input, _, { path, rule }) => {
+  const ruleName = rule.name;
   let pathKey = path[1];
 
   if (!isCustomMethodIdentifier(pathKey)) {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(pathKey, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(pathKey, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(pathKey, path) {
+function checkViolationsAndReturnErrors(pathKey, path, ruleName) {
   try {
     // Check for multiple colons
     const colonCount = (pathKey.match(/:/g) || []).length;
@@ -62,6 +61,6 @@ function checkViolationsAndReturnErrors(pathKey, path) {
 
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

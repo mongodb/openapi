@@ -2,9 +2,8 @@ import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/c
 import { resolveObject } from './utils/componentUtils.js';
 import { splitCamelCase } from './utils/schemaUtils.js';
 
-const RULE_NAME = 'xgen-IPA-112-avoid-project-field-names';
-
-export default (input, options, { path, documentInventory }) => {
+export default (input, options, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const property = resolveObject(oas, path);
 
@@ -19,11 +18,11 @@ export default (input, options, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, options, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, property, path);
+  const errors = checkViolationsAndReturnErrors(input, options, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, property, path);
 };
 
-function checkViolationsAndReturnErrors(input, options, path) {
+function checkViolationsAndReturnErrors(input, options, path, ruleName) {
   try {
     const prohibitedFieldNames = options?.prohibitedFieldNames || [];
 
@@ -47,6 +46,6 @@ function checkViolationsAndReturnErrors(input, options, path) {
 
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }
