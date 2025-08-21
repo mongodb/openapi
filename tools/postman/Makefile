@@ -35,21 +35,6 @@ build: fetch_openapi convert_to_collection
 .PHONY: build_and_upload
 build_and_upload: build transform_collection upload_collection
 
-.PHONY: fetch_forks
-fetch_forks: 
-	./scripts/fetch-forks.sh
-
-.PHONY: compare_forks
-compare_forks: 
-	./scripts/compare-forks.sh
-
-.PHONY: send_forks
-send_forks: 
-	./scripts/send-fork-data.sh
-
-.PHONY: compare_and_send_forks
-compare_and_send_forks: compare_forks send_forks
-
 .PHONY: clean
 clean:
 	rm ./openapi/*; rm ./tmp/*

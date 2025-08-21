@@ -53,7 +53,7 @@ Our Postman collection generation has several limitations, meaning some manual u
 
 ## Postman folder structure
 
-- `openapi` - Where the OpenAPI Spec, version information, and fork files are stored
+- `openapi` - Where the OpenAPI Spec and version information are stored
 - `tmp` - Where the Postman Collection is generated and the temporary working files are stored
 - `scripts` - Where the Bash scripts are stored
 - `validation` - Where the files for spectral validation of the generated collection is stored
