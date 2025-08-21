@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import path from 'path';
 import { spawnSync } from 'child_process';
 import spectral from '@stoplight/spectral-core';
 import { Compression, Table, writeParquet, WriterPropertiesBuilder } from 'parquet-wasm';
@@ -53,12 +54,18 @@ runMetricCollectionJob(
 )
   .then((results) => {
     console.log('Writing results');
-    const table = tableFromJSON(results);
+    const table = tableFromJSON(results.metrics);
     const wasmTable = Table.fromIPCStream(tableToIPC(table, 'stream'));
     const parquetUint8Array = writeParquet(
       wasmTable,
       new WriterPropertiesBuilder().setCompression(Compression.GZIP).build()
     );
     fs.writeFileSync(config.defaultMetricCollectionResultsFilePath, parquetUint8Array);
+    fs.writeFileSync(path.join(config.defaultOutputsDir, 'warning-count.txt'), results.warnings.count.toString());
+
+    fs.writeFileSync(
+      path.join(config.defaultOutputsDir, 'warning-violations.json'),
+      JSON.stringify(results.warnings.violations, null, 2)
+    );
   })
   .catch((error) => console.error(error.message));
