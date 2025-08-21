@@ -1,7 +1,4 @@
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
 const ERROR_MESSAGE = 'Descriptions must not use raw HTML.';
 

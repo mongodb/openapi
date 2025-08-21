@@ -1,7 +1,4 @@
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
 
 const ERROR_MESSAGE = 'DELETE method should return an empty response. The response should not have a schema property.';

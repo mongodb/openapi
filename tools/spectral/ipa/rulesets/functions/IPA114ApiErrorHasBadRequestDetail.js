@@ -1,7 +1,4 @@
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
 /**
  * Verifies that ApiError schema has badRequestDetail field with proper structure

@@ -1,7 +1,4 @@
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
 const ERROR_MESSAGE = `Parameterized path must define a 404 response.`;
 /**
