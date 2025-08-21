@@ -7,10 +7,10 @@ import {
 import { resolveObject } from './utils/componentUtils.js';
 import { schemaIsPaginated } from './utils/schemaUtils.js';
 
-const RULE_NAME = 'xgen-IPA-110-collections-response-define-results-array';
 const ERROR_MESSAGE = 'The response for collections must define an array of results containing the paginated resource.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const resourcePath = path[1];
   if (
@@ -26,11 +26,11 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(listMethodResponse.schema, oas, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, listMethodResponse, path);
+  const errors = checkViolationsAndReturnErrors(listMethodResponse.schema, oas, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, listMethodResponse, path);
 };
 
-function checkViolationsAndReturnErrors(listResponseSchema, oas, path) {
+function checkViolationsAndReturnErrors(listResponseSchema, oas, path, ruleName) {
   try {
     if (!schemaIsPaginated(listResponseSchema)) {
       return [
@@ -42,6 +42,6 @@ function checkViolationsAndReturnErrors(listResponseSchema, oas, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

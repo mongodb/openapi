@@ -8,13 +8,13 @@ import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/c
 import { schemaIsArray, schemaIsPaginated } from './utils/schemaUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-104-get-method-returns-single-resource';
 const ERROR_MESSAGE_STANDARD_RESOURCE =
   'Get methods should return data for a single resource. This method returns an array or a paginated response.';
 const ERROR_MESSAGE_SINGLETON_RESOURCE =
   'Get methods for singleton resource should return data for a single resource. This method returns an array or a paginated response. If this is not a singleton resource, please implement all standard methods.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const resourcePath = path[1];
   const responseCode = path[4];
@@ -34,12 +34,12 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton);
+  const errors = checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton, ruleName);
 
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, contentPerMediaType, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, contentPerMediaType, path);
 };
 
-function checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton) {
+function checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton, ruleName) {
   try {
     const schema = contentPerMediaType.schema;
     if (schemaIsPaginated(schema) || schemaIsArray(schema)) {
@@ -52,6 +52,6 @@ function checkViolationsAndReturnErrors(contentPerMediaType, path, isSingleton) 
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

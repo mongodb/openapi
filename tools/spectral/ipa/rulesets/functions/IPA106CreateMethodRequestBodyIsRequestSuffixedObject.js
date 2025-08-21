@@ -8,9 +8,8 @@ import {
 import { resolveObject } from './utils/componentUtils.js';
 import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations/checkSchemaRefSuffixAndReturnErrors.js';
 
-const RULE_NAME = 'xgen-IPA-106-create-method-request-body-is-request-suffixed-object';
-
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
   const contentPerMediaType = resolveObject(oas, path);
@@ -26,6 +25,6 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'Request', RULE_NAME);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, contentPerMediaType, path);
+  const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'Request', ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, contentPerMediaType, path);
 };

@@ -7,10 +7,10 @@ import {
 import { getAllSuccessfulResponseSchemas } from './utils/methodUtils.js';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-113-singleton-must-not-have-id';
 const ERROR_MESSAGE = 'Singleton resources must not have a user-provided or system-generated ID.';
 
-export default (input, opts, { path, documentInventory }) => {
+export default (input, opts, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const resourcePath = path[1];
   const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
@@ -23,8 +23,8 @@ export default (input, opts, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(input, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
 function schemaHasIdProperty(schema) {
@@ -35,7 +35,7 @@ function schemaHasIdProperty(schema) {
   return false;
 }
 
-function checkViolationsAndReturnErrors(input, path) {
+function checkViolationsAndReturnErrors(input, path, ruleName) {
   try {
     const resourceSchemas = getAllSuccessfulResponseSchemas(input['get']);
     if (resourceSchemas.some(({ schema }) => schemaHasIdProperty(schema))) {
@@ -43,6 +43,6 @@ function checkViolationsAndReturnErrors(input, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

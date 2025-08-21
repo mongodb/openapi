@@ -1,7 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-124-array-max-items';
-
 /**
  * Checks if array fields have maxItems defined and set to 100
  *
@@ -9,7 +7,8 @@ const RULE_NAME = 'xgen-IPA-124-array-max-items';
  * @param {object} options - Rule configuration options
  * @param {object} context - The context object containing the path and documentInventory
  */
-export default (input, { maxAllowedValue, ignore = [] }, { path }) => {
+export default (input, { maxAllowedValue, ignore = [] }, { path, rule }) => {
+  const ruleName = rule.name;
   let propertyName;
   if (path.includes('parameters')) {
     propertyName = input.name;
@@ -24,11 +23,11 @@ export default (input, { maxAllowedValue, ignore = [] }, { path }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path, maxAllowedValue);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(input, path, maxAllowedValue, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(input, path, maxAllowedValue) {
+function checkViolationsAndReturnErrors(input, path, maxAllowedValue, ruleName) {
   try {
     // Check if maxItems is defined
     if (input.maxItems === undefined) {
@@ -51,6 +50,6 @@ function checkViolationsAndReturnErrors(input, path, maxAllowedValue) {
 
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

@@ -1,7 +1,6 @@
 import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-125-oneOf-must-have-discriminator';
 const MISSING_DISCRIMINATOR_MESSAGE = 'The schema has oneOf but no discriminator property.';
 const INVALID_DISCRIMINATOR_MESSAGE = 'Discriminator property is not an object.';
 const MISSING_PROPERTY_NAME_MESSAGE = 'Discriminator has no propertyName defined.';
@@ -9,14 +8,15 @@ const MISSING_MAPPING_MESSAGE = 'Discriminator must have a mapping object.';
 const MAPPING_ERROR_MESSAGE =
   'The discriminator mapping must match the oneOf references. Unmatched Discriminator mappings with oneOf references:';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   if (!input.oneOf) {
     return;
   }
   const schema = resolveObject(documentInventory.unresolved, path);
 
   const errors = checkViolationsAndReturnErrors(schema, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, schema, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, schema, path);
 };
 
 function checkViolationsAndReturnErrors(schema, path) {

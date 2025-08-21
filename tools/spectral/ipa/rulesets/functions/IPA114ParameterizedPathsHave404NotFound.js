@@ -1,6 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-114-parameterized-paths-have-404-not-found';
 const ERROR_MESSAGE = `Parameterized path must define a 404 response.`;
 /**
  * Validates that paths with parameters include a 404 response
@@ -9,7 +8,8 @@ const ERROR_MESSAGE = `Parameterized path must define a 404 response.`;
  * @param {object} _ - Rule options (unused)
  * @param {object} context - The context object containing path and document information
  */
-export default (input, _, { path }) => {
+export default (input, _, { path, rule }) => {
+  const ruleName = rule.name;
   // Path components: [paths, pathName, methodName, ...]
   const pathName = path[1];
 
@@ -18,8 +18,8 @@ export default (input, _, { path }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input.responses, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(input.responses, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
 /**
@@ -27,9 +27,10 @@ export default (input, _, { path }) => {
  *
  * @param {object} responses - The responses object to validate
  * @param {Array} path - Path to the responses in the document
+ * @param ruleName the name of the Spectral rule under validation
  * @returns {Array} - Array of error objects
  */
-function checkViolationsAndReturnErrors(responses, path) {
+function checkViolationsAndReturnErrors(responses, path, ruleName) {
   try {
     if (!responses) {
       return [
@@ -52,6 +53,6 @@ function checkViolationsAndReturnErrors(responses, path) {
 
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

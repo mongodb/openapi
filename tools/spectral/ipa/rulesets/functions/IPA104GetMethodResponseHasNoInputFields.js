@@ -8,10 +8,10 @@ import {
 import { resolveObject } from './utils/componentUtils.js';
 import { checkForbiddenPropertyAttributesAndReturnErrors } from './utils/validations/checkForbiddenPropertyAttributesAndReturnErrors.js';
 
-const RULE_NAME = 'xgen-IPA-104-get-method-response-has-no-input-fields';
 const ERROR_MESSAGE = 'The get method response object must not include output fields (writeOnly properties).';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const resourcePath = path[1];
   const responseCode = path[4];
   const oas = documentInventory.resolved;
@@ -37,5 +37,5 @@ export default (input, _, { path, documentInventory }) => {
     ERROR_MESSAGE
   );
 
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, contentPerMediaType, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, contentPerMediaType, path);
 };

@@ -8,9 +8,8 @@ import {
 } from './utils/resourceEvaluation.js';
 import { checkSchemaRefSuffixAndReturnErrors } from './utils/validations/checkSchemaRefSuffixAndReturnErrors.js';
 
-const RULE_NAME = 'xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object';
-
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
   const contentPerMediaType = resolveObject(oas, path);
@@ -25,6 +24,6 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'UpdateRequest', RULE_NAME);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, contentPerMediaType, path);
+  const errors = checkSchemaRefSuffixAndReturnErrors(path, contentPerMediaType, 'UpdateRequest', ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, contentPerMediaType, path);
 };

@@ -2,7 +2,6 @@ import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/c
 import { resolveObject } from './utils/componentUtils.js';
 import { findAdditionalPropertiesFalsePaths } from './utils/compareUtils.js';
 
-const RULE_NAME = 'xgen-IPA-118-no-additional-properties-false';
 const ERROR_MESSAGE = `Schema must not use 'additionalProperties: false'. Consider using 'additionalProperties: true' or omitting the property.`;
 /**
  * Validates that schemas don't use additionalProperties: false
@@ -11,15 +10,16 @@ const ERROR_MESSAGE = `Schema must not use 'additionalProperties: false'. Consid
  * @param {object} _ - Rule options (unused)
  * @param {object} context - The context object containing path and document information
  */
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const schemaObject = resolveObject(oas, path);
 
-  const errors = checkViolationsAndReturnErrors(schemaObject, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(schemaObject, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(schemaObject, path) {
+function checkViolationsAndReturnErrors(schemaObject, path, ruleName) {
   try {
     const errors = [];
 
@@ -33,6 +33,6 @@ function checkViolationsAndReturnErrors(schemaObject, path) {
 
     return errors;
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

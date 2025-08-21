@@ -1,20 +1,20 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-117-description-should-not-use-inline-links';
 const ERROR_MESSAGE =
   'Descriptions should not include inline links. Use the externalDocumentation property instead, see https://swagger.io/specification/#external-documentation-object.';
 
-export default (input, opts, { path }) => {
+export default (input, opts, { path, rule }) => {
+  const ruleName = rule.name;
   // Ignore missing descriptions
   if (!input['description']) {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input['description'], path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(input['description'], path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(description, path) {
+function checkViolationsAndReturnErrors(description, path, ruleName) {
   const markdownLinkPattern = new RegExp(`\\[.+]\\(.+\\)`);
 
   try {
@@ -23,6 +23,6 @@ function checkViolationsAndReturnErrors(description, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

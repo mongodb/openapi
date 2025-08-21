@@ -9,7 +9,6 @@ import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { getGETMethodResponseSchemaFromPathItem } from './utils/methodUtils.js';
 import { checkRequestResponseResourceEqualityAndReturnErrors } from './utils/validations/checkRequestResponseResourceEqualityAndReturnErrors.js';
 
-const RULE_NAME = 'xgen-IPA-107-update-method-request-body-is-get-method-response';
 const ERROR_MESSAGE =
   'The request body schema properties of the Update method must match the response body schema properties of the Get method.';
 
@@ -18,9 +17,10 @@ const ERROR_MESSAGE =
  *
  * @param {string} input - An update operation request content version
  * @param {object} _ - Unused
- * @param {{ path: string[], documentInventory: object}} context - The context object containing the path and document
+ * @param {{ path: string[], documentInventory: object, rule: object }} context - The context object containing the path, document, and rule
  */
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const unresolvedOas = documentInventory.unresolved;
   const resourcePath = path[1];
@@ -64,5 +64,6 @@ export default (input, _, { path, documentInventory }) => {
     'Get',
     ERROR_MESSAGE
   );
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, updateMethodRequest, path);
+
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, updateMethodRequest, path);
 };

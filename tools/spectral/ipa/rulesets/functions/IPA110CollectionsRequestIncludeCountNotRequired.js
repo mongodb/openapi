@@ -5,10 +5,10 @@ import {
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 
-const RULE_NAME = 'xgen-IPA-110-collections-request-includeCount-not-required';
 const ERROR_MESSAGE = 'includeCount query parameter of List method must not be required.';
 
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const resourcePath = path[1];
 
@@ -33,5 +33,5 @@ export default (input, _, { path, documentInventory }) => {
       },
     ];
   }
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };

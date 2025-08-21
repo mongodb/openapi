@@ -2,10 +2,10 @@ import { evaluateAndCollectAdoptionStatus } from './utils/collectionUtils.js';
 import { getSchemaPathFromEnumPath } from './utils/schemaUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-123-allowable-enum-values-should-not-exceed-20';
 const ERROR_MESSAGE = 'The number of allowable enum values should not exceed 20 values. Current count: ';
 
-export default (input, { maxEnumValues }, { path, documentInventory }) => {
+export default (input, { maxEnumValues }, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const schemaPath = getSchemaPathFromEnumPath(path);
   const schemaObject = resolveObject(oas, schemaPath);
@@ -24,5 +24,5 @@ export default (input, { maxEnumValues }, { path, documentInventory }) => {
     ];
   }
 
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, schemaObject, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, schemaObject, path);
 };

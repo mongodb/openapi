@@ -4,9 +4,8 @@ import { hasCustomMethodOverride, hasMethodVerbOverride, VERB_OVERRIDE_EXTENSION
 import { isInvalidGetMethod } from './utils/methodLogic.js';
 import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
 
-const RULE_NAME = 'xgen-IPA-104-valid-operation-id';
-
-export default (input, { methodName, ignorePluralizationList }, { path, documentInventory }) => {
+export default (input, { methodName, ignorePluralizationList }, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
   const resourcePaths = getResourcePathItems(resourcePath, oas.paths);
@@ -25,8 +24,8 @@ export default (input, { methodName, ignorePluralizationList }, { path, document
     }
     const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path, ignorePluralizationList);
 
-    return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+    return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 };

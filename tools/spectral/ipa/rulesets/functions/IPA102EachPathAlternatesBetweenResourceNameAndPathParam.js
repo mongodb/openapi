@@ -3,7 +3,6 @@ import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/c
 import { AUTH_PREFIX, UNAUTH_PREFIX } from './utils/resourceEvaluation.js';
 import { findExceptionInPathHierarchy } from './utils/exceptions.js';
 
-const RULE_NAME = 'xgen-IPA-102-path-alternate-resource-name-path-param';
 const ERROR_MESSAGE = 'API paths must alternate between resource name and path params.';
 
 const getPrefix = (path) => {
@@ -32,7 +31,8 @@ const validatePathStructure = (elements) => {
  * @param {object} _ - Unused
  * @param {object} context - The context object containing the path and documentInventory
  */
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
 
   const prefix = getPrefix(input);
@@ -45,20 +45,20 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(suffixWithLeadingSlash, path);
+  const errors = checkViolationsAndReturnErrors(suffixWithLeadingSlash, path, ruleName);
 
   // Check for exceptions in path hierarchy
-  const result = findExceptionInPathHierarchy(oas, input, RULE_NAME, path);
+  const result = findExceptionInPathHierarchy(oas, input, ruleName, path);
   if (result?.error) {
     return result.error;
   }
 
   const objectToCheckForException = result ? oas.paths[result.parentPath] : oas.paths[input];
 
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, objectToCheckForException, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, objectToCheckForException, path);
 };
 
-function checkViolationsAndReturnErrors(suffixWithLeadingSlash, path) {
+function checkViolationsAndReturnErrors(suffixWithLeadingSlash, path, ruleName) {
   try {
     let suffix = suffixWithLeadingSlash.slice(1);
     let elements = suffix.split('/');
@@ -67,6 +67,6 @@ function checkViolationsAndReturnErrors(suffixWithLeadingSlash, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

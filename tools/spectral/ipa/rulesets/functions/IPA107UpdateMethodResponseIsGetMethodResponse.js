@@ -8,7 +8,6 @@ import { resolveObject } from './utils/componentUtils.js';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { getGETMethodResponseSchemaFromPathItem, getSchemaRef } from './utils/methodUtils.js';
 
-const RULE_NAME = 'xgen-IPA-107-update-method-response-is-get-method-response';
 const ERROR_MESSAGE =
   'The schema in the Update method response must be the same schema as the response of the Get method.';
 
@@ -17,9 +16,10 @@ const ERROR_MESSAGE =
  *
  * @param {string} input - An update operation 200 response content version
  * @param {object} _ - Unused
- * @param {{ path: string[], documentInventory: object}} context - The context object containing the path and document
+ * @param {{ path: string[], documentInventory: object, rule: object }} context - The context object containing the path, document, and rule
  */
-export default (input, _, { path, documentInventory }) => {
+export default (input, _, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.unresolved;
   const resourcePath = path[1];
   const mediaType = input;
@@ -49,11 +49,16 @@ export default (input, _, { path, documentInventory }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(path, updateMethodResponse, getMethodResponseContentPerMediaType);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, updateMethodResponse, path);
+  const errors = checkViolationsAndReturnErrors(
+    path,
+    updateMethodResponse,
+    getMethodResponseContentPerMediaType,
+    ruleName
+  );
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, updateMethodResponse, path);
 };
 
-function checkViolationsAndReturnErrors(path, updateMethodResponseContent, getMethodResponseContent) {
+function checkViolationsAndReturnErrors(path, updateMethodResponseContent, getMethodResponseContent, ruleName) {
   try {
     // Error if the Get method does not have a schema
     if (!getMethodResponseContent.schema) {
@@ -84,6 +89,6 @@ function checkViolationsAndReturnErrors(path, updateMethodResponseContent, getMe
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

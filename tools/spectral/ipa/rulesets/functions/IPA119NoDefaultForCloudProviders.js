@@ -1,9 +1,9 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
 
-const RULE_NAME = 'xgen-IPA-119-no-default-for-cloud-providers';
 const ERROR_MESSAGE = 'When using a provider field or param, API producers should not define a default value.';
-export default (input, { propertyNameToLookFor, cloudProviderEnumValues }, { path, documentInventory }) => {
+export default (input, { propertyNameToLookFor, cloudProviderEnumValues }, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const propertyObject = resolveObject(oas, path);
   const fieldType = path[path.length - 2];
@@ -16,8 +16,8 @@ export default (input, { propertyNameToLookFor, cloudProviderEnumValues }, { pat
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(propertyObject, path, fieldType);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, propertyObject, path);
+  const errors = checkViolationsAndReturnErrors(propertyObject, path, fieldType, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, propertyObject, path);
 };
 
 function inputIsCloudProviderField(
@@ -52,7 +52,7 @@ function inputIsCloudProviderField(
   return isCloudProviderField;
 }
 
-function checkViolationsAndReturnErrors(propertyObject, path, fieldType) {
+function checkViolationsAndReturnErrors(propertyObject, path, fieldType, ruleName) {
   try {
     const errors = [];
 
@@ -75,6 +75,6 @@ function checkViolationsAndReturnErrors(propertyObject, path, fieldType) {
     }
     return errors;
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }

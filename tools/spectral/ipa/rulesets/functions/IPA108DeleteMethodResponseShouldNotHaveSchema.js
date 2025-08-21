@@ -1,7 +1,6 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isSingleResourceIdentifier } from './utils/resourceEvaluation.js';
 
-const RULE_NAME = 'xgen-IPA-108-delete-response-should-be-empty';
 const ERROR_MESSAGE = 'DELETE method should return an empty response. The response should not have a schema property.';
 
 /**
@@ -10,23 +9,25 @@ const ERROR_MESSAGE = 'DELETE method should return an empty response. The respon
  * @param {object} _ - Unused
  * @param {object} context - The context object containing the path
  */
-export default (input, _, { path }) => {
+export default (input, _, { path, rule }) => {
+  const ruleName = rule.name;
   const pathString = path[1]; // Extract the resource path
   if (!isSingleResourceIdentifier(pathString)) {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(input, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
 /**
  * Check if the operation has validation issues
  * @param {object} input - The  object to verify
  * @param {Array<string>} jsonPathArray - The jsonPathArray covering location in the OpenAPI schema
+ * @param ruleName the name of the Spectral rule under validation
  * @return {Array<{path: Array<string>, message: string}>} - errors array ()
  */
-function checkViolationsAndReturnErrors(input, jsonPathArray) {
+function checkViolationsAndReturnErrors(input, jsonPathArray, ruleName) {
   const errors = [];
   try {
     const successResponse = input;
@@ -41,7 +42,7 @@ function checkViolationsAndReturnErrors(input, jsonPathArray) {
       }
     }
   } catch (e) {
-    return handleInternalError(RULE_NAME, jsonPathArray, e);
+    return handleInternalError(ruleName, jsonPathArray, e);
   }
   return errors;
 }

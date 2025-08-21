@@ -3,7 +3,6 @@ import { isPathParam } from './utils/componentUtils.js';
 import { casing } from '@stoplight/spectral-functions';
 import { findExceptionInPathHierarchy } from './utils/exceptions.js';
 
-const RULE_NAME = 'xgen-IPA-102-collection-identifier-camelCase';
 const ERROR_MESSAGE = 'Collection identifiers must be in camelCase.';
 
 /**
@@ -15,26 +14,27 @@ const ERROR_MESSAGE = 'Collection identifiers must be in camelCase.';
  * @param {object} options - Rule configuration options
  * @param {object} context - The context object containing the path and documentInventory
  */
-export default (input, options, { path, documentInventory }) => {
+export default (input, options, { path, documentInventory, rule }) => {
+  const ruleName = rule.name;
   const oas = documentInventory.resolved;
   const pathKey = input;
 
   // Extract ignored values from options
   const ignoredValues = options?.ignoredValues || [];
 
-  const violations = checkViolations(pathKey, path, ignoredValues);
+  const violations = checkViolations(pathKey, path, ignoredValues, ruleName);
 
   // Check for exceptions in path hierarchy
-  const result = findExceptionInPathHierarchy(oas, pathKey, RULE_NAME, path);
+  const result = findExceptionInPathHierarchy(oas, pathKey, ruleName, path);
   if (result?.error) {
     return result.error;
   }
   const objectToCheckForException = result ? oas.paths[result.parentPath] : oas.paths[input];
 
-  return evaluateAndCollectAdoptionStatus(violations, RULE_NAME, objectToCheckForException, path);
+  return evaluateAndCollectAdoptionStatus(violations, ruleName, objectToCheckForException, path);
 };
 
-function checkViolations(pathKey, path, ignoredValues = []) {
+function checkViolations(pathKey, path, ignoredValues = [], ruleName) {
   const violations = [];
   try {
     // Don't filter out empty segments - they should be treated as violations
@@ -105,9 +105,8 @@ function checkViolations(pathKey, path, ignoredValues = []) {
         });
       }
     });
+    return violations;
   } catch (e) {
-    return handleInternalError(RULE_NAME, [...path, pathKey], e);
+    return handleInternalError(ruleName, [...path, pathKey], e);
   }
-
-  return violations;
 }

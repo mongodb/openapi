@@ -2,9 +2,8 @@ import { getCustomMethodName, isCustomMethodIdentifier } from './utils/resourceE
 import { casing } from '@stoplight/spectral-functions';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const RULE_NAME = 'xgen-IPA-109-custom-method-must-use-camel-case';
-
-export default (input, opts, { path }) => {
+export default (input, opts, { path, rule }) => {
+  const ruleName = rule.name;
   // Extract the path key (e.g., '/a/{exampleId}:method') from the JSONPath.
   let pathKey = path[1];
 
@@ -12,11 +11,11 @@ export default (input, opts, { path }) => {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(pathKey, path);
-  return evaluateAndCollectAdoptionStatus(errors, RULE_NAME, input, path);
+  const errors = checkViolationsAndReturnErrors(pathKey, path, ruleName);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(pathKey, path) {
+function checkViolationsAndReturnErrors(pathKey, path, ruleName) {
   try {
     let methodName = getCustomMethodName(pathKey);
     if (methodName.length === 0 || methodName.trim().length === 0) {
@@ -30,6 +29,6 @@ function checkViolationsAndReturnErrors(pathKey, path) {
     }
     return [];
   } catch (e) {
-    return handleInternalError(RULE_NAME, path, e);
+    return handleInternalError(ruleName, path, e);
   }
 }
