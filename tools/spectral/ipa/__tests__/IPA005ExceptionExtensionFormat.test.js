@@ -8,13 +8,13 @@ testRule('xgen-IPA-005-exception-extension-format', [
       paths: {
         '/path': {
           'x-xgen-IPA-exception': {
-            'xgen-IPA-100-rule-name': 'Exception',
+            'xgen-IPA-100-rule-name': 'Exception.',
           },
         },
         '/nested': {
           post: {
             'x-xgen-IPA-exception': {
-              'xgen-IPA-100-rule-name': 'Exception',
+              'xgen-IPA-100-rule-name': 'Exception.',
             },
           },
         },
@@ -51,26 +51,26 @@ testRule('xgen-IPA-005-exception-extension-format', [
     errors: [
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason.',
+        message: 'IPA exceptions must have a valid key with xgen-IPA- prefix.',
         path: ['paths', '/path1', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason.',
-        path: ['paths', '/path2', 'x-xgen-IPA-exception', 'xgen-IPA-100-rule-name'],
+        message: 'IPA exceptions must have a non-empty reason that starts with uppercase and ends with a full stop.',
+        path: ['paths', '/path2', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason.',
-        path: ['paths', '/path3', 'x-xgen-IPA-exception', 'invalid-rule-name'],
+        message: 'IPA exceptions must have a valid key with xgen-IPA- prefix.',
+        path: ['paths', '/path3', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid rule name and a reason.',
-        path: ['paths', '/path4', 'x-xgen-IPA-exception', 'xgen-IPA-100-rule-name'],
+        message: 'IPA exceptions must have a non-empty reason that starts with uppercase and ends with a full stop.',
+        path: ['paths', '/path4', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
     ],
