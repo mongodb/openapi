@@ -2,7 +2,16 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [2.2.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.1.0...2.2.0)
+#### [2.3.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.2.0...2.3.0)
+
+- fix(ipa): use rule name from function input instead of hard coded name [`#914`](https://github.com/mongodb/openapi/pull/914)
+- feat(ipa): new rule xgen-IPA-117-operation-summary-single-item-wording [`#913`](https://github.com/mongodb/openapi/pull/913)
+- fix(ipa): return internal errors as Spectral errors [`#912`](https://github.com/mongodb/openapi/pull/912)
+- feat(ipa): new rules for operation summaries starting with specific words [`#903`](https://github.com/mongodb/openapi/pull/903)
+
+#### [ipa-validation-ruleset-v2.2.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.1.0...ipa-validation-ruleset-v2.2.0)
+
+> 19 August 2025
 
 - fix(ipa): Add ignore list for nouns in OperationID Validation [`#901`](https://github.com/mongodb/openapi/pull/901)
 - feat(ipa): new rule xgen-IPA-117-get-operation-summary-starts-with [`#900`](https://github.com/mongodb/openapi/pull/900)
