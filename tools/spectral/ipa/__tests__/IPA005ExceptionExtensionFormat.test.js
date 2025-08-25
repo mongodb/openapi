@@ -11,10 +11,16 @@ testRule('xgen-IPA-005-exception-extension-format', [
             'xgen-IPA-100-rule-name': 'Exception.',
           },
         },
+        '/path-short': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-100': 'Exception.',
+          },
+        },
         '/nested': {
           post: {
             'x-xgen-IPA-exception': {
               'xgen-IPA-100-rule-name': 'Exception.',
+              'xgen-IPA-005': 'Short format exception.',
             },
           },
         },
@@ -61,6 +67,26 @@ testRule('xgen-IPA-005-exception-extension-format', [
             'xgen-IPA_100_rule-name': {},
           },
         },
+        '/path8': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-100-': 'Exception.',
+          },
+        },
+        '/path9': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-5': 'Exception.',
+          },
+        },
+        '/path10': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-100': 'exception without uppercase.',
+          },
+        },
+        '/path11': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-100': 'Exception without period',
+          },
+        },
       },
     },
     errors: [
@@ -104,6 +130,30 @@ testRule('xgen-IPA-005-exception-extension-format', [
         code: 'xgen-IPA-005-exception-extension-format',
         message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
         path: ['paths', '/path7', 'x-xgen-IPA-exception'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-005-exception-extension-format',
+        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
+        path: ['paths', '/path8', 'x-xgen-IPA-exception'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-005-exception-extension-format',
+        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
+        path: ['paths', '/path9', 'x-xgen-IPA-exception'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-005-exception-extension-format',
+        message: 'IPA exceptions must have a non-empty reason that starts with uppercase and ends with a full stop.',
+        path: ['paths', '/path10', 'x-xgen-IPA-exception'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-005-exception-extension-format',
+        message: 'IPA exceptions must have a non-empty reason that starts with uppercase and ends with a full stop.',
+        path: ['paths', '/path11', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
     ],

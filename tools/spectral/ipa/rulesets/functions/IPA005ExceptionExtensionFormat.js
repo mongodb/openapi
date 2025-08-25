@@ -1,9 +1,12 @@
-import { evaluateAndCollectAdoptionStatusWithoutExceptions, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatusWithoutExceptions,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 
 const ERROR_MESSAGE_RULENAME_FORMAT = 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.';
 const ERROR_MESSAGE_REASON_FORMAT =
   'IPA exceptions must have a non-empty reason that starts with uppercase and ends with a full stop.';
-const RULE_NAME_PATTERN = /^xgen-IPA-\d{3}-[a-z-]+$/;
+const RULE_NAME_PATTERN = /^xgen-IPA-\d{3}(?:-[a-z-]+)?$/;
 
 // Note: This rule does not allow exceptions
 export default (input, _, { path, rule }) => {
