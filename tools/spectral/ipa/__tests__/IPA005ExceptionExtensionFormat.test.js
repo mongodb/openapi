@@ -92,7 +92,7 @@ testRule('xgen-IPA-005-exception-extension-format', [
     errors: [
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
+        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX or xgen-IPA-XXX-{rule-name} format.',
         path: ['paths', '/path1', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
@@ -104,7 +104,7 @@ testRule('xgen-IPA-005-exception-extension-format', [
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
+        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX or xgen-IPA-XXX-{rule-name} format.',
         path: ['paths', '/path3', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
@@ -116,31 +116,31 @@ testRule('xgen-IPA-005-exception-extension-format', [
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
+        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX or xgen-IPA-XXX-{rule-name} format.',
         path: ['paths', '/path5', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
+        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX or xgen-IPA-XXX-{rule-name} format.',
         path: ['paths', '/path6', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
+        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX or xgen-IPA-XXX-{rule-name} format.',
         path: ['paths', '/path7', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
+        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX or xgen-IPA-XXX-{rule-name} format.',
         path: ['paths', '/path8', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-005-exception-extension-format',
-        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX-{rule-name} format.',
+        message: 'IPA exceptions must have a valid key following xgen-IPA-XXX or xgen-IPA-XXX-{rule-name} format.',
         path: ['paths', '/path9', 'x-xgen-IPA-exception'],
         severity: DiagnosticSeverity.Error,
       },
