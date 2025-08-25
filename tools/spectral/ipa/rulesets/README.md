@@ -20,6 +20,7 @@ IPA exception extensions must follow the correct format.
 ##### Implementation details
 Rule checks for the following conditions:
   - Exception rule names must start with 'xgen-IPA-' prefix
+  - Exception rule names can be either short format (xgen-IPA-XXX) or full format (xgen-IPA-XXX-rule-name)
   - Each exception must include a non-empty reason as a string that starts with uppercase and ends with a full stop
   - This rule itself does not allow exceptions
 
