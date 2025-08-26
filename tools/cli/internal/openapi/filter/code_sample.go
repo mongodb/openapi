@@ -77,7 +77,7 @@ func getFileExtension(format string) string {
 
 func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
+	source := "curl --include --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
 
 	switch opMethod {
@@ -107,7 +107,7 @@ func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMeth
 
 func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
+	source := "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
 
 	switch opMethod {
