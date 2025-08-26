@@ -77,7 +77,7 @@ func getFileExtension(format string) string {
 
 func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --include --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest \\\n  " +
+	source := "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
 
 	switch opMethod {
