@@ -9,6 +9,7 @@ export const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z0-9])|[A-Z]*[a-z0-9]+
  *
  * @param method the standard method name (create, update, get etc.), custom method name, or empty string (only for legacy custom methods)
  * @param path the path for the endpoint
+ * @param ignoreSingularizationList a list of nouns to ignore when singularizing resource names
  */
 export function generateOperationID(method, path, ignoreSingularizationList = []) {
   if (!path) {
