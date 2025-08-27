@@ -10,7 +10,7 @@ const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z])|[A-Z]*[a-z]+/g;
  * @param method the standard method name (create, update, get etc.), custom method name, or empty string (only for legacy custom methods)
  * @param path the path for the endpoint
  */
-export function generateOperationID(method, path, ignorePluralizationList = []) {
+export function generateOperationID(method, path, ignoreSingularizationList = []) {
   if (!path) {
     return method;
   }
@@ -40,7 +40,7 @@ export function generateOperationID(method, path, ignorePluralizationList = []) 
 
   let opID = verb;
   for (let i = 0; i < nouns.length - 1; i++) {
-    opID += singularize(nouns[i], ignorePluralizationList);
+    opID += singularize(nouns[i], ignoreSingularizationList);
   }
 
   // singularize final noun, dependent on resource identifier - leave custom nouns alone
@@ -49,7 +49,7 @@ export function generateOperationID(method, path, ignorePluralizationList = []) 
       !camelCaseCustomMethod) ||
     verb === 'create'
   ) {
-    nouns[nouns.length - 1] = singularize(nouns[nouns.length - 1], ignorePluralizationList);
+    nouns[nouns.length - 1] = singularize(nouns[nouns.length - 1], ignoreSingularizationList);
   }
 
   opID += nouns.pop();
@@ -93,8 +93,8 @@ function capitalize(val) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }
 
-function singularize(noun, ignorePluralizationList = []) {
-  if (!ignorePluralizationList.includes(noun)) {
+function singularize(noun, ignoreSingularizationList = []) {
+  if (!ignoreSingularizationList.includes(noun)) {
     return inflection.singularize(noun);
   }
   return noun;

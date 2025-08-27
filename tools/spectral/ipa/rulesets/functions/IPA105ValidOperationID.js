@@ -4,7 +4,7 @@ import { isInvalidListMethod } from './utils/methodLogic.js';
 import { hasCustomMethodOverride, hasMethodVerbOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
 import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
 
-export default (input, { methodName, ignorePluralizationList }, { path, documentInventory, rule }) => {
+export default (input, { methodName, ignoreSingularizationList }, { path, documentInventory, rule }) => {
   const ruleName = rule.name;
   const resourcePath = path[1];
   const oas = documentInventory.resolved;
@@ -23,7 +23,7 @@ export default (input, { methodName, ignorePluralizationList }, { path, document
   }
 
   try {
-    const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path, ignorePluralizationList);
+    const errors = validateOperationIdAndReturnErrors(methodName, resourcePath, input, path, ignoreSingularizationList);
     return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
   } catch (e) {
     return handleInternalError(ruleName, path, e);
