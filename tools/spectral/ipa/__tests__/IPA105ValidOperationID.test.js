@@ -50,7 +50,7 @@ testRule('xgen-IPA-105-valid-operation-id', [
       {
         code: 'xgen-IPA-105-valid-operation-id',
         message:
-          "Invalid OperationID. Found 'returnAllControlPlaneIpAddresses', expected 'listControlPlaneIPAddresses'. ",
+          "Invalid OperationID. Found 'returnAllControlPlaneIpAddresses', expected 'listControlPlaneIpAddresses'. ",
         path: ['paths', '/api/atlas/v2/unauth/controlPlaneIPAddresses', 'get', 'operationId'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -71,6 +71,12 @@ testRule('xgen-IPA-105-valid-operation-id', [
           get: {
             operationId: 'listGroupBackupExportBuckets',
             'x-xgen-operation-id-override': 'listExportBuckets',
+          },
+        },
+        '/api/atlas/v2/unauth/controlPlaneIPAddresses': {
+          get: {
+            operationId: 'listControlPlaneIpAddresses',
+            'x-xgen-operation-id-override': 'listControlPlaneAddresses',
           },
         },
       },
@@ -112,7 +118,10 @@ testRule('xgen-IPA-105-valid-operation-id', [
         '/api/atlas/v2/groups/{groupId}/serverless': {
           get: {
             operationId: 'listGroupServerlessInstances',
-            'x-xgen-method-verb-override': { verb: 'listInstances', customMethod: false },
+            'x-xgen-method-verb-override': {
+              verb: 'listInstances',
+              customMethod: false,
+            },
             'x-xgen-operation-id-override': 'listServerlessInstances',
           },
         },

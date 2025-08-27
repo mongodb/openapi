@@ -67,6 +67,15 @@ testRule('xgen-IPA-104-valid-operation-id', [
     name: 'valid methods with valid overrides',
     document: {
       paths: {
+        '/api/atlas/v2': {
+          get: {
+            'x-xgen-method-verb-override': {
+              verb: 'getSystemStatus',
+              customMethod: false,
+            },
+            operationId: 'getSystemStatus',
+          },
+        },
         '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings/{id}': {
           get: {
             operationId: 'getFederationSettingConnectedOrgConfigRoleMapping',
@@ -122,7 +131,10 @@ testRule('xgen-IPA-104-valid-operation-id', [
         '/api/atlas/v2/groups/{groupId}/streams/{tenantName}': {
           get: {
             operationId: 'getGroupStreamWorkspace',
-            'x-xgen-method-verb-override': { verb: 'getWorkspace', customMethod: false },
+            'x-xgen-method-verb-override': {
+              verb: 'getWorkspace',
+              customMethod: false,
+            },
           },
         },
       },

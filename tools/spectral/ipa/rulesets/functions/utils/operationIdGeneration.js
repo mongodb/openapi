@@ -2,7 +2,7 @@ const inflection = require('inflection');
 import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourceEvaluation.js';
 
 const CAMEL_CASE = /[A-Z]?[a-z]+/g;
-const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z])|[A-Z]*[a-z]+/g;
+export const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z0-9])|[A-Z]*[a-z0-9]+/g;
 
 /**
  * Returns IPA Compliant Operation ID.
@@ -40,7 +40,7 @@ export function generateOperationID(method, path, ignoreSingularizationList = []
 
   let opID = verb;
   for (let i = 0; i < nouns.length - 1; i++) {
-    opID += singularize(nouns[i], ignoreSingularizationList);
+    opID += upperCamelCase(singularize(nouns[i], ignoreSingularizationList));
   }
 
   // singularize final noun, dependent on resource identifier - leave custom nouns alone
@@ -52,13 +52,13 @@ export function generateOperationID(method, path, ignoreSingularizationList = []
     nouns[nouns.length - 1] = singularize(nouns[nouns.length - 1], ignoreSingularizationList);
   }
 
-  opID += nouns.pop();
+  opID += upperCamelCase(nouns.pop());
 
   return opID;
 }
 
 /**
- * Counts the number of words in a camelCase string. Allows for abbreviations (e.g. 'getOpenAPI').
+ * Counts the number of words in a camelCase string. Allows for abbreviations (e.g. 'getOpenAPI') and numbers (e.g. 'X509').
  * @param operationId
  * @returns {number}
  */
@@ -98,4 +98,14 @@ function singularize(noun, ignoreSingularizationList = []) {
     return inflection.singularize(noun);
   }
   return noun;
+}
+
+function upperCamelCase(input) {
+  if (input) {
+    return input
+      .match(CAMEL_CASE_WITH_ABBREVIATIONS)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('');
+  }
+  return input;
 }

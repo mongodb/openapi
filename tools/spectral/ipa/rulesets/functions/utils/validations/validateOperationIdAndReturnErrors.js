@@ -1,7 +1,10 @@
-import { generateOperationID, numberOfWords, shortenOperationId } from '../operationIdGeneration.js';
+import {
+  CAMEL_CASE_WITH_ABBREVIATIONS,
+  generateOperationID,
+  numberOfWords,
+  shortenOperationId,
+} from '../operationIdGeneration.js';
 import { getOperationIdOverride, hasOperationIdOverride, OPERATION_ID_OVERRIDE_EXTENSION } from '../extensions.js';
-
-const CAMEL_CASE = /[A-Z]?[a-z]+/g;
 
 const INVALID_OP_ID_ERROR_MESSAGE = 'Invalid OperationID.';
 const TOO_LONG_OP_ID_ERROR_MESSAGE =
@@ -61,7 +64,7 @@ export function validateOperationIdAndReturnErrors(
 }
 
 function validateOperationIdOverride(operationIdOverridePath, override, expectedOperationId) {
-  const expectedVerb = expectedOperationId.match(CAMEL_CASE)[0];
+  const expectedVerb = expectedOperationId.match(CAMEL_CASE_WITH_ABBREVIATIONS)[0];
   const errors = [];
   if (!override.startsWith(expectedVerb)) {
     errors.push({
@@ -77,7 +80,7 @@ function validateOperationIdOverride(operationIdOverridePath, override, expected
     });
   }
 
-  const overrideWords = override.match(CAMEL_CASE).slice(1);
+  const overrideWords = override.match(CAMEL_CASE_WITH_ABBREVIATIONS).slice(1);
   if (overrideWords.some((word) => !expectedOperationId.includes(word))) {
     errors.push({
       path: operationIdOverridePath,
@@ -85,7 +88,8 @@ function validateOperationIdOverride(operationIdOverridePath, override, expected
     });
   }
 
-  const expectedLastNoun = expectedOperationId.match(CAMEL_CASE)[numberOfWords(expectedOperationId) - 1];
+  const expectedLastNoun =
+    expectedOperationId.match(CAMEL_CASE_WITH_ABBREVIATIONS)[numberOfWords(expectedOperationId) - 1];
   if (!override.endsWith(expectedLastNoun)) {
     errors.push({
       path: operationIdOverridePath,
