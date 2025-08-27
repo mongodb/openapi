@@ -2,7 +2,14 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [2.3.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.2.0...2.3.0)
+#### [3.3.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.3.0...3.3.0)
+
+- fix(ipa): Handle abbreviations/numbers in op ID rules [`#927`](https://github.com/mongodb/openapi/pull/927)
+- fix(ipa): exception reason formatting [`#918`](https://github.com/mongodb/openapi/pull/918)
+
+#### [ipa-validation-ruleset-v2.3.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v2.2.0...ipa-validation-ruleset-v2.3.0)
+
+> 22 August 2025
 
 - fix(ipa): use rule name from function input instead of hard coded name [`#914`](https://github.com/mongodb/openapi/pull/914)
 - feat(ipa): new rule xgen-IPA-117-operation-summary-single-item-wording [`#913`](https://github.com/mongodb/openapi/pull/913)
