@@ -3,6 +3,9 @@ import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/c
 import spellcheck from 'markdown-spellcheck';
 
 export default (input, { customWords, spellcheckOptions }, { path, rule }) => {
+  if (typeof input !== 'string') {
+    return;
+  }
   const errors = checkViolationsAndReturnErrors(input, customWords, spellcheckOptions, path, rule.name);
   return evaluateAndCollectAdoptionStatus(errors, rule.name, input, path);
 };
