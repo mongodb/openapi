@@ -13823,6 +13823,8 @@ components:
                             - USERS_WITHOUT_MULTI_FACTOR_AUTH
                             - ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_DENIED
                             - ENCRYPTION_AT_REST_CONFIG_NO_LONGER_VALID
+                            - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRING
+                            - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED
                           title: Group Event Types
                           type: string
                         - enum:
@@ -14032,6 +14034,8 @@ components:
                             - USERS_WITHOUT_MULTI_FACTOR_AUTH
                             - ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_DENIED
                             - ENCRYPTION_AT_REST_CONFIG_NO_LONGER_VALID
+                            - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRING
+                            - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED
                           title: Group Event Types
                           type: string
                         - enum:
@@ -14358,6 +14362,10 @@ components:
                             - ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_RESTORED
                             - ENCRYPTION_AT_REST_CONFIG_NO_LONGER_VALID
                             - ENCRYPTION_AT_REST_CONFIG_IS_VALID
+                            - GROUP_SERVICE_ACCOUNT_SECRETS_NO_LONGER_EXPIRING
+                            - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRING
+                            - GROUP_SERVICE_ACCOUNT_SECRETS_NO_LONGER_EXPIRED
+                            - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED
                           title: Group Event Types
                           type: string
                         - enum:
@@ -17386,6 +17394,10 @@ components:
                     - ENCRYPTION_AT_REST_KMS_NETWORK_ACCESS_RESTORED
                     - ENCRYPTION_AT_REST_CONFIG_NO_LONGER_VALID
                     - ENCRYPTION_AT_REST_CONFIG_IS_VALID
+                    - GROUP_SERVICE_ACCOUNT_SECRETS_NO_LONGER_EXPIRING
+                    - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRING
+                    - GROUP_SERVICE_ACCOUNT_SECRETS_NO_LONGER_EXPIRED
+                    - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED
                   title: Group Event Types
                   type: string
                 - enum:
@@ -17576,6 +17588,7 @@ components:
                     - ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_ENABLED
                     - ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_UPDATED
                     - ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_DISABLED
+                    - ONLINE_ARCHIVE_DELETE_AFTER_DATE_UPDATED
                     - CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_ADDED
                     - CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_DELETED
                     - CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_UPDATED
@@ -27755,6 +27768,7 @@ components:
                 - ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_ENABLED
                 - ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_UPDATED
                 - ONLINE_ARCHIVE_DATA_EXPIRATION_RULE_DISABLED
+                - ONLINE_ARCHIVE_DELETE_AFTER_DATE_UPDATED
                 - CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_ADDED
                 - CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_DELETED
                 - CLOUD_PROVIDER_ACCESS_AWS_IAM_ROLE_UPDATED
@@ -41906,7 +41920,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 378af9d1d56cc682acddeefd453536f6e6933465
+    x-xgen-sha: 338d83ac3f16d631f76fcc8b51a48c85e2a8409e
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -44121,7 +44135,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/awsCustomDNS:
         get:
             description: Returns the custom DNS configuration for AWS clusters in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getAwsCustomDns
+            operationId: getGroupAwsCustomDns
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44147,11 +44161,12 @@ paths:
             summary: Return One Custom DNS Configuration for Atlas Clusters on AWS
             tags:
                 - AWS Clusters DNS
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AWS-Clusters-DNS/operation/getAwsCustomDns
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AWS-Clusters-DNS/operation/getGroupAwsCustomDns
+            x-xgen-operation-id-override: getAwsCustomDns
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Enables or disables the custom DNS configuration for AWS clusters in the specified project. Enable custom DNS if you use AWS VPC peering and use your own DNS servers. To use this resource, the requesting Service Account or API Key must have the Project Atlas Admin role.
-            operationId: toggleAwsCustomDns
+            operationId: toggleGroupAwsCustomDns
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44184,17 +44199,18 @@ paths:
             summary: Update State of One Custom DNS Configuration for Atlas Clusters on AWS
             tags:
                 - AWS Clusters DNS
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AWS-Clusters-DNS/operation/toggleAwsCustomDns
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AWS-Clusters-DNS/operation/toggleGroupAwsCustomDns
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: toggle
+            x-xgen-operation-id-override: toggleAwsCustomDns
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-collection-identifier-camelCase: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/backup/exportBuckets:
         get:
             description: Returns all Export Buckets associated with the specified Project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listExportBuckets
+            operationId: listGroupBackupExportBuckets
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44226,11 +44242,12 @@ paths:
             summary: Return All Snapshot Export Buckets
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listExportBuckets
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupBackupExportBuckets
+            x-xgen-operation-id-override: listExportBuckets
             x-xgen-owner-team: Backup - Atlas
         post:
             description: Creates a Snapshot Export Bucket for an AWS S3 Bucket, Azure Blob Storage Container, or Google Cloud Storage Bucket. Once created, an snapshots can be exported to the Export Bucket and its referenced AWS S3 Bucket, Azure Blob Storage Container, or Google Cloud Storage Bucket. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: createExportBucket
+            operationId: createGroupBackupExportBucket
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44350,14 +44367,15 @@ paths:
             summary: Create One Snapshot Export Bucket
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/createExportBucket
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/createGroupBackupExportBucket
+            x-xgen-operation-id-override: createExportBucket
             x-xgen-owner-team: Backup - Atlas
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}:
         delete:
             description: Deletes an Export Bucket. Auto export must be disabled on all clusters in this Project exporting to this Export Bucket before revoking access. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
-            operationId: deleteExportBucket
+            operationId: deleteGroupBackupExportBucket
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44388,11 +44406,12 @@ paths:
             summary: Delete One Snapshot Export Bucket
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/deleteExportBucket
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/deleteGroupBackupExportBucket
+            x-xgen-operation-id-override: deleteExportBucket
             x-xgen-owner-team: Backup - Atlas
         get:
             description: Returns one Export Bucket associated with the specified Project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getExportBucket
+            operationId: getGroupBackupExportBucket
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44476,12 +44495,13 @@ paths:
             summary: Return One Snapshot Export Bucket
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getExportBucket
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupBackupExportBucket
+            x-xgen-operation-id-override: getExportBucket
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/backupCompliancePolicy:
         delete:
             description: Disables the Backup Compliance Policy settings with the specified project. As a prerequisite, a support ticket needs to be file first, instructions in https://www.mongodb.com/docs/atlas/backup/cloud-backup/backup-compliance-policy/. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: disableDataProtectionSettings
+            operationId: disableGroupBackupCompliancePolicy
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44505,14 +44525,15 @@ paths:
             summary: Disable Backup Compliance Policy Settings
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/disableDataProtectionSettings
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/disableGroupBackupCompliancePolicy
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: disable
+            x-xgen-operation-id-override: disableCompliancePolicy
             x-xgen-owner-team: Backup - Atlas
         get:
             description: Returns the Backup Compliance Policy settings with the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: getDataProtectionSettings
+            operationId: getGroupBackupCompliancePolicy
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44545,11 +44566,12 @@ paths:
             summary: Return Backup Compliance Policy Settings
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getDataProtectionSettings
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupBackupCompliancePolicy
+            x-xgen-operation-id-override: getCompliancePolicy
             x-xgen-owner-team: Backup - Atlas
         put:
             description: Updates the Backup Compliance Policy settings for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: updateDataProtectionSettings
+            operationId: updateGroupBackupCompliancePolicy
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44606,7 +44628,8 @@ paths:
                 - Cloud Backups
             x-xgen-IPA-exception:
                 xgen-IPA-107-update-must-not-have-query-params: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateDataProtectionSettings
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateGroupBackupCompliancePolicy
+            x-xgen-operation-id-override: updateCompliancePolicy
             x-xgen-owner-team: Backup - Atlas
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-must-not-have-delete-method: API predates IPA validation
@@ -44742,7 +44765,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/cloudProviderAccess:
         get:
             description: Returns all cloud provider access roles with access to the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: listCloudProviderAccessRoles
+            operationId: listGroupCloudProviderAccess
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44773,14 +44796,15 @@ paths:
             x-xgen-IPA-exception:
                 xgen-IPA-110-collections-request-has-itemsPerPage-query-param: API predates IPA validation
                 xgen-IPA-110-collections-request-has-pageNum-query-param: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/listCloudProviderAccessRoles
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/listGroupCloudProviderAccess
+            x-xgen-operation-id-override: listCloudProviderAccess
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Creates one access role for the specified cloud provider. Some MongoDB Cloud features use these cloud provider access roles for authentication. To use this resource, the requesting Service Account or API Key must have the Project Owner role. For the GCP provider, if the project folder is not yet provisioned, Atlas will now create the role asynchronously. An intermediate role with status `IN_PROGRESS` will be returned, and the final service account will be provisioned. Once the GCP project is set up, subsequent requests will create the service account synchronously.
             externalDocs:
                 description: Set Up Access to Cloud Providers
                 url: https://www.mongodb.com/docs/atlas/security/cloud-provider-access/
-            operationId: createCloudProviderAccessRole
+            operationId: createGroupCloudProviderAccess
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44816,12 +44840,13 @@ paths:
                 - Cloud Provider Access
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/createCloudProviderAccessRole
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/createGroupCloudProviderAccess
+            x-xgen-operation-id-override: createCloudProviderAccess
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/cloudProviderAccess/{cloudProvider}/{roleId}:
         delete:
             description: Revokes access to the specified project for the specified access role. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: deauthorizeCloudProviderAccessRole
+            operationId: deauthorizeGroupCloudProviderAccessRole
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44862,17 +44887,18 @@ paths:
             summary: Deauthorize One Cloud Provider Access Role
             tags:
                 - Cloud Provider Access
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/deauthorizeCloudProviderAccessRole
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/deauthorizeGroupCloudProviderAccessRole
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: deauthorizeRole
+            x-xgen-operation-id-override: deauthorizeProviderAccessRole
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/cloudProviderAccess/{roleId}:
         get:
             description: Returns the access role with the specified id and with access to the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: getCloudProviderAccessRole
+            operationId: getGroupCloudProviderAccess
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44905,14 +44931,15 @@ paths:
             summary: Return One Cloud Provider Access Role
             tags:
                 - Cloud Provider Access
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/getCloudProviderAccessRole
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/getGroupCloudProviderAccess
+            x-xgen-operation-id-override: getCloudProviderAccess
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Grants access to the specified project for the specified access role. To use this resource, the requesting Service Account or API Key must have the Project Owner role. This API endpoint is one step in a procedure to create unified access for MongoDB Cloud services. This is not required for GCP service account access.
             externalDocs:
                 description: Set Up Access to Cloud Providers
                 url: https://www.mongodb.com/docs/atlas/security/cloud-provider-access/
-            operationId: authorizeCloudProviderAccessRole
+            operationId: authorizeGroupCloudProviderAccessRole
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -44956,10 +44983,11 @@ paths:
             summary: Authorize One Cloud Provider Access Role
             tags:
                 - Cloud Provider Access
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/authorizeCloudProviderAccessRole
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/authorizeGroupCloudProviderAccessRole
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: authorizeRole
+            x-xgen-operation-id-override: authorizeProviderAccessRole
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/clusters:
         get:
@@ -44970,7 +44998,7 @@ paths:
             externalDocs:
                 description: listFlexClusters
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/listFlexClusters
-            operationId: listClusters
+            operationId: listGroupClusters
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -45015,7 +45043,8 @@ paths:
                 - Clusters
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listClusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupClusters
+            x-xgen-operation-id-override: listClusters
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: |-
@@ -45025,7 +45054,7 @@ paths:
             externalDocs:
                 description: createFlexCluster
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/createFlexCluster
-            operationId: createCluster
+            operationId: createGroupCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -45274,7 +45303,8 @@ paths:
                 - Clusters
             x-xgen-changelog:
                 "2025-06-05": Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createGroupCluster
+            x-xgen-operation-id-override: createCluster
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:
         delete:
@@ -45285,7 +45315,7 @@ paths:
             externalDocs:
                 description: deleteFlexCluster
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/deleteFlexCluster
-            operationId: deleteCluster
+            operationId: deleteGroupCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -45329,7 +45359,8 @@ paths:
             x-xgen-IPA-exception:
                 xgen-IPA-108-delete-method-return-204-response: Schema predates IPA validation
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/deleteCluster
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/deleteGroupCluster
+            x-xgen-operation-id-override: deleteCluster
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: |-
@@ -45339,7 +45370,7 @@ paths:
             externalDocs:
                 description: getFlexCluster
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/getFlexCluster
-            operationId: getCluster
+            operationId: getGroupCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -45390,11 +45421,12 @@ paths:
                 - Clusters
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getCluster
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupCluster
+            x-xgen-operation-id-override: getCluster
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting Service Account or API Key must have the Project Owner role. For all other updates, the requesting Service Account or API Key must have the Project Cluster Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters.'
-            operationId: updateCluster
+            operationId: updateGroupCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -45476,7 +45508,8 @@ paths:
                 - Clusters
             x-xgen-changelog:
                 "2025-06-05": Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateCluster
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupCluster
+            x-xgen-operation-id-override: updateCluster
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/{clusterView}/{databaseName}/{collectionName}/collStats/measurements:
         get:
@@ -45630,7 +45663,7 @@ paths:
         get:
             deprecated: true
             description: Returns the internal configuration of AutoScaling for sharded clusters. This endpoint can be used for diagnostic purposes to ensure that sharded clusters updated from older APIs have gained support for AutoScaling each shard independently.
-            operationId: autoScalingConfiguration
+            operationId: autoGroupClusterScalingConfiguration
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -45665,16 +45698,17 @@ paths:
             summary: Return Auto Scaling Configuration for One Sharded Cluster
             tags:
                 - Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/autoScalingConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/autoGroupClusterScalingConfiguration
             x-xgen-method-verb-override:
                 customMethod: "True"
+            x-xgen-operation-id-override: autoScalingConfiguration
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-should-have-update-method: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/exports:
         get:
             description: Returns all Cloud Backup Snapshot Export Jobs associated with the specified Atlas cluster. To use this resource, the requesting Service Account or API Key must have the Project Atlas Admin role.
-            operationId: listBackupExportJobs
+            operationId: listGroupClusterBackupExports
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -45708,11 +45742,12 @@ paths:
             summary: Return All Snapshot Export Jobs
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listBackupExportJobs
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupExports
+            x-xgen-operation-id-override: listBackupExports
             x-xgen-owner-team: Backup - Atlas
         post:
             description: Exports one backup Snapshot for dedicated Atlas cluster using Cloud Backups to an Export Bucket. To use this resource, the requesting Service Account or API Key must have the Project Atlas Admin role.
-            operationId: createBackupExportJob
+            operationId: createGroupClusterBackupExport
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -45753,14 +45788,15 @@ paths:
             summary: Create One Snapshot Export Job
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/createBackupExportJob
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/createGroupClusterBackupExport
+            x-xgen-operation-id-override: createBackupExport
             x-xgen-owner-team: Backup - Atlas
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/exports/{exportId}:
         get:
             description: Returns one Cloud Backup Snapshot Export Job associated with the specified Atlas cluster. To use this resource, the requesting Service Account or API Key must have the Project Atlas Admin role.
-            operationId: getBackupExportJob
+            operationId: getGroupClusterBackupExport
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -45798,12 +45834,13 @@ paths:
             summary: Return One Snapshot Export Job
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getBackupExportJob
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupExport
+            x-xgen-operation-id-override: getBackupExport
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/restoreJobs:
         get:
             description: Returns all cloud backup restore jobs for one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
-            operationId: listBackupRestoreJobs
+            operationId: listGroupClusterBackupRestoreJobs
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -45837,14 +45874,15 @@ paths:
             summary: Return All Restore Jobs for One Cluster
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listBackupRestoreJobs
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupRestoreJobs
+            x-xgen-operation-id-override: listBackupRestoreJobs
             x-xgen-owner-team: Backup - Atlas
         post:
             description: |-
                 Restores one snapshot of one cluster from the specified project. Atlas takes on-demand snapshots immediately and scheduled snapshots at regular intervals. If an on-demand snapshot with a status of **queued** or **inProgress** exists, before taking another snapshot, wait until Atlas completes completes processing the previously taken on-demand snapshot.
 
                  To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
-            operationId: createBackupRestoreJob
+            operationId: createGroupClusterBackupRestoreJob
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -45886,14 +45924,15 @@ paths:
             summary: Restore One Snapshot of One Cluster
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/createBackupRestoreJob
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/createGroupClusterBackupRestoreJob
+            x-xgen-operation-id-override: createBackupRestoreJob
             x-xgen-owner-team: Backup - Atlas
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/restoreJobs/{restoreJobId}:
         delete:
             description: Cancels one cloud backup restore job of one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
-            operationId: cancelBackupRestoreJob
+            operationId: cancelGroupClusterBackupRestoreJob
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -45933,14 +45972,15 @@ paths:
             summary: Cancel One Restore Job for One Cluster
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/cancelBackupRestoreJob
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/cancelGroupClusterBackupRestoreJob
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: cancel
+            x-xgen-operation-id-override: cancelBackupRestoreJob
             x-xgen-owner-team: Backup - Atlas
         get:
             description: Returns one cloud backup restore job for one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
-            operationId: getBackupRestoreJob
+            operationId: getGroupClusterBackupRestoreJob
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -45978,12 +46018,13 @@ paths:
             summary: Return One Restore Job for One Cluster
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getBackupRestoreJob
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupRestoreJob
+            x-xgen-operation-id-override: getBackupRestoreJob
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/schedule:
         delete:
             description: Removes all cloud backup schedules for the specified cluster. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting Service Account or API Key must have the Project Atlas Admin role.
-            operationId: deleteAllBackupSchedules
+            operationId: deleteGroupClusterBackupSchedule
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46020,11 +46061,12 @@ paths:
             summary: Remove All Cloud Backup Schedules
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/deleteAllBackupSchedules
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/deleteGroupClusterBackupSchedule
+            x-xgen-operation-id-override: deleteClusterBackupSchedule
             x-xgen-owner-team: Backup - Atlas
         get:
             description: Returns the cloud backup schedule for the specified cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getBackupSchedule
+            operationId: getGroupClusterBackupSchedule
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -46060,14 +46102,15 @@ paths:
             summary: Return One Cloud Backup Schedule
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getBackupSchedule
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSchedule
             x-xgen-method-verb-override:
                 customMethod: "False"
                 verb: get
+            x-xgen-operation-id-override: getBackupSchedule
             x-xgen-owner-team: Backup - Atlas
         patch:
             description: Updates the cloud backup schedule for one cluster within the specified project. This schedule defines when MongoDB Cloud takes scheduled snapshots and how long it stores those snapshots. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: updateBackupSchedule
+            operationId: updateGroupClusterBackupSchedule
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46118,14 +46161,15 @@ paths:
             summary: Update Cloud Backup Schedule for One Cluster
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateBackupSchedule
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateGroupClusterBackupSchedule
+            x-xgen-operation-id-override: updateBackupSchedule
             x-xgen-owner-team: Backup - Atlas
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots:
         get:
             description: Returns all snapshots of one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role or Project Backup Manager role.
-            operationId: listReplicaSetBackups
+            operationId: listGroupClusterBackupSnapshots
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46161,14 +46205,15 @@ paths:
             summary: Return All Replica Set Cloud Backups
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listReplicaSetBackups
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupSnapshots
+            x-xgen-operation-id-override: listBackupSnapshots
             x-xgen-owner-team: Backup - Atlas
         post:
             description: |-
                 Takes one on-demand snapshot for the specified cluster. Atlas takes on-demand snapshots immediately and scheduled snapshots at regular intervals. If an on-demand snapshot with a status of **queued** or **inProgress** exists, before taking another snapshot, wait until Atlas completes completes processing the previously taken on-demand snapshot.
 
                  To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
-            operationId: takeSnapshot
+            operationId: takeGroupClusterBackupSnapshots
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -46208,17 +46253,18 @@ paths:
             summary: Take One On-Demand Snapshot
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/takeSnapshot
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/takeGroupClusterBackupSnapshots
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: take
+            x-xgen-operation-id-override: takeSnapshots
             x-xgen-owner-team: Backup - Atlas
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}:
         delete:
             description: Removes the specified snapshot. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
-            operationId: deleteReplicaSetBackup
+            operationId: deleteGroupClusterBackupSnapshot
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46256,11 +46302,12 @@ paths:
             summary: Remove One Replica Set Cloud Backup
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/deleteReplicaSetBackup
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/deleteGroupClusterBackupSnapshot
+            x-xgen-operation-id-override: deleteClusterBackupSnapshot
             x-xgen-owner-team: Backup - Atlas
         get:
             description: Returns one snapshot from the specified cluster. To use this resource, the requesting Service Account or API Key must have the Project Read Only role or Project Backup Manager role.
-            operationId: getReplicaSetBackup
+            operationId: getGroupClusterBackupSnapshot
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46302,11 +46349,12 @@ paths:
             summary: Return One Replica Set Cloud Backup
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getReplicaSetBackup
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSnapshot
+            x-xgen-operation-id-override: getClusterBackupSnapshot
             x-xgen-owner-team: Backup - Atlas
         patch:
             description: Changes the expiration date for one cloud backup snapshot for one cluster in the specified project, the requesting Service Account or API Key must have the Project Backup Manager role.
-            operationId: updateSnapshotRetention
+            operationId: updateGroupClusterBackupSnapshot
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46353,12 +46401,13 @@ paths:
             summary: Update Expiration Date for One Cloud Backup
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateSnapshotRetention
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateGroupClusterBackupSnapshot
+            x-xgen-operation-id-override: updateBackupSnapshot
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedCluster/{snapshotId}:
         delete:
             description: Removes one snapshot of one sharded cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
-            operationId: deleteShardedClusterBackup
+            operationId: deleteGroupClusterBackupSnapshotShardedCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46394,11 +46443,12 @@ paths:
             summary: Remove One Sharded Cluster Cloud Backup
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/deleteShardedClusterBackup
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/deleteGroupClusterBackupSnapshotShardedCluster
+            x-xgen-operation-id-override: deleteBackupShardedCluster
             x-xgen-owner-team: Backup - Atlas
         get:
             description: Returns one snapshot of one sharded cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role or Project Backup Manager role.
-            operationId: getShardedClusterBackup
+            operationId: getGroupClusterBackupSnapshotShardedCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46440,12 +46490,13 @@ paths:
             summary: Return One Sharded Cluster Cloud Backup
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getShardedClusterBackup
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSnapshotShardedCluster
+            x-xgen-operation-id-override: getBackupShardedCluster
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedClusters:
         get:
             description: Returns all snapshots of one sharded cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role or Project Backup Manager role.
-            operationId: listShardedClusterBackups
+            operationId: listGroupClusterBackupSnapshotShardedClusters
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46478,7 +46529,8 @@ paths:
             summary: Return All Sharded Cluster Cloud Backups
             tags:
                 - Cloud Backups
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listShardedClusterBackups
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupSnapshotShardedClusters
+            x-xgen-operation-id-override: listBackupShardedClusters
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/download:
         post:
@@ -46490,7 +46542,7 @@ paths:
             externalDocs:
                 description: downloadFlexBackup
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/downloadFlexBackup
-            operationId: downloadSharedClusterBackup
+            operationId: downloadGroupClusterBackupTenant
             parameters:
                 - description: Human-readable label that identifies the cluster.
                   in: path
@@ -46537,9 +46589,10 @@ paths:
                 - Shared-Tier Snapshots
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/downloadSharedClusterBackup
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/downloadGroupClusterBackupTenant
             x-xgen-method-verb-override:
                 customMethod: "True"
+            x-xgen-operation-id-override: downloadClusterBackupTenant
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -46553,7 +46606,7 @@ paths:
             externalDocs:
                 description: createFlexBackupRestoreJob
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/createFlexBackupRestoreJob
-            operationId: createSharedClusterBackupRestoreJob
+            operationId: createGroupClusterBackupTenantRestore
             parameters:
                 - description: Human-readable label that identifies the cluster.
                   in: path
@@ -46598,7 +46651,8 @@ paths:
                 - Shared-Tier Restore Jobs
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/createSharedClusterBackupRestoreJob
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/createGroupClusterBackupTenantRestore
+            x-xgen-operation-id-override: createBackupTenantRestore
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -46612,7 +46666,7 @@ paths:
             externalDocs:
                 description: listFlexBackupRestoreJobs
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/listFlexBackupRestoreJobs
-            operationId: listSharedClusterBackupRestoreJobs
+            operationId: listGroupClusterBackupTenantRestores
             parameters:
                 - description: Human-readable label that identifies the cluster.
                   in: path
@@ -46648,7 +46702,8 @@ paths:
                 - Shared-Tier Restore Jobs
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/listSharedClusterBackupRestoreJobs
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/listGroupClusterBackupTenantRestores
+            x-xgen-operation-id-override: listBackupTenantRestores
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -46662,7 +46717,7 @@ paths:
             externalDocs:
                 description: getFlexBackupRestoreJob
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/getFlexBackupRestoreJob
-            operationId: getSharedClusterBackupRestoreJob
+            operationId: getGroupClusterBackupTenantRestore
             parameters:
                 - description: Human-readable label that identifies the cluster.
                   in: path
@@ -46705,7 +46760,8 @@ paths:
                 - Shared-Tier Restore Jobs
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/getSharedClusterBackupRestoreJob
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/getGroupClusterBackupTenantRestore
+            x-xgen-operation-id-override: getBackupTenantRestore
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/snapshots:
         get:
@@ -46717,7 +46773,7 @@ paths:
             externalDocs:
                 description: listFlexBackups
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/listFlexBackups
-            operationId: listSharedClusterBackups
+            operationId: listGroupClusterBackupTenantSnapshots
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46753,7 +46809,8 @@ paths:
                 - Shared-Tier Snapshots
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/listSharedClusterBackups
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/listGroupClusterBackupTenantSnapshots
+            x-xgen-operation-id-override: listClusterBackupSnapshots
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -46767,7 +46824,7 @@ paths:
             externalDocs:
                 description: getFlexBackup
                 url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/getFlexBackup
-            operationId: getSharedClusterBackup
+            operationId: getGroupClusterBackupTenantSnapshot
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46810,13 +46867,14 @@ paths:
                 - Shared-Tier Snapshots
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/getSharedClusterBackup
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/getGroupClusterBackupTenantSnapshot
+            x-xgen-operation-id-override: getBackupTenantSnapshot
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupCheckpoints:
         get:
             deprecated: true
             description: Returns all legacy backup checkpoints for one cluster in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listLegacyBackupCheckpoints
+            operationId: listGroupClusterBackupCheckpoints
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46850,13 +46908,14 @@ paths:
             summary: Return All Legacy Backup Checkpoints
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/listLegacyBackupCheckpoints
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/listGroupClusterBackupCheckpoints
+            x-xgen-operation-id-override: listClusterBackupCheckpoints
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupCheckpoints/{checkpointId}:
         get:
             deprecated: true
             description: Returns one legacy backup checkpoint for one cluster in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getLegacyBackupCheckpoint
+            operationId: getGroupClusterBackupCheckpoint
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -46898,7 +46957,8 @@ paths:
             summary: Return One Legacy Backup Checkpoint
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/getLegacyBackupCheckpoint
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/getGroupClusterBackupCheckpoint
+            x-xgen-operation-id-override: getClusterBackupCheckpoint
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collStats/pinned:
         get:
@@ -47108,7 +47168,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: createGroupClusterFtIndex
+            operationId: createGroupClusterFtsIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -47151,8 +47211,8 @@ paths:
             summary: Create One Atlas Search Index
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/createGroupClusterFtIndex
-            x-xgen-operation-id-override: createClusterFtIndex
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/createGroupClusterFtsIndex
+            x-xgen-operation-id-override: createClusterFtsIndex
             x-xgen-owner-team: Search Web Platform
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -47163,7 +47223,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: listGroupClusterFtIndex
+            operationId: listGroupClusterFtsIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -47211,8 +47271,11 @@ paths:
             summary: Return All Atlas Search Indexes for One Collection
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/listGroupClusterFtIndex
-            x-xgen-operation-id-override: listClusterFtIndex
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/listGroupClusterFtsIndex
+            x-xgen-method-verb-override:
+                customMethod: false
+                verb: list
+            x-xgen-operation-id-override: listClusterFtsIndex
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/fts/indexes/{indexId}:
         delete:
@@ -47221,7 +47284,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: deleteGroupClusterFtIndex
+            operationId: deleteGroupClusterFtsIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -47262,8 +47325,8 @@ paths:
             summary: Remove One Atlas Search Index
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteGroupClusterFtIndex
-            x-xgen-operation-id-override: deleteClusterFtIndex
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/deleteGroupClusterFtsIndex
+            x-xgen-operation-id-override: deleteClusterFtsIndex
             x-xgen-owner-team: Search Web Platform
         get:
             deprecated: true
@@ -47271,7 +47334,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: getGroupClusterFtIndex
+            operationId: getGroupClusterFtsIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -47312,8 +47375,8 @@ paths:
             summary: Return One Atlas Search Index
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getGroupClusterFtIndex
-            x-xgen-operation-id-override: getClusterFtIndex
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getGroupClusterFtsIndex
+            x-xgen-operation-id-override: getClusterFtsIndex
             x-xgen-owner-team: Search Web Platform
         patch:
             deprecated: true
@@ -47321,7 +47384,7 @@ paths:
             externalDocs:
                 description: Atlas Search Indexes
                 url: https://dochub.mongodb.org/core/index-definitions-fts
-            operationId: updateGroupClusterFtIndex
+            operationId: updateGroupClusterFtsIndex
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -47373,8 +47436,8 @@ paths:
             summary: Update One Atlas Search Index
             tags:
                 - Atlas Search
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateGroupClusterFtIndex
-            x-xgen-operation-id-override: updateClusterFtIndex
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateGroupClusterFtsIndex
+            x-xgen-operation-id-override: updateClusterFtsIndex
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites:
         get:
@@ -47382,7 +47445,7 @@ paths:
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
-            operationId: getManagedNamespace
+            operationId: getGroupClusterGlobalWrites
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -47429,7 +47492,8 @@ paths:
             summary: Return One Managed Namespace in One Global Cluster
             tags:
                 - Global Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/getManagedNamespace
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/getGroupClusterGlobalWrites
+            x-xgen-operation-id-override: getClusterGlobalWrites
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-should-have-update-method: API predates IPA validation
@@ -47439,7 +47503,7 @@ paths:
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
-            operationId: deleteAllCustomZoneMappings
+            operationId: deleteGroupClusterGlobalWriteCustomZoneMapping
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -47480,14 +47544,15 @@ paths:
             summary: Remove All Custom Zone Mappings from One Global Cluster
             tags:
                 - Global Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/deleteAllCustomZoneMappings
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/deleteGroupClusterGlobalWriteCustomZoneMapping
+            x-xgen-operation-id-override: deleteCustomZoneMapping
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Creates one custom zone mapping for the specified global cluster. A custom zone mapping matches one ISO 3166-2 location code to a zone in your global cluster. By default, MongoDB Cloud maps each location code to the closest geographical zone. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
-            operationId: createCustomZoneMapping
+            operationId: createGroupClusterGlobalWriteCustomZoneMapping
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -47544,7 +47609,8 @@ paths:
             summary: Add One Custom Zone Mapping to One Global Cluster
             tags:
                 - Global Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/createCustomZoneMapping
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/createGroupClusterGlobalWriteCustomZoneMapping
+            x-xgen-operation-id-override: createCustomZoneMapping
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -47554,7 +47620,7 @@ paths:
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
-            operationId: deleteManagedNamespace
+            operationId: deleteGroupClusterGlobalWriteManagedNamespaces
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -47607,14 +47673,15 @@ paths:
             summary: Remove One Managed Namespace from One Global Cluster
             tags:
                 - Global Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/deleteManagedNamespace
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/deleteGroupClusterGlobalWriteManagedNamespaces
+            x-xgen-operation-id-override: deleteManagedNamespaces
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Creates one managed namespace within the specified global cluster. A managed namespace identifies a collection using the database name, the dot separator, and the collection name. To use this resource, the requesting Service Account or API Key must have the Project Data Access Admin role.
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
-            operationId: createManagedNamespace
+            operationId: createGroupClusterGlobalWriteManagedNamespace
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -47673,7 +47740,8 @@ paths:
             summary: Create One Managed Namespace in One Global Cluster
             tags:
                 - Global Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/createManagedNamespace
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/createGroupClusterGlobalWriteManagedNamespace
+            x-xgen-operation-id-override: createManagedNamespace
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -48137,7 +48205,7 @@ paths:
             externalDocs:
                 description: Cluster Outage Simulation
                 url: https://dochub.mongodb.org/core/test-regional-outage
-            operationId: endOutageSimulation
+            operationId: endGroupClusterOutageSimulation
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -48170,17 +48238,18 @@ paths:
             summary: End One Outage Simulation
             tags:
                 - Cluster Outage Simulation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cluster-Outage-Simulation/operation/endOutageSimulation
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cluster-Outage-Simulation/operation/endGroupClusterOutageSimulation
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: end
+            x-xgen-operation-id-override: endOutageSimulation
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Returns one outage simulation for one cluster.
             externalDocs:
                 description: Cluster Outage Simulation
                 url: https://dochub.mongodb.org/core/test-regional-outage
-            operationId: getOutageSimulation
+            operationId: getGroupClusterOutageSimulation
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -48220,17 +48289,18 @@ paths:
             x-xgen-IPA-exception:
                 xgen-IPA-110-collections-request-has-itemsPerPage-query-param: Singleton method, mistakenly identified as a List method.
                 xgen-IPA-110-collections-request-has-pageNum-query-param: Singleton method, mistakenly identified as a List method.
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cluster-Outage-Simulation/operation/getOutageSimulation
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cluster-Outage-Simulation/operation/getGroupClusterOutageSimulation
             x-xgen-method-verb-override:
                 customMethod: "False"
                 verb: get
+            x-xgen-operation-id-override: getOutageSimulation
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Starts a cluster outage simulation.
             externalDocs:
                 description: Cluster Outage Simulation
                 url: https://dochub.mongodb.org/core/test-regional-outage
-            operationId: startOutageSimulation
+            operationId: startGroupClusterOutageSimulation
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -48275,10 +48345,11 @@ paths:
                 - Cluster Outage Simulation
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: Legacy custom method
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cluster-Outage-Simulation/operation/startOutageSimulation
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cluster-Outage-Simulation/operation/startGroupClusterOutageSimulation
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: start
+            x-xgen-operation-id-override: startOutageSimulation
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
@@ -48458,7 +48529,7 @@ paths:
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
-            operationId: getClusterAdvancedConfiguration
+            operationId: getGroupClusterProcessArgs
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -48500,14 +48571,15 @@ paths:
             summary: Return Advanced Configuration Options for One Cluster
             tags:
                 - Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getClusterAdvancedConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterProcessArgs
+            x-xgen-operation-id-override: getProcessArgs
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Updates the advanced configuration details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. Advanced configuration details include the read/write concern, index and oplog limits, and other database settings. To use this resource, the requesting Service Account or API Key must have the Project Cluster Manager role. This feature isn't available for `M0` free clusters, `M2` and `M5` shared-tier clusters, flex clusters, or serverless clusters.
             externalDocs:
                 description: Global Clusters
                 url: https://www.mongodb.com/docs/atlas/global-clusters/
-            operationId: updateClusterAdvancedConfiguration
+            operationId: updateGroupClusterProcessArgs
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -48561,7 +48633,8 @@ paths:
             summary: Update Advanced Configuration Options for One Cluster
             tags:
                 - Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateClusterAdvancedConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterProcessArgs
+            x-xgen-operation-id-override: updateProcessArgs
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/queryShapeInsights/{queryShapeHash}/details:
         get:
@@ -48645,12 +48718,13 @@ paths:
             tags:
                 - Query Shape Insights
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Query-Shape-Insights/operation/getGroupClusterQueryShapeInsightDetails
+            x-xgen-operation-id-override: getQueryShapeDetails
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-should-have-update-method: no update method needed for this singleton resource
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/queryShapeInsights/summaries:
         get:
             description: Returns a list of query shape statistics summaries for a given cluster. Query shape statistics provide performance insights about MongoDB queries, helping users identify problematic query patterns and potential optimizations.
-            operationId: getGroupClusterQueryShapeInsightSummaries
+            operationId: listGroupClusterQueryShapeInsightSummaries
             parameters:
                 - $ref: '#/components/parameters/groupId'
                 - description: Human-readable label that identifies the cluster.
@@ -48792,13 +48866,14 @@ paths:
             summary: Return Query Statistic Summaries
             tags:
                 - Query Shape Insights
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Query-Shape-Insights/operation/getGroupClusterQueryShapeInsightSummaries
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Query-Shape-Insights/operation/listGroupClusterQueryShapeInsightSummaries
+            x-xgen-operation-id-override: listQueryShapeSummaries
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: Base API path conflicts with other API resources
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries:
         post:
             description: Starts a failover test for the specified cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. A failover test checks how MongoDB Cloud handles the failure of the cluster's primary node. During the test, MongoDB Cloud shuts down the primary node and elects a new primary. To use this resource, the requesting Service Account or API Key must have the Project Cluster Manager role.
-            operationId: testFailover
+            operationId: restartGroupClusterPrimaries
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -48832,9 +48907,10 @@ paths:
                 - Clusters
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: This operation does not correspond to the Create method
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/testFailover
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/restartGroupClusterPrimaries
             x-xgen-method-verb-override:
                 customMethod: "True"
+            x-xgen-operation-id-override: restartPrimaries
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: Get method doesn't apply for custom method
@@ -48849,7 +48925,7 @@ paths:
             externalDocs:
                 description: Cloud Backup Documentation
                 url: https://www.mongodb.com/docs/atlas/backup/cloud-backup/scheduling/#std-label-cloud-provider-backup-schedule
-            operationId: listLegacyBackupRestoreJobs
+            operationId: listGroupClusterRestoreJobs
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -48891,7 +48967,8 @@ paths:
             summary: Return All Legacy Backup Restore Jobs
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/listLegacyBackupRestoreJobs
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/listGroupClusterRestoreJobs
+            x-xgen-operation-id-override: listClusterRestoreJobs
             x-xgen-owner-team: Backup - Atlas
         post:
             deprecated: true
@@ -48899,7 +48976,7 @@ paths:
             externalDocs:
                 description: Cloud Backup Documentation
                 url: https://www.mongodb.com/docs/atlas/backup/cloud-backup/scheduling/#std-label-cloud-provider-backup-schedule
-            operationId: createLegacyBackupRestoreJob
+            operationId: createGroupClusterRestoreJob
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -48944,7 +49021,8 @@ paths:
                 - Legacy Backup
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/createLegacyBackupRestoreJob
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/createGroupClusterRestoreJob
+            x-xgen-operation-id-override: createClusterRestoreJob
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restoreJobs/{jobId}:
         get:
@@ -48956,7 +49034,7 @@ paths:
             externalDocs:
                 description: Cloud Backup Documentation
                 url: https://www.mongodb.com/docs/atlas/backup/cloud-backup/scheduling/#std-label-cloud-provider-backup-schedule
-            operationId: getLegacyBackupRestoreJob
+            operationId: getGroupClusterRestoreJob
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -48999,7 +49077,8 @@ paths:
             summary: Return One Legacy Backup Restore Job
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/getLegacyBackupRestoreJob
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/getGroupClusterRestoreJob
+            x-xgen-operation-id-override: getClusterRestoreJob
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment:
         delete:
@@ -49751,7 +49830,7 @@ paths:
             externalDocs:
                 description: Cloud Backup Documentation
                 url: https://www.mongodb.com/docs/atlas/backup/cloud-backup/scheduling/#std-label-cloud-provider-backup-schedule
-            operationId: getLegacySnapshotSchedule
+            operationId: getGroupClusterSnapshotSchedule
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49784,7 +49863,8 @@ paths:
             summary: Return One Snapshot Schedule
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/getLegacySnapshotSchedule
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/getGroupClusterSnapshotSchedule
+            x-xgen-operation-id-override: getClusterSnapshotSchedule
             x-xgen-owner-team: Backup - Atlas
         patch:
             deprecated: true
@@ -49795,7 +49875,7 @@ paths:
             externalDocs:
                 description: Cloud Backup Documentation
                 url: https://www.mongodb.com/docs/atlas/backup/cloud-backup/scheduling/#std-label-cloud-provider-backup-schedule
-            operationId: updateLegacySnapshotSchedule
+            operationId: updateGroupClusterSnapshotSchedule
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -49838,7 +49918,8 @@ paths:
             summary: Update Snapshot Schedule for One Cluster
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/updateLegacySnapshotSchedule
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/updateGroupClusterSnapshotSchedule
+            x-xgen-operation-id-override: updateClusterSnapshotSchedule
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/snapshots:
         get:
@@ -49847,7 +49928,7 @@ paths:
             externalDocs:
                 description: Cloud Backup Documentation
                 url: https://www.mongodb.com/docs/atlas/backup/cloud-backup/scheduling/#std-label-cloud-provider-backup-schedule
-            operationId: listLegacySnapshots
+            operationId: listGroupClusterSnapshots
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49893,7 +49974,8 @@ paths:
             summary: Return All Legacy Backup Snapshots
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/listLegacySnapshots
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/listGroupClusterSnapshots
+            x-xgen-operation-id-override: listClusterSnapshots
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/snapshots/{snapshotId}:
         delete:
@@ -49902,7 +49984,7 @@ paths:
             externalDocs:
                 description: Cloud Backup Documentation
                 url: https://www.mongodb.com/docs/atlas/backup/cloud-backup/scheduling/#std-label-cloud-provider-backup-schedule
-            operationId: deleteLegacySnapshot
+            operationId: deleteGroupClusterSnapshot
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49940,7 +50022,8 @@ paths:
             summary: Remove One Legacy Backup Snapshot
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/deleteLegacySnapshot
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/deleteGroupClusterSnapshot
+            x-xgen-operation-id-override: deleteClusterSnapshot
             x-xgen-owner-team: Backup - Atlas
         get:
             deprecated: true
@@ -49948,7 +50031,7 @@ paths:
             externalDocs:
                 description: Cloud Backup Documentation
                 url: https://www.mongodb.com/docs/atlas/backup/cloud-backup/scheduling/#std-label-cloud-provider-backup-schedule
-            operationId: getLegacySnapshot
+            operationId: getGroupClusterSnapshot
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -49988,7 +50071,8 @@ paths:
             summary: Return One Legacy Backup Snapshot
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/getLegacySnapshot
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/getGroupClusterSnapshot
+            x-xgen-operation-id-override: getClusterSnapshot
             x-xgen-owner-team: Backup - Atlas
         patch:
             deprecated: true
@@ -49996,7 +50080,7 @@ paths:
             externalDocs:
                 description: Cloud Backup Documentation
                 url: https://www.mongodb.com/docs/atlas/backup/cloud-backup/scheduling/#std-label-cloud-provider-backup-schedule
-            operationId: updateLegacySnapshotRetention
+            operationId: updateGroupClusterSnapshot
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50044,12 +50128,13 @@ paths:
             summary: Update Expiration Date for One Legacy Backup Snapshot
             tags:
                 - Legacy Backup
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/updateLegacySnapshotRetention
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/updateGroupClusterSnapshot
+            x-xgen-operation-id-override: updateClusterSnapshot
             x-xgen-owner-team: Backup - Atlas
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/status:
         get:
             description: Returns the status of all changes that you made to the specified cluster in the specified project. Use this resource to check the progress MongoDB Cloud has made in processing your changes. The response does not include the deployment of new dedicated clusters. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getClusterStatus
+            operationId: getGroupClusterStatus
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50082,14 +50167,15 @@ paths:
             summary: Return Status of All Cluster Operations
             tags:
                 - Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getClusterStatus
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterStatus
+            x-xgen-operation-id-override: getClusterStatus
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-should-have-update-method: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:grantMongoDBEmployeeAccess:
         post:
             description: Grants MongoDB employee cluster access for the given duration and at the specified level for one cluster.
-            operationId: grantMongoDbEmployeeAccess
+            operationId: grantGroupClusterMongoDbEmployeeAccess
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -50130,14 +50216,15 @@ paths:
             summary: Grant MongoDB Employee Cluster Access for One Cluster
             tags:
                 - Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/grantMongoDbEmployeeAccess
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/grantGroupClusterMongoDbEmployeeAccess
+            x-xgen-operation-id-override: grantMongoEmployeeAccess
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-109-custom-method-must-use-camel-case: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:pinFeatureCompatibilityVersion:
         post:
             description: Pins the Feature Compatibility Version (FCV) to the current MongoDB version and sets the pin expiration date. If an FCV pin already exists for the cluster, calling this method will only update the expiration date of the existing pin and will not repin the FCV.
-            operationId: pinFeatureCompatibilityVersion
+            operationId: pinGroupClusterFeatureCompatibilityVersion
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -50177,12 +50264,13 @@ paths:
             summary: Pin Feature Compatibility Version for One Cluster in One Project
             tags:
                 - Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/pinFeatureCompatibilityVersion
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/pinGroupClusterFeatureCompatibilityVersion
+            x-xgen-operation-id-override: pinFeatureCompatibilityVersion
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:revokeMongoDBEmployeeAccess:
         post:
             description: Revokes a previously granted MongoDB employee cluster access.
-            operationId: revokeMongoDbEmployeeAccess
+            operationId: revokeGroupClusterMongoDbEmployeeAccess
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -50215,14 +50303,15 @@ paths:
             summary: Revoke MongoDB Employee Cluster Access for One Cluster
             tags:
                 - Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/revokeMongoDbEmployeeAccess
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/revokeGroupClusterMongoDbEmployeeAccess
+            x-xgen-operation-id-override: revokeMongoEmployeeAccess
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-109-custom-method-must-use-camel-case: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:unpinFeatureCompatibilityVersion:
         post:
             description: Unpins the current fixed Feature Compatibility Version (FCV). This feature is not available for clusters on rapid release.
-            operationId: unpinFeatureCompatibilityVersion
+            operationId: unpinGroupClusterFeatureCompatibilityVersion
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50257,12 +50346,13 @@ paths:
             summary: Unpin Feature Compatibility Version for One Cluster in One Project
             tags:
                 - Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/unpinFeatureCompatibilityVersion
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/unpinGroupClusterFeatureCompatibilityVersion
+            x-xgen-operation-id-override: unpinFeatureCompatibilityVersion
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/clusters/{hostName}/logs/{logName}.gz:
         get:
             description: 'Returns a compressed (.gz) log file that contains a range of log messages for the specified host for the specified project. MongoDB updates process and audit logs from the cluster backend infrastructure every five minutes. Logs are stored in chunks approximately five minutes in length, but this duration may vary. If you poll the API for log files, we recommend polling every five minutes even though consecutive polls could contain some overlapping logs. This feature isn''t available for `M0` free clusters, `M2`, `M5`, flex, or serverless clusters. To use this resource, the requesting Service Account or API Key must have the Project Data Access Read Only or higher role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: "Accept: application/vnd.atlas.YYYY-MM-DD+gzip".'
-            operationId: getHostLogs
+            operationId: downloadGroupClusterLog
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50335,10 +50425,11 @@ paths:
             summary: Download Logs for One Cluster Host in One Project
             tags:
                 - Monitoring and Logs
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Monitoring-and-Logs/operation/getHostLogs
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Monitoring-and-Logs/operation/downloadGroupClusterLog
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: download
+            x-xgen-operation-id-override: downloadClusterLog
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-collection-identifier-camelCase: API predates IPA validation
@@ -50347,7 +50438,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/clusters/provider/regions:
         get:
             description: Returns the list of regions available for the specified cloud provider at the specified tier. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listCloudProviderRegions
+            operationId: listGroupClusterProviderRegions
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50388,7 +50479,8 @@ paths:
             summary: Return All Cloud Provider Regions
             tags:
                 - Clusters
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listCloudProviderRegions
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupClusterProviderRegions
+            x-xgen-operation-id-override: listClusterProviderRegions
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -50535,7 +50627,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/containers:
         get:
             description: Returns details about all network peering containers in the specified project for the specified cloud provider. If you do not specify the cloud provider, MongoDB Cloud returns details about all network peering containers in the project for Amazon Web Services (AWS). To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listPeeringContainerByCloudProvider
+            operationId: listGroupContainers
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50575,11 +50667,11 @@ paths:
             summary: Return All Network Peering Containers in One Project for One Cloud Provider
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/listPeeringContainerByCloudProvider
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/listGroupContainers
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Creates one new network peering container in the specified project. MongoDB Cloud can deploy Network Peering connections in a network peering container. GCP can have one container per project. AWS and Azure can have one container per cloud provider region. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: createPeeringContainer
+            operationId: createGroupContainer
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50619,12 +50711,12 @@ paths:
                 - Network Peering
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/createPeeringContainer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/createGroupContainer
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/containers/{containerId}:
         delete:
             description: Removes one network peering container in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: deletePeeringContainer
+            operationId: deleteGroupContainer
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50658,11 +50750,11 @@ paths:
             summary: Remove One Network Peering Container
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/deletePeeringContainer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/deleteGroupContainer
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Returns details about one network peering container in one specified project. Network peering containers contain network peering connections. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getPeeringContainer
+            operationId: getGroupContainer
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50696,11 +50788,11 @@ paths:
             summary: Return One Network Peering Container
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/getPeeringContainer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/getGroupContainer
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Updates the network details and labels of one specified network peering container in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: updatePeeringContainer
+            operationId: updateGroupContainer
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50746,12 +50838,12 @@ paths:
             summary: Update One Network Peering Container
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/updatePeeringContainer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/updateGroupContainer
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/containers/all:
         get:
             description: Returns details about all network peering containers in the specified project. Network peering containers contain network peering connections. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listPeeringContainers
+            operationId: listGroupContainerAll
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50778,7 +50870,7 @@ paths:
             summary: Return All Network Peering Containers in One Project
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/listPeeringContainers
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/listGroupContainerAll
             x-xgen-method-verb-override:
                 customMethod: "False"
                 verb: list
@@ -50788,7 +50880,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/customDBRoles/roles:
         get:
             description: Returns all custom roles for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listCustomDatabaseRoles
+            operationId: listGroupCustomDbRoleRoles
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50816,11 +50908,12 @@ paths:
             summary: Return All Custom Roles in One Project
             tags:
                 - Custom Database Roles
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/listCustomDatabaseRoles
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/listGroupCustomDbRoleRoles
+            x-xgen-operation-id-override: listCustomDbRoles
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Creates one custom role in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role, Project Stream Processing Owner role, or the Project Database Access Admin role.
-            operationId: createCustomDatabaseRole
+            operationId: createGroupCustomDbRoleRole
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50855,7 +50948,8 @@ paths:
             summary: Create One Custom Role
             tags:
                 - Custom Database Roles
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/createCustomDatabaseRole
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/createGroupCustomDbRoleRole
+            x-xgen-operation-id-override: createCustomDbRole
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-collection-identifier-camelCase: Schema predates IPA validation
@@ -50863,7 +50957,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/customDBRoles/roles/{roleName}:
         delete:
             description: Removes one custom role from the specified project. You can't remove a custom role that would leave one or more child roles with no parent roles or actions. You also can't remove a custom role that would leave one or more database users without roles. To use this resource, the requesting Service Account or API Key must have the Project Owner role, Project Stream Processing Owner role, or the Project Database Access Admin role.
-            operationId: deleteCustomDatabaseRole
+            operationId: deleteGroupCustomDbRoleRole
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50895,11 +50989,12 @@ paths:
             summary: Remove One Custom Role from One Project
             tags:
                 - Custom Database Roles
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/deleteCustomDatabaseRole
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/deleteGroupCustomDbRoleRole
+            x-xgen-operation-id-override: deleteCustomDbRole
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Returns one custom role for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getCustomDatabaseRole
+            operationId: getGroupCustomDbRoleRole
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50929,11 +51024,12 @@ paths:
             summary: Return One Custom Role in One Project
             tags:
                 - Custom Database Roles
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/getCustomDatabaseRole
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/getGroupCustomDbRoleRole
+            x-xgen-operation-id-override: getCustomDbRole
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Updates one custom role in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role, the Project Stream Processing Owner role, or the Project Database Access Admin role.
-            operationId: updateCustomDatabaseRole
+            operationId: updateGroupCustomDbRoleRole
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -50974,7 +51070,8 @@ paths:
             summary: Update One Custom Role in One Project
             tags:
                 - Custom Database Roles
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/updateCustomDatabaseRole
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Custom-Database-Roles/operation/updateGroupCustomDbRoleRole
+            x-xgen-operation-id-override: updateCustomDbRole
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/dataFederation:
         get:
@@ -51500,7 +51597,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/databaseUsers:
         get:
             description: Returns all database users that belong to the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listDatabaseUsers
+            operationId: listGroupDatabaseUsers
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -51527,14 +51624,15 @@ paths:
             summary: Return All Database Users in One Project
             tags:
                 - Database Users
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/listDatabaseUsers
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/listGroupDatabaseUsers
+            x-xgen-operation-id-override: listDatabaseUsers
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Creates one database user in the specified project. This MongoDB Cloud supports a maximum of 100 database users per project. If you require more than 100 database users on a project, contact Support. To use this resource, the requesting Service Account or API Key must have the Project Owner role, the Project Charts Admin role, Project Stream Processing Owner role, or the Project Database Access Admin role.
             externalDocs:
                 description: Contact MongoDB Support
                 url: https://cloud.mongodb.com/support
-            operationId: createDatabaseUser
+            operationId: createGroupDatabaseUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -51663,14 +51761,15 @@ paths:
             summary: Create One Database User in One Project
             tags:
                 - Database Users
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/createDatabaseUser
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/createGroupDatabaseUser
+            x-xgen-operation-id-override: createDatabaseUser
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/databaseUsers/{databaseName}/{username}:
         delete:
             description: Removes one database user from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role, the Project Stream Processing Owner role, or the Project Database Access Admin role.
-            operationId: deleteDatabaseUser
+            operationId: deleteGroupDatabaseUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -51722,11 +51821,12 @@ paths:
             summary: Remove One Database User from One Project
             tags:
                 - Database Users
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/deleteDatabaseUser
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/deleteGroupDatabaseUser
+            x-xgen-operation-id-override: deleteDatabaseUser
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Returns one database user that belong to the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getDatabaseUser
+            operationId: getGroupDatabaseUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -51780,11 +51880,12 @@ paths:
             summary: Return One Database User from One Project
             tags:
                 - Database Users
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/getDatabaseUser
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/getGroupDatabaseUser
+            x-xgen-operation-id-override: getDatabaseUser
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Updates one database user that belongs to the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role, Project Charts Admin role, Project Stream Processing Owner role, or the Project Database Access Admin role.
-            operationId: updateDatabaseUser
+            operationId: updateGroupDatabaseUser
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -51849,14 +51950,15 @@ paths:
             summary: Update One Database User in One Project
             tags:
                 - Database Users
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/updateDatabaseUser
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Database-Users/operation/updateGroupDatabaseUser
+            x-xgen-operation-id-override: updateDatabaseUser
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/databaseUsers/{username}/certs:
         get:
             description: Returns all unexpired X.509 certificates for the specified MongoDB user. This MongoDB user belongs to one project. Atlas manages these certificates and the MongoDB user. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listDatabaseUserCertificates
+            operationId: listGroupDatabaseUserCerts
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -51891,7 +51993,8 @@ paths:
             summary: Return All X.509 Certificates Assigned to One Database User
             tags:
                 - X.509 Authentication
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/X.509-Authentication/operation/listDatabaseUserCertificates
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/X.509-Authentication/operation/listGroupDatabaseUserCerts
+            x-xgen-operation-id-override: listDatabaseUserCerts
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: |-
@@ -51903,7 +52006,7 @@ paths:
             externalDocs:
                 description: Self-Managed X.509
                 url: https://www.mongodb.com/docs/atlas/security-self-managed-x509/#std-label-self-managed-x509
-            operationId: createDatabaseUserCertificate
+            operationId: createGroupDatabaseUserCert
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -51948,7 +52051,8 @@ paths:
             summary: Create One X.509 Certificate for One Database User
             tags:
                 - X.509 Authentication
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/X.509-Authentication/operation/createDatabaseUserCertificate
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/X.509-Authentication/operation/createGroupDatabaseUserCert
+            x-xgen-operation-id-override: createDatabaseUserCert
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
@@ -52111,7 +52215,7 @@ paths:
                 Returns the configuration for encryption at rest using the keys you manage through your cloud provider. MongoDB Cloud encrypts all storage even if you don't use your own key management. This resource requires the requesting Service Account or API Key to have the Project Owner role.
 
                 **LIMITED TO M10 OR GREATER:** MongoDB Cloud limits this feature to dedicated cluster tiers of M10 and greater.
-            operationId: getEncryptionAtRest
+            operationId: getGroupEncryptionAtRest
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -52138,14 +52242,15 @@ paths:
             summary: Return One Configuration for Encryption at Rest using Customer-Managed Keys for One Project
             tags:
                 - Encryption at Rest using Customer Key Management
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/getEncryptionAtRest
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/getGroupEncryptionAtRest
+            x-xgen-operation-id-override: getEncryptionAtRest
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: |-
                 Updates the configuration for encryption at rest using the keys you manage through your cloud provider. MongoDB Cloud encrypts all storage even if you don't use your own key management. This resource requires the requesting Service Account or API Key to have the Project Owner role. This feature isn't available for `M0` free clusters, `M2`, `M5`, or serverless clusters.
 
                  After you configure at least one Encryption at Rest using a Customer Key Management provider for the MongoDB Cloud project, Project Owners can enable Encryption at Rest using Customer Key Management for each MongoDB Cloud cluster for which they require encryption. The Encryption at Rest using Customer Key Management provider doesn't have to match the cluster cloud service provider. MongoDB Cloud doesn't automatically rotate user-managed encryption keys. Defer to your preferred Encryption at Rest using Customer Key Management provider's documentation and guidance for best practices on key rotation. MongoDB Cloud automatically creates a 90-day key rotation alert when you configure Encryption at Rest using Customer Key Management using your Key Management in an MongoDB Cloud project. MongoDB Cloud encrypts all storage whether or not you use your own key management.
-            operationId: updateEncryptionAtRest
+            operationId: updateGroupEncryptionAtRest
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -52192,12 +52297,13 @@ paths:
             summary: Update Encryption at Rest Configuration for One Project
             tags:
                 - Encryption at Rest using Customer Key Management
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/updateEncryptionAtRest
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/updateGroupEncryptionAtRest
+            x-xgen-operation-id-override: updateEncryptionAtRest
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/encryptionAtRest/{cloudProvider}/privateEndpoints:
         get:
             description: Returns the private endpoints of the specified cloud provider for encryption at rest using customer key management.
-            operationId: getEncryptionAtRestPrivateEndpointsForCloudProvider
+            operationId: listGroupEncryptionAtRestPrivateEndpoints
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -52233,11 +52339,12 @@ paths:
             summary: Return Private Endpoints of a Cloud Provider for Encryption at Rest Using Customer Key Management for One Project
             tags:
                 - Encryption at Rest using Customer Key Management
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/getEncryptionAtRestPrivateEndpointsForCloudProvider
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/listGroupEncryptionAtRestPrivateEndpoints
+            x-xgen-operation-id-override: listRestPrivateEndpoints
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Creates a private endpoint in the specified region for encryption at rest using customer key management.
-            operationId: createEncryptionAtRestPrivateEndpoint
+            operationId: createGroupEncryptionAtRestPrivateEndpoint
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -52282,12 +52389,13 @@ paths:
                 - Encryption at Rest using Customer Key Management
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/createEncryptionAtRestPrivateEndpoint
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/createGroupEncryptionAtRestPrivateEndpoint
+            x-xgen-operation-id-override: createRestPrivateEndpoint
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/encryptionAtRest/{cloudProvider}/privateEndpoints/{endpointId}:
         delete:
             description: Deletes one private endpoint, identified by its ID, for encryption at rest using Customer Key Management.
-            operationId: requestEncryptionAtRestPrivateEndpointDeletion
+            operationId: requestGroupEncryptionAtRestPrivateEndpointDeletion
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -52325,14 +52433,15 @@ paths:
             summary: Delete One Private Endpoint for Encryption at Rest Using Customer Key Management
             tags:
                 - Encryption at Rest using Customer Key Management
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/requestEncryptionAtRestPrivateEndpointDeletion
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/requestGroupEncryptionAtRestPrivateEndpointDeletion
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: requestDeletion
+            x-xgen-operation-id-override: requestPrivateEndpointDeletion
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Returns one private endpoint, identified by its ID, for encryption at rest using Customer Key Management.
-            operationId: getEncryptionAtRestPrivateEndpoint
+            operationId: getGroupEncryptionAtRestPrivateEndpoint
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -52374,7 +52483,8 @@ paths:
             summary: Return One Private Endpoint for Encryption at Rest Using Customer Key Management
             tags:
                 - Encryption at Rest using Customer Key Management
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/getEncryptionAtRestPrivateEndpoint
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Encryption-at-Rest-using-Customer-Key-Management/operation/getGroupEncryptionAtRestPrivateEndpoint
+            x-xgen-operation-id-override: getRestPrivateEndpoint
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/events:
         get:
@@ -54336,7 +54446,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/maintenanceWindow:
         delete:
             description: Resets the maintenance window for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: resetMaintenanceWindow
+            operationId: resetGroupMaintenanceWindow
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54359,14 +54469,15 @@ paths:
             summary: Reset One Maintenance Window for One Project
             tags:
                 - Maintenance Windows
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/resetMaintenanceWindow
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/resetGroupMaintenanceWindow
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: reset
+            x-xgen-operation-id-override: resetMaintenanceWindow
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Returns the maintenance window for the specified project. MongoDB Cloud starts those maintenance activities when needed. You can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: getMaintenanceWindow
+            operationId: getGroupMaintenanceWindow
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54392,11 +54503,12 @@ paths:
             summary: Return One Maintenance Window for One Project
             tags:
                 - Maintenance Windows
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/getMaintenanceWindow
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/getGroupMaintenanceWindow
+            x-xgen-operation-id-override: getMaintenanceWindow
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Updates the maintenance window for the specified project. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. Updating the maintenance window will reset any maintenance deferrals for this project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: updateMaintenanceWindow
+            operationId: updateGroupMaintenanceWindow
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54429,14 +54541,15 @@ paths:
             summary: Update One Maintenance Window for One Project
             tags:
                 - Maintenance Windows
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/updateMaintenanceWindow
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/updateGroupMaintenanceWindow
+            x-xgen-operation-id-override: updateMaintenanceWindow
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-must-not-have-delete-method: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/maintenanceWindow/autoDefer:
         post:
             description: Toggles automatic deferral of the maintenance window for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: toggleMaintenanceAutoDefer
+            operationId: toggleGroupMaintenanceWindowAutoDefer
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54459,17 +54572,18 @@ paths:
             summary: Toggle Automatic Deferral of Maintenance for One Project
             tags:
                 - Maintenance Windows
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/toggleMaintenanceAutoDefer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/toggleGroupMaintenanceWindowAutoDefer
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: toggle
+            x-xgen-operation-id-override: toggleMaintenanceAutoDefer
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/maintenanceWindow/defer:
         post:
             description: Defers the maintenance window for the specified project. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: deferMaintenanceWindow
+            operationId: deferGroupMaintenanceWindow
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54492,9 +54606,10 @@ paths:
             summary: Defer One Maintenance Window for One Project
             tags:
                 - Maintenance Windows
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/deferMaintenanceWindow
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Maintenance-Windows/operation/deferGroupMaintenanceWindow
             x-xgen-method-verb-override:
                 customMethod: "True"
+            x-xgen-operation-id-override: deferMaintenanceWindow
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -54605,7 +54720,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/mongoDBVersions:
         get:
             description: Returns the MongoDB Long Term Support Major Versions available to new clusters in this project.
-            operationId: getProjectLtsVersions
+            operationId: getGroupMongoDbVersions
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -54669,7 +54784,8 @@ paths:
             summary: Return All Available MongoDB LTS Versions for Clusters in One Project
             tags:
                 - Projects
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/getProjectLtsVersions
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/getGroupMongoDbVersions
+            x-xgen-operation-id-override: getMongoDbVersions
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-collection-identifier-camelCase: API predates IPA validation
@@ -54677,7 +54793,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/peers:
         get:
             description: Returns details about all network peering connections in the specified project. Network peering allows multiple cloud-hosted applications to securely connect to the same project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listPeeringConnections
+            operationId: listGroupPeers
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54718,14 +54834,14 @@ paths:
             summary: Return All Network Peering Connections in One Project
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/listPeeringConnections
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/listGroupPeers
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Creates one new network peering connection in the specified project. Network peering allows multiple cloud-hosted applications to securely connect to the same project. To use this resource, the requesting Service Account or API Key must have the Project Owner role. To learn more about considerations and prerequisites, see the Network Peering Documentation.
             externalDocs:
                 description: Azure Network Peering Prerequisites
                 url: https://docs.atlas.mongodb.com/reference/api/vpc-create-peering-connection/#prerequisites
-            operationId: createPeeringConnection
+            operationId: createGroupPeer
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54765,12 +54881,12 @@ paths:
                 - Network Peering
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/createPeeringConnection
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/createGroupPeer
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/peers/{peerId}:
         delete:
             description: Removes one network peering connection in the specified project. If you Removes the last network peering connection associated with a project, MongoDB Cloud also removes any AWS security groups from the project IP access list. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: deletePeeringConnection
+            operationId: deleteGroupPeer
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54805,11 +54921,11 @@ paths:
                 - Network Peering
             x-xgen-IPA-exception:
                 xgen-IPA-108-delete-method-return-204-response: Schema predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/deletePeeringConnection
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/deleteGroupPeer
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Returns details about one specified network peering connection in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getPeeringConnection
+            operationId: getGroupPeer
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54844,11 +54960,11 @@ paths:
             summary: Return One Network Peering Connection in One Project
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/getPeeringConnection
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/getGroupPeer
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Updates one specified network peering connection in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: updatePeeringConnection
+            operationId: updateGroupPeer
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -54893,7 +55009,7 @@ paths:
             summary: Update One Network Peering Connection
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/updatePeeringConnection
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/updateGroupPeer
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/pipelines:
         get:
@@ -55531,7 +55647,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/privateEndpoint/{cloudProvider}/endpointService:
         get:
             description: Returns the name, interfaces, and state of all private endpoint services for the specified cloud service provider. This cloud service provider manages the private endpoint service for the project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: listPrivateEndpointServices
+            operationId: listGroupPrivateEndpointEndpointService
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -55581,12 +55697,13 @@ paths:
             x-xgen-IPA-exception:
                 xgen-IPA-110-collections-request-has-itemsPerPage-query-param: API predates IPA validation
                 xgen-IPA-110-collections-request-has-pageNum-query-param: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/listPrivateEndpointServices
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/listGroupPrivateEndpointEndpointService
+            x-xgen-operation-id-override: listPrivateEndpointService
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/privateEndpoint/{cloudProvider}/endpointService/{endpointServiceId}:
         delete:
             description: Removes one private endpoint service from the specified project. This cloud service provider manages the private endpoint service that belongs to the project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: deletePrivateEndpointService
+            operationId: deleteGroupPrivateEndpointEndpointService
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -55630,11 +55747,12 @@ paths:
             summary: Remove One Private Endpoint Service for One Provider
             tags:
                 - Private Endpoint Services
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/deletePrivateEndpointService
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/deleteGroupPrivateEndpointEndpointService
+            x-xgen-operation-id-override: deletePrivateEndpointService
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Returns the name, interfaces, and state of the specified private endpoint service from one project. The cloud service provider hosted this private endpoint service that belongs to the project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getPrivateEndpointService
+            operationId: getGroupPrivateEndpointEndpointService
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -55682,12 +55800,13 @@ paths:
             summary: Return One Private Endpoint Service for One Provider
             tags:
                 - Private Endpoint Services
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/getPrivateEndpointService
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/getGroupPrivateEndpointEndpointService
+            x-xgen-operation-id-override: getPrivateEndpointService
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/privateEndpoint/{cloudProvider}/endpointService/{endpointServiceId}/endpoint:
         post:
             description: Creates one private endpoint for the specified cloud service provider. This cloud service provider manages the private endpoint service, which in turn manages the private endpoints for the project. To use this resource, the requesting Service Account or API Key must have the Project Owner role. To learn more about considerations, limitations, and prerequisites, see the MongoDB documentation for setting up a private endpoint.
-            operationId: createPrivateEndpoint
+            operationId: createGroupPrivateEndpointEndpointServiceEndpoint
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -55748,14 +55867,15 @@ paths:
                 - Private Endpoint Services
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/createPrivateEndpoint
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/createGroupPrivateEndpointEndpointServiceEndpoint
+            x-xgen-operation-id-override: createPrivateEndpoint
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-105-resource-has-list: List method doesn't apply for custom method
     /api/atlas/v2/groups/{groupId}/privateEndpoint/{cloudProvider}/endpointService/{endpointServiceId}/endpoint/{endpointId}:
         delete:
             description: Removes one private endpoint from the specified project and private endpoint service, as managed by the specified cloud service provider. When the last private endpoint is removed from a given private endpoint service, that private endpoint service is also removed. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: deletePrivateEndpoint
+            operationId: deleteGroupPrivateEndpointEndpointServiceEndpoint
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -55806,11 +55926,12 @@ paths:
             summary: Remove One Private Endpoint for One Provider
             tags:
                 - Private Endpoint Services
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/deletePrivateEndpoint
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/deleteGroupPrivateEndpointEndpointServiceEndpoint
+            x-xgen-operation-id-override: deletePrivateEndpoint
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Returns the connection state of the specified private endpoint. The private endpoint service manages this private endpoint which belongs to one project hosted from one cloud service provider. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getPrivateEndpoint
+            operationId: getGroupPrivateEndpointEndpointServiceEndpoint
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -55865,7 +55986,8 @@ paths:
             summary: Return One Private Endpoint for One Provider
             tags:
                 - Private Endpoint Services
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/getPrivateEndpoint
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/getGroupPrivateEndpointEndpointServiceEndpoint
+            x-xgen-operation-id-override: getPrivateEndpoint
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/privateEndpoint/endpointService:
         post:
@@ -55873,7 +55995,7 @@ paths:
             externalDocs:
                 description: Private Endpoint Concepts
                 url: https://dochub.mongodb.org/core/private-endpoint-concepts
-            operationId: createPrivateEndpointService
+            operationId: createGroupPrivateEndpointEndpointService
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -55906,14 +56028,15 @@ paths:
             summary: Create One Private Endpoint Service for One Provider
             tags:
                 - Private Endpoint Services
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/createPrivateEndpointService
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/createGroupPrivateEndpointEndpointService
+            x-xgen-operation-id-override: createPrivateEndpointService
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/privateEndpoint/regionalMode:
         get:
             description: Checks whether each region in the specified cloud service provider can create multiple private endpoints per region. The cloud service provider manages the private endpoint for the project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-            operationId: getRegionalizedPrivateEndpointSetting
+            operationId: getGroupPrivateEndpointRegionalMode
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -55937,14 +56060,15 @@ paths:
             summary: Return Regionalized Private Endpoint Status
             tags:
                 - Private Endpoint Services
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/getRegionalizedPrivateEndpointSetting
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/getGroupPrivateEndpointRegionalMode
             x-xgen-method-verb-override:
                 customMethod: "False"
                 verb: get
+            x-xgen-operation-id-override: getRegionalEndpointMode
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Enables or disables the ability to create multiple private endpoints per region in all cloud service providers in one project. The cloud service provider manages the private endpoints for the project. Connection strings to existing multi-region and global sharded clusters change when you enable this setting. You must update your applications to use the new connection strings. This might cause downtime. To use this resource, the requesting Service Account or API Key must have the Project Owner role and all clusters in the deployment must be sharded clusters. Once enabled, you cannot create replica sets.
-            operationId: toggleRegionalizedPrivateEndpointSetting
+            operationId: toggleGroupPrivateEndpointRegionalMode
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -55977,10 +56101,11 @@ paths:
             summary: Toggle Regionalized Private Endpoint Status
             tags:
                 - Private Endpoint Services
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/toggleRegionalizedPrivateEndpointSetting
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/toggleGroupPrivateEndpointRegionalMode
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: toggle
+            x-xgen-operation-id-override: toggleRegionalEndpointMode
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
@@ -56249,7 +56374,7 @@ paths:
             externalDocs:
                 description: Changes to Connection Strings
                 url: https://docs.atlas.mongodb.com/reference/faq/connection-changes/
-            operationId: verifyConnectViaPeeringOnlyModeForOneProject
+            operationId: verifyGroupPrivateIpMode
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -56275,10 +56400,11 @@ paths:
             summary: Verify Connect via Peering-Only Mode for One Project
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/verifyConnectViaPeeringOnlyModeForOneProject
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/verifyGroupPrivateIpMode
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: verify
+            x-xgen-operation-id-override: verifyPrivateIpMode
             x-xgen-owner-team: Atlas Dedicated
         patch:
             deprecated: true
@@ -56286,7 +56412,7 @@ paths:
             externalDocs:
                 description: Changes to Connection Strings
                 url: https://docs.atlas.mongodb.com/reference/faq/connection-changes/
-            operationId: disablePeering
+            operationId: disableGroupPrivateIpModePeering
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -56321,10 +56447,11 @@ paths:
             summary: Disable Connect via Peering-Only Mode for One Project
             tags:
                 - Network Peering
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/disablePeering
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/disableGroupPrivateIpModePeering
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: disablePeering
+            x-xgen-operation-id-override: disablePeering
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/privateNetworkSettings/endpointIds:
         get:
@@ -57489,7 +57616,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/pushBasedLogExport:
         delete:
             description: Disables the push-based log export feature by resetting the project level settings to its default configuration.
-            operationId: deletePushBasedLogConfiguration
+            operationId: deleteGroupPushBasedLogExport
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -57513,11 +57640,12 @@ paths:
             summary: Disable Push-Based Log Export for One Project
             tags:
                 - Push-Based Log Export
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/deletePushBasedLogConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/deleteGroupPushBasedLogExport
+            x-xgen-operation-id-override: deleteLogExport
             x-xgen-owner-team: Atlas Dedicated
         get:
             description: Fetches the current project level settings for the push-based log export feature.
-            operationId: getPushBasedLogConfiguration
+            operationId: getGroupPushBasedLogExport
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -57547,14 +57675,15 @@ paths:
             x-xgen-IPA-exception:
                 xgen-IPA-110-collections-request-has-itemsPerPage-query-param: Singleton method, mistakenly identified as a List method.
                 xgen-IPA-110-collections-request-has-pageNum-query-param: Singleton method, mistakenly identified as a List method.
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/getPushBasedLogConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/getGroupPushBasedLogExport
             x-xgen-method-verb-override:
                 customMethod: "False"
                 verb: get
+            x-xgen-operation-id-override: getLogExport
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: Updates the project level settings for the push-based log export feature.
-            operationId: updatePushBasedLogConfiguration
+            operationId: updateGroupPushBasedLogExport
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -57586,11 +57715,12 @@ paths:
             summary: Update Push-Based Log Export for One Project
             tags:
                 - Push-Based Log Export
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/updatePushBasedLogConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/updateGroupPushBasedLogExport
+            x-xgen-operation-id-override: updateLogExport
             x-xgen-owner-team: Atlas Dedicated
         post:
             description: Configures the project level settings for the push-based log export feature.
-            operationId: createPushBasedLogConfiguration
+            operationId: createGroupPushBasedLogExport
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -57624,7 +57754,8 @@ paths:
                 - Push-Based Log Export
             x-xgen-IPA-exception:
                 xgen-IPA-106-create-method-response-code-is-201: API predates IPA validation
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/createPushBasedLogConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/createGroupPushBasedLogExport
+            x-xgen-operation-id-override: createLogExport
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation
@@ -60971,7 +61102,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/userSecurity:
         get:
             description: Returns the current LDAP configuration for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: getLdapConfiguration
+            operationId: getGroupUserSecurity
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -60998,14 +61129,15 @@ paths:
             summary: Return LDAP or X.509 Configuration
             tags:
                 - LDAP Configuration
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/getLdapConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/getGroupUserSecurity
+            x-xgen-operation-id-override: getUserSecurity
             x-xgen-owner-team: Atlas Dedicated
         patch:
             description: |-
                 Edits the LDAP configuration for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
 
                 Updating this configuration triggers a rolling restart of the database.
-            operationId: saveLdapConfiguration
+            operationId: updateGroupUserSecurity
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -61043,7 +61175,8 @@ paths:
                 - LDAP Configuration
             x-xgen-IPA-exception:
                 xgen-IPA-107-update-method-response-code-is-200: 202 response code is valid for long-running operations
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/saveLdapConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/updateGroupUserSecurity
+            x-xgen-operation-id-override: updateUserSecurity
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/userSecurity/customerX509:
         delete:
@@ -61051,7 +61184,7 @@ paths:
                 Clears the customer-managed X.509 settings on a project, including the uploaded Certificate Authority, which disables self-managed X.509.
 
                  Updating this configuration triggers a rolling restart of the database. You must have the Project Owner role to use this endpoint.
-            operationId: disableCustomerManagedX509
+            operationId: disableGroupUserSecurityCustomerX509
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -61074,10 +61207,11 @@ paths:
             summary: Disable Customer-Managed X.509
             tags:
                 - X.509 Authentication
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/X.509-Authentication/operation/disableCustomerManagedX509
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/X.509-Authentication/operation/disableGroupUserSecurityCustomerX509
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: disable
+            x-xgen-operation-id-override: disableSecurityCustomerX509
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-collection-identifier-camelCase: API predates IPA validation
@@ -61085,7 +61219,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/userSecurity/ldap/userToDNMapping:
         delete:
             description: Removes the current LDAP Distinguished Name mapping captured in the ``userToDNMapping`` document from the LDAP configuration for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: deleteLdapConfiguration
+            operationId: deleteGroupUserSecurityLdapUserToDnMapping
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -61109,7 +61243,8 @@ paths:
             summary: Remove LDAP User to DN Mapping
             tags:
                 - LDAP Configuration
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/deleteLdapConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/deleteGroupUserSecurityLdapUserToDnMapping
+            x-xgen-operation-id-override: deleteLdapUserMapping
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-collection-identifier-camelCase: Schema predates IPA validation
@@ -61117,7 +61252,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/userSecurity/ldap/verify:
         post:
             description: Verifies the LDAP configuration for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: verifyLdapConfiguration
+            operationId: verifyGroupUserSecurityLdap
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -61150,16 +61285,17 @@ paths:
             summary: Verify LDAP Configuration in One Project
             tags:
                 - LDAP Configuration
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/verifyLdapConfiguration
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/verifyGroupUserSecurityLdap
             x-xgen-method-verb-override:
                 customMethod: "True"
+            x-xgen-operation-id-override: verifyUserSecurityLdap
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation
     /api/atlas/v2/groups/{groupId}/userSecurity/ldap/verify/{requestId}:
         get:
             description: Returns the status of one request to verify one LDAP configuration for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            operationId: getLdapConfigurationStatus
+            operationId: getGroupUserSecurityLdapVerify
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -61190,10 +61326,11 @@ paths:
             summary: Return Status of LDAP Configuration Verification in One Project
             tags:
                 - LDAP Configuration
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/getLdapConfigurationStatus
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/LDAP-Configuration/operation/getGroupUserSecurityLdapVerify
             x-xgen-method-verb-override:
                 customMethod: "False"
                 verb: get
+            x-xgen-operation-id-override: getUserSecurityVerify
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/groups/{groupId}/users:
         get:
@@ -63294,7 +63431,7 @@ paths:
             externalDocs:
                 description: Atlas Resource Policies
                 url: https://dochub.mongodb.org/core/atlas-resource-policies
-            operationId: getResourcesNonCompliant
+            operationId: getOrgNonCompliantResources
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -63327,7 +63464,8 @@ paths:
             summary: Return All Non-Compliant Resources
             tags:
                 - Resource Policies
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/getResourcesNonCompliant
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/getOrgNonCompliantResources
+            x-xgen-operation-id-override: getNonCompliantResources
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-should-have-update-method: API predates IPA validation
@@ -63620,7 +63758,7 @@ paths:
             externalDocs:
                 description: Atlas Resource Policies
                 url: https://dochub.mongodb.org/core/atlas-resource-policies
-            operationId: validateAtlasResourcePolicy
+            operationId: validateOrgResourcePolicies
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
@@ -63661,7 +63799,8 @@ paths:
             summary: Validate One Atlas Resource Policy
             tags:
                 - Resource Policies
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/validateAtlasResourcePolicy
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/validateOrgResourcePolicies
+            x-xgen-operation-id-override: validateResourcePolicies
             x-xgen-owner-team: Atlas Dedicated
     /api/atlas/v2/orgs/{orgId}/serviceAccounts:
         get:
