@@ -1,7 +1,10 @@
 import { evaluateAndCollectAdoptionStatusWithoutExceptions, handleInternalError } from './utils/collectionUtils.js';
 
-const ERROR_MESSAGE = 'IPA exceptions must have a valid rule name and a reason.';
-const RULE_NAME_PREFIX = 'xgen-IPA-';
+const ERROR_MESSAGE_RULENAME_FORMAT =
+  'IPA exceptions must have a valid key following xgen-IPA-XXX or xgen-IPA-XXX-{rule-name} format.';
+const ERROR_MESSAGE_REASON_FORMAT =
+  'IPA exceptions must have a non-empty reason that starts with uppercase and ends with a full stop.';
+const RULE_NAME_PATTERN = /^xgen-IPA-\d{3}(?:-[a-z-]+)?$/;
 
 // Note: This rule does not allow exceptions
 export default (input, _, { path, rule }) => {
@@ -10,21 +13,44 @@ export default (input, _, { path, rule }) => {
   return evaluateAndCollectAdoptionStatusWithoutExceptions(errors, ruleName, path);
 };
 
-function isValidException(ruleName, reason) {
-  return ruleName.startsWith(RULE_NAME_PREFIX) && typeof reason === 'string' && reason !== '';
+function isRuleNameValid(ruleName) {
+  return RULE_NAME_PATTERN.test(ruleName);
+}
+
+function isReasonFormatValid(reason) {
+  if (reason === null || reason === undefined || typeof reason !== 'string' || reason === '') {
+    return false;
+  }
+  // Check if reason starts with uppercase letter
+  if (!/^[A-Z]/.test(reason)) {
+    return false;
+  }
+
+  // Check if reason ends with a full stop
+  if (!reason.endsWith('.')) {
+    return false;
+  }
+  return true;
 }
 
 function checkViolationsAndReturnErrors(input, path, ruleName) {
   const errors = [];
   try {
     const exemptedRules = Object.keys(input);
-    exemptedRules.forEach((ruleName) => {
-      const reason = input[ruleName];
-      if (!isValidException(ruleName, reason)) {
+    exemptedRules.forEach((key) => {
+      const reason = input[key];
+      if (!isRuleNameValid(key)) {
         errors.push({
           path: path.concat([ruleName]),
-          message: ERROR_MESSAGE,
+          message: ERROR_MESSAGE_RULENAME_FORMAT,
         });
+      } else {
+        if (!isReasonFormatValid(reason)) {
+          errors.push({
+            path: path.concat([ruleName]),
+            message: ERROR_MESSAGE_REASON_FORMAT,
+          });
+        }
       }
     });
     return errors;
