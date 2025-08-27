@@ -50,6 +50,19 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
       expect(generateOperationID('get', '')).toEqual('get');
       expect(generateOperationID('getInfo', '')).toEqual('getInfo');
     });
+
+    it('should transform uppercase abbreviations and numbers to camel case correctly', () => {
+      expect(generateOperationID('get', '/api/atlas/v2/groups/{groupId}/openAPI')).toEqual('getGroupOpenApi');
+      expect(generateOperationID('list', '/api/atlas/v2/unauth/controlPlaneIPAddresses')).toEqual(
+        'listControlPlaneIpAddresses'
+      );
+      expect(generateOperationID('delete', '/api/atlas/v2/groups/{groupId}/userSecurity/ldap/userToDNMapping')).toEqual(
+        'deleteGroupUserSecurityLdapUserToDnMapping'
+      );
+      expect(generateOperationID('get', '/api/atlas/v2/groups/{groupId}/userSecurity/customerX509')).toEqual(
+        'getGroupUserSecurityCustomerX509'
+      );
+    });
   });
 
   describe('numberOfWords', () => {
@@ -60,6 +73,8 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
       expect(numberOfWords('createGroupClusterIndex')).toEqual(4);
       expect(numberOfWords('getOpenAPIInfo')).toEqual(4);
       expect(numberOfWords('getCustomDNS')).toEqual(3);
+      expect(numberOfWords('getX509Certificate')).toEqual(3);
+      expect(numberOfWords('X509Certificate')).toEqual(2);
       expect(numberOfWords('')).toEqual(0);
     });
   });
@@ -72,6 +87,7 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
       expect(shortenOperationId('getFederationSettingConnectedOrgConfigRoleMapping')).toEqual('getConfigRoleMapping');
       expect(shortenOperationId('getGroupAwsCustomDNS')).toEqual('getAwsCustomDNS');
       expect(shortenOperationId('getExampleOpenAPIInfo')).toEqual('getOpenAPIInfo');
+      expect(shortenOperationId('getGroupUserX509Certificate')).toEqual('getUserX509Certificate');
     });
 
     it('should make no change if the operation ID is <= 4 words long or undefined', () => {
