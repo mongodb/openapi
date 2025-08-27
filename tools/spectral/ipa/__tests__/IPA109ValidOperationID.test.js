@@ -74,8 +74,17 @@ testRule('xgen-IPA-109-valid-operation-id', [
         '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}': {
           delete: {
             operationId: 'removeFederationSettingConnectedOrgConfig',
-            'x-xgen-method-verb-override': { verb: 'remove', customMethod: true },
+            'x-xgen-method-verb-override': {
+              verb: 'remove',
+              customMethod: true,
+            },
             'x-xgen-operation-id-override': 'removeConnectedOrgConfig',
+          },
+        },
+        '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}:revokeMongoDBEmployeeAccess': {
+          delete: {
+            operationId: 'revokeGroupClusterMongoDbEmployeeAccess',
+            'x-xgen-operation-id-override': 'revokeEmployeeAccess',
           },
         },
       },
@@ -89,7 +98,10 @@ testRule('xgen-IPA-109-valid-operation-id', [
         '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}': {
           delete: {
             operationId: 'removeFederationSettingConnectedOrgConfig',
-            'x-xgen-method-verb-override': { verb: 'remove', customMethod: true },
+            'x-xgen-method-verb-override': {
+              verb: 'remove',
+              customMethod: true,
+            },
             'x-xgen-operation-id-override': 'removeOrgConfigTest',
           },
         },

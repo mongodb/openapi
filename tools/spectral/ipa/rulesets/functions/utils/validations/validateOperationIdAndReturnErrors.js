@@ -1,7 +1,10 @@
-import { generateOperationID, numberOfWords, shortenOperationId } from '../operationIdGeneration.js';
+import {
+  CAMEL_CASE_WITH_ABBREVIATIONS,
+  generateOperationID,
+  numberOfWords,
+  shortenOperationId,
+} from '../operationIdGeneration.js';
 import { getOperationIdOverride, hasOperationIdOverride, OPERATION_ID_OVERRIDE_EXTENSION } from '../extensions.js';
-
-const CAMEL_CASE = /[A-Z]?[a-z]+/g;
 
 const INVALID_OP_ID_ERROR_MESSAGE = 'Invalid OperationID.';
 const TOO_LONG_OP_ID_ERROR_MESSAGE =
@@ -16,6 +19,7 @@ const TOO_LONG_OP_ID_ERROR_MESSAGE =
  * @param resourcePath the resource path for the endpoint (e.g. '/users', '/users/{userId}', etc.). For custom methods, this is the path without the custom method name.
  * @param operationObject the operation object to validate, which should contain the operationId and optionally the x-xgen-operation-id-override extension.
  * @param path the path to the operation object being evaluated, used for error reporting with Spectral.
+ * @param ignorePluralizationList an array of nouns to ignore when singularizing resource names.
  * @returns {[{path: string[], message: string}]} an array of error objects, each containing a path and a message, or an empty array if no errors are found.
  */
 export function validateOperationIdAndReturnErrors(
@@ -60,7 +64,7 @@ export function validateOperationIdAndReturnErrors(
 }
 
 function validateOperationIdOverride(operationIdOverridePath, override, expectedOperationId) {
-  const expectedVerb = expectedOperationId.match(CAMEL_CASE)[0];
+  const expectedVerb = expectedOperationId.match(CAMEL_CASE_WITH_ABBREVIATIONS)[0];
   const errors = [];
   if (!override.startsWith(expectedVerb)) {
     errors.push({
@@ -76,7 +80,7 @@ function validateOperationIdOverride(operationIdOverridePath, override, expected
     });
   }
 
-  const overrideWords = override.match(CAMEL_CASE).slice(1);
+  const overrideWords = override.match(CAMEL_CASE_WITH_ABBREVIATIONS).slice(1);
   if (overrideWords.some((word) => !expectedOperationId.includes(word))) {
     errors.push({
       path: operationIdOverridePath,
@@ -84,7 +88,8 @@ function validateOperationIdOverride(operationIdOverridePath, override, expected
     });
   }
 
-  const expectedLastNoun = expectedOperationId.match(CAMEL_CASE)[numberOfWords(expectedOperationId) - 1];
+  const expectedLastNoun =
+    expectedOperationId.match(CAMEL_CASE_WITH_ABBREVIATIONS)[numberOfWords(expectedOperationId) - 1];
   if (!override.endsWith(expectedLastNoun)) {
     errors.push({
       path: operationIdOverridePath,
