@@ -9128,6 +9128,17 @@
           },
           "propertyName": "providerName"
         },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CloudProviderAccessAWSIAMRole"
+          },
+          {
+            "$ref": "#/components/schemas/CloudProviderAccessAzureServicePrincipal"
+          },
+          {
+            "$ref": "#/components/schemas/CloudProviderAccessGCPServiceAccount"
+          }
+        ],
         "properties": {
           "providerName": {
             "description": "Human-readable label that identifies the cloud provider of the role.",
@@ -41510,6 +41521,20 @@
       "StreamsKafkaAuthentication": {
         "description": "User credentials required to connect to a Kafka Cluster. Includes the authentication type, as well as the parameters for that authentication mode.",
         "properties": {
+          "clientId": {
+            "description": "OIDC client identifier for authentication to the Kafka cluster.",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "OIDC client secret for authentication to the Kafka cluster.",
+            "format": "password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "httpsCaPem": {
+            "description": "HTTPS CA certificate in PEM format for SSL/TLS verification.",
+            "type": "string"
+          },
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
             "externalDocs": {
@@ -41523,7 +41548,7 @@
             "type": "array"
           },
           "mechanism": {
-            "description": "Style of authentication. Can be one of PLAIN, SCRAM-256, or SCRAM-512.",
+            "description": "Style of authentication. Can be one of PLAIN, SCRAM-256, SCRAM-512, or OAUTHBEARER.",
             "type": "string"
           },
           "password": {
@@ -41531,6 +41556,14 @@
             "format": "password",
             "type": "string",
             "writeOnly": true
+          },
+          "saslOauthbearerExtensions": {
+            "description": "SASL OAUTHBEARER extensions parameter for additional OAuth2 configuration.",
+            "type": "string"
+          },
+          "scope": {
+            "description": "OIDC scope parameter defining the access permissions requested.",
+            "type": "string"
           },
           "sslCertificate": {
             "description": "SSL certificate for client authentication to Kafka.",
@@ -41545,6 +41578,10 @@
             "description": "Password for the SSL key, if it is password protected.",
             "type": "string",
             "writeOnly": true
+          },
+          "tokenEndpointUrl": {
+            "description": "OIDC token endpoint URL for obtaining access tokens.",
+            "type": "string"
           },
           "username": {
             "description": "Username of the account to connect to the Kafka cluster.",
@@ -46011,7 +46048,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "ad338d3c11b7dfe8ce04f3b7789028e2223a0a4a"
+    "x-xgen-sha": "785596be591001f102b53495261cde62663ce7fd"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -61292,7 +61329,7 @@
               }
             }
           },
-          "description": "Required parameters depend on whether someone has enabled Encryption at Rest using Customer Key Management:\n\nIf you have enabled Encryption at Rest using Customer Key Management (CMK), Atlas requires all of the parameters for the desired encryption provider.\n\n- To use AWS Key Management Service (KMS), MongoDB Cloud requires all the fields in the **awsKms** object.\n- To use Azure Key Vault, MongoDB Cloud requires all the fields in the **azureKeyVault** object.\n- To use Google Cloud Key Management Service (KMS), MongoDB Cloud requires all the fields in the **googleCloudKms** object.\n\nIf you enabled Encryption at Rest using Customer Key  Management, administrators can pass only the changed fields for the **awsKms**, **azureKeyVault**, or **googleCloudKms** object to update the configuration to this endpoint.",
+          "description": "Required parameters depend on whether someone has enabled Encryption at Rest using Customer Key Management:\n\nIf you have enabled Encryption at Rest using Customer Key Management (CMK), Atlas requires all of the parameters for the desired encryption provider.\n\n- To use AWS Key Management Service (KMS), MongoDB Cloud requires all the fields in the **awsKms** object.\n- To use Azure Key Vault, MongoDB Cloud requires all the fields in the **azureKeyVault** object.\n- To use Google Cloud Key Management Service (KMS), MongoDB Cloud requires all the fields in the **googleCloudKms** object For authentication, you must provide either serviceAccountKey (static credentials) or roleId (service-account–based authentication) Once roleId is configured, serviceAccountKey is no longer supported.\n\nIf you enabled Encryption at Rest using Customer Key  Management, administrators can pass only the changed fields for the **awsKms**, **azureKeyVault**, or **googleCloudKms** object to update the configuration to this endpoint.",
           "required": true
         },
         "responses": {
