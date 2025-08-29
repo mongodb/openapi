@@ -19,7 +19,7 @@ const TOO_LONG_OP_ID_ERROR_MESSAGE =
  * @param resourcePath the resource path for the endpoint (e.g. '/users', '/users/{userId}', etc.). For custom methods, this is the path without the custom method name.
  * @param operationObject the operation object to validate, which should contain the operationId and optionally the x-xgen-operation-id-override extension.
  * @param path the path to the operation object being evaluated, used for error reporting with Spectral.
- * @param ignorePluralizationList an array of nouns to ignore when singularizing resource names.
+ * @param ignoreSingularizationList an array of nouns to ignore when singularizing resource names.
  * @returns {[{path: string[], message: string}]} an array of error objects, each containing a path and a message, or an empty array if no errors are found.
  */
 export function validateOperationIdAndReturnErrors(
@@ -27,10 +27,10 @@ export function validateOperationIdAndReturnErrors(
   resourcePath,
   operationObject,
   path,
-  ignorePluralizationList
+  ignoreSingularizationList
 ) {
   const operationId = operationObject.operationId;
-  const expectedOperationId = generateOperationID(methodName, resourcePath, ignorePluralizationList);
+  const expectedOperationId = generateOperationID(methodName, resourcePath, ignoreSingularizationList);
 
   const operationIdPath = path.concat(['operationId']);
 
