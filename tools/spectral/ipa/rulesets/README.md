@@ -158,7 +158,7 @@ Rule checks for the following conditions:
 ##### Configuration
 This rule includes two configuration options:
   - `methodName`: The verb to be used in the OperationIds
-  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 
 
@@ -229,7 +229,7 @@ Rule checks for the following conditions:
 ##### Configuration
 This rule includes two configuration options:
   - `methodName`: The verb to be used in the OperationIds
-  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 
 
@@ -325,7 +325,7 @@ Rule checks for the following conditions:
 ##### Configuration
 This rule includes two configuration options:
   - `methodName`: The verb to be used in the OperationIds
-  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 
 
@@ -413,7 +413,7 @@ Rule checks for the following conditions:
 ##### Configuration
 This rule includes two configuration options:
   - `methodName`: The verb to be used in the OperationIds
-  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 
 
@@ -472,7 +472,7 @@ Rule checks for the following conditions:
 ##### Configuration
 This rule includes two configuration options:
   - `methodName`: The verb to be used in the OperationIds
-  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 
 
@@ -536,7 +536,7 @@ Rule checks for the following conditions:
 
 ##### Configuration
 This rule includes one configuration options:
-  - `ignorePluralizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 
 
