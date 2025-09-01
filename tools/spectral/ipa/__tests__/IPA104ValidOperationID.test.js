@@ -31,7 +31,7 @@ testRule('xgen-IPA-104-valid-operation-id', [
         code: 'xgen-IPA-104-valid-operation-id',
         message: "Invalid OperationID. Found 'getProjectIpList', expected 'getGroupAccessList'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/accessList/{entryValue}', 'get', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -52,14 +52,14 @@ testRule('xgen-IPA-104-valid-operation-id', [
         message:
           "Invalid OperationID. Found 'listAlertConfigurationsByAlertId', expected 'getGroupAlertAlertConfigs'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs', 'get', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-valid-operation-id',
         message:
           "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/alerts/{alertId}/alertConfigs', 'get', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -109,7 +109,7 @@ testRule('xgen-IPA-104-valid-operation-id', [
           'get',
           'x-xgen-operation-id-override',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-104-valid-operation-id',
@@ -120,7 +120,7 @@ testRule('xgen-IPA-104-valid-operation-id', [
           'get',
           'x-xgen-operation-id-override',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
