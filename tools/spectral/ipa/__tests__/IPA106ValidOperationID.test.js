@@ -36,13 +36,13 @@ testRule('xgen-IPA-106-valid-operation-id', [
         code: 'xgen-IPA-106-valid-operation-id',
         message: "Invalid OperationID. Found 'addUserToProject', expected 'createGroupAccess'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/access', 'post', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-valid-operation-id',
         message: "Invalid OperationID. Found 'createProjectInvitation', expected 'createGroupInvite'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/invites', 'post', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -63,14 +63,14 @@ testRule('xgen-IPA-106-valid-operation-id', [
         message:
           "Invalid OperationID. Found 'createServiceAccountAccessList', expected 'createOrgServiceAccountAccessList'. ",
         path: ['paths', '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList', 'post', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-valid-operation-id',
         message:
           "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
         path: ['paths', '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList', 'post', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -110,7 +110,7 @@ testRule('xgen-IPA-106-valid-operation-id', [
           'post',
           'x-xgen-operation-id-override',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-valid-operation-id',
@@ -122,7 +122,7 @@ testRule('xgen-IPA-106-valid-operation-id', [
           'post',
           'x-xgen-operation-id-override',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-valid-operation-id',
@@ -133,7 +133,7 @@ testRule('xgen-IPA-106-valid-operation-id', [
           'post',
           'x-xgen-operation-id-override',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -144,7 +144,10 @@ testRule('xgen-IPA-106-valid-operation-id', [
         '/api/atlas/v2/groups/{groupId}/serverless': {
           post: {
             operationId: 'createGroupServerlessInstance',
-            'x-xgen-method-verb-override': { verb: 'createInstance', customMethod: false },
+            'x-xgen-method-verb-override': {
+              verb: 'createInstance',
+              customMethod: false,
+            },
             'x-xgen-operation-id-override': 'createServerlessInstance',
           },
         },

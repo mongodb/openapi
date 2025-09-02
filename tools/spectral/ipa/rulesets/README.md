@@ -145,7 +145,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-104-valid-operation-id
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Operation ID must start with the verb “get” and should be followed by a noun or compound noun.
 The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
 If the resource is a singleton resource, the last noun may be the plural form of the collection identifier.
@@ -216,7 +216,7 @@ The response body of the List method should consist of the same resource object 
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 #### xgen-IPA-105-valid-operation-id
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Operation ID must start with the verb “list” and should be followed by a noun or compound noun.
 The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form, where the last noun is in plural form.
 
@@ -313,7 +313,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-106-valid-operation-id
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Operation ID must start with the verb “create” and should be followed by a noun or compound noun.
 The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
 
@@ -400,7 +400,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-107-valid-operation-id
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Operation ID must start with the verb “update” and should be followed by a noun or compound noun.
 The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
 If the resource is a singleton resource, the last noun may be the plural form of the collection identifier.
@@ -461,7 +461,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-108-valid-operation-id
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Operation ID must start with the verb “delete” and should be followed by a noun or compound noun.
 The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
 
@@ -521,7 +521,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-109-valid-operation-id
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The Operation ID must start with the custom method verb (the custom method path section delimited by the colon (:) character) and should be followed by a noun or compound noun.
 If the custom Operation ID has a verb + noun, the Operation ID should end with the noun.
 The noun(s) in the Operation ID should be the collection identifiers from the resource identifier.

@@ -31,7 +31,7 @@ testRule('xgen-IPA-105-valid-operation-id', [
         code: 'xgen-IPA-105-valid-operation-id',
         message: "Invalid OperationID. Found 'getApiVersions', expected 'listOpenapiVersions'. ",
         path: ['paths', '/api/atlas/v2/unauth/openapi/versions', 'get', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -52,14 +52,14 @@ testRule('xgen-IPA-105-valid-operation-id', [
         message:
           "Invalid OperationID. Found 'returnAllControlPlaneIpAddresses', expected 'listControlPlaneIpAddresses'. ",
         path: ['paths', '/api/atlas/v2/unauth/controlPlaneIPAddresses', 'get', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-105-valid-operation-id',
         message:
           "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
         path: ['paths', '/api/atlas/v2/unauth/controlPlaneIPAddresses', 'get', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -101,13 +101,13 @@ testRule('xgen-IPA-105-valid-operation-id', [
         message:
           "The operation ID override must only contain nouns from the operation ID 'listGroupBackupExportBuckets'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/backup/exportBuckets', 'get', 'x-xgen-operation-id-override'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-105-valid-operation-id',
         message: "The operation ID override must end with the noun 'Buckets'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/backup/exportBuckets', 'get', 'x-xgen-operation-id-override'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

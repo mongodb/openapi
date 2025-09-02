@@ -41,13 +41,13 @@ testRule('xgen-IPA-107-valid-operation-id', [
         code: 'xgen-IPA-107-valid-operation-id',
         message: "Invalid OperationID. Found 'setProjectLimit', expected 'updateGroupLimit'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/limits/{limitName}', 'patch', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-valid-operation-id',
         message: "Invalid OperationID. Found 'updateProjectSettings', expected 'updateGroupSettings'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/settings', 'put', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -68,14 +68,14 @@ testRule('xgen-IPA-107-valid-operation-id', [
         message:
           "Invalid OperationID. Found 'updatePushBasedLogConfiguration', expected 'updateGroupPushBasedLogExport'. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/pushBasedLogExport', 'patch', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-valid-operation-id',
         message:
           "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
         path: ['paths', '/api/atlas/v2/groups/{groupId}/pushBasedLogExport', 'patch', 'operationId'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -116,7 +116,7 @@ testRule('xgen-IPA-107-valid-operation-id', [
           'patch',
           'x-xgen-operation-id-override',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-107-valid-operation-id',
@@ -127,7 +127,7 @@ testRule('xgen-IPA-107-valid-operation-id', [
           'patch',
           'x-xgen-operation-id-override',
         ],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
@@ -138,7 +138,10 @@ testRule('xgen-IPA-107-valid-operation-id', [
         '/api/atlas/v2/groups/{groupId}/serverless': {
           patch: {
             operationId: 'updateGroupServerlessInstance',
-            'x-xgen-method-verb-override': { verb: 'updateInstance', customMethod: false },
+            'x-xgen-method-verb-override': {
+              verb: 'updateInstance',
+              customMethod: false,
+            },
             'x-xgen-operation-id-override': 'updateServerlessInstance',
           },
         },

@@ -44,7 +44,7 @@ describe('tools/spectral/ipa/metrics/metricCollection.js runMetricCollectionJob'
     expect(results.warnings.count).toEqual(1);
     const violations = [
       {
-        code: 'xgen-IPA-104-valid-operation-id',
+        code: 'xgen-IPA-104-valid-operation-id-warn',
       },
     ];
     expect(results.warnings.violations).toEqual(violations);
