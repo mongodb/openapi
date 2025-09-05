@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [4.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v3.3.0...4.0.0)
+#### [5.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v4.0.0...5.0.0)
+
+- fix(ipa): Fix IPA005 rule to allow camel case and numbers in rule name [`#940`](https://github.com/mongodb/openapi/pull/940)
+
+### [ipa-validation-ruleset-v4.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v3.3.0...ipa-validation-ruleset-v4.0.0)
+
+> 2 September 2025
 
 - fix(ipa): make operation ID rules error-level [`#932`](https://github.com/mongodb/openapi/pull/932)
 - fix(ipa): refactor, rename pluralization ignore list [`#929`](https://github.com/mongodb/openapi/pull/929)
