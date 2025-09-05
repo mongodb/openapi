@@ -1,7 +1,4 @@
-import {
-  evaluateAndCollectAdoptionStatusWithoutExceptions,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatusWithoutExceptions, handleInternalError } from './utils/collectionUtils.js';
 
 const ERROR_MESSAGE_RULENAME_FORMAT =
   'IPA exceptions must have a valid key following xgen-IPA-XXX or xgen-IPA-XXX-{rule-name} format.';
