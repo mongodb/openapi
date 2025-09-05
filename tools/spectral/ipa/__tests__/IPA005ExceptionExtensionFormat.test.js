@@ -16,11 +16,22 @@ testRule('xgen-IPA-005-exception-extension-format', [
             'xgen-IPA-100': 'Exception.',
           },
         },
+        '/path-camelCase': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-125-rule-name-camelCase': 'Exception.',
+          },
+        },
+        '/path-numbers': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-117-rule-name-1': 'Exception.',
+          },
+        },
         '/nested': {
           post: {
             'x-xgen-IPA-exception': {
               'xgen-IPA-100-rule-name': 'Exception.',
               'xgen-IPA-005': 'Short format exception.',
+              'xgen-IPA-112-camelCase': 'CamelCase exception.',
             },
           },
         },
