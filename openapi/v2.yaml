@@ -148,6 +148,15 @@ components:
                 example: my.host.name.com:27017
                 pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\.){1,10}[a-z]+)?(\:[0-9]{4,5})$
                 type: string
+        sandboxConfigId:
+            description: Unique 24-hexadecimal digit string that identifies the sandbox configuration.
+            in: path
+            name: sandboxConfigId
+            required: true
+            schema:
+                example: 507f1f77bcf86cd799439011
+                pattern: ^([a-f0-9]{24})$
+                type: string
         start:
             description: Date and time when MongoDB Cloud begins reporting the metrics. This parameter expresses its value in the ISO 8601 timestamp format in UTC. Include this parameter when you do not set **period**.
             in: query
@@ -2792,6 +2801,14 @@ components:
                         - ASCENDING
                         - DESCENDING
                     type: string
+            type: object
+        ApiSandboxConfigViewResponse:
+            properties:
+                clusterTemplate:
+                    $ref: '#/components/schemas/SandboxClusterTemplate'
+                enabled:
+                    description: Whether sandbox mode is enabled for the organization.
+                    type: boolean
             type: object
         ApiSearchDeploymentRequestView:
             properties:
@@ -33328,6 +33345,22 @@ components:
                     readOnly: true
                     type: string
             type: object
+        SandboxClusterTemplate:
+            description: Cluster template configuration for sandbox clusters.
+            properties:
+                provider:
+                    description: The provider for a cluster.
+                    example: AWS
+                    type: string
+                region:
+                    description: The region for a cluster.
+                    example: US_EAST_1
+                    type: string
+                tier:
+                    description: The tier for a cluster.
+                    example: M0
+                    type: string
+            type: object
         SchemaAdvisorItemRecommendation:
             properties:
                 affectedNamespaces:
@@ -40376,7 +40409,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 8836eafeff94e0a49beb29a13cebea529638202d
+    x-xgen-sha: e2100301044b7ab16745e76ff535c569b957093b
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -60981,6 +61014,41 @@ paths:
                 - Resource Policies
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Resource-Policies/operation/validateOrgResourcePolicies
             x-xgen-operation-id-override: validateResourcePolicies
+    /api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}:
+        get:
+            description: Return the default sandbox configuration for an organization.
+            operationId: getOrgSandboxConfig
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/sandboxConfigId'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSandboxConfigViewResponse'
+                            x-xgen-preview:
+                                name: sandbox-resource
+                            x-xgen-version: preview
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return the default sandbox configuration
+            tags:
+                - Sandbox
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/getOrgSandboxConfig
     /api/atlas/v2/orgs/{orgId}/serviceAccounts:
         get:
             description: Returns all Service Accounts for the specified Organization.
@@ -62790,6 +62858,8 @@ tags:
       name: Rolling Index
     - description: Returns details that describe the MongoDB Cloud build and the access token that requests this resource. This starts the MongoDB Cloud API.
       name: Root
+    - description: Returns, adds, edits, and removes sandbox templates. Also enables/disables sandbox for an organization.
+      name: Sandbox
     - description: Returns, adds, edits, and removes serverless instances.
       name: Serverless Instances
     - description: Returns, adds, edits, and removes private endpoints for serverless instances. To learn more, see the Atlas Administration API tab on the following tutorial.
