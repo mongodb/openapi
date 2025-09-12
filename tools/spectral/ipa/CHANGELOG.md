@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [5.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v4.0.0...5.0.0)
+#### [6.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v5.0.0...6.0.0)
+
+- feat(ipa): Upgrade warning-level rules to the error level [`#952`](https://github.com/mongodb/openapi/pull/952)
+
+### [ipa-validation-ruleset-v5.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v4.0.0...ipa-validation-ruleset-v5.0.0)
+
+> 5 September 2025
 
 - fix(ipa): Fix IPA005 rule to allow camel case and numbers in rule name [`#940`](https://github.com/mongodb/openapi/pull/940)
 
