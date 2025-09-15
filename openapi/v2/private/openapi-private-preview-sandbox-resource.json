@@ -1407,18 +1407,6 @@
         ],
         "type": "object"
       },
-      "ApiSandboxConfigViewResponse": {
-        "properties": {
-          "clusterTemplate": {
-            "$ref": "#/components/schemas/SandboxClusterTemplate"
-          },
-          "enabled": {
-            "description": "Whether sandbox mode is enabled for the organization.",
-            "type": "boolean"
-          }
-        },
-        "type": "object"
-      },
       "AppServiceMetricMatcher": {
         "description": "Rules to apply when comparing an app service metric against this alert configuration.",
         "properties": {
@@ -9861,6 +9849,26 @@
         },
         "type": "object"
       },
+      "SandboxConfigResponse": {
+        "description": "Configuration details for the sandbox feature of an organization.",
+        "properties": {
+          "clusterTemplate": {
+            "$ref": "#/components/schemas/SandboxClusterTemplate"
+          },
+          "enabled": {
+            "description": "Whether sandbox mode is enabled for the organization.",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "The id of the sandbox config.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SearchHostStatusDetail": {
         "properties": {
           "hostname": {
@@ -13435,10 +13443,90 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "566240087982a7453581f5601359b9871415f875"
+    "x-xgen-sha": "99e74226c0edfb396ca7ad5e27255f30e6a9569b"
   },
   "openapi": "3.0.1",
   "paths": {
+    "/api/atlas/v2/orgs/{orgId}/sandboxConfig": {
+      "post": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Create one sandbox configuration for an organization.",
+        "operationId": "createOrgSandboxConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          }
+        ],
+        "requestBody": {
+          "content": {},
+          "description": "Settings to configure the sandbox feature for an organization.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SandboxConfigResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "sandbox-resource"
+                },
+                "x-xgen-version": "private-preview-sandbox-resource"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Sandbox Configuration for an Organization",
+        "tags": [
+          "Sandbox"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api sandbox createOrgSandboxConfig --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-state": "PREVIEW",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/createOrgSandboxConfig"
+      }
+    },
     "/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}": {
       "delete": {
         "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Delete the default sandbox configuration and disable sandbox for an organization.",
@@ -13475,7 +13563,7 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Delete the default sandbox configuration and disable sandbox",
+        "summary": "Delete the Default Sandbox Configuration and Disable Sandbox",
         "tags": [
           "Sandbox"
         ],
@@ -13522,7 +13610,7 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiSandboxConfigViewResponse"
+                  "$ref": "#/components/schemas/SandboxConfigResponse"
                 },
                 "x-xgen-preview": {
                   "name": "sandbox-resource"
@@ -13543,9 +13631,6 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/conflict"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
