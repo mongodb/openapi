@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. Dates are d
 
 #### [6.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v5.0.0...6.0.0)
 
+- fix(ipa): Remove temporary overrides from Spectral file [`#954`](https://github.com/mongodb/openapi/pull/954)
 - feat(ipa): Upgrade warning-level rules to the error level [`#952`](https://github.com/mongodb/openapi/pull/952)
 
 ### [ipa-validation-ruleset-v5.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v4.0.0...ipa-validation-ruleset-v5.0.0)
