@@ -41028,6 +41028,38 @@
         },
         "type": "object"
       },
+      "PaginatedSandboxConfigs": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/SandboxConfigResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PaginatedServerlessInstanceDescriptionView": {
         "properties": {
           "links": {
@@ -53601,7 +53633,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "11e56109d20047cd610d3452de1d0a2563742139"
+    "x-xgen-sha": "12d7522a45f293e0eb65bd8d37026299c3f8e19d"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -87087,6 +87119,64 @@
       }
     },
     "/api/atlas/v2/orgs/{orgId}/sandboxConfig": {
+      "get": {
+        "description": "Return an array of sandbox configuration IDs for an organization.",
+        "operationId": "listOrgSandboxConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedSandboxConfigs"
+                },
+                "x-xgen-preview": {
+                  "name": "sandbox-resource"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return Sandbox Configuration IDs for an Organization",
+        "tags": [
+          "Sandbox"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/listOrgSandboxConfig",
+        "x-xgen-owner-team": "Atlas Growth"
+      },
       "post": {
         "description": "Create one sandbox configuration for an organization.",
         "operationId": "createOrgSandboxConfig",
@@ -87152,9 +87242,6 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/createOrgSandboxConfig",
         "x-xgen-owner-team": "Atlas Growth"
-      },
-      "x-xgen-IPA-exception": {
-        "xgen-IPA-105-resource-has-list": "List method to be implemented in future PR CLOUDP-342412."
       }
     },
     "/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}": {
