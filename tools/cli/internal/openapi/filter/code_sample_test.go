@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+//nolint:funlen // Test cases require long function for comprehensive coverage
 func TestCodeSampleFilter(t *testing.T) {
 	testCases := []struct {
 		name        string
