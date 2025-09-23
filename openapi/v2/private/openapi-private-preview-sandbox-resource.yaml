@@ -8464,7 +8464,7 @@ components:
                     type: string
             readOnly: true
             type: object
-        SandboxClusterTemplate:
+        SandboxClusterTemplateView:
             description: Cluster template configuration for sandbox clusters.
             properties:
                 provider:
@@ -8484,7 +8484,7 @@ components:
             description: Configuration details for the sandbox feature of an organization.
             properties:
                 clusterTemplate:
-                    $ref: '#/components/schemas/SandboxClusterTemplate'
+                    $ref: '#/components/schemas/SandboxClusterTemplateView'
                 enabled:
                     description: Whether sandbox mode is enabled for the organization.
                     type: boolean
@@ -11340,7 +11340,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 194b036b93a210e4c4bb8952ca270f9cac9eeaf4
+    x-xgen-sha: bc95435c2053f7a8e844c0c3aa071a823e7ed3c9
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/sandbox/{sandboxConfigId}:generateClusterDescription:
@@ -11618,6 +11618,68 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}?pretty=true"
             x-state: PREVIEW
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/getOrgSandboxConfig
+        patch:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Update an existing sandbox configuration for an organization.
+            operationId: updateOrgSandboxConfig
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/sandboxConfigId'
+            requestBody:
+                content: {}
+                description: Settings to update the sandbox configuration for an organization.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxConfigResponse'
+                            x-xgen-preview:
+                                name: sandbox-resource
+                            x-xgen-version: private-preview-sandbox-resource
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update an Existing Sandbox Configuration
+            tags:
+                - Sandbox
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api sandbox updateOrgSandboxConfig --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}" \
+                      -d '{ <Payload> }'
+            x-state: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/updateOrgSandboxConfig
 security:
     - ServiceAccounts: []
     - DigestAuth: []
