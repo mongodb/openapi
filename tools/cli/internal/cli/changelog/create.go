@@ -17,6 +17,7 @@ package changelog
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
@@ -41,10 +42,20 @@ type Opts struct {
 	exceptionsPaths string
 	outputPath      string
 	dryRun          bool
+	runDate         string
 }
 
 func (o *Opts) Run() error {
-	entries, err := changelog.NewEntries(o.basePath, o.revisionPath, o.exceptionsPaths)
+	runDate := time.Now().Format("2006-01-02")
+	if o.runDate != "" {
+		// Validate the provided run date format
+		if _, err := time.Parse("2006-01-02", o.runDate); err != nil {
+			return fmt.Errorf("invalid run date format: %w. Use YYYY-MM-DD format", err)
+		}
+		runDate = o.runDate
+	}
+
+	entries, err := changelog.NewEntriesWithRunDate(o.basePath, o.revisionPath, o.exceptionsPaths, runDate)
 	if err != nil {
 		return err
 	}
@@ -54,7 +65,7 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersions(o.revisionPath, o.exceptionsPaths)
+	versionedEntries, err := changelog.NewEntriesBetweenRevisionVersionsWithRunDate(o.revisionPath, o.exceptionsPaths, runDate)
 	if err != nil {
 		return err
 	}
@@ -141,6 +152,7 @@ func CreateBuilder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.exceptionsPaths, flag.ExemptionFilePath, flag.ExemptionFilePathShort, "", usage.ExemptionFilePath)
 	cmd.Flags().BoolVarP(&opts.dryRun, flag.DryRun, flag.DryRunShort, false, usage.DryRun)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
+	cmd.Flags().StringVar(&opts.runDate, "run-date", "", "Fixed run date for testing (YYYY-MM-DD format)")
 
 	_ = cmd.MarkFlagRequired(flag.Base)
 	_ = cmd.MarkFlagRequired(flag.Revision)
