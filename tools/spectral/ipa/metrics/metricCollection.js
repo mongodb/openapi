@@ -32,6 +32,7 @@ export async function runMetricCollectionJob(
     console.log('Merging results...');
     const mergedResults = merge(ownershipData, collectorResults, ruleSeverityMap);
 
+    console.log('Processing warning-level violations...');
     const warningViolations = mergedResults.filter(
       (result) => result.severity_level === 'warn' && result.adoption_status === 'violated'
     );

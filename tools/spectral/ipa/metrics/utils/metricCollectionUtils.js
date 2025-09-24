@@ -56,6 +56,7 @@ export function merge(ownershipData, collectorResults, ruleSeverityMap) {
   const results = [];
 
   function addEntry(entryType, adoptionStatus) {
+    console.log('Adding entries for', entryType);
     for (const entry of collectorResults[entryType]) {
       const existing = results.find(
         (result) => result.component_id === entry.componentId && result.ipa_rule === entry.ruleName
@@ -86,6 +87,7 @@ export function merge(ownershipData, collectorResults, ruleSeverityMap) {
         timestamp: new Date().toISOString(),
       });
     }
+    console.log('Added', results.length, 'entries for', entryType);
   }
 
   addEntry(EntryType.VIOLATION, 'violated');
