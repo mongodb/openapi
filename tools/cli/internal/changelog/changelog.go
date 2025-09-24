@@ -108,6 +108,11 @@ type Change struct {
 // The returned entries includes all the changes between the base and revision specs included the one
 // marked as hidden.
 func NewEntries(basePath, revisionPath, exceptionFilePath string) ([]*Entry, error) {
+	return NewEntriesWithRunDate(basePath, revisionPath, exceptionFilePath, time.Now().Format("2006-01-02"))
+}
+
+// NewEntriesWithRunDate generates the changelog entries with a specific run date.
+func NewEntriesWithRunDate(basePath, revisionPath, exceptionFilePath, runDate string) ([]*Entry, error) {
 	baseMetadata, err := newMetadataFromFile(basePath)
 	if err != nil {
 		return nil, err
@@ -120,7 +125,7 @@ func NewEntries(basePath, revisionPath, exceptionFilePath string) ([]*Entry, err
 	}
 	log.Printf("Revision Metadata: %s", newStringFromStruct(revisionMetadata))
 
-	revisionMetadata.RunDate = time.Now().Format("2006-01-02")
+	revisionMetadata.RunDate = runDate
 
 	baseActiveVersionOnPreviousRunDate, err := latestVersionActiveOnDate(baseMetadata.RunDate, baseMetadata.Versions)
 	if err != nil {
@@ -208,7 +213,12 @@ func NewEntries(basePath, revisionPath, exceptionFilePath string) ([]*Entry, err
 // The returned entries includes the changes between the base and revision specs that are not
 // marked as hidden.
 func NewEntriesWithoutHidden(basePath, revisionPath, exceptionFilePath string) ([]*Entry, error) {
-	entries, err := NewEntries(basePath, revisionPath, exceptionFilePath)
+	return NewEntriesWithoutHiddenWithRunDate(basePath, revisionPath, exceptionFilePath, time.Now().Format("2006-01-02"))
+}
+
+// NewEntriesWithoutHiddenWithRunDate generates the changelog entries with a specific run date.
+func NewEntriesWithoutHiddenWithRunDate(basePath, revisionPath, exceptionFilePath, runDate string) ([]*Entry, error) {
+	entries, err := NewEntriesWithRunDate(basePath, revisionPath, exceptionFilePath, runDate)
 	if err != nil {
 		return nil, err
 	}
@@ -218,6 +228,11 @@ func NewEntriesWithoutHidden(basePath, revisionPath, exceptionFilePath string) (
 
 // NewEntriesBetweenRevisionVersions generates the changelog entries between the revision versions.
 func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) ([]*Entry, error) {
+	return NewEntriesBetweenRevisionVersionsWithRunDate(revisionPath, exceptionFilePath, time.Now().Format("2006-01-02"))
+}
+
+// NewEntriesBetweenRevisionVersionsWithRunDate generates the changelog entries between the revision versions with a specific run date.
+func NewEntriesBetweenRevisionVersionsWithRunDate(revisionPath, exceptionFilePath, runDate string) ([]*Entry, error) {
 	revisionMetadata, err := newMetadataFromFile(revisionPath)
 	if err != nil {
 		return nil, err
@@ -231,7 +246,7 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) (
 				continue
 			}
 
-			entry, err := newEntriesBetweenVersion(revisionMetadata, fromVersion, toVersion, exceptionFilePath)
+			entry, err := newEntriesBetweenVersionWithRunDate(revisionMetadata, fromVersion, toVersion, exceptionFilePath, runDate)
 			if err != nil {
 				return nil, err
 			}
@@ -242,11 +257,11 @@ func NewEntriesBetweenRevisionVersions(revisionPath, exceptionFilePath string) (
 	return newVersionEntries(entries), nil
 }
 
-func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion, exceptionFilePath string) (*Entry, error) {
+func newEntriesBetweenVersionWithRunDate(metadata *Metadata, fromVersion, toVersion, exceptionFilePath, runDate string) (*Entry, error) {
 	baseMetadata := &Metadata{
 		Path:          metadata.Path,
 		ActiveVersion: fromVersion,
-		RunDate:       time.Now().Format("2006-01-02"),
+		RunDate:       runDate,
 		SpecRevision:  metadata.SpecRevision,
 		Versions:      metadata.Versions,
 	}
@@ -254,7 +269,7 @@ func newEntriesBetweenVersion(metadata *Metadata, fromVersion, toVersion, except
 	revisionMetadata := &Metadata{
 		Path:          metadata.Path,
 		ActiveVersion: toVersion,
-		RunDate:       time.Now().Format("2006-01-02"),
+		RunDate:       runDate,
 		SpecRevision:  metadata.SpecRevision,
 		Versions:      metadata.Versions,
 	}
