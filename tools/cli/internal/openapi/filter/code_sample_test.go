@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+//nolint:funlen // Test cases require long function for comprehensive coverage
 func TestCodeSampleFilter(t *testing.T) {
 	testCases := []struct {
 		name        string
@@ -345,6 +346,97 @@ func TestCodeSampleFilter(t *testing.T) {
 									Source: "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  " +
 										"--header \"Accept: application/vnd.atlas.2025-01-01+gzip\" \\\n  " +
 										"-X GET \"https://cloud.mongodb.com/test\" \\\n  --output \"file_name.gz\"",
+								},
+							},
+						},
+					},
+				})),
+			},
+		},
+		{
+			name:    "stable api with x-xgen-operation-id-override",
+			version: "2025-01-01",
+			oas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.2025-01-01+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "2025-01-01",
+									},
+								},
+							},
+						})),
+						Tags: []string{"TestTag"},
+						Extensions: map[string]any{
+							"x-sunset":                     "9999-12-31",
+							"x-xgen-operation-id-override": "customOperationName",
+						},
+					},
+				})),
+			},
+			expectedOas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.2025-01-01+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "2025-01-01",
+									},
+								},
+							},
+						})),
+						Tags: []string{"TestTag"},
+						Extensions: map[string]any{
+							"x-sunset":                     "9999-12-31",
+							"x-xgen-operation-id-override": "customOperationName",
+							"x-codeSamples": []codeSample{
+								{
+									Lang:   "cURL",
+									Label:  "Atlas CLI",
+									Source: "atlas api testTag customOperationName --help",
+								},
+								{
+									Lang:  "go",
+									Label: "Go",
+									Source: "import (\n" +
+										"\t\"os\"\n	\"context\"\n" + "\t\"log\"\n" +
+										"\tsdk \"go.mongodb.org/atlas-sdk/v20250101001/admin\"\n)\n\n" +
+										"func main() {\n" +
+										"\tctx := context.Background()\n" +
+										"\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n" +
+										"\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n" +
+										"\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n" +
+										"\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n" +
+										"\tif err != nil {\n" + "\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n" +
+										"\tparams = &sdk.TestOperationIDApiParams{}\n" +
+										"\tsdkResp, httpResp, err := client.TestTagApi.\n" +
+										"\t\tTestOperationIDWithParams(ctx, params).\n" +
+										"\t\tExecute()" + "\n}\n",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Service Accounts)",
+									Source: "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Digest)",
+									Source: "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
 								},
 							},
 						},
