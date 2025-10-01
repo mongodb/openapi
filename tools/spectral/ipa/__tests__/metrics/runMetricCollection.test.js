@@ -18,13 +18,14 @@ describe('tools/spectral/ipa/metrics/scripts/runMetricCollection.js', () => {
   it('should run without import/syntax errors', () => {
     const scriptPath = path.join(__dirname, '../../metrics/scripts/runMetricCollection.js');
 
-    // Run the script with Node.js
-    const result = spawnSync('node', [scriptPath], {
+    // Run the script with Node.js, providing a non-existent file path
+    // This will cause it to fail early before doing any real work
+    const result = spawnSync('node', [scriptPath, '/nonexistent/path/to/spec.json'], {
       encoding: 'utf8',
       timeout: 10000,
     });
 
-    // The script will fail because required files don't exist in the test environment,
+    // The script will fail because the file doesn't exist,
     // but it should NOT fail with a SyntaxError about missing exports
     const output = result.stdout + result.stderr;
 
@@ -32,9 +33,8 @@ describe('tools/spectral/ipa/metrics/scripts/runMetricCollection.js', () => {
     expect(output).not.toMatch(/SyntaxError.*does not provide an export named/);
     expect(output).not.toMatch(/SyntaxError.*Unexpected token/);
 
-    // We expect it to fail with ENOENT for the missing collector results file
+    // We expect it to fail due to missing files (either OAS file or collector results)
     // This proves the imports worked correctly
-    expect(output).toMatch(/ENOENT.*ipa-collector-results-combined\.log/);
+    expect(output).toMatch(/ENOENT|Could not find/);
   });
 });
-
