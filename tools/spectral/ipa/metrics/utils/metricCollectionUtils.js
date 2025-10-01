@@ -53,44 +53,43 @@ function getIPAFromIPARule(ipaRule) {
 }
 
 export function merge(ownershipData, collectorResults, ruleSeverityMap) {
-  const results = [];
-
-  function addEntry(entryType, adoptionStatus) {
-    for (const entry of collectorResults[entryType]) {
-      const existing = results.find(
-        (result) => result.component_id === entry.componentId && result.ipa_rule === entry.ruleName
-      );
-
-      if (existing) {
-        console.warn('Duplicate entries found', existing);
-        continue;
+  function mapResults(entry, adoptionStatus) {
+    let ownerTeam = null;
+    if (entry.componentId.startsWith('paths')) {
+      const pathParts = entry.componentId.split('.');
+      if (pathParts.length === 2) {
+        const path = pathParts[1];
+        ownerTeam = ownershipData[path];
       }
-
-      let ownerTeam = null;
-      if (entry.componentId.startsWith('paths')) {
-        const pathParts = entry.componentId.split('.');
-        if (pathParts.length === 2) {
-          const path = pathParts[1];
-          ownerTeam = ownershipData[path];
-        }
-      }
-
-      results.push({
-        component_id: entry.componentId,
-        ipa_rule: entry.ruleName,
-        ipa: getIPAFromIPARule(entry.ruleName),
-        severity_level: ruleSeverityMap[entry.ruleName],
-        adoption_status: adoptionStatus,
-        exception_reason: entryType === EntryType.EXCEPTION ? entry.exceptionReason : null,
-        owner_team: ownerTeam,
-        timestamp: new Date().toISOString(),
-      });
     }
+
+    return {
+      component_id: entry.componentId,
+      ipa_rule: entry.ruleName,
+      ipa: getIPAFromIPARule(entry.ruleName),
+      severity_level: ruleSeverityMap[entry.ruleName],
+      adoption_status: adoptionStatus,
+      exception_reason: adoptionStatus === 'exempted' && entry.exceptionReason ? entry.exceptionReason : null,
+      owner_team: ownerTeam,
+      timestamp: new Date().toISOString(),
+    };
   }
 
-  addEntry(EntryType.VIOLATION, 'violated');
-  addEntry(EntryType.ADOPTION, 'adopted');
-  addEntry(EntryType.EXCEPTION, 'exempted');
+  const violations = collectorResults[EntryType.VIOLATION] || [];
+  const adoptions = collectorResults[EntryType.ADOPTION] || [];
+  const exceptions = collectorResults[EntryType.EXCEPTION] || [];
 
-  return results;
+  console.log('\tMerging violations (total ' + violations.length + ')');
+  const violationResults = violations.map((entry) => mapResults(entry, 'violated'));
+
+  console.log('\tMerging adoptions (total ' + adoptions.length + ')');
+  const adoptionResults = adoptions.map((entry) => mapResults(entry, 'adopted'));
+
+  console.log('\tMerging exceptions (total ' + exceptions.length + ')');
+  const exceptionResults = exceptions.map((entry) => mapResults(entry, 'exempted'));
+
+  console.log(
+    '\tMerging complete. Total entries: ' + (violationResults.length + adoptionResults.length + exceptionResults.length)
+  );
+  return [...violationResults, ...adoptionResults, ...exceptionResults];
 }
