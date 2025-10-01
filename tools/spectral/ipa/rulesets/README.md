@@ -883,7 +883,7 @@ The rule checks for the presence of the `schema`, `examples` or `example` proper
 
 #### xgen-IPA-117-operation-summary-format
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Operation summaries must use Title Case, must not end with a period and must not use CommonMark.
 
 ##### Implementation details
@@ -896,7 +896,7 @@ This rule includes two configuration options:
 
 #### xgen-IPA-117-get-operation-summary-starts-with
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 In operation summaries, use 'Return' instead of 'Get' or 'List'. For example "Return One Identity Provider".
 
 ##### Implementation details
@@ -908,7 +908,7 @@ This rule includes a configuration option:
 
 #### xgen-IPA-117-update-operation-summary-starts-with
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 In operation summaries, use 'Update' instead of 'Modify' or 'Change'. For example "Update One Identity Provider".
 
 ##### Implementation details
@@ -920,7 +920,7 @@ This rule includes a configuration option:
 
 #### xgen-IPA-117-create-operation-summary-starts-with
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 In operation summaries, use 'Create' when the operation is creating a resource, and use 'Add' when the resource itself isn't being created. For example "Create One Identity Provider" or "Add One MongoDB Cloud User to One Project".
 
 ##### Implementation details
@@ -932,7 +932,7 @@ This rule includes a configuration option:
 
 #### xgen-IPA-117-delete-operation-summary-starts-with
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 In operation summaries, use 'Delete' when the operation is destroying a resource, and use 'Remove' when the resource itself isn't being destroyed. For example "Delete One Identity Provider" or "Remove One MongoDB Cloud User from One Project".
 
 ##### Implementation details
@@ -944,7 +944,7 @@ This rule includes a configuration option:
 
 #### xgen-IPA-117-operation-summary-single-item-wording
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 API Producers must use "One" when referring to a single item instead of "a" or "specified".
 
 ##### Implementation details
@@ -1103,7 +1103,7 @@ object types with clear discriminators.
 
 #### xgen-IPA-125-oneOf-schema-property-same-type
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 If multiple `oneOf` models define a property with the same name, that property **must** have the same base type or schema in each model
 
 ##### Implementation details
@@ -1113,7 +1113,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Each discriminator property must be accompanied by a `oneOf`, `anyOf` or `allOf` property 
 
 ##### Implementation details
