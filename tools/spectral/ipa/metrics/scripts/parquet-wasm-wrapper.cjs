@@ -17,10 +17,7 @@ const fs = require('fs');
 
 // Read and eval the parquet-wasm node build
 // We use eval because require() won't work due to the "type": "module" in package.json
-const parquetWasmPath = path.resolve(
-  __dirname,
-  '../../../../../node_modules/parquet-wasm/node/parquet_wasm.js',
-);
+const parquetWasmPath = path.resolve(__dirname, '../../../../../node_modules/parquet-wasm/node/parquet_wasm.js');
 
 const code = fs.readFileSync(parquetWasmPath, 'utf8');
 const moduleExports = {};
@@ -32,4 +29,3 @@ fn(moduleExports, require, moduleObj, parquetWasmPath, path.dirname(parquetWasmP
 
 // Re-export everything
 module.exports = moduleObj.exports;
-
