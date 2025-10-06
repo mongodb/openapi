@@ -26,9 +26,9 @@ type BumpFilter struct {
 	metadata *Metadata
 }
 
-type state struct {
-	label string
-	color string
+type State struct {
+	Label string `json:"label"`
+	Color string `json:"color"`
 }
 
 const (
@@ -78,9 +78,9 @@ func (f *BumpFilter) includeBumpFieldForPreview() error {
 			if op.Extensions == nil {
 				op.Extensions = map[string]any{}
 			}
-			op.Extensions[stateFieldName] = state{
-				label: stateFieldValuePreview,
-				color: stateFieldValuePreviewColor,
+			op.Extensions[stateFieldName] = State{
+				Label: stateFieldValuePreview,
+				Color: stateFieldValuePreviewColor,
 			}
 			op.Extensions[betaFieldName] = true
 			op.Description = description + " " + op.Description
