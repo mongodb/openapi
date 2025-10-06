@@ -26,12 +26,19 @@ type BumpFilter struct {
 	metadata *Metadata
 }
 
+type state struct {
+	label string
+	color string
+}
+
 const (
-	stateFieldName          = "x-state"
-	stateFieldValueUpcoming = "UPCOMING"
-	stateFieldValuePreview  = "PREVIEW"
-	betaFieldName           = "x-beta"
-	description             = `This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+	stateFieldName              = "x-state"
+	stateFieldValueUpcoming     = "UPCOMING"
+	stateFieldValuePreview      = "PREVIEW"
+	stateFieldValuePreviewColor = "#F2FF35" // Yellow
+	betaFieldName               = "x-beta"
+	description                 = `This API is in preview. Breaking changes might be introduced ` +
+		`before it is released. Don't use preview APIs in production.
 
 `
 )
@@ -71,7 +78,10 @@ func (f *BumpFilter) includeBumpFieldForPreview() error {
 			if op.Extensions == nil {
 				op.Extensions = map[string]any{}
 			}
-			op.Extensions[stateFieldName] = stateFieldValuePreview
+			op.Extensions[stateFieldName] = state{
+				label: stateFieldValuePreview,
+				color: stateFieldValuePreviewColor,
+			}
 			op.Extensions[betaFieldName] = true
 			op.Description = description + " " + op.Description
 		}
