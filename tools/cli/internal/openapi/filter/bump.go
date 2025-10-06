@@ -35,7 +35,7 @@ const (
 	stateFieldName              = "x-state"
 	stateFieldValueUpcoming     = "UPCOMING"
 	stateFieldValuePreview      = "PREVIEW"
-	stateFieldValuePreviewColor = "#D5B60A" // Yellow
+	stateFieldValuePreviewColor = "#B89D09" // Yellow
 	betaFieldName               = "x-beta"
 	description                 = `This API is in preview. Breaking changes might be introduced ` +
 		`before it is released. Don't use preview APIs in production.
