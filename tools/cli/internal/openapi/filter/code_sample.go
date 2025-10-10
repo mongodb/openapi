@@ -150,6 +150,15 @@ func apiVersion(version *apiversion.APIVersion) string {
 func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 	tag := strcase.ToLowerCamel(op.Tags[0])
 	operationID := strcase.ToLowerCamel(op.OperationID)
+
+	extensions := op.Extensions
+	if extensions != nil {
+		override := extensions["x-xgen-operation-id-override"]
+		if overrideString, ok := override.(string); ok {
+			operationID = overrideString
+		}
+	}
+
 	return codeSample{
 		Lang:   "cURL",
 		Label:  "Atlas CLI",
