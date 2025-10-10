@@ -24,13 +24,13 @@ The IPA validation uses [Spectral](https://docs.stoplight.io/docs/spectral/9ffa0
 
 ### Run Validation
 
-To run the IPA validation locally, install necessary dependencies with `npm install` if you haven't already. Then, simply run:
+To run the IPA validation locally, install necessary dependencies with `npm install` if you haven't already. Then (from `/openapi/tools/spectral/ipa/metrics/scripts/`), simply run:
 
 ```
 npm run ipa-validation
 ```
 
-This command will run Spectral CLI for the ruleset [ipa-spectral.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/ipa-spectral.yaml) on the raw [v2.yaml](https://github.com/mongodb/openapi/blob/main/openapi/.raw/v2.yaml) OpenAPI spec.
+This command will run Spectral CLI for the ruleset [ipa-spectral.yaml](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/ipa-spectral.yaml) on the raw [v2.yaml](https://github.com/mongodb/openapi/blob/main/openapi/.raw/v2.yaml) OpenAPI spec and generate `ipa-collector-results-combined.log`.
 
 ## Integrating IPA Validations
 

@@ -24,7 +24,7 @@ For more details, please refer to the [Spectral’s README.md](tools/spectral/RE
 ### Postman
 The [tools/postman](tools/postman) directory contains the logic required to generate the [MongoDB Atlas Postman collections](https://www.postman.com/mongodb-devrel?tab=collections).
 
-For more details, please refer to the [Spectral’s README.md](tools/postman/README.md).
+For more details, please refer to the [Postman’s README.md](tools/postman/README.md).
 
 
 

@@ -140,6 +140,8 @@ func TestChangelog(t *testing.T) {
 			exemptions,
 			"-o",
 			commandOut,
+			"--run-date",
+			"2025-06-15", // Fixed date after base run date but before sunset date
 		)
 
 		var o, e bytes.Buffer

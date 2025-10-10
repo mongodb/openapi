@@ -67,7 +67,9 @@ func TestBumpFilter_Apply_Preview(t *testing.T) {
 
 	op := testPath.Get
 	assert.Contains(t, op.Extensions, "x-state")
-	assert.Equal(t, stateFieldValuePreview, op.Extensions["x-state"])
+	stateProp := op.Extensions["x-state"].(State)
+	assert.Equal(t, stateFieldValuePreview, stateProp.Label)
+	assert.Equal(t, stateFieldValuePreviewColor, stateProp.Color)
 	assert.Contains(t, op.Extensions, "x-beta")
 	assert.Equal(t, true, op.Extensions["x-beta"])
 	assert.Contains(t, op.Description, description)
