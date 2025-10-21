@@ -1140,13 +1140,6 @@ components:
                     $ref: '#/components/schemas/BaseCloudProviderInstanceSize'
                 minInstanceSize:
                     $ref: '#/components/schemas/BaseCloudProviderInstanceSize'
-                predictiveEnabled:
-                    description: |-
-                        Flag that indicates whether predictive instance size auto-scaling is enabled.
-
-                        - Set to `true` to enable predictive instance size auto-scaling. MongoDB Cloud requires **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** to be `true` in order to enable this feature.
-                        - Set to `false` to disable predictive instance size auto-scaling.
-                    type: boolean
                 scaleDownEnabled:
                     description: Flag that indicates whether the instance size may scale down via reactive auto-scaling. MongoDB Cloud requires this parameter if **replicationSpecs[n].regionConfigs[m].autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **replicationSpecs[n].regionConfigs[m].autoScaling.compute.minInstanceSize**.
                     type: boolean
@@ -8368,14 +8361,6 @@ components:
                         - Set to `true` to enable instance size reactive auto-scaling. If enabled, you must specify a value for **providerSettings.autoScaling.compute.maxInstanceSize**.
                         - Set to `false` to disable instance size reactive auto-scaling.
                     type: boolean
-                predictiveEnabled:
-                    default: false
-                    description: |-
-                        Flag that indicates whether predictive instance size auto-scaling is enabled.
-
-                        - Set to `true` to enable predictive instance size auto-scaling. MongoDB Cloud requires **autoScaling.compute.enabled** is `true` in order to enable this feature.
-                        - Set to `false` to disable predictive instance size auto-scaling.
-                    type: boolean
                 scaleDownEnabled:
                     default: false
                     description: Flag that indicates whether the cluster tier can scale down via reactive auto-scaling. This is required if **autoScaling.compute.enabled** is `true`. If you enable this option, specify a value for **providerSettings.autoScaling.compute.minInstanceSize**.
@@ -12605,11 +12590,17 @@ components:
                             - CPS_EXPORT_SUCCESSFUL
                             - CPS_RESTORE_FAILED
                             - CPS_EXPORT_FAILED
+                            - CPS_COLLECTION_RESTORE_SUCCESSFUL
+                            - CPS_COLLECTION_RESTORE_FAILED
+                            - CPS_COLLECTION_RESTORE_PARTIAL_SUCCESS
+                            - CPS_COLLECTION_RESTORE_CANCELED
                             - CPS_AUTO_EXPORT_FAILED
                             - CPS_SNAPSHOT_DOWNLOAD_REQUEST_FAILED
                             - CPS_OPLOG_CAUGHT_UP
                           title: Cps Backup Event Types
                           type: string
+                          x-xgen-IPA-exception:
+                            xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema values all related to CPS backup events.
                         - enum:
                             - CPS_DATA_PROTECTION_ENABLE_REQUESTED
                             - CPS_DATA_PROTECTION_ENABLED
@@ -12695,6 +12686,7 @@ components:
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
+                            - CLUSTER_AUTO_SHARDING_INITIATED
                           title: NDS Auto Scaling Audit Types
                           type: string
                         - enum:
@@ -12813,12 +12805,18 @@ components:
                             - CPS_EXPORT_SUCCESSFUL
                             - CPS_RESTORE_FAILED
                             - CPS_EXPORT_FAILED
+                            - CPS_COLLECTION_RESTORE_SUCCESSFUL
+                            - CPS_COLLECTION_RESTORE_FAILED
+                            - CPS_COLLECTION_RESTORE_PARTIAL_SUCCESS
+                            - CPS_COLLECTION_RESTORE_CANCELED
                             - CPS_AUTO_EXPORT_FAILED
                             - CPS_SNAPSHOT_DOWNLOAD_REQUEST_FAILED
                             - CPS_OPLOG_BEHIND
                             - CPS_OPLOG_CAUGHT_UP
                           title: Cps Backup Event Types
                           type: string
+                          x-xgen-IPA-exception:
+                            xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema values all related to CPS backup events.
                         - enum:
                             - AWS_ENCRYPTION_KEY_NEEDS_ROTATION
                             - AZURE_ENCRYPTION_KEY_NEEDS_ROTATION
@@ -12917,6 +12915,7 @@ components:
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
+                            - CLUSTER_AUTO_SHARDING_INITIATED
                           title: NDS Auto Scaling Audit Types
                           type: string
                         - enum:
@@ -13082,12 +13081,18 @@ components:
                             - CPS_EXPORT_SUCCESSFUL
                             - CPS_RESTORE_FAILED
                             - CPS_EXPORT_FAILED
+                            - CPS_COLLECTION_RESTORE_SUCCESSFUL
+                            - CPS_COLLECTION_RESTORE_FAILED
+                            - CPS_COLLECTION_RESTORE_PARTIAL_SUCCESS
+                            - CPS_COLLECTION_RESTORE_CANCELED
                             - CPS_AUTO_EXPORT_FAILED
                             - CPS_SNAPSHOT_DOWNLOAD_REQUEST_FAILED
                             - CPS_OPLOG_BEHIND
                             - CPS_OPLOG_CAUGHT_UP
                           title: Cps Backup Event Types
                           type: string
+                          x-xgen-IPA-exception:
+                            xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema values all related to CPS backup events.
                         - enum:
                             - CPS_DATA_PROTECTION_ENABLE_REQUESTED
                             - CPS_DATA_PROTECTION_ENABLED
@@ -13487,6 +13492,7 @@ components:
                           title: Mlab Migration Audit Types
                           type: string
                         - enum:
+                            - AWS_PAYMENT_PAID
                             - AWS_SELF_SERVE_ACCOUNT_LINKED
                             - AWS_SELF_SERVE_ACCOUNT_LINK_PENDING
                             - AWS_SELF_SERVE_ACCOUNT_CANCELLED
@@ -13509,6 +13515,8 @@ components:
                             - VERCEL_INVOICE_REFUNDED
                           title: Partner Event Types
                           type: string
+                          x-xgen-IPA-exception:
+                            xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema predates IPA validation.
                         - enum:
                             - SUPPORT_EMAILS_SENT_SUCCESSFULLY
                             - SUPPORT_EMAILS_SENT_FAILURE
@@ -15998,12 +16006,18 @@ components:
                     - CPS_EXPORT_SUCCESSFUL
                     - CPS_RESTORE_FAILED
                     - CPS_EXPORT_FAILED
+                    - CPS_COLLECTION_RESTORE_SUCCESSFUL
+                    - CPS_COLLECTION_RESTORE_FAILED
+                    - CPS_COLLECTION_RESTORE_PARTIAL_SUCCESS
+                    - CPS_COLLECTION_RESTORE_CANCELED
                     - CPS_AUTO_EXPORT_FAILED
                     - CPS_SNAPSHOT_DOWNLOAD_REQUEST_FAILED
                     - CPS_OPLOG_BEHIND
                     - CPS_OPLOG_CAUGHT_UP
                   title: Cps Backup Event Types
                   type: string
+                  x-xgen-IPA-exception:
+                    xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema values all related to CPS backup events.
                 - enum:
                     - DATA_EXPLORER
                     - DATA_EXPLORER_CRUD_ATTEMPT
@@ -16192,6 +16206,7 @@ components:
                     - CLUSTER_IMPORT_EXPIRED
                     - CLUSTER_IMPORT_CUTOVER
                     - CLUSTER_IMPORT_COMPLETED
+                    - CLUSTER_IMPORT_FAILED
                     - CLUSTER_IMPORT_RESTART_REQUESTED
                     - PROJECT_LIVE_IMPORT_OVERRIDES_ADDED
                     - PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED
@@ -16237,6 +16252,8 @@ components:
                     - PLAN_STARTED
                     - PLAN_COMPLETED
                     - PLAN_ABANDONED
+                    - PLAN_DECLINED
+                    - PLAN_APPROVED
                     - PLAN_FAILURE_COUNT_RESET
                     - PLAN_ASAP_REQUESTED
                     - INDEPENDENT_SHARD_SCALING_AVAILABLE
@@ -16419,6 +16436,12 @@ components:
                     - PROXY_PROTOCOL_FOR_PRIVATE_LINK_MODE_UPDATED
                     - MONGOTUNE_WRITE_BLOCK_POLICY_ELIGIBLE
                     - MONGOTUNE_WRITE_BLOCK_POLICY_INELIGIBLE
+                    - PREDICTIVE_AUTOSCALING_ENABLED
+                    - PREDICTIVE_AUTOSCALING_DISABLED
+                    - DEPUTY_SETTINGS_UPDATED
+                    - SHADOW_CLUSTER_CREATE_EXPOSURE
+                    - SHADOW_CLUSTER_DELETE_EXPOSURE
+                    - SHADOW_CLUSTER_RECORDING_STATUS_UPDATE
                   title: NDS Audit Types
                   type: string
                   x-xgen-IPA-exception:
@@ -16454,6 +16477,7 @@ components:
                     - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                     - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                     - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
+                    - CLUSTER_AUTO_SHARDING_INITIATED
                   title: NDS Auto Scaling Audit Types
                   type: string
                 - enum:
@@ -16843,6 +16867,8 @@ components:
                   type: string
                 - enum:
                     - ORG_LIMIT_UPDATED
+                    - SHADOW_CLUSTER_ORG_OPT_IN
+                    - SHADOW_CLUSTER_ORG_OPT_OUT
                   title: NDS Audit Types
                   type: string
                 - enum:
@@ -16910,11 +16936,14 @@ components:
                     - SANDBOX_DISABLED_FOR_ORG
                     - SANDBOX_CONFIG_DELETED
                     - SANDBOX_TEMPLATE_UPDATED
+                    - ORGANIZATION_VOYAGE_SETTINGS_CREATED
+                    - ORGANIZATION_VOYAGE_SETTINGS_DELETED
                   title: Org Event Types
                   type: string
                   x-xgen-IPA-exception:
                     xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema predates IPA validation.
                 - enum:
+                    - AWS_PAYMENT_PAID
                     - AWS_SELF_SERVE_ACCOUNT_LINKED
                     - AWS_SELF_SERVE_ACCOUNT_LINK_PENDING
                     - AWS_SELF_SERVE_ACCOUNT_CANCELLED
@@ -16937,6 +16966,8 @@ components:
                     - VERCEL_INVOICE_REFUNDED
                   title: Partner Event Types
                   type: string
+                  x-xgen-IPA-exception:
+                    xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema predates IPA validation.
                 - enum:
                     - SUPPORT_EMAILS_SENT_SUCCESSFULLY
                     - SUPPORT_EMAILS_SENT_FAILURE
@@ -25462,6 +25493,7 @@ components:
                 - CLUSTER_IMPORT_EXPIRED
                 - CLUSTER_IMPORT_CUTOVER
                 - CLUSTER_IMPORT_COMPLETED
+                - CLUSTER_IMPORT_FAILED
                 - CLUSTER_IMPORT_RESTART_REQUESTED
                 - PROJECT_LIVE_IMPORT_OVERRIDES_ADDED
                 - PROJECT_LIVE_IMPORT_OVERRIDES_UPDATED
@@ -25507,6 +25539,8 @@ components:
                 - PLAN_STARTED
                 - PLAN_COMPLETED
                 - PLAN_ABANDONED
+                - PLAN_DECLINED
+                - PLAN_APPROVED
                 - PLAN_FAILURE_COUNT_RESET
                 - PLAN_ASAP_REQUESTED
                 - INDEPENDENT_SHARD_SCALING_AVAILABLE
@@ -25689,6 +25723,12 @@ components:
                 - PROXY_PROTOCOL_FOR_PRIVATE_LINK_MODE_UPDATED
                 - MONGOTUNE_WRITE_BLOCK_POLICY_ELIGIBLE
                 - MONGOTUNE_WRITE_BLOCK_POLICY_INELIGIBLE
+                - PREDICTIVE_AUTOSCALING_ENABLED
+                - PREDICTIVE_AUTOSCALING_DISABLED
+                - DEPUTY_SETTINGS_UPDATED
+                - SHADOW_CLUSTER_CREATE_EXPOSURE
+                - SHADOW_CLUSTER_DELETE_EXPOSURE
+                - SHADOW_CLUSTER_RECORDING_STATUS_UPDATE
             example: CLUSTER_CREATED
             title: NDS Audit Types
             type: string
@@ -25696,6 +25736,8 @@ components:
             description: Unique identifier of event type.
             enum:
                 - ORG_LIMIT_UPDATED
+                - SHADOW_CLUSTER_ORG_OPT_IN
+                - SHADOW_CLUSTER_ORG_OPT_OUT
             example: ORG_LIMIT_UPDATED
             title: NDS Audit Types
             type: string
@@ -25905,6 +25947,7 @@ components:
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
+                - CLUSTER_AUTO_SHARDING_INITIATED
             example: COMPUTE_AUTO_SCALE_INITIATED
             title: NDS Auto Scaling Audit Types
             type: string
@@ -27624,6 +27667,8 @@ components:
                 - SANDBOX_DISABLED_FOR_ORG
                 - SANDBOX_CONFIG_DELETED
                 - SANDBOX_TEMPLATE_UPDATED
+                - ORGANIZATION_VOYAGE_SETTINGS_CREATED
+                - ORGANIZATION_VOYAGE_SETTINGS_DELETED
             example: ORG_CREATED
             title: Org Event Types
             type: string
@@ -35102,6 +35147,13 @@ components:
                     description: Error message if the state is FAILED.
                     readOnly: true
                     type: string
+                gcpConnectionIds:
+                    description: List of GCP Private Service Connect connection IDs.
+                    items:
+                        type: string
+                    maxItems: 3
+                    type: array
+                    uniqueItems: true
                 gcpServiceAttachmentUris:
                     description: Service Attachment URIs of each availability zone for the GCP Confluent cluster.
                     items:
@@ -38624,7 +38676,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 4b8603c9d72830b79b5cc937ea51c0a502d5e9e5
+    x-xgen-sha: 5afc34d33e1e456cff759987b3b877d0f90fe64f
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -40837,7 +40889,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/access" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/addGroupAccessUser
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -44088,6 +44140,12 @@ paths:
                   schema:
                     default: false
                     type: boolean
+                - description: Controls how hardware specification fields are returned in the response. When set to true, returns the original client-specified values and provides separate effective fields showing current operational values. When false (default), hardware specification fields show current operational values directly. Primarily used for autoscaling compatibility.
+                  in: header
+                  name: Use-Effective-Instance-Fields
+                  schema:
+                    default: false
+                    type: boolean
             responses:
                 "200":
                     content:
@@ -44167,6 +44225,12 @@ paths:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
+                - description: Controls how hardware specification fields are returned in the response after cluster creation. When set to true, returns the original client-specified values and provides separate effective fields showing current operational values. When false (default), hardware specification fields show current operational values directly. Primarily used for autoscaling compatibility.
+                  in: header
+                  name: Use-Effective-Instance-Fields
+                  schema:
+                    default: false
+                    type: boolean
             requestBody:
                 content:
                     application/vnd.atlas.2024-08-05+json:
@@ -44435,6 +44499,12 @@ paths:
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
+                - description: Controls how hardware specification fields are returned in the response. When set to true, returns the original client-specified values and provides separate effective fields showing current operational values. When false (default), hardware specification fields show current operational values directly. Primarily used for autoscaling compatibility.
+                  in: header
+                  name: Use-Effective-Instance-Fields
+                  schema:
+                    default: false
+                    type: boolean
             responses:
                 "200":
                     content:
@@ -44519,6 +44589,12 @@ paths:
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
+                - description: 'Controls how hardware specification fields are returned in the response after cluster updates. When set to true, returns the original client-specified values and provides separate effective fields showing current operational values. When false (default), hardware specification fields show current operational values directly. Note: When using this header with autoscaling enabled, MongoDB ignores replicationSpecs changes during updates. To intentionally override the replicationSpecs, disable this header.'
+                  in: header
+                  name: Use-Effective-Instance-Fields
+                  schema:
+                    default: false
+                    type: boolean
             requestBody:
                 content:
                     application/vnd.atlas.2024-08-05+json:
@@ -57362,7 +57438,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/listGroupIntegrations
     /api/atlas/v2/groups/{groupId}/integrations/{integrationType}:
         delete:
-            description: Removes the settings that permit configuring one third-party service integration. These settings apply to all databases managed in one MongoDB Cloud project. If you delete an integration from a project, you remove that integration configuration only for that project. This action doesn't affect any other project or organization's configured `{INTEGRATION-TYPE}` integrations. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            description: Removes the settings that permit configuring one third-party service integration. These settings apply to all databases managed in one MongoDB Cloud project. If you delete an integration from a project, you remove that integration configuration only for that project. This action doesn't affect any other project or organization's configured `{INTEGRATION-TYPE}` integrations. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Deleting log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.
             operationId: deleteGroupIntegration
             parameters:
                 - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
@@ -57451,7 +57527,7 @@ paths:
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/deleteGroupIntegration
         get:
-            description: Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            description: Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Viewing log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.
             operationId: getGroupIntegration
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -57545,7 +57621,7 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/getGroupIntegration
         post:
-            description: Adds the settings for configuring one third-party service integration. These settings apply to all databases managed in the specified MongoDB Cloud project. Each project can have only one configuration per `{INTEGRATION-TYPE}`. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            description: Adds the settings for configuring one third-party service integration. These settings apply to all databases managed in the specified MongoDB Cloud project. Each project can have only one configuration per `{INTEGRATION-TYPE}`. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Enabling log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.
             operationId: createGroupIntegration
             parameters:
                 - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
@@ -57652,7 +57728,7 @@ paths:
                       -d '{ <Payload> }'
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/createGroupIntegration
         put:
-            description: Updates the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            description: Updates the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Enabling log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.
             operationId: updateGroupIntegration
             parameters:
                 - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
@@ -57844,7 +57920,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites?pretty=true"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/listGroupInvites
         patch:
             deprecated: true
@@ -57930,7 +58006,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupInvites
         post:
             deprecated: true
@@ -58014,12 +58090,12 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/createGroupInvite
     /api/atlas/v2/groups/{groupId}/invites/{invitationId}:
         delete:
             deprecated: true
-            description: Cancels one pending invitation sent to the specified MongoDB Cloud user to join a project. You can't cancel an invitation that the user accepted. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: 'Cancels one pending invitation sent to the specified MongoDB Cloud user to join a project. You can''t cancel an invitation that the user accepted. To use this resource, the requesting Service Account or API Key must have the Project Owner role. Note: deleting a project invitation does not delete an organization invitation even if they were created together.'
             operationId: deleteGroupInvite
             parameters:
                 - $ref: '#/components/parameters/groupId'
@@ -58092,7 +58168,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites/{invitationId}"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/deleteGroupInvite
         get:
             deprecated: true
@@ -58174,7 +58250,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites/{invitationId}?pretty=true"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/getGroupInvite
         patch:
             deprecated: true
@@ -58266,7 +58342,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites/{invitationId}" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupInviteById
             x-xgen-method-verb-override:
                 customMethod: false
@@ -71068,6 +71144,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/users?pretty=true"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listGroupUsers
     /api/atlas/v2/groups/{groupId}/users/{userId}:
         delete:
@@ -71158,7 +71235,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/users/{userId}"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeGroupUser
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -71253,7 +71330,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PUT "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/users/{userId}/roles" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupUserRoles
     /api/atlas/v2/groups/{groupId}:migrate:
         post:
@@ -73294,7 +73371,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites?pretty=true"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/listOrgInvites
         patch:
             deprecated: true
@@ -73386,7 +73463,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgInvites
         post:
             deprecated: true
@@ -73478,7 +73555,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/createOrgInvite
     /api/atlas/v2/orgs/{orgId}/invites/{invitationId}:
         delete:
@@ -73564,7 +73641,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites/{invitationId}"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/deleteOrgInvite
         get:
             deprecated: true
@@ -73653,7 +73730,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites/{invitationId}?pretty=true"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/getOrgInvite
         patch:
             deprecated: true
@@ -73752,7 +73829,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites/{invitationId}" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgInviteById
             x-xgen-method-verb-override:
                 customMethod: false
@@ -76766,6 +76843,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/teams/{teamId}/users?pretty=true"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listOrgTeamUsers
             x-xgen-operation-id-override: listTeamUsers
         post:
@@ -76869,7 +76947,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/teams/{teamId}/users" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/addOrgTeamUsers
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -76967,7 +77045,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/teams/{teamId}/users/{userId}"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/removeOrgTeamUserFromTeam
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -77154,7 +77232,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/users?pretty=true"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listOrgUsers
     /api/atlas/v2/orgs/{orgId}/users/{userId}:
         delete:
@@ -77245,7 +77323,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/users/{userId}"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrgUser
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -77340,7 +77418,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PUT "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/users/{userId}/roles" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgUserRoles
     /api/atlas/v2/unauth/controlPlaneIPAddresses:
         get:
@@ -77499,7 +77577,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/users" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/createUser
     /api/atlas/v2/users/{userId}:
         get:
@@ -77584,6 +77662,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/users/{userId}?pretty=true"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getUser
     /api/atlas/v2/users/byName/{userName}:
         get:
@@ -77666,7 +77745,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/users/byName/{userName}?pretty=true"
-            x-sunset: "2026-07-31"
+            x-sunset: "2026-09-15"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/getUserByName
 security:
     - ServiceAccounts: []
