@@ -3,7 +3,7 @@ on:
   workflow_call:
     inputs:
       spectral_version:
-        description: 'Version of Spectral to use'     
+        description: 'Version of Spectral to use'
         type: string
         required: true
       env:
@@ -13,14 +13,29 @@ on:
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
-
+      jira_api_token:
+        required: true
+  workflow_dispatch:
+    inputs:
+      spectral_version:
+        description: 'Version of Spectral to use'
+        type: string
+        required: true
+        default: 'latest'
+      env:
+        description: 'Environment to validate the OpenAPI Spec for.'
+        type: choice
+        required: true
+        options:
+          - staging
+          - production
 
 permissions:
   contents: write
   issues: write
   id-token: write
 
-jobs:  
+jobs:
   optional-validations:
     runs-on: ubuntu-latest
     steps:
@@ -53,6 +68,13 @@ jobs:
           make convert_to_collection
           npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ./tmp/collection.json --ruleset=./validation/spectral.yaml
           popd
+      - name: Checkout .github folder from main branch
+        if: ${{ failure() }}
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          ref: main
+          sparse-checkout: |
+            .github/workflows
       - name: Create Issue - Postman validation Failed
         if: ${{ failure() && steps.spectral-validation.outcome == 'failure' }}
         uses: ./.github/workflows/task-failure-handler.yml
