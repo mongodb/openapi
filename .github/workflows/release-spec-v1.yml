@@ -87,3 +87,15 @@ jobs:
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
           branch: ${{env.target_branch}}
           file_pattern: "openapi/v1-deprecated/*"
+
+  failure-handler:
+    name: Failure Handler
+    needs: [ release-v1-oas-apis ]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    uses: ./.github/workflows/failure-handler.yml
+    with:
+      env: ${{ inputs.env }}
+      release_name: "OpenAPI Spec v1"
+      team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
+    secrets:
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
