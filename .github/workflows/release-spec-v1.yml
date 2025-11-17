@@ -27,7 +27,8 @@ on:
         required: true
       mms_deployed_sha_url:
         required: true
-
+      jira_api_token:
+        required: true
 permissions:
   contents: write
   issues: write
@@ -88,10 +89,21 @@ jobs:
           branch: ${{env.target_branch}}
           file_pattern: "openapi/v1-deprecated/*"
 
+
+  retry-handler:
+    needs: [release-v1-oas-apis]
+    if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_REPO: ${{ inputs.branch }}
+          GH_TOKEN: ${{ secrets.api_bot_pat }}
+        run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
+
   failure-handler:
     name: Failure Handler
-    needs: [ release-v1-oas-apis ]
-    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    needs: [retry-handler, release-v1-oas-apis ]
+    if: ${{ always() && contains(needs.*.result, 'failure') && needs.retry-handler.result == 'skipped' }}
     uses: ./.github/workflows/failure-handler.yml
     with:
       env: ${{ inputs.env }}
