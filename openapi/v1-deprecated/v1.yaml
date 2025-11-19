@@ -2081,7 +2081,9 @@
               "requests",
               "1000 requests",
               "tokens",
+              "million tokens",
               "pixels",
+              "billion pixels",
               "GB seconds",
               "GB hours",
               "GB days",
@@ -2219,12 +2221,34 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
             }
           },
+          "customOpensslCipherConfigTls13": {
+            "description": "The custom OpenSSL cipher suite list for TLS 1.3. This field is only valid when `tlsCipherConfigMode` is set to `CUSTOM`.",
+            "externalDocs": {
+              "description": "This option corresponds to the `opensslCipherSuiteConfig` `mongod` configuration file option.",
+              "url": "https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.opensslCipherSuiteConfig"
+            },
+            "items": {
+              "enum": [
+                "TLS_AES_256_GCM_SHA384",
+                "TLS_CHACHA20_POLY1305_SHA256",
+                "TLS_AES_128_GCM_SHA256",
+                "TLS_AES_128_CCM_SHA256"
+              ],
+              "type": "string"
+            },
+            "maxItems": 4,
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-112-field-names-are-camel-case": "Field is not camel case due to TLS number. Keeping number to preserve consistency with existing field customOpensslCipherConfigTls12."
+            }
+          },
           "minimumEnabledTlsProtocol": {
             "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections. Clusters using TLS 1.0 or 1.1 should consider setting TLS 1.2 as the minimum TLS protocol version.",
             "enum": [
               "TLS1_0",
               "TLS1_1",
-              "TLS1_2"
+              "TLS1_2",
+              "TLS1_3"
             ],
             "externalDocs": {
               "description": "This option corresponds to the `net.ssl.disabledProtocols` `mongod` configuration file option.",
@@ -3789,6 +3813,17 @@
           },
           "propertyName": "metricName"
         },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/RawMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/DataMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/TimeMetricThresholdView"
+          }
+        ],
         "properties": {
           "metricName": {
             "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured **metricThreshold.threshold**.",
@@ -3837,7 +3872,9 @@
               "requests",
               "1000 requests",
               "tokens",
+              "million tokens",
               "pixels",
+              "billion pixels",
               "GB seconds",
               "GB hours",
               "GB days",
@@ -3863,10 +3900,7 @@
           "metricName"
         ],
         "title": "App Services Metric Threshold",
-        "type": "object",
-        "x-xgen-IPA-exception": {
-          "xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf": "Schema predates IPA validation."
-        }
+        "type": "object"
       },
       "AssertMsgRawMetricThresholdView": {
         "properties": {
@@ -4935,7 +4969,10 @@
                   "ITALY_NORTH",
                   "SPAIN_CENTRAL",
                   "MEXICO_CENTRAL",
-                  "NEW_ZEALAND_NORTH"
+                  "NEW_ZEALAND_NORTH",
+                  "INDONESIA_CENTRAL",
+                  "MALAYSIA_WEST",
+                  "CHILE_CENTRAL"
                 ],
                 "type": "string",
                 "x-xgen-IPA-exception": {
@@ -6007,6 +6044,11 @@
           "delivery": {
             "$ref": "#/components/schemas/BackupRestoreJobDelivery"
           },
+          "deploymentJobId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the an imported deployment job. This parameter exists when restoring from an imported snapshot/clustershot.",
+            "readOnly": true,
+            "type": "string"
+          },
           "encryptionEnabled": {
             "description": "Flag that indicates whether someone encrypted the data in the restored snapshot.",
             "readOnly": true,
@@ -6766,6 +6808,7 @@
           "CHECK_PAYMENT_RECEIVED",
           "WIRE_TRANSFER_PAYMENT_RECEIVED",
           "DISCOUNT_APPLIED",
+          "CREDIT_MOVED",
           "CREDIT_ISSUED",
           "CREDIT_PULLED_FWD",
           "CREDIT_END_DATE_MODIFIED",
@@ -6827,7 +6870,8 @@
           "PENDING_DEAL_APPLIED",
           "PENDING_DEAL_ACTIVATION_FAILED",
           "EVERGREEN_PRIORITY_MODIFIED",
-          "CROSS_ORG_OPERATION_TICKET_TRACKING"
+          "CROSS_ORG_OPERATION_TICKET_TRACKING",
+          "ADMIN_OVERRIDE_PAYMENT_METHOD_DELETED"
         ],
         "example": "CHARGE_SUCCEEDED",
         "title": "Billing Event Types",
@@ -10021,6 +10065,27 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
             }
           },
+          "customOpensslCipherConfigTls13": {
+            "description": "The custom OpenSSL cipher suite list for TLS 1.3. This field is only valid when `tlsCipherConfigMode` is set to `CUSTOM`.",
+            "externalDocs": {
+              "description": "This option corresponds to the `opensslCipherSuiteConfig` `mongod` configuration file option.",
+              "url": "https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.opensslCipherSuiteConfig"
+            },
+            "items": {
+              "enum": [
+                "TLS_AES_256_GCM_SHA384",
+                "TLS_CHACHA20_POLY1305_SHA256",
+                "TLS_AES_128_GCM_SHA256",
+                "TLS_AES_128_CCM_SHA256"
+              ],
+              "type": "string"
+            },
+            "maxItems": 4,
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-112-field-names-are-camel-case": "Field is not camel case due to TLS number. Keeping number to preserve consistency with existing field customOpensslCipherConfigTls12."
+            }
+          },
           "defaultMaxTimeMS": {
             "description": "Default time limit in milliseconds for individual read operations to complete.",
             "externalDocs": {
@@ -10083,7 +10148,8 @@
             "enum": [
               "TLS1_0",
               "TLS1_1",
-              "TLS1_2"
+              "TLS1_2",
+              "TLS1_3"
             ],
             "externalDocs": {
               "description": "This option corresponds to the `net.ssl.disabledProtocols` `mongod` configuration file option.",
@@ -10415,6 +10481,12 @@
           "clusterName": {
             "description": "Human-readable label that identifies the cluster that undergoes outage simulation.",
             "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expirationDate": {
+            "description": "Date and time when MongoDB Cloud expires the outage simulation. This parameter expresses its value in the ISO 8601 timestamp format in UTC. If not provided, defaults to 3 days from the start date.",
+            "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
@@ -14564,6 +14636,7 @@
                   "MAINTENANCE_IN_ADVANCED",
                   "MAINTENANCE_AUTO_DEFERRED",
                   "MAINTENANCE_STARTED",
+                  "MAINTENANCE_COMPLETED",
                   "MAINTENANCE_NO_LONGER_NEEDED"
                 ],
                 "title": "NDS Maintenance Window Audit Types",
@@ -14844,6 +14917,7 @@
                   "MAINTENANCE_IN_ADVANCED",
                   "MAINTENANCE_AUTO_DEFERRED",
                   "MAINTENANCE_STARTED",
+                  "MAINTENANCE_COMPLETED",
                   "MAINTENANCE_NO_LONGER_NEEDED"
                 ],
                 "title": "NDS Maintenance Window Audit Types",
@@ -15300,6 +15374,7 @@
                   "MAINTENANCE_IN_ADVANCED",
                   "MAINTENANCE_AUTO_DEFERRED",
                   "MAINTENANCE_STARTED",
+                  "MAINTENANCE_COMPLETED",
                   "MAINTENANCE_NO_LONGER_NEEDED"
                 ],
                 "title": "NDS Maintenance Window Audit Types",
@@ -18561,10 +18636,14 @@
               "HOST_MONGOT_CRASHING_OOM",
               "HOST_MONGOT_RESUME_REPLICATION",
               "HOST_MONGOT_STOP_REPLICATION",
+              "HOST_MONGOT_UNPAUSE_INITIAL_SYNC",
+              "HOST_MONGOT_PAUSE_INITIAL_SYNC",
               "HOST_MONGOT_SUFFICIENT_DISK_SPACE",
               "HOST_MONGOT_APPROACHING_STOP_REPLICATION",
               "HOST_SEARCH_NODE_UNBLOCKED",
               "HOST_SEARCH_NODE_INDEX_FAILED",
+              "HOST_EXTERNAL_LOG_SINK_EXPORT_DOWN",
+              "HOST_EXTERNAL_LOG_SINK_EXPORT_RESUMED",
               "HOST_ENOUGH_DISK_SPACE",
               "HOST_NOT_ENOUGH_DISK_SPACE",
               "SSH_KEY_NDS_HOST_ACCESS_REQUESTED",
@@ -18643,7 +18722,10 @@
               "CLUSTER_INSTANCE_UPDATE_REQUESTED",
               "CLUSTER_INSTANCE_REPLACED",
               "CLUSTER_INSTANCE_REPLACE_CLEARED",
+              "CLUSTER_INSTANCE_SWAPPED",
+              "CLUSTER_INSTANCE_SWAP_CLEARED",
               "CLUSTER_INSTANCE_VM_RESTART_CLEARED",
+              "CLUSTER_INSTANCE_VM_REBOOT_CLEARED",
               "CLUSTER_INSTANCE_CONFIG_UPDATED",
               "CLUSTER_INSTANCE_AGENT_API_KEY_ROTATED",
               "CLUSTER_INSTANCE_SSL_ROTATED",
@@ -18780,6 +18862,8 @@
               "INGESTION_PIPELINE_UPDATED",
               "OS_TUNE_FILE_OVERRIDES",
               "MONITORING_AGENT_OVERRIDES",
+              "MONITORING_AGENT_REBALANCE_FLAG",
+              "MONITORING_AGENT_REBALANCE_TRIGGERED",
               "CLUSTER_PREFERRED_CPU_ARCHITECTURE_MODIFIED",
               "CLUSTER_FORCE_PLANNED",
               "DATA_PROCESSING_REGION_UPDATED",
@@ -18866,7 +18950,8 @@
               "DEPUTY_SETTINGS_UPDATED",
               "SHADOW_CLUSTER_CREATE_EXPOSURE",
               "SHADOW_CLUSTER_DELETE_EXPOSURE",
-              "SHADOW_CLUSTER_RECORDING_STATUS_UPDATE"
+              "SHADOW_CLUSTER_RECORDING_STATUS_UPDATE",
+              "SHADOW_CLUSTER_REPLAY_STATUS_UPDATE"
             ],
             "title": "NDS Audit Types",
             "type": "string",
@@ -18922,6 +19007,7 @@
               "MAINTENANCE_IN_ADVANCED",
               "MAINTENANCE_AUTO_DEFERRED",
               "MAINTENANCE_STARTED",
+              "MAINTENANCE_COMPLETED",
               "MAINTENANCE_NO_LONGER_NEEDED"
             ],
             "title": "NDS Maintenance Window Audit Types",
@@ -19281,6 +19367,7 @@
               "CHECK_PAYMENT_RECEIVED",
               "WIRE_TRANSFER_PAYMENT_RECEIVED",
               "DISCOUNT_APPLIED",
+              "CREDIT_MOVED",
               "CREDIT_ISSUED",
               "CREDIT_PULLED_FWD",
               "CREDIT_END_DATE_MODIFIED",
@@ -19342,7 +19429,8 @@
               "PENDING_DEAL_APPLIED",
               "PENDING_DEAL_ACTIVATION_FAILED",
               "EVERGREEN_PRIORITY_MODIFIED",
-              "CROSS_ORG_OPERATION_TICKET_TRACKING"
+              "CROSS_ORG_OPERATION_TICKET_TRACKING",
+              "ADMIN_OVERRIDE_PAYMENT_METHOD_DELETED"
             ],
             "title": "Billing Event Types",
             "type": "string",
@@ -19436,6 +19524,10 @@
               "ORG_PAYPAL_UPDATED",
               "ORG_PAYPAL_CANCELLED",
               "ORG_OVERRIDE_PAYMENT_METHOD_ADDED",
+              "ORG_BANK_ACCOUNT_ADDED",
+              "ORG_BANK_ACCOUNT_UPDATED",
+              "ORG_WALLET_ADDED",
+              "ORG_WALLET_UPDATED",
               "ORG_ACTIVATED",
               "ORG_TEMPORARILY_ACTIVATED",
               "ORG_SUSPENSION_DATE_CHANGED",
@@ -20679,7 +20771,9 @@
               "requests",
               "1000 requests",
               "tokens",
+              "million tokens",
               "pixels",
+              "billion pixels",
               "GB seconds",
               "GB hours",
               "GB days",
@@ -23296,10 +23390,14 @@
           "HOST_MONGOT_CRASHING_OOM",
           "HOST_MONGOT_RESUME_REPLICATION",
           "HOST_MONGOT_STOP_REPLICATION",
+          "HOST_MONGOT_UNPAUSE_INITIAL_SYNC",
+          "HOST_MONGOT_PAUSE_INITIAL_SYNC",
           "HOST_MONGOT_SUFFICIENT_DISK_SPACE",
           "HOST_MONGOT_APPROACHING_STOP_REPLICATION",
           "HOST_SEARCH_NODE_UNBLOCKED",
           "HOST_SEARCH_NODE_INDEX_FAILED",
+          "HOST_EXTERNAL_LOG_SINK_EXPORT_DOWN",
+          "HOST_EXTERNAL_LOG_SINK_EXPORT_RESUMED",
           "HOST_ENOUGH_DISK_SPACE",
           "HOST_NOT_ENOUGH_DISK_SPACE",
           "SSH_KEY_NDS_HOST_ACCESS_REQUESTED",
@@ -23333,7 +23431,9 @@
           "HOST_MONGOT_CRASHING_OOM",
           "HOST_MONGOT_STOP_REPLICATION",
           "HOST_MONGOT_APPROACHING_STOP_REPLICATION",
+          "HOST_MONGOT_PAUSE_INITIAL_SYNC",
           "HOST_SEARCH_NODE_INDEX_FAILED",
+          "HOST_EXTERNAL_LOG_SINK_EXPORT_DOWN",
           "HOST_NOT_ENOUGH_DISK_SPACE",
           "SSH_KEY_NDS_HOST_ACCESS_REQUESTED",
           "SSH_KEY_NDS_HOST_ACCESS_REFRESHED",
@@ -24975,7 +25075,9 @@
               "requests",
               "1000 requests",
               "tokens",
+              "million tokens",
               "pixels",
+              "billion pixels",
               "GB seconds",
               "GB hours",
               "GB days",
@@ -25035,7 +25137,9 @@
               "requests",
               "1000 requests",
               "tokens",
+              "million tokens",
               "pixels",
+              "billion pixels",
               "GB seconds",
               "GB hours",
               "GB days",
@@ -25988,7 +26092,39 @@
               "ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_SAME_REGION",
               "ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_DIFFERENT_REGION",
               "ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_INTERNET",
-              "ATLAS_GCP_STREAM_PROCESSING_PRIVATELINK"
+              "ATLAS_GCP_STREAM_PROCESSING_PRIVATELINK",
+              "VOYAGE_EMBEDDING_3_TEXT_LARGE_API",
+              "VOYAGE_EMBEDDING_3_TEXT_API",
+              "VOYAGE_EMBEDDING_3_TEXT_LITE_API",
+              "VOYAGE_EMBEDDING_3_5_TEXT_API",
+              "VOYAGE_EMBEDDING_3_5_TEXT_LITE_API",
+              "VOYAGE_EMBEDDING_3_TEXT_CONTEXT_API",
+              "VOYAGE_EMBEDDING_3_CODE_API",
+              "VOYAGE_EMBEDDING_2_FINANCE_API",
+              "VOYAGE_EMBEDDING_2_LAW_API",
+              "VOYAGE_EMBEDDING_2_CODE_API",
+              "VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_API",
+              "VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_API",
+              "VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_API",
+              "VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_API",
+              "VOYAGE_RERANK_2_5_LITE_API",
+              "VOYAGE_RERANK_2_5_API",
+              "VOYAGE_RERANK_2_LITE_API",
+              "VOYAGE_RERANK_2_API",
+              "VOYAGE_EMBEDDING_3_TEXT_LARGE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_TEXT_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_TEXT_LITE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_5_TEXT_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_5_TEXT_LITE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_TEXT_CONTEXT_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_CODE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_2_FINANCE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_2_LAW_AUTOEMBED",
+              "VOYAGE_EMBEDDING_2_CODE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_AUTOEMBED"
             ],
             "readOnly": true,
             "type": "string",
@@ -29553,7 +29689,10 @@
           "CLUSTER_INSTANCE_UPDATE_REQUESTED",
           "CLUSTER_INSTANCE_REPLACED",
           "CLUSTER_INSTANCE_REPLACE_CLEARED",
+          "CLUSTER_INSTANCE_SWAPPED",
+          "CLUSTER_INSTANCE_SWAP_CLEARED",
           "CLUSTER_INSTANCE_VM_RESTART_CLEARED",
+          "CLUSTER_INSTANCE_VM_REBOOT_CLEARED",
           "CLUSTER_INSTANCE_CONFIG_UPDATED",
           "CLUSTER_INSTANCE_AGENT_API_KEY_ROTATED",
           "CLUSTER_INSTANCE_SSL_ROTATED",
@@ -29690,6 +29829,8 @@
           "INGESTION_PIPELINE_UPDATED",
           "OS_TUNE_FILE_OVERRIDES",
           "MONITORING_AGENT_OVERRIDES",
+          "MONITORING_AGENT_REBALANCE_FLAG",
+          "MONITORING_AGENT_REBALANCE_TRIGGERED",
           "CLUSTER_PREFERRED_CPU_ARCHITECTURE_MODIFIED",
           "CLUSTER_FORCE_PLANNED",
           "DATA_PROCESSING_REGION_UPDATED",
@@ -29776,7 +29917,8 @@
           "DEPUTY_SETTINGS_UPDATED",
           "SHADOW_CLUSTER_CREATE_EXPOSURE",
           "SHADOW_CLUSTER_DELETE_EXPOSURE",
-          "SHADOW_CLUSTER_RECORDING_STATUS_UPDATE"
+          "SHADOW_CLUSTER_RECORDING_STATUS_UPDATE",
+          "SHADOW_CLUSTER_REPLAY_STATUS_UPDATE"
         ],
         "example": "CLUSTER_CREATED",
         "title": "NDS Audit Types",
@@ -32219,6 +32361,10 @@
           "ORG_PAYPAL_UPDATED",
           "ORG_PAYPAL_CANCELLED",
           "ORG_OVERRIDE_PAYMENT_METHOD_ADDED",
+          "ORG_BANK_ACCOUNT_ADDED",
+          "ORG_BANK_ACCOUNT_UPDATED",
+          "ORG_WALLET_ADDED",
+          "ORG_WALLET_UPDATED",
           "ORG_ACTIVATED",
           "ORG_TEMPORARILY_ACTIVATED",
           "ORG_SUSPENSION_DATE_CHANGED",
@@ -36742,6 +36888,65 @@
         "readOnly": true,
         "type": "object"
       },
+      "S3LogExport": {
+        "description": "Details to integrate S3 log export with one MongoDB Cloud project.",
+        "properties": {
+          "bucketName": {
+            "description": "Human-readable label that identifies the S3 bucket name for storing log files.",
+            "example": "my-log-bucket",
+            "type": "string"
+          },
+          "iamRoleId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.",
+            "example": "507f1f77bcf86cd799439011",
+            "type": "string"
+          },
+          "id": {
+            "description": "Integration id.",
+            "nullable": true,
+            "type": "string"
+          },
+          "kmsKey": {
+            "description": "AWS KMS key ID or ARN for server-side encryption (optional). If not provided, uses bucket default encryption settings.",
+            "example": "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012",
+            "nullable": true,
+            "type": "string"
+          },
+          "logTypes": {
+            "description": "Array of log types to export to S3.",
+            "example": [
+              "MONGOD",
+              "MONGOS",
+              "MONGOD_AUDIT",
+              "MONGOS_AUDIT"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "type": "array"
+          },
+          "prefixPath": {
+            "description": "S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.",
+            "example": "mongo-logs/",
+            "type": "string"
+          },
+          "type": {
+            "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the third-party service integration type.",
+            "enum": [
+              "S3_LOG_EXPORT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "bucketName",
+          "iamRoleId",
+          "prefixPath"
+        ],
+        "title": "S3 Log Export",
+        "type": "object"
+      },
       "SMSNotification": {
         "description": "SMS notification configuration for MongoDB Cloud to send information when an event triggers an alert condition.",
         "properties": {
@@ -38553,7 +38758,9 @@
               "requests",
               "1000 requests",
               "tokens",
+              "million tokens",
               "pixels",
+              "billion pixels",
               "GB seconds",
               "GB hours",
               "GB days",
@@ -40164,7 +40371,9 @@
               "requests",
               "1000 requests",
               "tokens",
+              "million tokens",
               "pixels",
+              "billion pixels",
               "GB seconds",
               "GB hours",
               "GB days",
@@ -41116,6 +41325,10 @@
             "type": "string"
           }
         },
+        "required": [
+          "roleNames",
+          "teamId"
+        ],
         "type": "object"
       },
       "TeamUpdate": {
@@ -41321,6 +41534,7 @@
             "OPS_GENIE": "#/components/schemas/OpsGenie",
             "PAGER_DUTY": "#/components/schemas/PagerDuty",
             "PROMETHEUS": "#/components/schemas/Prometheus",
+            "S3_LOG_EXPORT": "#/components/schemas/S3LogExport",
             "SLACK": "#/components/schemas/Slack",
             "VICTOR_OPS": "#/components/schemas/VictorOps",
             "WEBHOOK": "#/components/schemas/Webhook"
@@ -41354,6 +41568,9 @@
           },
           {
             "$ref": "#/components/schemas/MicrosoftTeams"
+          },
+          {
+            "$ref": "#/components/schemas/S3LogExport"
           }
         ],
         "properties": {
@@ -41374,7 +41591,8 @@
               "WEBHOOK",
               "HIP_CHAT",
               "PROMETHEUS",
-              "MICROSOFT_TEAMS"
+              "MICROSOFT_TEAMS",
+              "S3_LOG_EXPORT"
             ],
             "title": "Integration Type",
             "type": "string"
@@ -46460,6 +46678,7 @@
           "content": {
             "application/json": {
               "schema": {
+                "description": "Explanatory text that describes this API key, the list of roles to grant this API key, or both.",
                 "items": {
                   "$ref": "#/components/schemas/UserAccessRoleAssignment"
                 },
@@ -49699,6 +49918,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "List of user-defined methods to convert database field text into searchable words.",
                   "items": {
                     "$ref": "#/components/schemas/ApiAtlasFTSAnalyzersViewManual"
                   },
@@ -49753,6 +49973,7 @@
           "content": {
             "application/json": {
               "schema": {
+                "description": "List of user-defined methods to convert database field text into searchable words.",
                 "items": {
                   "$ref": "#/components/schemas/ApiAtlasFTSAnalyzersViewManual"
                 },
@@ -49768,6 +49989,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "List of user-defined methods to convert database field text into searchable words.",
                   "items": {
                     "$ref": "#/components/schemas/ApiAtlasFTSAnalyzersViewManual"
                   },
@@ -49923,6 +50145,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "List of Atlas Search indexes that MongoDB Cloud returns for this request.",
                   "items": {
                     "$ref": "#/components/schemas/ClusterSearchIndex"
                   },
@@ -55162,7 +55385,7 @@
     },
     "/api/atlas/v1.0/groups/{groupId}/integrations": {
       "get": {
-        "description": "Returns the settings that permit integrations with all configured third-party services. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
+        "description": "Returns the settings that permit integrations with all configured third-party services. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
         "operationId": "listThirdPartyIntegrations",
         "parameters": [
           {
@@ -55239,7 +55462,8 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS"
+                "MICROSOFT_TEAMS",
+                "S3_LOG_EXPORT"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -55282,7 +55506,7 @@
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v1/#tag/Third-Party-Integrations/operation/deleteThirdPartyIntegration"
       },
       "get": {
-        "description": "Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
+        "description": "Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
         "operationId": "getThirdPartyIntegration",
         "parameters": [
           {
@@ -55310,7 +55534,8 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS"
+                "MICROSOFT_TEAMS",
+                "S3_LOG_EXPORT"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -55370,7 +55595,8 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS"
+                "MICROSOFT_TEAMS",
+                "S3_LOG_EXPORT"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -55462,7 +55688,8 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS"
+                "MICROSOFT_TEAMS",
+                "S3_LOG_EXPORT"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -61309,7 +61536,7 @@
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v1/#tag/Teams/operation/listProjectTeams"
       },
       "post": {
-        "description": "Adds one team to the specified project. All members of the team share the same project access. MongoDB Cloud limits the number of users to a maximum of 100 teams per project and a maximum of 250 teams per organization. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
+        "description": "Adds multiple teams to the specified project. All members of a team share the same project access. MongoDB Cloud limits the number of users to a maximum of 100 teams per project and a maximum of 250 teams per organization. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
         "externalDocs": {
           "description": "Manage Organization Teams",
           "url": "https://docs.atlas.mongodb.com/access/manage-teams-in-orgs/#std-label-manage-teams"
@@ -61340,7 +61567,7 @@
               }
             }
           },
-          "description": "Team to add to the specified project.",
+          "description": "Teams and their roles to be added to the specified project.",
           "required": true
         },
         "responses": {
@@ -61370,7 +61597,7 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Add One Team to One Project",
+        "summary": "Add Multiple Teams to One Project",
         "tags": [
           "Teams"
         ],
