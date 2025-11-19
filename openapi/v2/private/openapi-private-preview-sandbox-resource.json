@@ -1187,12 +1187,31 @@
             },
             "type": "array"
           },
+          "customOpensslCipherConfigTls13": {
+            "description": "The custom OpenSSL cipher suite list for TLS 1.3. This field is only valid when `tlsCipherConfigMode` is set to `CUSTOM`.",
+            "externalDocs": {
+              "description": "This option corresponds to the `opensslCipherSuiteConfig` `mongod` configuration file option.",
+              "url": "https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.opensslCipherSuiteConfig"
+            },
+            "items": {
+              "enum": [
+                "TLS_AES_256_GCM_SHA384",
+                "TLS_CHACHA20_POLY1305_SHA256",
+                "TLS_AES_128_GCM_SHA256",
+                "TLS_AES_128_CCM_SHA256"
+              ],
+              "type": "string"
+            },
+            "maxItems": 4,
+            "type": "array"
+          },
           "minimumEnabledTlsProtocol": {
             "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections. Clusters using TLS 1.0 or 1.1 should consider setting TLS 1.2 as the minimum TLS protocol version.",
             "enum": [
               "TLS1_0",
               "TLS1_1",
-              "TLS1_2"
+              "TLS1_2",
+              "TLS1_3"
             ],
             "externalDocs": {
               "description": "This option corresponds to the `net.ssl.disabledProtocols` `mongod` configuration file option.",
@@ -1642,7 +1661,10 @@
                   "ITALY_NORTH",
                   "SPAIN_CENTRAL",
                   "MEXICO_CENTRAL",
-                  "NEW_ZEALAND_NORTH"
+                  "NEW_ZEALAND_NORTH",
+                  "INDONESIA_CENTRAL",
+                  "MALAYSIA_WEST",
+                  "CHILE_CENTRAL"
                 ],
                 "type": "string"
               },
@@ -2108,6 +2130,11 @@
           },
           "delivery": {
             "$ref": "#/components/schemas/BackupRestoreJobDelivery"
+          },
+          "deploymentJobId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the an imported deployment job. This parameter exists when restoring from an imported snapshot/clustershot.",
+            "readOnly": true,
+            "type": "string"
           },
           "encryptionEnabled": {
             "description": "Flag that indicates whether someone encrypted the data in the restored snapshot.",
@@ -5163,6 +5190,119 @@
           }
         },
         "title": "Component Label",
+        "type": "object"
+      },
+      "ConfluentSaslInheritAuthentication": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
+          }
+        ],
+        "description": "SASL_INHERIT authentication configuration from Kafka for Confluent Schema Registry. Username and password are inherited from the Kafka connection.",
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "ConfluentSchemaRegistryAuthentication": {
+        "description": "Authentication configuration for Confluent Schema Registry.",
+        "discriminator": {
+          "mapping": {
+            "SASL_INHERIT": "#/components/schemas/ConfluentSaslInheritAuthentication",
+            "USER_INFO": "#/components/schemas/ConfluentUserInfoAuthentication"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ConfluentUserInfoAuthentication"
+          },
+          {
+            "$ref": "#/components/schemas/ConfluentSaslInheritAuthentication"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Authentication type discriminator. Specifies the authentication mechanism for Confluent Schema Registry.",
+            "enum": [
+              "USER_INFO",
+              "SASL_INHERIT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "ConfluentSchemaRegistryConnectionPrivatePreview": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
+          },
+          {
+            "properties": {
+              "authentication": {
+                "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
+              },
+              "provider": {
+                "description": "The Schema Registry provider.",
+                "enum": [
+                  "CONFLUENT"
+                ],
+                "type": "string"
+              },
+              "schemaRegistryUrls": {
+                "description": "List of Schema Registry URLs.",
+                "items": {
+                  "description": "Schema Registry URL.",
+                  "format": "uri",
+                  "type": "string"
+                },
+                "maxItems": 10,
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
+          }
+        ],
+        "description": "The configuration for Confluent Schema Registry connections.",
+        "required": [
+          "provider"
+        ],
+        "type": "object"
+      },
+      "ConfluentUserInfoAuthentication": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
+          },
+          {
+            "properties": {
+              "password": {
+                "description": "Password for USER_INFO authentication. Required.",
+                "type": "string",
+                "writeOnly": true
+              },
+              "username": {
+                "description": "Username for USER_INFO authentication. Required.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Direct authentication with username and password for Confluent Schema Registry.",
+        "required": [
+          "password",
+          "type",
+          "username"
+        ],
         "type": "object"
       },
       "ConnectedOrgConfig": {
@@ -8663,7 +8803,9 @@
               "requests",
               "1000 requests",
               "tokens",
+              "million tokens",
               "pixels",
+              "billion pixels",
               "GB seconds",
               "GB hours",
               "GB days",
@@ -9233,7 +9375,39 @@
               "ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_SAME_REGION",
               "ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_DIFFERENT_REGION",
               "ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_INTERNET",
-              "ATLAS_GCP_STREAM_PROCESSING_PRIVATELINK"
+              "ATLAS_GCP_STREAM_PROCESSING_PRIVATELINK",
+              "VOYAGE_EMBEDDING_3_TEXT_LARGE_API",
+              "VOYAGE_EMBEDDING_3_TEXT_API",
+              "VOYAGE_EMBEDDING_3_TEXT_LITE_API",
+              "VOYAGE_EMBEDDING_3_5_TEXT_API",
+              "VOYAGE_EMBEDDING_3_5_TEXT_LITE_API",
+              "VOYAGE_EMBEDDING_3_TEXT_CONTEXT_API",
+              "VOYAGE_EMBEDDING_3_CODE_API",
+              "VOYAGE_EMBEDDING_2_FINANCE_API",
+              "VOYAGE_EMBEDDING_2_LAW_API",
+              "VOYAGE_EMBEDDING_2_CODE_API",
+              "VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_API",
+              "VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_API",
+              "VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_API",
+              "VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_API",
+              "VOYAGE_RERANK_2_5_LITE_API",
+              "VOYAGE_RERANK_2_5_API",
+              "VOYAGE_RERANK_2_LITE_API",
+              "VOYAGE_RERANK_2_API",
+              "VOYAGE_EMBEDDING_3_TEXT_LARGE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_TEXT_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_TEXT_LITE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_5_TEXT_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_5_TEXT_LITE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_TEXT_CONTEXT_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_CODE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_2_FINANCE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_2_LAW_AUTOEMBED",
+              "VOYAGE_EMBEDDING_2_CODE_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_AUTOEMBED",
+              "VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_AUTOEMBED"
             ],
             "readOnly": true,
             "type": "string"
@@ -11691,6 +11865,29 @@
         "readOnly": true,
         "type": "object"
       },
+      "StreamsConnectionPrivatePreview": {
+        "description": "Settings that define a connection to an external data store.",
+        "discriminator": {
+          "mapping": {
+            "SchemaRegistry": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
       "StreamsDLQ": {
         "description": "Dead letter queue for the stream processor.",
         "externalDocs": {
@@ -12081,6 +12278,61 @@
           {
             "$ref": "#/components/schemas/StreamsConnection"
           }
+        ],
+        "type": "object"
+      },
+      "StreamsSchemaRegistryConnectionPrivatePreview": {
+        "description": "The configuration for Schema Registry connections.",
+        "discriminator": {
+          "mapping": {
+            "CONFLUENT": "#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview"
+          },
+          "propertyName": "provider"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview"
+          }
+        ],
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "name": {
+            "description": "Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.",
+            "type": "string"
+          },
+          "provider": {
+            "description": "The Schema Registry provider.",
+            "enum": [
+              "CONFLUENT"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "description": "Type of the connection.",
+            "enum": [
+              "Kafka",
+              "Cluster",
+              "Sample",
+              "Https",
+              "AWSLambda",
+              "AWSKinesisDataStreams"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider"
         ],
         "type": "object"
       },
@@ -14128,7 +14380,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "f9e573a7c081c2b686eca06535df3a4bb5c8e783"
+    "x-xgen-sha": "e4219471118c0a8a188bd428e61c78b629902817"
   },
   "openapi": "3.0.1",
   "paths": {
