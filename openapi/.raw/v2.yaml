@@ -25149,7 +25149,6 @@ components:
                         - VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_AUTOEMBED
                         - VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_AUTOEMBED
                         - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_AUTOEMBED
                         - VOYAGE_EMBEDDING_4_TEXT_LARGE_AUTOEMBED
                         - VOYAGE_EMBEDDING_4_TEXT_AUTOEMBED
                         - VOYAGE_EMBEDDING_4_TEXT_LITE_AUTOEMBED
@@ -26501,6 +26500,47 @@ components:
                         - EXPIRED
                     readOnly: true
                     type: string
+            type: object
+        LogIntegrationRequest:
+            description: Request schema for creating or updating a log integration.
+            discriminator:
+                mapping:
+                    S3_LOG_EXPORT: '#/components/schemas/S3LogIntegrationRequest'
+                propertyName: type
+            oneOf:
+                - $ref: '#/components/schemas/S3LogIntegrationRequest'
+            properties:
+                type:
+                    description: Type of log integration. Identifies which service will receive the exported logs.
+                    enum:
+                        - S3_LOG_EXPORT
+                    type: string
+            required:
+                - type
+            title: Log Export Integration Request
+            type: object
+        LogIntegrationResponse:
+            description: Response schema for log integration operations.
+            discriminator:
+                mapping:
+                    S3_LOG_EXPORT: '#/components/schemas/S3LogIntegrationResponse'
+                propertyName: type
+            oneOf:
+                - $ref: '#/components/schemas/S3LogIntegrationResponse'
+            properties:
+                id:
+                    description: Unique 24-character hexadecimal digit string that identifies the log integration configuration.
+                    example: 507f1f77bcf86cd799439011
+                    type: string
+                type:
+                    description: Type of log integration. Identifies which service will receive the exported logs.
+                    enum:
+                        - S3_LOG_EXPORT
+                    type: string
+            required:
+                - id
+                - type
+            title: Log Integration Response
             type: object
         LogicalSizeDataMetricThresholdView:
             properties:
@@ -32432,6 +32472,30 @@ components:
                     readOnly: true
                     type: integer
             type: object
+        PaginatedLogIntegrationResponse:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/LogIntegrationResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
         PaginatedNetworkAccessView:
             properties:
                 links:
@@ -35057,6 +35121,111 @@ components:
                 - iamRoleId
                 - prefixPath
             title: S3 Log Export
+            type: object
+        S3LogIntegrationRequest:
+            allOf:
+                - $ref: '#/components/schemas/LogIntegrationRequest'
+                - properties:
+                    bucketName:
+                        description: Human-readable label that identifies the S3 bucket name for storing log files.
+                        example: my-log-bucket
+                        type: string
+                    iamRoleId:
+                        description: Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.
+                        example: 507f1f77bcf86cd799439011
+                        type: string
+                    kmsKey:
+                        description: AWS KMS key ID or ARN for server-side encryption (optional). If not provided, uses bucket default encryption settings.
+                        example: arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+                        nullable: true
+                        type: string
+                    logTypes:
+                        description: 'Array of log types to export to S3. Valid values: MONGOD, MONGOS, MONGOD_AUDIT, MONGOS_AUDIT.'
+                        example:
+                            - MONGOD
+                            - MONGOS
+                            - MONGOD_AUDIT
+                            - MONGOS_AUDIT
+                        items:
+                            enum:
+                                - MONGOD
+                                - MONGOS
+                                - MONGOD_AUDIT
+                                - MONGOS_AUDIT
+                            type: string
+                        maxItems: 4
+                        type: array
+                        uniqueItems: true
+                    prefixPath:
+                        description: S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.
+                        example: mongo-logs/
+                        type: string
+                    type:
+                        description: Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.
+                        enum:
+                            - S3_LOG_EXPORT
+                        type: string
+                  type: object
+            description: Request schema for creating or updating an S3 log export integration.
+            required:
+                - bucketName
+                - iamRoleId
+                - prefixPath
+                - type
+            title: S3 Log Export Integration Request
+            type: object
+        S3LogIntegrationResponse:
+            allOf:
+                - $ref: '#/components/schemas/LogIntegrationResponse'
+                - properties:
+                    bucketName:
+                        description: Human-readable label that identifies the S3 bucket name for storing log files.
+                        example: my-log-bucket
+                        type: string
+                    iamRoleId:
+                        description: Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.
+                        example: 507f1f77bcf86cd799439011
+                        type: string
+                    kmsKey:
+                        description: AWS KMS key ID or ARN for server-side encryption (optional). If not provided, uses bucket default encryption settings.
+                        example: arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+                        nullable: true
+                        type: string
+                    logTypes:
+                        description: 'Array of log types to export to S3. Valid values: MONGOD, MONGOS, MONGOD_AUDIT, MONGOS_AUDIT.'
+                        example:
+                            - MONGOD
+                            - MONGOS
+                            - MONGOD_AUDIT
+                            - MONGOS_AUDIT
+                        items:
+                            enum:
+                                - MONGOD
+                                - MONGOS
+                                - MONGOD_AUDIT
+                                - MONGOS_AUDIT
+                            type: string
+                        maxItems: 4
+                        type: array
+                        uniqueItems: true
+                    prefixPath:
+                        description: S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.
+                        example: mongo-logs/
+                        type: string
+                    type:
+                        description: Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.
+                        enum:
+                            - S3_LOG_EXPORT
+                        type: string
+                  type: object
+            description: Details to integrate S3 log export with one MongoDB Cloud project.
+            required:
+                - bucketName
+                - iamRoleId
+                - id
+                - prefixPath
+                - type
+            title: S3 Log Export Integration Response
             type: object
         SMSNotification:
             description: SMS notification configuration for MongoDB Cloud to send information when an event triggers an alert condition.
@@ -42839,7 +43008,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: ad128b54ea2159cefdc8a57336153732746545db
+    x-xgen-sha: c0732e334dd578f3379666779868e8e422e00c50
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -55419,6 +55588,211 @@ paths:
                 verb: getStatus
             x-xgen-operation-id-override: getMigrationValidateStatus
             x-xgen-owner-team: Atlas Migrations
+    /api/atlas/v2/groups/{groupId}/logIntegrations:
+        get:
+            description: Returns all log integration configurations for the project. Optionally filter by integration type. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: listGroupLogIntegrations
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Optional filter by integration type (e.g., 'S3_LOG_EXPORT').
+                  in: query
+                  name: integrationType
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedLogIntegrationResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Active Log Integrations
+            tags:
+                - Push-Based Log Export
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/listGroupLogIntegrations
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Intel II
+        post:
+            description: Creates a new log integration configuration identified by a unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: createGroupLogIntegration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/S3LogIntegrationRequest'
+                        x-xgen-IPA-exception:
+                            xgen-IPA-106-create-method-request-body-is-get-method-response: Create request intentionally doesn't include 'id' field (server-generated)
+                description: Log integration configuration to create.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/LogIntegrationResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Log Integration
+            tags:
+                - Push-Based Log Export
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/createGroupLogIntegration
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Intel II
+    /api/atlas/v2/groups/{groupId}/logIntegrations/{id}:
+        delete:
+            description: Removes the configuration for one log integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: deleteGroupLogIntegration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique identifier of the log integration configuration.
+                  in: path
+                  name: id
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            x-xgen-version: "2025-03-12"
+                    description: This endpoint does not return a response body.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Remove One Log Integration
+            tags:
+                - Push-Based Log Export
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/deleteGroupLogIntegration
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Intel II
+        get:
+            description: Returns the configuration for one log integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: getGroupLogIntegration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique identifier of the log integration configuration.
+                  in: path
+                  name: id
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/LogIntegrationResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Log Integration
+            tags:
+                - Push-Based Log Export
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/getGroupLogIntegration
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Intel II
+        put:
+            description: Updates the configuration for one log integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: updateGroupLogIntegration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique identifier of the log integration configuration.
+                  in: path
+                  name: id
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/LogIntegrationRequest'
+                        x-xgen-IPA-exception:
+                            xgen-IPA-107-update-method-request-body-is-get-method-response: Update request intentionally doesn't include 'id' field (provided in URL path)
+                            xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object: Using generic 'Request' suffix since create and update share the same schema
+                description: Updated log integration configuration.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/LogIntegrationResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Log Integration
+            tags:
+                - Push-Based Log Export
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/updateGroupLogIntegration
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Intel II
     /api/atlas/v2/groups/{groupId}/maintenanceWindow:
         delete:
             description: Resets the maintenance window for the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role. Urgent maintenance activities such as security patches can't wait for your chosen window. MongoDB Cloud starts those maintenance activities when needed. After you schedule maintenance for your cluster, you can't change your maintenance window until the current maintenance efforts complete. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. Maintenance always begins as close to the scheduled hour as possible, but in-progress cluster updates or unexpected system issues could delay the start time. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
@@ -66974,7 +67348,7 @@ tags:
       name: Project IP Access List
     - description: Returns, adds, and edits collections of clusters and users in MongoDB Cloud.
       name: Projects
-    - description: You can continually push logs from mongod, mongos, and audit logs to an AWS S3 bucket. Atlas exports logs every 5 minutes.
+    - description: You can continually export mongod, mongos, and audit logs to an AWS S3 bucket. The new `/logIntegrations` API provides 1-minute log export. The existing `/pushBasedLogExport` API provides 5-minute log export and will be deprecated in the future. The log export integrations are managed at the project level.
       name: Push-Based Log Export
     - description: Inspect Rate Limit bucket states.
       name: Rate Limit

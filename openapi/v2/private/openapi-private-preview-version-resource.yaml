@@ -7216,7 +7216,6 @@ components:
                         - VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_AUTOEMBED
                         - VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_AUTOEMBED
                         - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_AUTOEMBED
                         - VOYAGE_EMBEDDING_4_TEXT_LARGE_AUTOEMBED
                         - VOYAGE_EMBEDDING_4_TEXT_AUTOEMBED
                         - VOYAGE_EMBEDDING_4_TEXT_LITE_AUTOEMBED
@@ -7398,6 +7397,47 @@ components:
                     description: Uniform Resource Locator (URL) that defines the semantic relationship between this resource and another API resource. This URL often begins with `https://cloud.mongodb.com/api/atlas`.
                     example: self
                     type: string
+            type: object
+        LogIntegrationRequest:
+            description: Request schema for creating or updating a log integration.
+            discriminator:
+                mapping:
+                    S3_LOG_EXPORT: '#/components/schemas/S3LogIntegrationRequest'
+                propertyName: type
+            oneOf:
+                - $ref: '#/components/schemas/S3LogIntegrationRequest'
+            properties:
+                type:
+                    description: Type of log integration. Identifies which service will receive the exported logs.
+                    enum:
+                        - S3_LOG_EXPORT
+                    type: string
+            required:
+                - type
+            title: Log Export Integration Request
+            type: object
+        LogIntegrationResponse:
+            description: Response schema for log integration operations.
+            discriminator:
+                mapping:
+                    S3_LOG_EXPORT: '#/components/schemas/S3LogIntegrationResponse'
+                propertyName: type
+            oneOf:
+                - $ref: '#/components/schemas/S3LogIntegrationResponse'
+            properties:
+                id:
+                    description: Unique 24-character hexadecimal digit string that identifies the log integration configuration.
+                    example: 507f1f77bcf86cd799439011
+                    type: string
+                type:
+                    description: Type of log integration. Identifies which service will receive the exported logs.
+                    enum:
+                        - S3_LOG_EXPORT
+                    type: string
+            required:
+                - id
+                - type
+            title: Log Integration Response
             type: object
         MatcherHostType:
             description: Value to match or exceed using the specified **matchers.operator**.
@@ -8123,6 +8163,111 @@ components:
                     readOnly: true
                     type: string
             readOnly: true
+            type: object
+        S3LogIntegrationRequest:
+            allOf:
+                - $ref: '#/components/schemas/LogIntegrationRequest'
+                - properties:
+                    bucketName:
+                        description: Human-readable label that identifies the S3 bucket name for storing log files.
+                        example: my-log-bucket
+                        type: string
+                    iamRoleId:
+                        description: Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.
+                        example: 507f1f77bcf86cd799439011
+                        type: string
+                    kmsKey:
+                        description: AWS KMS key ID or ARN for server-side encryption (optional). If not provided, uses bucket default encryption settings.
+                        example: arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+                        nullable: true
+                        type: string
+                    logTypes:
+                        description: 'Array of log types to export to S3. Valid values: MONGOD, MONGOS, MONGOD_AUDIT, MONGOS_AUDIT.'
+                        example:
+                            - MONGOD
+                            - MONGOS
+                            - MONGOD_AUDIT
+                            - MONGOS_AUDIT
+                        items:
+                            enum:
+                                - MONGOD
+                                - MONGOS
+                                - MONGOD_AUDIT
+                                - MONGOS_AUDIT
+                            type: string
+                        maxItems: 4
+                        type: array
+                        uniqueItems: true
+                    prefixPath:
+                        description: S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.
+                        example: mongo-logs/
+                        type: string
+                    type:
+                        description: Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.
+                        enum:
+                            - S3_LOG_EXPORT
+                        type: string
+                  type: object
+            description: Request schema for creating or updating an S3 log export integration.
+            required:
+                - bucketName
+                - iamRoleId
+                - prefixPath
+                - type
+            title: S3 Log Export Integration Request
+            type: object
+        S3LogIntegrationResponse:
+            allOf:
+                - $ref: '#/components/schemas/LogIntegrationResponse'
+                - properties:
+                    bucketName:
+                        description: Human-readable label that identifies the S3 bucket name for storing log files.
+                        example: my-log-bucket
+                        type: string
+                    iamRoleId:
+                        description: Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.
+                        example: 507f1f77bcf86cd799439011
+                        type: string
+                    kmsKey:
+                        description: AWS KMS key ID or ARN for server-side encryption (optional). If not provided, uses bucket default encryption settings.
+                        example: arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+                        nullable: true
+                        type: string
+                    logTypes:
+                        description: 'Array of log types to export to S3. Valid values: MONGOD, MONGOS, MONGOD_AUDIT, MONGOS_AUDIT.'
+                        example:
+                            - MONGOD
+                            - MONGOS
+                            - MONGOD_AUDIT
+                            - MONGOS_AUDIT
+                        items:
+                            enum:
+                                - MONGOD
+                                - MONGOS
+                                - MONGOD_AUDIT
+                                - MONGOS_AUDIT
+                            type: string
+                        maxItems: 4
+                        type: array
+                        uniqueItems: true
+                    prefixPath:
+                        description: S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.
+                        example: mongo-logs/
+                        type: string
+                    type:
+                        description: Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.
+                        enum:
+                            - S3_LOG_EXPORT
+                        type: string
+                  type: object
+            description: Details to integrate S3 log export with one MongoDB Cloud project.
+            required:
+                - bucketName
+                - iamRoleId
+                - id
+                - prefixPath
+                - type
+            title: S3 Log Export Integration Response
             type: object
         SearchHostStatusDetail:
             properties:
@@ -11019,7 +11164,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: ad128b54ea2159cefdc8a57336153732746545db
+    x-xgen-sha: c0732e334dd578f3379666779868e8e422e00c50
 openapi: 3.0.1
 paths:
     /api/atlas/v2/unauth/openapi/versions:
