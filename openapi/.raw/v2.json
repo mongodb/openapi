@@ -41561,6 +41561,39 @@
         },
         "type": "object"
       },
+      "PaginatedQueryShapes": {
+        "description": "Paginated collection of query shapes. This endpoint returns a maximum of 100 results.",
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/QueryShapeResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PaginatedRestoreJobView": {
         "properties": {
           "links": {
@@ -42961,6 +42994,49 @@
         ],
         "type": "object"
       },
+      "QueryShapeResponse": {
+        "description": "Response containing the details and status of a query shape. The query shape field may be null if the user lacks PII view access.",
+        "properties": {
+          "command": {
+            "description": "The MongoDB command type issued for a query shape.",
+            "enum": [
+              "FIND",
+              "DISTINCT",
+              "AGGREGATE"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "namespace": {
+            "description": "Human-readable label that identifies the namespace on the specified host. The resource expresses this parameter value as `<database>.<collection>`.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "queryShape": {
+            "description": "A query shape is a set of specifications that group similar queries together. Specifications can include filters, sorts, projections, aggregation pipeline stages, a namespace, and others. Queries that have similar specifications have the same query shape. This field may be null if the user lacks PII view access.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "queryShapeHash": {
+            "description": "A hexadecimal string that represents the hash of a MongoDB query shape.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "status": {
+            "description": "The rejection status of a query shape. Use REJECTED to prevent the query shape from executing on the cluster, or UNREJECTED to allow it to execute.",
+            "enum": [
+              "REJECTED",
+              "UNREJECTED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "queryShapeHash",
+          "status"
+        ],
+        "type": "object"
+      },
       "QueryShapeSeenMetadata": {
         "description": "Metadata about when a query shape was seen.",
         "properties": {
@@ -42982,6 +43058,23 @@
             "type": "integer"
           }
         },
+        "type": "object"
+      },
+      "QueryShapeUpdateRequest": {
+        "description": "Request body for modifying the rejection status of a query shape.",
+        "properties": {
+          "status": {
+            "description": "The rejection status of a query shape. Use REJECTED to prevent the query shape from executing on the cluster, or UNREJECTED to allow it to execute.",
+            "enum": [
+              "REJECTED",
+              "UNREJECTED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
         "type": "object"
       },
       "QuerySpillToDiskDuringSortRawMetricThresholdView": {
@@ -54751,7 +54844,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "c0732e334dd578f3379666779868e8e422e00c50"
+    "x-xgen-sha": "da13643436206a95174c50b7ca978af88e872bd1"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -65515,6 +65608,254 @@
       },
       "x-xgen-IPA-exception": {
         "xgen-IPA-113-singleton-should-have-update-method": "No update method needed for this singleton resource."
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/queryShapes": {
+      "get": {
+        "description": "Returns a list of query shapes for one cluster. Query shapes may be filtered by their status; at present, this endpoint supports only the REJECTED status.",
+        "operationId": "listGroupClusterQueryShapes",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The status of query shapes to retrieve. Only REJECTED status is supported. If omitted, defaults to REJECTED.",
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "default": "REJECTED",
+              "enum": [
+                "REJECTED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedQueryShapes"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Query Shapes",
+        "tags": [
+          "Query Shape Insights"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Query-Shape-Insights/operation/listGroupClusterQueryShapes",
+        "x-xgen-operation-id-override": "listClusterQueryShapes",
+        "x-xgen-owner-team": "Intel II",
+        "x-xgen-version": "2025-03-12"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/queryShapes/{queryShapeHash}": {
+      "get": {
+        "description": "Returns the details for a single query shape. This endpoint only returns query shapes with REJECTED status. If the specified query shape hash does not correspond to a rejected query shape, a 404 Not Found error is returned.",
+        "operationId": "getGroupClusterQueryShape",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "A SHA256 hash of a query shape, output by MongoDB commands like $queryStats and $explain or slow query logs.",
+            "in": "path",
+            "name": "queryShapeHash",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-fA-F0-9]{64})$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryShapeResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Query Shape",
+        "tags": [
+          "Query Shape Insights"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Query-Shape-Insights/operation/getGroupClusterQueryShape",
+        "x-xgen-operation-id-override": "getClusterQueryShape",
+        "x-xgen-owner-team": "Intel II",
+        "x-xgen-version": "2025-03-12"
+      },
+      "patch": {
+        "description": "Updates the rejection status of a query shape. Use this endpoint to reject a query shape (preventing it from executing on the cluster) or to unreject a previously rejected query shape (allowing it to execute again). This operation is idempotent: rejecting an already rejected query shape or unrejecting an already unrejected query shape will return 200 OK.",
+        "operationId": "updateGroupClusterQueryShape",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "A SHA256 hash of a query shape, output by MongoDB commands like $queryStats and $explain or slow query logs.",
+            "in": "path",
+            "name": "queryShapeHash",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-fA-F0-9]{64})$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryShapeUpdateRequest"
+              }
+            }
+          },
+          "description": "The desired rejection status for the query shape. Provide REJECTED to block the query shape from executing, or UNREJECTED to allow it to execute.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryShapeResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update Query Shape Rejection Status",
+        "tags": [
+          "Query Shape Insights"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Query-Shape-Insights/operation/updateGroupClusterQueryShape",
+        "x-xgen-operation-id-override": "updateClusterQueryShape",
+        "x-xgen-owner-team": "Intel II",
+        "x-xgen-version": "2025-03-12"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries": {
