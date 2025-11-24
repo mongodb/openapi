@@ -70,24 +70,25 @@ jobs:
           make convert_to_collection
           npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint ./tmp/collection.json --ruleset=./validation/spectral.yaml
           popd
-      - name: Checkout .github folder from main branch
-        if: ${{ failure() }}
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-        with:
-          ref: main
-          sparse-checkout: |
-            .github/workflows
-      - name: Create Issue - Postman validation Failed
-        if: ${{ failure() && steps.spectral-validation.outcome == 'failure' }}
-        uses: ./.github/workflows/task-failure-handler.yml
-        with:
-          env: ${{ inputs.env }}
-          task_name: 'Optional Postman validation'
-          team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
-      - name: Create Issue - IPA validation Failed
-        if: ${{ failure() && steps.ipa-spectral-validation.outcome == 'failure'}}
-        uses: ./.github/workflows/task-failure-handler.yml
-        with:
-          env: ${{ inputs.env }}
-          task_name: 'Optional IPA validation'
-          team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
+
+  retry-handler:
+    needs: [ optional-validations ]
+    if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.api_bot_pat }}
+        run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
+
+  failure-handler:
+    name: Failure Handler
+    needs: [ optional-validations,  retry-handler ]
+    if: ${{ always() && contains(needs.*.result, 'failure') && needs.retry-handler.result == 'skipped' }}
+    uses: ./.github/workflows/failure-handler.yml
+    with:
+      env: ${{ inputs.env }}
+      release_name: "Optional OpenAPI Validation"
+      team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
+    secrets:
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
