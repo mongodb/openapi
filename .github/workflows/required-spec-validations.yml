@@ -13,11 +13,8 @@ on:
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
-      jira_api_token:
-        required: true
 permissions:
   contents: write
-  issues: write
 
 jobs:  
   required-validations:
@@ -67,29 +64,3 @@ jobs:
             pushd atlas-sdk-go
             make -e openapi-pipeline
             popd
-  retry-handler:
-    needs: [ required-validations ]
-    if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-        with:
-          ref: main
-          token: ${{secrets.api_bot_pat}}
-      - env:
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ secrets.api_bot_pat }}
-        run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
-
-  failure-handler:
-    name: Failure Handler
-    needs: [ required-validations,  retry-handler ]
-    if: ${{ always() && contains(needs.*.result, 'failure') && needs.retry-handler.result == 'skipped' }}
-    uses: ./.github/workflows/failure-handler.yml
-    with:
-      env: ${{ inputs.env }}
-      release_name: "Require OpenAPI Validation"
-      team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
-    secrets:
-      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
