@@ -17,6 +17,7 @@ on:
         required: true
 permissions:
   contents: write
+  issues: write
 
 jobs:  
   required-validations:
@@ -71,6 +72,11 @@ jobs:
     if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          ref: main
+          token: ${{secrets.api_bot_pat}}
       - env:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.api_bot_pat }}
