@@ -7873,6 +7873,31 @@ components:
                     uniqueItems: true
             readOnly: true
             type: object
+        PaginatedRateLimitEndpointSets:
+            description: A list of rate limit endpoint sets.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/RateLimitEndpointSet'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
         PerformanceAdvisorSlowQuery:
             description: Details of one slow query that the Performance Advisor detected.
             properties:
@@ -7980,6 +8005,92 @@ components:
                   type: object
             description: Scheduled Cloud Provider Snapshot as Source for a Data Lake Pipeline.
             title: Periodic Cloud Provider Snapshot Source
+            type: object
+        RateLimitEndpointSet:
+            properties:
+                capacity:
+                    $ref: '#/components/schemas/RateLimitEndpointSetCapacity'
+                endpointSetId:
+                    description: The ID of the endpoint set.
+                    example: rateLimitsInspection_group
+                    type: string
+                endpointSetName:
+                    description: The endpoint set name.
+                    example: Rate Limits Inspection
+                    type: string
+                endpoints:
+                    description: A list of endpoints associated with the specified endpoint set.
+                    items:
+                        $ref: '#/components/schemas/RateLimitEndpointSetEndpoint'
+                    maxItems: 100
+                    type: array
+                    uniqueItems: true
+                refillDurationSeconds:
+                    $ref: '#/components/schemas/RateLimitEndpointSetRefillDurationSeconds'
+                refillRate:
+                    $ref: '#/components/schemas/RateLimitEndpointSetRefillRate'
+                scope:
+                    description: The scope of the endpoint set.
+                    enum:
+                        - IP
+                        - GROUP
+                        - ORGANIZATION
+                        - USER
+                    type: string
+            type: object
+        RateLimitEndpointSetCapacity:
+            description: The rate limit capacity for the endpoint set.
+            properties:
+                defaultValue:
+                    description: The default request capacity of the endpoint set. Returned if there is a capacity override set for the requested entity.
+                    format: int64
+                    type: integer
+                value:
+                    description: The applied request capacity of the endpoint set.
+                    format: int64
+                    type: integer
+            type: object
+        RateLimitEndpointSetEndpoint:
+            properties:
+                method:
+                    description: The HTTP method of the endpoint.
+                    enum:
+                        - GET
+                        - POST
+                        - PUT
+                        - DELETE
+                        - PATCH
+                        - HEAD
+                        - OPTIONS
+                    type: string
+                path:
+                    description: The URL path of the endpoint.
+                    example: /api/atlas/v2/rateLimits
+                    type: string
+            type: object
+        RateLimitEndpointSetRefillDurationSeconds:
+            description: The rate limit refill duration for the endpoint set.
+            properties:
+                defaultValue:
+                    description: The default rate limit refill duration, in seconds, of the endpoint set. Returned if there is a rate limit refill duration override set for the requested entity.
+                    format: int64
+                    type: integer
+                value:
+                    description: The applied rate limit refill duration of the endpoint set.
+                    format: int64
+                    type: integer
+            type: object
+        RateLimitEndpointSetRefillRate:
+            description: The rate limit refill rate for the endpoint set.
+            properties:
+                defaultValue:
+                    description: The default rate limit refill rate of the endpoint set. Returned if there is a rate limit refill rate override set for the requested entity.
+                    format: int64
+                    type: integer
+                value:
+                    description: The applied rate limit refill rate of the endpoint set.
+                    format: int64
+                    type: integer
             type: object
         RawMetricEventView:
             properties:
@@ -11194,7 +11305,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 1fc3727ceb16ebe545601a0eefcfd200adcf3037
+    x-xgen-sha: 185f21a464437789d423c1c1220a287a0d6a158a
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/ratelimits:
@@ -11309,6 +11420,62 @@ paths:
                 color: '#B89D09'
                 label: PREVIEW
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getOrgRatelimits
+    /api/atlas/v2/rateLimits:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Get all rate limits for all v2 Atlas Administration API endpoint sets.
+            operationId: listRateLimits
+            parameters:
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/envelope'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedRateLimitEndpointSets'
+                            x-xgen-preview:
+                                name: rate-limit
+                                public: "false"
+                            x-xgen-version: private-preview-rate-limit
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Rate Limits
+            tags:
+                - Rate Limit
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api rateLimit listRateLimits --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/rateLimits?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/rateLimits?pretty=true"
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/listRateLimits
     /api/atlas/v2/unauth/ratelimits:
         get:
             description: |-
