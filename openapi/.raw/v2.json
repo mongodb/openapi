@@ -31568,6 +31568,7 @@
               "ATLAS_AWS_BACKUP_DOWNLOAD_VM",
               "ATLAS_AWS_BACKUP_DOWNLOAD_VM_STORAGE",
               "ATLAS_AWS_BACKUP_DOWNLOAD_VM_STORAGE_IOPS",
+              "ATLAS_AWS_BACKUP_EXPORT_PRIVATE_ENDPOINT",
               "ATLAS_AWS_PRIVATE_ENDPOINT",
               "ATLAS_AWS_PRIVATE_ENDPOINT_CAPACITY_UNITS",
               "ATLAS_GCP_SEARCH_INSTANCE_S20_COMPUTE_LOCALSSD",
@@ -41723,7 +41724,7 @@
           "results": {
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
-              "$ref": "#/components/schemas/RateLimitEndpointSet"
+              "$ref": "#/components/schemas/RateLimitEndpointSetResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -43508,49 +43509,6 @@
         ],
         "type": "object"
       },
-      "RateLimitEndpointSet": {
-        "properties": {
-          "capacity": {
-            "$ref": "#/components/schemas/RateLimitEndpointSetCapacity"
-          },
-          "endpointSetId": {
-            "description": "The ID of the endpoint set.",
-            "example": "rateLimitsInspection_group",
-            "type": "string"
-          },
-          "endpointSetName": {
-            "description": "The endpoint set name.",
-            "example": "Rate Limits Inspection",
-            "type": "string"
-          },
-          "endpoints": {
-            "description": "A list of endpoints associated with the specified endpoint set.",
-            "items": {
-              "$ref": "#/components/schemas/RateLimitEndpointSetEndpoint"
-            },
-            "maxItems": 100,
-            "type": "array",
-            "uniqueItems": true
-          },
-          "refillDurationSeconds": {
-            "$ref": "#/components/schemas/RateLimitEndpointSetRefillDurationSeconds"
-          },
-          "refillRate": {
-            "$ref": "#/components/schemas/RateLimitEndpointSetRefillRate"
-          },
-          "scope": {
-            "description": "The scope of the endpoint set.",
-            "enum": [
-              "IP",
-              "GROUP",
-              "ORGANIZATION",
-              "USER"
-            ],
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "RateLimitEndpointSetCapacity": {
         "description": "The rate limit capacity for the endpoint set.",
         "properties": {
@@ -43618,6 +43576,49 @@
             "description": "The applied rate limit refill rate of the endpoint set.",
             "format": "int64",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RateLimitEndpointSetResponse": {
+        "properties": {
+          "capacity": {
+            "$ref": "#/components/schemas/RateLimitEndpointSetCapacity"
+          },
+          "endpointSetId": {
+            "description": "The ID of the endpoint set.",
+            "example": "rateLimitsInspection_group",
+            "type": "string"
+          },
+          "endpointSetName": {
+            "description": "The endpoint set name.",
+            "example": "Rate Limits Inspection",
+            "type": "string"
+          },
+          "endpoints": {
+            "description": "A list of endpoints associated with the specified endpoint set.",
+            "items": {
+              "$ref": "#/components/schemas/RateLimitEndpointSetEndpoint"
+            },
+            "maxItems": 100,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "refillDurationSeconds": {
+            "$ref": "#/components/schemas/RateLimitEndpointSetRefillDurationSeconds"
+          },
+          "refillRate": {
+            "$ref": "#/components/schemas/RateLimitEndpointSetRefillRate"
+          },
+          "scope": {
+            "description": "The scope of the endpoint set.",
+            "enum": [
+              "IP",
+              "GROUP",
+              "ORGANIZATION",
+              "USER"
+            ],
+            "type": "string"
           }
         },
         "type": "object"
@@ -55104,7 +55105,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "7910de19c62f26cf7746b2bcc457c6e2b5709eab"
+    "x-xgen-sha": "1da66c94f2bfc6525a328a8837ca14bc84831dc9"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -92033,9 +92034,71 @@
           "envs": "qa,stage,prod"
         },
         "x-xgen-owner-team": "apix"
-      },
-      "x-xgen-IPA-exception": {
-        "xgen-IPA-104-resource-has-GET": "The API is in private preview. Get method added in CLOUDP-361318."
+      }
+    },
+    "/api/atlas/v2/rateLimits/{endpointSetId}": {
+      "get": {
+        "description": "Get one rate limit endpoint set.",
+        "operationId": "getRateLimit",
+        "parameters": [
+          {
+            "description": "The ID of the rate limit endpoint set.",
+            "in": "path",
+            "name": "endpointSetId",
+            "required": true,
+            "schema": {
+              "example": "rateLimitsInspection_group",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitEndpointSetResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "rate-limit",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Rate Limit",
+        "tags": [
+          "Rate Limit"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getRateLimit",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
+        "x-xgen-owner-team": "apix"
       }
     },
     "/api/atlas/v2/unauth/controlPlaneIPAddresses": {
