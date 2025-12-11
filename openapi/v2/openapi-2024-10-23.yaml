@@ -14277,7 +14277,7 @@ components:
             description: Details of the replica set snapshot that MongoDB Cloud created.
             properties:
                 cloudProvider:
-                    description: 'Human-readable label that identifies the cloud provider that stores this snapshot. The resource returns this parameter when `"type": "replicaSet"`.'
+                    description: Human-readable label that identifies the cloud provider.
                     enum:
                         - AWS
                         - AZURE
@@ -14518,7 +14518,7 @@ components:
         DiskBackupShardedClusterSnapshotMember:
             properties:
                 cloudProvider:
-                    description: 'Human-readable label that identifies the cloud provider that stores this snapshot. The resource returns this parameter when `"type": "replicaSet"`.'
+                    description: Human-readable label that identifies the cloud provider.
                     enum:
                         - AWS
                         - AZURE
@@ -14676,7 +14676,7 @@ components:
                     minLength: 3
                     type: string
                 cloudProvider:
-                    description: Human-readable label that identifies the cloud provider that Snapshots will be exported to.
+                    description: Human-readable label that identifies the cloud provider.
                     enum:
                         - AWS
                         - AZURE
@@ -14783,7 +14783,7 @@ components:
                 propertyName: cloudProvider
             properties:
                 cloudProvider:
-                    description: Human-readable label that identifies the cloud provider that Snapshots are exported to.
+                    description: Human-readable label that identifies the cloud provider.
                     enum:
                         - AWS
                         - AZURE
@@ -14822,7 +14822,7 @@ components:
                     minLength: 3
                     type: string
                 cloudProvider:
-                    description: Human-readable label that identifies the cloud provider that Snapshots will be exported to.
+                    description: Human-readable label that identifies the cloud provider.
                     enum:
                         - AWS
                         - AZURE
@@ -35470,7 +35470,7 @@ components:
             description: Information about the cloud provider region in which MongoDB Cloud processes the stream.
             properties:
                 cloudProvider:
-                    description: Label that identifies the cloud service provider where MongoDB Cloud performs stream processing. Currently, this parameter only supports AWS, AZURE, and GCP.
+                    description: Human-readable label that identifies the cloud provider.
                     enum:
                         - AWS
                         - GCP
@@ -36128,7 +36128,7 @@ components:
             description: Details to update a stream tenant.
             properties:
                 cloudProvider:
-                    description: Label that identifies the cloud service provider where MongoDB Cloud performs stream processing. Currently, this parameter only supports AWS, AZURE, and GCP.
+                    description: Human-readable label that identifies the cloud provider.
                     enum:
                         - AWS
                         - GCP
@@ -37908,6 +37908,15 @@ components:
                     type: array
                     uniqueItems: true
             type: object
+        UpdateRequirePrivateNetworkingRequestView:
+            description: Request body to toggle the private-networking requirement for an existing export bucket.
+            properties:
+                requirePrivateNetworking:
+                    description: True to require private networking; false to disable it.
+                    type: boolean
+            required:
+                - requirePrivateNetworking
+            type: object
         UsageDetailsFilterRequest:
             description: Request body which contains various fields to filter line items as part of certain Invoice Usage Details queries.
             properties:
@@ -39474,7 +39483,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 55c49f31510435717dc8d5c6034f292c7bcea120
+    x-xgen-sha: 9d144162f34556a53b3f4f83aaac64fcfaee2a48
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -44311,6 +44320,100 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupBackupExportBucket
             x-xgen-operation-id-override: getExportBucket
+        patch:
+            description: Updates the private networking settings for one snapshot export bucket in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            operationId: updateGroupBackupExportBucket
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal character string that identifies the snapshot export bucket.
+                  in: path
+                  name: exportBucketId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2024-05-30+json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateRequirePrivateNetworkingRequestView'
+                        x-xgen-version: "2024-05-30"
+                description: Updates the private networking requirement for the snapshot export bucket.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2024-05-30+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupSnapshotAWSExportBucketResponse'
+                            x-xgen-version: "2024-05-30"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Export Bucket Private Networking Settings
+            tags:
+                - Cloud Backups
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api cloudBackups updateBackupExportBucket --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20241023001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.UpdateGroupBackupExportBucketApiParams{}
+                    	sdkResp, httpResp, err := client.CloudBackupsApi.
+                    		UpdateGroupBackupExportBucketWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2024-10-23+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2024-10-23+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/backup/exportBuckets/{exportBucketId}" \
+                      -d '{ <Payload> }'
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateGroupBackupExportBucket
+            x-xgen-operation-id-override: updateBackupExportBucket
     /api/atlas/v2/groups/{groupId}/backupCompliancePolicy:
         get:
             description: 'Returns the Backup Compliance Policy settings with the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role. Deprecated versions: v2-{2023-01-01}'
