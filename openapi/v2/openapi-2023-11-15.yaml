@@ -30936,52 +30936,6 @@ components:
                     type: string
             readOnly: true
             type: object
-        S3LogExport:
-            description: Details to integrate S3 log export with one MongoDB Cloud project.
-            properties:
-                bucketName:
-                    description: Human-readable label that identifies the S3 bucket name for storing log files.
-                    example: my-log-bucket
-                    type: string
-                iamRoleId:
-                    description: Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.
-                    example: 507f1f77bcf86cd799439011
-                    type: string
-                id:
-                    description: Integration id.
-                    nullable: true
-                    type: string
-                kmsKey:
-                    description: AWS KMS key ID or ARN for server-side encryption (optional). If not provided, uses bucket default encryption settings.
-                    example: arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-                    nullable: true
-                    type: string
-                logTypes:
-                    description: Array of log types to export to S3.
-                    example:
-                        - MONGOD
-                        - MONGOS
-                        - MONGOD_AUDIT
-                        - MONGOS_AUDIT
-                    items:
-                        type: string
-                    maxItems: 10
-                    type: array
-                prefixPath:
-                    description: S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.
-                    example: mongo-logs/
-                    type: string
-                type:
-                    description: Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the third-party service integration type.
-                    enum:
-                        - S3_LOG_EXPORT
-                    type: string
-            required:
-                - bucketName
-                - iamRoleId
-                - prefixPath
-            title: S3 Log Export
-            type: object
         S3LogIntegrationRequest:
             allOf:
                 - $ref: '#/components/schemas/LogIntegrationRequest'
@@ -35783,7 +35737,6 @@ components:
                     OPS_GENIE: '#/components/schemas/OpsGenie'
                     PAGER_DUTY: '#/components/schemas/PagerDuty'
                     PROMETHEUS: '#/components/schemas/Prometheus'
-                    S3_LOG_EXPORT: '#/components/schemas/S3LogExport'
                     SLACK: '#/components/schemas/Slack'
                     VICTOR_OPS: '#/components/schemas/VictorOps'
                     WEBHOOK: '#/components/schemas/Webhook'
@@ -35798,7 +35751,6 @@ components:
                 - $ref: '#/components/schemas/Webhook'
                 - $ref: '#/components/schemas/Prometheus'
                 - $ref: '#/components/schemas/MicrosoftTeams'
-                - $ref: '#/components/schemas/S3LogExport'
             properties:
                 id:
                     description: Integration id.
@@ -35817,7 +35769,6 @@ components:
                         - HIP_CHAT
                         - PROMETHEUS
                         - MICROSOFT_TEAMS
-                        - S3_LOG_EXPORT
                     title: Integration Type
                     type: string
             title: Third-Party Integration
@@ -37949,7 +37900,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 9c7be36f738e4804e22d9f7d70ec1d97d252543e
+    x-xgen-sha: 41e13c4d6e19f6f6fa240d68db85fca1e8daf7e4
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -54958,7 +54909,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/listGroupIntegrations
     /api/atlas/v2/groups/{groupId}/integrations/{integrationType}:
         delete:
-            description: Removes the settings that permit configuring one third-party service integration. These settings apply to all databases managed in one MongoDB Cloud project. If you delete an integration from a project, you remove that integration configuration only for that project. This action doesn't affect any other project or organization's configured `{INTEGRATION-TYPE}` integrations. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Deleting log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.
+            description: Removes the settings that permit configuring one third-party service integration. These settings apply to all databases managed in one MongoDB Cloud project. If you delete an integration from a project, you remove that integration configuration only for that project. This action doesn't affect any other project or organization's configured `{INTEGRATION-TYPE}` integrations. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
             operationId: deleteGroupIntegration
             parameters:
                 - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
@@ -54977,7 +54928,6 @@ paths:
                         - HIP_CHAT
                         - PROMETHEUS
                         - MICROSOFT_TEAMS
-                        - S3_LOG_EXPORT
                     title: Integration Type
                     type: string
                 - $ref: '#/components/parameters/envelope'
@@ -55046,9 +54996,11 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-11-15+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}"
+            x-xgen-changelog:
+                "2026-01-07": Log export to S3, Splunk, and Datadog is not supported by this API.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/deleteGroupIntegration
         get:
-            description: Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role. Viewing log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.
+            description: Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
             operationId: getGroupIntegration
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -55070,7 +55022,6 @@ paths:
                         - HIP_CHAT
                         - PROMETHEUS
                         - MICROSOFT_TEAMS
-                        - S3_LOG_EXPORT
                     title: Integration Type
                     type: string
             responses:
@@ -55141,9 +55092,11 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-11-15+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}?pretty=true"
+            x-xgen-changelog:
+                "2026-01-07": Log export to S3, Splunk, and Datadog is not supported by this API.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/getGroupIntegration
         post:
-            description: Adds the settings for configuring one third-party service integration. These settings apply to all databases managed in the specified MongoDB Cloud project. Each project can have only one configuration per `{INTEGRATION-TYPE}`. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Enabling log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.
+            description: Adds the settings for configuring one third-party service integration. These settings apply to all databases managed in the specified MongoDB Cloud project. Each project can have only one configuration per `{INTEGRATION-TYPE}`. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
             operationId: createGroupIntegration
             parameters:
                 - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
@@ -55162,7 +55115,6 @@ paths:
                         - HIP_CHAT
                         - PROMETHEUS
                         - MICROSOFT_TEAMS
-                        - S3_LOG_EXPORT
                     title: Integration Type
                     type: string
                 - $ref: '#/components/parameters/envelope'
@@ -55249,9 +55201,11 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}" \
                       -d '{ <Payload> }'
+            x-xgen-changelog:
+                "2026-01-07": Log export to S3, Splunk, and Datadog is not supported by this API.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/createGroupIntegration
         put:
-            description: Updates the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Enabling log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.
+            description: Updates the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
             operationId: updateGroupIntegration
             parameters:
                 - description: Human-readable label that identifies the service which you want to integrate with MongoDB Cloud.
@@ -55270,7 +55224,6 @@ paths:
                         - HIP_CHAT
                         - PROMETHEUS
                         - MICROSOFT_TEAMS
-                        - S3_LOG_EXPORT
                     title: Integration Type
                     type: string
                 - $ref: '#/components/parameters/envelope'
@@ -55357,6 +55310,8 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PUT "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}" \
                       -d '{ <Payload> }'
+            x-xgen-changelog:
+                "2026-01-07": Log export to S3, Splunk, and Datadog is not supported by this API.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/updateGroupIntegration
     /api/atlas/v2/groups/{groupId}/invites:
         get:
