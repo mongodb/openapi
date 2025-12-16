@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [6.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v5.0.0...6.0.0)
+#### [7.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v6.0.0...7.0.0)
+
+- fix(ipa): Update inline tables regex to handle whitespaces [`#1046`](https://github.com/mongodb/openapi/pull/1046)
+- chore(ipa): remove temp overrides [`#1047`](https://github.com/mongodb/openapi/pull/1047)
+- chore(ipa): Update README.md to mention `ipa-collector-results-combined.log` [`#977`](https://github.com/mongodb/openapi/pull/977)
+- fix(ipa): fix import issue with parquet-wasm package [`#976`](https://github.com/mongodb/openapi/pull/976)
+- chore(ipa): bump parquet-wasm from 0.6.1 to 0.7.0 [`#969`](https://github.com/mongodb/openapi/pull/969)
+
+### [ipa-validation-ruleset-v6.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v5.0.0...ipa-validation-ruleset-v6.0.0)
+
+> 15 September 2025
 
 - fix(ipa): Remove temporary overrides from Spectral file [`#954`](https://github.com/mongodb/openapi/pull/954)
 - feat(ipa): Upgrade warning-level rules to the error level [`#952`](https://github.com/mongodb/openapi/pull/952)
