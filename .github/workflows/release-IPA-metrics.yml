@@ -43,6 +43,7 @@ jobs:
         working-directory: tools/spectral/ipa/metrics/scripts
         run: |
           node runMetricCollection.js "${{ github.workspace }}/v2.json"
+          echo "WARNING_COUNT=$(cat ../outputs/warning-count.txt)" >> "$GITHUB_ENV"
 
       - name: aws configure
         uses: aws-actions/configure-aws-credentials@v5
@@ -58,9 +59,7 @@ jobs:
         run: node dataDump.js
 
       - name: Handle Warning Violations
-        if: ${{ steps.metric-collection.outputs.warning_count > 0 }}
         env:
-          WARNING_COUNT: ${{ steps.metric-collection.outputs.warning_count }}
           TEAM_ID: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
