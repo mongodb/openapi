@@ -15,7 +15,7 @@ export default (input, opts, { path, rule }) => {
 };
 
 function checkViolationsAndReturnErrors(description, path, ruleName) {
-  const tablePattern = new RegExp(`[|]:?-+:?[|]`);
+  const tablePattern = new RegExp(`[|]\\s?:?\\s?-+\\s?:?\\s?[|]`);
 
   try {
     if (tablePattern.test(description)) {
