@@ -57,18 +57,16 @@ jobs:
         working-directory: tools/spectral/ipa/metrics/scripts
         run: node dataDump.js
 
-# Enable this step in scope of CLOUDP-339852
-#      - name: Handle Warning Violations
-#        if: ${{ steps.metric-collection.outputs.warning_count > 0 }}
-#        env:
-#          WARNING_COUNT: ${{ steps.metric-collection.outputs.warning_count }}
-#          TEAM_ID: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
-#          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-#          SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
-#          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_APIX_PLATFORM_DEV }}
-#          SLACK_ONCALL_USER: ${{ secrets.SLACK_APIX_PLATFORM_ONCALL_USER }}
-#        run: .github/scripts/handle_warning_violations.sh
-
+      - name: Handle Warning Violations
+        if: ${{ steps.metric-collection.outputs.warning_count > 0 }}
+        env:
+          WARNING_COUNT: ${{ steps.metric-collection.outputs.warning_count }}
+          TEAM_ID: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_APIX_PLATFORM_DEV }}
+          SLACK_ONCALL_USER: ${{ secrets.SLACK_APIX_PLATFORM_ONCALL_USER }}
+        run: .github/scripts/handle_warning_violations.sh
   failure-handler:
     name: Failure Handler
     needs: [ release-IPA-metrics ]
