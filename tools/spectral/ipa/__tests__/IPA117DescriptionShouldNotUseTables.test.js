@@ -46,6 +46,18 @@ testRule('xgen-IPA-117-description-should-not-use-inline-tables', [
               largeTable: {
                 description: '|Title|H1|H2|H3\n|-----|\n|Description|Description1|Description2|Description3|',
               },
+              tableWithSpaces: {
+                description: '|Title|\n| ----- |\n|Description|',
+              },
+              tableWithSpacesLeftAlignment: {
+                description: '|Title|\n| :----- |\n|Description|',
+              },
+              tableWithSpacesCenterAlignment: {
+                description: '|Title|\n| :-----: |\n|Description|',
+              },
+              tableWithSpacesRightAlignment: {
+                description: '|Title|\n| -----: |\n|Description|',
+              },
             },
           },
         },
@@ -92,6 +104,34 @@ testRule('xgen-IPA-117-description-should-not-use-inline-tables', [
         message:
           'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
         path: ['components', 'schemas', 'Schema', 'properties', 'largeTable'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-117-description-should-not-use-inline-tables',
+        message:
+          'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
+        path: ['components', 'schemas', 'Schema', 'properties', 'tableWithSpaces'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-117-description-should-not-use-inline-tables',
+        message:
+          'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
+        path: ['components', 'schemas', 'Schema', 'properties', 'tableWithSpacesLeftAlignment'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-117-description-should-not-use-inline-tables',
+        message:
+          'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
+        path: ['components', 'schemas', 'Schema', 'properties', 'tableWithSpacesCenterAlignment'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-117-description-should-not-use-inline-tables',
+        message:
+          'Descriptions should not include inline tables. Tables may not work well with all tools, in particular generated client code.',
+        path: ['components', 'schemas', 'Schema', 'properties', 'tableWithSpacesRightAlignment'],
         severity: DiagnosticSeverity.Error,
       },
     ],
