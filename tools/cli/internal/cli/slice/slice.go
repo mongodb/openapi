@@ -15,6 +15,7 @@
 package slice
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -80,7 +81,7 @@ func (o *Opts) PreRunE(_ []string) error {
 	}
 
 	if len(o.operationIDs) == 0 && len(o.tags) == 0 && len(o.paths) == 0 {
-		return fmt.Errorf("at least one of --operation-ids, --tags, or --paths must be specified")
+		return errors.New("at least one of --operation-ids, --tags, or --paths must be specified")
 	}
 
 	return openapi.ValidateFormatAndOutput(o.format, o.outputPath)
