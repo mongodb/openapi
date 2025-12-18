@@ -86,17 +86,17 @@ func (o *Opts) PreRunE(_ []string) error {
 	return openapi.ValidateFormatAndOutput(o.format, o.outputPath)
 }
 
-// Builder builds the extract command with the following signature:
-// extract -s spec -o output.json --operation-ids "op1,op2" --tags "tag1,tag2" --paths "/api/v1".
+// Builder builds the slice command with the following signature:
+// slice -s spec -o output.json --operation-ids "op1,op2" --tags "tag1,tag2" --paths "/api/v1".
 func Builder() *cobra.Command {
 	opts := &Opts{
 		fs: afero.NewOsFs(),
 	}
 
 	cmd := &cobra.Command{
-		Use:   "extract -s spec",
-		Short: "Extract a subset of an OpenAPI specification by operation IDs, tags, or paths",
-		Long: `Extract creates a valid mini OpenAPI specification containing only the operations
+		Use:   "slice -s spec",
+		Short: "Slice a subset of an OpenAPI specification by operation IDs, tags, or paths",
+		Long: `Slice creates a valid mini OpenAPI specification containing only the operations
 that match the specified criteria. The output includes all necessary schemas and
 components referenced by the selected operations.
 
@@ -106,17 +106,17 @@ You can filter by:
   - Paths: Operations under specific path patterns
 
 Multiple values can be specified as comma-separated lists.`,
-		Example: `  # Extract specific operations by ID:
-  foascli extract -s spec.yaml -o subset.yaml --operation-ids "getUser,createUser"
+		Example: `  # Slice specific operations by ID:
+  foascli slice -s spec.yaml -o subset.yaml --operation-ids "getUser,createUser"
 
-  # Extract operations by tags:
-  foascli extract -s spec.yaml -o subset.yaml --tags "Users,Authentication"
+  # Slice operations by tags:
+  foascli slice -s spec.yaml -o subset.yaml --tags "Users,Authentication"
 
-  # Extract operations by path patterns:
-  foascli extract -s spec.yaml -o subset.yaml --paths "/api/v1/users"
+  # Slice operations by path patterns:
+  foascli slice -s spec.yaml -o subset.yaml --paths "/api/v1/users"
 
   # Combine multiple criteria:
-  foascli extract -s spec.yaml -o subset.yaml --tags "Users" --paths "/api/v1"`,
+  foascli slice -s spec.yaml -o subset.yaml --tags "Users" --paths "/api/v1"`,
 		Args: cobra.NoArgs,
 		PreRunE: func(_ *cobra.Command, args []string) error {
 			return opts.PreRunE(args)
