@@ -1,7 +1,7 @@
 package filter
 
 import (
-	"fmt"
+	"errors"
 	"regexp"
 	"slices"
 
@@ -26,13 +26,13 @@ func NewSliceFilter(oas *openapi3.T, metadata *SliceMetadata) *SliceFilter {
 	}
 }
 
-func (f *SliceFilter) ValidateMetadata() error {
+func (*SliceFilter) ValidateMetadata() error {
 	return nil
 }
 
 func (f *SliceFilter) Apply() error {
 	if f.oas == nil {
-		return fmt.Errorf("OpenAPI spec is nil")
+		return errors.New("OpenAPI spec is nil")
 	}
 
 	if f.oas.Paths == nil {
@@ -61,21 +61,21 @@ func (f *SliceFilter) Apply() error {
 	return nil
 }
 
-func (e *SliceFilter) matches(path string, operation *openapi3.Operation) bool {
+func (f *SliceFilter) matches(path string, operation *openapi3.Operation) bool {
 	normalizedPath := normalizePath(path)
-	for _, pattern := range e.metadata.Paths {
+	for _, pattern := range f.metadata.Paths {
 		if normalizedPath == normalizePath(pattern) {
 			return true
 		}
 	}
 
 	// Check if the operation ID matches
-	if slices.Contains(e.metadata.OperationIDs, operation.OperationID) {
+	if slices.Contains(f.metadata.OperationIDs, operation.OperationID) {
 		return true
 	}
 
 	// Check if the tag matches
-	for _, tag := range e.metadata.Tags {
+	for _, tag := range f.metadata.Tags {
 		if slices.Contains(operation.Tags, tag) {
 			return true
 		}
