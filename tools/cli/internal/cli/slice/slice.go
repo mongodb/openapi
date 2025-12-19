@@ -129,9 +129,9 @@ Multiple values can be specified as comma-separated lists.`,
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "-", usage.Spec)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.ALL, usage.Format)
-	cmd.Flags().StringSliceVar(&opts.operationIDs, "operation-ids", []string{}, "Comma-separated list of operation IDs to extract")
-	cmd.Flags().StringSliceVar(&opts.tags, "tags", []string{}, "Comma-separated list of tags to extract")
-	cmd.Flags().StringSliceVar(&opts.paths, "paths", []string{}, "Comma-separated list of path patterns to extract")
+	cmd.Flags().StringSliceVar(&opts.operationIDs, flag.OperationIDs, []string{}, usage.OperationIDs)
+	cmd.Flags().StringSliceVar(&opts.tags, flag.Tags, []string{}, usage.Tags)
+	cmd.Flags().StringSliceVar(&opts.paths, flag.Paths, []string{}, usage.Paths)
 
 	// Required flags
 	_ = cmd.MarkFlagRequired(flag.Output)

@@ -105,8 +105,8 @@ func FiltersToGetVersions(oas *openapi3.T, metadata *Metadata) []Filter {
 func FiltersToCleanupRefs(oas *openapi3.T) []Filter {
 	return []Filter{
 		&TagsFilter{oas: oas},
-		&ParametersFilter{oas: oas},
 		&SchemasFilter{oas: oas},
+		&ParametersFilter{oas: oas},
 	}
 }
 
