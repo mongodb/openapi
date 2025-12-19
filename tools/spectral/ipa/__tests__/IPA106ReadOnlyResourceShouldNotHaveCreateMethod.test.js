@@ -10,7 +10,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
         '/writableResource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -41,7 +41,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
               },
             },
             responses: {
-              '201': {
+              201: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -60,7 +60,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
         '/writableResource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -89,7 +89,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
         '/readOnlyResource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -119,7 +119,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
               },
             },
             responses: {
-              '201': {
+              201: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -138,7 +138,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
         '/readOnlyResource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -160,8 +160,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
     errors: [
       {
         code: 'xgen-IPA-106-readonly-resource-should-not-have-create-method',
-        message:
-          'Read-only resources must not define the Create method.',
+        message: 'Read-only resources must not define the Create method.',
         path: ['paths', '/readOnlyResource', 'post'],
         severity: DiagnosticSeverity.Error,
       },
@@ -175,7 +174,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
         '/readOnlyResource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -208,7 +207,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
               },
             },
             responses: {
-              '201': {
+              201: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -227,7 +226,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
         '/readOnlyResource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -268,7 +267,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
               },
             },
             responses: {
-              '201': {
+              201: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -289,4 +288,3 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
     errors: [],
   },
 ]);
-

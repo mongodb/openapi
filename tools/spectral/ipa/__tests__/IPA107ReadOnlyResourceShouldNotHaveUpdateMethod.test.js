@@ -9,7 +9,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
         '/resource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -29,7 +29,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
         '/resource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -60,7 +60,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
               },
             },
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -88,7 +88,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
         '/readOnlyResource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -108,7 +108,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
         '/readOnlyResource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -138,7 +138,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
               },
             },
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -160,8 +160,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
     errors: [
       {
         code: 'xgen-IPA-107-readonly-resource-should-not-have-update-method',
-        message:
-          'Read-only resources must not define the Update method.',
+        message: 'Read-only resources must not define the Update method.',
         path: ['paths', '/readOnlyResource/{id}', 'patch'],
         severity: DiagnosticSeverity.Error,
       },
@@ -174,7 +173,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
         '/readOnlyResource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -193,7 +192,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
         '/readOnlyResource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -222,7 +221,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
               },
             },
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -243,8 +242,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
     errors: [
       {
         code: 'xgen-IPA-107-readonly-resource-should-not-have-update-method',
-        message:
-          'Read-only resources must not define the Update method.',
+        message: 'Read-only resources must not define the Update method.',
         path: ['paths', '/readOnlyResource/{id}', 'put'],
         severity: DiagnosticSeverity.Error,
       },
@@ -257,7 +255,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
         '/readOnlyResource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -276,7 +274,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
         '/readOnlyResource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -308,7 +306,7 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
               },
             },
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {
@@ -329,4 +327,3 @@ testRule('xgen-IPA-107-readonly-resource-should-not-have-update-method', [
     errors: [],
   },
 ]);
-

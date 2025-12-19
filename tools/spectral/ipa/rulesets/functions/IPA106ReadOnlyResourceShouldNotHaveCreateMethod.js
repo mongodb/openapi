@@ -5,13 +5,9 @@ import {
   isResourceCollectionIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const ERROR_MESSAGE =
-  'Read-only resources must not define the Create method.';
+const ERROR_MESSAGE = 'Read-only resources must not define the Create method.';
 
 export default (input, opts, { path, documentInventory, rule }) => {
   const ruleName = rule.name;
@@ -39,4 +35,3 @@ function checkViolationsAndReturnErrors(path, ruleName) {
     return handleInternalError(ruleName, path, e);
   }
 }
-

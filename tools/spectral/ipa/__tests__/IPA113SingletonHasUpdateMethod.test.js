@@ -73,7 +73,7 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
         '/resource/{exampleId}/readOnlySingleton': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/json': {
                     schema: {

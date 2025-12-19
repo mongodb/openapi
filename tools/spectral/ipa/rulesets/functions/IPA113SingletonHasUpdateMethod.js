@@ -6,10 +6,7 @@ import {
   isResourceCollectionIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
 const ERROR_MESSAGE =
   'Singleton resources should define the Update method. If this is not a singleton resource, please implement all CRUDL methods.';

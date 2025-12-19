@@ -276,7 +276,6 @@ export function isReadOnlyResource(resourcePathItems) {
     return false;
   }
 
-
   const getMethod = getPathItem.get;
   if (!getMethod.responses) {
     return false;

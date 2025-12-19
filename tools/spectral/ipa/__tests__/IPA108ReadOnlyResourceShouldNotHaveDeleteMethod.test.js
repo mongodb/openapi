@@ -10,7 +10,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
         '/writableResource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -30,7 +30,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
         '/writableResource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -48,7 +48,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
           },
           delete: {
             responses: {
-              '204': {
+              204: {
                 description: 'No Content',
               },
             },
@@ -66,7 +66,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
         '/readOnlyResource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -86,7 +86,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
         '/readOnlyResource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -104,7 +104,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
           },
           delete: {
             responses: {
-              '204': {
+              204: {
                 description: 'No Content',
               },
             },
@@ -115,8 +115,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
     errors: [
       {
         code: 'xgen-IPA-108-readonly-resource-should-not-have-delete-method',
-        message:
-          'Read-only resources must not define the Delete method.',
+        message: 'Read-only resources must not define the Delete method.',
         path: ['paths', '/readOnlyResource/{id}', 'delete'],
         severity: DiagnosticSeverity.Error,
       },
@@ -130,7 +129,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
         '/readOnlyResource': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -150,7 +149,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
         '/readOnlyResource/{id}': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -171,7 +170,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
               'xgen-IPA-108-readonly-resource-should-not-have-delete-method': 'Special case exception',
             },
             responses: {
-              '204': {
+              204: {
                 description: 'No Content',
               },
             },
@@ -189,7 +188,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
         '/parent/{parentId}/readOnlySingleton': {
           get: {
             responses: {
-              '200': {
+              200: {
                 content: {
                   'application/vnd.atlas.2023-01-01+json': {
                     schema: {
@@ -206,7 +205,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
           },
           delete: {
             responses: {
-              '204': {
+              204: {
                 description: 'No Content',
               },
             },
@@ -217,8 +216,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
     errors: [
       {
         code: 'xgen-IPA-108-readonly-resource-should-not-have-delete-method',
-        message:
-          'Read-only resources must not define the Delete method.',
+        message: 'Read-only resources must not define the Delete method.',
         path: ['paths', '/parent/{parentId}/readOnlySingleton', 'delete'],
         severity: DiagnosticSeverity.Error,
       },
@@ -232,7 +230,7 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
         '/resource/{id}': {
           delete: {
             responses: {
-              '204': {
+              204: {
                 description: 'No Content',
               },
             },
@@ -243,4 +241,3 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
     errors: [],
   },
 ]);
-

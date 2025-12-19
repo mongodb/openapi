@@ -5,13 +5,9 @@ import {
   isSingleResourceIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const ERROR_MESSAGE =
-  'Read-only resources must not define the Update method.';
+const ERROR_MESSAGE = 'Read-only resources must not define the Update method.';
 
 export default (input, opts, { path, documentInventory, rule }) => {
   const resourcePath = path[1];
@@ -41,4 +37,3 @@ function checkViolationsAndReturnErrors(path, ruleName) {
     return handleInternalError(ruleName, path, e);
   }
 }
-

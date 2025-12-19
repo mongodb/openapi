@@ -13,7 +13,7 @@ const resource = {
     post: {},
     get: {
       responses: {
-        '200': {
+        200: {
           content: {
             'application/json': {
               schema: {
@@ -25,7 +25,7 @@ const resource = {
                     name: { type: 'string' },
                     description: { type: 'string' },
                   },
-                }
+                },
               },
             },
           },
@@ -36,7 +36,7 @@ const resource = {
   '/resource/{id}': {
     get: {
       responses: {
-        '200': {
+        200: {
           content: {
             'application/json': {
               schema: {
@@ -86,7 +86,7 @@ const singleton = {
   '/resource/{id}/singleton': {
     get: {
       responses: {
-        '200': {
+        200: {
           content: {
             'application/json': {
               schema: {
@@ -110,7 +110,7 @@ const readOnlySingleton = {
   '/resource/{id}/readOnlySingleton': {
     get: {
       responses: {
-        '200': {
+        200: {
           content: {
             'application/json': {
               schema: {
@@ -151,7 +151,7 @@ const readOnlyResource = {
   '/readOnlyResource': {
     get: {
       responses: {
-        '200': {
+        200: {
           content: {
             'application/json': {
               schema: {
@@ -171,7 +171,7 @@ const readOnlyResource = {
   '/readOnlyResource/{id}': {
     get: {
       responses: {
-        '200': {
+        200: {
           content: {
             'application/json': {
               schema: {
@@ -189,7 +189,6 @@ const readOnlyResource = {
     },
   },
 };
-
 
 const resourceWithoutGetMethod = {
   '/resourceWithoutGet': {
