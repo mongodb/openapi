@@ -22,7 +22,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/slice"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
@@ -44,26 +44,25 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	metadata := &filter.SliceMetadata{
+	criteria := &slice.Criteria{
 		OperationIDs: o.operationIDs,
 		Tags:         o.tags,
 		Paths:        o.paths,
 	}
 
 	// Log what we're slicing
-	if len(metadata.OperationIDs) > 0 {
-		log.Printf("Slicing operations by IDs: %v", metadata.OperationIDs)
+	if len(criteria.OperationIDs) > 0 {
+		log.Printf("Slicing operations by IDs: %v", criteria.OperationIDs)
 	}
-	if len(metadata.Tags) > 0 {
-		log.Printf("Slicing operations by tags: %v", metadata.Tags)
+	if len(criteria.Tags) > 0 {
+		log.Printf("Slicing operations by tags: %v", criteria.Tags)
 	}
-	if len(metadata.Paths) > 0 {
-		log.Printf("Slicing operations by paths: %v", metadata.Paths)
+	if len(criteria.Paths) > 0 {
+		log.Printf("Slicing operations by paths: %v", criteria.Paths)
 	}
 
-	// TODO: Add other filters
-	sliceFilter := filter.NewSliceFilter(specInfo.Spec, metadata)
-	if err := sliceFilter.Apply(); err != nil {
+	// Slice the spec (includes automatic cleanup of unused tags and schemas)
+	if err := slice.Slice(specInfo.Spec, criteria); err != nil {
 		return err
 	}
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package filter
+package slice
 
 import (
 	"testing"
@@ -58,7 +58,7 @@ func TestNormalizePath(t *testing.T) {
 	}
 }
 
-func TestSliceFilter_Apply_FilterByPath(t *testing.T) {
+func TestSlice_FilterByPath(t *testing.T) {
 	tests := []struct {
 		name          string
 		paths         []string
@@ -141,11 +141,9 @@ func TestSliceFilter_Apply_FilterByPath(t *testing.T) {
 				oas.Paths.Set(path, pathItem)
 			}
 
-			filter := NewSliceFilter(oas, &SliceMetadata{
+			err := Slice(oas, &Criteria{
 				Paths: tt.paths,
 			})
-
-			err := filter.Apply()
 			require.NoError(t, err)
 
 			assert.Equal(t, len(tt.expectedPaths), oas.Paths.Len())
@@ -156,7 +154,7 @@ func TestSliceFilter_Apply_FilterByPath(t *testing.T) {
 	}
 }
 
-func TestSliceFilter_Apply_FilterByOperationID(t *testing.T) {
+func TestSlice_FilterByOperationID(t *testing.T) {
 	oas := &openapi3.T{
 		Paths: openapi3.NewPaths(),
 	}
@@ -170,11 +168,9 @@ func TestSliceFilter_Apply_FilterByOperationID(t *testing.T) {
 		Delete: &openapi3.Operation{OperationID: "deleteUser"},
 	})
 
-	filter := NewSliceFilter(oas, &SliceMetadata{
+	err := Slice(oas, &Criteria{
 		OperationIDs: []string{"getGroup", "deleteUser"},
 	})
-
-	err := filter.Apply()
 	require.NoError(t, err)
 
 	// Should keep both paths
@@ -193,7 +189,7 @@ func TestSliceFilter_Apply_FilterByOperationID(t *testing.T) {
 	assert.NotNil(t, usersPath.Delete)
 }
 
-func TestSliceFilter_Apply_FilterByTag(t *testing.T) {
+func TestSlice_FilterByTag(t *testing.T) {
 	oas := &openapi3.T{
 		Paths: openapi3.NewPaths(),
 	}
@@ -210,11 +206,9 @@ func TestSliceFilter_Apply_FilterByTag(t *testing.T) {
 		Get: &openapi3.Operation{OperationID: "getCluster", Tags: []string{"Clusters"}},
 	})
 
-	filter := NewSliceFilter(oas, &SliceMetadata{
+	err := Slice(oas, &Criteria{
 		Tags: []string{"Groups", "Clusters"},
 	})
-
-	err := filter.Apply()
 	require.NoError(t, err)
 
 	// Should keep groups and clusters paths, remove users
@@ -224,7 +218,7 @@ func TestSliceFilter_Apply_FilterByTag(t *testing.T) {
 	assert.Nil(t, oas.Paths.Value("/api/v2/users/{userId}"))
 }
 
-func TestSliceFilter_Apply_MultipleCriteria(t *testing.T) {
+func TestSlice_MultipleCriteria(t *testing.T) {
 	oas := &openapi3.T{
 		Paths: openapi3.NewPaths(),
 	}
@@ -242,13 +236,11 @@ func TestSliceFilter_Apply_MultipleCriteria(t *testing.T) {
 	})
 
 	// Match by: path (/api/v2/groups/{id}), operationID (getUser), or tag (Clusters)
-	filter := NewSliceFilter(oas, &SliceMetadata{
+	err := Slice(oas, &Criteria{
 		Paths:        []string{"/api/v2/groups/{id}"},
 		OperationIDs: []string{"getUser"},
 		Tags:         []string{"Clusters"},
 	})
-
-	err := filter.Apply()
 	require.NoError(t, err)
 
 	// Should keep all three paths
@@ -272,7 +264,7 @@ func TestSliceFilter_Apply_MultipleCriteria(t *testing.T) {
 	assert.NotNil(t, clustersPath.Get)
 }
 
-func TestSliceFilter_Apply_EmptyMetadata(t *testing.T) {
+func TestSlice_EmptyCriteria(t *testing.T) {
 	oas := &openapi3.T{
 		Paths: openapi3.NewPaths(),
 	}
@@ -281,39 +273,33 @@ func TestSliceFilter_Apply_EmptyMetadata(t *testing.T) {
 		Get: &openapi3.Operation{OperationID: "getGroup"},
 	})
 
-	filter := NewSliceFilter(oas, &SliceMetadata{})
-
-	err := filter.Apply()
+	err := Slice(oas, &Criteria{})
 	require.NoError(t, err)
 
-	// With empty metadata, nothing matches, so all paths should be removed
+	// With empty criteria, nothing matches, so all paths should be removed
 	assert.Equal(t, 0, oas.Paths.Len())
 }
 
-func TestSliceFilter_Apply_NilOAS(t *testing.T) {
-	filter := NewSliceFilter(nil, &SliceMetadata{
+func TestSlice_NilSpec(t *testing.T) {
+	err := Slice(nil, &Criteria{
 		Paths: []string{"/api/v2/groups/{id}"},
 	})
-
-	err := filter.Apply()
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "OpenAPI spec is nil")
 }
 
-func TestSliceFilter_Apply_NilPaths(t *testing.T) {
+func TestSlice_NilPaths(t *testing.T) {
 	oas := &openapi3.T{
 		Paths: nil,
 	}
 
-	filter := NewSliceFilter(oas, &SliceMetadata{
+	err := Slice(oas, &Criteria{
 		Paths: []string{"/api/v2/groups/{id}"},
 	})
-
-	err := filter.Apply()
 	require.NoError(t, err) // Should not error, just return early
 }
 
-func TestSliceFilter_Apply_RemovePathWithNoMatchingOperations(t *testing.T) {
+func TestSlice_RemovePathWithNoMatchingOperations(t *testing.T) {
 	oas := &openapi3.T{
 		Paths: openapi3.NewPaths(),
 	}
@@ -324,19 +310,11 @@ func TestSliceFilter_Apply_RemovePathWithNoMatchingOperations(t *testing.T) {
 	})
 
 	// Filter by tag that doesn't match any operations
-	filter := NewSliceFilter(oas, &SliceMetadata{
+	err := Slice(oas, &Criteria{
 		Tags: []string{"Users"},
 	})
-
-	err := filter.Apply()
 	require.NoError(t, err)
 
 	// Path should be removed since no operations match
 	assert.Equal(t, 0, oas.Paths.Len())
-}
-
-func TestSliceFilter_ValidateMetadata(t *testing.T) {
-	filter := NewSliceFilter(&openapi3.T{}, &SliceMetadata{})
-	err := filter.ValidateMetadata()
-	require.NoError(t, err) // Should always return nil
 }
