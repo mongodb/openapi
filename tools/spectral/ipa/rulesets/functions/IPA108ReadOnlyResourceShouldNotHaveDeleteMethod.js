@@ -1,9 +1,8 @@
 import {
   getResourcePathItems,
-  hasPatchMethod,
-  hasPutMethod,
   isReadOnlyResource,
   isResourceCollectionIdentifier,
+  isSingleResourceIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
 import {
@@ -12,33 +11,34 @@ import {
 } from './utils/collectionUtils.js';
 
 const ERROR_MESSAGE =
-  'Singleton resources should define the Update method. If this is not a singleton resource, please implement all CRUDL methods.';
+  'Read-only resources must not define the Delete method.';
 
 export default (input, opts, { path, documentInventory, rule }) => {
-  const ruleName = rule.name;
-  const oas = documentInventory.resolved;
   const resourcePath = path[1];
+  const oas = documentInventory.resolved;
+  const ruleName = rule.name;
   const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
 
-  if (!(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePathItems))) {
+  if (
+    !isSingleResourceIdentifier(resourcePath) &&
+    !(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePathItems))
+  ) {
     return;
   }
 
-  if (isReadOnlyResource(resourcePathItems)) {
+  if (!isReadOnlyResource(resourcePathItems)) {
     return;
   }
 
-  const errors = checkViolationsAndReturnErrors(input, path, ruleName);
+  const errors = checkViolationsAndReturnErrors(path, ruleName);
   return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };
 
-function checkViolationsAndReturnErrors(input, path, ruleName) {
+function checkViolationsAndReturnErrors(path, ruleName) {
   try {
-    if (!(hasPutMethod(input) || hasPatchMethod(input))) {
-      return [{ path, message: ERROR_MESSAGE }];
-    }
-    return [];
+    return [{ path, message: ERROR_MESSAGE }];
   } catch (e) {
     return handleInternalError(ruleName, path, e);
   }
 }
+

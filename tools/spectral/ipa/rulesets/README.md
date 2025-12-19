@@ -312,6 +312,18 @@ Rule checks for the following conditions:
   - Ignores resources without a Get method
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-106-readonly-resource-should-not-have-create-method
+
+ ![error](https://img.shields.io/badge/error-red) 
+Read-only resources must not define the Create method.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to POST methods on resource collection paths
+  - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+  - Fails if a Create method is defined on a read-only resource
+  - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 #### xgen-IPA-106-valid-operation-id
 
  ![error](https://img.shields.io/badge/error-red) 
@@ -399,6 +411,18 @@ Rule checks for the following conditions:
   - Validation only applies to schema references to a predefined schema (not inline)
   - Confirms the referenced schema name ends with "Request" suffix
 
+#### xgen-IPA-107-readonly-resource-should-not-have-update-method
+
+ ![error](https://img.shields.io/badge/error-red) 
+Read-only resources must not define the Update method.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to PUT/PATCH methods on all resource paths
+  - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+  - Fails if an Update method is defined on a read-only resource
+  - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 #### xgen-IPA-107-valid-operation-id
 
  ![error](https://img.shields.io/badge/error-red) 
@@ -459,6 +483,18 @@ Rule checks for the following conditions:
   - Verifies that the operation object does not contain a requestBody property
   - Fails if any requestBody is defined for the DELETE method
   - Skips validation for collection endpoints (without path parameters)
+
+#### xgen-IPA-108-readonly-resource-should-not-have-delete-method
+
+ ![error](https://img.shields.io/badge/error-red) 
+Read-only resources must not define the Delete method.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to DELETE methods on single resource paths and singleton resources
+  - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+  - Fails if a Delete method is defined on a read-only resource
+  - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-108-valid-operation-id
 

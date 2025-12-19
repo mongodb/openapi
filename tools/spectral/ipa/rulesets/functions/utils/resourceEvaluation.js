@@ -203,3 +203,110 @@ export function removePrefix(path) {
   }
   return path;
 }
+
+/**
+ * Checks if all properties in a schema have readOnly: true.
+ *
+ * @param {Object} schema - The schema to check
+ * @returns {boolean} true if all properties are readOnly, false otherwise
+ */
+export function allPropertiesAreReadOnly(schema) {
+  if (!schema || typeof schema !== 'object') {
+    return false;
+  }
+
+  if (schema.properties) {
+    for (const [, propSchema] of Object.entries(schema.properties)) {
+      if (propSchema.readOnly !== true) {
+        return false;
+      }
+    }
+    return Object.keys(schema.properties).length > 0;
+  }
+
+  if (schema.items) {
+    return allPropertiesAreReadOnly(schema.items);
+  }
+
+  if (Array.isArray(schema.allOf)) {
+    return schema.allOf.every((subSchema) => allPropertiesAreReadOnly(subSchema));
+  }
+
+  if (Array.isArray(schema.anyOf)) {
+    return schema.anyOf.some((subSchema) => allPropertiesAreReadOnly(subSchema));
+  }
+
+  if (Array.isArray(schema.oneOf)) {
+    return schema.oneOf.some((subSchema) => allPropertiesAreReadOnly(subSchema));
+  }
+
+  return false;
+}
+
+/**
+ * Checks if a resource is a read-only resource
+ * A read-only resource has all properties in its GET response schema marked as readOnly: true.
+ *
+ * @param {Object} resourcePathItems - All path items for the resource to be evaluated
+ * @returns {boolean} true if the resource is read-only, false otherwise
+ */
+export function isReadOnlyResource(resourcePathItems) {
+  const resourcePaths = Object.keys(resourcePathItems);
+
+  // First, look for a standard Get method
+  let getPathItem = null;
+  for (const path of resourcePaths) {
+    if (isSingleResourceIdentifier(path) && hasGetMethod(resourcePathItems[path])) {
+      getPathItem = resourcePathItems[path];
+      break;
+    }
+  }
+
+  // If not found, look for Singleton Get method
+  if (!getPathItem) {
+    for (const path of resourcePaths) {
+      if (hasGetMethod(resourcePathItems[path])) {
+        getPathItem = resourcePathItems[path];
+        break;
+      }
+    }
+  }
+
+  if (!getPathItem || !getPathItem.get) {
+    return false;
+  }
+
+
+  const getMethod = getPathItem.get;
+  if (!getMethod.responses) {
+    return false;
+  }
+
+  const successfulResponseKey = Object.keys(getMethod.responses).find((k) => k.startsWith('2'));
+  if (!successfulResponseKey) {
+    return false;
+  }
+
+  const response = getMethod.responses[successfulResponseKey];
+  if (!response || !response.content) {
+    return false;
+  }
+
+  const contentTypes = Object.keys(response.content);
+  if (contentTypes.length === 0) {
+    return false;
+  }
+
+  for (const mediaType of contentTypes) {
+    const mediaTypeObj = response.content[mediaType];
+    if (!mediaTypeObj || !mediaTypeObj.schema) {
+      continue;
+    }
+
+    if (!allPropertiesAreReadOnly(mediaTypeObj.schema)) {
+      return false;
+    }
+  }
+
+  return true;
+}

@@ -66,4 +66,32 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
     },
     errors: [],
   },
+  {
+    name: 'read-only singleton resources do not require update method',
+    document: {
+      paths: {
+        '/resource/{exampleId}/readOnlySingleton': {
+          get: {
+            responses: {
+              '200': {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        status: { type: 'string', readOnly: true },
+                        createdAt: { type: 'string', readOnly: true },
+                        updatedAt: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
 ]);
