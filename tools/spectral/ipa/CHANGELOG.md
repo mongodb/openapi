@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [7.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v6.0.0...7.0.0)
+#### [8.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v7.0.0...8.0.0)
+
+- fix(ipa): Support read-only standard and singleton resources [`#1057`](https://github.com/mongodb/openapi/pull/1057)
+
+### [ipa-validation-ruleset-v7.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v6.0.0...ipa-validation-ruleset-v7.0.0)
+
+> 16 December 2025
 
 - fix(ipa): Update inline tables regex to handle whitespaces [`#1046`](https://github.com/mongodb/openapi/pull/1046)
 - chore(ipa): remove temp overrides [`#1047`](https://github.com/mongodb/openapi/pull/1047)
