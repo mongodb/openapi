@@ -321,6 +321,7 @@ Read-only resources must not define the Create method.
 Rule checks for the following conditions:
   - Applies to POST methods on resource collection paths
   - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+  - If a resource does not have a standard GET method, it is not considered read-only (cannot determine the resource schema)
   - Fails if a Create method is defined on a read-only resource
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 
@@ -420,6 +421,7 @@ Read-only resources must not define the Update method.
 Rule checks for the following conditions:
   - Applies to PUT/PATCH methods on all resource paths
   - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+  - If a resource does not have a standard GET method, it is not considered read-only (cannot determine the resource schema)
   - Fails if an Update method is defined on a read-only resource
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 
@@ -493,6 +495,7 @@ Read-only resources must not define the Delete method.
 Rule checks for the following conditions:
   - Applies to DELETE methods on single resource paths and singleton resources
   - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+  - If a resource does not have a standard GET method, it is not considered read-only (cannot determine the resource schema)
   - Fails if a Delete method is defined on a read-only resource
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 

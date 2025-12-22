@@ -523,6 +523,22 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         resourcePathItems: readOnlySingleton,
         expected: true,
       },
+      {
+        description: 'resource with xgen-IPA-104-resource-has-GET exception',
+        resourcePathItems: {
+          '/resource': {
+            post: {},
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-104-resource-has-GET': 'Legacy API without GET method.',
+            },
+          },
+          '/resource/{id}': {
+            patch: {},
+            delete: {},
+          },
+        },
+        expected: false,
+      },
     ];
 
     testCases.forEach((testCase) => {
