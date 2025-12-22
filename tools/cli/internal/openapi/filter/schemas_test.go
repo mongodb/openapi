@@ -27,7 +27,12 @@ type testCase struct {
 }
 
 func TestSchemasFilter_Apply(t *testing.T) {
-	testCases := []testCase{unusedSchemasScenario(), nestedSchemasScenario(), onlyUsedSchemasScenario()}
+	testCases := []testCase{
+		unusedSchemasScenario(),
+		nestedSchemasScenario(),
+		onlyUsedSchemasScenario(),
+		unusedSchemasWithCircularDependencyScenario(),
+	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -534,6 +539,126 @@ func onlyUsedSchemasScenario() testCase {
 							},
 						},
 					},
+				},
+			},
+		},
+	}
+}
+
+// unusedSchemasWithCircularDependencyScenario tests that the filter correctly removes
+// schemas that have circular dependencies but are not referenced anywhere in the API.
+// This ensures the BFS traversal algorithm doesn't get stuck in infinite loops and
+// properly identifies that circular schemas are unused if they have no entry point.
+func unusedSchemasWithCircularDependencyScenario() testCase {
+	return testCase{
+		name: "Remove unused schemas with circular dependency",
+		initSpec: &openapi3.T{
+			OpenAPI: "3.0.0",
+			Info: &openapi3.Info{
+				Version: "1.0",
+			},
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/UsedSchema",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+						},
+					})),
+				},
+			})),
+			Components: &openapi3.Components{
+				Schemas: map[string]*openapi3.SchemaRef{
+					"UsedSchema": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"field": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					// CircularA and CircularB reference each other but are not used anywhere
+					"CircularA": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"refToB": {
+									Ref: "#/components/schemas/CircularB",
+								},
+							},
+						},
+					},
+					"CircularB": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"refToA": {
+									Ref: "#/components/schemas/CircularA",
+								},
+							},
+						},
+					},
+					// Another unused schema
+					"UnusedSchema": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"field": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		wantedSpec: &openapi3.T{
+			OpenAPI: "3.0.0",
+			Info: &openapi3.Info{
+				Version: "1.0",
+			},
+			Paths: openapi3.NewPaths(openapi3.WithPath("test", &openapi3.PathItem{
+				Get: &openapi3.Operation{
+					OperationID: "testOperationID",
+					Summary:     "testSummary",
+					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+						Content: openapi3.Content{
+							"application/vnd.atlas.2025-01-01+json": {
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/UsedSchema",
+								},
+								Extensions: map[string]any{
+									"x-gen-version": "2025-01-01",
+								},
+							},
+						},
+					})),
+				},
+			})),
+			Components: &openapi3.Components{
+				Schemas: map[string]*openapi3.SchemaRef{
+					"UsedSchema": {
+						Value: &openapi3.Schema{
+							Properties: map[string]*openapi3.SchemaRef{
+								"field": {
+									Value: &openapi3.Schema{
+										Format: "string",
+									},
+								},
+							},
+						},
+					},
+					// CircularA, CircularB, and UnusedSchema should all be removed
 				},
 			},
 		},
