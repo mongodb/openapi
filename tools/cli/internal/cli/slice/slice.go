@@ -1,4 +1,4 @@
-// Copyright 2024 MongoDB Inc
+// Copyright 2025 MongoDB Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -136,6 +136,7 @@ Multiple values can be specified as comma-separated lists.`,
 	// Required flags
 	_ = cmd.MarkFlagRequired(flag.Output)
 	_ = cmd.MarkFlagRequired(flag.Spec)
+	cmd.MarkFlagsOneRequired(flag.Tags, flag.Paths, flag.OperationIDs)
 
 	return cmd
 }
