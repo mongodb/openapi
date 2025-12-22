@@ -218,9 +218,7 @@ export function allPropertiesAreReadOnly(schema) {
   }
 
   if (schema.properties) {
-    if (schema.properties.results &&
-        schema.properties.results.type === 'array' &&
-        schema.properties.results.items) {
+    if (schema.properties.results && schema.properties.results.type === 'array' && schema.properties.results.items) {
       return allPropertiesAreReadOnly(schema.properties.results.items);
     }
 
