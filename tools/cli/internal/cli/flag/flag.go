@@ -51,4 +51,7 @@ const (
 	StabilityLevelShort      = "l"
 	Version                  = "version"
 	VersionShort             = "v"
+	OperationIDs             = "ids"
+	Tags                     = "tags"
+	Paths                    = "paths"
 )

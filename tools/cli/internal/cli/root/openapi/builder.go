@@ -22,6 +22,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/cli/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/filter"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/merge"
+	"github.com/mongodb/openapi/tools/cli/internal/cli/slice"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/split"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/sunset"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/versions"
@@ -63,6 +64,7 @@ func Builder() *cobra.Command {
 		breakingchanges.Builder(),
 		sunset.Builder(),
 		filter.Builder(),
+		slice.Builder(),
 	)
 	return rootCmd
 }

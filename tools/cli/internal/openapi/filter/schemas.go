@@ -36,6 +36,10 @@ func (f *SchemasFilter) Apply() error {
 		return nil
 	}
 
+	if f.oas.Components == nil || f.oas.Components.Schemas == nil {
+		return nil
+	}
+
 	for {
 		oasSpecAsBytes, err := f.oas.MarshalJSON()
 		if err != nil {

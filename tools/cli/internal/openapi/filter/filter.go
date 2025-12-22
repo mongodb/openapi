@@ -102,6 +102,14 @@ func FiltersToGetVersions(oas *openapi3.T, metadata *Metadata) []Filter {
 	}
 }
 
+func FiltersToCleanupRefs(oas *openapi3.T) []Filter {
+	return []Filter{
+		&TagsFilter{oas: oas},
+		&SchemasFilter{oas: oas},
+		&ParametersFilter{oas: oas},
+	}
+}
+
 func ApplyFilters(doc *openapi3.T, metadata *Metadata, filters func(oas *openapi3.T, metadata *Metadata) []Filter) (*openapi3.T, error) {
 	if doc == nil {
 		return nil, errors.New("openapi document is nil")

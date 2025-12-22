@@ -39,4 +39,7 @@ const (
 	To                  = "Date in the format YYYY-MM-DD that indicates the end of a date range"
 	StabilityLevel      = "Stability level related to the API Version. Valid values: [STABLE, UPCOMING, PUBLIC-PREVIEW, PRIVATE-PREVIEW]"
 	Version             = "Version of the API."
+	Tags                = "Comma-separated list of tags to extract."
+	OperationIDs        = "Comma-separated list of operation IDs to extract."
+	Paths               = "Comma-separated list of path patterns to extract."
 )
