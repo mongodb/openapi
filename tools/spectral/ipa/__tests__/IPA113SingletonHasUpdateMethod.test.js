@@ -94,4 +94,86 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
     },
     errors: [],
   },
+  {
+    name: 'read-only singleton with List response',
+    document: {
+      paths: {
+        '/resource/{exampleId}/readOnlyListSingleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        results: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              id: { type: 'string', readOnly: true },
+                              name: { type: 'string', readOnly: true },
+                              status: { type: 'string', readOnly: true },
+                            },
+                          },
+                        },
+                        totalCount: { type: 'integer' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'writable singleton with List response',
+    document: {
+      paths: {
+        '/resource/{exampleId}/listSingleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        results: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              id: { type: 'string', readOnly: true },
+                              name: { type: 'string' },
+                              description: { type: 'string' },
+                            },
+                          },
+                        },
+                        totalCount: { type: 'integer' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-113-singleton-should-have-update-method',
+        message:
+          'Singleton resources should define the Update method. If this is not a singleton resource, please implement all CRUDL methods.',
+        path: ['paths', '/resource/{exampleId}/listSingleton'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
 ]);
