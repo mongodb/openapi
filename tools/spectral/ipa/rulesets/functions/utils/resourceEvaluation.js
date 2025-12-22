@@ -1,3 +1,5 @@
+import { hasException } from './exceptions.js';
+
 export const AUTH_PREFIX = '/api/atlas/v2';
 export const UNAUTH_PREFIX = '/api/atlas/v2/unauth';
 
@@ -252,6 +254,14 @@ export function allPropertiesAreReadOnly(schema) {
  */
 export function isReadOnlyResource(resourcePathItems) {
   const resourcePaths = Object.keys(resourcePathItems);
+
+  // Check if any path has an exception for xgen-IPA-104-resource-has-GET
+  // If so, we cannot determine if the resource is read-only
+  for (const path of resourcePaths) {
+    if (hasException(resourcePathItems[path], 'xgen-IPA-104-resource-has-GET')) {
+      return false;
+    }
+  }
 
   // First, look for a standard Get method
   let getPathItem = null;
