@@ -218,6 +218,12 @@ export function allPropertiesAreReadOnly(schema) {
   }
 
   if (schema.properties) {
+    if (schema.properties.results &&
+        schema.properties.results.type === 'array' &&
+        schema.properties.results.items) {
+      return allPropertiesAreReadOnly(schema.properties.results.items);
+    }
+
     for (const [, propSchema] of Object.entries(schema.properties)) {
       if (propSchema.readOnly !== true) {
         return false;
@@ -246,7 +252,7 @@ export function allPropertiesAreReadOnly(schema) {
 }
 
 /**
- * Checks if a resource is a read-only resource
+ * Checks if a resource is a read-only resource.
  * A read-only resource has all properties in its GET response schema marked as readOnly: true.
  *
  * @param {Object} resourcePathItems - All path items for the resource to be evaluated
