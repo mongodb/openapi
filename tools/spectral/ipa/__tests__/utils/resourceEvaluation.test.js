@@ -1,6 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 import {
+  allPropertiesAreReadOnly,
   getResourcePathItems,
+  isReadOnlyResource,
   isResourceCollectionIdentifier,
   isSingleResourceIdentifier,
   isSingletonResource,
@@ -9,10 +11,47 @@ import {
 const resource = {
   '/resource': {
     post: {},
-    get: {},
+    get: {
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string', readOnly: true },
+                    name: { type: 'string' },
+                    description: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   '/resource/{id}': {
-    get: {},
+    get: {
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', readOnly: true },
+                  name: { type: 'string' },
+                  description: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     patch: {},
     delete: {},
   },
@@ -45,8 +84,48 @@ const childResource = {
 
 const singleton = {
   '/resource/{id}/singleton': {
-    get: {},
+    get: {
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', readOnly: true },
+                  name: { type: 'string' },
+                  enabled: { type: 'boolean' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     patch: {},
+  },
+};
+
+const readOnlySingleton = {
+  '/resource/{id}/readOnlySingleton': {
+    get: {
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  status: { type: 'string', readOnly: true },
+                  createdAt: { type: 'string', readOnly: true },
+                  updatedAt: { type: 'string', readOnly: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   },
 };
 
@@ -68,6 +147,55 @@ const customMethodResource = {
   },
 };
 
+const readOnlyResource = {
+  '/readOnlyResource': {
+    get: {
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', readOnly: true },
+                  name: { type: 'string', readOnly: true },
+                  createdAt: { type: 'string', readOnly: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  '/readOnlyResource/{id}': {
+    get: {
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', readOnly: true },
+                  name: { type: 'string', readOnly: true },
+                  createdAt: { type: 'string', readOnly: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+const resourceWithoutGetMethod = {
+  '/resourceWithoutGet': {
+    post: {},
+  },
+};
+
 const mockOas = {
   paths: {
     ...resource,
@@ -75,7 +203,10 @@ const mockOas = {
     ...resourceMissingMethods,
     ...childResourceMissingSubPath,
     ...singleton,
+    ...readOnlySingleton,
     ...customMethodResource,
+    ...readOnlyResource,
+    ...resourceWithoutGetMethod,
   },
 };
 
@@ -108,6 +239,11 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         isSingletonResource: true,
       },
       {
+        description: 'read-only singleton resource',
+        resourcePathItems: readOnlySingleton,
+        isSingletonResource: true,
+      },
+      {
         description: 'standard resource with custom methods',
         resourcePathItems: customMethodResource,
         isSingletonResource: false,
@@ -137,6 +273,11 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         description: 'singleton resource',
         path: '/resource/{id}/singleton',
         expectedResourcePathItems: singleton,
+      },
+      {
+        description: 'read-only singleton resource',
+        path: '/resource/{id}/readOnlySingleton',
+        expectedResourcePathItems: readOnlySingleton,
       },
       {
         description: 'resource with custom methods',
@@ -247,6 +388,146 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
     testCases.forEach((testCase) => {
       it(`returns ${testCase.isSingleResourceIdentifier} for ${testCase.description}`, () => {
         expect(isSingleResourceIdentifier(testCase.path)).toEqual(testCase.isSingleResourceIdentifier);
+      });
+    });
+  });
+
+  describe('allPropertiesAreReadOnly', () => {
+    const testCases = [
+      {
+        description: 'schema with all properties readOnly',
+        schema: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', readOnly: true },
+            name: { type: 'string', readOnly: true },
+            createdAt: { type: 'string', readOnly: true },
+          },
+        },
+        expected: true,
+      },
+      {
+        description: 'schema with some properties not readOnly',
+        schema: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', readOnly: true },
+            name: { type: 'string' },
+            description: { type: 'string' },
+          },
+        },
+        expected: false,
+      },
+      {
+        description: 'schema with no properties',
+        schema: {
+          type: 'object',
+        },
+        expected: false,
+      },
+      {
+        description: 'schema with nested object all readOnly',
+        schema: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', readOnly: true },
+            metadata: {
+              type: 'object',
+              readOnly: true,
+              properties: {
+                createdBy: { type: 'string', readOnly: true },
+                updatedBy: { type: 'string', readOnly: true },
+              },
+            },
+          },
+        },
+        expected: true,
+      },
+      {
+        description: 'schema with array items all readOnly',
+        schema: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', readOnly: true },
+              name: { type: 'string', readOnly: true },
+            },
+          },
+        },
+        expected: true,
+      },
+      {
+        description: 'schema with allOf all readOnly',
+        schema: {
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                id: { type: 'string', readOnly: true },
+              },
+            },
+            {
+              type: 'object',
+              properties: {
+                name: { type: 'string', readOnly: true },
+              },
+            },
+          ],
+        },
+        expected: true,
+      },
+      {
+        description: 'null schema',
+        schema: null,
+        expected: false,
+      },
+      {
+        description: 'undefined schema',
+        schema: undefined,
+        expected: false,
+      },
+    ];
+
+    testCases.forEach((testCase) => {
+      it(`returns ${testCase.expected} for ${testCase.description}`, () => {
+        expect(allPropertiesAreReadOnly(testCase.schema)).toEqual(testCase.expected);
+      });
+    });
+  });
+
+  describe('isReadOnlyResource', () => {
+    const testCases = [
+      {
+        description: 'read-only resource',
+        resourcePathItems: readOnlyResource,
+        expected: true,
+      },
+      {
+        description: 'resource without GET method',
+        resourcePathItems: resourceWithoutGetMethod,
+        expected: false,
+      },
+      {
+        description: 'standard resource with mixed readOnly properties',
+        resourcePathItems: resource,
+        expected: false,
+      },
+      {
+        description: 'singleton resource (writable)',
+        resourcePathItems: singleton,
+        expected: false,
+      },
+      {
+        description: 'read-only singleton resource',
+        resourcePathItems: readOnlySingleton,
+        expected: true,
+      },
+    ];
+
+    testCases.forEach((testCase) => {
+      it(`returns ${testCase.expected} for ${testCase.description}`, () => {
+        expect(isReadOnlyResource(testCase.resourcePathItems)).toEqual(testCase.expected);
       });
     });
   });

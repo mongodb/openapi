@@ -8,6 +8,7 @@ functions:
   - IPA107UpdateMethodRequestHasNoReadonlyFields
   - IPA107UpdateMethodRequestBodyIsGetResponse
   - IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject
+  - IPA107ReadOnlyResourceShouldNotHaveUpdateMethod
   - IPA107ValidOperationID
 
 aliases:
@@ -113,6 +114,21 @@ rules:
     then:
       field: '@key'
       function: 'IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject'
+  xgen-IPA-107-readonly-resource-should-not-have-update-method:
+    description: |
+      Read-only resources must not define the Update method.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to PUT/PATCH methods on all resource paths
+        - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+        - Fails if an Update method is defined on a read-only resource
+        - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-readonly-resource-should-not-have-update-method'
+    severity: error
+    given: '#UpdateOperationObject'
+    then:
+      function: 'IPA107ReadOnlyResourceShouldNotHaveUpdateMethod'
   xgen-IPA-107-valid-operation-id:
     description: |
       The Operation ID must start with the verb “update” and should be followed by a noun or compound noun.

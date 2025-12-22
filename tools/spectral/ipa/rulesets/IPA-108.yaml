@@ -55,6 +55,21 @@ rules:
     given: '#DeleteOperationObject'
     then:
       function: IPA108DeleteMethodNoRequestBody
+  xgen-IPA-108-readonly-resource-should-not-have-delete-method:
+    description: |
+      Read-only resources must not define the Delete method.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to DELETE methods on single resource paths and singleton resources
+        - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+        - Fails if a Delete method is defined on a read-only resource
+        - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-108-readonly-resource-should-not-have-delete-method'
+    severity: error
+    given: '#DeleteOperationObject'
+    then:
+      function: 'IPA108ReadOnlyResourceShouldNotHaveDeleteMethod'
   xgen-IPA-108-valid-operation-id:
     description: |
       The Operation ID must start with the verb “delete” and should be followed by a noun or compound noun.
@@ -82,4 +97,5 @@ functions:
   - IPA108DeleteMethodResponseShouldNotHaveSchema
   - IPA108DeleteMethod204Response
   - IPA108DeleteMethodNoRequestBody
+  - IPA108ReadOnlyResourceShouldNotHaveDeleteMethod
   - IPA108ValidOperationID

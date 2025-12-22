@@ -2,6 +2,7 @@ import {
   getResourcePathItems,
   hasPatchMethod,
   hasPutMethod,
+  isReadOnlyResource,
   isResourceCollectionIdentifier,
   isSingletonResource,
 } from './utils/resourceEvaluation.js';
@@ -17,6 +18,10 @@ export default (input, opts, { path, documentInventory, rule }) => {
   const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
 
   if (!(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePathItems))) {
+    return;
+  }
+
+  if (isReadOnlyResource(resourcePathItems)) {
     return;
   }
 

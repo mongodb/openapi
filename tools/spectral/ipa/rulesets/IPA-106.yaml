@@ -8,6 +8,7 @@ functions:
   - IPA106CreateMethodRequestHasNoReadonlyFields
   - IPA106CreateMethodResponseCodeIs201Created
   - IPA106CreateMethodResponseIsGetMethodResponse
+  - IPA106ReadOnlyResourceShouldNotHaveCreateMethod
   - IPA106ValidOperationID
 
 aliases:
@@ -113,6 +114,21 @@ rules:
     then:
       field: '@key'
       function: 'IPA106CreateMethodResponseIsGetMethodResponse'
+  xgen-IPA-106-readonly-resource-should-not-have-create-method:
+    description: |
+      Read-only resources must not define the Create method.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to POST methods on resource collection paths
+        - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+        - Fails if a Create method is defined on a read-only resource
+        - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-106-readonly-resource-should-not-have-create-method'
+    severity: error
+    given: '#CreateOperationObject'
+    then:
+      function: 'IPA106ReadOnlyResourceShouldNotHaveCreateMethod'
   xgen-IPA-106-valid-operation-id:
     description: |
       The Operation ID must start with the verb “create” and should be followed by a noun or compound noun.
