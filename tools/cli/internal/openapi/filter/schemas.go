@@ -163,17 +163,34 @@ func (f *SchemasFilter) discoverSchemaRefsInSchema(schema *openapi3.SchemaRef, o
 		f.discoverSchemaRefsInSchema(ref, onDiscovered)
 	}
 
+	// Check discriminator mappings for refs
+	if schema.Value.Discriminator != nil && schema.Value.Discriminator.Mapping != nil {
+		for _, ref := range schema.Value.Discriminator.Mapping {
+			if isSchemaRefString(ref) {
+				onDiscovered(getSchemaFromRef(ref))
+			}
+		}
+	}
+
 	// Check array items, negation, and additional properties
 	f.discoverSchemaRefsInSchema(schema.Value.Items, onDiscovered)
 	f.discoverSchemaRefsInSchema(schema.Value.Not, onDiscovered)
 	f.discoverSchemaRefsInSchema(schema.Value.AdditionalProperties.Schema, onDiscovered)
 }
 
+func isSchemaRefString(ref string) bool {
+	return strings.HasPrefix(ref, "#/components/schemas/")
+}
+
+func getSchemaFromRef(ref string) string {
+	return strings.TrimPrefix(ref, "#/components/schemas/")
+}
+
 // getRefName extracts the schema name from a schema reference.
 // For example, "#/components/schemas/User" returns "User".
 func getRefName(s *openapi3.SchemaRef) string {
 	if isRef(s) {
-		return strings.TrimPrefix(s.Ref, "#/components/schemas/")
+		return getSchemaFromRef(s.Ref)
 	}
 	return ""
 }
@@ -185,7 +202,7 @@ func isRef(s *openapi3.SchemaRef) bool {
 	if s == nil {
 		return false
 	}
-	if s.Ref != "" && strings.HasPrefix(s.Ref, "#/components/schemas/") {
+	if s.Ref != "" && isSchemaRefString(s.Ref) {
 		return true
 	}
 	return false
