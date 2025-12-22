@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [8.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v7.0.0...8.0.0)
+#### [9.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v8.0.0...9.0.0)
+
+- fix(ipa): Skip read-only validation for resources without GET method [`#1059`](https://github.com/mongodb/openapi/pull/1059)
+
+### [ipa-validation-ruleset-v8.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v7.0.0...ipa-validation-ruleset-v8.0.0)
+
+> 22 December 2025
 
 - fix(ipa): Support read-only standard and singleton resources [`#1057`](https://github.com/mongodb/openapi/pull/1057)
 
