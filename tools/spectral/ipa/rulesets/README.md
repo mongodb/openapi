@@ -732,7 +732,7 @@ Singleton resources should define the Update method. Validation for the presence
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to singleton resources
-  - Excludes read-only singleton resources (where all properties in the GET response schema are marked as readOnly)
+  - Excludes read-only singleton resources (where all properties in the GET response schema are marked as readOnly; for List responses, all properties in the items schema must be readOnly)
   - Checks that the resource has the PUT and/or PATCH methods defined
 
 
