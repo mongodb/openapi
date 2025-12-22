@@ -4,12 +4,9 @@ import (
 	"testing"
 )
 
-// 1. Test the Slice Implementation
+// TestQueue tests the queue implementation.
 func TestQueue(t *testing.T) {
-	factory := func(items ...string) Queue[string] {
-		return New(items...)
-	}
-	RunQueueComplianceSuite(t, factory)
+	RunQueueComplianceSuite(t, New[string])
 }
 
 // RunQueueComplianceSuite asserts that ANY implementation of Queue[T] behaves correctly.

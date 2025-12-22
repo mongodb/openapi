@@ -8,7 +8,7 @@ type Queue[T any] interface {
 	Clear()
 }
 
-// linkedQueue is the wrapper that satisfies the interface
+// linkedQueue is the wrapper that satisfies the interface.
 type node[T any] struct {
 	value T
 	next  *node[T]
@@ -20,7 +20,7 @@ type linkedQueue[T any] struct {
 	size int
 }
 
-func New[T any](items ...T) *linkedQueue[T] {
+func New[T any](items ...T) Queue[T] {
 	q := &linkedQueue[T]{}
 	for _, item := range items {
 		q.Enqueue(item)

@@ -6,11 +6,7 @@ import (
 )
 
 func TestSet(t *testing.T) {
-	factory := func(items ...string) Set[string] {
-		return New(items...)
-	}
-
-	RunSetComplianceSuite(t, factory)
+	RunSetComplianceSuite(t, New[string])
 }
 
 // RunSetComplianceSuite is a reusable test suite for ANY implementation of Set[string].

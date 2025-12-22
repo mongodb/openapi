@@ -81,17 +81,17 @@ func (f *SchemasFilter) discoverUsedSchemas() (set.Set[string], error) {
 	}
 
 	// Phase 2: Traverse schema dependencies using BFS to find nested references
-	queue := queue.New(slices.Collect(usedSchemas.Iter())...)
+	q := queue.New(slices.Collect(usedSchemas.Iter())...)
 	markToDiscover := func(schemaName string) {
 		if usedSchemas.Has(schemaName) {
 			return
 		}
 		usedSchemas.Add(schemaName)
-		queue.Enqueue(schemaName)
+		q.Enqueue(schemaName)
 	}
 
-	for !queue.IsEmpty() {
-		schemaName := queue.Dequeue()
+	for !q.IsEmpty() {
+		schemaName := q.Dequeue()
 
 		if schemaRef, exists := f.oas.Components.Schemas[schemaName]; exists {
 			f.discoverSchemaRefsInSchema(schemaRef, markToDiscover)
@@ -99,7 +99,6 @@ func (f *SchemasFilter) discoverUsedSchemas() (set.Set[string], error) {
 	}
 
 	return usedSchemas, nil
-
 }
 
 // discoverUsedRootSchemas finds schemas directly referenced in paths, operations,
