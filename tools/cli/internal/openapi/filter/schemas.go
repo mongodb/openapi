@@ -22,7 +22,6 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/queue"
 )
 
 // SchemasFilter removes unused #/components/schemas/.
@@ -79,17 +78,22 @@ func (f *SchemasFilter) discoverUsedSchemas() (map[string]bool, error) {
 	}
 
 	// Phase 2: Traverse schema dependencies using BFS to find nested references
-	q := queue.New(slices.Collect(maps.Keys(usedSchemas))...)
+	queue := slices.Collect(maps.Keys(usedSchemas))
 	markToDiscover := func(schemaName string) {
 		if usedSchemas[schemaName] {
 			return
 		}
+		// Enqueue
+		queue = append(queue, schemaName)
 		usedSchemas[schemaName] = true
-		q.Enqueue(schemaName)
 	}
 
-	for !q.IsEmpty() {
-		schemaName := q.Dequeue()
+	var zero string
+	for len(queue) > 0 {
+		// Dequeue
+		schemaName := queue[0]
+		queue[0] = zero
+		queue = queue[1:]
 
 		if schemaRef, exists := f.oas.Components.Schemas[schemaName]; exists {
 			f.discoverSchemaRefsInSchema(schemaRef, markToDiscover)
