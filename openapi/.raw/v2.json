@@ -13614,109 +13614,36 @@
       "ConfluentSaslInheritAuthentication": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
+            "$ref": "#/components/schemas/SchemaRegistryAuthentication"
           }
         ],
-        "description": "SASL_INHERIT authentication configuration from Kafka for Confluent Schema Registry. Username and password are inherited from the Kafka connection.",
+        "description": "Inherits the authentication configuration from Kafka for the Confluent Schema Registry.",
         "required": [
           "type"
-        ],
-        "type": "object"
-      },
-      "ConfluentSchemaRegistryAuthentication": {
-        "description": "Authentication configuration for Confluent Schema Registry.",
-        "discriminator": {
-          "mapping": {
-            "SASL_INHERIT": "#/components/schemas/ConfluentSaslInheritAuthentication",
-            "USER_INFO": "#/components/schemas/ConfluentUserInfoAuthentication"
-          },
-          "propertyName": "type"
-        },
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/ConfluentUserInfoAuthentication"
-          },
-          {
-            "$ref": "#/components/schemas/ConfluentSaslInheritAuthentication"
-          }
-        ],
-        "properties": {
-          "type": {
-            "description": "Authentication type discriminator. Specifies the authentication mechanism for Confluent Schema Registry.",
-            "enum": [
-              "USER_INFO",
-              "SASL_INHERIT"
-            ],
-            "type": "string"
-          }
-        },
-        "required": [
-          "type"
-        ],
-        "type": "object"
-      },
-      "ConfluentSchemaRegistryConnectionPrivatePreview": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-          },
-          {
-            "properties": {
-              "provider": {
-                "description": "The Schema Registry provider.",
-                "enum": [
-                  "CONFLUENT"
-                ],
-                "type": "string"
-              },
-              "schemaRegistryAuthentication": {
-                "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
-              },
-              "schemaRegistryUrls": {
-                "description": "List of Schema Registry URLs.",
-                "items": {
-                  "description": "Schema Registry URL.",
-                  "format": "uri",
-                  "type": "string"
-                },
-                "maxItems": 10,
-                "type": "array",
-                "uniqueItems": true
-              }
-            },
-            "type": "object"
-          },
-          {
-            "$ref": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
-          }
-        ],
-        "description": "The configuration for Confluent Schema Registry connections.",
-        "required": [
-          "provider"
         ],
         "type": "object"
       },
       "ConfluentUserInfoAuthentication": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
+            "$ref": "#/components/schemas/SchemaRegistryAuthentication"
           },
           {
             "properties": {
               "password": {
-                "description": "Password for USER_INFO authentication. Required.",
+                "description": "Password or Private Key for authentication.",
                 "type": "string",
                 "writeOnly": true
               },
               "username": {
-                "description": "Username for USER_INFO authentication. Required.",
+                "description": "Username or Public Key for authentication.",
                 "type": "string"
               }
             },
             "type": "object"
           }
         ],
-        "description": "Direct authentication with username and password for Confluent Schema Registry.",
+        "description": "USER_INFO authentication with username and password for Confluent Schema Registry.",
         "required": [
           "password",
           "type",
@@ -45626,6 +45553,38 @@
         },
         "type": "object"
       },
+      "SchemaRegistryAuthentication": {
+        "description": "Authentication configuration for Schema Registry.",
+        "discriminator": {
+          "mapping": {
+            "SASL_INHERIT": "#/components/schemas/ConfluentSaslInheritAuthentication",
+            "USER_INFO": "#/components/schemas/ConfluentUserInfoAuthentication"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ConfluentUserInfoAuthentication"
+          },
+          {
+            "$ref": "#/components/schemas/ConfluentSaslInheritAuthentication"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Authentication type discriminator. Specifies the authentication mechanism for Confluent Schema Registry.",
+            "enum": [
+              "USER_INFO",
+              "SASL_INHERIT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
       "SearchDeploymentAuditTypeView": {
         "description": "Unique identifier of event type.",
         "enum": [
@@ -49553,7 +49512,8 @@
             "Https": "#/components/schemas/StreamsHttpsConnection",
             "Kafka": "#/components/schemas/StreamsKafkaConnection",
             "S3": "#/components/schemas/StreamsS3Connection",
-            "Sample": "#/components/schemas/StreamsSampleConnection"
+            "Sample": "#/components/schemas/StreamsSampleConnection",
+            "SchemaRegistry": "#/components/schemas/StreamsSchemaRegistryConnection"
           },
           "propertyName": "type"
         },
@@ -49578,6 +49538,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamsAWSKinesisDataStreamsConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsSchemaRegistryConnection"
           }
         ],
         "properties": {
@@ -49605,7 +49568,8 @@
               "Sample",
               "Https",
               "AWSLambda",
-              "AWSKinesisDataStreams"
+              "AWSKinesisDataStreams",
+              "SchemaRegistry"
             ],
             "type": "string",
             "x-xgen-IPA-exception": {
@@ -49615,32 +49579,6 @@
         },
         "readOnly": true,
         "type": "object"
-      },
-      "StreamsConnectionPrivatePreview": {
-        "description": "Settings that define a connection to an external data store.",
-        "discriminator": {
-          "mapping": {
-            "SchemaRegistry": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
-          },
-          "propertyName": "type"
-        },
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
-          }
-        ],
-        "properties": {
-          "type": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type"
-        ],
-        "type": "object",
-        "x-xgen-IPA-exception": {
-          "xgen-IPA-117-description": "Exception OK as this is in private preview."
-        }
       },
       "StreamsDLQ": {
         "description": "Dead letter queue for the stream processor.",
@@ -50459,61 +50397,43 @@
         },
         "type": "object"
       },
-      "StreamsSchemaRegistryConnectionPrivatePreview": {
-        "description": "The configuration for Schema Registry connections.",
-        "discriminator": {
-          "mapping": {
-            "CONFLUENT": "#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview"
-          },
-          "propertyName": "provider"
-        },
-        "oneOf": [
+      "StreamsSchemaRegistryConnection": {
+        "allOf": [
           {
-            "$ref": "#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview"
+            "$ref": "#/components/schemas/StreamsConnection"
+          },
+          {
+            "properties": {
+              "provider": {
+                "description": "The Schema Registry provider.",
+                "enum": [
+                  "CONFLUENT"
+                ],
+                "type": "string"
+              },
+              "schemaRegistryAuthentication": {
+                "$ref": "#/components/schemas/SchemaRegistryAuthentication"
+              },
+              "schemaRegistryUrls": {
+                "description": "List of Schema Registry endpoint URLs used by this connection. Each URL must use the http or https scheme and specify a valid host and optional port.",
+                "items": {
+                  "description": "Schema Registry URL.",
+                  "format": "uri",
+                  "type": "string"
+                },
+                "maxItems": 10,
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
           }
         ],
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "name": {
-            "description": "Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.",
-            "type": "string"
-          },
-          "provider": {
-            "description": "The Schema Registry provider.",
-            "enum": [
-              "CONFLUENT"
-            ],
-            "type": "string"
-          },
-          "type": {
-            "description": "Type of the connection.",
-            "enum": [
-              "Kafka",
-              "Cluster",
-              "Sample",
-              "Https",
-              "AWSLambda",
-              "AWSKinesisDataStreams"
-            ],
-            "type": "string",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-123-enum-values-must-be-upper-snake-case": "Schema predates IPA validation."
-            }
-          }
-        },
+        "description": "The configuration for Schema Registry connections.",
         "required": [
-          "provider"
+          "provider",
+          "schemaRegistryAuthentication",
+          "schemaRegistryUrls"
         ],
         "type": "object"
       },
@@ -55315,7 +55235,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "58cc43bbf6e90b3095464a61766786a299ce53f3"
+    "x-xgen-sha": "0ca325f6b1d6c368df288c858ba01ac4a33eadf5"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -84029,19 +83949,6 @@
                 "xgen-IPA-106-create-method-request-body-is-request-suffixed-object": "Content predates IPA validation.",
                 "xgen-IPA-106-create-method-request-has-no-readonly-fields": "Content predates IPA validation."
               }
-            },
-            "application/vnd.atlas.preview+json": {
-              "schema": {
-                "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-              },
-              "x-xgen-IPA-exception": {
-                "xgen-IPA-106-create-method-request-body-is-request-suffixed-object": "Content predates IPA validation.",
-                "xgen-IPA-117-description": "Discriminator properties are auto-generated and don't inherit descriptions. This is acceptable for preview API."
-              },
-              "x-xgen-preview": {
-                "name": "stream-connection"
-              },
-              "x-xgen-version": "preview"
             }
           },
           "description": "Details to create one connection for a streams workspace in the specified project.",
@@ -84055,15 +83962,6 @@
                   "$ref": "#/components/schemas/StreamsConnection"
                 },
                 "x-xgen-version": "2023-02-01"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-                },
-                "x-xgen-preview": {
-                  "name": "stream-connection"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK"
@@ -84140,12 +84038,6 @@
             "content": {
               "application/vnd.atlas.2023-02-01+json": {
                 "x-xgen-version": "2023-02-01"
-              },
-              "application/vnd.atlas.preview+json": {
-                "x-xgen-preview": {
-                  "name": "stream-connection"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "Accepted"
@@ -84172,9 +84064,6 @@
         ],
         "x-xgen-IPA-exception": {
           "xgen-IPA-108-delete-method-return-204-response": "Long running operations do not need to return HTTP 204."
-        },
-        "x-xgen-changelog": {
-          "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as part of private preview, but is subject to change until GA."
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/deleteGroupStreamConnection",
         "x-xgen-operation-id-override": "deleteStreamConnection",
@@ -84220,18 +84109,6 @@
                   "xgen-IPA-104-get-method-returns-response-suffixed-object": "Exception OK as they are present in existing resource, fixing would require major refactoring."
                 },
                 "x-xgen-version": "2023-02-01"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-                },
-                "x-xgen-IPA-exception": {
-                  "xgen-IPA-104-get-method-returns-response-suffixed-object": "API predates IPA validation."
-                },
-                "x-xgen-preview": {
-                  "name": "stream-connection"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK"
@@ -84305,19 +84182,6 @@
                 "xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object": "Exception OK as they are present in existing resource, fixing would require major refactoring.",
                 "xgen-IPA-107-update-method-request-has-no-readonly-fields": "Exception OK as they are present in existing resource, fixing would require major refactoring."
               }
-            },
-            "application/vnd.atlas.preview+json": {
-              "schema": {
-                "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-              },
-              "x-xgen-IPA-exception": {
-                "xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object": "Content predates IPA validation.",
-                "xgen-IPA-117-description": "Discriminator properties are auto-generated and don't inherit descriptions. This is acceptable for preview API."
-              },
-              "x-xgen-preview": {
-                "name": "stream-connection"
-              },
-              "x-xgen-version": "preview"
             }
           },
           "description": "Details to update one connection for a streams workspace in the specified project.",
@@ -84331,15 +84195,6 @@
                   "$ref": "#/components/schemas/StreamsConnection"
                 },
                 "x-xgen-version": "2023-02-01"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-                },
-                "x-xgen-preview": {
-                  "name": "stream-connection"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK"
