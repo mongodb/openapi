@@ -28,49 +28,45 @@ type Set[T comparable] interface {
 }
 
 // MapSet is a concrete implementation of Set using a map.
-type mapSet[T comparable] struct {
-	data map[T]struct{}
-}
+type set[T comparable] map[T]struct{}
 
 // NewMapSet creates a new MapSet.
 func New[T comparable](items ...T) Set[T] {
-	s := &mapSet[T]{
-		data: make(map[T]struct{}, len(items)),
-	}
+	s := &set[T]{}
 	for _, item := range items {
 		s.Add(item)
 	}
 	return s
 }
 
-func (s *mapSet[T]) Add(item T) bool {
-	if _, exists := s.data[item]; exists {
+func (s *set[T]) Add(item T) bool {
+	if _, exists := (*s)[item]; exists {
 		return false
 	}
-	s.data[item] = struct{}{}
+	(*s)[item] = struct{}{}
 	return true
 }
 
-func (s *mapSet[T]) Has(item T) bool {
-	_, exists := s.data[item]
+func (s *set[T]) Has(item T) bool {
+	_, exists := (*s)[item]
 	return exists
 }
 
-func (s *mapSet[T]) Remove(item T) bool {
-	if _, exists := s.data[item]; !exists {
+func (s *set[T]) Remove(item T) bool {
+	if _, exists := (*s)[item]; !exists {
 		return false
 	}
-	delete(s.data, item)
+	delete(*s, item)
 	return true
 }
 
-func (s *mapSet[T]) Len() int {
-	return len(s.data)
+func (s *set[T]) Len() int {
+	return len(*s)
 }
 
-func (s *mapSet[T]) Iter() iter.Seq[T] {
+func (s *set[T]) Iter() iter.Seq[T] {
 	return func(yield func(T) bool) {
-		for item := range s.data {
+		for item := range *s {
 			if !yield(item) {
 				return
 			}
@@ -78,6 +74,6 @@ func (s *mapSet[T]) Iter() iter.Seq[T] {
 	}
 }
 
-func (s *mapSet[T]) Clear() {
-	clear(s.data)
+func (s *set[T]) Clear() {
+	clear(*s)
 }

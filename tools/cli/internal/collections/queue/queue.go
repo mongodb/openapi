@@ -8,66 +8,41 @@ type Queue[T any] interface {
 	Clear()
 }
 
-// linkedQueue is the wrapper that satisfies the interface.
-type node[T any] struct {
-	value T
-	next  *node[T]
+type queue[T any] []T
+
+func (q *queue[T]) Enqueue(item T) {
+	*q = append(*q, item)
 }
 
-type linkedQueue[T any] struct {
-	head *node[T]
-	tail *node[T]
-	size int
+func (q *queue[T]) Dequeue() T {
+	var zero T
+	if len(*q) == 0 {
+		return zero
+	}
+	item := (*q)[0]
+	(*q)[0] = zero
+	*q = (*q)[1:]
+	return item
+}
+
+func (q *queue[T]) IsEmpty() bool {
+	return len(*q) == 0
+}
+
+func (q *queue[T]) Len() int {
+	return len(*q)
+}
+
+func (q *queue[T]) Clear() {
+	for !q.IsEmpty() {
+		q.Dequeue()
+	}
 }
 
 func New[T any](items ...T) Queue[T] {
-	q := &linkedQueue[T]{}
+	q := &queue[T]{}
 	for _, item := range items {
 		q.Enqueue(item)
 	}
 	return q
-}
-
-func (q *linkedQueue[T]) IsEmpty() bool {
-	return q.size == 0
-}
-
-func (q *linkedQueue[T]) Len() int {
-	return q.size
-}
-
-func (q *linkedQueue[T]) Enqueue(item T) {
-	n := &node[T]{value: item}
-	if q.head == nil {
-		q.head = n
-		q.tail = n
-	} else {
-		q.tail.next = n
-		q.tail = n
-	}
-	q.size++
-}
-
-func (q *linkedQueue[T]) Dequeue() T {
-	if q.head == nil {
-		var zero T
-		return zero
-	}
-
-	item := q.head.value
-
-	q.head = q.head.next
-	q.size--
-
-	if q.head == nil {
-		q.tail = nil
-	}
-
-	return item
-}
-
-func (q *linkedQueue[T]) Clear() {
-	q.head = nil
-	q.tail = nil
-	q.size = 0
 }
