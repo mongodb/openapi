@@ -3122,6 +3122,105 @@ components:
                 - instanceSize
                 - nodeCount
             type: object
+        ApiStandbyLinkFailoverRequest:
+            description: Request to initiate a failover operation.
+            properties:
+                type:
+                    description: Type of failover operation to perform.
+                    enum:
+                        - UNPLANNED
+                        - PLANNED_REVERSE
+                        - PLANNED
+                    type: string
+            required:
+                - type
+            type: object
+        ApiStandbyLinkFailoverResponse:
+            description: Response containing failover operation details.
+            properties:
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies the failover operation.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                standbyLinkId:
+                    description: Unique 24-hexadecimal digit string that identifies the standby link.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                status:
+                    description: Current status of the failover operation.
+                    enum:
+                        - INITIALIZING
+                        - IN_PROGRESS
+                        - COMPLETE
+                    readOnly: true
+                    type: string
+                type:
+                    description: Type of failover operation to perform.
+                    enum:
+                        - UNPLANNED
+                        - PLANNED_REVERSE
+                        - PLANNED
+                    readOnly: true
+                    type: string
+            type: object
+        ApiStandbyLinkRequest:
+            description: Request body for creating a standby link between clusters.
+            properties:
+                activeClusterUniqueId:
+                    description: Unique 24-hexadecimal digit string that identifies the active cluster in the standby link.
+                    example: 507f191e810c19729de860ea
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                standbyClusterUniqueId:
+                    description: Unique 24-hexadecimal digit string that identifies the standby cluster in the standby link.
+                    example: 507f191e810c19729de860eb
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            required:
+                - activeClusterUniqueId
+                - standbyClusterUniqueId
+            type: object
+        ApiStandbyLinkResponse:
+            description: Response body containing standby link information.
+            properties:
+                activeClusterUniqueId:
+                    description: Unique 24-hexadecimal digit string that identifies the active cluster in the standby link.
+                    example: 507f191e810c19729de860ea
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project containing the clusters in the standby link.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                standbyClusterUniqueId:
+                    description: Unique 24-hexadecimal digit string that identifies the standby cluster in the standby link.
+                    example: 507f191e810c19729de860eb
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                standbyLinkId:
+                    description: Unique 24-hexadecimal digit string that identifies the standby link.
+                    example: 507f1f77bcf86cd799439011
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                status:
+                    description: Current status of the standby link.
+                    example: INITIALIZING
+                    readOnly: true
+                    type: string
+            required:
+                - activeClusterUniqueId
+                - groupId
+                - standbyClusterUniqueId
+                - standbyLinkId
+                - status
+            type: object
         ApiStreamsAWSRegionView:
             description: Atlas Streams AWS Regions.
             enum:
@@ -43351,7 +43450,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: b9ab79e0c4447354e71cf84e3f0eb723cee67e78
+    x-xgen-sha: 58cc43bbf6e90b3095464a61766786a299ce53f3
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -61203,6 +61302,211 @@ paths:
                 - Projects
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupSettings
             x-xgen-owner-team: IAM Authorization
+    /api/atlas/v2/groups/{groupId}/standbyLinks:
+        post:
+            description: Creates a disaster recovery standby link between an active cluster and a standby cluster. Both clusters must not already be part of a standby link system, must be single-region clusters, and must be in different regions.
+            operationId: createGroupStandbyLink
+            parameters:
+                - description: Unique 24-hexadecimal digit string that identifies the project containing the clusters.
+                  in: path
+                  name: groupId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Flag that indicates whether to wrap the response in an envelope.
+                  in: query
+                  name: envelope
+                  schema:
+                    type: boolean
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiStandbyLinkRequest'
+                description: Request body containing the active and standby cluster identifiers.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiStandbyLinkResponse'
+                            x-xgen-preview:
+                                name: standby-links
+                            x-xgen-version: preview
+                    description: Standby link created successfully.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create Standby Link
+            tags:
+                - Standby Links
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/createGroupStandbyLink
+            x-xgen-owner-team: Standby Clusters
+        x-xgen-IPA-exception:
+            xgen-IPA-105-resource-has-list: Preview API. LIST endpoints will be added in a future iteration.
+    /api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}:
+        delete:
+            description: Terminates an existing standby link and converts the active and standby clusters back to regular clusters.
+            operationId: deleteGroupStandbyLink
+            parameters:
+                - description: Unique 24-hexadecimal digit string that identifies the project.
+                  in: path
+                  name: groupId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the standby link.
+                  in: path
+                  name: standbyLinkId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Flag that indicates whether to wrap the response in an envelope.
+                  in: query
+                  name: envelope
+                  schema:
+                    type: boolean
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            x-xgen-preview:
+                                name: standby-links
+                    description: Standby link deleted successfully.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete Standby Link
+            tags:
+                - Standby Links
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/deleteGroupStandbyLink
+            x-xgen-owner-team: Standby Clusters
+        get:
+            description: Returns detailed information about a specific standby link including status, group ID, and cluster unique IDs.
+            operationId: getGroupStandbyLink
+            parameters:
+                - description: Unique 24-hexadecimal digit string that identifies the project.
+                  in: path
+                  name: groupId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the standby link.
+                  in: path
+                  name: standbyLinkId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Flag that indicates whether to wrap the response in an envelope.
+                  in: query
+                  name: envelope
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiStandbyLinkResponse'
+                            x-xgen-preview:
+                                name: standby-links
+                            x-xgen-version: preview
+                    description: Standby link retrieved successfully.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Standby Link
+            tags:
+                - Standby Links
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/getGroupStandbyLink
+            x-xgen-owner-team: Standby Clusters
+    /api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers:
+        post:
+            description: Creates a new failover operation to promote a standby cluster or reverse cluster roles. The standby link must be in ACTIVE status to initiate a failover.
+            operationId: createGroupStandbyLinkFailover
+            parameters:
+                - description: Unique 24-hexadecimal digit string that identifies the project.
+                  in: path
+                  name: groupId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the standby link.
+                  in: path
+                  name: standbyLinkId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Flag that indicates whether to wrap the response in an envelope.
+                  in: query
+                  name: envelope
+                  schema:
+                    type: boolean
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiStandbyLinkFailoverRequest'
+                description: Request body containing the failover type (PLANNED or UNPLANNED).
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiStandbyLinkFailoverResponse'
+                            x-xgen-preview:
+                                name: standby-links
+                            x-xgen-version: preview
+                    description: Failover operation created successfully.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create Standby Link Failover
+            tags:
+                - Standby Links
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/createGroupStandbyLinkFailover
+            x-xgen-operation-id-override: createStandbyLinkFailover
+            x-xgen-owner-team: Standby Clusters
+        x-xgen-IPA-exception:
+            xgen-IPA-104-resource-has-GET: Preview API. GET endpoints will be added in a future iteration.
+            xgen-IPA-105-resource-has-list: Preview API. LIST endpoints will be added in a future iteration.
     /api/atlas/v2/groups/{groupId}/streams:
         get:
             description: Returns all stream workspaces for the specified project.
@@ -68284,6 +68588,8 @@ tags:
       name: Shared-Tier Restore Jobs
     - description: Returns and requests to download shared-tier database deployment snapshots.
       name: Shared-Tier Snapshots
+    - description: Returns, adds, edits, and removes standby links between clusters for disaster recovery within a specified project.
+      name: Standby Links
     - description: Returns, adds, edits, and removes Streams Workspaces. This resource requires your project ID.
       name: Streams
     - description: Returns, adds, edits, or removes teams.
