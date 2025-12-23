@@ -64,7 +64,7 @@ func (f *SchemasFilter) Apply() error {
 
 // discoverUsedSchemas finds all schemas that are used in the OpenAPI spec.
 // It performs a two-phase discovery:
-// 1. Find all schemas directly referenced in specification, outside of #/componentes/schemas (root schemas).
+// 1. Find all schemas directly referenced in specification, outside of #/components/schemas (root schemas).
 // 2. Traverse schema dependencies to find transitively referenced schemas.
 func (f *SchemasFilter) discoverUsedSchemas() (map[string]bool, error) {
 	usedSchemas := make(map[string]bool)
