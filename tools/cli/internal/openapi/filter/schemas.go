@@ -22,8 +22,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/collections/queue"
-	"github.com/mongodb/openapi/tools/cli/internal/collections/set"
+	"github.com/mongodb/openapi/tools/cli/internal/queue"
 )
 
 // SchemasFilter removes unused #/components/schemas/.
@@ -36,8 +35,8 @@ func (*SchemasFilter) ValidateMetadata() error {
 }
 
 // Apply removes all unused schemas from the OpenAPI specification.
-// A schema is considered used if it is referenced directly in paths/operations
-// or transitively through other used schemas (including circular dependencies).
+// A schema is considered used if it is referenced directly outside of #/components/schemas
+// or transitively through other used schemas.
 func (f *SchemasFilter) Apply() error {
 	if f.oas.Paths == nil {
 		return nil
@@ -53,7 +52,7 @@ func (f *SchemasFilter) Apply() error {
 	}
 
 	maps.DeleteFunc(f.oas.Components.Schemas, func(k string, _ *openapi3.SchemaRef) bool {
-		if usedSchemas.Has(k) {
+		if usedSchemas[k] {
 			return false
 		}
 		log.Printf("Deleting unused schema: %q", k)
@@ -65,14 +64,13 @@ func (f *SchemasFilter) Apply() error {
 
 // discoverUsedSchemas finds all schemas that are used in the OpenAPI spec.
 // It performs a two-phase discovery:
-// 1. Find all schemas directly referenced in paths/operations (root schemas)
-// 2. Traverse schema dependencies to find transitively referenced schemas
-// This approach correctly handles circular dependencies between schemas.
-func (f *SchemasFilter) discoverUsedSchemas() (set.Set[string], error) {
-	usedSchemas := set.New[string]()
+// 1. Find all schemas directly referenced in specification, outside of #/componentes/schemas (root schemas).
+// 2. Traverse schema dependencies to find transitively referenced schemas.
+func (f *SchemasFilter) discoverUsedSchemas() (map[string]bool, error) {
+	usedSchemas := make(map[string]bool)
 
 	markUsed := func(schemaName string) {
-		usedSchemas.Add(schemaName)
+		usedSchemas[schemaName] = true
 	}
 
 	// Phase 1: Discover root schemas referenced in paths/operations
@@ -81,12 +79,12 @@ func (f *SchemasFilter) discoverUsedSchemas() (set.Set[string], error) {
 	}
 
 	// Phase 2: Traverse schema dependencies using BFS to find nested references
-	q := queue.New(slices.Collect(usedSchemas.Iter())...)
+	q := queue.New(slices.Collect(maps.Keys(usedSchemas))...)
 	markToDiscover := func(schemaName string) {
-		if usedSchemas.Has(schemaName) {
+		if usedSchemas[schemaName] {
 			return
 		}
-		usedSchemas.Add(schemaName)
+		usedSchemas[schemaName] = true
 		q.Enqueue(schemaName)
 	}
 
@@ -118,7 +116,7 @@ func (f *SchemasFilter) discoverUsedRootSchemas(onDiscovered func(schemaName str
 		return err
 	}
 
-	// Find all schema references in the JSON
+	// Find all schema references
 	refRegex := regexp.MustCompile(`"(#/components/schemas/([^"]+))"`)
 
 	matches := refRegex.FindAllStringSubmatch(string(oasSpecAsBytes), -1)
@@ -142,7 +140,6 @@ func (f *SchemasFilter) discoverSchemaRefsInSchema(schema *openapi3.SchemaRef, o
 		return
 	}
 
-	// Guard against nil schema values
 	if schema.Value == nil {
 		return
 	}
@@ -197,7 +194,7 @@ func getRefName(s *openapi3.SchemaRef) string {
 
 // isRef checks if a SchemaRef is a reference to a component schema.
 // It validates that the reference starts with "#/components/schemas/" to ensure
-// we only process schema references (not other types like parameters or responses).
+// we only process schema references.
 func isRef(s *openapi3.SchemaRef) bool {
 	if s == nil {
 		return false
