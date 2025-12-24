@@ -736,71 +736,6 @@
         "title": "AWS Cluster Hardware Settings",
         "type": "object"
       },
-      "AWSHardwareSpec20240805": {
-        "description": "Hardware specifications for nodes deployed in the region.",
-        "properties": {
-          "diskIOPS": {
-            "description": "Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware.\n\n You can set different IOPS values on different shards when provisioned IOPS are supported.\n\n Change this parameter only if you:\n\n- set `\"replicationSpecs[n].regionConfigs[m].providerName\" to \"AWS\"`.\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize\" to \"M30\"` or greater (not including `Mxx_NVME` tiers).\n\n- set `\"replicationSpecs[n].regionConfigs[m].electableSpecs.ebsVolumeType\" to \"PROVISIONED\"`.\n\nThe maximum input/output operations per second (IOPS) depend on the selected **.instanceSize** and **.diskSizeGB**.\nThis parameter defaults to the cluster tier's standard IOPS value.\nChanging this value impacts cluster cost.\nMongoDB Cloud enforces minimum ratios of storage capacity to system memory for given cluster tiers. This keeps cluster performance consistent with large datasets.\n\n- Instance sizes `M10` to `M40` have a ratio of disk capacity to system memory of 60:1.\n- Instance sizes greater than `M40` have a ratio of 120:1.",
-            "format": "int32",
-            "type": "integer"
-          },
-          "diskSizeGB": {
-            "description": "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier.",
-            "format": "double",
-            "maximum": 4096,
-            "minimum": 10,
-            "type": "number"
-          },
-          "ebsVolumeType": {
-            "default": "STANDARD",
-            "description": "Type of storage you want to attach to your AWS-provisioned cluster.\n\n- `STANDARD` volume types can't exceed the default input/output operations per second (IOPS) rate for the selected volume size. \n\n- `PROVISIONED` volume types must fall within the allowable IOPS range for the selected volume size. You must set this value to (`PROVISIONED`) for NVMe clusters.",
-            "enum": [
-              "STANDARD",
-              "PROVISIONED"
-            ],
-            "type": "string"
-          },
-          "instanceSize": {
-            "description": "Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as \"base nodes\") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.",
-            "enum": [
-              "M10",
-              "M20",
-              "M30",
-              "M40",
-              "M50",
-              "M60",
-              "M80",
-              "M100",
-              "M140",
-              "M200",
-              "M300",
-              "R40",
-              "R50",
-              "R60",
-              "R80",
-              "R200",
-              "R300",
-              "R400",
-              "R700",
-              "M40_NVME",
-              "M50_NVME",
-              "M60_NVME",
-              "M80_NVME",
-              "M200_NVME",
-              "M400_NVME"
-            ],
-            "title": "AWS Instance Sizes",
-            "type": "string"
-          },
-          "nodeCount": {
-            "description": "Number of nodes of the given type for MongoDB Cloud to deploy to the region.",
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "title": "AWS Cluster Hardware Settings",
-        "type": "object"
-      },
       "AWSInterfaceEndpoint": {
         "description": "Group of Private Endpoint settings.",
         "properties": {
@@ -1028,33 +963,6 @@
               },
               "readOnlySpecs": {
                 "$ref": "#/components/schemas/DedicatedHardwareSpec"
-              }
-            },
-            "type": "object"
-          }
-        ],
-        "description": "Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.",
-        "title": "AWS Regional Replication Specifications",
-        "type": "object"
-      },
-      "AWSRegionConfig20240805": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CloudRegionConfig20240805"
-          },
-          {
-            "properties": {
-              "analyticsAutoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
-              },
-              "analyticsSpecs": {
-                "$ref": "#/components/schemas/DedicatedHardwareSpec20240805"
-              },
-              "autoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
-              },
-              "readOnlySpecs": {
-                "$ref": "#/components/schemas/DedicatedHardwareSpec20240805"
               }
             },
             "type": "object"
@@ -1680,121 +1588,6 @@
           "value"
         ],
         "title": "Matchers",
-        "type": "object"
-      },
-      "AlertView": {
-        "description": "Alert represents a notice of warning, a threat or a problem in the system. It can reflect a certain event or condition in the system. An Alert can be acknowledged by the user, but stays open until alert condition is resolved in the system.",
-        "properties": {
-          "acknowledgedUntil": {
-            "description": "Date and time until which this alert has been acknowledged. This parameter expresses its value in the <a href=\"https://en.wikipedia.org/wiki/ISO_8601\" target=\"_blank\" rel=\"noopener noreferrer\">ISO 8601</a> timestamp format in UTC. The resource returns this parameter if a MongoDB User previously acknowledged this alert.\n\n- To acknowledge this alert forever, set the parameter value to 100 years in the future.\n\n- To unacknowledge a previously acknowledged alert, do not set this parameter value.",
-            "format": "date-time",
-            "type": "string"
-          },
-          "acknowledgementComment": {
-            "description": "Comment that a MongoDB Cloud user submitted when acknowledging the alert.",
-            "example": "Expiration on 3/19.  Silencing for 7days.",
-            "maxLength": 200,
-            "type": "string"
-          },
-          "acknowledgingUsername": {
-            "description": "MongoDB Cloud username of the person who acknowledged the alert. The response returns this parameter if a MongoDB Cloud user previously acknowledged this alert.",
-            "format": "email",
-            "readOnly": true,
-            "type": "string"
-          },
-          "alertConfigId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the alert configuration that sets this alert.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "maxLength": 24,
-            "minLength": 24,
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "created": {
-            "description": "Date and time when MongoDB Cloud created this alert. This parameter expresses its value in the <a href=\"https://en.wikipedia.org/wiki/ISO_8601\" target=\"_blank\" rel=\"noopener noreferrer\">ISO 8601</a> timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "groupId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the project that owns this alert.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "maxLength": 24,
-            "minLength": 24,
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "id": {
-            "description": "Unique 24-hexadecimal digit string that identifies this alert.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "maxLength": 24,
-            "minLength": 24,
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "lastNotified": {
-            "description": "Date and time that any notifications were last sent for this alert. This parameter expresses its value in the <a href=\"https://en.wikipedia.org/wiki/ISO_8601\" target=\"_blank\" rel=\"noopener noreferrer\">ISO 8601</a> timestamp format in UTC. The resource returns this parameter if MongoDB Cloud has sent notifications for this alert.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "orgId": {
-            "description": "Unique 24-hexadecimal character string that identifies the organization that owns the project to which this alert applies.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "maxLength": 24,
-            "minLength": 24,
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "resolved": {
-            "description": "Date and time that this alert changed to `\"status\" : \"CLOSED\"`. This parameter expresses its value in the <a href=\"https://en.wikipedia.org/wiki/ISO_8601\" target=\"_blank\" rel=\"noopener noreferrer\">ISO 8601</a> timestamp format in UTC. The resource returns this parameter once `\"status\" : \"CLOSED\"`.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "status": {
-            "description": "State of this alert at the time you requested its details.",
-            "enum": [
-              "CANCELLED",
-              "CLOSED",
-              "OPEN",
-              "TRACKING"
-            ],
-            "example": "OPEN",
-            "readOnly": true,
-            "type": "string"
-          },
-          "updated": {
-            "description": "Date and time when someone last updated this alert. This parameter expresses its value in the <a href=\"https://en.wikipedia.org/wiki/ISO_8601\" target=\"_blank\" rel=\"noopener noreferrer\">ISO 8601</a> timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          }
-        },
-        "required": [
-          "alertConfigId",
-          "created",
-          "id",
-          "status",
-          "updated"
-        ],
-        "title": "Alert",
         "type": "object"
       },
       "AlertViewForNdsGroup": {
@@ -4513,52 +4306,6 @@
         },
         "type": "object"
       },
-      "AzureHardwareSpec20240805": {
-        "properties": {
-          "diskSizeGB": {
-            "description": "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier.",
-            "format": "double",
-            "maximum": 4096,
-            "minimum": 10,
-            "type": "number"
-          },
-          "instanceSize": {
-            "description": "Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as \"base nodes\") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.",
-            "enum": [
-              "M10",
-              "M20",
-              "M30",
-              "M40",
-              "M50",
-              "M60",
-              "M80",
-              "M90",
-              "M200",
-              "R40",
-              "R50",
-              "R60",
-              "R80",
-              "R200",
-              "R300",
-              "R400",
-              "M60_NVME",
-              "M80_NVME",
-              "M200_NVME",
-              "M300_NVME",
-              "M400_NVME",
-              "M600_NVME"
-            ],
-            "title": "Azure Instance Sizes",
-            "type": "string"
-          },
-          "nodeCount": {
-            "description": "Number of nodes of the given type for MongoDB Cloud to deploy to the region.",
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "AzureKeyVault": {
         "description": "Details that define the configuration of Encryption at Rest using Azure Key Vault (AKV).",
         "externalDocs": {
@@ -4968,33 +4715,6 @@
               },
               "readOnlySpecs": {
                 "$ref": "#/components/schemas/DedicatedHardwareSpec"
-              }
-            },
-            "type": "object"
-          }
-        ],
-        "description": "Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.",
-        "title": "Azure Regional Replication Specifications",
-        "type": "object"
-      },
-      "AzureRegionConfig20240805": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CloudRegionConfig20240805"
-          },
-          {
-            "properties": {
-              "analyticsAutoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
-              },
-              "analyticsSpecs": {
-                "$ref": "#/components/schemas/DedicatedHardwareSpec20240805"
-              },
-              "autoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
-              },
-              "readOnlySpecs": {
-                "$ref": "#/components/schemas/DedicatedHardwareSpec20240805"
               }
             },
             "type": "object"
@@ -7989,214 +7709,6 @@
           }
         },
         "title": "Cloud Service Provider Settings for Multi-Cloud Clusters",
-        "type": "object"
-      },
-      "CloudRegionConfig20240805": {
-        "description": "Cloud service provider on which MongoDB Cloud provisions the hosts.",
-        "discriminator": {
-          "mapping": {
-            "AWS": "#/components/schemas/AWSRegionConfig20240805",
-            "AZURE": "#/components/schemas/AzureRegionConfig20240805",
-            "GCP": "#/components/schemas/GCPRegionConfig20240805",
-            "TENANT": "#/components/schemas/TenantRegionConfig20240805"
-          },
-          "propertyName": "providerName"
-        },
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/AWSRegionConfig20240805"
-          },
-          {
-            "$ref": "#/components/schemas/AzureRegionConfig20240805"
-          },
-          {
-            "$ref": "#/components/schemas/GCPRegionConfig20240805"
-          },
-          {
-            "$ref": "#/components/schemas/TenantRegionConfig20240805"
-          }
-        ],
-        "properties": {
-          "electableSpecs": {
-            "$ref": "#/components/schemas/HardwareSpec20240805"
-          },
-          "priority": {
-            "description": "Precedence is given to this region when a primary election occurs. If your **regionConfigs** has only **readOnlySpecs**, **analyticsSpecs**, or both, set this value to `0`. If you have multiple **regionConfigs** objects (your cluster is multi-region or multi-cloud), they must have priorities in descending order. The highest priority is `7`.\n\n**Example:** If you have three regions, their priorities would be `7`, `6`, and `5` respectively. If you added two more regions for supporting electable nodes, the priorities of those regions would be `4` and `3` respectively.",
-            "format": "int32",
-            "maximum": 7,
-            "minimum": 0,
-            "type": "integer"
-          },
-          "providerName": {
-            "description": "Cloud service provider on which MongoDB Cloud provisions the hosts. Set dedicated clusters to `AWS`, `GCP`, `AZURE` or `TENANT`.",
-            "enum": [
-              "AWS",
-              "AZURE",
-              "GCP",
-              "TENANT"
-            ],
-            "type": "string"
-          },
-          "regionName": {
-            "description": "Physical location of your MongoDB cluster nodes. The region you choose can affect network latency for clients accessing your databases. The region name is only returned in the response for single-region clusters. When MongoDB Cloud deploys a dedicated cluster, it checks if a VPC or VPC connection exists for that provider and region. If not, MongoDB Cloud creates them as part of the deployment. It assigns the VPC a Classless Inter-Domain Routing (CIDR) block. To limit a new VPC peering connection to one Classless Inter-Domain Routing (CIDR) block and region, create the connection first. Deploy the cluster after the connection starts. GCP Clusters and Multi-region clusters require one VPC peering connection for each region. MongoDB nodes can use only the peering connection that resides in the same region as the nodes to communicate with the peered VPC.",
-            "oneOf": [
-              {
-                "description": "Physical location where MongoDB Cloud deploys your AWS-hosted MongoDB cluster nodes. The region you choose can affect network latency for clients accessing your databases. When MongoDB Cloud deploys a dedicated cluster, it checks if a VPC or VPC connection exists for that provider and region. If not, MongoDB Cloud creates them as part of the deployment. MongoDB Cloud assigns the VPC a CIDR block. To limit a new VPC peering connection to one CIDR block and region, create the connection first. Deploy the cluster after the connection starts.",
-                "enum": [
-                  "US_GOV_WEST_1",
-                  "US_GOV_EAST_1",
-                  "US_EAST_1",
-                  "US_EAST_2",
-                  "US_WEST_1",
-                  "US_WEST_2",
-                  "CA_CENTRAL_1",
-                  "EU_NORTH_1",
-                  "EU_WEST_1",
-                  "EU_WEST_2",
-                  "EU_WEST_3",
-                  "EU_CENTRAL_1",
-                  "EU_CENTRAL_2",
-                  "AP_EAST_1",
-                  "AP_NORTHEAST_1",
-                  "AP_NORTHEAST_2",
-                  "AP_NORTHEAST_3",
-                  "AP_SOUTHEAST_1",
-                  "AP_SOUTHEAST_2",
-                  "AP_SOUTHEAST_3",
-                  "AP_SOUTHEAST_4",
-                  "AP_SOUTH_1",
-                  "AP_SOUTH_2",
-                  "SA_EAST_1",
-                  "CN_NORTH_1",
-                  "CN_NORTHWEST_1",
-                  "ME_SOUTH_1",
-                  "ME_CENTRAL_1",
-                  "AF_SOUTH_1",
-                  "EU_SOUTH_1",
-                  "EU_SOUTH_2",
-                  "IL_CENTRAL_1",
-                  "CA_WEST_1",
-                  "GLOBAL"
-                ],
-                "title": "AWS Regions",
-                "type": "string"
-              },
-              {
-                "description": "Microsoft Azure Regions.",
-                "enum": [
-                  "US_CENTRAL",
-                  "US_EAST",
-                  "US_EAST_2",
-                  "US_NORTH_CENTRAL",
-                  "US_WEST",
-                  "US_SOUTH_CENTRAL",
-                  "EUROPE_NORTH",
-                  "EUROPE_WEST",
-                  "US_WEST_CENTRAL",
-                  "US_WEST_2",
-                  "US_WEST_3",
-                  "CANADA_EAST",
-                  "CANADA_CENTRAL",
-                  "BRAZIL_SOUTH",
-                  "BRAZIL_SOUTHEAST",
-                  "AUSTRALIA_CENTRAL",
-                  "AUSTRALIA_CENTRAL_2",
-                  "AUSTRALIA_EAST",
-                  "AUSTRALIA_SOUTH_EAST",
-                  "GERMANY_CENTRAL",
-                  "GERMANY_NORTH_EAST",
-                  "GERMANY_WEST_CENTRAL",
-                  "GERMANY_NORTH",
-                  "SWEDEN_CENTRAL",
-                  "SWEDEN_SOUTH",
-                  "SWITZERLAND_NORTH",
-                  "SWITZERLAND_WEST",
-                  "UK_SOUTH",
-                  "UK_WEST",
-                  "NORWAY_EAST",
-                  "NORWAY_WEST",
-                  "INDIA_CENTRAL",
-                  "INDIA_SOUTH",
-                  "INDIA_WEST",
-                  "CHINA_EAST",
-                  "CHINA_NORTH",
-                  "ASIA_EAST",
-                  "JAPAN_EAST",
-                  "JAPAN_WEST",
-                  "ASIA_SOUTH_EAST",
-                  "KOREA_CENTRAL",
-                  "KOREA_SOUTH",
-                  "FRANCE_CENTRAL",
-                  "FRANCE_SOUTH",
-                  "SOUTH_AFRICA_NORTH",
-                  "SOUTH_AFRICA_WEST",
-                  "UAE_CENTRAL",
-                  "UAE_NORTH",
-                  "QATAR_CENTRAL"
-                ],
-                "title": "Azure Regions",
-                "type": "string"
-              },
-              {
-                "description": "Google Compute Regions.",
-                "enum": [
-                  "EASTERN_US",
-                  "EASTERN_US_AW",
-                  "US_EAST_4",
-                  "US_EAST_4_AW",
-                  "US_EAST_5",
-                  "US_EAST_5_AW",
-                  "US_WEST_2",
-                  "US_WEST_2_AW",
-                  "US_WEST_3",
-                  "US_WEST_3_AW",
-                  "US_WEST_4",
-                  "US_WEST_4_AW",
-                  "US_SOUTH_1",
-                  "US_SOUTH_1_AW",
-                  "CENTRAL_US",
-                  "CENTRAL_US_AW",
-                  "WESTERN_US",
-                  "WESTERN_US_AW",
-                  "NORTH_AMERICA_NORTHEAST_1",
-                  "NORTH_AMERICA_NORTHEAST_2",
-                  "SOUTH_AMERICA_EAST_1",
-                  "SOUTH_AMERICA_WEST_1",
-                  "WESTERN_EUROPE",
-                  "EUROPE_NORTH_1",
-                  "EUROPE_WEST_2",
-                  "EUROPE_WEST_3",
-                  "EUROPE_WEST_4",
-                  "EUROPE_WEST_6",
-                  "EUROPE_WEST_8",
-                  "EUROPE_WEST_9",
-                  "EUROPE_WEST_10",
-                  "EUROPE_WEST_12",
-                  "EUROPE_SOUTHWEST_1",
-                  "EUROPE_CENTRAL_2",
-                  "MIDDLE_EAST_CENTRAL_1",
-                  "MIDDLE_EAST_CENTRAL_2",
-                  "MIDDLE_EAST_WEST_1",
-                  "AUSTRALIA_SOUTHEAST_1",
-                  "AUSTRALIA_SOUTHEAST_2",
-                  "EASTERN_ASIA_PACIFIC",
-                  "NORTHEASTERN_ASIA_PACIFIC",
-                  "SOUTHEASTERN_ASIA_PACIFIC",
-                  "ASIA_EAST_2",
-                  "ASIA_NORTHEAST_2",
-                  "ASIA_NORTHEAST_3",
-                  "ASIA_SOUTH_1",
-                  "ASIA_SOUTH_2",
-                  "ASIA_SOUTHEAST_2"
-                ],
-                "title": "GCP Regions",
-                "type": "string"
-              }
-            ],
-            "type": "object"
-          }
-        },
-        "title": "Cloud Service Provider Settings",
         "type": "object"
       },
       "CloudSearchMetrics": {
@@ -11849,96 +11361,6 @@
         "readOnly": true,
         "type": "object"
       },
-      "DataProtectionSettings": {
-        "properties": {
-          "authorizedEmail": {
-            "description": "Email address of the user who authorized to update the Backup Compliance Policy  settings.",
-            "format": "email",
-            "type": "string"
-          },
-          "authorizedUserFirstName": {
-            "description": "First name of the user who authorized to update the Backup Compliance Policy  settings.",
-            "type": "string"
-          },
-          "authorizedUserLastName": {
-            "description": "Last name of the user who authorized to update the Backup Compliance Policy  settings.",
-            "type": "string"
-          },
-          "copyProtectionEnabled": {
-            "default": false,
-            "description": "Flag that indicates whether to prevent cluster users from deleting backups copied to other regions, even if those additional snapshot regions are removed. If unspecified, this value defaults to false.",
-            "type": "boolean"
-          },
-          "encryptionAtRestEnabled": {
-            "default": false,
-            "description": "Flag that indicates whether Encryption at Rest using Customer Key  Management is required for all clusters with a Backup Compliance Policy. If unspecified, this value defaults to false.",
-            "externalDocs": {
-              "description": "Encryption at Rest using Customer Key Management",
-              "url": "https://www.mongodb.com/docs/atlas/security-kms-encryption/"
-            },
-            "type": "boolean"
-          },
-          "onDemandPolicyItem": {
-            "$ref": "#/components/schemas/BackupComplianceOnDemandPolicyItem"
-          },
-          "pitEnabled": {
-            "default": false,
-            "description": "Flag that indicates whether the cluster uses Continuous Cloud Backups with a Backup Compliance Policy. If unspecified, this value defaults to false.",
-            "externalDocs": {
-              "description": "Continuous Cloud Backups",
-              "url": "https://docs.atlas.mongodb.com/backup/cloud-backup/overview/"
-            },
-            "type": "boolean"
-          },
-          "projectId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the project for the Backup Compliance Policy.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "maxLength": 24,
-            "minLength": 24,
-            "pattern": "^([a-f0-9]{24})$",
-            "type": "string"
-          },
-          "restoreWindowDays": {
-            "description": "Number of previous days that you can restore back to with Continuous Cloud Backup with a Backup Compliance Policy. You must specify a positive, non-zero integer, and the maximum retention window can't exceed the hourly retention time. This parameter applies only to Continuous Cloud Backups with a Backup Compliance Policy.",
-            "format": "int32",
-            "type": "integer"
-          },
-          "scheduledPolicyItems": {
-            "description": "List that contains the specifications for one scheduled policy.",
-            "items": {
-              "$ref": "#/components/schemas/BackupComplianceScheduledPolicyItem"
-            },
-            "type": "array"
-          },
-          "state": {
-            "description": "Label that indicates the state of the Backup Compliance Policy settings. MongoDB Cloud ignores this setting when you enable or update the Backup Compliance Policy settings.",
-            "enum": [
-              "ACTIVE",
-              "ENABLING",
-              "UPDATING",
-              "DISABLING"
-            ],
-            "readOnly": true,
-            "type": "string"
-          },
-          "updatedDate": {
-            "description": "ISO 8601 timestamp format in UTC that indicates when the user updated the Data Protection Policy settings. MongoDB Cloud ignores this setting when you enable or update the Backup Compliance Policy settings.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "updatedUser": {
-            "description": "Email address that identifies the user who updated the Backup Compliance Policy settings. MongoDB Cloud ignores this email setting when you enable or update the Backup Compliance Policy settings.",
-            "format": "email",
-            "readOnly": true,
-            "type": "string"
-          }
-        },
-        "required": [
-          "authorizedEmail"
-        ],
-        "type": "object"
-      },
       "DataProtectionSettings20231001": {
         "properties": {
           "authorizedEmail": {
@@ -12432,35 +11854,6 @@
           }
         ],
         "properties": {
-          "nodeCount": {
-            "description": "Number of nodes of the given type for MongoDB Cloud to deploy to the region.",
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "DedicatedHardwareSpec20240805": {
-        "description": "Hardware specifications for read-only nodes in the region. Read-only nodes can never become the primary member, but can enable local reads. If you don't specify this parameter, no read-only nodes are deployed to the region.",
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/AWSHardwareSpec20240805"
-          },
-          {
-            "$ref": "#/components/schemas/AzureHardwareSpec20240805"
-          },
-          {
-            "$ref": "#/components/schemas/GCPHardwareSpec20240805"
-          }
-        ],
-        "properties": {
-          "diskSizeGB": {
-            "description": "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier.",
-            "format": "double",
-            "maximum": 4096,
-            "minimum": 10,
-            "type": "number"
-          },
           "nodeCount": {
             "description": "Number of nodes of the given type for MongoDB Cloud to deploy to the region.",
             "format": "int32",
@@ -18062,50 +17455,6 @@
         },
         "type": "object"
       },
-      "GCPHardwareSpec20240805": {
-        "properties": {
-          "diskSizeGB": {
-            "description": "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier.",
-            "format": "double",
-            "maximum": 4096,
-            "minimum": 10,
-            "type": "number"
-          },
-          "instanceSize": {
-            "description": "Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as \"base nodes\") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.",
-            "enum": [
-              "M10",
-              "M20",
-              "M30",
-              "M40",
-              "M50",
-              "M60",
-              "M80",
-              "M140",
-              "M200",
-              "M250",
-              "M300",
-              "M400",
-              "R40",
-              "R50",
-              "R60",
-              "R80",
-              "R200",
-              "R300",
-              "R400",
-              "R600"
-            ],
-            "title": "GCP Instance Sizes",
-            "type": "string"
-          },
-          "nodeCount": {
-            "description": "Number of nodes of the given type for MongoDB Cloud to deploy to the region.",
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "GCPNetworkPeeringConnectionSettings": {
         "description": "Group of Network Peering connection settings.",
         "properties": {
@@ -18193,33 +17542,6 @@
               },
               "readOnlySpecs": {
                 "$ref": "#/components/schemas/DedicatedHardwareSpec"
-              }
-            },
-            "type": "object"
-          }
-        ],
-        "description": "Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.",
-        "title": "GCP Regional Replication Specifications",
-        "type": "object"
-      },
-      "GCPRegionConfig20240805": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CloudRegionConfig20240805"
-          },
-          {
-            "properties": {
-              "analyticsAutoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
-              },
-              "analyticsSpecs": {
-                "$ref": "#/components/schemas/DedicatedHardwareSpec20240805"
-              },
-              "autoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
-              },
-              "readOnlySpecs": {
-                "$ref": "#/components/schemas/DedicatedHardwareSpec20240805"
               }
             },
             "type": "object"
@@ -19144,33 +18466,6 @@
             "$ref": "#/components/schemas/TenantHardwareSpec"
           }
         ],
-        "type": "object"
-      },
-      "HardwareSpec20240805": {
-        "description": "Hardware specifications for all electable nodes deployed in the region. Electable nodes can become the primary and can enable local reads. If you don't specify this option, MongoDB Cloud deploys no electable nodes to the region.",
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/AWSHardwareSpec20240805"
-          },
-          {
-            "$ref": "#/components/schemas/AzureHardwareSpec20240805"
-          },
-          {
-            "$ref": "#/components/schemas/GCPHardwareSpec20240805"
-          },
-          {
-            "$ref": "#/components/schemas/TenantHardwareSpec20240805"
-          }
-        ],
-        "properties": {
-          "diskSizeGB": {
-            "description": "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier.",
-            "format": "double",
-            "maximum": 4096,
-            "minimum": 10,
-            "type": "number"
-          }
-        },
         "type": "object"
       },
       "HipChatNotification": {
@@ -22525,49 +21820,6 @@
             "type": "string"
           }
         },
-        "type": "object"
-      },
-      "LiveMigrationRequest": {
-        "properties": {
-          "_id": {
-            "description": "Unique 24-hexadecimal digit string that identifies the migration request.",
-            "example": "507f1f77bcf86cd799439011",
-            "maxLength": 24,
-            "minLength": 24,
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "destination": {
-            "$ref": "#/components/schemas/Destination"
-          },
-          "dropEnabled": {
-            "description": "Flag that indicates whether the migration process drops all collections from the destination cluster before the migration starts.",
-            "type": "boolean",
-            "writeOnly": true
-          },
-          "migrationHosts": {
-            "description": "List of migration hosts used for this migration.",
-            "items": {
-              "example": "vm001.example.com",
-              "type": "string"
-            },
-            "maxItems": 1,
-            "minItems": 1,
-            "type": "array"
-          },
-          "sharding": {
-            "$ref": "#/components/schemas/ShardingRequest"
-          },
-          "source": {
-            "$ref": "#/components/schemas/Source"
-          }
-        },
-        "required": [
-          "destination",
-          "dropEnabled",
-          "source"
-        ],
         "type": "object"
       },
       "LiveMigrationRequest20240530": {
@@ -33362,56 +32614,10 @@
         },
         "type": "object"
       },
-      "TenantHardwareSpec20240805": {
-        "properties": {
-          "diskSizeGB": {
-            "description": "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set **replicationSpecs**.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier.",
-            "format": "double",
-            "maximum": 4096,
-            "minimum": 10,
-            "type": "number"
-          },
-          "instanceSize": {
-            "description": "Hardware specification for the instances in this M0/M2/M5 tier cluster.",
-            "enum": [
-              "M0",
-              "M2",
-              "M5"
-            ],
-            "title": "Tenant Instance Sizes",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "TenantRegionConfig": {
         "allOf": [
           {
             "$ref": "#/components/schemas/CloudRegionConfig"
-          },
-          {
-            "properties": {
-              "backingProviderName": {
-                "description": "Cloud service provider on which MongoDB Cloud provisioned the multi-tenant cluster. The resource returns this parameter when **providerName** is `TENANT` and **electableSpecs.instanceSize** is `M0`, `M2` or `M5`.",
-                "enum": [
-                  "AWS",
-                  "GCP",
-                  "AZURE"
-                ],
-                "type": "string"
-              }
-            },
-            "type": "object"
-          }
-        ],
-        "description": "Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.",
-        "title": "Tenant Regional Replication Specifications",
-        "type": "object"
-      },
-      "TenantRegionConfig20240805": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CloudRegionConfig20240805"
           },
           {
             "properties": {
@@ -57969,7 +57175,7 @@
             "in": "query",
             "name": "completedAfter",
             "schema": {
-              "example": "2022-01-01T00:00:00.000Z",
+              "example": "2022-01-01T00:00:00Z",
               "format": "date-time",
               "type": "string"
             }
@@ -58234,7 +57440,7 @@
             "in": "query",
             "name": "createdBefore",
             "schema": {
-              "example": "2022-01-01T00:00:00.000Z",
+              "example": "2022-01-01T00:00:00Z",
               "format": "date-time",
               "type": "string"
             }
@@ -68182,7 +67388,7 @@
             "in": "query",
             "name": "minDate",
             "schema": {
-              "example": "2021-11-17T23:15:00.060Z",
+              "example": "2021-11-17T23:15:00.06Z",
               "format": "date-time",
               "type": "string"
             }
