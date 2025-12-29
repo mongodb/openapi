@@ -30808,6 +30808,30 @@ components:
                     readOnly: true
                     type: integer
             type: object
+        PaginatedApiStandbyLinkResponse:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/ApiStandbyLinkResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
         PaginatedApiStreamsConnectionView:
             properties:
                 links:
@@ -41730,7 +41754,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 20abff5052e8bee7f0eb911ec0c072fc1a98868c
+    x-xgen-sha: 6318eb2520e97ce86b67fa79b4a26102ca36bec0
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -58564,6 +58588,43 @@ paths:
                 - Projects
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupSettings
     /api/atlas/v2/groups/{groupId}/standbyLinks:
+        get:
+            description: Returns all standby links for the specified project. Each standby link represents a disaster recovery relationship between an active cluster and a standby cluster.
+            operationId: listGroupStandbyLinks
+            parameters:
+                - description: Unique 24-hexadecimal digit string that identifies the project.
+                  in: path
+                  name: groupId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiStandbyLinkResponse'
+                            x-xgen-preview:
+                                name: standby-links
+                            x-xgen-version: preview
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Standby Links for One Project
+            tags:
+                - Standby Links
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/listGroupStandbyLinks
         post:
             description: Creates a disaster recovery standby link between an active cluster and a standby cluster. Both clusters must not already be part of a standby link system, must be single-region clusters, and must be in different regions.
             operationId: createGroupStandbyLink
