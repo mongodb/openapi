@@ -1153,7 +1153,6 @@ components:
                         - UNPLANNED
                         - PLANNED_REVERSE
                         - PLANNED
-                    readOnly: true
                     type: string
             type: object
         ApiStandbyLinkResponse:
@@ -7869,6 +7868,30 @@ components:
                     uniqueItems: true
             readOnly: true
             type: object
+        PaginatedApiStandbyLinkFailoverResponse:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/ApiStandbyLinkFailoverResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
         PaginatedApiStandbyLinkResponse:
             properties:
                 links:
@@ -11231,7 +11254,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 19515eab25feae8f6b311298fc564fcb0bf125d7
+    x-xgen-sha: 5deedce95917ae05bc34a1689eb35ed655db7972
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/standbyLinks:
@@ -11509,6 +11532,75 @@ paths:
                 label: PREVIEW
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/getGroupStandbyLink
     /api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns all failover operations for the specified standby link. Each failover represents a planned or unplanned process to promote a standby cluster to an active cluster.
+            operationId: listGroupStandbyLinkFailovers
+            parameters:
+                - description: Unique 24-hexadecimal digit string that identifies the project.
+                  in: path
+                  name: groupId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the standby link.
+                  in: path
+                  name: standbyLinkId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiStandbyLinkFailoverResponse'
+                            x-xgen-preview:
+                                name: standby-links
+                            x-xgen-version: private-preview-standby-links
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Standby Link Failovers
+            tags:
+                - Standby Links
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api standbyLinks listStandbyLinkFailovers --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers?pretty=true"
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/listGroupStandbyLinkFailovers
+            x-xgen-operation-id-override: listStandbyLinkFailovers
         post:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
@@ -11589,6 +11681,86 @@ paths:
                 label: PREVIEW
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/createGroupStandbyLinkFailover
             x-xgen-operation-id-override: createStandbyLinkFailover
+    /api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers/{failoverId}:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns the current status and details of a specific failover operation for a standby link.
+            operationId: getGroupStandbyLinkFailover
+            parameters:
+                - description: Unique 24-hexadecimal digit string that identifies the project.
+                  in: path
+                  name: groupId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the standby link.
+                  in: path
+                  name: standbyLinkId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the failover operation.
+                  in: path
+                  name: failoverId
+                  required: true
+                  schema:
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Flag that indicates whether to wrap the response in an envelope.
+                  in: query
+                  name: envelope
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiStandbyLinkFailoverResponse'
+                            x-xgen-preview:
+                                name: standby-links
+                            x-xgen-version: private-preview-standby-links
+                    description: Failover operation retrieved successfully.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Standby Link Failover
+            tags:
+                - Standby Links
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api standbyLinks getStandbyLinkFailover --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers/{failoverId}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers/{failoverId}?pretty=true"
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/getGroupStandbyLinkFailover
+            x-xgen-operation-id-override: getStandbyLinkFailover
 security:
     - ServiceAccounts: []
     - DigestAuth: []
