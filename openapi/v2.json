@@ -1388,20 +1388,11 @@
       "AddOrRemoveGroupRole": {
         "properties": {
           "groupRole": {
-            "description": "Project-level role.",
-            "enum": [
-              "GROUP_OWNER",
-              "GROUP_CLUSTER_MANAGER",
-              "GROUP_STREAM_PROCESSING_OWNER",
-              "GROUP_DATA_ACCESS_ADMIN",
-              "GROUP_DATA_ACCESS_READ_WRITE",
-              "GROUP_DATA_ACCESS_READ_ONLY",
-              "GROUP_READ_ONLY",
-              "GROUP_SEARCH_INDEX_EDITOR",
-              "GROUP_BACKUP_MANAGER",
-              "GROUP_OBSERVABILITY_VIEWER",
-              "GROUP_DATABASE_ACCESS_ADMIN"
-            ],
+            "description": "Project-level role to assign to or remove from the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "type": "string"
           }
         },
@@ -3612,6 +3603,130 @@
         "required": [
           "instanceSize",
           "nodeCount"
+        ],
+        "type": "object"
+      },
+      "ApiStandbyLinkFailoverRequest": {
+        "description": "Request to initiate a failover operation.",
+        "properties": {
+          "type": {
+            "description": "Type of failover operation to perform.",
+            "enum": [
+              "UNPLANNED",
+              "PLANNED_REVERSE",
+              "PLANNED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "ApiStandbyLinkFailoverResponse": {
+        "description": "Response containing failover operation details.",
+        "properties": {
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies the failover operation.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "standbyLinkId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby link.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "status": {
+            "description": "Current status of the failover operation.",
+            "enum": [
+              "INITIALIZING",
+              "IN_PROGRESS",
+              "COMPLETE"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "type": {
+            "description": "Type of failover operation to perform.",
+            "enum": [
+              "UNPLANNED",
+              "PLANNED_REVERSE",
+              "PLANNED"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiStandbyLinkRequest": {
+        "description": "Request body for creating a standby link between clusters.",
+        "properties": {
+          "activeClusterUniqueId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the active cluster in the standby link.",
+            "example": "507f191e810c19729de860ea",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "type": "string"
+          },
+          "standbyClusterUniqueId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby cluster in the standby link.",
+            "example": "507f191e810c19729de860eb",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "activeClusterUniqueId",
+          "standbyClusterUniqueId"
+        ],
+        "type": "object"
+      },
+      "ApiStandbyLinkResponse": {
+        "description": "Response body containing standby link information.",
+        "properties": {
+          "activeClusterUniqueId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the active cluster in the standby link.",
+            "example": "507f191e810c19729de860ea",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "type": "string"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project containing the clusters in the standby link.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "standbyClusterUniqueId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby cluster in the standby link.",
+            "example": "507f191e810c19729de860eb",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "type": "string"
+          },
+          "standbyLinkId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby link.",
+            "example": "507f1f77bcf86cd799439011",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "status": {
+            "description": "Current status of the standby link.",
+            "example": "INITIALIZING",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "activeClusterUniqueId",
+          "groupId",
+          "standbyClusterUniqueId",
+          "standbyLinkId",
+          "status"
         ],
         "type": "object"
       },
@@ -12614,109 +12729,36 @@
       "ConfluentSaslInheritAuthentication": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
+            "$ref": "#/components/schemas/SchemaRegistryAuthentication"
           }
         ],
-        "description": "SASL_INHERIT authentication configuration from Kafka for Confluent Schema Registry. Username and password are inherited from the Kafka connection.",
+        "description": "Inherits the authentication configuration from Kafka for the Confluent Schema Registry.",
         "required": [
           "type"
-        ],
-        "type": "object"
-      },
-      "ConfluentSchemaRegistryAuthentication": {
-        "description": "Authentication configuration for Confluent Schema Registry.",
-        "discriminator": {
-          "mapping": {
-            "SASL_INHERIT": "#/components/schemas/ConfluentSaslInheritAuthentication",
-            "USER_INFO": "#/components/schemas/ConfluentUserInfoAuthentication"
-          },
-          "propertyName": "type"
-        },
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/ConfluentUserInfoAuthentication"
-          },
-          {
-            "$ref": "#/components/schemas/ConfluentSaslInheritAuthentication"
-          }
-        ],
-        "properties": {
-          "type": {
-            "description": "Authentication type discriminator. Specifies the authentication mechanism for Confluent Schema Registry.",
-            "enum": [
-              "USER_INFO",
-              "SASL_INHERIT"
-            ],
-            "type": "string"
-          }
-        },
-        "required": [
-          "type"
-        ],
-        "type": "object"
-      },
-      "ConfluentSchemaRegistryConnectionPrivatePreview": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-          },
-          {
-            "properties": {
-              "provider": {
-                "description": "The Schema Registry provider.",
-                "enum": [
-                  "CONFLUENT"
-                ],
-                "type": "string"
-              },
-              "schemaRegistryAuthentication": {
-                "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
-              },
-              "schemaRegistryUrls": {
-                "description": "List of Schema Registry URLs.",
-                "items": {
-                  "description": "Schema Registry URL.",
-                  "format": "uri",
-                  "type": "string"
-                },
-                "maxItems": 10,
-                "type": "array",
-                "uniqueItems": true
-              }
-            },
-            "type": "object"
-          },
-          {
-            "$ref": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
-          }
-        ],
-        "description": "The configuration for Confluent Schema Registry connections.",
-        "required": [
-          "provider"
         ],
         "type": "object"
       },
       "ConfluentUserInfoAuthentication": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
+            "$ref": "#/components/schemas/SchemaRegistryAuthentication"
           },
           {
             "properties": {
               "password": {
-                "description": "Password for USER_INFO authentication. Required.",
+                "description": "Password or Private Key for authentication.",
                 "type": "string",
                 "writeOnly": true
               },
               "username": {
-                "description": "Username for USER_INFO authentication. Required.",
+                "description": "Username or Public Key for authentication.",
                 "type": "string"
               }
             },
             "type": "object"
           }
         ],
-        "description": "Direct authentication with username and password for Confluent Schema Registry.",
+        "description": "USER_INFO authentication with username and password for Confluent Schema Registry.",
         "required": [
           "password",
           "type",
@@ -25815,13 +25857,13 @@
         "properties": {
           "customZoneMapping": {
             "additionalProperties": {
-              "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `id` property.\n\nThis parameter returns an empty object if no custom zones exist.",
+              "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `id` property.\n\nThis parameter returns an empty object if no custom zones exist.\n\nExample: `{\"US-VA\": \"6716c5a804f4ce77e899bf99\", \"DE\": \"6716c5a804f4ce77e899bf9a\"}`.",
               "example": "32b6e34b3d91647abb20e7b8",
               "pattern": "^([a-f0-9]{24})$",
               "readOnly": true,
               "type": "string"
             },
-            "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `id` property.\n\nThis parameter returns an empty object if no custom zones exist.",
+            "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `id` property.\n\nThis parameter returns an empty object if no custom zones exist.\n\nExample: `{\"US-VA\": \"6716c5a804f4ce77e899bf99\", \"DE\": \"6716c5a804f4ce77e899bf9a\"}`.",
             "readOnly": true,
             "type": "object"
           },
@@ -25845,13 +25887,13 @@
         "properties": {
           "customZoneMapping": {
             "additionalProperties": {
-              "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `zoneId` property.\n\nThis parameter returns an empty object if no custom zones exist.",
+              "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `zoneId` property.\n\nThis parameter returns an empty object if no custom zones exist.\n\nExample: `{\"US-VA\": \"6716c5a804f4ce77e899bf99\", \"DE\": \"6716c5a804f4ce77e899bf9a\"}`.",
               "example": "32b6e34b3d91647abb20e7b8",
               "pattern": "^([a-f0-9]{24})$",
               "readOnly": true,
               "type": "string"
             },
-            "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `zoneId` property.\n\nThis parameter returns an empty object if no custom zones exist.",
+            "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `zoneId` property.\n\nThis parameter returns an empty object if no custom zones exist.\n\nExample: `{\"US-VA\": \"6716c5a804f4ce77e899bf99\", \"DE\": \"6716c5a804f4ce77e899bf9a\"}`.",
             "readOnly": true,
             "type": "object"
           },
@@ -26536,20 +26578,11 @@
           },
           "roles": {
             "description": "One or more organization or project level roles to assign to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "enum": [
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATABASE_ACCESS_ADMIN",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_OWNER",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_STREAM_PROCESSING_OWNER"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -26568,20 +26601,11 @@
         "properties": {
           "roles": {
             "description": "One or more project level roles to assign to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "enum": [
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATABASE_ACCESS_ADMIN",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_OWNER",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_STREAM_PROCESSING_OWNER"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -26599,20 +26623,11 @@
         "properties": {
           "roles": {
             "description": "One or more project-level roles to assign to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "enum": [
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATABASE_ACCESS_ADMIN",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_OWNER",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_STREAM_PROCESSING_OWNER"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -26873,21 +26888,11 @@
           },
           "groupRoles": {
             "description": "One or more project-level roles assigned to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "description": "Project-level role.",
-              "enum": [
-                "GROUP_OWNER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_STREAM_PROCESSING_OWNER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_DATABASE_ACCESS_ADMIN"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -27154,21 +27159,11 @@
         "properties": {
           "roles": {
             "description": "One or more project-level roles to assign the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "description": "Project-level role.",
-              "enum": [
-                "GROUP_OWNER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_STREAM_PROCESSING_OWNER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_DATABASE_ACCESS_ADMIN"
-              ],
               "type": "string"
             },
             "minItems": 1,
@@ -27224,21 +27219,11 @@
           },
           "roles": {
             "description": "One or more project-level roles assigned to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "description": "Project-level role.",
-              "enum": [
-                "GROUP_OWNER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_STREAM_PROCESSING_OWNER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_DATABASE_ACCESS_ADMIN"
-              ],
               "type": "string"
             },
             "readOnly": true,
@@ -38583,6 +38568,70 @@
         },
         "type": "object"
       },
+      "PaginatedApiStandbyLinkFailoverResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ApiStandbyLinkFailoverResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PaginatedApiStandbyLinkResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ApiStandbyLinkResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PaginatedApiStreamsConnectionView": {
         "properties": {
           "links": {
@@ -42768,65 +42817,6 @@
         "readOnly": true,
         "type": "object"
       },
-      "S3LogExport": {
-        "description": "Details to integrate S3 log export with one MongoDB Cloud project.",
-        "properties": {
-          "bucketName": {
-            "description": "Human-readable label that identifies the S3 bucket name for storing log files.",
-            "example": "my-log-bucket",
-            "type": "string"
-          },
-          "iamRoleId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.",
-            "example": "507f1f77bcf86cd799439011",
-            "type": "string"
-          },
-          "id": {
-            "description": "Integration id.",
-            "nullable": true,
-            "type": "string"
-          },
-          "kmsKey": {
-            "description": "AWS KMS key ID or ARN for server-side encryption (optional). If not provided, uses bucket default encryption settings.",
-            "example": "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012",
-            "nullable": true,
-            "type": "string"
-          },
-          "logTypes": {
-            "description": "Array of log types to export to S3.",
-            "example": [
-              "MONGOD",
-              "MONGOS",
-              "MONGOD_AUDIT",
-              "MONGOS_AUDIT"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 10,
-            "type": "array"
-          },
-          "prefixPath": {
-            "description": "S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.",
-            "example": "mongo-logs/",
-            "type": "string"
-          },
-          "type": {
-            "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the third-party service integration type.",
-            "enum": [
-              "S3_LOG_EXPORT"
-            ],
-            "type": "string"
-          }
-        },
-        "required": [
-          "bucketName",
-          "iamRoleId",
-          "prefixPath"
-        ],
-        "title": "S3 Log Export",
-        "type": "object"
-      },
       "S3LogIntegrationRequest": {
         "allOf": [
           {
@@ -43207,6 +43197,38 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "SchemaRegistryAuthentication": {
+        "description": "Authentication configuration for Schema Registry.",
+        "discriminator": {
+          "mapping": {
+            "SASL_INHERIT": "#/components/schemas/ConfluentSaslInheritAuthentication",
+            "USER_INFO": "#/components/schemas/ConfluentUserInfoAuthentication"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ConfluentUserInfoAuthentication"
+          },
+          {
+            "$ref": "#/components/schemas/ConfluentSaslInheritAuthentication"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Authentication type discriminator. Specifies the authentication mechanism for Confluent Schema Registry.",
+            "enum": [
+              "USER_INFO",
+              "SASL_INHERIT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
         "type": "object"
       },
       "SearchDeploymentAuditTypeView": {
@@ -46951,7 +46973,7 @@
           {
             "properties": {
               "clusterGroupId": {
-                "description": "The id of the group that the cluster belongs to.",
+                "description": "Unique 24-hexadecimal digit string that identifies the project that contains the configured cluster. Required if the ID does not match the project containing the streams workspace. You must first enable the organization setting.",
                 "type": "string"
               },
               "clusterName": {
@@ -46977,7 +46999,8 @@
             "Https": "#/components/schemas/StreamsHttpsConnection",
             "Kafka": "#/components/schemas/StreamsKafkaConnection",
             "S3": "#/components/schemas/StreamsS3Connection",
-            "Sample": "#/components/schemas/StreamsSampleConnection"
+            "Sample": "#/components/schemas/StreamsSampleConnection",
+            "SchemaRegistry": "#/components/schemas/StreamsSchemaRegistryConnection"
           },
           "propertyName": "type"
         },
@@ -47002,6 +47025,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamsAWSKinesisDataStreamsConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsSchemaRegistryConnection"
           }
         ],
         "properties": {
@@ -47029,35 +47055,13 @@
               "Sample",
               "Https",
               "AWSLambda",
-              "AWSKinesisDataStreams"
+              "AWSKinesisDataStreams",
+              "SchemaRegistry"
             ],
             "type": "string"
           }
         },
         "readOnly": true,
-        "type": "object"
-      },
-      "StreamsConnectionPrivatePreview": {
-        "description": "Settings that define a connection to an external data store.",
-        "discriminator": {
-          "mapping": {
-            "SchemaRegistry": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
-          },
-          "propertyName": "type"
-        },
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
-          }
-        ],
-        "properties": {
-          "type": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type"
-        ],
         "type": "object"
       },
       "StreamsDLQ": {
@@ -47847,58 +47851,43 @@
         },
         "type": "object"
       },
-      "StreamsSchemaRegistryConnectionPrivatePreview": {
-        "description": "The configuration for Schema Registry connections.",
-        "discriminator": {
-          "mapping": {
-            "CONFLUENT": "#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview"
-          },
-          "propertyName": "provider"
-        },
-        "oneOf": [
+      "StreamsSchemaRegistryConnection": {
+        "allOf": [
           {
-            "$ref": "#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview"
+            "$ref": "#/components/schemas/StreamsConnection"
+          },
+          {
+            "properties": {
+              "provider": {
+                "description": "The Schema Registry provider.",
+                "enum": [
+                  "CONFLUENT"
+                ],
+                "type": "string"
+              },
+              "schemaRegistryAuthentication": {
+                "$ref": "#/components/schemas/SchemaRegistryAuthentication"
+              },
+              "schemaRegistryUrls": {
+                "description": "List of Schema Registry endpoint URLs used by this connection. Each URL must use the http or https scheme and specify a valid host and optional port.",
+                "items": {
+                  "description": "Schema Registry URL.",
+                  "format": "uri",
+                  "type": "string"
+                },
+                "maxItems": 10,
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
           }
         ],
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "name": {
-            "description": "Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.",
-            "type": "string"
-          },
-          "provider": {
-            "description": "The Schema Registry provider.",
-            "enum": [
-              "CONFLUENT"
-            ],
-            "type": "string"
-          },
-          "type": {
-            "description": "Type of the connection.",
-            "enum": [
-              "Kafka",
-              "Cluster",
-              "Sample",
-              "Https",
-              "AWSLambda",
-              "AWSKinesisDataStreams"
-            ],
-            "type": "string"
-          }
-        },
+        "description": "The configuration for Schema Registry connections.",
         "required": [
-          "provider"
+          "provider",
+          "schemaRegistryAuthentication",
+          "schemaRegistryUrls"
         ],
         "type": "object"
       },
@@ -49256,6 +49245,17 @@
             ],
             "type": "string"
           },
+          "sort": {
+            "description": "Sort definition for the index. When defined, the index will be pre-sorted on thespecified fields, which improves query sort performance for those fields. Supports two formats: simple format with field name and direction, or complex format with additional options.The 'order' field is required (1=ascending, -1=descending).The 'noData' field is optional and controls how missing values are sorted(default: \"lowest\").",
+            "example": {
+              "anotherField": {
+                "noData": "highest",
+                "order": -1
+              },
+              "fieldName": 1
+            },
+            "type": "object"
+          },
           "storedSource": {
             "description": "Flag that indicates whether to store all fields (true) on Atlas Search. By default, Atlas doesn't store (false) the fields on Atlas Search.  Alternatively, you can specify an object that only contains the list of fields to store (include) or not store (exclude) on Atlas Search. Note that storing all fields (true) is not allowed for vector search indexes. To learn more, see Stored Source Fields.",
             "example": {
@@ -49399,7 +49399,6 @@
             "OPS_GENIE": "#/components/schemas/OpsGenie",
             "PAGER_DUTY": "#/components/schemas/PagerDuty",
             "PROMETHEUS": "#/components/schemas/Prometheus",
-            "S3_LOG_EXPORT": "#/components/schemas/S3LogExport",
             "SLACK": "#/components/schemas/Slack",
             "VICTOR_OPS": "#/components/schemas/VictorOps",
             "WEBHOOK": "#/components/schemas/Webhook"
@@ -49433,9 +49432,6 @@
           },
           {
             "$ref": "#/components/schemas/MicrosoftTeams"
-          },
-          {
-            "$ref": "#/components/schemas/S3LogExport"
           }
         ],
         "properties": {
@@ -49456,8 +49452,7 @@
               "WEBHOOK",
               "HIP_CHAT",
               "PROMETHEUS",
-              "MICROSOFT_TEAMS",
-              "S3_LOG_EXPORT"
+              "MICROSOFT_TEAMS"
             ],
             "title": "Integration Type",
             "type": "string"
@@ -50063,7 +50058,7 @@
                 },
                 "type": "array",
                 "x-xgen-IPA-exception": {
-                  "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
+                  "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
                 }
               }
             },
@@ -52213,7 +52208,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "f2d783d07a9209c3fa431262516708248a017d91"
+    "x-xgen-sha": "e6297f6ad0f8a284e2e0a4a8255f54a087c4cb04"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -54106,7 +54101,7 @@
         "x-xgen-operation-id-override": "deleteAccessListEntry"
       },
       "get": {
-        "description": "Returns one access list entry from the specified project's IP access list. Each entry in the project's IP access list contains either one IP address or one CIDR-notated block of IP addresses. MongoDB Cloud only allows client connections to the cluster from entries in the project's IP access list. To use this resource, the requesting Service Account or API Key must have the Project Read Only or Project Charts Admin roles. This resource replaces the whitelist resource. MongoDB Cloud removed whitelists in July 2021. Update your applications to use this new resource. This endpoint (`/groups/{GROUP-ID}/accessList`) manages the Project IP Access List. It doesn't manage the access list for MongoDB Cloud organizations. TheProgrammatic API Keys endpoint (`/orgs/{ORG-ID}/apiKeys/{API-KEY-ID}/accesslist`) manages those access lists.",
+        "description": "Returns one access list entry from the specified project's IP access list. Each entry in the project's IP access list contains either one IP address or one CIDR-notated block of IP addresses. MongoDB Cloud only allows client connections to the cluster from entries in the project's IP access list. To use this resource, the requesting Service Account or API Key must have the Project Read Only or Project Charts Admin roles. This resource replaces the whitelist resource. MongoDB Cloud removed whitelists in July 2021. Update your applications to use this new resource. This endpoint (`/groups/{GROUP-ID}/accessList`) manages the Project IP Access List. It doesn't manage the access list for MongoDB Cloud organizations. The Programmatic API Keys endpoint (`/orgs/{ORG-ID}/apiKeys/{API-KEY-ID}/accesslist`) manages those access lists.",
         "externalDocs": {
           "description": "IP access list",
           "url": "https://docs.atlas.mongodb.com/security/ip-access-list/#std-label-access-list"
@@ -66479,6 +66474,9 @@
                 "bytesProcessed.monthly"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           }
         ],
@@ -66549,6 +66547,9 @@
                 "bytesProcessed.monthly"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           }
         ],
@@ -66619,6 +66620,9 @@
                 "bytesProcessed.monthly"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           }
         ],
@@ -69486,7 +69490,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/integrations/{integrationType}": {
       "delete": {
-        "description": "Removes the settings that permit configuring one third-party service integration. These settings apply to all databases managed in one MongoDB Cloud project. If you delete an integration from a project, you remove that integration configuration only for that project. This action doesn't affect any other project or organization's configured `{INTEGRATION-TYPE}` integrations. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Deleting log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Removes the settings that permit configuring one third-party service integration. These settings apply to all databases managed in one MongoDB Cloud project. If you delete an integration from a project, you remove that integration configuration only for that project. This action doesn't affect any other project or organization's configured `{INTEGRATION-TYPE}` integrations. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "deleteGroupIntegration",
         "parameters": [
           {
@@ -69505,8 +69509,7 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS",
-                "S3_LOG_EXPORT"
+                "MICROSOFT_TEAMS"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -69551,10 +69554,13 @@
         "tags": [
           "Third-Party Integrations"
         ],
+        "x-xgen-changelog": {
+          "2026-01-07": "Log export to S3, Splunk, and Datadog is not supported by this API."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/deleteGroupIntegration"
       },
       "get": {
-        "description": "Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role. Viewing log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
         "operationId": "getGroupIntegration",
         "parameters": [
           {
@@ -69582,8 +69588,7 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS",
-                "S3_LOG_EXPORT"
+                "MICROSOFT_TEAMS"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -69626,10 +69631,13 @@
         "tags": [
           "Third-Party Integrations"
         ],
+        "x-xgen-changelog": {
+          "2026-01-07": "Log export to S3, Splunk, and Datadog is not supported by this API."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/getGroupIntegration"
       },
       "post": {
-        "description": "Adds the settings for configuring one third-party service integration. These settings apply to all databases managed in the specified MongoDB Cloud project. Each project can have only one configuration per `{INTEGRATION-TYPE}`. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Enabling log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Adds the settings for configuring one third-party service integration. These settings apply to all databases managed in the specified MongoDB Cloud project. Each project can have only one configuration per `{INTEGRATION-TYPE}`. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "createGroupIntegration",
         "parameters": [
           {
@@ -69648,8 +69656,7 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS",
-                "S3_LOG_EXPORT"
+                "MICROSOFT_TEAMS"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -69720,10 +69727,13 @@
         "tags": [
           "Third-Party Integrations"
         ],
+        "x-xgen-changelog": {
+          "2026-01-07": "Log export to S3, Splunk, and Datadog is not supported by this API."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/createGroupIntegration"
       },
       "put": {
-        "description": "Updates the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Enabling log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Updates the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "updateGroupIntegration",
         "parameters": [
           {
@@ -69742,8 +69752,7 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS",
-                "S3_LOG_EXPORT"
+                "MICROSOFT_TEAMS"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -69814,6 +69823,9 @@
         "tags": [
           "Third-Party Integrations"
         ],
+        "x-xgen-changelog": {
+          "2026-01-07": "Log export to S3, Splunk, and Datadog is not supported by this API."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/updateGroupIntegration"
       }
     },
@@ -70332,6 +70344,9 @@
                 "atlas.project.deployment.privateServiceConnectionsSubnetMask"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           },
           {
@@ -70404,6 +70419,9 @@
                 "atlas.project.deployment.privateServiceConnectionsSubnetMask"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           },
           {
@@ -70482,6 +70500,9 @@
                 "atlas.project.deployment.privateServiceConnectionsSubnetMask"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           },
           {
@@ -77866,6 +77887,517 @@
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupSettings"
       }
     },
+    "/api/atlas/v2/groups/{groupId}/standbyLinks": {
+      "get": {
+        "description": "Returns all standby links for the specified project. Each standby link represents a disaster recovery relationship between an active cluster and a standby cluster.",
+        "operationId": "listGroupStandbyLinks",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiStandbyLinkResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "standby-links"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Standby Links for One Project",
+        "tags": [
+          "Standby Links"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/listGroupStandbyLinks"
+      },
+      "post": {
+        "description": "Creates a disaster recovery standby link between an active cluster and a standby cluster. Both clusters must not already be part of a standby link system, must be single-region clusters, and must be in different regions.",
+        "operationId": "createGroupStandbyLink",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project containing the clusters.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to wrap the response in an envelope.",
+            "in": "query",
+            "name": "envelope",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiStandbyLinkRequest"
+              }
+            }
+          },
+          "description": "Request body containing the active and standby cluster identifiers.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiStandbyLinkResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "standby-links"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Standby link created successfully."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create Standby Link",
+        "tags": [
+          "Standby Links"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/createGroupStandbyLink"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}": {
+      "delete": {
+        "description": "Terminates an existing standby link and converts the active and standby clusters back to regular clusters.",
+        "operationId": "deleteGroupStandbyLink",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby link.",
+            "in": "path",
+            "name": "standbyLinkId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to wrap the response in an envelope.",
+            "in": "query",
+            "name": "envelope",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "standby-links"
+                }
+              }
+            },
+            "description": "Standby link deleted successfully."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete Standby Link",
+        "tags": [
+          "Standby Links"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/deleteGroupStandbyLink"
+      },
+      "get": {
+        "description": "Returns detailed information about a specific standby link including status, group ID, and cluster unique IDs.",
+        "operationId": "getGroupStandbyLink",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby link.",
+            "in": "path",
+            "name": "standbyLinkId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to wrap the response in an envelope.",
+            "in": "query",
+            "name": "envelope",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiStandbyLinkResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "standby-links"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Standby link retrieved successfully."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Standby Link",
+        "tags": [
+          "Standby Links"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/getGroupStandbyLink"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers": {
+      "get": {
+        "description": "Returns all failover operations for the specified standby link. Each failover represents a planned or unplanned process to promote a standby cluster to an active cluster.",
+        "operationId": "listGroupStandbyLinkFailovers",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby link.",
+            "in": "path",
+            "name": "standbyLinkId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiStandbyLinkFailoverResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "standby-links"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Standby Link Failovers",
+        "tags": [
+          "Standby Links"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/listGroupStandbyLinkFailovers",
+        "x-xgen-operation-id-override": "listStandbyLinkFailovers"
+      },
+      "post": {
+        "description": "Creates a new failover operation to promote a standby cluster or reverse cluster roles. The standby link must be in ACTIVE status to initiate a failover.",
+        "operationId": "createGroupStandbyLinkFailover",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby link.",
+            "in": "path",
+            "name": "standbyLinkId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to wrap the response in an envelope.",
+            "in": "query",
+            "name": "envelope",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiStandbyLinkFailoverRequest"
+              }
+            }
+          },
+          "description": "Request body containing the failover type (PLANNED or UNPLANNED).",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiStandbyLinkFailoverResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "standby-links"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Failover operation created successfully."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create Standby Link Failover",
+        "tags": [
+          "Standby Links"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/createGroupStandbyLinkFailover",
+        "x-xgen-operation-id-override": "createStandbyLinkFailover"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers/{failoverId}": {
+      "get": {
+        "description": "Returns the current status and details of a specific failover operation for a standby link.",
+        "operationId": "getGroupStandbyLinkFailover",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby link.",
+            "in": "path",
+            "name": "standbyLinkId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the failover operation.",
+            "in": "path",
+            "name": "failoverId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to wrap the response in an envelope.",
+            "in": "query",
+            "name": "envelope",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiStandbyLinkFailoverResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "standby-links"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Failover operation retrieved successfully."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Standby Link Failover",
+        "tags": [
+          "Standby Links"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/getGroupStandbyLinkFailover",
+        "x-xgen-operation-id-override": "getStandbyLinkFailover"
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/streams": {
       "get": {
         "description": "Returns all stream workspaces for the specified project.",
@@ -78963,15 +79495,6 @@
               "schema": {
                 "$ref": "#/components/schemas/StreamsConnection"
               }
-            },
-            "application/vnd.atlas.preview+json": {
-              "schema": {
-                "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-              },
-              "x-xgen-preview": {
-                "name": "stream-connection"
-              },
-              "x-xgen-version": "preview"
             }
           },
           "description": "Details to create one connection for a streams workspace in the specified project.",
@@ -78985,15 +79508,6 @@
                   "$ref": "#/components/schemas/StreamsConnection"
                 },
                 "x-xgen-version": "2023-02-01"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-                },
-                "x-xgen-preview": {
-                  "name": "stream-connection"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK"
@@ -79066,12 +79580,6 @@
             "content": {
               "application/vnd.atlas.2023-02-01+json": {
                 "x-xgen-version": "2023-02-01"
-              },
-              "application/vnd.atlas.preview+json": {
-                "x-xgen-preview": {
-                  "name": "stream-connection"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "Accepted"
@@ -79096,9 +79604,6 @@
         "tags": [
           "Streams"
         ],
-        "x-xgen-changelog": {
-          "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as part of private preview, but is subject to change until GA."
-        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/deleteGroupStreamConnection",
         "x-xgen-operation-id-override": "deleteStreamConnection"
       },
@@ -79142,18 +79647,6 @@
                   "xgen-IPA-104-get-method-returns-response-suffixed-object": "Exception OK as they are present in existing resource, fixing would require major refactoring."
                 },
                 "x-xgen-version": "2023-02-01"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-                },
-                "x-xgen-IPA-exception": {
-                  "xgen-IPA-104-get-method-returns-response-suffixed-object": "API predates IPA validation."
-                },
-                "x-xgen-preview": {
-                  "name": "stream-connection"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK"
@@ -79219,15 +79712,6 @@
               "schema": {
                 "$ref": "#/components/schemas/StreamsConnection"
               }
-            },
-            "application/vnd.atlas.preview+json": {
-              "schema": {
-                "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-              },
-              "x-xgen-preview": {
-                "name": "stream-connection"
-              },
-              "x-xgen-version": "preview"
             }
           },
           "description": "Details to update one connection for a streams workspace in the specified project.",
@@ -79241,15 +79725,6 @@
                   "$ref": "#/components/schemas/StreamsConnection"
                 },
                 "x-xgen-version": "2023-02-01"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-                },
-                "x-xgen-preview": {
-                  "name": "stream-connection"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK"
@@ -81218,7 +81693,7 @@
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/listOrgs"
       },
       "post": {
-        "description": "Creates one organization in MongoDB Cloud and links it to the requesting Service Account's or API Key's organization. To use this resource, the requesting Service Account or API Key must have the Organization Owner role. The requesting Service Account's or API Key's organization must be a paying organization. To learn more, see Configure a Paying Organization in the MongoDB Atlas documentation.",
+        "description": "Creates one organization in MongoDB Cloud and links it to the requesting Service Account's or API Key's organization. To use this resource, the requesting Service Account or API Key must have the Organization Owner role. The requesting Service Account's or API Key's organization must be a paying organization. To learn more, see Configure a Paying Organization in the MongoDB Atlas documentation. Optionally, if federationSettingsId is provided, the new Organization will be linked to the federation. The requesting Service Account or API Key must be an Organization Owner in the federation.",
         "externalDocs": {
           "description": "Configure a Paying Organization",
           "url": "https://www.mongodb.com/docs/atlas/billing/#configure-a-paying-organization"
@@ -86933,6 +87408,10 @@
     {
       "description": "Returns and requests to download shared-tier database deployment snapshots.",
       "name": "Shared-Tier Snapshots"
+    },
+    {
+      "description": "Returns, adds, edits, and removes standby links between clusters for disaster recovery within a specified project.",
+      "name": "Standby Links"
     },
     {
       "description": "Returns, adds, edits, and removes Streams Workspaces. This resource requires your project ID.",
