@@ -4260,70 +4260,24 @@ components:
             type: object
         ConfluentSaslInheritAuthentication:
             allOf:
-                - $ref: '#/components/schemas/ConfluentSchemaRegistryAuthentication'
-            description: SASL_INHERIT authentication configuration from Kafka for Confluent Schema Registry. Username and password are inherited from the Kafka connection.
+                - $ref: '#/components/schemas/SchemaRegistryAuthentication'
+            description: Inherits the authentication configuration from Kafka for the Confluent Schema Registry.
             required:
                 - type
-            type: object
-        ConfluentSchemaRegistryAuthentication:
-            description: Authentication configuration for Confluent Schema Registry.
-            discriminator:
-                mapping:
-                    SASL_INHERIT: '#/components/schemas/ConfluentSaslInheritAuthentication'
-                    USER_INFO: '#/components/schemas/ConfluentUserInfoAuthentication'
-                propertyName: type
-            oneOf:
-                - $ref: '#/components/schemas/ConfluentUserInfoAuthentication'
-                - $ref: '#/components/schemas/ConfluentSaslInheritAuthentication'
-            properties:
-                type:
-                    description: Authentication type discriminator. Specifies the authentication mechanism for Confluent Schema Registry.
-                    enum:
-                        - USER_INFO
-                        - SASL_INHERIT
-                    type: string
-            required:
-                - type
-            type: object
-        ConfluentSchemaRegistryConnectionPrivatePreview:
-            allOf:
-                - $ref: '#/components/schemas/StreamsConnectionPrivatePreview'
-                - properties:
-                    provider:
-                        description: The Schema Registry provider.
-                        enum:
-                            - CONFLUENT
-                        type: string
-                    schemaRegistryAuthentication:
-                        $ref: '#/components/schemas/ConfluentSchemaRegistryAuthentication'
-                    schemaRegistryUrls:
-                        description: List of Schema Registry URLs.
-                        items:
-                            description: Schema Registry URL.
-                            format: uri
-                            type: string
-                        maxItems: 10
-                        type: array
-                        uniqueItems: true
-                  type: object
-                - $ref: '#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview'
-            description: The configuration for Confluent Schema Registry connections.
-            required:
-                - provider
             type: object
         ConfluentUserInfoAuthentication:
             allOf:
-                - $ref: '#/components/schemas/ConfluentSchemaRegistryAuthentication'
+                - $ref: '#/components/schemas/SchemaRegistryAuthentication'
                 - properties:
                     password:
-                        description: Password for USER_INFO authentication. Required.
+                        description: Password or Private Key for authentication.
                         type: string
                         writeOnly: true
                     username:
-                        description: Username for USER_INFO authentication. Required.
+                        description: Username or Public Key for authentication.
                         type: string
                   type: object
-            description: Direct authentication with username and password for Confluent Schema Registry.
+            description: USER_INFO authentication with username and password for Confluent Schema Registry.
             required:
                 - password
                 - type
@@ -6618,20 +6572,10 @@ components:
                     type: string
                 groupRoles:
                     description: One or more project-level roles assigned to the MongoDB Cloud user.
+                    externalDocs:
+                        description: MongoDB Cloud User Roles
+                        url: https://www.mongodb.com/docs/atlas/reference/user-roles/
                     items:
-                        description: Project-level role.
-                        enum:
-                            - GROUP_OWNER
-                            - GROUP_CLUSTER_MANAGER
-                            - GROUP_STREAM_PROCESSING_OWNER
-                            - GROUP_DATA_ACCESS_ADMIN
-                            - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_DATA_ACCESS_READ_ONLY
-                            - GROUP_READ_ONLY
-                            - GROUP_SEARCH_INDEX_EDITOR
-                            - GROUP_BACKUP_MANAGER
-                            - GROUP_OBSERVABILITY_VIEWER
-                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     type: array
                     uniqueItems: true
@@ -6661,20 +6605,10 @@ components:
                     type: string
                 roles:
                     description: One or more project-level roles assigned to the MongoDB Cloud user.
+                    externalDocs:
+                        description: MongoDB Cloud User Roles
+                        url: https://www.mongodb.com/docs/atlas/reference/user-roles/
                     items:
-                        description: Project-level role.
-                        enum:
-                            - GROUP_OWNER
-                            - GROUP_CLUSTER_MANAGER
-                            - GROUP_STREAM_PROCESSING_OWNER
-                            - GROUP_DATA_ACCESS_ADMIN
-                            - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_DATA_ACCESS_READ_ONLY
-                            - GROUP_READ_ONLY
-                            - GROUP_SEARCH_INDEX_EDITOR
-                            - GROUP_BACKUP_MANAGER
-                            - GROUP_OBSERVABILITY_VIEWER
-                            - GROUP_DATABASE_ACCESS_ADMIN
                         type: string
                     readOnly: true
                     type: array
@@ -8829,6 +8763,26 @@ components:
                     readOnly: true
                     type: string
             type: object
+        SchemaRegistryAuthentication:
+            description: Authentication configuration for Schema Registry.
+            discriminator:
+                mapping:
+                    SASL_INHERIT: '#/components/schemas/ConfluentSaslInheritAuthentication'
+                    USER_INFO: '#/components/schemas/ConfluentUserInfoAuthentication'
+                propertyName: type
+            oneOf:
+                - $ref: '#/components/schemas/ConfluentUserInfoAuthentication'
+                - $ref: '#/components/schemas/ConfluentSaslInheritAuthentication'
+            properties:
+                type:
+                    description: Authentication type discriminator. Specifies the authentication mechanism for Confluent Schema Registry.
+                    enum:
+                        - USER_INFO
+                        - SASL_INHERIT
+                    type: string
+            required:
+                - type
+            type: object
         SearchHostStatusDetail:
             properties:
                 hostname:
@@ -9719,7 +9673,7 @@ components:
                 - $ref: '#/components/schemas/StreamsConnection'
                 - properties:
                     clusterGroupId:
-                        description: The id of the group that the cluster belongs to.
+                        description: Unique 24-hexadecimal digit string that identifies the project that contains the configured cluster. Required if the ID does not match the project containing the streams workspace. You must first enable the organization setting.
                         type: string
                     clusterName:
                         description: Name of the cluster configured for this connection.
@@ -9739,6 +9693,7 @@ components:
                     Kafka: '#/components/schemas/StreamsKafkaConnection'
                     S3: '#/components/schemas/StreamsS3Connection'
                     Sample: '#/components/schemas/StreamsSampleConnection'
+                    SchemaRegistry: '#/components/schemas/StreamsSchemaRegistryConnection'
                 propertyName: type
             oneOf:
                 - $ref: '#/components/schemas/StreamsSampleConnection'
@@ -9748,6 +9703,7 @@ components:
                 - $ref: '#/components/schemas/StreamsAWSLambdaConnection'
                 - $ref: '#/components/schemas/StreamsS3Connection'
                 - $ref: '#/components/schemas/StreamsAWSKinesisDataStreamsConnection'
+                - $ref: '#/components/schemas/StreamsSchemaRegistryConnection'
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -9770,22 +9726,9 @@ components:
                         - Https
                         - AWSLambda
                         - AWSKinesisDataStreams
+                        - SchemaRegistry
                     type: string
             readOnly: true
-            type: object
-        StreamsConnectionPrivatePreview:
-            description: Settings that define a connection to an external data store.
-            discriminator:
-                mapping:
-                    SchemaRegistry: '#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview'
-                propertyName: type
-            oneOf:
-                - $ref: '#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview'
-            properties:
-                type:
-                    type: string
-            required:
-                - type
             type: object
         StreamsDLQ:
             description: Dead letter queue for the stream processor.
@@ -10068,44 +10011,32 @@ components:
             allOf:
                 - $ref: '#/components/schemas/StreamsConnection'
             type: object
-        StreamsSchemaRegistryConnectionPrivatePreview:
+        StreamsSchemaRegistryConnection:
+            allOf:
+                - $ref: '#/components/schemas/StreamsConnection'
+                - properties:
+                    provider:
+                        description: The Schema Registry provider.
+                        enum:
+                            - CONFLUENT
+                        type: string
+                    schemaRegistryAuthentication:
+                        $ref: '#/components/schemas/SchemaRegistryAuthentication'
+                    schemaRegistryUrls:
+                        description: List of Schema Registry endpoint URLs used by this connection. Each URL must use the http or https scheme and specify a valid host and optional port.
+                        items:
+                            description: Schema Registry URL.
+                            format: uri
+                            type: string
+                        maxItems: 10
+                        type: array
+                        uniqueItems: true
+                  type: object
             description: The configuration for Schema Registry connections.
-            discriminator:
-                mapping:
-                    CONFLUENT: '#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview'
-                propertyName: provider
-            oneOf:
-                - $ref: '#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview'
-            properties:
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                name:
-                    description: Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.
-                    type: string
-                provider:
-                    description: The Schema Registry provider.
-                    enum:
-                        - CONFLUENT
-                    type: string
-                type:
-                    description: Type of the connection.
-                    enum:
-                        - Kafka
-                        - Cluster
-                        - Sample
-                        - Https
-                        - AWSLambda
-                        - AWSKinesisDataStreams
-                    type: string
             required:
                 - provider
+                - schemaRegistryAuthentication
+                - schemaRegistryUrls
             type: object
         SynonymMappingStatusDetail:
             description: Contains the status of the index's synonym mappings on each search host. This field (and its subfields) only appear if the index has synonyms defined.
@@ -10536,6 +10467,14 @@ components:
                         - lucene.turkish
                         - lucene.ukrainian
                     type: string
+                sort:
+                    description: 'Sort definition for the index. When defined, the index will be pre-sorted on thespecified fields, which improves query sort performance for those fields. Supports two formats: simple format with field name and direction, or complex format with additional options.The ''order'' field is required (1=ascending, -1=descending).The ''noData'' field is optional and controls how missing values are sorted(default: "lowest").'
+                    example:
+                        anotherField:
+                            noData: highest
+                            order: -1
+                        fieldName: 1
+                    type: object
                 storedSource:
                     description: Flag that indicates whether to store all fields (true) on Atlas Search. By default, Atlas doesn't store (false) the fields on Atlas Search.  Alternatively, you can specify an object that only contains the list of fields to store (include) or not store (exclude) on Atlas Search. Note that storing all fields (true) is not allowed for vector search indexes. To learn more, see Stored Source Fields.
                     example:
@@ -10899,7 +10838,7 @@ components:
                                 type: string
                             type: array
                             x-xgen-IPA-exception:
-                                xgen-IPA-124-array-max-items: Schema predates IPA validation
+                                xgen-IPA-124-array-max-items: Schema predates IPA validation.
                     required:
                         - words
                     type: object
@@ -11734,7 +11673,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: a2f539374df67b2fc48e2b0d74d626eb196da559
+    x-xgen-sha: 93cf60f0838c37955eeb5f4b106ea7aaf3117937
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/sandbox/{sandboxConfigId}:generateClusterDescription:

@@ -11018,109 +11018,36 @@
       "ConfluentSaslInheritAuthentication": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
+            "$ref": "#/components/schemas/SchemaRegistryAuthentication"
           }
         ],
-        "description": "SASL_INHERIT authentication configuration from Kafka for Confluent Schema Registry. Username and password are inherited from the Kafka connection.",
+        "description": "Inherits the authentication configuration from Kafka for the Confluent Schema Registry.",
         "required": [
           "type"
-        ],
-        "type": "object"
-      },
-      "ConfluentSchemaRegistryAuthentication": {
-        "description": "Authentication configuration for Confluent Schema Registry.",
-        "discriminator": {
-          "mapping": {
-            "SASL_INHERIT": "#/components/schemas/ConfluentSaslInheritAuthentication",
-            "USER_INFO": "#/components/schemas/ConfluentUserInfoAuthentication"
-          },
-          "propertyName": "type"
-        },
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/ConfluentUserInfoAuthentication"
-          },
-          {
-            "$ref": "#/components/schemas/ConfluentSaslInheritAuthentication"
-          }
-        ],
-        "properties": {
-          "type": {
-            "description": "Authentication type discriminator. Specifies the authentication mechanism for Confluent Schema Registry.",
-            "enum": [
-              "USER_INFO",
-              "SASL_INHERIT"
-            ],
-            "type": "string"
-          }
-        },
-        "required": [
-          "type"
-        ],
-        "type": "object"
-      },
-      "ConfluentSchemaRegistryConnectionPrivatePreview": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StreamsConnectionPrivatePreview"
-          },
-          {
-            "properties": {
-              "provider": {
-                "description": "The Schema Registry provider.",
-                "enum": [
-                  "CONFLUENT"
-                ],
-                "type": "string"
-              },
-              "schemaRegistryAuthentication": {
-                "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
-              },
-              "schemaRegistryUrls": {
-                "description": "List of Schema Registry URLs.",
-                "items": {
-                  "description": "Schema Registry URL.",
-                  "format": "uri",
-                  "type": "string"
-                },
-                "maxItems": 10,
-                "type": "array",
-                "uniqueItems": true
-              }
-            },
-            "type": "object"
-          },
-          {
-            "$ref": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
-          }
-        ],
-        "description": "The configuration for Confluent Schema Registry connections.",
-        "required": [
-          "provider"
         ],
         "type": "object"
       },
       "ConfluentUserInfoAuthentication": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/ConfluentSchemaRegistryAuthentication"
+            "$ref": "#/components/schemas/SchemaRegistryAuthentication"
           },
           {
             "properties": {
               "password": {
-                "description": "Password for USER_INFO authentication. Required.",
+                "description": "Password or Private Key for authentication.",
                 "type": "string",
                 "writeOnly": true
               },
               "username": {
-                "description": "Username for USER_INFO authentication. Required.",
+                "description": "Username or Public Key for authentication.",
                 "type": "string"
               }
             },
             "type": "object"
           }
         ],
-        "description": "Direct authentication with username and password for Confluent Schema Registry.",
+        "description": "USER_INFO authentication with username and password for Confluent Schema Registry.",
         "required": [
           "password",
           "type",
@@ -22824,13 +22751,13 @@
         "properties": {
           "customZoneMapping": {
             "additionalProperties": {
-              "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `id` property.\n\nThis parameter returns an empty object if no custom zones exist.",
+              "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `id` property.\n\nThis parameter returns an empty object if no custom zones exist.\n\nExample: `{\"US-VA\": \"6716c5a804f4ce77e899bf99\", \"DE\": \"6716c5a804f4ce77e899bf9a\"}`.",
               "example": "32b6e34b3d91647abb20e7b8",
               "pattern": "^([a-f0-9]{24})$",
               "readOnly": true,
               "type": "string"
             },
-            "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `id` property.\n\nThis parameter returns an empty object if no custom zones exist.",
+            "description": "List that contains comma-separated key value pairs to map zones to geographic regions. These pairs map an ISO 3166-1a2 location code, with an ISO 3166-2 subdivision code when possible, to a unique 24-hexadecimal string that identifies the custom zone.\n\n The 24-hexadecimal string corresponds to a `Replication Specifications` `id` property.\n\nThis parameter returns an empty object if no custom zones exist.\n\nExample: `{\"US-VA\": \"6716c5a804f4ce77e899bf99\", \"DE\": \"6716c5a804f4ce77e899bf9a\"}`.",
             "readOnly": true,
             "type": "object"
           },
@@ -23515,20 +23442,11 @@
           },
           "roles": {
             "description": "One or more organization or project level roles to assign to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "enum": [
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATABASE_ACCESS_ADMIN",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_OWNER",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_STREAM_PROCESSING_OWNER"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -23547,20 +23465,11 @@
         "properties": {
           "roles": {
             "description": "One or more project level roles to assign to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "enum": [
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATABASE_ACCESS_ADMIN",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_OWNER",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_STREAM_PROCESSING_OWNER"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -23578,20 +23487,11 @@
         "properties": {
           "roles": {
             "description": "One or more project-level roles to assign to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "enum": [
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATABASE_ACCESS_ADMIN",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_OWNER",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_STREAM_PROCESSING_OWNER"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -23821,21 +23721,11 @@
           },
           "groupRoles": {
             "description": "One or more project-level roles assigned to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "description": "Project-level role.",
-              "enum": [
-                "GROUP_OWNER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_STREAM_PROCESSING_OWNER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_DATABASE_ACCESS_ADMIN"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -23955,21 +23845,11 @@
           },
           "roles": {
             "description": "One or more project-level roles assigned to the MongoDB Cloud user.",
+            "externalDocs": {
+              "description": "MongoDB Cloud User Roles",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
             "items": {
-              "description": "Project-level role.",
-              "enum": [
-                "GROUP_OWNER",
-                "GROUP_CLUSTER_MANAGER",
-                "GROUP_STREAM_PROCESSING_OWNER",
-                "GROUP_DATA_ACCESS_ADMIN",
-                "GROUP_DATA_ACCESS_READ_WRITE",
-                "GROUP_DATA_ACCESS_READ_ONLY",
-                "GROUP_READ_ONLY",
-                "GROUP_SEARCH_INDEX_EDITOR",
-                "GROUP_BACKUP_MANAGER",
-                "GROUP_OBSERVABILITY_VIEWER",
-                "GROUP_DATABASE_ACCESS_ADMIN"
-              ],
               "type": "string"
             },
             "readOnly": true,
@@ -37859,65 +37739,6 @@
         "readOnly": true,
         "type": "object"
       },
-      "S3LogExport": {
-        "description": "Details to integrate S3 log export with one MongoDB Cloud project.",
-        "properties": {
-          "bucketName": {
-            "description": "Human-readable label that identifies the S3 bucket name for storing log files.",
-            "example": "my-log-bucket",
-            "type": "string"
-          },
-          "iamRoleId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.",
-            "example": "507f1f77bcf86cd799439011",
-            "type": "string"
-          },
-          "id": {
-            "description": "Integration id.",
-            "nullable": true,
-            "type": "string"
-          },
-          "kmsKey": {
-            "description": "AWS KMS key ID or ARN for server-side encryption (optional). If not provided, uses bucket default encryption settings.",
-            "example": "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012",
-            "nullable": true,
-            "type": "string"
-          },
-          "logTypes": {
-            "description": "Array of log types to export to S3.",
-            "example": [
-              "MONGOD",
-              "MONGOS",
-              "MONGOD_AUDIT",
-              "MONGOS_AUDIT"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 10,
-            "type": "array"
-          },
-          "prefixPath": {
-            "description": "S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.",
-            "example": "mongo-logs/",
-            "type": "string"
-          },
-          "type": {
-            "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the third-party service integration type.",
-            "enum": [
-              "S3_LOG_EXPORT"
-            ],
-            "type": "string"
-          }
-        },
-        "required": [
-          "bucketName",
-          "iamRoleId",
-          "prefixPath"
-        ],
-        "title": "S3 Log Export",
-        "type": "object"
-      },
       "S3LogIntegrationRequest": {
         "allOf": [
           {
@@ -38143,6 +37964,38 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "SchemaRegistryAuthentication": {
+        "description": "Authentication configuration for Schema Registry.",
+        "discriminator": {
+          "mapping": {
+            "SASL_INHERIT": "#/components/schemas/ConfluentSaslInheritAuthentication",
+            "USER_INFO": "#/components/schemas/ConfluentUserInfoAuthentication"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ConfluentUserInfoAuthentication"
+          },
+          {
+            "$ref": "#/components/schemas/ConfluentSaslInheritAuthentication"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Authentication type discriminator. Specifies the authentication mechanism for Confluent Schema Registry.",
+            "enum": [
+              "USER_INFO",
+              "SASL_INHERIT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
         "type": "object"
       },
       "SearchDeploymentAuditTypeView": {
@@ -41768,7 +41621,7 @@
           {
             "properties": {
               "clusterGroupId": {
-                "description": "The id of the group that the cluster belongs to.",
+                "description": "Unique 24-hexadecimal digit string that identifies the project that contains the configured cluster. Required if the ID does not match the project containing the streams workspace. You must first enable the organization setting.",
                 "type": "string"
               },
               "clusterName": {
@@ -41794,7 +41647,8 @@
             "Https": "#/components/schemas/StreamsHttpsConnection",
             "Kafka": "#/components/schemas/StreamsKafkaConnection",
             "S3": "#/components/schemas/StreamsS3Connection",
-            "Sample": "#/components/schemas/StreamsSampleConnection"
+            "Sample": "#/components/schemas/StreamsSampleConnection",
+            "SchemaRegistry": "#/components/schemas/StreamsSchemaRegistryConnection"
           },
           "propertyName": "type"
         },
@@ -41819,6 +41673,9 @@
           },
           {
             "$ref": "#/components/schemas/StreamsAWSKinesisDataStreamsConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsSchemaRegistryConnection"
           }
         ],
         "properties": {
@@ -41846,35 +41703,13 @@
               "Sample",
               "Https",
               "AWSLambda",
-              "AWSKinesisDataStreams"
+              "AWSKinesisDataStreams",
+              "SchemaRegistry"
             ],
             "type": "string"
           }
         },
         "readOnly": true,
-        "type": "object"
-      },
-      "StreamsConnectionPrivatePreview": {
-        "description": "Settings that define a connection to an external data store.",
-        "discriminator": {
-          "mapping": {
-            "SchemaRegistry": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
-          },
-          "propertyName": "type"
-        },
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/StreamsSchemaRegistryConnectionPrivatePreview"
-          }
-        ],
-        "properties": {
-          "type": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type"
-        ],
         "type": "object"
       },
       "StreamsDLQ": {
@@ -42346,58 +42181,43 @@
         ],
         "type": "object"
       },
-      "StreamsSchemaRegistryConnectionPrivatePreview": {
-        "description": "The configuration for Schema Registry connections.",
-        "discriminator": {
-          "mapping": {
-            "CONFLUENT": "#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview"
-          },
-          "propertyName": "provider"
-        },
-        "oneOf": [
+      "StreamsSchemaRegistryConnection": {
+        "allOf": [
           {
-            "$ref": "#/components/schemas/ConfluentSchemaRegistryConnectionPrivatePreview"
+            "$ref": "#/components/schemas/StreamsConnection"
+          },
+          {
+            "properties": {
+              "provider": {
+                "description": "The Schema Registry provider.",
+                "enum": [
+                  "CONFLUENT"
+                ],
+                "type": "string"
+              },
+              "schemaRegistryAuthentication": {
+                "$ref": "#/components/schemas/SchemaRegistryAuthentication"
+              },
+              "schemaRegistryUrls": {
+                "description": "List of Schema Registry endpoint URLs used by this connection. Each URL must use the http or https scheme and specify a valid host and optional port.",
+                "items": {
+                  "description": "Schema Registry URL.",
+                  "format": "uri",
+                  "type": "string"
+                },
+                "maxItems": 10,
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
           }
         ],
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "name": {
-            "description": "Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.",
-            "type": "string"
-          },
-          "provider": {
-            "description": "The Schema Registry provider.",
-            "enum": [
-              "CONFLUENT"
-            ],
-            "type": "string"
-          },
-          "type": {
-            "description": "Type of the connection.",
-            "enum": [
-              "Kafka",
-              "Cluster",
-              "Sample",
-              "Https",
-              "AWSLambda",
-              "AWSKinesisDataStreams"
-            ],
-            "type": "string"
-          }
-        },
+        "description": "The configuration for Schema Registry connections.",
         "required": [
-          "provider"
+          "provider",
+          "schemaRegistryAuthentication",
+          "schemaRegistryUrls"
         ],
         "type": "object"
       },
@@ -43619,6 +43439,17 @@
             ],
             "type": "string"
           },
+          "sort": {
+            "description": "Sort definition for the index. When defined, the index will be pre-sorted on thespecified fields, which improves query sort performance for those fields. Supports two formats: simple format with field name and direction, or complex format with additional options.The 'order' field is required (1=ascending, -1=descending).The 'noData' field is optional and controls how missing values are sorted(default: \"lowest\").",
+            "example": {
+              "anotherField": {
+                "noData": "highest",
+                "order": -1
+              },
+              "fieldName": 1
+            },
+            "type": "object"
+          },
           "storedSource": {
             "description": "Flag that indicates whether to store all fields (true) on Atlas Search. By default, Atlas doesn't store (false) the fields on Atlas Search.  Alternatively, you can specify an object that only contains the list of fields to store (include) or not store (exclude) on Atlas Search. Note that storing all fields (true) is not allowed for vector search indexes. To learn more, see Stored Source Fields.",
             "example": {
@@ -43762,7 +43593,6 @@
             "OPS_GENIE": "#/components/schemas/OpsGenie",
             "PAGER_DUTY": "#/components/schemas/PagerDuty",
             "PROMETHEUS": "#/components/schemas/Prometheus",
-            "S3_LOG_EXPORT": "#/components/schemas/S3LogExport",
             "SLACK": "#/components/schemas/Slack",
             "VICTOR_OPS": "#/components/schemas/VictorOps",
             "WEBHOOK": "#/components/schemas/Webhook"
@@ -43796,9 +43626,6 @@
           },
           {
             "$ref": "#/components/schemas/MicrosoftTeams"
-          },
-          {
-            "$ref": "#/components/schemas/S3LogExport"
           }
         ],
         "properties": {
@@ -43819,8 +43646,7 @@
               "WEBHOOK",
               "HIP_CHAT",
               "PROMETHEUS",
-              "MICROSOFT_TEAMS",
-              "S3_LOG_EXPORT"
+              "MICROSOFT_TEAMS"
             ],
             "title": "Integration Type",
             "type": "string"
@@ -44426,7 +44252,7 @@
                 },
                 "type": "array",
                 "x-xgen-IPA-exception": {
-                  "xgen-IPA-124-array-max-items": "Schema predates IPA validation"
+                  "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
                 }
               }
             },
@@ -46457,7 +46283,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "a2f539374df67b2fc48e2b0d74d626eb196da559"
+    "x-xgen-sha": "93cf60f0838c37955eeb5f4b106ea7aaf3117937"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -48669,7 +48495,7 @@
         "x-xgen-operation-id-override": "deleteAccessListEntry"
       },
       "get": {
-        "description": "Returns one access list entry from the specified project's IP access list. Each entry in the project's IP access list contains either one IP address or one CIDR-notated block of IP addresses. MongoDB Cloud only allows client connections to the cluster from entries in the project's IP access list. To use this resource, the requesting Service Account or API Key must have the Project Read Only or Project Charts Admin roles. This resource replaces the whitelist resource. MongoDB Cloud removed whitelists in July 2021. Update your applications to use this new resource. This endpoint (`/groups/{GROUP-ID}/accessList`) manages the Project IP Access List. It doesn't manage the access list for MongoDB Cloud organizations. TheProgrammatic API Keys endpoint (`/orgs/{ORG-ID}/apiKeys/{API-KEY-ID}/accesslist`) manages those access lists.",
+        "description": "Returns one access list entry from the specified project's IP access list. Each entry in the project's IP access list contains either one IP address or one CIDR-notated block of IP addresses. MongoDB Cloud only allows client connections to the cluster from entries in the project's IP access list. To use this resource, the requesting Service Account or API Key must have the Project Read Only or Project Charts Admin roles. This resource replaces the whitelist resource. MongoDB Cloud removed whitelists in July 2021. Update your applications to use this new resource. This endpoint (`/groups/{GROUP-ID}/accessList`) manages the Project IP Access List. It doesn't manage the access list for MongoDB Cloud organizations. The Programmatic API Keys endpoint (`/orgs/{ORG-ID}/apiKeys/{API-KEY-ID}/accesslist`) manages those access lists.",
         "externalDocs": {
           "description": "IP access list",
           "url": "https://docs.atlas.mongodb.com/security/ip-access-list/#std-label-access-list"
@@ -60160,6 +59986,9 @@
                 "bytesProcessed.monthly"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           }
         ],
@@ -60252,6 +60081,9 @@
                 "bytesProcessed.monthly"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           }
         ],
@@ -60344,6 +60176,9 @@
                 "bytesProcessed.monthly"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           }
         ],
@@ -62915,7 +62750,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/integrations/{integrationType}": {
       "delete": {
-        "description": "Removes the settings that permit configuring one third-party service integration. These settings apply to all databases managed in one MongoDB Cloud project. If you delete an integration from a project, you remove that integration configuration only for that project. This action doesn't affect any other project or organization's configured `{INTEGRATION-TYPE}` integrations. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Deleting log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Removes the settings that permit configuring one third-party service integration. These settings apply to all databases managed in one MongoDB Cloud project. If you delete an integration from a project, you remove that integration configuration only for that project. This action doesn't affect any other project or organization's configured `{INTEGRATION-TYPE}` integrations. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "deleteGroupIntegration",
         "parameters": [
           {
@@ -62934,8 +62769,7 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS",
-                "S3_LOG_EXPORT"
+                "MICROSOFT_TEAMS"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -63002,10 +62836,13 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2023-01-01+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}\""
           }
         ],
+        "x-xgen-changelog": {
+          "2026-01-07": "Log export to S3, Splunk, and Datadog is not supported by this API."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/deleteGroupIntegration"
       },
       "get": {
-        "description": "Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role. Viewing log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Returns the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
         "operationId": "getGroupIntegration",
         "parameters": [
           {
@@ -63033,8 +62870,7 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS",
-                "S3_LOG_EXPORT"
+                "MICROSOFT_TEAMS"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -63099,10 +62935,13 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2023-01-01+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}?pretty=true\""
           }
         ],
+        "x-xgen-changelog": {
+          "2026-01-07": "Log export to S3, Splunk, and Datadog is not supported by this API."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/getGroupIntegration"
       },
       "post": {
-        "description": "Adds the settings for configuring one third-party service integration. These settings apply to all databases managed in the specified MongoDB Cloud project. Each project can have only one configuration per `{INTEGRATION-TYPE}`. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Enabling log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Adds the settings for configuring one third-party service integration. These settings apply to all databases managed in the specified MongoDB Cloud project. Each project can have only one configuration per `{INTEGRATION-TYPE}`. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "createGroupIntegration",
         "parameters": [
           {
@@ -63121,8 +62960,7 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS",
-                "S3_LOG_EXPORT"
+                "MICROSOFT_TEAMS"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -63215,10 +63053,13 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2023-01-01+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}\" \\\n  -d '{ <Payload> }'"
           }
         ],
+        "x-xgen-changelog": {
+          "2026-01-07": "Log export to S3, Splunk, and Datadog is not supported by this API."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/createGroupIntegration"
       },
       "put": {
-        "description": "Updates the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Enabling log export to S3, Splunk, and Datadog is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Updates the settings for configuring integration with one third-party service. These settings apply to all databases managed in one MongoDB Cloud project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "updateGroupIntegration",
         "parameters": [
           {
@@ -63237,8 +63078,7 @@
                 "WEBHOOK",
                 "HIP_CHAT",
                 "PROMETHEUS",
-                "MICROSOFT_TEAMS",
-                "S3_LOG_EXPORT"
+                "MICROSOFT_TEAMS"
               ],
               "title": "Integration Type",
               "type": "string"
@@ -63331,6 +63171,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2023-01-01+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PUT \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/integrations/{integrationType}\" \\\n  -d '{ <Payload> }'"
           }
         ],
+        "x-xgen-changelog": {
+          "2026-01-07": "Log export to S3, Splunk, and Datadog is not supported by this API."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Third-Party-Integrations/operation/updateGroupIntegration"
       }
     },
@@ -64025,6 +63868,9 @@
                 "atlas.project.deployment.privateServiceConnectionsSubnetMask"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           },
           {
@@ -64119,6 +63965,9 @@
                 "atlas.project.deployment.privateServiceConnectionsSubnetMask"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           },
           {
@@ -64219,6 +64068,9 @@
                 "atlas.project.deployment.privateServiceConnectionsSubnetMask"
               ],
               "type": "string"
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-117-description-should-not-use-inline-tables": "Description predates IPA validation."
             }
           },
           {
@@ -73487,7 +73339,7 @@
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/listOrgs"
       },
       "post": {
-        "description": "Creates one organization in MongoDB Cloud and links it to the requesting Service Account's or API Key's organization. To use this resource, the requesting Service Account or API Key must have the Organization Owner role. The requesting Service Account's or API Key's organization must be a paying organization. To learn more, see Configure a Paying Organization in the MongoDB Atlas documentation.",
+        "description": "Creates one organization in MongoDB Cloud and links it to the requesting Service Account's or API Key's organization. To use this resource, the requesting Service Account or API Key must have the Organization Owner role. The requesting Service Account's or API Key's organization must be a paying organization. To learn more, see Configure a Paying Organization in the MongoDB Atlas documentation. Optionally, if federationSettingsId is provided, the new Organization will be linked to the federation. The requesting Service Account or API Key must be an Organization Owner in the federation.",
         "externalDocs": {
           "description": "Configure a Paying Organization",
           "url": "https://www.mongodb.com/docs/atlas/billing/#configure-a-paying-organization"
