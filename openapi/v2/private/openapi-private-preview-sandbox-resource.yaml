@@ -5432,6 +5432,47 @@ components:
             required:
                 - type
             type: object
+        DiskBackupCopyPolicyItem:
+            description: Specifications for one copy policy item.
+            discriminator:
+                mapping:
+                    daily: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    hourly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    monthly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    ondemand: '#/components/schemas/DiskBackupOnDemandCopyPolicyItem'
+                    weekly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    yearly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                propertyName: frequencyType
+            oneOf:
+                - $ref: '#/components/schemas/DiskBackupOnDemandCopyPolicyItem'
+                - $ref: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+            properties:
+                frequencyType:
+                    description: Human-readable label that identifies the frequency type associated with the copy policy.
+                    enum:
+                        - daily
+                        - hourly
+                        - weekly
+                        - monthly
+                        - yearly
+                        - ondemand
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies this copy policy item.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+            required:
+                - frequencyType
+            type: object
+        DiskBackupOnDemandCopyPolicyItem:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
+            description: Specifications for one on-demand copy policy item.
+            required:
+                - frequencyType
+            type: object
         DiskBackupReplicaSet:
             description: Details of the replica set snapshot that MongoDB Cloud created.
             properties:
@@ -6020,6 +6061,29 @@ components:
                 - bucketName
                 - cloudProvider
                 - roleId
+            type: object
+        DiskBackupTimeBasedCopyPolicyItem:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
+                - properties:
+                    retentionUnit:
+                        description: Unit of time in which MongoDB Cloud measures snapshot copy retention.
+                        enum:
+                            - days
+                            - weeks
+                            - months
+                            - years
+                        type: string
+                    retentionValue:
+                        description: Duration in days, weeks, months, or years that MongoDB Cloud retains the snapshot copy.
+                        format: int32
+                        type: integer
+                  type: object
+            description: Specifications for one time-based copy policy item.
+            required:
+                - frequencyType
+                - retentionUnit
+                - retentionValue
             type: object
         DiskGBAutoScaling:
             description: Setting that enables disk auto-scaling.
@@ -11677,7 +11741,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 770eed682d2a329949b5d70d24297c8beca8d3b7
+    x-xgen-sha: d30fdaf5f4030cee7062d74d8053a8e3f5780407
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/sandbox/{sandboxConfigId}:generateClusterDescription:
