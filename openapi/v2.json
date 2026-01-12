@@ -38857,6 +38857,38 @@
         },
         "type": "object"
       },
+      "PaginatedApiSKUView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/SkuResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PaginatedApiStandbyLinkFailoverResponse": {
         "properties": {
           "links": {
@@ -46761,6 +46793,21 @@
         "type": "object",
         "writeOnly": true
       },
+      "SkuResponse": {
+        "properties": {
+          "description": {
+            "description": "Human-readable short summary of what this SKU represents.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique string that identifies the SKU.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "Slack": {
         "description": "Details to integrate one Slack account with one MongoDB Cloud project.",
         "properties": {
@@ -52960,7 +53007,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "d30fdaf5f4030cee7062d74d8053a8e3f5780407"
+    "x-xgen-sha": "b8663bb1d45bb2ed801305369571daf94a613a45"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -89533,6 +89580,110 @@
           "Rate Limit"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getRateLimit"
+      }
+    },
+    "/api/atlas/v2/skus": {
+      "get": {
+        "description": "Returns all available SKUs (Stock Keeping Units) that can appear on MongoDB invoices. SKUs represent different products and services offered by MongoDB.",
+        "operationId": "listSkus",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiSKUView"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Stock Keeping Units",
+        "tags": [
+          "Invoices"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/listSkus"
+      }
+    },
+    "/api/atlas/v2/skus/{skuId}": {
+      "get": {
+        "description": "Returns details about a single SKU (Stock Keeping Unit) by its identifier. SKUs represent different products and services offered by MongoDB.",
+        "operationId": "getSku",
+        "parameters": [
+          {
+            "description": "Unique identifier of the SKU to retrieve.",
+            "example": "ATLAS_AWS_INSTANCE_M10",
+            "in": "path",
+            "name": "skuId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkuResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Stock Keeping Unit",
+        "tags": [
+          "Invoices"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getSku"
       }
     },
     "/api/atlas/v2/unauth/controlPlaneIPAddresses": {
