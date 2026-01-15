@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [9.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v9.0.0...9.1.0)
+#### [9.1.1](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v9.1.0...9.1.1)
+
+- chore(ipa): remove temp overrides [`#1088`](https://github.com/mongodb/openapi/pull/1088)
+
+#### [ipa-validation-ruleset-v9.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v9.0.0...ipa-validation-ruleset-v9.1.0)
+
+> 12 January 2026
 
 - fix(ipa): Add AI to operation summary format ignore list [`#1077`](https://github.com/mongodb/openapi/pull/1077)
 - fix(ipa): Support read-only detection for singleton List responses [`#1061`](https://github.com/mongodb/openapi/pull/1061)
