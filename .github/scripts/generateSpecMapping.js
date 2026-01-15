@@ -32,6 +32,7 @@ function handleAdminAPIv2() {
     return;
   }
 
+  let latestStableVersion = null;
   for (const [index, version] of versions.entries()) {
     const openapiFilename = `openapi-${version}.json`;
     const openapiFilePath = path.join(path.dirname(filePath), openapiFilename);
@@ -48,14 +49,21 @@ function handleAdminAPIv2() {
       branch: version,
     });
 
-    // We want the latest version to have its own version AND be the latest/default branch
-    if (index === versions.length - 1) {
-      SPEC_MAPPING.push({
+    // last non-preview/non-upcoming is treated as latest stable (versions must be already chronologically ordered)
+    const isPreview = version.includes('preview');
+    const isUpcoming = version.includes('upcoming');
+    if (!isPreview && !isUpcoming) {
+      latestStableVersion = {
         doc: docId,
         file,
         branch: 'latest',
-      });
+      };
     }
+  }
+
+  // last non-preview/non-upcoming is treated as latest stable (versions must be already chronologically ordered)
+  if (latestStableVersion) {
+    SPEC_MAPPING.push(latestStableVersion);
   }
 }
 
