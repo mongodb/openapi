@@ -322,6 +322,30 @@ components:
                     readOnly: true
                     type: string
             type: object
+        AIModelsRateLimitResponse:
+            properties:
+                modelGroupName:
+                    description: Identifier used to reference this model group.
+                    readOnly: true
+                    type: string
+                modelNames:
+                    description: List of embedding model names included in this model group.
+                    items:
+                        type: string
+                    maxItems: 100
+                    readOnly: true
+                    type: array
+                requestsPerMinuteLimit:
+                    description: The number of requests per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    format: int32
+                    minimum: 0
+                    type: integer
+                tokensPerMinuteLimit:
+                    description: The number of tokens per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    format: int32
+                    minimum: 0
+                    type: integer
+            type: object
         AWSAccountDetails:
             properties:
                 awsAccountId:
@@ -1226,6 +1250,25 @@ components:
                     type: boolean
             title: Acknowledge Alert
             type: object
+        ActivityFeedLinkResponse:
+            description: Response containing a shareable activity feed link.
+            properties:
+                link:
+                    description: Shareable link to the activity feed with pre-applied filters.
+                    example: https://cloud.mongodb.com/redirect/1234567890abcdef12345678
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+            required:
+                - link
+            type: object
         AddOrRemoveGroupRole:
             properties:
                 groupRole:
@@ -1588,6 +1631,22 @@ components:
                     type: string
             required:
                 - name
+            type: object
+        AiModelsRateLimitUpdateRequest:
+            properties:
+                requestsPerMinuteLimit:
+                    description: The number of requests per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    format: int32
+                    minimum: 0
+                    type: integer
+                tokensPerMinuteLimit:
+                    description: The number of tokens per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    format: int32
+                    minimum: 0
+                    type: integer
+            required:
+                - requestsPerMinuteLimit
+                - tokensPerMinuteLimit
             type: object
         AlertAudit:
             description: Alert audit indicates acknowledgement status of an alert.
@@ -7051,6 +7110,7 @@ components:
         BillingEventTypeViewForOrg:
             description: Unique identifier of event type.
             enum:
+                - AWS_PAYMENT_PAID
                 - CHARGE_SUCCEEDED
                 - CHARGE_FAILED
                 - CHARGE_PROCESSING
@@ -15118,7 +15178,6 @@ components:
                           title: Mlab Migration Audit Types
                           type: string
                         - enum:
-                            - AWS_PAYMENT_PAID
                             - AWS_SELF_SERVE_ACCOUNT_LINKED
                             - AWS_SELF_SERVE_ACCOUNT_LINK_PENDING
                             - AWS_SELF_SERVE_ACCOUNT_CANCELLED
@@ -15141,8 +15200,6 @@ components:
                             - VERCEL_INVOICE_REFUNDED
                           title: Partner Event Types
                           type: string
-                          x-xgen-IPA-exception:
-                            xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema predates IPA validation.
                         - enum:
                             - SUPPORT_EMAILS_SENT_SUCCESSFULLY
                             - SUPPORT_EMAILS_SENT_FAILURE
@@ -18558,6 +18615,7 @@ components:
                   title: Service Account Event Types
                   type: string
                 - enum:
+                    - AWS_PAYMENT_PAID
                     - CHARGE_SUCCEEDED
                     - CHARGE_FAILED
                     - CHARGE_PROCESSING
@@ -18769,7 +18827,6 @@ components:
                   x-xgen-IPA-exception:
                     xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema predates IPA validation.
                 - enum:
-                    - AWS_PAYMENT_PAID
                     - AWS_SELF_SERVE_ACCOUNT_LINKED
                     - AWS_SELF_SERVE_ACCOUNT_LINK_PENDING
                     - AWS_SELF_SERVE_ACCOUNT_CANCELLED
@@ -18792,8 +18849,6 @@ components:
                     - VERCEL_INVOICE_REFUNDED
                   title: Partner Event Types
                   type: string
-                  x-xgen-IPA-exception:
-                    xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema predates IPA validation.
                 - enum:
                     - SUPPORT_EMAILS_SENT_SUCCESSFULLY
                     - SUPPORT_EMAILS_SENT_FAILURE
@@ -24821,522 +24876,11 @@ components:
                     type: number
                 sku:
                     description: Human-readable description of the service that this line item provided. This Stock Keeping Unit (SKU) could be the instance type, a support charge, advanced security, or another service.
-                    enum:
-                        - CLASSIC_BACKUP_OPLOG
-                        - CLASSIC_BACKUP_STORAGE
-                        - CLASSIC_BACKUP_SNAPSHOT_CREATE
-                        - CLASSIC_BACKUP_DAILY_MINIMUM
-                        - CLASSIC_BACKUP_FREE_TIER
-                        - CLASSIC_COUPON
-                        - BACKUP_STORAGE_FREE_TIER
-                        - BACKUP_STORAGE
-                        - FLEX_CONSULTING
-                        - CLOUD_MANAGER_CLASSIC
-                        - CLOUD_MANAGER_BASIC_FREE_TIER
-                        - CLOUD_MANAGER_BASIC
-                        - CLOUD_MANAGER_PREMIUM
-                        - CLOUD_MANAGER_FREE_TIER
-                        - CLOUD_MANAGER_STANDARD_FREE_TIER
-                        - CLOUD_MANAGER_STANDARD_ANNUAL
-                        - CLOUD_MANAGER_STANDARD
-                        - CLOUD_MANAGER_FREE_TRIAL
-                        - ATLAS_INSTANCE_M0
-                        - ATLAS_INSTANCE_M2
-                        - ATLAS_INSTANCE_M5
-                        - ATLAS_AWS_INSTANCE_M10
-                        - ATLAS_AWS_INSTANCE_M20
-                        - ATLAS_AWS_INSTANCE_M30
-                        - ATLAS_AWS_INSTANCE_M40
-                        - ATLAS_AWS_INSTANCE_M50
-                        - ATLAS_AWS_INSTANCE_M60
-                        - ATLAS_AWS_INSTANCE_M80
-                        - ATLAS_AWS_INSTANCE_M100
-                        - ATLAS_AWS_INSTANCE_M140
-                        - ATLAS_AWS_INSTANCE_M200
-                        - ATLAS_AWS_INSTANCE_M300
-                        - ATLAS_AWS_INSTANCE_M40_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M50_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M60_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M80_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M200_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M300_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M400_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M700_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M40_NVME
-                        - ATLAS_AWS_INSTANCE_M50_NVME
-                        - ATLAS_AWS_INSTANCE_M60_NVME
-                        - ATLAS_AWS_INSTANCE_M80_NVME
-                        - ATLAS_AWS_INSTANCE_M200_NVME
-                        - ATLAS_AWS_INSTANCE_M400_NVME
-                        - ATLAS_AWS_INSTANCE_M10_PAUSED
-                        - ATLAS_AWS_INSTANCE_M20_PAUSED
-                        - ATLAS_AWS_INSTANCE_M30_PAUSED
-                        - ATLAS_AWS_INSTANCE_M40_PAUSED
-                        - ATLAS_AWS_INSTANCE_M50_PAUSED
-                        - ATLAS_AWS_INSTANCE_M60_PAUSED
-                        - ATLAS_AWS_INSTANCE_M80_PAUSED
-                        - ATLAS_AWS_INSTANCE_M100_PAUSED
-                        - ATLAS_AWS_INSTANCE_M140_PAUSED
-                        - ATLAS_AWS_INSTANCE_M200_PAUSED
-                        - ATLAS_AWS_INSTANCE_M300_PAUSED
-                        - ATLAS_AWS_INSTANCE_M40_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M50_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M60_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M80_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M200_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M300_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M400_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M700_LOW_CPU_PAUSED
-                        - ATLAS_AWS_SEARCH_INSTANCE_S20_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S30_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S40_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S50_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S60_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S70_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S80_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S30_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S40_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S50_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S60_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S80_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S90_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S100_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S110_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S40_STORAGE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S50_STORAGE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S60_STORAGE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S80_STORAGE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S90_STORAGE_NVME
-                        - ATLAS_AWS_STORAGE_PROVISIONED
-                        - ATLAS_AWS_STORAGE_STANDARD
-                        - ATLAS_AWS_STORAGE_STANDARD_GP3
-                        - ATLAS_AWS_STORAGE_IOPS
-                        - ATLAS_AWS_DATA_TRANSFER_SAME_REGION
-                        - ATLAS_AWS_DATA_TRANSFER_DIFFERENT_REGION
-                        - ATLAS_AWS_DATA_TRANSFER_INTERNET
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_1
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_2
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_3
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_4
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_5
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_6
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_7
-                        - ATLAS_AWS_BACKUP_SNAPSHOT_STORAGE
-                        - ATLAS_AWS_BACKUP_DOWNLOAD_VM
-                        - ATLAS_AWS_BACKUP_DOWNLOAD_VM_STORAGE
-                        - ATLAS_AWS_BACKUP_DOWNLOAD_VM_STORAGE_IOPS
-                        - ATLAS_AWS_BACKUP_EXPORT_PRIVATE_ENDPOINT
-                        - ATLAS_AWS_PRIVATE_ENDPOINT
-                        - ATLAS_AWS_PRIVATE_ENDPOINT_CAPACITY_UNITS
-                        - ATLAS_GCP_SEARCH_INSTANCE_S20_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S30_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S40_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S50_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S60_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S70_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S80_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S30_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S40_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S50_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S60_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S70_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S80_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S90_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S100_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S110_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S120_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S130_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S140_MEMORY_LOCALSSD
-                        - ATLAS_GCP_INSTANCE_M10
-                        - ATLAS_GCP_INSTANCE_M20
-                        - ATLAS_GCP_INSTANCE_M30
-                        - ATLAS_GCP_INSTANCE_M40
-                        - ATLAS_GCP_INSTANCE_M50
-                        - ATLAS_GCP_INSTANCE_M60
-                        - ATLAS_GCP_INSTANCE_M80
-                        - ATLAS_GCP_INSTANCE_M140
-                        - ATLAS_GCP_INSTANCE_M200
-                        - ATLAS_GCP_INSTANCE_M250
-                        - ATLAS_GCP_INSTANCE_M300
-                        - ATLAS_GCP_INSTANCE_M400
-                        - ATLAS_GCP_INSTANCE_M40_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M50_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M60_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M80_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M200_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M300_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M400_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M600_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M10_PAUSED
-                        - ATLAS_GCP_INSTANCE_M20_PAUSED
-                        - ATLAS_GCP_INSTANCE_M30_PAUSED
-                        - ATLAS_GCP_INSTANCE_M40_PAUSED
-                        - ATLAS_GCP_INSTANCE_M50_PAUSED
-                        - ATLAS_GCP_INSTANCE_M60_PAUSED
-                        - ATLAS_GCP_INSTANCE_M80_PAUSED
-                        - ATLAS_GCP_INSTANCE_M140_PAUSED
-                        - ATLAS_GCP_INSTANCE_M200_PAUSED
-                        - ATLAS_GCP_INSTANCE_M250_PAUSED
-                        - ATLAS_GCP_INSTANCE_M300_PAUSED
-                        - ATLAS_GCP_INSTANCE_M400_PAUSED
-                        - ATLAS_GCP_INSTANCE_M40_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M50_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M60_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M80_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M200_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M300_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M400_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M600_LOW_CPU_PAUSED
-                        - ATLAS_GCP_DATA_TRANSFER_INTERNET
-                        - ATLAS_GCP_STORAGE_SSD
-                        - ATLAS_GCP_DATA_TRANSFER_INTER_CONNECT
-                        - ATLAS_GCP_DATA_TRANSFER_INTER_ZONE
-                        - ATLAS_GCP_DATA_TRANSFER_INTER_REGION
-                        - ATLAS_GCP_DATA_TRANSFER_GOOGLE
-                        - ATLAS_GCP_BACKUP_SNAPSHOT_STORAGE
-                        - ATLAS_GCP_BACKUP_DOWNLOAD_VM
-                        - ATLAS_GCP_BACKUP_DOWNLOAD_VM_STORAGE
-                        - ATLAS_GCP_PRIVATE_ENDPOINT
-                        - ATLAS_GCP_PRIVATE_ENDPOINT_CAPACITY_UNITS
-                        - ATLAS_GCP_SNAPSHOT_COPY_DATA_TRANSFER
-                        - ATLAS_AZURE_INSTANCE_M10
-                        - ATLAS_AZURE_INSTANCE_M20
-                        - ATLAS_AZURE_INSTANCE_M30
-                        - ATLAS_AZURE_INSTANCE_M40
-                        - ATLAS_AZURE_INSTANCE_M50
-                        - ATLAS_AZURE_INSTANCE_M60
-                        - ATLAS_AZURE_INSTANCE_M80
-                        - ATLAS_AZURE_INSTANCE_M90
-                        - ATLAS_AZURE_INSTANCE_M200
-                        - ATLAS_AZURE_INSTANCE_R40
-                        - ATLAS_AZURE_INSTANCE_R50
-                        - ATLAS_AZURE_INSTANCE_R60
-                        - ATLAS_AZURE_INSTANCE_R80
-                        - ATLAS_AZURE_INSTANCE_R200
-                        - ATLAS_AZURE_INSTANCE_R300
-                        - ATLAS_AZURE_INSTANCE_R400
-                        - ATLAS_AZURE_INSTANCE_M60_NVME
-                        - ATLAS_AZURE_INSTANCE_M80_NVME
-                        - ATLAS_AZURE_INSTANCE_M200_NVME
-                        - ATLAS_AZURE_INSTANCE_M300_NVME
-                        - ATLAS_AZURE_INSTANCE_M400_NVME
-                        - ATLAS_AZURE_INSTANCE_M600_NVME
-                        - ATLAS_AZURE_INSTANCE_M10_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M20_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M30_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M40_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M50_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M60_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M80_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M90_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M200_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R40_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R50_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R60_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R80_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R200_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R300_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R400_PAUSED
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S20_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S30_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S40_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S50_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S60_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S70_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S80_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S40_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S50_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S60_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S80_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S90_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S100_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S110_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S130_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S135_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_STORAGE_P2
-                        - ATLAS_AZURE_STORAGE_P3
-                        - ATLAS_AZURE_STORAGE_P4
-                        - ATLAS_AZURE_STORAGE_P6
-                        - ATLAS_AZURE_STORAGE_P10
-                        - ATLAS_AZURE_STORAGE_P15
-                        - ATLAS_AZURE_STORAGE_P20
-                        - ATLAS_AZURE_STORAGE_P30
-                        - ATLAS_AZURE_STORAGE_P40
-                        - ATLAS_AZURE_STORAGE_P50
-                        - ATLAS_AZURE_DATA_TRANSFER
-                        - ATLAS_AZURE_DATA_TRANSFER_REGIONAL_VNET_IN
-                        - ATLAS_AZURE_DATA_TRANSFER_REGIONAL_VNET_OUT
-                        - ATLAS_AZURE_DATA_TRANSFER_GLOBAL_VNET_IN
-                        - ATLAS_AZURE_DATA_TRANSFER_GLOBAL_VNET_OUT
-                        - ATLAS_AZURE_DATA_TRANSFER_AVAILABILITY_ZONE_IN
-                        - ATLAS_AZURE_DATA_TRANSFER_AVAILABILITY_ZONE_OUT
-                        - ATLAS_AZURE_DATA_TRANSFER_INTER_REGION_INTRA_CONTINENT
-                        - ATLAS_AZURE_DATA_TRANSFER_INTER_REGION_INTER_CONTINENT
-                        - ATLAS_AZURE_BACKUP_SNAPSHOT_STORAGE
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P2
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P3
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P4
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P6
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P10
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P15
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P20
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P30
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P40
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P50
-                        - ATLAS_AZURE_STANDARD_STORAGE
-                        - ATLAS_AZURE_EXTENDED_STANDARD_IOPS
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_EXTENDED_IOPS
-                        - ATLAS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE
-                        - ATLAS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_EXTENDED_IOPS
-                        - ATLAS_BI_CONNECTOR
-                        - ATLAS_ADVANCED_SECURITY
-                        - ATLAS_ENTERPRISE_AUDITING
-                        - ATLAS_FREE_SUPPORT
-                        - ATLAS_SUPPORT
-                        - ATLAS_NDS_BACKFILL_SUPPORT
-                        - STITCH_DATA_DOWNLOADED_FREE_TIER
-                        - STITCH_DATA_DOWNLOADED
-                        - STITCH_COMPUTE_FREE_TIER
-                        - STITCH_COMPUTE
-                        - CREDIT
-                        - MINIMUM_CHARGE
-                        - CHARTS_DATA_DOWNLOADED_FREE_TIER
-                        - CHARTS_DATA_DOWNLOADED
-                        - ATLAS_DATA_LAKE_AWS_DATA_RETURNED_SAME_REGION
-                        - ATLAS_DATA_LAKE_AWS_DATA_RETURNED_DIFFERENT_REGION
-                        - ATLAS_DATA_LAKE_AWS_DATA_RETURNED_INTERNET
-                        - ATLAS_DATA_LAKE_AWS_DATA_SCANNED
-                        - ATLAS_DATA_LAKE_AWS_DATA_TRANSFERRED_FROM_DIFFERENT_REGION
-                        - ATLAS_NDS_AWS_DATA_LAKE_STORAGE_ACCESS
-                        - ATLAS_NDS_AWS_DATA_LAKE_STORAGE
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_RETURNED_SAME_REGION
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_RETURNED_SAME_CONTINENT
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_RETURNED_DIFFERENT_CONTINENT
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_RETURNED_INTERNET
-                        - ATLAS_DATA_FEDERATION_GCP_DATA_RETURNED_SAME_REGION
-                        - ATLAS_DATA_FEDERATION_GCP_DATA_RETURNED_DIFFERENT_REGION
-                        - ATLAS_DATA_FEDERATION_GCP_DATA_RETURNED_INTERNET
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_SCANNED
-                        - ATLAS_NDS_AZURE_DATA_LAKE_STORAGE_ACCESS
-                        - ATLAS_NDS_AZURE_DATA_LAKE_STORAGE
-                        - ATLAS_DATA_FEDERATION_GCP_DATA_SCANNED
-                        - ATLAS_NDS_GCP_DATA_LAKE_STORAGE_ACCESS
-                        - ATLAS_NDS_GCP_DATA_LAKE_STORAGE
-                        - ATLAS_NDS_AWS_OBJECT_STORAGE_ACCESS
-                        - ATLAS_NDS_AWS_COMPRESSED_OBJECT_STORAGE
-                        - ATLAS_NDS_AZURE_OBJECT_STORAGE_ACCESS
-                        - ATLAS_NDS_AZURE_OBJECT_STORAGE
-                        - ATLAS_NDS_AZURE_COMPRESSED_OBJECT_STORAGE
-                        - ATLAS_NDS_GCP_OBJECT_STORAGE_ACCESS
-                        - ATLAS_NDS_GCP_OBJECT_STORAGE
-                        - ATLAS_NDS_GCP_COMPRESSED_OBJECT_STORAGE
-                        - ATLAS_ARCHIVE_ACCESS_PARTITION_LOCATE
-                        - ATLAS_NDS_AWS_PIT_RESTORE_STORAGE_FREE_TIER
-                        - ATLAS_NDS_AWS_PIT_RESTORE_STORAGE
-                        - ATLAS_NDS_GCP_PIT_RESTORE_STORAGE_FREE_TIER
-                        - ATLAS_NDS_GCP_PIT_RESTORE_STORAGE
-                        - ATLAS_NDS_AZURE_PIT_RESTORE_STORAGE_FREE_TIER
-                        - ATLAS_NDS_AZURE_PIT_RESTORE_STORAGE
-                        - ATLAS_NDS_AZURE_PRIVATE_ENDPOINT_CAPACITY_UNITS
-                        - ATLAS_NDS_AZURE_CMK_PRIVATE_NETWORKING
-                        - ATLAS_NDS_AWS_CMK_PRIVATE_NETWORKING
-                        - ATLAS_NDS_AWS_OBJECT_STORAGE
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_UPLOAD
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_UPLOAD
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_M40
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_M50
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_M60
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P2
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P3
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P4
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P6
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P10
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P15
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P20
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P30
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P40
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P50
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_M40
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_M50
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_M60
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_STORAGE
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_STORAGE_IOPS
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_UPLOAD
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM_M40
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM_M50
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM_M60
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM_STORAGE
-                        - ATLAS_NDS_AWS_SERVERLESS_RPU
-                        - ATLAS_NDS_AWS_SERVERLESS_WPU
-                        - ATLAS_NDS_AWS_SERVERLESS_STORAGE
-                        - ATLAS_NDS_AWS_SERVERLESS_CONTINUOUS_BACKUP
-                        - ATLAS_NDS_AWS_SERVERLESS_BACKUP_RESTORE_VM
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER_PREVIEW
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER_REGIONAL
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER_CROSS_REGION
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER_INTERNET
-                        - ATLAS_NDS_GCP_SERVERLESS_RPU
-                        - ATLAS_NDS_GCP_SERVERLESS_WPU
-                        - ATLAS_NDS_GCP_SERVERLESS_STORAGE
-                        - ATLAS_NDS_GCP_SERVERLESS_CONTINUOUS_BACKUP
-                        - ATLAS_NDS_GCP_SERVERLESS_BACKUP_RESTORE_VM
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER_PREVIEW
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER_REGIONAL
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER_CROSS_REGION
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER_INTERNET
-                        - ATLAS_NDS_AZURE_SERVERLESS_RPU
-                        - ATLAS_NDS_AZURE_SERVERLESS_WPU
-                        - ATLAS_NDS_AZURE_SERVERLESS_STORAGE
-                        - ATLAS_NDS_AZURE_SERVERLESS_CONTINUOUS_BACKUP
-                        - ATLAS_NDS_AZURE_SERVERLESS_BACKUP_RESTORE_VM
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER_PREVIEW
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER_REGIONAL
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER_CROSS_REGION
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER_INTERNET
-                        - REALM_APP_REQUESTS_FREE_TIER
-                        - REALM_APP_REQUESTS
-                        - REALM_APP_COMPUTE_FREE_TIER
-                        - REALM_APP_COMPUTE
-                        - REALM_APP_SYNC_FREE_TIER
-                        - REALM_APP_SYNC
-                        - REALM_APP_DATA_TRANSFER_FREE_TIER
-                        - REALM_APP_DATA_TRANSFER
-                        - GCP_SNAPSHOT_COPY_DISK
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP2
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP5
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP10
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP30
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP50
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP2
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP5
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP10
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP30
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP50
-                        - ATLAS_AWS_STREAM_PROCESSING_DATA_TRANSFER
-                        - ATLAS_AWS_STREAM_PROCESSING_DATA_TRANSFER_SAME_REGION
-                        - ATLAS_AWS_STREAM_PROCESSING_DATA_TRANSFER_DIFFERENT_REGION
-                        - ATLAS_AWS_STREAM_PROCESSING_DATA_TRANSFER_INTERNET
-                        - ATLAS_AZURE_STREAM_PROCESSING_DATA_TRANSFER
-                        - ATLAS_AZURE_STREAM_PROCESSING_DATA_TRANSFER_INTERNET
-                        - ATLAS_AZURE_STREAM_PROCESSING_DATA_TRANSFER_SAME_CONTINENT
-                        - ATLAS_AZURE_STREAM_PROCESSING_DATA_TRANSFER_DIFFERENT_CONTINENT
-                        - ATLAS_AWS_STREAM_PROCESSING_VPC_PEERING
-                        - ATLAS_AZURE_STREAM_PROCESSING_PRIVATELINK
-                        - ATLAS_AWS_STREAM_PROCESSING_PRIVATELINK
-                        - ATLAS_FLEX_AWS_100_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_200_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_300_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_400_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_500_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_100_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_200_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_300_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_400_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_500_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_100_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_200_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_300_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_400_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_500_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_100_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_200_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_300_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_400_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_500_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_100_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_200_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_300_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_400_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_500_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_100_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_200_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_300_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_400_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_500_USAGE_HOURS
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP2
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP5
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP10
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP30
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP50
-                        - ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER
-                        - ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_SAME_REGION
-                        - ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_DIFFERENT_REGION
-                        - ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_INTERNET
-                        - ATLAS_GCP_STREAM_PROCESSING_PRIVATELINK
-                        - VOYAGE_EMBEDDING_3_TEXT_LARGE_API
-                        - VOYAGE_EMBEDDING_3_TEXT_LARGE_API_FREE
-                        - VOYAGE_EMBEDDING_3_TEXT_API
-                        - VOYAGE_EMBEDDING_3_TEXT_API_FREE
-                        - VOYAGE_EMBEDDING_3_TEXT_LITE_API
-                        - VOYAGE_EMBEDDING_3_TEXT_LITE_API_FREE
-                        - VOYAGE_EMBEDDING_3_5_TEXT_API
-                        - VOYAGE_EMBEDDING_3_5_TEXT_API_FREE
-                        - VOYAGE_EMBEDDING_3_5_TEXT_LITE_API
-                        - VOYAGE_EMBEDDING_3_5_TEXT_LITE_API_FREE
-                        - VOYAGE_EMBEDDING_3_TEXT_CONTEXT_API
-                        - VOYAGE_EMBEDDING_3_TEXT_CONTEXT_API_FREE
-                        - VOYAGE_EMBEDDING_3_CODE_API
-                        - VOYAGE_EMBEDDING_3_CODE_API_FREE
-                        - VOYAGE_EMBEDDING_2_FINANCE_API
-                        - VOYAGE_EMBEDDING_2_FINANCE_API_FREE
-                        - VOYAGE_EMBEDDING_2_LAW_API
-                        - VOYAGE_EMBEDDING_2_LAW_API_FREE
-                        - VOYAGE_EMBEDDING_2_CODE_API
-                        - VOYAGE_EMBEDDING_2_CODE_API_FREE
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_API
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_API_FREE
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_API
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_API_FREE
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_API
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_API_FREE
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_API
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_API_FREE
-                        - VOYAGE_RERANK_2_5_LITE_API
-                        - VOYAGE_RERANK_2_5_LITE_API_FREE
-                        - VOYAGE_RERANK_2_5_API
-                        - VOYAGE_RERANK_2_5_API_FREE
-                        - VOYAGE_RERANK_2_LITE_API
-                        - VOYAGE_RERANK_2_LITE_API_FREE
-                        - VOYAGE_RERANK_2_API
-                        - VOYAGE_RERANK_2_API_FREE
-                        - VOYAGE_EMBEDDING_4_TEXT_LARGE_API
-                        - VOYAGE_EMBEDDING_4_TEXT_LARGE_API_FREE
-                        - VOYAGE_EMBEDDING_4_TEXT_API
-                        - VOYAGE_EMBEDDING_4_TEXT_API_FREE
-                        - VOYAGE_EMBEDDING_4_TEXT_LITE_API
-                        - VOYAGE_EMBEDDING_4_TEXT_LITE_API_FREE
-                        - VOYAGE_EMBEDDING_4_TEXT_NANO_API
-                        - VOYAGE_EMBEDDING_4_TEXT_NANO_API_FREE
-                        - VOYAGE_EMBEDDING_3_TEXT_LARGE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_TEXT_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_TEXT_LITE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_5_TEXT_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_5_TEXT_LITE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_TEXT_CONTEXT_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_CODE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_2_FINANCE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_2_LAW_AUTOEMBED
-                        - VOYAGE_EMBEDDING_2_CODE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_4_TEXT_LARGE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_4_TEXT_AUTOEMBED
-                        - VOYAGE_EMBEDDING_4_TEXT_LITE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_4_TEXT_NANO_AUTOEMBED
+                    externalDocs:
+                        description: To see how to list all possible values, click here.
+                        url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/listSkus
                     readOnly: true
                     type: string
-                    x-xgen-IPA-exception:
-                        xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema predates IPA validation.
                 startDate:
                     description: Date and time when MongoDB Cloud began charging for this line item. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
                     format: date-time
@@ -32342,6 +31886,31 @@ components:
                     readOnly: true
                     type: integer
             type: object
+        PaginatedAtlasAiModelsRateLimitsResponse:
+            description: List response for AI Model Rate Limits at the organization and project level.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/AIModelsRateLimitResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            type: object
         PaginatedAtlasGroupView:
             properties:
                 links:
@@ -39074,6 +38643,15 @@ components:
                 name:
                     description: Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.
                     type: string
+                state:
+                    description: The state of the connection.
+                    enum:
+                        - PENDING
+                        - READY
+                        - DELETING
+                        - FAILED
+                    readOnly: true
+                    type: string
                 type:
                     description: Type of the connection.
                     enum:
@@ -43501,7 +43079,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 5343e3721ae93b0de81ff99efef83982d911b2f1
+    x-xgen-sha: e36bcaca9c059308ace3169c5e8b6e966825d3fe
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -44876,6 +44454,80 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Project-IP-Access-List/operation/getGroupAccessListStatus
             x-xgen-operation-id-override: getAccessListStatus
             x-xgen-owner-team: Atlas
+    /api/atlas/v2/groups/{groupId}/activityFeed:
+        get:
+            description: Returns a pre-filtered activity feed link for the specified project based on the provided date range and event types. The returned link can be shared and opened to view the activity feed with the same filters applied. To use this resource, the requesting Service Account or API Key must have the Project Read Only role or higher.
+            operationId: getGroupActivityFeed
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: |-
+                    Category of incident recorded at this moment in time.
+
+                    **IMPORTANT**: The complete list of event type values changes frequently.
+                  in: query
+                  name: eventType
+                  schema:
+                    description: List of event types to filter the activity feed.
+                    externalDocs:
+                        description: Event Types
+                        url: https://www.mongodb.com/docs/atlas/reference/atlas-event-types/
+                    items:
+                        $ref: '#/components/schemas/EventTypeForNdsGroup'
+                    maxItems: 20
+                    type: array
+                - description: End date and time for events to include in the activity feed link. ISO 8601 timestamp format in UTC.
+                  in: query
+                  name: maxDate
+                  schema:
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    type: string
+                - description: Start date and time for events to include in the activity feed link. ISO 8601 timestamp format in UTC.
+                  in: query
+                  name: minDate
+                  schema:
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    type: string
+                - description: Human-readable label that identifies the cluster.
+                  in: query
+                  name: clusterName
+                  schema:
+                    description: List of cluster names to filter the activity feed.
+                    items:
+                        type: string
+                    maxItems: 20
+                    type: array
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ActivityFeedLinkResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Pre-Filtered Activity Feed Link for One Project
+            tags:
+                - Activity Feed
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Activity-Feed/operation/getGroupActivityFeed
+            x-xgen-owner-team: CAP
+        x-xgen-IPA-exception:
+            xgen-IPA-113-singleton-should-have-update-method: Resource is read-only. IPAs does not yet support read-only singleton resources.
     /api/atlas/v2/groups/{groupId}/aiModelApiKeys:
         get:
             description: Retrieve AI model API keys for the given group.
@@ -45070,6 +44722,157 @@ paths:
                 - AI Models
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/updateGroupAiModelApiKey
             x-xgen-operation-id-override: updateModelApiKey
+            x-xgen-owner-team: Search Web Platform
+    /api/atlas/v2/groups/{groupId}/aiModelRateLimits:
+        get:
+            description: Retrieve AI model rate limits for the given group.
+            operationId: listGroupAiModelRateLimits
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAtlasAiModelsRateLimitsResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return AI Model Rate Limits for One Group
+            tags:
+                - AI Models
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listGroupAiModelRateLimits
+            x-xgen-operation-id-override: listGroupModelLimits
+            x-xgen-owner-team: Search Web Platform
+    /api/atlas/v2/groups/{groupId}/aiModelRateLimits/{modelGroupName}:
+        get:
+            description: Retrieve a single AI model rate limit for the given group.
+            operationId: getGroupAiModelRateLimit
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: The name of the model group to be retrieved.
+                  in: path
+                  name: modelGroupName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AIModelsRateLimitResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Single AI Model Rate Limit for One Group
+            tags:
+                - AI Models
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getGroupAiModelRateLimit
+            x-xgen-operation-id-override: getGroupModelLimit
+            x-xgen-owner-team: Search Web Platform
+        patch:
+            description: Update an AI model rate limit for the given model group.
+            operationId: updateGroupAiModelRateLimit
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: The name of the model group to be updated.
+                  in: path
+                  name: modelGroupName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/AiModelsRateLimitUpdateRequest'
+                description: A request containing the new rate limits for the given model group.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AIModelsRateLimitResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update AI Model Rate Limit
+            tags:
+                - AI Models
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/updateGroupAiModelRateLimit
+            x-xgen-operation-id-override: updateModelRateLimit
+            x-xgen-owner-team: Search Web Platform
+    /api/atlas/v2/groups/{groupId}/aiModelRateLimits:reset:
+        post:
+            description: Reset the AI Model rate limits for the given group to default values.
+            operationId: resetGroupAiModelRateLimits
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: This endpoint does not return a response body.
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Reset AI Model Rate Limits for Group
+            tags:
+                - AI Models
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/resetGroupAiModelRateLimits
+            x-xgen-method-verb-override:
+                customMethod: "True"
+                verb: reset
+            x-xgen-operation-id-override: resetModelRateLimits
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/groups/{groupId}/alertConfigs:
         get:
@@ -64939,6 +64742,71 @@ paths:
                 - Organizations
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrg
             x-xgen-owner-team: IAM Authorization
+    /api/atlas/v2/orgs/{orgId}/activityFeed:
+        get:
+            description: Returns a pre-filtered activity feed link for the specified organization based on the provided date range and event types. The returned link can be shared and opened to view the activity feed with the same filters applied. To use this resource, the requesting Service Account or API Key must have the Organization Member role.
+            operationId: getOrgActivityFeed
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+                - description: |-
+                    Category of incident recorded at this moment in time.
+
+                    **IMPORTANT**: The complete list of event type values changes frequently.
+                  in: query
+                  name: eventType
+                  schema:
+                    description: List of event types to filter the activity feed.
+                    externalDocs:
+                        description: Event Types
+                        url: https://www.mongodb.com/docs/atlas/reference/atlas-event-types/
+                    items:
+                        $ref: '#/components/schemas/EventTypeForOrg'
+                    maxItems: 20
+                    type: array
+                - description: End date and time for events to include in the activity feed link. ISO 8601 timestamp format in UTC.
+                  in: query
+                  name: maxDate
+                  schema:
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    type: string
+                - description: Start date and time for events to include in the activity feed link. ISO 8601 timestamp format in UTC.
+                  in: query
+                  name: minDate
+                  schema:
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ActivityFeedLinkResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Pre-Filtered Activity Feed Link for One Organization
+            tags:
+                - Activity Feed
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Activity-Feed/operation/getOrgActivityFeed
+            x-xgen-owner-team: CAP
+        x-xgen-IPA-exception:
+            xgen-IPA-113-singleton-should-have-update-method: Resource is read-only. IPAs does not yet support read-only singleton resources.
     /api/atlas/v2/orgs/{orgId}/aiModelApiKeys:
         get:
             description: Retrieve AI model API keys for the given organization.
@@ -65010,6 +64878,78 @@ paths:
                 - AI Models
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getOrgAiModelApiKey
             x-xgen-operation-id-override: getOrgModelKey
+            x-xgen-owner-team: Search Web Platform
+    /api/atlas/v2/orgs/{orgId}/aiModelRateLimits:
+        get:
+            description: Retrieve AI model rate limits for the given organization.
+            operationId: listOrgAiModelRateLimits
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAtlasAiModelsRateLimitsResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return AI Model Rate Limits for One Organization
+            tags:
+                - AI Models
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listOrgAiModelRateLimits
+            x-xgen-operation-id-override: listOrgModelLimits
+            x-xgen-owner-team: Search Web Platform
+    /api/atlas/v2/orgs/{orgId}/aiModelRateLimits/{modelGroupName}:
+        get:
+            description: Retrieve a single AI model rate limit for the given organization.
+            operationId: getOrgAiModelRateLimit
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: The name of the model group to be retrieved.
+                  in: path
+                  name: modelGroupName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AIModelsRateLimitResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Single AI Model Rate Limit for One Organization
+            tags:
+                - AI Models
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getOrgAiModelRateLimit
+            x-xgen-operation-id-override: getOrgModelLimit
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/orgs/{orgId}/apiKeys:
         get:
