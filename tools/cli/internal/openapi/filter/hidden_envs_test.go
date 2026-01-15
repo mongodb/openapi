@@ -19,12 +19,18 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestIsOperationHiddenForEnv(t *testing.T) {
+	previewVersion, err := apiversion.New(apiversion.WithVersion(apiversion.PreviewStabilityLevel))
+	require.NoError(t, err)
+	upcomingVersion, err := apiversion.New(apiversion.WithVersion("2024-08-05.upcoming"))
+	require.NoError(t, err)
+
 	tests := []struct {
 		name       string
 		operation  *openapi3.Operation
@@ -98,6 +104,98 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			},
 			metadata: &Metadata{
 				targetEnv: "prod",
+			},
+			wantHidden: false,
+		},
+		{
+			name: "Operation with targetVersion = preview and stable response content",
+			operation: &openapi3.Operation{
+				Extensions: map[string]any{},
+				Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+					Description: pointer.Get("Success"),
+					Content: map[string]*openapi3.MediaType{
+						"application/vnd.atlas.2024-08-05+json": {
+							Schema: &openapi3.SchemaRef{
+								Extensions: map[string]any{
+									"envs": "prod",
+								},
+							},
+						},
+					},
+				})),
+			},
+			metadata: &Metadata{
+				targetEnv:     "prod",
+				targetVersion: previewVersion,
+			},
+			wantHidden: true,
+		},
+		{
+			name: "Operation with targetVersion = preview and preview response content",
+			operation: &openapi3.Operation{
+				Extensions: map[string]any{},
+				Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+					Description: pointer.Get("Success"),
+					Content: map[string]*openapi3.MediaType{
+						"application/vnd.atlas.preview+json": {
+							Schema: &openapi3.SchemaRef{
+								Extensions: map[string]any{
+									"envs": "dev",
+								},
+							},
+						},
+					},
+				})),
+			},
+			metadata: &Metadata{
+				targetEnv:     "prod",
+				targetVersion: previewVersion,
+			},
+			wantHidden: false,
+		},
+		{
+			name: "Operation with targetVersion = upcoming and stable response content",
+			operation: &openapi3.Operation{
+				Extensions: map[string]any{},
+				Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+					Description: pointer.Get("Success"),
+					Content: map[string]*openapi3.MediaType{
+						"application/vnd.atlas.2024-08-05+json": {
+							Schema: &openapi3.SchemaRef{
+								Extensions: map[string]any{
+									"envs": "prod",
+								},
+							},
+						},
+					},
+				})),
+			},
+			metadata: &Metadata{
+				targetEnv:     "prod",
+				targetVersion: upcomingVersion,
+			},
+			wantHidden: true,
+		},
+		{
+			name: "Operation with targetVersion = upcoming and upcoming response content",
+			operation: &openapi3.Operation{
+				Extensions: map[string]any{},
+				Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+					Description: pointer.Get("Success"),
+					Content: map[string]*openapi3.MediaType{
+						"application/vnd.atlas.2024-08-05.upcoming+json": {
+							Schema: &openapi3.SchemaRef{
+								Extensions: map[string]any{
+									"envs": "dev",
+								},
+							},
+						},
+					},
+				})),
+			},
+			metadata: &Metadata{
+				targetEnv:     "prod",
+				targetVersion: upcomingVersion,
 			},
 			wantHidden: false,
 		},

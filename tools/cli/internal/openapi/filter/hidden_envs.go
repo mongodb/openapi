@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 )
 
 const (
@@ -132,11 +133,13 @@ func (f *HiddenEnvsFilter) removeItemsIfHiddenForEnv(schema *openapi3.SchemaRef)
 	}
 }
 
+// Remove OpenAPI Response, RequestBody and Operation if they are hidden for the specific environment.
+// Note: removeOperationIfHiddenForEnv must run after removeResponseIfHiddenForEnv.
 func (f *HiddenEnvsFilter) applyOnPath(pathItem *openapi3.PathItem) error {
 	for k, operation := range pathItem.Operations() {
-		f.removeOperationIfHiddenForEnv(k, pathItem, operation)
 		f.removeResponseIfHiddenForEnv(operation)
 		f.removeRequestBodyIfHiddenForEnv(operation)
+		f.removeOperationIfHiddenForEnv(k, pathItem, operation)
 	}
 
 	return nil
@@ -215,6 +218,11 @@ func (f *HiddenEnvsFilter) removeResponseIfHiddenForEnv(operation *openapi3.Oper
 	}
 }
 
+// isOperationHiddenForEnv determines if an operation should be hidden for the target environment.
+// It returns true if the operation is explicitly marked as hidden via the extension, or if
+// the target version is non-stable (preview/upcoming) and the operation lacks the corresponding
+// content type in its 2xx responses. isOperationHiddenForEnv must be executed after the response was already
+// filtered out.
 func (f *HiddenEnvsFilter) isOperationHiddenForEnv(operation *openapi3.Operation) bool {
 	if operation == nil {
 		return false
@@ -223,6 +231,41 @@ func (f *HiddenEnvsFilter) isOperationHiddenForEnv(operation *openapi3.Operation
 	if extension, ok := operation.Extensions[hiddenEnvsExtension]; ok {
 		log.Printf("Found x-hidden-envs in the operation: K: %q, V: %q", hiddenEnvsExtension, extension)
 		return isHiddenExtensionEqualToTargetEnv(extension, f.metadata.targetEnv)
+	}
+
+	if f.metadata.targetVersion == nil || f.metadata.targetVersion.IsStable() {
+		return false
+	}
+
+	// When targeting non-stable versions (preview or upcoming), x-hidden-envs is often applied narrowly
+	// to specific response content types to preserve the stable version in production.
+	//
+	// Since removeResponseIfHiddenForEnv has already executed, any hidden content types are gone.
+	// We must now ensure the operation still contains content relevant to the target version.
+	// If the 2xx responses lack the target-specific content type (e.g. "preview"), the operation
+	// is effectively hidden for this environment and should be removed entirely.
+	if f.metadata.targetVersion.IsPreview() {
+		return !hasContentTypeInTheResponse(operation, apiversion.PreviewStabilityLevel)
+	}
+
+	return !hasContentTypeInTheResponse(operation, apiversion.UpcomingStabilityLevel)
+}
+
+func hasContentTypeInTheResponse(operation *openapi3.Operation, contentType string) bool {
+	for responseCode, response := range operation.Responses.Map() {
+		if !strings.HasPrefix(responseCode, "20") {
+			continue
+		}
+
+		if response.Value == nil || response.Value.Content == nil {
+			continue
+		}
+
+		for contentKey := range response.Value.Content {
+			if strings.Contains(contentKey, contentType) {
+				return true
+			}
+		}
 	}
 
 	return false
