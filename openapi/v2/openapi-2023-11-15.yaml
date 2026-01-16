@@ -18456,6 +18456,7 @@ components:
                 - $ref: '#/components/schemas/EncryptionKeyAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/HostAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/HostMetricAlertConfigViewForNdsGroup'
+                - $ref: '#/components/schemas/MongotuneAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/NDSX509UserAuthenticationAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/ReplicaSetAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/ReplicaSetThresholdAlertConfigViewForNdsGroup'
@@ -23343,6 +23344,79 @@ components:
                     readOnly: true
                     type: array
             type: object
+        MongotuneAlertConfigViewForNdsGroup:
+            description: Intelligent Workload Management alert configuration allows to select which Intelligent Workload Management events trigger alerts and how users are notified.
+            properties:
+                created:
+                    description: Date and time when MongoDB Cloud created the alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+                enabled:
+                    default: false
+                    description: Flag that indicates whether someone enabled this alert configuration for the specified project.
+                    type: boolean
+                eventTypeName:
+                    $ref: '#/components/schemas/MongotuneEventTypeViewAlertable'
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies this alert configuration.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                matchers:
+                    description: Matching conditions for target resources.
+                    items:
+                        $ref: '#/components/schemas/AlertMatcher'
+                    type: array
+                notifications:
+                    description: List that contains the targets that MongoDB Cloud sends notifications.
+                    items:
+                        $ref: '#/components/schemas/AlertsNotificationRootForGroup'
+                    type: array
+                severityOverride:
+                    $ref: '#/components/schemas/EventSeverity'
+                updated:
+                    description: Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+            required:
+                - eventTypeName
+                - notifications
+            title: Intelligent Workload Management Alert Configuration
+            type: object
+        MongotuneEventTypeViewAlertable:
+            description: Event type that triggers an alert.
+            enum:
+                - MONGOTUNE_ALERT
+            example: MONGOTUNE_ALERT
+            externalDocs:
+                description: Atlas Alert Event Types
+                url: https://www.mongodb.com/docs/atlas/reference/atlas-alert-event-types/
+            title: Mongotune Event Types
+            type: string
         MonthlyScheduleView:
             allOf:
                 - $ref: '#/components/schemas/OnlineArchiveSchedule'
@@ -35358,7 +35432,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: c448ee438e26dc4d53a28aa1009170b4ca6fcec1
+    x-xgen-sha: 0b5363ae3abe922adfc0903d2e05738b123ce44d
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
