@@ -5601,7 +5601,6 @@ components:
                 - CHECK_PAYMENT_RECEIVED
                 - WIRE_TRANSFER_PAYMENT_RECEIVED
                 - DISCOUNT_APPLIED
-                - CREDIT_MOVED
                 - CREDIT_ISSUED
                 - CREDIT_PULLED_FWD
                 - CREDIT_END_DATE_MODIFIED
@@ -8925,25 +8924,9 @@ components:
                     type: string
                 role:
                     description: Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include organization- and project-level roles.
-                    enum:
-                        - ORG_OWNER
-                        - ORG_MEMBER
-                        - ORG_GROUP_CREATOR
-                        - ORG_BILLING_ADMIN
-                        - ORG_BILLING_READ_ONLY
-                        - ORG_STREAM_PROCESSING_ADMIN
-                        - ORG_READ_ONLY
-                        - GROUP_BACKUP_MANAGER
-                        - GROUP_CLUSTER_MANAGER
-                        - GROUP_DATA_ACCESS_ADMIN
-                        - GROUP_DATA_ACCESS_READ_ONLY
-                        - GROUP_DATA_ACCESS_READ_WRITE
-                        - GROUP_DATABASE_ACCESS_ADMIN
-                        - GROUP_OBSERVABILITY_VIEWER
-                        - GROUP_OWNER
-                        - GROUP_READ_ONLY
-                        - GROUP_SEARCH_INDEX_EDITOR
-                        - GROUP_STREAM_PROCESSING_OWNER
+                    externalDocs:
+                        description: MongoDB Atlas User Roles
+                        url: https://www.mongodb.com/docs/atlas/reference/user-roles/
                     type: string
             type: object
         ConnectionsMaxRawMetricThresholdView:
@@ -12396,7 +12379,6 @@ components:
                           title: Index Build Audit Types
                           type: string
                         - enum:
-                            - DB_CHECK_SUBMITTED
                             - DB_CHECK_UPDATED
                             - CLUSTER_SAMPLED_FOR_DB_CHECK
                             - DB_CHECK_SCHEDULED_FOR_CLUSTER
@@ -12527,17 +12509,9 @@ components:
                           title: Tenant Backup Event Types
                           type: string
                         - enum:
-                            - CLUSTER_VERSION_FIXED
-                            - CLUSTER_VERSION_UNFIXED
                             - CLUSTER_FCV_FIXED
                             - CLUSTER_FCV_UNFIXED
                             - CLUSTER_FCV_EXPIRATION_DATE_UPDATED
-                            - ACME_PROVIDER_FIXED
-                            - ACME_PROVIDER_UNFIXED
-                            - AGENT_VERSION_FIXED
-                            - AGENT_VERSION_UNFIXED
-                            - FIXED_VERSION_UPDATED
-                            - FIXED_AGENT_VERSION_UPDATED
                             - CLUSTER_FCV_DOWNGRADED
                             - CLUSTER_BINARY_VERSION_DOWNGRADED
                             - CLUSTER_BINARY_VERSION_UPGRADED
@@ -12978,6 +12952,40 @@ components:
                 - retentionUnit
                 - retentionValue
             type: object
+        DiskBackupCopyPolicyItem:
+            description: Specifications for one copy policy item.
+            discriminator:
+                mapping:
+                    daily: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    hourly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    monthly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    ondemand: '#/components/schemas/DiskBackupOnDemandCopyPolicyItem'
+                    weekly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    yearly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                propertyName: frequencyType
+            oneOf:
+                - $ref: '#/components/schemas/DiskBackupOnDemandCopyPolicyItem'
+                - $ref: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+            properties:
+                frequencyType:
+                    description: Human-readable label that identifies the frequency type associated with the copy policy.
+                    enum:
+                        - daily
+                        - hourly
+                        - weekly
+                        - monthly
+                        - yearly
+                        - ondemand
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies this copy policy item.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+            required:
+                - frequencyType
+            type: object
         DiskBackupCopySetting:
             description: Copy setting item in the desired backup policy.
             properties:
@@ -12988,8 +12996,15 @@ components:
                         - AZURE
                         - GCP
                     type: string
+                copyPolicyItems:
+                    description: List that describes retention per copy policy item.
+                    items:
+                        $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
+                    maxItems: 6
+                    type: array
                 frequencies:
-                    description: List that describes which types of snapshots to copy.
+                    deprecated: true
+                    description: 'Deprecated: use copyPolicyItems, which now defines which snapshots to copy and their retention.'
                     items:
                         enum:
                             - HOURLY
@@ -12999,6 +13014,7 @@ components:
                             - YEARLY
                             - ON_DEMAND
                         type: string
+                    maxItems: 6
                     type: array
                 regionName:
                     description: Target region to copy snapshots belonging to replicationSpecId to. Please supply the 'Atlas Region'.
@@ -13133,6 +13149,13 @@ components:
                     description: Human-readable label that identifies the replica set on the sharded cluster.
                     readOnly: true
                     type: string
+            type: object
+        DiskBackupOnDemandCopyPolicyItem:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
+            description: Specifications for one on-demand copy policy item.
+            required:
+                - frequencyType
             type: object
         DiskBackupOnDemandSnapshotRequest:
             properties:
@@ -13942,6 +13965,29 @@ components:
                 useOrgAndGroupNamesInExportPrefix:
                     description: Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your Export Bucket.
                     type: boolean
+            type: object
+        DiskBackupTimeBasedCopyPolicyItem:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
+                - properties:
+                    retentionUnit:
+                        description: Unit of time in which MongoDB Cloud measures snapshot copy retention.
+                        enum:
+                            - days
+                            - weeks
+                            - months
+                            - years
+                        type: string
+                    retentionValue:
+                        description: Duration in days, weeks, months, or years that MongoDB Cloud retains the snapshot copy.
+                        format: int32
+                        type: integer
+                  type: object
+            description: Specifications for one time-based copy policy item.
+            required:
+                - frequencyType
+                - retentionUnit
+                - retentionValue
             type: object
         DiskGBAutoScaling:
             description: Setting that enables disk auto-scaling.
@@ -15144,7 +15190,6 @@ components:
                   title: Group Integration Event Types
                   type: string
                 - enum:
-                    - AUTO_CREATED_INDEX_AUDIT
                     - ATTEMPT_KILLOP_AUDIT
                     - ATTEMPT_KILLSESSION_AUDIT
                     - HOST_UP
@@ -15206,7 +15251,6 @@ components:
                     - CLUSTER_RESURRECTED
                     - CLUSTER_READY
                     - CLUSTER_UPDATE_SUBMITTED
-                    - CLUSTER_UPDATE_SUBMITTED_INTERNAL
                     - CLUSTER_PROCESS_ARGS_UPDATE_SUBMITTED
                     - CLUSTER_MONGOT_PROCESS_ARGS_UPDATE_SUBMITTED
                     - CLUSTER_SERVER_PARAMETERS_UPDATE_SUBMITTED
@@ -15248,7 +15292,6 @@ components:
                     - RELOAD_SSL_ON_PROCESSES
                     - RELOAD_SSL_ON_PROCESSES_REQUESTED
                     - CLUSTER_INSTANCE_ADMIN_BACKUP_SNAPSHOT_REQUESTED
-                    - UPDATE_BUMPER_FILES
                     - DATA_LAKE_QUERY_LOGS_DOWNLOADED
                     - FEDERATED_DATABASE_QUERY_LOGS_DOWNLOADED
                     - ONLINE_ARCHIVE_QUERY_LOGS_DOWNLOADED
@@ -15273,10 +15316,8 @@ components:
                     - PLAN_COMPLETED
                     - PLAN_ABANDONED
                     - PLAN_DECLINED
-                    - PLAN_APPROVED
                     - PLAN_FAILURE_COUNT_RESET
                     - PLAN_ASAP_REQUESTED
-                    - INDEPENDENT_SHARD_SCALING_AVAILABLE
                     - INDEPENDENT_SHARD_AUTO_SCALING_AVAILABLE
                     - INDEPENDENT_SHARD_SCALING_CLUSTER_MIGRATED
                     - INDEPENDENT_SHARD_SCALING_CLUSTER_ROLLED_BACK
@@ -15299,7 +15340,6 @@ components:
                     - SCHEDULED_MAINTENANCE
                     - PROJECT_SCHEDULED_MAINTENANCE
                     - PROJECT_LIMIT_UPDATED
-                    - PROJECT_OPERATIONAL_LIMIT_UPDATED
                     - PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED
                     - OS_MAINTENANCE
                     - OS_MAINTENANCE_RESTART
@@ -15329,13 +15369,11 @@ components:
                     - FEDERATED_DATABASE_CREATED
                     - FEDERATED_DATABASE_UPDATED
                     - FEDERATED_DATABASE_REMOVED
-                    - TENANT_CLUSTER_UPGRADE_FROM_MTM
                     - TENANT_SNAPSHOT_FAILED
                     - TENANT_RESTORE_FAILED
                     - SAMPLE_DATASET_LOAD_REQUESTED
                     - CUSTOMER_X509_CRL_UPDATED
                     - CONTAINER_SUBNETS_UPDATE_REQUESTED
-                    - CLEAR_UNPROVISIONED_TARGET_GROUPS_REQUESTED
                     - ONLINE_ARCHIVE_CREATED
                     - ONLINE_ARCHIVE_DELETED
                     - ONLINE_ARCHIVE_UPDATED
@@ -15364,7 +15402,6 @@ components:
                     - AUTO_HEALING_REQUESTED_INSTANCE_REPLACEMENT
                     - AUTO_HEALING_REQUESTED_NODE_RESYNC
                     - EXTRA_MAINTENANCE_DEFERRAL_GRANTED
-                    - ADMIN_NOTE_UPDATED
                     - GROUP_AUTOMATION_CONFIG_PUBLISHED
                     - CLUSTER_AUTOMATION_CONFIG_PUBLISHED
                     - SET_ENSURE_CLUSTER_CONNECTIVITY_AFTER_FOR_CLUSTER
@@ -15375,13 +15412,11 @@ components:
                     - INGESTION_PIPELINE_CREATED
                     - INGESTION_PIPELINE_UPDATED
                     - OS_TUNE_FILE_OVERRIDES
-                    - CLUSTER_SYSTEMD_OVERRIDES_CHANGED
                     - MONITORING_AGENT_OVERRIDES
                     - MONITORING_AGENT_REBALANCE_FLAG
                     - MONITORING_AGENT_REBALANCE_TRIGGERED
                     - CLUSTER_PREFERRED_CPU_ARCHITECTURE_MODIFIED
                     - CLUSTER_FORCE_PLANNED
-                    - DATA_PROCESSING_REGION_UPDATED
                     - CLUSTER_REGIONAL_OUTAGE_SIMULATION_STARTED
                     - CLUSTER_REGIONAL_OUTAGE_SIMULATION_FAILED_TO_START
                     - CLUSTER_REGIONAL_OUTAGE_SIMULATION_END_REQUESTED
@@ -15462,7 +15497,6 @@ components:
                     - MONGOTUNE_WRITE_BLOCK_POLICY_INELIGIBLE
                     - PREDICTIVE_AUTOSCALING_ENABLED
                     - PREDICTIVE_AUTOSCALING_DISABLED
-                    - DEPUTY_SETTINGS_UPDATED
                     - SHADOW_CLUSTER_CREATE_EXPOSURE
                     - SHADOW_CLUSTER_DELETE_EXPOSURE
                     - SHADOW_CLUSTER_RECORDING_STATUS_UPDATE
@@ -15472,7 +15506,6 @@ components:
                   x-xgen-IPA-exception:
                     xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Schema predates IPA validation.
                 - enum:
-                    - DB_CHECK_SUBMITTED
                     - DB_CHECK_UPDATED
                     - CLUSTER_SAMPLED_FOR_DB_CHECK
                     - DB_CHECK_SCHEDULED_FOR_CLUSTER
@@ -15531,7 +15564,6 @@ components:
                     - SERVERLESS_INSTANCE_UPDATE_COMPLETED
                     - SERVERLESS_INSTANCE_DELETE_SUBMITTED
                     - SERVERLESS_INSTANCE_DELETED
-                    - SERVERLESS_INSTANCE_BLOCKED
                     - SERVERLESS_INSTANCE_UNBLOCKED
                   title: NDS Serverless Instance Audit Types
                   type: string
@@ -15675,17 +15707,9 @@ components:
                   title: User Event Types
                   type: string
                 - enum:
-                    - CLUSTER_VERSION_FIXED
-                    - CLUSTER_VERSION_UNFIXED
                     - CLUSTER_FCV_FIXED
                     - CLUSTER_FCV_UNFIXED
                     - CLUSTER_FCV_EXPIRATION_DATE_UPDATED
-                    - ACME_PROVIDER_FIXED
-                    - ACME_PROVIDER_UNFIXED
-                    - AGENT_VERSION_FIXED
-                    - AGENT_VERSION_UNFIXED
-                    - FIXED_VERSION_UPDATED
-                    - FIXED_AGENT_VERSION_UPDATED
                     - CLUSTER_FCV_DOWNGRADED
                     - CLUSTER_BINARY_VERSION_DOWNGRADED
                     - CLUSTER_BINARY_VERSION_UPGRADED
@@ -15772,7 +15796,6 @@ components:
                     - CHECK_PAYMENT_RECEIVED
                     - WIRE_TRANSFER_PAYMENT_RECEIVED
                     - DISCOUNT_APPLIED
-                    - CREDIT_MOVED
                     - CREDIT_ISSUED
                     - CREDIT_PULLED_FWD
                     - CREDIT_END_DATE_MODIFIED
@@ -15942,7 +15965,6 @@ components:
                     - ORG_PUBLIC_API_ACCESS_LIST_NOT_REQUIRED
                     - ORG_EMPLOYEE_ACCESS_RESTRICTED
                     - ORG_EMPLOYEE_ACCESS_UNRESTRICTED
-                    - ORG_SFDC_ACCOUNT_ID_CHANGED
                     - ORG_CONNECTED_TO_MLAB
                     - ORG_DISCONNECTED_FROM_MLAB
                     - ORG_IDP_CERTIFICATE_CURRENT
@@ -18693,18 +18715,6 @@ components:
                         url: https://dochub.mongodb.org/core/atlas-proj-roles
                     items:
                         description: One or more project roles that receive the configured alert.
-                        enum:
-                            - GROUP_BACKUP_MANAGER
-                            - GROUP_CLUSTER_MANAGER
-                            - GROUP_DATA_ACCESS_ADMIN
-                            - GROUP_DATA_ACCESS_READ_ONLY
-                            - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_DATABASE_ACCESS_ADMIN
-                            - GROUP_OBSERVABILITY_VIEWER
-                            - GROUP_OWNER
-                            - GROUP_READ_ONLY
-                            - GROUP_SEARCH_INDEX_EDITOR
-                            - GROUP_STREAM_PROCESSING_OWNER
                         type: string
                     type: array
                 smsEnabled:
@@ -19076,7 +19086,6 @@ components:
         HostEventTypeViewForNdsGroup:
             description: Unique identifier of event type.
             enum:
-                - AUTO_CREATED_INDEX_AUDIT
                 - ATTEMPT_KILLOP_AUDIT
                 - ATTEMPT_KILLSESSION_AUDIT
                 - HOST_UP
@@ -20815,518 +20824,9 @@ components:
                     type: number
                 sku:
                     description: Human-readable description of the service that this line item provided. This Stock Keeping Unit (SKU) could be the instance type, a support charge, advanced security, or another service.
-                    enum:
-                        - CLASSIC_BACKUP_OPLOG
-                        - CLASSIC_BACKUP_STORAGE
-                        - CLASSIC_BACKUP_SNAPSHOT_CREATE
-                        - CLASSIC_BACKUP_DAILY_MINIMUM
-                        - CLASSIC_BACKUP_FREE_TIER
-                        - CLASSIC_COUPON
-                        - BACKUP_STORAGE_FREE_TIER
-                        - BACKUP_STORAGE
-                        - FLEX_CONSULTING
-                        - CLOUD_MANAGER_CLASSIC
-                        - CLOUD_MANAGER_BASIC_FREE_TIER
-                        - CLOUD_MANAGER_BASIC
-                        - CLOUD_MANAGER_PREMIUM
-                        - CLOUD_MANAGER_FREE_TIER
-                        - CLOUD_MANAGER_STANDARD_FREE_TIER
-                        - CLOUD_MANAGER_STANDARD_ANNUAL
-                        - CLOUD_MANAGER_STANDARD
-                        - CLOUD_MANAGER_FREE_TRIAL
-                        - ATLAS_INSTANCE_M0
-                        - ATLAS_INSTANCE_M2
-                        - ATLAS_INSTANCE_M5
-                        - ATLAS_AWS_INSTANCE_M10
-                        - ATLAS_AWS_INSTANCE_M20
-                        - ATLAS_AWS_INSTANCE_M30
-                        - ATLAS_AWS_INSTANCE_M40
-                        - ATLAS_AWS_INSTANCE_M50
-                        - ATLAS_AWS_INSTANCE_M60
-                        - ATLAS_AWS_INSTANCE_M80
-                        - ATLAS_AWS_INSTANCE_M100
-                        - ATLAS_AWS_INSTANCE_M140
-                        - ATLAS_AWS_INSTANCE_M200
-                        - ATLAS_AWS_INSTANCE_M300
-                        - ATLAS_AWS_INSTANCE_M40_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M50_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M60_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M80_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M200_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M300_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M400_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M700_LOW_CPU
-                        - ATLAS_AWS_INSTANCE_M40_NVME
-                        - ATLAS_AWS_INSTANCE_M50_NVME
-                        - ATLAS_AWS_INSTANCE_M60_NVME
-                        - ATLAS_AWS_INSTANCE_M80_NVME
-                        - ATLAS_AWS_INSTANCE_M200_NVME
-                        - ATLAS_AWS_INSTANCE_M400_NVME
-                        - ATLAS_AWS_INSTANCE_M10_PAUSED
-                        - ATLAS_AWS_INSTANCE_M20_PAUSED
-                        - ATLAS_AWS_INSTANCE_M30_PAUSED
-                        - ATLAS_AWS_INSTANCE_M40_PAUSED
-                        - ATLAS_AWS_INSTANCE_M50_PAUSED
-                        - ATLAS_AWS_INSTANCE_M60_PAUSED
-                        - ATLAS_AWS_INSTANCE_M80_PAUSED
-                        - ATLAS_AWS_INSTANCE_M100_PAUSED
-                        - ATLAS_AWS_INSTANCE_M140_PAUSED
-                        - ATLAS_AWS_INSTANCE_M200_PAUSED
-                        - ATLAS_AWS_INSTANCE_M300_PAUSED
-                        - ATLAS_AWS_INSTANCE_M40_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M50_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M60_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M80_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M200_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M300_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M400_LOW_CPU_PAUSED
-                        - ATLAS_AWS_INSTANCE_M700_LOW_CPU_PAUSED
-                        - ATLAS_AWS_SEARCH_INSTANCE_S20_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S30_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S40_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S50_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S60_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S70_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S80_COMPUTE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S30_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S40_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S50_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S60_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S80_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S90_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S100_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S110_MEMORY_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S40_STORAGE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S50_STORAGE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S60_STORAGE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S80_STORAGE_NVME
-                        - ATLAS_AWS_SEARCH_INSTANCE_S90_STORAGE_NVME
-                        - ATLAS_AWS_STORAGE_PROVISIONED
-                        - ATLAS_AWS_STORAGE_STANDARD
-                        - ATLAS_AWS_STORAGE_STANDARD_GP3
-                        - ATLAS_AWS_STORAGE_IOPS
-                        - ATLAS_AWS_DATA_TRANSFER_SAME_REGION
-                        - ATLAS_AWS_DATA_TRANSFER_DIFFERENT_REGION
-                        - ATLAS_AWS_DATA_TRANSFER_INTERNET
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_1
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_2
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_3
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_4
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_5
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_6
-                        - ATLAS_AWS_TIME_BASED_SNAPSHOT_COPY_LEVEL_7
-                        - ATLAS_AWS_BACKUP_SNAPSHOT_STORAGE
-                        - ATLAS_AWS_BACKUP_DOWNLOAD_VM
-                        - ATLAS_AWS_BACKUP_DOWNLOAD_VM_STORAGE
-                        - ATLAS_AWS_BACKUP_DOWNLOAD_VM_STORAGE_IOPS
-                        - ATLAS_AWS_BACKUP_EXPORT_PRIVATE_ENDPOINT
-                        - ATLAS_AWS_PRIVATE_ENDPOINT
-                        - ATLAS_AWS_PRIVATE_ENDPOINT_CAPACITY_UNITS
-                        - ATLAS_GCP_SEARCH_INSTANCE_S20_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S30_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S40_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S50_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S60_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S70_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S80_COMPUTE_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S30_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S40_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S50_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S60_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S70_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S80_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S90_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S100_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S110_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S120_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S130_MEMORY_LOCALSSD
-                        - ATLAS_GCP_SEARCH_INSTANCE_S140_MEMORY_LOCALSSD
-                        - ATLAS_GCP_INSTANCE_M10
-                        - ATLAS_GCP_INSTANCE_M20
-                        - ATLAS_GCP_INSTANCE_M30
-                        - ATLAS_GCP_INSTANCE_M40
-                        - ATLAS_GCP_INSTANCE_M50
-                        - ATLAS_GCP_INSTANCE_M60
-                        - ATLAS_GCP_INSTANCE_M80
-                        - ATLAS_GCP_INSTANCE_M140
-                        - ATLAS_GCP_INSTANCE_M200
-                        - ATLAS_GCP_INSTANCE_M250
-                        - ATLAS_GCP_INSTANCE_M300
-                        - ATLAS_GCP_INSTANCE_M400
-                        - ATLAS_GCP_INSTANCE_M40_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M50_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M60_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M80_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M200_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M300_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M400_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M600_LOW_CPU
-                        - ATLAS_GCP_INSTANCE_M10_PAUSED
-                        - ATLAS_GCP_INSTANCE_M20_PAUSED
-                        - ATLAS_GCP_INSTANCE_M30_PAUSED
-                        - ATLAS_GCP_INSTANCE_M40_PAUSED
-                        - ATLAS_GCP_INSTANCE_M50_PAUSED
-                        - ATLAS_GCP_INSTANCE_M60_PAUSED
-                        - ATLAS_GCP_INSTANCE_M80_PAUSED
-                        - ATLAS_GCP_INSTANCE_M140_PAUSED
-                        - ATLAS_GCP_INSTANCE_M200_PAUSED
-                        - ATLAS_GCP_INSTANCE_M250_PAUSED
-                        - ATLAS_GCP_INSTANCE_M300_PAUSED
-                        - ATLAS_GCP_INSTANCE_M400_PAUSED
-                        - ATLAS_GCP_INSTANCE_M40_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M50_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M60_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M80_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M200_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M300_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M400_LOW_CPU_PAUSED
-                        - ATLAS_GCP_INSTANCE_M600_LOW_CPU_PAUSED
-                        - ATLAS_GCP_DATA_TRANSFER_INTERNET
-                        - ATLAS_GCP_STORAGE_SSD
-                        - ATLAS_GCP_DATA_TRANSFER_INTER_CONNECT
-                        - ATLAS_GCP_DATA_TRANSFER_INTER_ZONE
-                        - ATLAS_GCP_DATA_TRANSFER_INTER_REGION
-                        - ATLAS_GCP_DATA_TRANSFER_GOOGLE
-                        - ATLAS_GCP_BACKUP_SNAPSHOT_STORAGE
-                        - ATLAS_GCP_BACKUP_DOWNLOAD_VM
-                        - ATLAS_GCP_BACKUP_DOWNLOAD_VM_STORAGE
-                        - ATLAS_GCP_PRIVATE_ENDPOINT
-                        - ATLAS_GCP_PRIVATE_ENDPOINT_CAPACITY_UNITS
-                        - ATLAS_GCP_SNAPSHOT_COPY_DATA_TRANSFER
-                        - ATLAS_AZURE_INSTANCE_M10
-                        - ATLAS_AZURE_INSTANCE_M20
-                        - ATLAS_AZURE_INSTANCE_M30
-                        - ATLAS_AZURE_INSTANCE_M40
-                        - ATLAS_AZURE_INSTANCE_M50
-                        - ATLAS_AZURE_INSTANCE_M60
-                        - ATLAS_AZURE_INSTANCE_M80
-                        - ATLAS_AZURE_INSTANCE_M90
-                        - ATLAS_AZURE_INSTANCE_M200
-                        - ATLAS_AZURE_INSTANCE_R40
-                        - ATLAS_AZURE_INSTANCE_R50
-                        - ATLAS_AZURE_INSTANCE_R60
-                        - ATLAS_AZURE_INSTANCE_R80
-                        - ATLAS_AZURE_INSTANCE_R200
-                        - ATLAS_AZURE_INSTANCE_R300
-                        - ATLAS_AZURE_INSTANCE_R400
-                        - ATLAS_AZURE_INSTANCE_M60_NVME
-                        - ATLAS_AZURE_INSTANCE_M80_NVME
-                        - ATLAS_AZURE_INSTANCE_M200_NVME
-                        - ATLAS_AZURE_INSTANCE_M300_NVME
-                        - ATLAS_AZURE_INSTANCE_M400_NVME
-                        - ATLAS_AZURE_INSTANCE_M600_NVME
-                        - ATLAS_AZURE_INSTANCE_M10_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M20_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M30_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M40_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M50_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M60_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M80_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M90_PAUSED
-                        - ATLAS_AZURE_INSTANCE_M200_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R40_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R50_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R60_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R80_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R200_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R300_PAUSED
-                        - ATLAS_AZURE_INSTANCE_R400_PAUSED
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S20_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S30_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S40_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S50_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S60_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S70_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S80_COMPUTE_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S40_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S50_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S60_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S80_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S90_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S100_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S110_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S130_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_SEARCH_INSTANCE_S135_MEMORY_LOCALSSD
-                        - ATLAS_AZURE_STORAGE_P2
-                        - ATLAS_AZURE_STORAGE_P3
-                        - ATLAS_AZURE_STORAGE_P4
-                        - ATLAS_AZURE_STORAGE_P6
-                        - ATLAS_AZURE_STORAGE_P10
-                        - ATLAS_AZURE_STORAGE_P15
-                        - ATLAS_AZURE_STORAGE_P20
-                        - ATLAS_AZURE_STORAGE_P30
-                        - ATLAS_AZURE_STORAGE_P40
-                        - ATLAS_AZURE_STORAGE_P50
-                        - ATLAS_AZURE_DATA_TRANSFER
-                        - ATLAS_AZURE_DATA_TRANSFER_REGIONAL_VNET_IN
-                        - ATLAS_AZURE_DATA_TRANSFER_REGIONAL_VNET_OUT
-                        - ATLAS_AZURE_DATA_TRANSFER_GLOBAL_VNET_IN
-                        - ATLAS_AZURE_DATA_TRANSFER_GLOBAL_VNET_OUT
-                        - ATLAS_AZURE_DATA_TRANSFER_AVAILABILITY_ZONE_IN
-                        - ATLAS_AZURE_DATA_TRANSFER_AVAILABILITY_ZONE_OUT
-                        - ATLAS_AZURE_DATA_TRANSFER_INTER_REGION_INTRA_CONTINENT
-                        - ATLAS_AZURE_DATA_TRANSFER_INTER_REGION_INTER_CONTINENT
-                        - ATLAS_AZURE_BACKUP_SNAPSHOT_STORAGE
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P2
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P3
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P4
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P6
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P10
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P15
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P20
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P30
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P40
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_P50
-                        - ATLAS_AZURE_STANDARD_STORAGE
-                        - ATLAS_AZURE_EXTENDED_STANDARD_IOPS
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE
-                        - ATLAS_AZURE_BACKUP_DOWNLOAD_VM_STORAGE_EXTENDED_IOPS
-                        - ATLAS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE
-                        - ATLAS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_EXTENDED_IOPS
-                        - ATLAS_BI_CONNECTOR
-                        - ATLAS_ADVANCED_SECURITY
-                        - ATLAS_ENTERPRISE_AUDITING
-                        - ATLAS_FREE_SUPPORT
-                        - ATLAS_SUPPORT
-                        - ATLAS_NDS_BACKFILL_SUPPORT
-                        - STITCH_DATA_DOWNLOADED_FREE_TIER
-                        - STITCH_DATA_DOWNLOADED
-                        - STITCH_COMPUTE_FREE_TIER
-                        - STITCH_COMPUTE
-                        - CREDIT
-                        - MINIMUM_CHARGE
-                        - CHARTS_DATA_DOWNLOADED_FREE_TIER
-                        - CHARTS_DATA_DOWNLOADED
-                        - ATLAS_DATA_LAKE_AWS_DATA_RETURNED_SAME_REGION
-                        - ATLAS_DATA_LAKE_AWS_DATA_RETURNED_DIFFERENT_REGION
-                        - ATLAS_DATA_LAKE_AWS_DATA_RETURNED_INTERNET
-                        - ATLAS_DATA_LAKE_AWS_DATA_SCANNED
-                        - ATLAS_DATA_LAKE_AWS_DATA_TRANSFERRED_FROM_DIFFERENT_REGION
-                        - ATLAS_NDS_AWS_DATA_LAKE_STORAGE_ACCESS
-                        - ATLAS_NDS_AWS_DATA_LAKE_STORAGE
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_RETURNED_SAME_REGION
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_RETURNED_SAME_CONTINENT
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_RETURNED_DIFFERENT_CONTINENT
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_RETURNED_INTERNET
-                        - ATLAS_DATA_FEDERATION_GCP_DATA_RETURNED_SAME_REGION
-                        - ATLAS_DATA_FEDERATION_GCP_DATA_RETURNED_DIFFERENT_REGION
-                        - ATLAS_DATA_FEDERATION_GCP_DATA_RETURNED_INTERNET
-                        - ATLAS_DATA_FEDERATION_AZURE_DATA_SCANNED
-                        - ATLAS_NDS_AZURE_DATA_LAKE_STORAGE_ACCESS
-                        - ATLAS_NDS_AZURE_DATA_LAKE_STORAGE
-                        - ATLAS_DATA_FEDERATION_GCP_DATA_SCANNED
-                        - ATLAS_NDS_GCP_DATA_LAKE_STORAGE_ACCESS
-                        - ATLAS_NDS_GCP_DATA_LAKE_STORAGE
-                        - ATLAS_NDS_AWS_OBJECT_STORAGE_ACCESS
-                        - ATLAS_NDS_AWS_COMPRESSED_OBJECT_STORAGE
-                        - ATLAS_NDS_AZURE_OBJECT_STORAGE_ACCESS
-                        - ATLAS_NDS_AZURE_OBJECT_STORAGE
-                        - ATLAS_NDS_AZURE_COMPRESSED_OBJECT_STORAGE
-                        - ATLAS_NDS_GCP_OBJECT_STORAGE_ACCESS
-                        - ATLAS_NDS_GCP_OBJECT_STORAGE
-                        - ATLAS_NDS_GCP_COMPRESSED_OBJECT_STORAGE
-                        - ATLAS_ARCHIVE_ACCESS_PARTITION_LOCATE
-                        - ATLAS_NDS_AWS_PIT_RESTORE_STORAGE_FREE_TIER
-                        - ATLAS_NDS_AWS_PIT_RESTORE_STORAGE
-                        - ATLAS_NDS_GCP_PIT_RESTORE_STORAGE_FREE_TIER
-                        - ATLAS_NDS_GCP_PIT_RESTORE_STORAGE
-                        - ATLAS_NDS_AZURE_PIT_RESTORE_STORAGE_FREE_TIER
-                        - ATLAS_NDS_AZURE_PIT_RESTORE_STORAGE
-                        - ATLAS_NDS_AZURE_PRIVATE_ENDPOINT_CAPACITY_UNITS
-                        - ATLAS_NDS_AZURE_CMK_PRIVATE_NETWORKING
-                        - ATLAS_NDS_AWS_CMK_PRIVATE_NETWORKING
-                        - ATLAS_NDS_AWS_OBJECT_STORAGE
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_UPLOAD
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_UPLOAD
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_M40
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_M50
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_M60
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P2
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P3
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P4
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P6
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P10
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P15
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P20
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P30
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P40
-                        - ATLAS_NDS_AZURE_SNAPSHOT_EXPORT_VM_STORAGE_P50
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_M40
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_M50
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_M60
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_STORAGE
-                        - ATLAS_NDS_AWS_SNAPSHOT_EXPORT_VM_STORAGE_IOPS
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_UPLOAD
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM_M40
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM_M50
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM_M60
-                        - ATLAS_NDS_GCP_SNAPSHOT_EXPORT_VM_STORAGE
-                        - ATLAS_NDS_AWS_SERVERLESS_RPU
-                        - ATLAS_NDS_AWS_SERVERLESS_WPU
-                        - ATLAS_NDS_AWS_SERVERLESS_STORAGE
-                        - ATLAS_NDS_AWS_SERVERLESS_CONTINUOUS_BACKUP
-                        - ATLAS_NDS_AWS_SERVERLESS_BACKUP_RESTORE_VM
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER_PREVIEW
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER_REGIONAL
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER_CROSS_REGION
-                        - ATLAS_NDS_AWS_SERVERLESS_DATA_TRANSFER_INTERNET
-                        - ATLAS_NDS_GCP_SERVERLESS_RPU
-                        - ATLAS_NDS_GCP_SERVERLESS_WPU
-                        - ATLAS_NDS_GCP_SERVERLESS_STORAGE
-                        - ATLAS_NDS_GCP_SERVERLESS_CONTINUOUS_BACKUP
-                        - ATLAS_NDS_GCP_SERVERLESS_BACKUP_RESTORE_VM
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER_PREVIEW
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER_REGIONAL
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER_CROSS_REGION
-                        - ATLAS_NDS_GCP_SERVERLESS_DATA_TRANSFER_INTERNET
-                        - ATLAS_NDS_AZURE_SERVERLESS_RPU
-                        - ATLAS_NDS_AZURE_SERVERLESS_WPU
-                        - ATLAS_NDS_AZURE_SERVERLESS_STORAGE
-                        - ATLAS_NDS_AZURE_SERVERLESS_CONTINUOUS_BACKUP
-                        - ATLAS_NDS_AZURE_SERVERLESS_BACKUP_RESTORE_VM
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER_PREVIEW
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER_REGIONAL
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER_CROSS_REGION
-                        - ATLAS_NDS_AZURE_SERVERLESS_DATA_TRANSFER_INTERNET
-                        - REALM_APP_REQUESTS_FREE_TIER
-                        - REALM_APP_REQUESTS
-                        - REALM_APP_COMPUTE_FREE_TIER
-                        - REALM_APP_COMPUTE
-                        - REALM_APP_SYNC_FREE_TIER
-                        - REALM_APP_SYNC
-                        - REALM_APP_DATA_TRANSFER_FREE_TIER
-                        - REALM_APP_DATA_TRANSFER
-                        - GCP_SNAPSHOT_COPY_DISK
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP2
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP5
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP10
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP30
-                        - ATLAS_AWS_STREAM_PROCESSING_INSTANCE_SP50
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP2
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP5
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP10
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP30
-                        - ATLAS_AZURE_STREAM_PROCESSING_INSTANCE_SP50
-                        - ATLAS_AWS_STREAM_PROCESSING_DATA_TRANSFER
-                        - ATLAS_AWS_STREAM_PROCESSING_DATA_TRANSFER_SAME_REGION
-                        - ATLAS_AWS_STREAM_PROCESSING_DATA_TRANSFER_DIFFERENT_REGION
-                        - ATLAS_AWS_STREAM_PROCESSING_DATA_TRANSFER_INTERNET
-                        - ATLAS_AZURE_STREAM_PROCESSING_DATA_TRANSFER
-                        - ATLAS_AZURE_STREAM_PROCESSING_DATA_TRANSFER_INTERNET
-                        - ATLAS_AZURE_STREAM_PROCESSING_DATA_TRANSFER_SAME_CONTINENT
-                        - ATLAS_AZURE_STREAM_PROCESSING_DATA_TRANSFER_DIFFERENT_CONTINENT
-                        - ATLAS_AWS_STREAM_PROCESSING_VPC_PEERING
-                        - ATLAS_AZURE_STREAM_PROCESSING_PRIVATELINK
-                        - ATLAS_AWS_STREAM_PROCESSING_PRIVATELINK
-                        - ATLAS_FLEX_AWS_100_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_200_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_300_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_400_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_500_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_100_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_200_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_300_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_400_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_500_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_100_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_200_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_300_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_400_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_500_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_100_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_200_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_300_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_400_USAGE_HOURS
-                        - ATLAS_FLEX_AWS_LEGACY_500_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_100_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_200_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_300_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_400_USAGE_HOURS
-                        - ATLAS_FLEX_AZURE_LEGACY_500_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_100_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_200_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_300_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_400_USAGE_HOURS
-                        - ATLAS_FLEX_GCP_LEGACY_500_USAGE_HOURS
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP2
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP5
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP10
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP30
-                        - ATLAS_GCP_STREAM_PROCESSING_INSTANCE_SP50
-                        - ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER
-                        - ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_SAME_REGION
-                        - ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_DIFFERENT_REGION
-                        - ATLAS_GCP_STREAM_PROCESSING_DATA_TRANSFER_INTERNET
-                        - ATLAS_GCP_STREAM_PROCESSING_PRIVATELINK
-                        - VOYAGE_EMBEDDING_3_TEXT_LARGE_API
-                        - VOYAGE_EMBEDDING_3_TEXT_LARGE_API_FREE
-                        - VOYAGE_EMBEDDING_3_TEXT_API
-                        - VOYAGE_EMBEDDING_3_TEXT_API_FREE
-                        - VOYAGE_EMBEDDING_3_TEXT_LITE_API
-                        - VOYAGE_EMBEDDING_3_TEXT_LITE_API_FREE
-                        - VOYAGE_EMBEDDING_3_5_TEXT_API
-                        - VOYAGE_EMBEDDING_3_5_TEXT_API_FREE
-                        - VOYAGE_EMBEDDING_3_5_TEXT_LITE_API
-                        - VOYAGE_EMBEDDING_3_5_TEXT_LITE_API_FREE
-                        - VOYAGE_EMBEDDING_3_TEXT_CONTEXT_API
-                        - VOYAGE_EMBEDDING_3_TEXT_CONTEXT_API_FREE
-                        - VOYAGE_EMBEDDING_3_CODE_API
-                        - VOYAGE_EMBEDDING_3_CODE_API_FREE
-                        - VOYAGE_EMBEDDING_2_FINANCE_API
-                        - VOYAGE_EMBEDDING_2_FINANCE_API_FREE
-                        - VOYAGE_EMBEDDING_2_LAW_API
-                        - VOYAGE_EMBEDDING_2_LAW_API_FREE
-                        - VOYAGE_EMBEDDING_2_CODE_API
-                        - VOYAGE_EMBEDDING_2_CODE_API_FREE
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_API
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_API_FREE
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_API
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_API_FREE
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_API
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_API_FREE
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_API
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_API_FREE
-                        - VOYAGE_RERANK_2_5_LITE_API
-                        - VOYAGE_RERANK_2_5_LITE_API_FREE
-                        - VOYAGE_RERANK_2_5_API
-                        - VOYAGE_RERANK_2_5_API_FREE
-                        - VOYAGE_RERANK_2_LITE_API
-                        - VOYAGE_RERANK_2_LITE_API_FREE
-                        - VOYAGE_RERANK_2_API
-                        - VOYAGE_RERANK_2_API_FREE
-                        - VOYAGE_EMBEDDING_4_TEXT_LARGE_API
-                        - VOYAGE_EMBEDDING_4_TEXT_LARGE_API_FREE
-                        - VOYAGE_EMBEDDING_4_TEXT_API
-                        - VOYAGE_EMBEDDING_4_TEXT_API_FREE
-                        - VOYAGE_EMBEDDING_4_TEXT_LITE_API
-                        - VOYAGE_EMBEDDING_4_TEXT_LITE_API_FREE
-                        - VOYAGE_EMBEDDING_4_TEXT_NANO_API
-                        - VOYAGE_EMBEDDING_4_TEXT_NANO_API_FREE
-                        - VOYAGE_EMBEDDING_3_TEXT_LARGE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_TEXT_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_TEXT_LITE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_5_TEXT_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_5_TEXT_LITE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_TEXT_CONTEXT_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_CODE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_2_FINANCE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_2_LAW_AUTOEMBED
-                        - VOYAGE_EMBEDDING_2_CODE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_TOKENS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_5_MULTIMODAL_PIXELS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_TOKENS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_3_MULTIMODAL_PIXELS_AUTOEMBED
-                        - VOYAGE_EMBEDDING_4_TEXT_LARGE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_4_TEXT_AUTOEMBED
-                        - VOYAGE_EMBEDDING_4_TEXT_LITE_AUTOEMBED
-                        - VOYAGE_EMBEDDING_4_TEXT_NANO_AUTOEMBED
+                    externalDocs:
+                        description: To see how to list all possible values, click here.
+                        url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/listSkus
                     readOnly: true
                     type: string
                 startDate:
@@ -24147,7 +23647,6 @@ components:
                 - CLUSTER_RESURRECTED
                 - CLUSTER_READY
                 - CLUSTER_UPDATE_SUBMITTED
-                - CLUSTER_UPDATE_SUBMITTED_INTERNAL
                 - CLUSTER_PROCESS_ARGS_UPDATE_SUBMITTED
                 - CLUSTER_MONGOT_PROCESS_ARGS_UPDATE_SUBMITTED
                 - CLUSTER_SERVER_PARAMETERS_UPDATE_SUBMITTED
@@ -24189,7 +23688,6 @@ components:
                 - RELOAD_SSL_ON_PROCESSES
                 - RELOAD_SSL_ON_PROCESSES_REQUESTED
                 - CLUSTER_INSTANCE_ADMIN_BACKUP_SNAPSHOT_REQUESTED
-                - UPDATE_BUMPER_FILES
                 - DATA_LAKE_QUERY_LOGS_DOWNLOADED
                 - FEDERATED_DATABASE_QUERY_LOGS_DOWNLOADED
                 - ONLINE_ARCHIVE_QUERY_LOGS_DOWNLOADED
@@ -24214,10 +23712,8 @@ components:
                 - PLAN_COMPLETED
                 - PLAN_ABANDONED
                 - PLAN_DECLINED
-                - PLAN_APPROVED
                 - PLAN_FAILURE_COUNT_RESET
                 - PLAN_ASAP_REQUESTED
-                - INDEPENDENT_SHARD_SCALING_AVAILABLE
                 - INDEPENDENT_SHARD_AUTO_SCALING_AVAILABLE
                 - INDEPENDENT_SHARD_SCALING_CLUSTER_MIGRATED
                 - INDEPENDENT_SHARD_SCALING_CLUSTER_ROLLED_BACK
@@ -24240,7 +23736,6 @@ components:
                 - SCHEDULED_MAINTENANCE
                 - PROJECT_SCHEDULED_MAINTENANCE
                 - PROJECT_LIMIT_UPDATED
-                - PROJECT_OPERATIONAL_LIMIT_UPDATED
                 - PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED
                 - OS_MAINTENANCE
                 - OS_MAINTENANCE_RESTART
@@ -24270,13 +23765,11 @@ components:
                 - FEDERATED_DATABASE_CREATED
                 - FEDERATED_DATABASE_UPDATED
                 - FEDERATED_DATABASE_REMOVED
-                - TENANT_CLUSTER_UPGRADE_FROM_MTM
                 - TENANT_SNAPSHOT_FAILED
                 - TENANT_RESTORE_FAILED
                 - SAMPLE_DATASET_LOAD_REQUESTED
                 - CUSTOMER_X509_CRL_UPDATED
                 - CONTAINER_SUBNETS_UPDATE_REQUESTED
-                - CLEAR_UNPROVISIONED_TARGET_GROUPS_REQUESTED
                 - ONLINE_ARCHIVE_CREATED
                 - ONLINE_ARCHIVE_DELETED
                 - ONLINE_ARCHIVE_UPDATED
@@ -24305,7 +23798,6 @@ components:
                 - AUTO_HEALING_REQUESTED_INSTANCE_REPLACEMENT
                 - AUTO_HEALING_REQUESTED_NODE_RESYNC
                 - EXTRA_MAINTENANCE_DEFERRAL_GRANTED
-                - ADMIN_NOTE_UPDATED
                 - GROUP_AUTOMATION_CONFIG_PUBLISHED
                 - CLUSTER_AUTOMATION_CONFIG_PUBLISHED
                 - SET_ENSURE_CLUSTER_CONNECTIVITY_AFTER_FOR_CLUSTER
@@ -24316,13 +23808,11 @@ components:
                 - INGESTION_PIPELINE_CREATED
                 - INGESTION_PIPELINE_UPDATED
                 - OS_TUNE_FILE_OVERRIDES
-                - CLUSTER_SYSTEMD_OVERRIDES_CHANGED
                 - MONITORING_AGENT_OVERRIDES
                 - MONITORING_AGENT_REBALANCE_FLAG
                 - MONITORING_AGENT_REBALANCE_TRIGGERED
                 - CLUSTER_PREFERRED_CPU_ARCHITECTURE_MODIFIED
                 - CLUSTER_FORCE_PLANNED
-                - DATA_PROCESSING_REGION_UPDATED
                 - CLUSTER_REGIONAL_OUTAGE_SIMULATION_STARTED
                 - CLUSTER_REGIONAL_OUTAGE_SIMULATION_FAILED_TO_START
                 - CLUSTER_REGIONAL_OUTAGE_SIMULATION_END_REQUESTED
@@ -24403,7 +23893,6 @@ components:
                 - MONGOTUNE_WRITE_BLOCK_POLICY_INELIGIBLE
                 - PREDICTIVE_AUTOSCALING_ENABLED
                 - PREDICTIVE_AUTOSCALING_DISABLED
-                - DEPUTY_SETTINGS_UPDATED
                 - SHADOW_CLUSTER_CREATE_EXPOSURE
                 - SHADOW_CLUSTER_DELETE_EXPOSURE
                 - SHADOW_CLUSTER_RECORDING_STATUS_UPDATE
@@ -24724,7 +24213,6 @@ components:
                 - SERVERLESS_INSTANCE_UPDATE_COMPLETED
                 - SERVERLESS_INSTANCE_DELETE_SUBMITTED
                 - SERVERLESS_INSTANCE_DELETED
-                - SERVERLESS_INSTANCE_BLOCKED
                 - SERVERLESS_INSTANCE_UNBLOCKED
             example: SERVERLESS_INSTANCE_CREATED
             title: NDS Serverless Instance Audit Types
@@ -26281,7 +25769,6 @@ components:
                 - ORG_PUBLIC_API_ACCESS_LIST_NOT_REQUIRED
                 - ORG_EMPLOYEE_ACCESS_RESTRICTED
                 - ORG_EMPLOYEE_ACCESS_UNRESTRICTED
-                - ORG_SFDC_ACCOUNT_ID_CHANGED
                 - ORG_CONNECTED_TO_MLAB
                 - ORG_DISCONNECTED_FROM_MLAB
                 - ORG_IDP_CERTIFICATE_CURRENT
@@ -26722,20 +26209,11 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 roles:
-                    description: One or more project level roles to assign to the MongoDB Cloud user.
+                    description: One or more project-level roles to assign to the MongoDB Cloud user.
+                    externalDocs:
+                        description: MongoDB Atlas User Roles
+                        url: https://www.mongodb.com/docs/atlas/reference/user-roles/
                     items:
-                        enum:
-                            - GROUP_BACKUP_MANAGER
-                            - GROUP_CLUSTER_MANAGER
-                            - GROUP_DATA_ACCESS_ADMIN
-                            - GROUP_DATA_ACCESS_READ_ONLY
-                            - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_DATABASE_ACCESS_ADMIN
-                            - GROUP_OBSERVABILITY_VIEWER
-                            - GROUP_OWNER
-                            - GROUP_READ_ONLY
-                            - GROUP_SEARCH_INDEX_EDITOR
-                            - GROUP_STREAM_PROCESSING_OWNER
                         type: string
                     type: array
                     uniqueItems: true
@@ -32984,6 +32462,15 @@ components:
                 name:
                     description: Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.
                     type: string
+                state:
+                    description: The state of the connection.
+                    enum:
+                        - PENDING
+                        - READY
+                        - DELETING
+                        - FAILED
+                    readOnly: true
+                    type: string
                 type:
                     description: Type of the connection.
                     enum:
@@ -33448,15 +32935,18 @@ components:
                     type: string
                 vendor:
                     description: |-
-                        Vendor that manages the cloud service. The following are the vendor values per provider:
+                        Vendor that manages the cloud service. The list of supported vendor values is:
                         - AWS
                         -- MSK for AWS MSK Kafka clusters
                         -- CONFLUENT for Confluent Kafka clusters on AWS
-                        -- KINESIS for AWS Kinesis Data Streams (coming soon).
+                        -- KINESIS for AWS Kinesis Data Streams
 
                         - Azure
                         -- EVENTHUB for Azure EventHub.
-                        -- CONFLUENT for the Confluent Kafka clusters on Azure
+                        -- CONFLUENT for Confluent Kafka clusters on Azure
+
+                        - GCP
+                        -- CONFLUENT for Confluent Kafka clusters on GCP
 
                         **NOTE** Omitting the vendor field will default to using the GENERIC vendor.
                     type: string
@@ -34270,18 +33760,9 @@ components:
                     type: array
                 roleNames:
                     description: One or more project-level roles to assign to the team.
-                    enum:
-                        - GROUP_BACKUP_MANAGER
-                        - GROUP_CLUSTER_MANAGER
-                        - GROUP_DATA_ACCESS_ADMIN
-                        - GROUP_DATA_ACCESS_READ_ONLY
-                        - GROUP_DATA_ACCESS_READ_WRITE
-                        - GROUP_DATABASE_ACCESS_ADMIN
-                        - GROUP_OBSERVABILITY_VIEWER
-                        - GROUP_OWNER
-                        - GROUP_READ_ONLY
-                        - GROUP_SEARCH_INDEX_EDITOR
-                        - GROUP_STREAM_PROCESSING_OWNER
+                    externalDocs:
+                        description: MongoDB Cloud User Roles
+                        url: https://www.mongodb.com/docs/atlas/reference/user-roles/
                     items:
                         type: string
                     type: array
@@ -35348,20 +34829,11 @@ components:
         UpdateGroupRolesForUser:
             properties:
                 groupRoles:
-                    description: One or more project level roles to assign to the MongoDB Cloud user.
+                    description: One or more project-level roles to assign to the MongoDB Cloud user.
+                    externalDocs:
+                        description: MongoDB Atlas User Roles
+                        url: https://www.mongodb.com/docs/atlas/reference/user-roles/
                     items:
-                        enum:
-                            - GROUP_BACKUP_MANAGER
-                            - GROUP_CLUSTER_MANAGER
-                            - GROUP_DATA_ACCESS_ADMIN
-                            - GROUP_DATA_ACCESS_READ_ONLY
-                            - GROUP_DATA_ACCESS_READ_WRITE
-                            - GROUP_DATABASE_ACCESS_ADMIN
-                            - GROUP_OBSERVABILITY_VIEWER
-                            - GROUP_OWNER
-                            - GROUP_READ_ONLY
-                            - GROUP_SEARCH_INDEX_EDITOR
-                            - GROUP_STREAM_PROCESSING_OWNER
                         type: string
                     type: array
                     uniqueItems: true
@@ -36910,7 +36382,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 438009a9938a10c369a76e07ebfc1c1c904d280c
+    x-xgen-sha: c509fcfe47fbb5c41ec6229966d1171ab5490f2e
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
