@@ -303,15 +303,11 @@ func mergeVersionedComponents(base, source *openapi3.T) error {
 		return err
 	}
 
-	if err := mergeVersionedResponses(base.Components, source.Components); err != nil {
-		return err
-	}
-
-	return nil
+	return mergeVersionedResponses(base.Components, source.Components)
 }
 
 func mergeVersionedSchemas(base, source *openapi3.Components) error {
-	if source.Schemas == nil || len(source.Schemas) == 0 {
+	if len(source.Schemas) == 0 {
 		return nil
 	}
 
@@ -334,7 +330,7 @@ func mergeVersionedSchemas(base, source *openapi3.Components) error {
 // This function ensures that all parameter definitions referenced by operations in the
 // merged spec are included, avoiding duplicates.
 func mergeVersionedParameters(base, source *openapi3.Components) error {
-	if source.Parameters == nil || len(source.Parameters) == 0 {
+	if len(source.Parameters) == 0 {
 		return nil
 	}
 
@@ -352,7 +348,7 @@ func mergeVersionedParameters(base, source *openapi3.Components) error {
 }
 
 func mergeVersionedResponses(base, source *openapi3.Components) error {
-	if source.Responses == nil || len(source.Responses) == 0 {
+	if len(source.Responses) == 0 {
 		return nil
 	}
 
@@ -374,7 +370,7 @@ func mergeVersionedResponses(base, source *openapi3.Components) error {
 // consistent across API versions. This function ensures that all tags used by
 // operations in the merged spec are included.
 func mergeVersionedTags(base, source *openapi3.T) error {
-	if source.Tags == nil || len(source.Tags) == 0 {
+	if len(source.Tags) == 0 {
 		return nil
 	}
 
