@@ -33,7 +33,7 @@ type Opts struct {
 	basePath   string
 	outputPath string
 	env        string
-	version    string
+	versions   []string
 	format     string
 }
 
@@ -45,9 +45,9 @@ func (o *Opts) Run() error {
 	}
 
 	var filteredOAS *openapi3.T
-	// If a version is provided, versioning filters will also be applied.
-	if o.version != "" {
-		filteredOAS, err = ByVersion(specInfo.Spec, o.version, o.env)
+	// If versions are provided, versioning filters will also be applied.
+	if len(o.versions) > 0 {
+		filteredOAS, err = ByVersions(specInfo.Spec, o.versions, o.env)
 	} else {
 		filters := filter.FiltersWithoutVersioning
 		metadata := filter.NewMetadata(nil, o.env)
@@ -69,6 +69,29 @@ func ByVersion(oas *openapi3.T, version, env string) (result *openapi3.T, err er
 	}
 
 	return filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, env), filter.DefaultFilters)
+}
+
+func ByVersions(oas *openapi3.T, versions []string, env string) (result *openapi3.T, err error) {
+	if len(versions) == 0 {
+		return nil, fmt.Errorf("no versions provided")
+	}
+
+	if len(versions) == 1 {
+		return ByVersion(oas, versions[0], env)
+	}
+
+	log.Printf("Filtering OpenAPI document by versions %v", versions)
+
+	filteredSpecs := make([]*openapi3.T, 0, len(versions))
+	for _, version := range versions {
+		filtered, err := ByVersion(oas, version, env)
+		if err != nil {
+			return nil, fmt.Errorf("failed to filter by version %q: %w", version, err)
+		}
+		filteredSpecs = append(filteredSpecs, filtered)
+	}
+
+	return filter.MergeFilteredSpecs(filteredSpecs)
 }
 
 func (o *Opts) PreRunE(_ []string) error {
@@ -102,7 +125,7 @@ If a version is provided, versioning filters will also be applied.`,
 	cmd.Flags().StringVarP(&opts.basePath, flag.Spec, flag.SpecShort, "-", usage.Spec)
 	cmd.Flags().StringVar(&opts.env, flag.Environment, "", usage.Environment)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
-	cmd.Flags().StringVar(&opts.version, flag.Version, "", usage.Version)
+	cmd.Flags().StringSliceVar(&opts.versions, flag.Version, []string{}, usage.Version)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.ALL, usage.Format)
 
 	// Required flags
