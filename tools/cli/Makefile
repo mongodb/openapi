@@ -58,11 +58,11 @@ build-debug:
 
 .PHONY: lint
 lint: ## Run linter
-	$(shell go env GOPATH)/bin/golangci-lint run
+	golangci-lint run
 
 .PHONY: fix-lint
 fix-lint: ## Fix linting errors
-	$(shell go env GOPATH)/bin/golangci-lint run --fix
+	golangci-lint run --fix
 
 .PHONY: list
 list: ## List all make targets
