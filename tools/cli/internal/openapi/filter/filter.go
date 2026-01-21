@@ -152,3 +152,243 @@ func duplicateOas(doc *openapi3.T) (*openapi3.T, error) {
 
 	return duplicateDoc, nil
 }
+
+// MergeFilteredSpecs merges multiple filtered OpenAPI specs into a single spec.
+func MergeFilteredSpecs(specs []*openapi3.T) (*openapi3.T, error) {
+	if len(specs) == 0 {
+		return nil, errors.New("no specs to merge")
+	}
+
+	if len(specs) == 1 {
+		return specs[0], nil
+	}
+
+	// Use the first spec as the base and merge others into it
+	base, err := duplicateOas(specs[0])
+	if err != nil {
+		return nil, fmt.Errorf("failed to duplicate base spec: %w", err)
+	}
+
+	for i := 1; i < len(specs); i++ {
+		if err := mergeVersionedSpecIntoBase(base, specs[i]); err != nil {
+			return nil, fmt.Errorf("failed to merge spec %d: %w", i, err)
+		}
+	}
+
+	return base, nil
+}
+
+// mergeVersionedSpecIntoBase merges the source spec into the base spec.
+// It combines all paths, operations, content types, and component schemas from all specs.
+// This function merges filtered versions of the same base spec, so conflicts are handled
+// by taking the union of all content types.
+func mergeVersionedSpecIntoBase(base, source *openapi3.T) error {
+	if err := mergeVersionedPaths(base, source); err != nil {
+		return fmt.Errorf("failed to merge paths: %w", err)
+	}
+
+	if err := mergeVersionedComponents(base, source); err != nil {
+		return fmt.Errorf("failed to merge components: %w", err)
+	}
+
+	if err := mergeVersionedTags(base, source); err != nil {
+		return fmt.Errorf("failed to merge tags: %w", err)
+	}
+
+	return nil
+}
+
+func mergeVersionedPaths(base, source *openapi3.T) error {
+	if source.Paths == nil || source.Paths.Len() == 0 {
+		return nil
+	}
+
+	if base.Paths == nil {
+		base.Paths = &openapi3.Paths{}
+	}
+
+	for pathName, pathItem := range source.Paths.Map() {
+		if pathItem == nil {
+			continue
+		}
+
+		existingPath := base.Paths.Value(pathName)
+		if existingPath == nil {
+			base.Paths.Set(pathName, pathItem)
+		} else {
+			if err := mergeVersionedPathOperations(existingPath, pathItem); err != nil {
+				return fmt.Errorf("failed to merge path %q: %w", pathName, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func mergeVersionedPathOperations(base, source *openapi3.PathItem) error {
+	for method, operation := range source.Operations() {
+		if operation == nil {
+			continue
+		}
+
+		existingOp := base.Operations()[method]
+		if existingOp == nil {
+			base.SetOperation(method, operation)
+		} else {
+			if err := mergeVersionedOperationContent(existingOp, operation); err != nil {
+				return fmt.Errorf("failed to merge operation %q: %w", method, err)
+			}
+		}
+	}
+	return nil
+}
+
+func mergeVersionedOperationContent(base, source *openapi3.Operation) error {
+	if source.Responses != nil {
+		if base.Responses == nil {
+			base.Responses = &openapi3.Responses{}
+		}
+
+		for statusCode, response := range source.Responses.Map() {
+			if response == nil || response.Value == nil {
+				continue
+			}
+
+			existingResponse := base.Responses.Value(statusCode)
+			if existingResponse == nil {
+				base.Responses.Set(statusCode, response)
+			} else if existingResponse.Value != nil {
+				mergeVersionedContent(existingResponse.Value.Content, response.Value.Content)
+			}
+		}
+	}
+
+	if source.RequestBody != nil && source.RequestBody.Value != nil {
+		if base.RequestBody == nil {
+			base.RequestBody = source.RequestBody
+		} else if base.RequestBody.Value != nil {
+			mergeVersionedContent(base.RequestBody.Value.Content, source.RequestBody.Value.Content)
+		}
+	}
+
+	return nil
+}
+
+func mergeVersionedContent(base, source openapi3.Content) {
+	if source == nil {
+		return
+	}
+
+	for contentType, mediaType := range source {
+		if _, exists := base[contentType]; !exists {
+			base[contentType] = mediaType
+		}
+	}
+}
+
+func mergeVersionedComponents(base, source *openapi3.T) error {
+	if source.Components == nil {
+		return nil
+	}
+
+	if base.Components == nil {
+		base.Components = &openapi3.Components{}
+	}
+
+	if err := mergeVersionedSchemas(base.Components, source.Components); err != nil {
+		return err
+	}
+
+	if err := mergeVersionedParameters(base.Components, source.Components); err != nil {
+		return err
+	}
+
+	return mergeVersionedResponses(base.Components, source.Components)
+}
+
+func mergeVersionedSchemas(base, source *openapi3.Components) error {
+	if len(source.Schemas) == 0 {
+		return nil
+	}
+
+	if base.Schemas == nil {
+		base.Schemas = make(openapi3.Schemas)
+	}
+
+	for name, schema := range source.Schemas {
+		if _, exists := base.Schemas[name]; !exists {
+			base.Schemas[name] = schema
+		}
+	}
+
+	return nil
+}
+
+// mergeVersionedParameters merges parameters from source into base.
+// Note: Parameters themselves are not versioned - they are shared reusable definitions
+// that are the same across all API versions.
+// This function ensures that all parameter definitions referenced by operations in the
+// merged spec are included, avoiding duplicates.
+func mergeVersionedParameters(base, source *openapi3.Components) error {
+	if len(source.Parameters) == 0 {
+		return nil
+	}
+
+	if base.Parameters == nil {
+		base.Parameters = make(openapi3.ParametersMap)
+	}
+
+	for name, param := range source.Parameters {
+		if _, exists := base.Parameters[name]; !exists {
+			base.Parameters[name] = param
+		}
+	}
+
+	return nil
+}
+
+func mergeVersionedResponses(base, source *openapi3.Components) error {
+	if len(source.Responses) == 0 {
+		return nil
+	}
+
+	if base.Responses == nil {
+		base.Responses = make(openapi3.ResponseBodies)
+	}
+
+	for name, response := range source.Responses {
+		if _, exists := base.Responses[name]; !exists {
+			base.Responses[name] = response
+		}
+	}
+
+	return nil
+}
+
+// mergeVersionedTags merges tags from source into base, avoiding duplicates.
+// Note: Tags themselves are not versioned - they are shared and remain
+// consistent across API versions. This function ensures that all tags used by
+// operations in the merged spec are included.
+func mergeVersionedTags(base, source *openapi3.T) error {
+	if len(source.Tags) == 0 {
+		return nil
+	}
+
+	if base.Tags == nil {
+		base.Tags = source.Tags
+		return nil
+	}
+
+	existingTags := make(map[string]bool)
+	for _, tag := range base.Tags {
+		existingTags[tag.Name] = true
+	}
+
+	for _, tag := range source.Tags {
+		if !existingTags[tag.Name] {
+			base.Tags = append(base.Tags, tag)
+		}
+	}
+
+	return nil
+}
