@@ -56,8 +56,12 @@ jobs:
 
       - name: Filter OAS to exclude private preview versions
         run: |
-          versions=$(jq -r '.[]' versions.json | paste -sd ',' -)
-          foascli filter -s v2.json --env dev --version "${versions}" -o v2-filtered.json
+          cmd="foascli filter -s v2.json --env dev"
+          while IFS= read -r version; do
+            cmd="${cmd} --version ${version}"
+          done < <(jq -r '.[]' versions.json)
+          cmd="${cmd} -o v2-filtered.json"
+          eval "${cmd}"
         working-directory: ${{ github.workspace }}
 
       - name: Run Metric Collection Job
@@ -88,14 +92,14 @@ jobs:
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_APIX_PLATFORM_DEV }}
           SLACK_ONCALL_USER: ${{ secrets.SLACK_APIX_PLATFORM_ONCALL_USER }}
         run: .github/scripts/handle_warning_violations.sh
-  failure-handler:
-    name: Failure Handler
-    needs: [ release-IPA-metrics ]
-    if: ${{ failure() }}
-    uses: ./.github/workflows/failure-handler.yml
-    with:
-      env: 'dev'
-      release_name: "IPA Metrics"
-      team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
-    secrets:
-      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+#  failure-handler:
+#    name: Failure Handler
+#    needs: [ release-IPA-metrics ]
+#    if: ${{ failure() }}
+#    uses: ./.github/workflows/failure-handler.yml
+#    with:
+#      env: 'dev'
+#      release_name: "IPA Metrics"
+#      team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
+#    secrets:
+#      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
