@@ -1346,6 +1346,14 @@
             },
             "type": "string"
           },
+          "effectiveReplicationSpecs": {
+            "description": "List of settings that represent the actual cluster state. This is read-only and always returned in the response. It reflects the current cluster configuration, which may differ from `replicationSpecs` due to system-managed changes.",
+            "items": {
+              "$ref": "#/components/schemas/ReplicationSpec20240805"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
           "encryptionAtRestProvider": {
             "description": "Cloud service provider that manages your customer keys to provide an additional layer of encryption at rest for the cluster. To enable customer key management for encryption at rest, the cluster **replicationSpecs[n].regionConfigs[m].{type}Specs.instanceSize** setting must be `M10` or higher and `\"backupEnabled\" : false` or omitted entirely.",
             "enum": [
@@ -2122,7 +2130,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "87adbe1b34f38db380970e669c88c4a987896ef7"
+    "x-xgen-sha": "a7b4c340c1ebfb994e7d6098cf2dd0ea3a82a4e8"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -2883,6 +2891,15 @@
               "default": false,
               "type": "boolean"
             }
+          },
+          {
+            "description": "Controls how replicationSpecs fields are returned in the response. When set to true, stores the client's view of replicationSpecs and returns it in replicationSpecs, while the actual cluster state (including auto-scaled hardware and auto-added shards) is returned in effectiveReplicationSpecs. When false (default), replicationSpecs contains the actual cluster state.",
+            "in": "header",
+            "name": "Use-Effective-Fields-Replication-Specs",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -3002,6 +3019,15 @@
             "description": "Controls how hardware specification fields are returned in the response after cluster updates. When set to true, returns the original client-specified values and provides separate effective fields showing current operational values. When false (default), hardware specification fields show current operational values directly. Note: When using this header with autoscaling enabled, MongoDB ignores replicationSpecs changes during updates. To intentionally override the replicationSpecs, disable this header.",
             "in": "header",
             "name": "Use-Effective-Instance-Fields",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Controls how replicationSpecs fields are returned in the response. When set to true, stores the client's view of replicationSpecs and returns it in replicationSpecs, while the actual cluster state (including auto-scaled hardware and auto-added shards) is returned in effectiveReplicationSpecs. When false (default), replicationSpecs contains the actual cluster state.",
+            "in": "header",
+            "name": "Use-Effective-Fields-Replication-Specs",
             "schema": {
               "default": false,
               "type": "boolean"

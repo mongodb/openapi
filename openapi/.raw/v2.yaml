@@ -4638,6 +4638,14 @@ components:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
                     type: string
+                effectiveReplicationSpecs:
+                    description: List of settings that represent the actual cluster state. This is read-only and always returned in the response. It reflects the current cluster configuration, which may differ from `replicationSpecs` due to system-managed changes.
+                    items:
+                        $ref: '#/components/schemas/ReplicationSpec20240805'
+                    readOnly: true
+                    type: array
+                    x-xgen-IPA-exception:
+                        xgen-IPA-124-array-max-items: Schema predates IPA validation.
                 encryptionAtRestProvider:
                     description: 'Cloud service provider that manages your customer keys to provide an additional layer of encryption at rest for the cluster. To enable customer key management for encryption at rest, the cluster **replicationSpecs[n].regionConfigs[m].{type}Specs.instanceSize** setting must be `M10` or higher and `"backupEnabled" : false` or omitted entirely.'
                     enum:
@@ -9030,6 +9038,11 @@ components:
             type: object
         CloudProviderEndpointServiceRequest:
             properties:
+                portMappingEnabled:
+                    default: false
+                    description: Flag that indicates whether this endpoint service uses PSC port-mapping.
+                    type: boolean
+                    writeOnly: true
                 providerName:
                     description: Human-readable label that identifies the cloud service provider for which you want to create the private endpoint service.
                     enum:
@@ -9900,6 +9913,14 @@ components:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
                     type: string
+                effectiveReplicationSpecs:
+                    description: List of settings that represent the actual cluster state. This is read-only and always returned in the response. It reflects the current cluster configuration, which may differ from `replicationSpecs` due to system-managed changes.
+                    items:
+                        $ref: '#/components/schemas/ReplicationSpec20240805'
+                    readOnly: true
+                    type: array
+                    x-xgen-IPA-exception:
+                        xgen-IPA-124-array-max-items: Schema predates IPA validation.
                 encryptionAtRestProvider:
                     description: 'Cloud service provider that manages your customer keys to provide an additional layer of encryption at rest for the cluster. To enable customer key management for encryption at rest, the cluster **replicationSpecs[n].regionConfigs[m].{type}Specs.instanceSize** setting must be `M10` or higher and `"backupEnabled" : false` or omitted entirely.'
                     enum:
@@ -15504,42 +15525,6 @@ components:
                 - retentionUnit
                 - retentionValue
             type: object
-        DiskBackupCopyPolicyItem:
-            description: Specifications for one copy policy item.
-            discriminator:
-                mapping:
-                    daily: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
-                    hourly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
-                    monthly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
-                    ondemand: '#/components/schemas/DiskBackupOnDemandCopyPolicyItem'
-                    weekly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
-                    yearly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
-                propertyName: frequencyType
-            oneOf:
-                - $ref: '#/components/schemas/DiskBackupOnDemandCopyPolicyItem'
-                - $ref: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
-            properties:
-                frequencyType:
-                    description: Human-readable label that identifies the frequency type associated with the copy policy.
-                    enum:
-                        - daily
-                        - hourly
-                        - weekly
-                        - monthly
-                        - yearly
-                        - ondemand
-                    type: string
-                    x-xgen-IPA-exception:
-                        xgen-IPA-123-enum-values-must-be-upper-snake-case: Frequency types remain lower case to match copySettings frequencies values and ApiAtlasDiskBackupPolicyItem frequencyType values.
-                id:
-                    description: Unique 24-hexadecimal digit string that identifies this copy policy item.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    readOnly: true
-                    type: string
-            required:
-                - frequencyType
-            type: object
         DiskBackupCopySetting:
             description: Copy setting item in the desired backup policy.
             properties:
@@ -15550,15 +15535,8 @@ components:
                         - AZURE
                         - GCP
                     type: string
-                copyPolicyItems:
-                    description: List that describes retention per copy policy item.
-                    items:
-                        $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
-                    maxItems: 6
-                    type: array
                 frequencies:
-                    deprecated: true
-                    description: 'Deprecated: use copyPolicyItems, which now defines which snapshots to copy and their retention.'
+                    description: List that defines which snapshots to copy and their retention.
                     items:
                         enum:
                             - HOURLY
@@ -15598,15 +15576,8 @@ components:
                         - AZURE
                         - GCP
                     type: string
-                copyPolicyItems:
-                    description: List that contains a document for each copy policy item.
-                    items:
-                        $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
-                    maxItems: 6
-                    type: array
                 frequencies:
-                    deprecated: true
-                    description: 'Deprecated: use copyPolicyItems, which now defines which snapshots to copy and their retention.'
+                    description: List that defines which snapshots to copy and their retention.
                     items:
                         enum:
                             - HOURLY
@@ -15761,13 +15732,6 @@ components:
                     description: Human-readable label that identifies the replica set on the sharded cluster.
                     readOnly: true
                     type: string
-            type: object
-        DiskBackupOnDemandCopyPolicyItem:
-            allOf:
-                - $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
-            description: Specifications for one on-demand copy policy item.
-            required:
-                - frequencyType
             type: object
         DiskBackupOnDemandSnapshotRequest:
             properties:
@@ -16580,10 +16544,6 @@ components:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     readOnly: true
                     type: string
-                copyPolicyItemsEnabled:
-                    description: When true, the request interprets copySettings using copyPolicyItems and ignores frequencies. When false or omitted, it interprets copySettings using frequencies and ignores copyPolicyItems.
-                    type: boolean
-                    writeOnly: true
                 copySettings:
                     description: List that contains a document for each copy setting item in the desired backup policy.
                     items:
@@ -16668,10 +16628,6 @@ components:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     readOnly: true
                     type: string
-                copyPolicyItemsEnabled:
-                    description: When true, the request interprets copySettings using copyPolicyItems and ignores frequencies. When false or omitted, it interprets copySettings using frequencies and ignores copyPolicyItems.
-                    type: boolean
-                    writeOnly: true
                 copySettings:
                     description: List that contains a document for each copy setting item in the desired backup policy.
                     items:
@@ -16739,31 +16695,6 @@ components:
                 useOrgAndGroupNamesInExportPrefix:
                     description: Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your Export Bucket.
                     type: boolean
-            type: object
-        DiskBackupTimeBasedCopyPolicyItem:
-            allOf:
-                - $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
-                - properties:
-                    retentionUnit:
-                        description: Unit of time in which MongoDB Cloud measures snapshot copy retention.
-                        enum:
-                            - days
-                            - weeks
-                            - months
-                            - years
-                        type: string
-                        x-xgen-IPA-exception:
-                            xgen-IPA-123-enum-values-must-be-upper-snake-case: Retention units remain lower case to match ApiAtlasDiskBackupPolicyItem retentionUnit values.
-                    retentionValue:
-                        description: Duration in days, weeks, months, or years that MongoDB Cloud retains the snapshot copy.
-                        format: int32
-                        type: integer
-                  type: object
-            description: Specifications for one time-based copy policy item.
-            required:
-                - frequencyType
-                - retentionUnit
-                - retentionValue
             type: object
         DiskGBAutoScaling:
             description: Setting that enables disk auto-scaling.
@@ -21482,6 +21413,9 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     readOnly: true
                     type: string
+                portMappingEnabled:
+                    description: Flag that indicates whether this endpoint service uses PSC port-mapping.
+                    type: boolean
                 regionName:
                     description: Cloud provider region that manages this Private Endpoint Service.
                     readOnly: true
@@ -22487,18 +22421,9 @@ components:
                     type: string
                 groupRole:
                     description: Human-readable label that identifies the collection of privileges that MongoDB Cloud grants a specific API key, MongoDB Cloud user, or MongoDB Cloud team. These roles include project-level roles.
-                    enum:
-                        - GROUP_BACKUP_MANAGER
-                        - GROUP_CLUSTER_MANAGER
-                        - GROUP_DATA_ACCESS_ADMIN
-                        - GROUP_DATA_ACCESS_READ_ONLY
-                        - GROUP_DATA_ACCESS_READ_WRITE
-                        - GROUP_DATABASE_ACCESS_ADMIN
-                        - GROUP_OBSERVABILITY_VIEWER
-                        - GROUP_OWNER
-                        - GROUP_READ_ONLY
-                        - GROUP_SEARCH_INDEX_EDITOR
-                        - GROUP_STREAM_PROCESSING_OWNER
+                    externalDocs:
+                        description: MongoDB Cloud User Roles
+                        url: https://www.mongodb.com/docs/atlas/reference/user-roles/#project-roles
                     type: string
             type: object
         GroupRoleAssignment:
@@ -33596,6 +33521,9 @@ components:
                     description: Error message returned when requesting private connection resource. The resource returns `null` if the request succeeded.
                     readOnly: true
                     type: string
+                portMappingEnabled:
+                    description: Flag that indicates whether the endpoint service for this endpoint group uses PSC port-mapping.
+                    type: boolean
                 status:
                     description: State of the Google Cloud network endpoint group when MongoDB Cloud received this request.
                     enum:
@@ -43164,7 +43092,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 87adbe1b34f38db380970e669c88c4a987896ef7
+    x-xgen-sha: a7b4c340c1ebfb994e7d6098cf2dd0ea3a82a4e8
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -46954,6 +46882,12 @@ paths:
                   schema:
                     default: false
                     type: boolean
+                - description: Controls how replicationSpecs fields are returned in the response. When set to true, stores the client's view of replicationSpecs and returns it in replicationSpecs, while the actual cluster state (including auto-scaled hardware and auto-added shards) is returned in effectiveReplicationSpecs. When false (default), replicationSpecs contains the actual cluster state.
+                  in: header
+                  name: Use-Effective-Fields-Replication-Specs
+                  schema:
+                    default: false
+                    type: boolean
             requestBody:
                 content:
                     application/vnd.atlas.2023-01-01+json:
@@ -47283,6 +47217,12 @@ paths:
                   schema:
                     default: false
                     type: boolean
+                - description: Controls how replication specs are returned in the response. When set to true, returns the client-specified view in replicationSpecs and the actual cluster state in effectiveReplicationSpecs. When false (default), replicationSpecs contains the actual cluster state.
+                  in: header
+                  name: Use-Effective-Fields-Replication-Specs
+                  schema:
+                    default: false
+                    type: boolean
             responses:
                 "200":
                     content:
@@ -47342,6 +47282,12 @@ paths:
                 - description: 'Controls how hardware specification fields are returned in the response after cluster updates. When set to true, returns the original client-specified values and provides separate effective fields showing current operational values. When false (default), hardware specification fields show current operational values directly. Note: When using this header with autoscaling enabled, MongoDB ignores replicationSpecs changes during updates. To intentionally override the replicationSpecs, disable this header.'
                   in: header
                   name: Use-Effective-Instance-Fields
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Controls how replicationSpecs fields are returned in the response. When set to true, stores the client's view of replicationSpecs and returns it in replicationSpecs, while the actual cluster state (including auto-scaled hardware and auto-added shards) is returned in effectiveReplicationSpecs. When false (default), replicationSpecs contains the actual cluster state.
+                  in: header
+                  name: Use-Effective-Fields-Replication-Specs
                   schema:
                     default: false
                     type: boolean
