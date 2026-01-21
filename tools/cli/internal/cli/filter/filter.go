@@ -72,6 +72,10 @@ func ByVersion(oas *openapi3.T, version, env string) (result *openapi3.T, err er
 }
 
 func ByVersions(oas *openapi3.T, versions []string, env string) (result *openapi3.T, err error) {
+	if len(versions) == 0 {
+		return nil, nil
+	}
+
 	if len(versions) == 1 {
 		return ByVersion(oas, versions[0], env)
 	}
