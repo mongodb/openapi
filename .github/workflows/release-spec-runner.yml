@@ -142,3 +142,25 @@ jobs:
       aws_s3_bucket: ${{ vars.S3_BUCKET_PROD}}
       env: prod
       branch: main
+
+  retry-handler:
+    needs: [ release-preparation ]
+    if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.api_bot_pat }}
+        run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
+
+  failure-handler:
+    name: Failure Handler
+    needs: [release-preparation]
+    if: ${{ always() && contains(needs.*.result, 'failure') && needs.retry-handler.result == 'skipped' }}
+    uses: ./.github/workflows/failure-handler.yml
+    with:
+      env: ${{ inputs.env_to_release }}
+      release_name: "OpenAPI Spec Release Preparation"
+      team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
+    secrets:
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
