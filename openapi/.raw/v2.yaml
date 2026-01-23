@@ -1626,29 +1626,29 @@ components:
                     readOnly: true
                     type: array
                 requestsPerMinuteLimit:
-                    description: The number of requests per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    description: The number of requests per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
                     example: 2000
                     format: int32
-                    minimum: 0
+                    minimum: 1
                     type: integer
                 tokensPerMinuteLimit:
-                    description: The number of tokens per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    description: The number of tokens per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
                     example: 3e+06
                     format: int32
-                    minimum: 0
+                    minimum: 1
                     type: integer
             type: object
         AiModelsRateLimitUpdateRequest:
             properties:
                 requestsPerMinuteLimit:
-                    description: The number of requests per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    description: The number of requests per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
                     format: int32
-                    minimum: 0
+                    minimum: 1
                     type: integer
                 tokensPerMinuteLimit:
-                    description: The number of tokens per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    description: The number of tokens per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
                     format: int32
-                    minimum: 0
+                    minimum: 1
                     type: integer
             required:
                 - requestsPerMinuteLimit
@@ -13912,6 +13912,68 @@ components:
                 - apiKey
             title: DATADOG
             type: object
+        DatadogLogIntegrationRequest:
+            allOf:
+                - $ref: '#/components/schemas/LogIntegrationRequest'
+                - properties:
+                    apiKey:
+                        description: Datadog API key for authentication.
+                        example: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
+                        type: string
+                    region:
+                        description: 'Datadog site/region for log ingestion. Valid values: US1, US3, US5, EU, AP1, AP2, US1_FED.'
+                        enum:
+                            - US1
+                            - US3
+                            - US5
+                            - EU
+                            - AP1
+                            - AP2
+                            - US1_FED
+                        example: US1
+                        type: string
+                    type:
+                        description: Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.
+                        enum:
+                            - DATADOG_LOG_EXPORT
+                        type: string
+                  type: object
+            description: Request schema for creating or updating a Datadog log export integration.
+            required:
+                - apiKey
+                - region
+                - type
+            title: Datadog Log Export Integration Request
+            type: object
+        DatadogLogIntegrationResponse:
+            allOf:
+                - $ref: '#/components/schemas/LogIntegrationResponse'
+                - properties:
+                    region:
+                        description: 'Datadog site/region for log ingestion. Valid values: US1, US3, US5, EU, AP1, AP2, US1_FED.'
+                        enum:
+                            - US1
+                            - US3
+                            - US5
+                            - EU
+                            - AP1
+                            - AP2
+                            - US1_FED
+                        example: US1
+                        type: string
+                    type:
+                        description: Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.
+                        enum:
+                            - DATADOG_LOG_EXPORT
+                        type: string
+                  type: object
+            description: Details to integrate Datadog log export with one MongoDB Cloud project.
+            required:
+                - id
+                - region
+                - type
+            title: Datadog Log Export Integration Response
+            type: object
         DatadogNotification:
             description: Datadog notification configuration for MongoDB Cloud to send information when an event triggers an alert condition.
             properties:
@@ -26106,15 +26168,28 @@ components:
             description: Request schema for creating or updating a log integration.
             discriminator:
                 mapping:
+                    DATADOG_LOG_EXPORT: '#/components/schemas/DatadogLogIntegrationRequest'
                     S3_LOG_EXPORT: '#/components/schemas/S3LogIntegrationRequest'
                 propertyName: type
             oneOf:
                 - $ref: '#/components/schemas/S3LogIntegrationRequest'
+                - $ref: '#/components/schemas/DatadogLogIntegrationRequest'
             properties:
+                logTypes:
+                    description: Array of log types exported by this integration. The specific log types available and maximum number of items depend on the integration type. See the integration-specific schema for details.
+                    example:
+                        - MONGOD
+                        - MONGOS
+                    items:
+                        type: string
+                    maxItems: 10
+                    type: array
+                    uniqueItems: true
                 type:
                     description: Type of log integration. Identifies which service will receive the exported logs.
                     enum:
                         - S3_LOG_EXPORT
+                        - DATADOG_LOG_EXPORT
                     type: string
             required:
                 - type
@@ -26124,19 +26199,32 @@ components:
             description: Response schema for log integration operations.
             discriminator:
                 mapping:
+                    DATADOG_LOG_EXPORT: '#/components/schemas/DatadogLogIntegrationResponse'
                     S3_LOG_EXPORT: '#/components/schemas/S3LogIntegrationResponse'
                 propertyName: type
             oneOf:
                 - $ref: '#/components/schemas/S3LogIntegrationResponse'
+                - $ref: '#/components/schemas/DatadogLogIntegrationResponse'
             properties:
                 id:
                     description: Unique 24-character hexadecimal digit string that identifies the log integration configuration.
                     example: 507f1f77bcf86cd799439011
                     type: string
+                logTypes:
+                    description: Array of log types exported by this integration. The specific log types available and maximum number of items depend on the integration type. See the integration-specific schema for details.
+                    example:
+                        - MONGOD
+                        - MONGOS
+                    items:
+                        type: string
+                    maxItems: 10
+                    type: array
+                    uniqueItems: true
                 type:
                     description: Type of log integration. Identifies which service will receive the exported logs.
                     enum:
                         - S3_LOG_EXPORT
+                        - DATADOG_LOG_EXPORT
                     type: string
             required:
                 - id
@@ -35206,24 +35294,6 @@ components:
                         example: arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
                         nullable: true
                         type: string
-                    logTypes:
-                        description: 'Array of log types to export to S3. Valid values: `MONGOD`, `MONGOS`, `MONGOD_AUDIT`, `MONGOS_AUDIT`.'
-                        example:
-                            - MONGOD
-                            - MONGOS
-                            - MONGOD_AUDIT
-                            - MONGOS_AUDIT
-                        items:
-                            enum:
-                                - MONGOD
-                                - MONGOS
-                                - MONGOD_AUDIT
-                                - MONGOS_AUDIT
-                            type: string
-                        maxItems: 4
-                        minItems: 1
-                        type: array
-                        uniqueItems: true
                     prefixPath:
                         description: S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.
                         example: mongo-logs/
@@ -35238,7 +35308,6 @@ components:
             required:
                 - bucketName
                 - iamRoleId
-                - logTypes
                 - prefixPath
                 - type
             title: S3 Log Export Integration Request
@@ -35260,23 +35329,6 @@ components:
                         example: arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
                         nullable: true
                         type: string
-                    logTypes:
-                        description: 'Array of log types to export to S3. Valid values: `MONGOD`, `MONGOS`, `MONGOD_AUDIT`, `MONGOS_AUDIT`.'
-                        example:
-                            - MONGOD
-                            - MONGOS
-                            - MONGOD_AUDIT
-                            - MONGOS_AUDIT
-                        items:
-                            enum:
-                                - MONGOD
-                                - MONGOS
-                                - MONGOD_AUDIT
-                                - MONGOS_AUDIT
-                            type: string
-                        maxItems: 4
-                        type: array
-                        uniqueItems: true
                     prefixPath:
                         description: S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.
                         example: mongo-logs/
@@ -43018,7 +43070,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: ab19057cd67e6e1897b4e238fbff5563b040d771
+    x-xgen-sha: 2908d126473aeb0b20de9996cf2a2644e118cf89
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -44497,8 +44549,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return AI Model API Keys for One Group
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listGroupAiModelApiKeys
+                - AI Model API Keys
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/listGroupAiModelApiKeys
             x-xgen-operation-id-override: listGroupModelKeys
             x-xgen-owner-team: Search Web Platform
         post:
@@ -44537,8 +44589,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Create New AI Model API Key
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/createGroupAiModelApiKey
+                - AI Model API Keys
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/createGroupAiModelApiKey
             x-xgen-operation-id-override: createModelApiKey
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/groups/{groupId}/aiModelApiKeys/{apiKeyId}:
@@ -44575,8 +44627,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Delete Existing AI Model API Key
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/deleteGroupAiModelApiKey
+                - AI Model API Keys
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/deleteGroupAiModelApiKey
             x-xgen-operation-id-override: deleteModelApiKey
             x-xgen-owner-team: Search Web Platform
         get:
@@ -44612,8 +44664,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return Single AI Model API Key for One Group
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getGroupAiModelApiKey
+                - AI Model API Keys
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/getGroupAiModelApiKey
             x-xgen-operation-id-override: getGroupModelKey
             x-xgen-owner-team: Search Web Platform
         patch:
@@ -44658,8 +44710,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Update Existing AI Model API Key
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/updateGroupAiModelApiKey
+                - AI Model API Keys
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/updateGroupAiModelApiKey
             x-xgen-operation-id-override: updateModelApiKey
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/groups/{groupId}/aiModelRateLimits:
@@ -44692,8 +44744,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return AI Model Rate Limits for One Group
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listGroupAiModelRateLimits
+                - AI Model Rate Limits
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/listGroupAiModelRateLimits
             x-xgen-operation-id-override: listGroupModelLimits
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/groups/{groupId}/aiModelRateLimits/{modelGroupName}:
@@ -44730,8 +44782,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return Single AI Model Rate Limit for One Group
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getGroupAiModelRateLimit
+                - AI Model Rate Limits
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/getGroupAiModelRateLimit
             x-xgen-operation-id-override: getGroupModelLimit
             x-xgen-owner-team: Search Web Platform
         patch:
@@ -44776,8 +44828,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Update AI Model Rate Limit
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/updateGroupAiModelRateLimit
+                - AI Model Rate Limits
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/updateGroupAiModelRateLimit
             x-xgen-operation-id-override: updateModelRateLimit
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/groups/{groupId}/aiModelRateLimits:reset:
@@ -44806,8 +44858,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Reset AI Model Rate Limits for Group
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/resetGroupAiModelRateLimits
+                - AI Model Rate Limits
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/resetGroupAiModelRateLimits
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: reset
@@ -56554,7 +56606,7 @@ paths:
                 content:
                     application/vnd.atlas.2025-03-12+json:
                         schema:
-                            $ref: '#/components/schemas/S3LogIntegrationRequest'
+                            $ref: '#/components/schemas/LogIntegrationRequest'
                         x-xgen-IPA-exception:
                             xgen-IPA-106-create-method-request-body-is-get-method-response: Create request intentionally doesn't include 'id' field (server-generated).
                 description: Log integration configuration to create.
@@ -64794,8 +64846,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return AI Model API Keys for One Organization
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listOrgAiModelApiKeys
+                - AI Model API Keys
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/listOrgAiModelApiKeys
             x-xgen-operation-id-override: listOrgModelKeys
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/orgs/{orgId}/aiModelApiKeys/{apiKeyId}:
@@ -64832,8 +64884,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return Single AI Model API Key for One Organization
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getOrgAiModelApiKey
+                - AI Model API Keys
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/getOrgAiModelApiKey
             x-xgen-operation-id-override: getOrgModelKey
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/orgs/{orgId}/aiModelRateLimits:
@@ -64866,8 +64918,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return AI Model Rate Limits for One Organization
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listOrgAiModelRateLimits
+                - AI Model Rate Limits
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/listOrgAiModelRateLimits
             x-xgen-operation-id-override: listOrgModelLimits
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/orgs/{orgId}/aiModelRateLimits/{modelGroupName}:
@@ -64904,8 +64956,8 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return Single AI Model Rate Limit for One Organization
             tags:
-                - AI Models
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getOrgAiModelRateLimit
+                - AI Model Rate Limits
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/getOrgAiModelRateLimit
             x-xgen-operation-id-override: getOrgModelLimit
             x-xgen-owner-team: Search Web Platform
     /api/atlas/v2/orgs/{orgId}/apiKeys:
