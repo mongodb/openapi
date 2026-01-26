@@ -15558,6 +15558,42 @@ components:
                 - retentionUnit
                 - retentionValue
             type: object
+        DiskBackupCopyPolicyItem:
+            description: Specifications for one copy policy item.
+            discriminator:
+                mapping:
+                    daily: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    hourly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    monthly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    ondemand: '#/components/schemas/DiskBackupOnDemandCopyPolicyItem'
+                    weekly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                    yearly: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+                propertyName: frequencyType
+            oneOf:
+                - $ref: '#/components/schemas/DiskBackupOnDemandCopyPolicyItem'
+                - $ref: '#/components/schemas/DiskBackupTimeBasedCopyPolicyItem'
+            properties:
+                frequencyType:
+                    description: Human-readable label that identifies the frequency type associated with the copy policy.
+                    enum:
+                        - daily
+                        - hourly
+                        - weekly
+                        - monthly
+                        - yearly
+                        - ondemand
+                    type: string
+                    x-xgen-IPA-exception:
+                        xgen-IPA-123-enum-values-must-be-upper-snake-case: Frequency types remain lower case to match copySettings frequencies values and ApiAtlasDiskBackupPolicyItem frequencyType values.
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies this copy policy item.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+            required:
+                - frequencyType
+            type: object
         DiskBackupCopySetting:
             description: Copy setting item in the desired backup policy.
             properties:
@@ -15568,8 +15604,15 @@ components:
                         - AZURE
                         - GCP
                     type: string
+                copyPolicyItems:
+                    description: List that describes retention per copy policy item. Allowed only when `copyPolicyItemsEnabled` is true. Responses omit this field when `copyPolicyItemsEnabled` is false or omitted.
+                    items:
+                        $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
+                    maxItems: 6
+                    type: array
                 frequencies:
-                    description: List that defines which snapshots to copy and their retention.
+                    deprecated: true
+                    description: 'Deprecated: use `copyPolicyItems`, which defines which snapshots to copy and their retention. Allowed only when `copyPolicyItemsEnabled` is false or omitted. Responses omit this field when `copyPolicyItemsEnabled` is true.'
                     items:
                         enum:
                             - HOURLY
@@ -15609,8 +15652,15 @@ components:
                         - AZURE
                         - GCP
                     type: string
+                copyPolicyItems:
+                    description: List that contains a document for each copy policy item. Allowed only when `copyPolicyItemsEnabled` is true. Responses omit this field when `copyPolicyItemsEnabled` is false or omitted.
+                    items:
+                        $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
+                    maxItems: 6
+                    type: array
                 frequencies:
-                    description: List that defines which snapshots to copy and their retention.
+                    deprecated: true
+                    description: 'Deprecated: use `copyPolicyItems`, which defines which snapshots to copy and their retention. Allowed only when `copyPolicyItemsEnabled` is false or omitted. Responses omit this field when `copyPolicyItemsEnabled` is true.'
                     items:
                         enum:
                             - HOURLY
@@ -15765,6 +15815,13 @@ components:
                     description: Human-readable label that identifies the replica set on the sharded cluster.
                     readOnly: true
                     type: string
+            type: object
+        DiskBackupOnDemandCopyPolicyItem:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
+            description: Specifications for one on-demand copy policy item.
+            required:
+                - frequencyType
             type: object
         DiskBackupOnDemandSnapshotRequest:
             properties:
@@ -16577,6 +16634,9 @@ components:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     readOnly: true
                     type: string
+                copyPolicyItemsEnabled:
+                    description: Flag that indicates whether copy settings use `copyPolicyItems` instead of `frequencies`. When true, requests must supply `copyPolicyItems` and responses return `copyPolicyItems` only. When false or omitted, requests must supply `frequencies` and responses return `frequencies` only.
+                    type: boolean
                 copySettings:
                     description: List that contains a document for each copy setting item in the desired backup policy.
                     items:
@@ -16661,6 +16721,9 @@ components:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     readOnly: true
                     type: string
+                copyPolicyItemsEnabled:
+                    description: Flag that indicates whether copy settings use `copyPolicyItems` instead of `frequencies`. When true, requests must supply `copyPolicyItems` and responses return `copyPolicyItems` only. When false or omitted, requests must supply `frequencies` and responses return `frequencies` only.
+                    type: boolean
                 copySettings:
                     description: List that contains a document for each copy setting item in the desired backup policy.
                     items:
@@ -16728,6 +16791,31 @@ components:
                 useOrgAndGroupNamesInExportPrefix:
                     description: Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your Export Bucket.
                     type: boolean
+            type: object
+        DiskBackupTimeBasedCopyPolicyItem:
+            allOf:
+                - $ref: '#/components/schemas/DiskBackupCopyPolicyItem'
+                - properties:
+                    retentionUnit:
+                        description: Unit of time in which MongoDB Cloud measures snapshot copy retention.
+                        enum:
+                            - days
+                            - weeks
+                            - months
+                            - years
+                        type: string
+                        x-xgen-IPA-exception:
+                            xgen-IPA-123-enum-values-must-be-upper-snake-case: Retention units remain lower case to match ApiAtlasDiskBackupPolicyItem retentionUnit values.
+                    retentionValue:
+                        description: Duration in days, weeks, months, or years that MongoDB Cloud retains the snapshot copy.
+                        format: int32
+                        type: integer
+                  type: object
+            description: Specifications for one time-based copy policy item.
+            required:
+                - frequencyType
+                - retentionUnit
+                - retentionValue
             type: object
         DiskGBAutoScaling:
             description: Setting that enables disk auto-scaling.
@@ -43136,7 +43224,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 1b6f7f13386509cb57826ec3376260b30ff93930
+    x-xgen-sha: 6ee12476b2ebd0d83f4aae8a6b8ec28899818205
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
