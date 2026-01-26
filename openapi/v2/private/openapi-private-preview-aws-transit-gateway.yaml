@@ -418,6 +418,26 @@ components:
                     readOnly: true
                     type: integer
             type: object
+        StreamsTransitGatewayAttachmentRequest:
+            properties:
+                cloudProvider:
+                    description: Provider for the transit gateway resources.
+                    type: string
+                    writeOnly: true
+                regionName:
+                    description: AWS region name.
+                    type: string
+                    writeOnly: true
+                tgwId:
+                    description: AWS transit gateway ID.
+                    pattern: ^(tgw-)[0-9a-zA-Z]+$
+                    type: string
+                vpcId:
+                    description: AWS VPC ID.
+                    pattern: ^(vpc-)[0-9a-zA-Z]+$
+                    type: string
+                    writeOnly: true
+            type: object
         StreamsTransitGatewayAttachmentResponse:
             properties:
                 links:
@@ -459,6 +479,48 @@ components:
                     type: string
                 tgwResourceShareInvitationArn:
                     description: AWS Transit Gateway resource share invitation ARN.
+                    type: string
+            type: object
+        StreamsTransitGatewayResourceShare:
+            properties:
+                cloudProvider:
+                    description: Provider for the transit gateway resources.
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                regionName:
+                    description: AWS Region name.
+                    type: string
+                tgwId:
+                    description: AWS transit gateway ID.
+                    pattern: ^(tgw-)[0-9a-zA-Z]+$
+                    type: string
+                tgwResourceShareArn:
+                    description: AWS Transit Gateway resource share ARN.
+                    type: string
+                tgwResourceShareInvitationArn:
+                    description: AWS Transit Gateway resource share invitation ARN.
+                    readOnly: true
+                    type: string
+            type: object
+        StreamsTransitGatewayRouteRequest:
+            description: Container for metadata needed to create a Transit Gateway route.
+            properties:
+                destinationCidr:
+                    description: The route's destination CIDR.
+                    type: string
+                region:
+                    description: The region of the Atlas VPCs where this route should take effect.
+                    type: string
+                tgwId:
+                    description: The AWS ID of the Transit Gateway through which traffic will be routed.
                     type: string
             type: object
         StreamsTransitGatewayRouteResponse:
@@ -513,7 +575,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 5564b16a1de3acda8a1ebc467261ba4824c934b3
+    x-xgen-sha: 7d343380024750a756a732201f2ab84289e4a6d2
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/streamsTransitGatewayAttachments:
@@ -584,7 +646,13 @@ paths:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsTransitGatewayAttachmentRequest'
+                        x-xgen-preview:
+                            name: aws-transit-gateway
+                        x-xgen-version: private-preview-aws-transit-gateway
                 description: Metadata needed for creating a transit gateway attachment.
                 required: true
             responses:
@@ -952,7 +1020,13 @@ paths:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsTransitGatewayResourceShare'
+                        x-xgen-preview:
+                            name: aws-transit-gateway
+                        x-xgen-version: private-preview-aws-transit-gateway
                 description: Detailed information on accepting a transit gateway resource share invitation.
                 required: true
             responses:
@@ -1014,7 +1088,13 @@ paths:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsTransitGatewayResourceShare'
+                        x-xgen-preview:
+                            name: aws-transit-gateway
+                        x-xgen-version: private-preview-aws-transit-gateway
                 description: Detailed information on rejecting a transit gateway resource share invitation.
                 required: true
             responses:
@@ -1133,7 +1213,13 @@ paths:
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/StreamsTransitGatewayRouteRequest'
+                        x-xgen-preview:
+                            name: aws-transit-gateway
+                        x-xgen-version: private-preview-aws-transit-gateway
                 description: Metadata needed for creating a transit gateway route.
                 required: true
             responses:

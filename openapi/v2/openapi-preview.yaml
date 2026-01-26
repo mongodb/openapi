@@ -405,6 +405,16 @@ components:
                     type: boolean
             title: Automatic Compute Scaling Settings
             type: object
+        AiModelsApiKeyCreateRequest:
+            properties:
+                name:
+                    description: A name for the new API key that will be created.
+                    maxLength: 250
+                    minLength: 1
+                    type: string
+            required:
+                - name
+            type: object
         AiModelsApiKeyResponse:
             properties:
                 apiKeyId:
@@ -455,6 +465,16 @@ components:
                     readOnly: true
                     type: string
             type: object
+        AiModelsApiKeyUpdateRequest:
+            properties:
+                name:
+                    description: A new name for the API key.
+                    maxLength: 250
+                    minLength: 1
+                    type: string
+            required:
+                - name
+            type: object
         AiModelsRateLimitResponse:
             properties:
                 modelGroupName:
@@ -481,6 +501,22 @@ components:
                     format: int32
                     minimum: 1
                     type: integer
+            type: object
+        AiModelsRateLimitUpdateRequest:
+            properties:
+                requestsPerMinuteLimit:
+                    description: The number of requests per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
+                    format: int32
+                    minimum: 1
+                    type: integer
+                tokensPerMinuteLimit:
+                    description: The number of tokens per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
+                    format: int32
+                    minimum: 1
+                    type: integer
+            required:
+                - requestsPerMinuteLimit
+                - tokensPerMinuteLimit
             type: object
         ApiAtlasClusterAdvancedConfigurationView:
             description: Group of settings that configures a subset of the advanced configuration details.
@@ -1724,7 +1760,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 5564b16a1de3acda8a1ebc467261ba4824c934b3
+    x-xgen-sha: 7d343380024750a756a732201f2ab84289e4a6d2
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/aiModelApiKeys:
@@ -1795,7 +1831,13 @@ paths:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/AiModelsApiKeyCreateRequest'
+                        x-xgen-preview:
+                            public: "true"
+                        x-xgen-version: preview
                 description: A request containing the name of the new API key.
                 required: true
             responses:
@@ -1986,7 +2028,13 @@ paths:
                   schema:
                     type: string
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/AiModelsApiKeyUpdateRequest'
+                        x-xgen-preview:
+                            public: "true"
+                        x-xgen-version: preview
                 description: A request containing the new name for the API key.
                 required: true
             responses:
@@ -2174,7 +2222,13 @@ paths:
                   schema:
                     type: string
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/AiModelsRateLimitUpdateRequest'
+                        x-xgen-preview:
+                            public: "true"
+                        x-xgen-version: preview
                 description: A request containing the new rate limits for the given model group.
                 required: true
             responses:

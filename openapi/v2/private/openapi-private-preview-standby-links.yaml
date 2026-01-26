@@ -313,6 +313,19 @@ components:
                 - error
                 - errorCode
             type: object
+        ApiStandbyLinkFailoverRequest:
+            description: Request to initiate a failover operation.
+            properties:
+                type:
+                    description: Type of failover operation to perform.
+                    enum:
+                        - UNPLANNED
+                        - PLANNED_REVERSE
+                        - PLANNED
+                    type: string
+            required:
+                - type
+            type: object
         ApiStandbyLinkFailoverResponse:
             description: Response containing failover operation details.
             properties:
@@ -343,6 +356,23 @@ components:
                         - PLANNED_REVERSE
                         - PLANNED
                     type: string
+            type: object
+        ApiStandbyLinkRequest:
+            description: Request body for creating a standby link between clusters.
+            properties:
+                activeClusterUniqueId:
+                    description: Unique 24-hexadecimal digit string that identifies the active cluster in the standby link.
+                    example: 507f191e810c19729de860ea
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                standbyClusterUniqueId:
+                    description: Unique 24-hexadecimal digit string that identifies the standby cluster in the standby link.
+                    example: 507f191e810c19729de860eb
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            required:
+                - activeClusterUniqueId
+                - standbyClusterUniqueId
             type: object
         ApiStandbyLinkResponse:
             description: Response body containing standby link information.
@@ -495,7 +525,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 5564b16a1de3acda8a1ebc467261ba4824c934b3
+    x-xgen-sha: 7d343380024750a756a732201f2ab84289e4a6d2
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/standbyLinks:
@@ -580,7 +610,13 @@ paths:
                   schema:
                     type: boolean
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiStandbyLinkRequest'
+                        x-xgen-preview:
+                            name: standby-links
+                        x-xgen-version: private-preview-standby-links
                 description: Request body containing the active and standby cluster identifiers.
                 required: true
             responses:
@@ -869,7 +905,13 @@ paths:
                   schema:
                     type: boolean
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiStandbyLinkFailoverRequest'
+                        x-xgen-preview:
+                            name: standby-links
+                        x-xgen-version: private-preview-standby-links
                 description: Request body containing the failover type (PLANNED or UNPLANNED).
                 required: true
             responses:
