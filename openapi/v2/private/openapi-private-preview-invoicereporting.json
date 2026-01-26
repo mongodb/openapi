@@ -373,22 +373,6 @@
       }
     },
     "schemas": {
-      "ApiChartsDashboardImportResponseView": {
-        "description": "Imported dashboard and associated imported items.",
-        "properties": {
-          "dashboard": {
-            "$ref": "#/components/schemas/ImportedDashboard"
-          },
-          "items": {
-            "description": "Imported items.",
-            "items": {
-              "$ref": "#/components/schemas/ImportedItem"
-            },
-            "type": "array"
-          }
-        },
-        "type": "object"
-      },
       "ApiError": {
         "properties": {
           "badRequestDetail": {
@@ -464,48 +448,27 @@
         ],
         "type": "object"
       },
-      "ImportedDashboard": {
-        "description": "Imported dashboard.",
+      "ReportGenerationRequest": {
         "properties": {
-          "embeddingId": {
-            "description": "Embedding ID of the item. This field only returns if embedding is enabled for the entity.",
+          "reportFormat": {
+            "description": "Format of the report.",
+            "enum": [
+              "CSV"
+            ],
             "type": "string"
           },
-          "id": {
-            "description": "ID of the dashboard.",
+          "reportType": {
+            "description": "Type of report to generate.",
+            "enum": [
+              "FOCUS"
+            ],
             "type": "string"
           },
-          "title": {
-            "description": "Title of the dashboard.",
+          "version": {
+            "description": "Version of the report format specification.",
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "title"
-        ],
-        "type": "object"
-      },
-      "ImportedItem": {
-        "description": "Imported Item.",
-        "properties": {
-          "embeddingId": {
-            "description": "Embedding ID of the item. This will only be returned if embedding is enabled for the entity.",
-            "type": "string"
-          },
-          "id": {
-            "description": "ID of the item.",
-            "type": "string"
-          },
-          "title": {
-            "description": "Title of the item.",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "title"
-        ],
         "type": "object"
       }
     },
@@ -527,7 +490,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses OAuth2 Service Accounts or HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.private-preview-charts-dashboards+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses OAuth2 Service Accounts or HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.private-preview-invoicereporting+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -539,179 +502,54 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export": {
-      "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Exports the specified Charts dashboard. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
-        "operationId": "exportGroupChartsDashboard",
+    "/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport": {
+      "post": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Generates and downloads a report for the specified invoice.",
+        "operationId": "generateOrgInvoiceAndDownloadReport",
         "parameters": [
           {
-            "$ref": "#/components/parameters/envelope"
+            "$ref": "#/components/parameters/orgId"
           },
           {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "description": "ID of the dashboard to export.",
+            "description": "Unique string that identifies the invoice for which to generate the report.",
             "in": "path",
-            "name": "dashboardId",
+            "name": "invoiceId",
             "required": true,
             "schema": {
               "type": "string"
             }
           }
         ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "description": "This resource returns an exported Charts dashboard. You can use this response to import to the Charts Dashboard Import endpoint.",
-                  "type": "string"
-                },
-                "x-xgen-preview": {
-                  "name": "charts-dashboards",
-                  "public": "false"
-                },
-                "x-xgen-version": "private-preview-charts-dashboards"
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Export One Charts Dashboard",
-        "tags": [
-          "Charts Dashboards"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api chartsDashboards exportChartsDashboard --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export?pretty=true\""
-          }
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/exportGroupChartsDashboard",
-        "x-xgen-operation-id-override": "exportChartsDashboard"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/chartsDashboards:import": {
-      "post": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Imports the Charts dashboard that the template specifies. Optionally, you can specify `overwrite=true` to import into an existing dashboard. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
-        "operationId": "importGroupChartsDashboards",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "description": "Setting this to true enables importing into an existing dashboard.",
-            "in": "query",
-            "name": "overwrite",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/vnd.atlas.preview+json": {
-              "examples": {
-                "Sample import response body": {
-                  "description": "Sample import response body",
-                  "value": {
-                    "dashboards": {
-                      "dashboard-1": {
-                        "description": "Dashboard description",
-                        "embedding": {
-                          "anonymousAuthEnabled": true
-                        },
-                        "filters": [],
-                        "layout": [],
-                        "title": "Dashboard title"
-                      }
-                    },
-                    "dataSources": {
-                      "data-source-1": {
-                        "alias": "Sample Data: Movies",
-                        "collection": "movies",
-                        "database": "sample_data",
-                        "deployment": "sample-data-cluster",
-                        "sourceType": "cluster"
-                      }
-                    },
-                    "exportVersion": 9,
-                    "items": {
-                      "item-1": {
-                        "calculatedFields": [],
-                        "query": null,
-                        "sample": false
-                      }
-                    },
-                    "queries": {}
-                  }
-                }
-              },
               "schema": {
-                "type": "object"
+                "$ref": "#/components/schemas/ReportGenerationRequest"
               },
               "x-xgen-preview": {
-                "name": "charts-dashboards",
-                "public": "false"
-              }
+                "name": "invoicereporting"
+              },
+              "x-xgen-version": "private-preview-invoicereporting"
             }
           },
-          "description": "Schema corresponding to the response fetched from an exported dashboard.",
+          "description": "Generate and Download Invoice Report request body.",
           "required": true
         },
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.preview+json": {
+              "application/vnd.atlas.preview+gzip": {
+                "example": "invoice_abc123_focus.csv.gz\n",
                 "schema": {
-                  "$ref": "#/components/schemas/ApiChartsDashboardImportResponseView"
+                  "type": "string"
                 },
                 "x-xgen-preview": {
-                  "name": "charts-dashboards",
-                  "public": "false"
+                  "name": "invoicereporting"
                 },
-                "x-xgen-version": "private-preview-charts-dashboards"
+                "x-xgen-version": "private-preview-invoicereporting"
               }
             },
-            "description": "OK"
+            "description": "Report generated successfully"
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -725,41 +563,38 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Import One Charts Dashboard",
+        "summary": "Generate and Download Invoice Report",
         "tags": [
-          "Charts Dashboards"
+          "Invoices"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api chartsDashboards importChartsDashboards --help"
+            "source": "atlas api invoices generateInvoiceReport --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards:import\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+gzip\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport\" \\\n  -d '{ <Payload> }'"
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards:import\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+gzip\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport\" \\\n  -d '{ <Payload> }'"
           }
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/importGroupChartsDashboards",
-        "x-xgen-operation-id-override": "importChartsDashboards"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/generateOrgInvoiceAndDownloadReport",
+        "x-xgen-operation-id-override": "generateInvoiceReport"
       }
     }
   },
@@ -778,8 +613,8 @@
   ],
   "tags": [
     {
-      "description": "Returns, adds, and edits Charts Dashboard instances. This resource applies only to projects with a Charts tenant, and requires your Project ID.",
-      "name": "Charts Dashboards"
+      "description": "Returns invoices.",
+      "name": "Invoices"
     }
   ],
   "x-externalLinks": [

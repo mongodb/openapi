@@ -335,44 +335,21 @@ components:
                 - description
                 - field
             type: object
-        Info:
-            description: Information about the MongoDB Atlas Administration API OpenAPI Specification.
+        ReportGenerationRequest:
             properties:
-                description:
-                    description: Description of the MongoDB Atlas Administration API.
-                    example: The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.
+                reportFormat:
+                    description: Format of the report.
+                    enum:
+                        - CSV
                     type: string
-                license:
-                    $ref: '#/components/schemas/License'
-                termsOfService:
-                    description: Terms of Service URL.
-                    example: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
-                    type: string
-                title:
-                    description: Title of the MongoDB Atlas Administration API.
-                    example: MongoDB Atlas Administration API.
+                reportType:
+                    description: Type of report to generate.
+                    enum:
+                        - FOCUS
                     type: string
                 version:
-                    description: Version of the MongoDB Atlas Administration API.
-                    example: "2.0"
+                    description: Version of the report format specification.
                     type: string
-            type: object
-        License:
-            description: License information of the MongoDB Atlas Administration API.
-            properties:
-                name:
-                    description: Name of the license.
-                    example: CC BY-NC-SA 3.0 US
-                    type: string
-                url:
-                    description: URL of the license.
-                    example: https://creativecommons.org/licenses/by-nc-sa/3.0/us/
-                    type: string
-            type: object
-        OpenApiInfo:
-            properties:
-                info:
-                    $ref: '#/components/schemas/Info'
             type: object
     securitySchemes:
         DigestAuth:
@@ -394,7 +371,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
+          --header "Accept: application/vnd.atlas.private-preview-invoicereporting+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -410,58 +387,91 @@ info:
     x-xgen-sha: 1b6f7f13386509cb57826ec3376260b30ff93930
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/openapi/info:
-        get:
-            description: 'This resource returns general information about the MongoDB Atlas Administration API OpenAPI Specification. Deprecated versions: v2-{2024-08-05}, v2-{2024-05-30}'
-            operationId: getOpenapiInfo
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport:
+        post:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Generates and downloads a report for the specified invoice.
+            operationId: generateOrgInvoiceAndDownloadReport
             parameters:
-                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique string that identifies the invoice for which to generate the report.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ReportGenerationRequest'
+                        x-xgen-preview:
+                            name: invoicereporting
+                        x-xgen-version: private-preview-invoicereporting
+                description: Generate and Download Invoice Report request body.
+                required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2025-09-22.upcoming+json:
+                        application/vnd.atlas.preview+gzip:
+                            example: |
+                                invoice_abc123_focus.csv.gz
                             schema:
-                                $ref: '#/components/schemas/OpenApiInfo'
-                            x-xgen-version: 2025-09-22.upcoming
-                    description: OK
+                                type: string
+                            x-xgen-preview:
+                                name: invoicereporting
+                            x-xgen-version: private-preview-invoicereporting
+                    description: Report generated successfully
+                "400":
+                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return General Information on MongoDB Atlas Administration API OpenAPI Specification
+            summary: Generate and Download Invoice Report
             tags:
-                - OpenAPI
+                - Invoices
+            x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api openApi getOpenapiInfo --help
+                  source: atlas api invoices generateInvoiceReport --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/openapi/info?pretty=true"
+                      --header "Accept: application/vnd.atlas.preview+gzip" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport" \
+                      -d '{ <Payload> }'
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
-                      --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/openapi/info?pretty=true"
-            x-state: UPCOMING
-            x-xgen-method-verb-override:
-                customMethod: "False"
-                verb: get
+                      --header "Accept: application/vnd.atlas.preview+gzip" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport" \
+                      -d '{ <Payload> }'
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/generateOrgInvoiceAndDownloadReport
+            x-xgen-operation-id-override: generateInvoiceReport
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns information about the MongoDB Atlas Specification.
-      name: OpenAPI
+    - description: Returns invoices.
+      name: Invoices
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/

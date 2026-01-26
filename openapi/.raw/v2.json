@@ -29648,6 +29648,7 @@
             "QUERY_TARGETING_SCANNED_PER_RETURNED": "#/components/schemas/RawMetricAlertView",
             "RESTARTS_IN_LAST_HOUR": "#/components/schemas/RawMetricAlertView",
             "SEARCH_INDEX_SIZE": "#/components/schemas/DataMetricAlertView",
+            "SEARCH_MAX_FIELDS_INDEXED": "#/components/schemas/RawMetricAlertView",
             "SEARCH_MAX_NUMBER_OF_LUCENE_DOCS": "#/components/schemas/NumberMetricAlertView",
             "SEARCH_NUMBER_OF_FIELDS_IN_INDEX": "#/components/schemas/RawMetricAlertView",
             "SEARCH_NUMBER_OF_QUERIES_ERROR": "#/components/schemas/RawMetricAlertView",
@@ -30072,6 +30073,7 @@
             "QUERY_TARGETING_SCANNED_PER_RETURNED": "#/components/schemas/RawMetricEventView",
             "RESTARTS_IN_LAST_HOUR": "#/components/schemas/RawMetricEventView",
             "SEARCH_INDEX_SIZE": "#/components/schemas/DataMetricEventView",
+            "SEARCH_MAX_FIELDS_INDEXED": "#/components/schemas/RawMetricEventView",
             "SEARCH_MAX_NUMBER_OF_LUCENE_DOCS": "#/components/schemas/NumberMetricEventView",
             "SEARCH_NUMBER_OF_FIELDS_IN_INDEX": "#/components/schemas/RawMetricEventView",
             "SEARCH_NUMBER_OF_QUERIES_ERROR": "#/components/schemas/RawMetricEventView",
@@ -30405,6 +30407,7 @@
             "QUERY_TARGETING_SCANNED_PER_RETURNED": "#/components/schemas/QueryTargetingScannedPerReturnedRawMetricThresholdView",
             "RESTARTS_IN_LAST_HOUR": "#/components/schemas/RestartsInLastHourRawMetricThresholdView",
             "SEARCH_INDEX_SIZE": "#/components/schemas/SearchIndexSizeDataMetricThresholdView",
+            "SEARCH_MAX_FIELDS_INDEXED": "#/components/schemas/SearchMaxFieldsIndexedRawMetricThresholdView",
             "SEARCH_MAX_NUMBER_OF_LUCENE_DOCS": "#/components/schemas/NumberMetricThresholdView",
             "SEARCH_NUMBER_OF_FIELDS_IN_INDEX": "#/components/schemas/SearchNumberOfFieldsInIndexRawMetricThresholdView",
             "SEARCH_NUMBER_OF_QUERIES_ERROR": "#/components/schemas/SearchNumberOfQueriesErrorRawMetricThresholdView",
@@ -30862,6 +30865,9 @@
           },
           {
             "$ref": "#/components/schemas/SearchIndexSizeDataMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/SearchMaxFieldsIndexedRawMetricThresholdView"
           },
           {
             "$ref": "#/components/schemas/SearchNumberOfFieldsInIndexRawMetricThresholdView"
@@ -44682,6 +44688,29 @@
         "title": "Replication Specifications",
         "type": "object"
       },
+      "ReportGenerationRequest": {
+        "properties": {
+          "reportFormat": {
+            "description": "Format of the report.",
+            "enum": [
+              "CSV"
+            ],
+            "type": "string"
+          },
+          "reportType": {
+            "description": "Type of report to generate.",
+            "enum": [
+              "FOCUS"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "description": "Version of the report format specification.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RequestAccepted": {
         "description": "Accepted.",
         "type": "object",
@@ -46034,6 +46063,41 @@
           }
         },
         "title": "Mappings",
+        "type": "object"
+      },
+      "SearchMaxFieldsIndexedRawMetricThresholdView": {
+        "properties": {
+          "metricName": {
+            "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured `metricThreshold.threshold`.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "MongoDB Cloud computes the current metric value as an average.",
+            "enum": [
+              "AVERAGE"
+            ],
+            "type": "string"
+          },
+          "operator": {
+            "description": "Comparison operator to apply when checking the current metric value.",
+            "enum": [
+              "LESS_THAN",
+              "GREATER_THAN"
+            ],
+            "type": "string"
+          },
+          "threshold": {
+            "description": "Value of metric that, when exceeded, triggers an alert.",
+            "format": "double",
+            "type": "number"
+          },
+          "units": {
+            "$ref": "#/components/schemas/RawMetricUnits"
+          }
+        },
+        "required": [
+          "metricName"
+        ],
         "type": "object"
       },
       "SearchNumberOfFieldsInIndexRawMetricThresholdView": {
@@ -55066,7 +55130,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "7f4de9c19d29930abd8871546c958d0d8648f6b0"
+    "x-xgen-sha": "1b6f7f13386509cb57826ec3376260b30ff93930"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -90564,6 +90628,83 @@
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/searchOrgInvoiceLineItems",
         "x-xgen-operation-id-override": "searchInvoiceLineItems",
         "x-xgen-owner-team": "Billing"
+      }
+    },
+    "/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport": {
+      "post": {
+        "description": "Generates and downloads a report for the specified invoice.",
+        "operationId": "generateOrgInvoiceAndDownloadReport",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique string that identifies the invoice for which to generate the report.",
+            "in": "path",
+            "name": "invoiceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportGenerationRequest"
+              },
+              "x-xgen-preview": {
+                "name": "invoicereporting"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Generate and Download Invoice Report request body.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+gzip": {
+                "example": "invoice_abc123_focus.csv.gz\n",
+                "schema": {
+                  "type": "string"
+                },
+                "x-xgen-preview": {
+                  "name": "invoicereporting"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Report generated successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Generate and Download Invoice Report",
+        "tags": [
+          "Invoices"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/generateOrgInvoiceAndDownloadReport",
+        "x-xgen-operation-id-override": "generateInvoiceReport",
+        "x-xgen-owner-team": "Billing Platform"
+      },
+      "x-xgen-IPA-exception": {
+        "xgen-IPA-113-singleton-should-have-update-method": "No update method needed for this singleton resource."
       }
     },
     "/api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects": {
