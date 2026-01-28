@@ -34,15 +34,51 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      - name: Install FOASCLI
+        env:
+          foascli_version: ${{ vars.FOASCLI_VERSION }}
+        run: |
+          wget https://github.com/mongodb/openapi/releases/download/v"${foascli_version}"/mongodb-foas-cli_"${foascli_version}"_linux_x86_64.tar.gz -O foascli.tar.gz
+          tar -xzvf foascli.tar.gz
+          pushd mongodb-foas-cli_*
+          echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+          popd
+
       - name: Fetch OAS file from Dev Branch
         run: curl -O "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/.raw/v2.json"
         working-directory: ${{ github.workspace }}
+
+      - name: Get versions excluding private preview
+        run: |
+          foascli versions -s v2.json --env dev --stability-level stable --stability-level preview --stability-level upcoming -o versions.json
+          cat versions.json
+        working-directory: ${{ github.workspace }}
+
+      - name: Filter OAS to exclude private preview versions
+        run: |
+          cmd="foascli filter -s v2.json --env dev"
+          while IFS= read -r version; do
+            cmd="${cmd} --version ${version}"
+          done < <(jq -r '.[]' versions.json)
+          cmd="${cmd} -o v2-filtered.json"
+          eval "${cmd}"
+        working-directory: ${{ github.workspace }}
+
+      - name: Upload OAS files as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: oas-files
+          path: |
+            ${{ github.workspace }}/v2.json
+            ${{ github.workspace }}/v2-filtered.json
+            ${{ github.workspace }}/versions.json
+          retention-days: 1
 
       - name: Run Metric Collection Job
         id: metric-collection
         working-directory: tools/spectral/ipa/metrics/scripts
         run: |
-          node runMetricCollection.js "${{ github.workspace }}/v2.json"
+          node runMetricCollection.js "${{ github.workspace }}/v2-filtered.json"
           echo "WARNING_COUNT=$(cat ../outputs/warning-count.txt)" >> "$GITHUB_ENV"
 
       - name: aws configure
