@@ -33308,6 +33308,22 @@ components:
                     type: string
             title: Replication Specifications
             type: object
+        ReportGenerationRequest:
+            properties:
+                reportFormat:
+                    description: Format of the report.
+                    enum:
+                        - CSV
+                    type: string
+                reportType:
+                    description: Type of report to generate.
+                    enum:
+                        - FOCUS
+                    type: string
+                version:
+                    description: Version of the report format specification.
+                    type: string
+            type: object
         RequestAccepted:
             description: Accepted.
             type: object
@@ -40971,7 +40987,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 964f94c28a798c173b6a019d083d0e808d7b8ece
+    x-xgen-sha: 5140a93186ed34ede9e64766aa4c62b2543ed735
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -62113,6 +62129,55 @@ paths:
                 - Invoices
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/searchOrgInvoiceLineItems
             x-xgen-operation-id-override: searchInvoiceLineItems
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport:
+        post:
+            description: Generates and downloads a report for the specified invoice.
+            operationId: generateOrgInvoiceAndDownloadReport
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique string that identifies the invoice for which to generate the report.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ReportGenerationRequest'
+                        x-xgen-preview:
+                            name: invoicereporting
+                        x-xgen-version: preview
+                description: Generate and Download Invoice Report request body.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+gzip:
+                            example: |
+                                invoice_abc123_focus.csv.gz
+                            schema:
+                                type: string
+                            x-xgen-preview:
+                                name: invoicereporting
+                            x-xgen-version: preview
+                    description: Report generated successfully
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Generate and Download Invoice Report
+            tags:
+                - Invoices
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/generateOrgInvoiceAndDownloadReport
+            x-xgen-operation-id-override: generateInvoiceReport
     /api/atlas/v2/orgs/{orgId}/invoices/pending:
         get:
             description: Returns all invoices accruing charges for the current billing cycle for the specified organization. To use this resource, the requesting Service Account or API Key must have the Organization Billing Viewer, Organization Billing Admin, or Organization Owner role. If you have a cross-organization setup, you can view linked invoices if you have the Organization Billing Admin or Organization Owner Role.
