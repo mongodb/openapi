@@ -1,19 +1,7 @@
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
-import {
-  getCustomMethodName,
-  isCustomMethodIdentifier,
-  stripCustomMethodName,
-} from './utils/resourceEvaluation.js';
-import {
-  hasCustomMethodOverride,
-  VERB_OVERRIDE_EXTENSION,
-} from './utils/extensions.js';
-import {
-  validateOperationIdAndReturnErrors,
-} from './utils/validations/validateOperationIdAndReturnErrors.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import { getCustomMethodName, isCustomMethodIdentifier, stripCustomMethodName } from './utils/resourceEvaluation.js';
+import { hasCustomMethodOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
+import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
 
 export default (input, { ignoreSingularizationList }, { path, rule }) => {
   const ruleName = rule.name;
