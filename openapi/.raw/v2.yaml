@@ -4207,6 +4207,16 @@ components:
             required:
                 - metricName
             type: object
+        AssociatedInvoice:
+            description: An invoice associated with an organization.
+            properties:
+                invoiceId:
+                    description: Unique 24-hexadecimal digit identifier for an invoice.
+                    type: string
+                orgId:
+                    description: Unique 24-hexadecimal digit identifier for an organization.
+                    type: string
+            type: object
         AtlasClusterOutageSimulationOutageFilter:
             properties:
                 cloudProvider:
@@ -30202,6 +30212,25 @@ components:
                 - roles
                 - username
             type: object
+        OrgAssociatedInvoiceResponse:
+            description: Response containing associated invoices for an organization.
+            properties:
+                associatedInvoices:
+                    description: List of invoices associated with the organization for the specified period.
+                    items:
+                        $ref: '#/components/schemas/AssociatedInvoice'
+                    type: array
+                    x-xgen-IPA-exception:
+                        xgen-IPA-124-array-max-items: The number of associated invoices has no upper bound (as some organizations may have over 100 invoices in a billing period), and is not restricted in the response. This may be revisited before moving API out of private preview.
+                month:
+                    description: Two-digit number that represents the month of the associated invoices.
+                    example: "01"
+                    type: string
+                year:
+                    description: Four-digit number that represents the year of the associated invoices.
+                    example: "2024"
+                    type: string
+            type: object
         OrgEventTypeViewForOrg:
             description: Unique identifier of event type.
             enum:
@@ -43148,7 +43177,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: ee09cdc83a902bc8e0d8311de0f89da181d03fff
+    x-xgen-sha: 189f391064577376d57783fc79654893a69f8138
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -65440,6 +65469,59 @@ paths:
                 verb: getEntry
             x-xgen-operation-id-override: getOrgAccessEntry
             x-xgen-owner-team: IAM Workload Identity
+    /api/atlas/v2/orgs/{orgId}/associatedInvoices:
+        get:
+            description: Returns a list of invoice IDs for the specified organization and month/year. Optionally includes invoices from linked organizations.
+            operationId: getOrgAssociatedInvoices
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: The month for which to retrieve invoices (1-12). Defaults to current month.
+                  in: query
+                  name: month
+                  schema:
+                    format: int64
+                    maximum: 12
+                    minimum: 1
+                    type: integer
+                - description: The year for which to retrieve invoices. Defaults to current year.
+                  in: query
+                  name: year
+                  schema:
+                    format: int64
+                    minimum: 2000
+                    type: integer
+                - description: Whether to include invoices from linked organizations. Defaults to false.
+                  in: query
+                  name: includeLinkedOrgs
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgAssociatedInvoiceResponse'
+                            x-xgen-preview:
+                                name: invoicereporting
+                            x-xgen-version: preview
+                    description: Associated invoices retrieved successfully
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Associated Invoices
+            tags:
+                - Invoices
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgAssociatedInvoices
+            x-xgen-owner-team: Billing Platform
+        x-xgen-IPA-exception:
+            xgen-IPA-113-singleton-should-have-update-method: Resource is read-only. IPAs does not yet support read-only singleton resources.
     /api/atlas/v2/orgs/{orgId}/billing/costExplorer/usage:
         post:
             description: Creates a query process within the Cost Explorer for the given parameters. A token is returned that can be used to poll the status of the query and eventually retrieve the results.
