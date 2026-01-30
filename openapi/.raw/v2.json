@@ -29559,6 +29559,7 @@
             "RESTARTS_IN_LAST_HOUR": "#/components/schemas/RawMetricAlertView",
             "SEARCH_INDEX_SIZE": "#/components/schemas/DataMetricAlertView",
             "SEARCH_MAX_FIELDS_INDEXED": "#/components/schemas/RawMetricAlertView",
+            "SEARCH_MAX_NGRAM_FIELDS_INDEXED": "#/components/schemas/RawMetricAlertView",
             "SEARCH_MAX_NUMBER_OF_LUCENE_DOCS": "#/components/schemas/NumberMetricAlertView",
             "SEARCH_NUMBER_OF_FIELDS_IN_INDEX": "#/components/schemas/RawMetricAlertView",
             "SEARCH_NUMBER_OF_QUERIES_ERROR": "#/components/schemas/RawMetricAlertView",
@@ -29985,6 +29986,7 @@
             "RESTARTS_IN_LAST_HOUR": "#/components/schemas/RawMetricEventView",
             "SEARCH_INDEX_SIZE": "#/components/schemas/DataMetricEventView",
             "SEARCH_MAX_FIELDS_INDEXED": "#/components/schemas/RawMetricEventView",
+            "SEARCH_MAX_NGRAM_FIELDS_INDEXED": "#/components/schemas/RawMetricEventView",
             "SEARCH_MAX_NUMBER_OF_LUCENE_DOCS": "#/components/schemas/NumberMetricEventView",
             "SEARCH_NUMBER_OF_FIELDS_IN_INDEX": "#/components/schemas/RawMetricEventView",
             "SEARCH_NUMBER_OF_QUERIES_ERROR": "#/components/schemas/RawMetricEventView",
@@ -30319,6 +30321,7 @@
             "RESTARTS_IN_LAST_HOUR": "#/components/schemas/RestartsInLastHourRawMetricThresholdView",
             "SEARCH_INDEX_SIZE": "#/components/schemas/SearchIndexSizeDataMetricThresholdView",
             "SEARCH_MAX_FIELDS_INDEXED": "#/components/schemas/SearchMaxFieldsIndexedRawMetricThresholdView",
+            "SEARCH_MAX_NGRAM_FIELDS_INDEXED": "#/components/schemas/SearchMaxNgramFieldsIndexedRawMetricThresholdView",
             "SEARCH_MAX_NUMBER_OF_LUCENE_DOCS": "#/components/schemas/NumberMetricThresholdView",
             "SEARCH_NUMBER_OF_FIELDS_IN_INDEX": "#/components/schemas/SearchNumberOfFieldsInIndexRawMetricThresholdView",
             "SEARCH_NUMBER_OF_QUERIES_ERROR": "#/components/schemas/SearchNumberOfQueriesErrorRawMetricThresholdView",
@@ -30782,6 +30785,9 @@
           },
           {
             "$ref": "#/components/schemas/SearchNumberOfFieldsInIndexRawMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/SearchMaxNgramFieldsIndexedRawMetricThresholdView"
           },
           {
             "$ref": "#/components/schemas/SearchReplicationLagTimeMetricThresholdView"
@@ -44564,6 +44570,29 @@
         "title": "Replication Specifications",
         "type": "object"
       },
+      "ReportGenerationRequest": {
+        "properties": {
+          "reportFormat": {
+            "description": "Format of the report.",
+            "enum": [
+              "CSV"
+            ],
+            "type": "string"
+          },
+          "reportType": {
+            "description": "Type of report to generate.",
+            "enum": [
+              "FOCUS"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "description": "Version of the report format specification.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RequestAccepted": {
         "description": "Accepted.",
         "type": "object",
@@ -45963,6 +45992,41 @@
         "type": "object"
       },
       "SearchMaxFieldsIndexedRawMetricThresholdView": {
+        "properties": {
+          "metricName": {
+            "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured **metricThreshold.threshold**.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "MongoDB Cloud computes the current metric value as an average.",
+            "enum": [
+              "AVERAGE"
+            ],
+            "type": "string"
+          },
+          "operator": {
+            "description": "Comparison operator to apply when checking the current metric value.",
+            "enum": [
+              "LESS_THAN",
+              "GREATER_THAN"
+            ],
+            "type": "string"
+          },
+          "threshold": {
+            "description": "Value of metric that, when exceeded, triggers an alert.",
+            "format": "double",
+            "type": "number"
+          },
+          "units": {
+            "$ref": "#/components/schemas/RawMetricUnits"
+          }
+        },
+        "required": [
+          "metricName"
+        ],
+        "type": "object"
+      },
+      "SearchMaxNgramFieldsIndexedRawMetricThresholdView": {
         "properties": {
           "metricName": {
             "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured **metricThreshold.threshold**.",
@@ -55048,7 +55112,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "964f94c28a798c173b6a019d083d0e808d7b8ece"
+    "x-xgen-sha": "37bdf0cc2cb3315b9a7e148d39a05444d8f16912"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -75682,7 +75746,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/logIntegrations": {
       "get": {
-        "description": "Returns all log integration configurations for the project. Optionally filter by integration type. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. This is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Returns all log integration configurations for the project. Optionally filter by integration type. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "listGroupLogIntegrations",
         "parameters": [
           {
@@ -75748,7 +75812,7 @@
         "x-xgen-owner-team": "Intel II"
       },
       "post": {
-        "description": "Creates a new log integration configuration identified by a unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. This is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Creates a new log integration configuration identified by a unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "createGroupLogIntegration",
         "parameters": [
           {
@@ -75813,7 +75877,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/logIntegrations/{id}": {
       "delete": {
-        "description": "Removes the configuration for one log integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. This is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Removes the configuration for one log integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "deleteGroupLogIntegration",
         "parameters": [
           {
@@ -75868,7 +75932,7 @@
         "x-xgen-owner-team": "Intel II"
       },
       "get": {
-        "description": "Returns the configuration for one log integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. This is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Returns the configuration for one log integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "getGroupLogIntegration",
         "parameters": [
           {
@@ -75926,7 +75990,7 @@
         "x-xgen-owner-team": "Intel II"
       },
       "put": {
-        "description": "Updates the configuration for one log integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. This is currently in preview. Please contact your Customer Success Manager (CSM) for access.",
+        "description": "Updates the configuration for one log integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
         "operationId": "updateGroupLogIntegration",
         "parameters": [
           {
@@ -80773,6 +80837,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/pushBasedLogExport": {
       "delete": {
+        "deprecated": true,
         "description": "Disables the push-based log export feature by resetting the project level settings to its default configuration.",
         "operationId": "deleteGroupPushBasedLogExport",
         "parameters": [
@@ -80790,6 +80855,7 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
+                "x-sunset": "2027-02-04",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -80823,6 +80889,7 @@
         "x-xgen-owner-team": "Atlas Dedicated"
       },
       "get": {
+        "deprecated": true,
         "description": "Fetches the current project level settings for the push-based log export feature.",
         "operationId": "getGroupPushBasedLogExport",
         "parameters": [
@@ -80843,6 +80910,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/PushBasedLogExportProject"
                 },
+                "x-sunset": "2027-02-04",
                 "x-xgen-IPA-exception": {
                   "xgen-IPA-110-collections-response-define-results-array": "Singleton method, mistakenly identified as a List method.",
                   "xgen-IPA-110-collections-use-paginated-prefix": "Singleton method, mistakenly identified as a List method."
@@ -80882,6 +80950,7 @@
         "x-xgen-owner-team": "Atlas Dedicated"
       },
       "patch": {
+        "deprecated": true,
         "description": "Updates the project level settings for the push-based log export feature.",
         "operationId": "updateGroupPushBasedLogExport",
         "parameters": [
@@ -80911,6 +80980,7 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
+                "x-sunset": "2027-02-04",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -80941,6 +81011,7 @@
         "x-xgen-owner-team": "Atlas Dedicated"
       },
       "post": {
+        "deprecated": true,
         "description": "Configures the project level settings for the push-based log export feature.",
         "operationId": "createGroupPushBasedLogExport",
         "parameters": [
@@ -80970,6 +81041,7 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
+                "x-sunset": "2027-02-04",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -90483,6 +90555,83 @@
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/searchOrgInvoiceLineItems",
         "x-xgen-operation-id-override": "searchInvoiceLineItems",
         "x-xgen-owner-team": "Billing"
+      }
+    },
+    "/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport": {
+      "post": {
+        "description": "Generates and downloads a report for the specified invoice.",
+        "operationId": "generateOrgInvoiceAndDownloadReport",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique string that identifies the invoice for which to generate the report.",
+            "in": "path",
+            "name": "invoiceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportGenerationRequest"
+              },
+              "x-xgen-preview": {
+                "name": "invoicereporting"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Generate and Download Invoice Report request body.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+gzip": {
+                "example": "invoice_abc123_focus.csv.gz\n",
+                "schema": {
+                  "type": "string"
+                },
+                "x-xgen-preview": {
+                  "name": "invoicereporting"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Report generated successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Generate and Download Invoice Report",
+        "tags": [
+          "Invoices"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/generateOrgInvoiceAndDownloadReport",
+        "x-xgen-operation-id-override": "generateInvoiceReport",
+        "x-xgen-owner-team": "Billing Platform"
+      },
+      "x-xgen-IPA-exception": {
+        "xgen-IPA-113-singleton-should-have-update-method": "No update method needed for this singleton resource."
       }
     },
     "/api/atlas/v2/orgs/{orgId}/liveMigrations/availableProjects": {
