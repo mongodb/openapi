@@ -26335,6 +26335,95 @@
         "title": "GCP Regional Replication Specifications",
         "type": "object"
       },
+      "GcsLogIntegrationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationRequest"
+          },
+          {
+            "properties": {
+              "gcsBucketName": {
+                "description": "GCS bucket name for storing log files.",
+                "example": "my-gcs-log-bucket",
+                "type": "string"
+              },
+              "gcsPrefixPath": {
+                "description": "GCS object path prefix for organizing log files.",
+                "example": "mongodb-logs/",
+                "type": "string"
+              },
+              "gcsRoleId": {
+                "description": "Unique 24-character hexadecimal string that identifies the GCP service account role.",
+                "example": "507f1f77bcf86cd799439011",
+                "pattern": "^[a-f0-9]{24}$",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.",
+                "enum": [
+                  "GCS_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Request schema for creating or updating a Google Cloud Storage log export integration.",
+        "required": [
+          "gcsBucketName",
+          "gcsPrefixPath",
+          "gcsRoleId",
+          "type"
+        ],
+        "title": "GCS Log Export Integration Request",
+        "type": "object"
+      },
+      "GcsLogIntegrationResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationResponse"
+          },
+          {
+            "properties": {
+              "gcsBucketName": {
+                "description": "GCS bucket name for storing log files.",
+                "example": "my-gcs-log-bucket",
+                "type": "string"
+              },
+              "gcsPrefixPath": {
+                "description": "GCS object path prefix for organizing log files.",
+                "example": "mongodb-logs/",
+                "type": "string"
+              },
+              "gcsRoleId": {
+                "description": "Unique 24-character hexadecimal string that identifies the GCP service account role.",
+                "example": "507f1f77bcf86cd799439011",
+                "pattern": "^[a-f0-9]{24}$",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.",
+                "enum": [
+                  "GCS_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Details to integrate Google Cloud Storage log export with one MongoDB Cloud project.",
+        "required": [
+          "gcsBucketName",
+          "gcsPrefixPath",
+          "gcsRoleId",
+          "id",
+          "type"
+        ],
+        "title": "GCS Log Export Integration Response",
+        "type": "object"
+      },
       "GeoSharding": {
         "properties": {
           "customZoneMapping": {
@@ -31922,6 +32011,7 @@
         "discriminator": {
           "mapping": {
             "DATADOG_LOG_EXPORT": "#/components/schemas/DatadogLogIntegrationRequest",
+            "GCS_LOG_EXPORT": "#/components/schemas/GcsLogIntegrationRequest",
             "S3_LOG_EXPORT": "#/components/schemas/S3LogIntegrationRequest"
           },
           "propertyName": "type"
@@ -31932,6 +32022,9 @@
           },
           {
             "$ref": "#/components/schemas/DatadogLogIntegrationRequest"
+          },
+          {
+            "$ref": "#/components/schemas/GcsLogIntegrationRequest"
           }
         ],
         "properties": {
@@ -31952,7 +32045,8 @@
             "description": "Type of log integration. Identifies which service will receive the exported logs.",
             "enum": [
               "S3_LOG_EXPORT",
-              "DATADOG_LOG_EXPORT"
+              "DATADOG_LOG_EXPORT",
+              "GCS_LOG_EXPORT"
             ],
             "type": "string"
           }
@@ -31968,6 +32062,7 @@
         "discriminator": {
           "mapping": {
             "DATADOG_LOG_EXPORT": "#/components/schemas/DatadogLogIntegrationResponse",
+            "GCS_LOG_EXPORT": "#/components/schemas/GcsLogIntegrationResponse",
             "S3_LOG_EXPORT": "#/components/schemas/S3LogIntegrationResponse"
           },
           "propertyName": "type"
@@ -31978,6 +32073,9 @@
           },
           {
             "$ref": "#/components/schemas/DatadogLogIntegrationResponse"
+          },
+          {
+            "$ref": "#/components/schemas/GcsLogIntegrationResponse"
           }
         ],
         "properties": {
@@ -32003,7 +32101,8 @@
             "description": "Type of log integration. Identifies which service will receive the exported logs.",
             "enum": [
               "S3_LOG_EXPORT",
-              "DATADOG_LOG_EXPORT"
+              "DATADOG_LOG_EXPORT",
+              "GCS_LOG_EXPORT"
             ],
             "type": "string"
           }
@@ -52999,7 +53098,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "ce3d7744e5e6f12d25b5b0a865052762fbc07497"
+    "x-xgen-sha": "b58d247d69d2c17a16669c0170e71e6d097d4cc9"
   },
   "openapi": "3.0.1",
   "paths": {
