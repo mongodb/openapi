@@ -10,6 +10,7 @@ functions:
   - IPA106CreateMethodResponseIsGetMethodResponse
   - IPA106ReadOnlyResourceShouldNotHaveCreateMethod
   - IPA106ValidOperationID
+  - IPA106OperationIdLength
 
 aliases:
   CreateOperationObject:
@@ -56,7 +57,7 @@ rules:
 
       Validation checks the POST method for resource collection paths.
         - Validation ignores resources without a Get method.
-        - `readOnly:true` properties of Get method response will be ignored. 
+        - `readOnly:true` properties of Get method response will be ignored.
         - `writeOnly:true` properties of Create method request will be ignored.
         - Property comparison is based on `type` and `name` matching.
         - `oneOf` and `discriminator` definitions must match exactly.
@@ -149,6 +150,31 @@ rules:
     given: '#CreateOperationObject'
     then:
       function: 'IPA106ValidOperationID'
+      functionOptions:
+        methodName: 'create'
+        ignoreSingularizationList:
+          - 'Fts'
+  xgen-IPA-106-operation-id-length:
+    description: |
+      The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+      add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to POST methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+        - Verifies that the operation ID is not longer than 4 words
+        - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+        - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+      ##### Configuration
+      This rule includes two configuration options:
+        - `methodName`: The verb to be used in the OperationIds
+        - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-106-operation-id-length'
+    severity: error
+    given: '#CreateOperationObject'
+    then:
+      function: 'IPA106OperationIdLength'
       functionOptions:
         methodName: 'create'
         ignoreSingularizationList:

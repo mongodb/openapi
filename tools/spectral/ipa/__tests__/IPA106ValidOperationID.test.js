@@ -65,13 +65,6 @@ testRule('xgen-IPA-106-valid-operation-id', [
         path: ['paths', '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList', 'post', 'operationId'],
         severity: DiagnosticSeverity.Error,
       },
-      {
-        code: 'xgen-IPA-106-valid-operation-id',
-        message:
-          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
-        path: ['paths', '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList', 'post', 'operationId'],
-        severity: DiagnosticSeverity.Error,
-      },
     ],
   },
   {

@@ -9,6 +9,7 @@ functions:
   - IPA104GetMethodResponseHasNoInputFields
   - IPA104GetMethodHasNoRequestBody
   - IPA104ValidOperationID
+  - IPA104OperationIdLength
 
 aliases:
   GetOperationObject:
@@ -118,6 +119,31 @@ rules:
     given: '#GetOperationObject'
     then:
       function: 'IPA104ValidOperationID'
+      functionOptions:
+        methodName: 'get'
+        ignoreSingularizationList:
+          - 'Fts'
+  xgen-IPA-104-operation-id-length:
+    description: |
+      The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+      add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to GET methods on single resources or singleton resources
+        - Verifies that the operation ID is not longer than 4 words
+        - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+        - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+      ##### Configuration
+      This rule includes two configuration options:
+        - `methodName`: The verb to be used in the OperationIds
+        - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-operation-id-length'
+    severity: error
+    given: '#GetOperationObject'
+    then:
+      function: 'IPA104OperationIdLength'
       functionOptions:
         methodName: 'get'
         ignoreSingularizationList:

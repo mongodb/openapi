@@ -13,6 +13,29 @@ const TOO_LONG_OP_ID_ERROR_MESSAGE =
   "' extension to the operation with a shorter operation ID.";
 
 /**
+ * Validates the length of an operationId and returns errors if it is longer than 4 words without an override.
+ *
+ * @param operationObject the operation object to validate, which should contain the operationId and optionally the x-xgen-operation-id-override extension.
+ * @param path the path to the operation object being evaluated, used for error reporting with Spectral.
+ * @param expectedOperationId the expected IPA-compliant operation ID (used for generating example shortened ID).
+ * @returns {[{path: string[], message: string}]} an array of error objects, each containing a path and a message, or an empty array if no errors are found.
+ */
+export function validateOperationIdLengthAndReturnErrors(operationObject, path, expectedOperationId) {
+  const operationId = operationObject.operationId;
+  const operationIdPath = path.concat(['operationId']);
+
+  const errors = [];
+  if (numberOfWords(operationId) > 4 && !hasOperationIdOverride(operationObject)) {
+    errors.push({
+      path: operationIdPath,
+      message: TOO_LONG_OP_ID_ERROR_MESSAGE + " For example: '" + shortenOperationId(expectedOperationId) + "'.",
+    });
+  }
+
+  return errors;
+}
+
+/**
  * Validates the operationId of an operation object and returns errors if it does not match the expected format. Also validates that the operationId override, if present, follows the expected rules.
  *
  * @param methodName the method name (e.g. 'get', 'post', etc.). For custom methods, this is the custom method name. For legacy custom methods, this is an empty string.
@@ -43,14 +66,6 @@ export function validateOperationIdAndReturnErrors(
   }
 
   const operationIdOverridePath = path.concat([OPERATION_ID_OVERRIDE_EXTENSION]);
-  if (numberOfWords(operationId) > 4 && !hasOperationIdOverride(operationObject)) {
-    errors.push({
-      path: operationIdPath,
-      message: TOO_LONG_OP_ID_ERROR_MESSAGE + " For example: '" + shortenOperationId(expectedOperationId) + "'.",
-    });
-    return errors;
-  }
-
   if (hasOperationIdOverride(operationObject)) {
     const overrideErrors = validateOperationIdOverride(
       operationIdOverridePath,

@@ -54,13 +54,6 @@ testRule('xgen-IPA-105-valid-operation-id', [
         path: ['paths', '/api/atlas/v2/unauth/controlPlaneIPAddresses', 'get', 'operationId'],
         severity: DiagnosticSeverity.Error,
       },
-      {
-        code: 'xgen-IPA-105-valid-operation-id',
-        message:
-          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
-        path: ['paths', '/api/atlas/v2/unauth/controlPlaneIPAddresses', 'get', 'operationId'],
-        severity: DiagnosticSeverity.Error,
-      },
     ],
   },
   {

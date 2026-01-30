@@ -6,6 +6,7 @@ functions:
   - IPA109EachCustomMethodMustUseCamelCase
   - IPA109CustomMethodIdentifierFormat
   - IPA109ValidOperationID
+  - IPA109OperationIdLength
 
 aliases:
   OperationObject:
@@ -83,6 +84,29 @@ rules:
     given: '#OperationObject'
     then:
       function: 'IPA109ValidOperationID'
+      functionOptions:
+        ignoreSingularizationList:
+          - 'Fts'
+  xgen-IPA-109-operation-id-length:
+    description: |
+      The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+      add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to paths containing custom method identifiers (with colon format)
+        - Verifies that the operation ID is not longer than 4 words
+        - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+        - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+      ##### Configuration
+      This rule includes one configuration option:
+        - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-109-operation-id-length'
+    severity: error
+    given: '#OperationObject'
+    then:
+      function: 'IPA109OperationIdLength'
       functionOptions:
         ignoreSingularizationList:
           - 'Fts'

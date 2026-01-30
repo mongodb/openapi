@@ -1,5 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
-import { validateOperationIdAndReturnErrors } from '../../../rulesets/functions/utils/validations/validateOperationIdAndReturnErrors.js';
+import {
+  validateOperationIdAndReturnErrors,
+  validateOperationIdLengthAndReturnErrors,
+} from '../../../rulesets/functions/utils/validations/validateOperationIdAndReturnErrors.js';
 
 describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperationIdAndReturnErrors.js', () => {
   it('should return no errors for valid operation ID', () => {
@@ -252,7 +255,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
     ]);
   });
 
-  it('should return errors for too long operation ID without override', () => {
+  it('should return no errors for long operation ID without override', () => {
     expect(
       validateOperationIdAndReturnErrors(
         'create',
@@ -262,13 +265,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
         },
         ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post']
       )
-    ).toEqual([
-      {
-        path: ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post', 'operationId'],
-        message:
-          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. For example: 'createLongChildResource'.",
-      },
-    ]);
+    ).toHaveLength(0);
   });
 
   it('should return errors for operation ID override with wrong verb', () => {
@@ -393,5 +390,70 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
       "The operation ID override must only contain nouns from the operation ID 'getSomeResourceLongChildResource'."
     );
     expect(errors[3].message).toEqual("The operation ID override must end with the noun 'Resource'.");
+  });
+});
+
+describe('validateOperationIdLengthAndReturnErrors', () => {
+  it('should return no errors for operation ID with 4 words or less', () => {
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'getResource',
+        },
+        ['paths', '/resource', 'get'],
+        'getResource'
+      )
+    ).toHaveLength(0);
+
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'getSomeResource',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}', 'get'],
+        'getSomeResource'
+      )
+    ).toHaveLength(0);
+
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'createSomeResourceChild',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}/child', 'post'],
+        'createSomeResourceChild'
+      )
+    ).toHaveLength(0);
+  });
+
+  it('should return errors for operation ID longer than 4 words without override', () => {
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'createSomeResourceLongChildResource',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post'],
+        'createSomeResourceLongChildResource'
+      )
+    ).toEqual([
+      {
+        path: ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post', 'operationId'],
+        message:
+          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. For example: 'createLongChildResource'.",
+      },
+    ]);
+  });
+
+  it('should return no errors for operation ID longer than 4 words with override', () => {
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'createSomeResourceLongChildResource',
+          'x-xgen-operation-id-override': 'createLongChildResource',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post'],
+        'createSomeResourceLongChildResource'
+      )
+    ).toHaveLength(0);
   });
 });

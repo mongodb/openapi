@@ -161,6 +161,24 @@ This rule includes two configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
+#### xgen-IPA-104-operation-id-length
+
+ ![error](https://img.shields.io/badge/error-red) 
+The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on single resources or singleton resources
+  - Verifies that the operation ID is not longer than 4 words
+  - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+  - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
 
 
 ### IPA-105
@@ -232,6 +250,25 @@ This rule includes two configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
+#### xgen-IPA-105-operation-id-length
+
+ ![error](https://img.shields.io/badge/error-red) 
+The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to GET methods on resource collection paths
+  - Ignores singleton resources
+  - Verifies that the operation ID is not longer than 4 words
+  - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+  - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
 
 
 ### IPA-106
@@ -270,7 +307,7 @@ Request body content of the Create method and response content of the Get method
 
 Validation checks the POST method for resource collection paths.
   - Validation ignores resources without a Get method.
-  - `readOnly:true` properties of Get method response will be ignored. 
+  - `readOnly:true` properties of Get method response will be ignored.
   - `writeOnly:true` properties of Create method request will be ignored.
   - Property comparison is based on `type` and `name` matching.
   - `oneOf` and `discriminator` definitions must match exactly.
@@ -335,6 +372,24 @@ The noun(s) in the Operation ID should be the collection identifiers from the re
 Rule checks for the following conditions:
   - Applies only to POST methods that are not [custom methods](https://mongodb.github.io/ipa/109)
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
+
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
+#### xgen-IPA-106-operation-id-length
+
+ ![error](https://img.shields.io/badge/error-red) 
+The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+  - Verifies that the operation ID is not longer than 4 words
+  - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+  - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
 
 ##### Configuration
 This rule includes two configuration options:
@@ -442,6 +497,24 @@ This rule includes two configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
+#### xgen-IPA-107-operation-id-length
+
+ ![error](https://img.shields.io/badge/error-red) 
+The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to PUT/PATCH methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+  - Verifies that the operation ID is not longer than 4 words
+  - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+  - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
 
 
 ### IPA-108
@@ -514,6 +587,24 @@ This rule includes two configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
+#### xgen-IPA-108-operation-id-length
+
+ ![error](https://img.shields.io/badge/error-red) 
+The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to DELETE methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+  - Verifies that the operation ID is not longer than 4 words
+  - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+  - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+##### Configuration
+This rule includes two configuration options:
+  - `methodName`: The verb to be used in the OperationIds
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
 
 
 ### IPA-109
@@ -576,6 +667,23 @@ Rule checks for the following conditions:
 
 ##### Configuration
 This rule includes one configuration options:
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
+#### xgen-IPA-109-operation-id-length
+
+ ![error](https://img.shields.io/badge/error-red) 
+The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths containing custom method identifiers (with colon format)
+  - Verifies that the operation ID is not longer than 4 words
+  - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+  - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+##### Configuration
+This rule includes one configuration option:
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
 
 

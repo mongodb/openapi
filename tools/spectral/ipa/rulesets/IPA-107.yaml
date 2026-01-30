@@ -10,6 +10,7 @@ functions:
   - IPA107UpdateMethodRequestBodyIsUpdateRequestSuffixedObject
   - IPA107ReadOnlyResourceShouldNotHaveUpdateMethod
   - IPA107ValidOperationID
+  - IPA107OperationIdLength
 
 aliases:
   UpdateOperationObject:
@@ -150,6 +151,31 @@ rules:
     given: '#UpdateOperationObject'
     then:
       function: 'IPA107ValidOperationID'
+      functionOptions:
+        methodName: 'update'
+        ignoreSingularizationList:
+          - 'Fts'
+  xgen-IPA-107-operation-id-length:
+    description: |
+      The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+      add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to PUT/PATCH methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+        - Verifies that the operation ID is not longer than 4 words
+        - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+        - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+      ##### Configuration
+      This rule includes two configuration options:
+        - `methodName`: The verb to be used in the OperationIds
+        - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-107-operation-id-length'
+    severity: error
+    given: '#UpdateOperationObject'
+    then:
+      function: 'IPA107OperationIdLength'
       functionOptions:
         methodName: 'update'
         ignoreSingularizationList:
