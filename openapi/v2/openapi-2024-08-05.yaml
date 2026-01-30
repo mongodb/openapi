@@ -19854,6 +19854,7 @@ components:
                     RESTARTS_IN_LAST_HOUR: '#/components/schemas/RawMetricAlertView'
                     SEARCH_INDEX_SIZE: '#/components/schemas/DataMetricAlertView'
                     SEARCH_MAX_FIELDS_INDEXED: '#/components/schemas/RawMetricAlertView'
+                    SEARCH_MAX_NGRAM_FIELDS_INDEXED: '#/components/schemas/RawMetricAlertView'
                     SEARCH_MAX_NUMBER_OF_LUCENE_DOCS: '#/components/schemas/NumberMetricAlertView'
                     SEARCH_NUMBER_OF_FIELDS_IN_INDEX: '#/components/schemas/RawMetricAlertView'
                     SEARCH_NUMBER_OF_QUERIES_ERROR: '#/components/schemas/RawMetricAlertView'
@@ -20226,6 +20227,7 @@ components:
                     RESTARTS_IN_LAST_HOUR: '#/components/schemas/RawMetricEventView'
                     SEARCH_INDEX_SIZE: '#/components/schemas/DataMetricEventView'
                     SEARCH_MAX_FIELDS_INDEXED: '#/components/schemas/RawMetricEventView'
+                    SEARCH_MAX_NGRAM_FIELDS_INDEXED: '#/components/schemas/RawMetricEventView'
                     SEARCH_MAX_NUMBER_OF_LUCENE_DOCS: '#/components/schemas/NumberMetricEventView'
                     SEARCH_NUMBER_OF_FIELDS_IN_INDEX: '#/components/schemas/RawMetricEventView'
                     SEARCH_NUMBER_OF_QUERIES_ERROR: '#/components/schemas/RawMetricEventView'
@@ -20519,6 +20521,7 @@ components:
                     RESTARTS_IN_LAST_HOUR: '#/components/schemas/RestartsInLastHourRawMetricThresholdView'
                     SEARCH_INDEX_SIZE: '#/components/schemas/SearchIndexSizeDataMetricThresholdView'
                     SEARCH_MAX_FIELDS_INDEXED: '#/components/schemas/SearchMaxFieldsIndexedRawMetricThresholdView'
+                    SEARCH_MAX_NGRAM_FIELDS_INDEXED: '#/components/schemas/SearchMaxNgramFieldsIndexedRawMetricThresholdView'
                     SEARCH_MAX_NUMBER_OF_LUCENE_DOCS: '#/components/schemas/NumberMetricThresholdView'
                     SEARCH_NUMBER_OF_FIELDS_IN_INDEX: '#/components/schemas/SearchNumberOfFieldsInIndexRawMetricThresholdView'
                     SEARCH_NUMBER_OF_QUERIES_ERROR: '#/components/schemas/SearchNumberOfQueriesErrorRawMetricThresholdView'
@@ -20687,6 +20690,7 @@ components:
                 - $ref: '#/components/schemas/SearchIndexSizeDataMetricThresholdView'
                 - $ref: '#/components/schemas/SearchMaxFieldsIndexedRawMetricThresholdView'
                 - $ref: '#/components/schemas/SearchNumberOfFieldsInIndexRawMetricThresholdView'
+                - $ref: '#/components/schemas/SearchMaxNgramFieldsIndexedRawMetricThresholdView'
                 - $ref: '#/components/schemas/SearchReplicationLagTimeMetricThresholdView'
                 - $ref: '#/components/schemas/NumberMetricThresholdView'
                 - $ref: '#/components/schemas/SearchOpCounterInsertRawMetricThresholdView'
@@ -30783,6 +30787,31 @@ components:
             required:
                 - metricName
             type: object
+        SearchMaxNgramFieldsIndexedRawMetricThresholdView:
+            properties:
+                metricName:
+                    description: Human-readable label that identifies the metric against which MongoDB Cloud checks the configured **metricThreshold.threshold**.
+                    type: string
+                mode:
+                    description: MongoDB Cloud computes the current metric value as an average.
+                    enum:
+                        - AVERAGE
+                    type: string
+                operator:
+                    description: Comparison operator to apply when checking the current metric value.
+                    enum:
+                        - LESS_THAN
+                        - GREATER_THAN
+                    type: string
+                threshold:
+                    description: Value of metric that, when exceeded, triggers an alert.
+                    format: double
+                    type: number
+                units:
+                    $ref: '#/components/schemas/RawMetricUnits'
+            required:
+                - metricName
+            type: object
         SearchNumberOfFieldsInIndexRawMetricThresholdView:
             properties:
                 metricName:
@@ -37267,7 +37296,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 8db0ca235c7047e462dcc21031680ed8e25838ea
+    x-xgen-sha: d0033a9e1df7cceddbefbb477e6b010e1918a4ff
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -63830,6 +63859,7 @@ paths:
             x-xgen-operation-id-override: listSuggestedIndexes
     /api/atlas/v2/groups/{groupId}/pushBasedLogExport:
         delete:
+            deprecated: true
             description: Disables the push-based log export feature by resetting the project level settings to its default configuration.
             operationId: deleteGroupPushBasedLogExport
             parameters:
@@ -63899,9 +63929,11 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/pushBasedLogExport"
+            x-sunset: "2027-02-04"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/deleteGroupPushBasedLogExport
             x-xgen-operation-id-override: deleteLogExport
         get:
+            deprecated: true
             description: Fetches the current project level settings for the push-based log export feature.
             operationId: getGroupPushBasedLogExport
             parameters:
@@ -63974,12 +64006,14 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-08-05+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/pushBasedLogExport?pretty=true"
+            x-sunset: "2027-02-04"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/getGroupPushBasedLogExport
             x-xgen-method-verb-override:
                 customMethod: false
                 verb: get
             x-xgen-operation-id-override: getLogExport
         patch:
+            deprecated: true
             description: Updates the project level settings for the push-based log export feature.
             operationId: updateGroupPushBasedLogExport
             parameters:
@@ -64061,9 +64095,11 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/pushBasedLogExport" \
                       -d '{ <Payload> }'
+            x-sunset: "2027-02-04"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/updateGroupPushBasedLogExport
             x-xgen-operation-id-override: updateLogExport
         post:
+            deprecated: true
             description: Configures the project level settings for the push-based log export feature.
             operationId: createGroupPushBasedLogExport
             parameters:
@@ -64145,6 +64181,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/pushBasedLogExport" \
                       -d '{ <Payload> }'
+            x-sunset: "2027-02-04"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/createGroupPushBasedLogExport
             x-xgen-operation-id-override: createLogExport
     /api/atlas/v2/groups/{groupId}/sampleDatasetLoad/{name}:
