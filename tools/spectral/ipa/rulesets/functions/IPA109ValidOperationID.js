@@ -1,7 +1,19 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getCustomMethodName, isCustomMethodIdentifier, stripCustomMethodName } from './utils/resourceEvaluation.js';
-import { hasCustomMethodOverride, hasVerbOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
-import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
+import {
+  getCustomMethodName,
+  isCustomMethodIdentifier,
+  stripCustomMethodName,
+} from './utils/resourceEvaluation.js';
+import {
+  hasCustomMethodOverride,
+  VERB_OVERRIDE_EXTENSION,
+} from './utils/extensions.js';
+import {
+  validateOperationIdAndReturnErrors,
+} from './utils/validations/validateOperationIdAndReturnErrors.js';
 
 export default (input, { ignoreSingularizationList }, { path, rule }) => {
   const ruleName = rule.name;
@@ -19,7 +31,7 @@ export default (input, { ignoreSingularizationList }, { path, rule }) => {
       // Standard custom methods
       methodName = getCustomMethodName(resourcePath);
       endpointUrl = stripCustomMethodName(resourcePath);
-    } else if (hasVerbOverride(input)) {
+    } else if (hasCustomMethodOverride(input)) {
       // Legacy custom methods
       methodName = input[VERB_OVERRIDE_EXTENSION].verb;
       endpointUrl = resourcePath;
