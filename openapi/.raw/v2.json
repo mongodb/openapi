@@ -29204,6 +29204,26 @@
           "xgen-IPA-125-oneOf-must-have-discriminator": "Schema predates IPA validation."
         }
       },
+      "Header": {
+        "description": "HTTP header with name and value.",
+        "properties": {
+          "name": {
+            "description": "Header name.",
+            "example": "Authorization",
+            "type": "string"
+          },
+          "value": {
+            "description": "Header value.",
+            "example": "Bearer token123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object"
+      },
       "HipChatNotification": {
         "description": "HipChat notification configuration for MongoDB Cloud to send information when an event triggers an alert condition.",
         "properties": {
@@ -33564,6 +33584,7 @@
           "mapping": {
             "DATADOG_LOG_EXPORT": "#/components/schemas/DatadogLogIntegrationRequest",
             "GCS_LOG_EXPORT": "#/components/schemas/GcsLogIntegrationRequest",
+            "OTEL_LOG_EXPORT": "#/components/schemas/OtelLogIntegrationRequest",
             "S3_LOG_EXPORT": "#/components/schemas/S3LogIntegrationRequest"
           },
           "propertyName": "type"
@@ -33577,6 +33598,9 @@
           },
           {
             "$ref": "#/components/schemas/GcsLogIntegrationRequest"
+          },
+          {
+            "$ref": "#/components/schemas/OtelLogIntegrationRequest"
           }
         ],
         "properties": {
@@ -33598,7 +33622,8 @@
             "enum": [
               "S3_LOG_EXPORT",
               "DATADOG_LOG_EXPORT",
-              "GCS_LOG_EXPORT"
+              "GCS_LOG_EXPORT",
+              "OTEL_LOG_EXPORT"
             ],
             "type": "string"
           }
@@ -33615,6 +33640,7 @@
           "mapping": {
             "DATADOG_LOG_EXPORT": "#/components/schemas/DatadogLogIntegrationResponse",
             "GCS_LOG_EXPORT": "#/components/schemas/GcsLogIntegrationResponse",
+            "OTEL_LOG_EXPORT": "#/components/schemas/OtelLogIntegrationResponse",
             "S3_LOG_EXPORT": "#/components/schemas/S3LogIntegrationResponse"
           },
           "propertyName": "type"
@@ -33628,6 +33654,9 @@
           },
           {
             "$ref": "#/components/schemas/GcsLogIntegrationResponse"
+          },
+          {
+            "$ref": "#/components/schemas/OtelLogIntegrationResponse"
           }
         ],
         "properties": {
@@ -33654,7 +33683,8 @@
             "enum": [
               "S3_LOG_EXPORT",
               "DATADOG_LOG_EXPORT",
-              "GCS_LOG_EXPORT"
+              "GCS_LOG_EXPORT",
+              "OTEL_LOG_EXPORT"
             ],
             "type": "string"
           }
@@ -39953,6 +39983,78 @@
             "type": "boolean"
           }
         },
+        "type": "object"
+      },
+      "OtelLogIntegrationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationRequest"
+          },
+          {
+            "properties": {
+              "otelEndpoint": {
+                "description": "OpenTelemetry collector endpoint URL. Must be HTTPS and not exceed 2048 characters.",
+                "example": "https://otel-collector.example.com:4318/v1/logs",
+                "type": "string"
+              },
+              "otelSuppliedHeaders": {
+                "description": "HTTP headers for authentication and configuration. Maximum 10 headers, total size limit 2KB.",
+                "items": {
+                  "$ref": "#/components/schemas/Header"
+                },
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.",
+                "enum": [
+                  "OTEL_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Request schema for creating or updating an OpenTelemetry log export integration.",
+        "required": [
+          "otelEndpoint",
+          "type"
+        ],
+        "title": "OTel Log Export Integration Request",
+        "type": "object"
+      },
+      "OtelLogIntegrationResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationResponse"
+          },
+          {
+            "properties": {
+              "otelEndpoint": {
+                "description": "OpenTelemetry collector endpoint URL.",
+                "example": "https://otel-collector.example.com:4318/v1/logs",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.",
+                "enum": [
+                  "OTEL_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Details to integrate OpenTelemetry log export with one MongoDB Cloud project.",
+        "required": [
+          "id",
+          "otelEndpoint",
+          "type"
+        ],
+        "title": "OTel Log Export Integration Response",
         "type": "object"
       },
       "OutboundControlPlaneCloudProviderIPAddresses": {
@@ -49836,6 +49938,11 @@
             "description": "Human-readable label that identifies the stream connection. In the case of the Sample type, this is the name of the sample source.",
             "type": "string"
           },
+          "region": {
+            "description": "The connection's region.",
+            "readOnly": true,
+            "type": "string"
+          },
           "state": {
             "description": "The state of the connection.",
             "enum": [
@@ -55490,7 +55597,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "5f2321c3b733d37f9b1b54b489df091a10aeb3ad"
+    "x-xgen-sha": "834c7549dee290bb244eda3840f4c4aa0e95bf29"
   },
   "openapi": "3.0.1",
   "paths": {
