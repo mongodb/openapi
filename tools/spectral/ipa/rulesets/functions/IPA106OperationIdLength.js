@@ -1,16 +1,7 @@
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
-import {
-  hasCustomMethodOverride,
-  hasMethodVerbOverride,
-  VERB_OVERRIDE_EXTENSION,
-} from './utils/extensions.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import { hasCustomMethodOverride, hasMethodVerbOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
 import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
-import {
-  validateOperationIdLengthAndReturnErrors,
-} from './utils/validations/validateOperationIdAndReturnErrors.js';
+import { validateOperationIdLengthAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
 
 export default (input, { methodName, ignoreSingularizationList, maxLength }, { path, rule }) => {

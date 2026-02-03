@@ -4,11 +4,7 @@ import {
   numberOfWords,
   shortenOperationId,
 } from '../operationIdGeneration.js';
-import {
-  getOperationIdOverride,
-  hasOperationIdOverride,
-  OPERATION_ID_OVERRIDE_EXTENSION,
-} from '../extensions.js';
+import { getOperationIdOverride, hasOperationIdOverride, OPERATION_ID_OVERRIDE_EXTENSION } from '../extensions.js';
 
 const INVALID_OP_ID_ERROR_MESSAGE = 'Invalid OperationID.';
 
