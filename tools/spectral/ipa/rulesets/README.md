@@ -157,9 +157,10 @@ Rule checks for the following conditions:
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 ##### Configuration
-This rule includes two configuration options:
+This rule includes three configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `maxLength`: The maximum number of words allowed in the operation ID override (default: 4)
 
 #### xgen-IPA-104-operation-id-length
 
@@ -175,9 +176,10 @@ Rule checks for the following conditions:
   - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
 
 ##### Configuration
-This rule includes two configuration options:
+This rule includes three configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `maxLength`: The maximum number of words allowed in the operation ID (default: 4)
 
 
 
@@ -246,9 +248,10 @@ Rule checks for the following conditions:
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 ##### Configuration
-This rule includes two configuration options:
+This rule includes three configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `maxLength`: The maximum number of words allowed in the operation ID override (default: 4)
 
 #### xgen-IPA-105-operation-id-length
 
@@ -265,9 +268,10 @@ Rule checks for the following conditions:
   - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
 
 ##### Configuration
-This rule includes two configuration options:
+This rule includes three configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `maxLength`: The maximum number of words allowed in the operation ID (default: 4)
 
 
 
@@ -392,9 +396,10 @@ Rule checks for the following conditions:
   - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
 
 ##### Configuration
-This rule includes two configuration options:
+This rule includes three configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `maxLength`: The maximum number of words allowed in the operation ID (default: 4)
 
 
 
@@ -511,9 +516,10 @@ Rule checks for the following conditions:
   - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
 
 ##### Configuration
-This rule includes two configuration options:
+This rule includes three configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `maxLength`: The maximum number of words allowed in the operation ID (default: 4)
 
 
 
@@ -601,9 +607,10 @@ Rule checks for the following conditions:
   - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
 
 ##### Configuration
-This rule includes two configuration options:
+This rule includes three configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `maxLength`: The maximum number of words allowed in the operation ID (default: 4)
 
 
 
@@ -683,8 +690,9 @@ Rule checks for the following conditions:
   - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
 
 ##### Configuration
-This rule includes one configuration option:
+This rule includes two configuration options:
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+  - `maxLength`: The maximum number of words allowed in the operation ID (default: 4)
 
 
 
