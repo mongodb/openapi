@@ -4,6 +4,7 @@ import {
 } from './utils/collectionUtils.js';
 import {
   hasCustomMethodOverride,
+  hasVerbOverride,
   VERB_OVERRIDE_EXTENSION,
 } from './utils/extensions.js';
 import {
@@ -20,6 +21,10 @@ export default (input, { ignoreSingularizationList, maxLength }, { path, rule })
   const ruleName = rule.name;
   const resourcePath = path[1];
 
+  if (!isCustomMethodIdentifier(resourcePath) && !hasCustomMethodOverride(input)) {
+    return;
+  }
+
   let methodName;
   let endpointUrl = resourcePath;
 
@@ -28,8 +33,8 @@ export default (input, { ignoreSingularizationList, maxLength }, { path, rule })
       // Standard custom methods
       methodName = getCustomMethodName(resourcePath);
       endpointUrl = stripCustomMethodName(resourcePath);
-    } else if (hasCustomMethodOverride(input)) {
-      // Legacy custom methods (only those with customMethod: true)
+    } else if (hasVerbOverride(input)) {
+      // Legacy custom methods
       methodName = input[VERB_OVERRIDE_EXTENSION].verb;
       endpointUrl = resourcePath;
     } else {
