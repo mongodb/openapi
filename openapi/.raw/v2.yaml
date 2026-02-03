@@ -5908,6 +5908,80 @@ components:
                     type: string
             title: Azure Key Vault EAR Private Endpoint
             type: object
+        AzureLogIntegrationRequest:
+            allOf:
+                - $ref: '#/components/schemas/LogIntegrationRequest'
+                - properties:
+                    azureContainer:
+                        description: Azure Blob Storage container name for log files.
+                        example: mongodb-logs
+                        type: string
+                    azurePrefixPath:
+                        description: Blob path prefix for organizing log files within the container.
+                        example: logs/mongodb/
+                        type: string
+                    azureServicePrincipalId:
+                        description: Unique 24-character hexadecimal string that identifies the Azure Service Principal.
+                        example: 507f1f77bcf86cd799439011
+                        pattern: ^[a-fA-F0-9]{24}$
+                        type: string
+                    azureStorageAccountName:
+                        description: Azure Storage Account name where logs will be stored.
+                        example: mylogstorageaccount
+                        type: string
+                    type:
+                        description: Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.
+                        enum:
+                            - AZURE_LOG_EXPORT
+                        type: string
+                  type: object
+            description: Request schema for creating or updating an Azure Blob Storage log export integration.
+            required:
+                - azureContainer
+                - azurePrefixPath
+                - azureServicePrincipalId
+                - azureStorageAccountName
+                - logTypes
+                - type
+            title: Azure Log Export Integration Request
+            type: object
+        AzureLogIntegrationResponse:
+            allOf:
+                - $ref: '#/components/schemas/LogIntegrationResponse'
+                - properties:
+                    azureContainer:
+                        description: Azure Blob Storage container name for log files.
+                        example: mongodb-logs
+                        type: string
+                    azurePrefixPath:
+                        description: Blob path prefix for organizing log files within the container.
+                        example: logs/mongodb/
+                        type: string
+                    azureServicePrincipalId:
+                        description: Unique 24-character hexadecimal string that identifies the Azure Service Principal.
+                        example: 507f1f77bcf86cd799439011
+                        pattern: ^[a-f0-9]{24}$
+                        type: string
+                    azureStorageAccountName:
+                        description: Azure Storage Account name where logs will be stored.
+                        example: mylogstorageaccount
+                        type: string
+                    type:
+                        description: Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.
+                        enum:
+                            - AZURE_LOG_EXPORT
+                        type: string
+                  type: object
+            description: Details to integrate Azure Blob Storage log export with one MongoDB Cloud project.
+            required:
+                - azureContainer
+                - azurePrefixPath
+                - azureServicePrincipalId
+                - azureStorageAccountName
+                - id
+                - type
+            title: Azure Log Export Integration Response
+            type: object
         AzureNetworkPeeringConnectionSettings:
             description: Group of Network Peering connection settings.
             properties:
@@ -13972,6 +14046,7 @@ components:
             description: Request schema for creating or updating a Datadog log export integration.
             required:
                 - apiKey
+                - logTypes
                 - region
                 - type
             title: Datadog Log Export Integration Request
@@ -21801,6 +21876,7 @@ components:
                 - gcsBucketName
                 - gcsPrefixPath
                 - gcsRoleId
+                - logTypes
                 - type
             title: GCS Log Export Integration Request
             type: object
@@ -26455,6 +26531,7 @@ components:
             description: Request schema for creating or updating a log integration.
             discriminator:
                 mapping:
+                    AZURE_LOG_EXPORT: '#/components/schemas/AzureLogIntegrationRequest'
                     DATADOG_LOG_EXPORT: '#/components/schemas/DatadogLogIntegrationRequest'
                     GCS_LOG_EXPORT: '#/components/schemas/GcsLogIntegrationRequest'
                     OTEL_LOG_EXPORT: '#/components/schemas/OtelLogIntegrationRequest'
@@ -26467,6 +26544,7 @@ components:
                 - $ref: '#/components/schemas/GcsLogIntegrationRequest'
                 - $ref: '#/components/schemas/OtelLogIntegrationRequest'
                 - $ref: '#/components/schemas/SplunkLogIntegrationRequest'
+                - $ref: '#/components/schemas/AzureLogIntegrationRequest'
             properties:
                 logTypes:
                     description: Array of log types exported by this integration. The specific log types available and maximum number of items depend on the integration type. See the integration-specific schema for details.
@@ -26486,8 +26564,10 @@ components:
                         - GCS_LOG_EXPORT
                         - OTEL_LOG_EXPORT
                         - SPLUNK_LOG_EXPORT
+                        - AZURE_LOG_EXPORT
                     type: string
             required:
+                - logTypes
                 - type
             title: Log Export Integration Request
             type: object
@@ -26495,6 +26575,7 @@ components:
             description: Response schema for log integration operations.
             discriminator:
                 mapping:
+                    AZURE_LOG_EXPORT: '#/components/schemas/AzureLogIntegrationResponse'
                     DATADOG_LOG_EXPORT: '#/components/schemas/DatadogLogIntegrationResponse'
                     GCS_LOG_EXPORT: '#/components/schemas/GcsLogIntegrationResponse'
                     OTEL_LOG_EXPORT: '#/components/schemas/OtelLogIntegrationResponse'
@@ -26507,6 +26588,7 @@ components:
                 - $ref: '#/components/schemas/GcsLogIntegrationResponse'
                 - $ref: '#/components/schemas/OtelLogIntegrationResponse'
                 - $ref: '#/components/schemas/SplunkLogIntegrationResponse'
+                - $ref: '#/components/schemas/AzureLogIntegrationResponse'
             properties:
                 id:
                     description: Unique 24-character hexadecimal digit string that identifies the log integration configuration.
@@ -26530,6 +26612,7 @@ components:
                         - GCS_LOG_EXPORT
                         - OTEL_LOG_EXPORT
                         - SPLUNK_LOG_EXPORT
+                        - AZURE_LOG_EXPORT
                     type: string
             required:
                 - id
@@ -31436,6 +31519,7 @@ components:
                   type: object
             description: Request schema for creating or updating an OpenTelemetry log export integration.
             required:
+                - logTypes
                 - otelEndpoint
                 - type
             title: OTel Log Export Integration Request
@@ -35705,6 +35789,7 @@ components:
             required:
                 - bucketName
                 - iamRoleId
+                - logTypes
                 - prefixPath
                 - type
             title: S3 Log Export Integration Request
@@ -38530,6 +38615,7 @@ components:
                   type: object
             description: Request schema for creating or updating a Splunk log export integration.
             required:
+                - logTypes
                 - splunkHecToken
                 - splunkHecUrl
                 - type
@@ -43570,7 +43656,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 7793d785fa383dc223a542e77c16c4250de9de1c
+    x-xgen-sha: 058b9e9a17b2fbd850d0fa86ed98605cb41cb323
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -45412,7 +45498,7 @@ paths:
             x-xgen-owner-team: CAP
         post:
             description: |-
-                Creates one alert configuration for the specified project. Alert configurations define the triggers and notification methods for alerts. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+                Creates one alert configuration for the specified project. Alert configurations define the triggers and notification methods for alerts. To use this resource, the requesting Service Account or API Key must have the Project Alerts Manager, Project Monitoring Admin, Organization Owner, or Project Owner role.
 
                 This resource remains under revision and may change.
             operationId: createGroupAlertConfig
@@ -45459,7 +45545,7 @@ paths:
     /api/atlas/v2/groups/{groupId}/alertConfigs/{alertConfigId}:
         delete:
             description: |-
-                Removes one alert configuration from the specified project. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Use the Return All Alert Configurations for One Project endpoint to retrieve all alert configurations to which the authenticated user has access.
+                Removes one alert configuration from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Alerts Manager, Project Monitoring Admin, Organization Owner, or Project Owner role. Use the Return All Alert Configurations for One Project endpoint to retrieve all alert configurations to which the authenticated user has access.
 
                 This resource remains under revision and may change.
             externalDocs:
@@ -45545,7 +45631,7 @@ paths:
             x-xgen-owner-team: CAP
         patch:
             description: |-
-                Enables or disables the specified alert configuration in the specified project. The resource enables the specified alert configuration if currently enabled. The resource disables the specified alert configuration if currently disabled. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+                Enables or disables the specified alert configuration in the specified project. The resource enables the specified alert configuration if currently enabled. The resource disables the specified alert configuration if currently disabled. To use this resource, the requesting Service Account or API Key must have the Project Alerts Manager, Project Monitoring Admin, Organization Owner, or Project Owner role.
 
                 **NOTE**: This endpoint updates only the enabled/disabled state for the alert configuration. To update more than just this configuration, see Update One Alert Configuration.
 
@@ -45602,7 +45688,7 @@ paths:
             x-xgen-owner-team: CAP
         put:
             description: |-
-                Updates one alert configuration in the specified project. Alert configurations define the triggers and notification methods for alerts. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+                Updates one alert configuration in the specified project. Alert configurations define the triggers and notification methods for alerts. To use this resource, the requesting Service Account or API Key must have the Project Alerts Manager, Project Monitoring Admin, Organization Owner, or Project Owner role.
 
                 **NOTE**: To enable or disable the alert configuration, see Toggle One State of One Alert Configuration in One Project.
 
@@ -45803,7 +45889,7 @@ paths:
             x-xgen-owner-team: CAP
         patch:
             description: |-
-                Confirms receipt of one existing alert. This alert applies to any component in one project. Acknowledging an alert prevents successive notifications. You receive an alert when a monitored component meets or exceeds a value you set until you acknowledge the alert. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role. Use the Return All Alerts from One Project endpoint to retrieve all alerts to which the  authenticated user has access.
+                Confirms receipt of one existing alert. This alert applies to any component in one project. Acknowledging an alert prevents successive notifications. You receive an alert when a monitored component meets or exceeds a value you set until you acknowledge the alert. To use this resource, the requesting Service Account or API Key must have the Project Alerts Manager, Project Monitoring Admin, Organization Owner, or Project Owner role. Use the Return All Alerts from One Project endpoint to retrieve all alerts to which the authenticated user has access.
 
                 This resource remains under revision and may change.
             externalDocs:
