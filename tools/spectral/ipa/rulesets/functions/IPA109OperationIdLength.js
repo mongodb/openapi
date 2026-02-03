@@ -1,10 +1,22 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { hasCustomMethodOverride, VERB_OVERRIDE_EXTENSION } from './utils/extensions.js';
-import { getCustomMethodName, isCustomMethodIdentifier, stripCustomMethodName } from './utils/resourceEvaluation.js';
-import { validateOperationIdLengthAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  handleInternalError,
+} from './utils/collectionUtils.js';
+import {
+  hasCustomMethodOverride,
+  VERB_OVERRIDE_EXTENSION,
+} from './utils/extensions.js';
+import {
+  getCustomMethodName,
+  isCustomMethodIdentifier,
+  stripCustomMethodName,
+} from './utils/resourceEvaluation.js';
+import {
+  validateOperationIdLengthAndReturnErrors,
+} from './utils/validations/validateOperationIdAndReturnErrors.js';
 import { generateOperationID } from './utils/operationIdGeneration.js';
 
-export default (input, { ignoreSingularizationList }, { path, rule }) => {
+export default (input, { ignoreSingularizationList, maxLength }, { path, rule }) => {
   const ruleName = rule.name;
   const resourcePath = path[1];
 
@@ -25,7 +37,7 @@ export default (input, { ignoreSingularizationList }, { path, rule }) => {
     }
 
     const expectedOperationId = generateOperationID(methodName, endpointUrl, ignoreSingularizationList);
-    const errors = validateOperationIdLengthAndReturnErrors(input, path, expectedOperationId);
+    const errors = validateOperationIdLengthAndReturnErrors(input, path, expectedOperationId, maxLength);
     return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
   } catch (e) {
     return handleInternalError(ruleName, path, e);

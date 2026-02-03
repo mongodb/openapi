@@ -4,31 +4,36 @@ import {
   numberOfWords,
   shortenOperationId,
 } from '../operationIdGeneration.js';
-import { getOperationIdOverride, hasOperationIdOverride, OPERATION_ID_OVERRIDE_EXTENSION } from '../extensions.js';
+import {
+  getOperationIdOverride,
+  hasOperationIdOverride,
+  OPERATION_ID_OVERRIDE_EXTENSION,
+} from '../extensions.js';
 
 const INVALID_OP_ID_ERROR_MESSAGE = 'Invalid OperationID.';
-const TOO_LONG_OP_ID_ERROR_MESSAGE =
-  "The Operation ID is longer than 4 words. Please add an '" +
-  OPERATION_ID_OVERRIDE_EXTENSION +
-  "' extension to the operation with a shorter operation ID.";
 
 /**
- * Validates the length of an operationId and returns errors if it is longer than 4 words without an override.
+ * Validates the length of an operationId and returns errors if it is longer than the specified maximum without an override.
  *
  * @param operationObject the operation object to validate, which should contain the operationId and optionally the x-xgen-operation-id-override extension.
  * @param path the path to the operation object being evaluated, used for error reporting with Spectral.
  * @param expectedOperationId the expected IPA-compliant operation ID (used for generating example shortened ID).
+ * @param maxLength the maximum number of words allowed in the operation ID (default: 4).
  * @returns {[{path: string[], message: string}]} an array of error objects, each containing a path and a message, or an empty array if no errors are found.
  */
-export function validateOperationIdLengthAndReturnErrors(operationObject, path, expectedOperationId) {
+export function validateOperationIdLengthAndReturnErrors(operationObject, path, expectedOperationId, maxLength = 4) {
   const operationId = operationObject.operationId;
   const operationIdPath = path.concat(['operationId']);
 
   const errors = [];
-  if (numberOfWords(operationId) > 4 && !hasOperationIdOverride(operationObject)) {
+  if (numberOfWords(operationId) > maxLength && !hasOperationIdOverride(operationObject)) {
+    const tooLongOpIdErrorMessage =
+      `The Operation ID is longer than ${maxLength} words. Please add an '` +
+      OPERATION_ID_OVERRIDE_EXTENSION +
+      "' extension to the operation with a shorter operation ID.";
     errors.push({
       path: operationIdPath,
-      message: TOO_LONG_OP_ID_ERROR_MESSAGE + " For example: '" + shortenOperationId(expectedOperationId) + "'.",
+      message: tooLongOpIdErrorMessage + " For example: '" + shortenOperationId(expectedOperationId) + "'.",
     });
   }
 
@@ -43,6 +48,7 @@ export function validateOperationIdLengthAndReturnErrors(operationObject, path, 
  * @param operationObject the operation object to validate, which should contain the operationId and optionally the x-xgen-operation-id-override extension.
  * @param path the path to the operation object being evaluated, used for error reporting with Spectral.
  * @param ignoreSingularizationList an array of nouns to ignore when singularizing resource names.
+ * @param maxLength the maximum number of words allowed in the operation ID (default: 4).
  * @returns {[{path: string[], message: string}]} an array of error objects, each containing a path and a message, or an empty array if no errors are found.
  */
 export function validateOperationIdAndReturnErrors(
@@ -50,7 +56,8 @@ export function validateOperationIdAndReturnErrors(
   resourcePath,
   operationObject,
   path,
-  ignoreSingularizationList
+  ignoreSingularizationList,
+  maxLength
 ) {
   const operationId = operationObject.operationId;
   const expectedOperationId = generateOperationID(methodName, resourcePath, ignoreSingularizationList);
@@ -70,7 +77,8 @@ export function validateOperationIdAndReturnErrors(
     const overrideErrors = validateOperationIdOverride(
       operationIdOverridePath,
       getOperationIdOverride(operationObject),
-      expectedOperationId
+      expectedOperationId,
+      maxLength
     );
     errors.push(...overrideErrors);
   }
@@ -78,7 +86,7 @@ export function validateOperationIdAndReturnErrors(
   return errors;
 }
 
-function validateOperationIdOverride(operationIdOverridePath, override, expectedOperationId) {
+function validateOperationIdOverride(operationIdOverridePath, override, expectedOperationId, maxLength = 4) {
   const expectedVerb = expectedOperationId.match(CAMEL_CASE_WITH_ABBREVIATIONS)[0];
   const errors = [];
   if (!override.startsWith(expectedVerb)) {
@@ -88,10 +96,10 @@ function validateOperationIdOverride(operationIdOverridePath, override, expected
     });
   }
 
-  if (numberOfWords(override) > 4) {
+  if (numberOfWords(override) > maxLength) {
     errors.push({
       path: operationIdOverridePath,
-      message: `The operation ID override is longer than 4 words. Please shorten it.`,
+      message: `The operation ID override is longer than ${maxLength} words. Please shorten it.`,
     });
   }
 
