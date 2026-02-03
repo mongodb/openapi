@@ -1,5 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
-import { validateOperationIdAndReturnErrors } from '../../../rulesets/functions/utils/validations/validateOperationIdAndReturnErrors.js';
+import {
+  validateOperationIdAndReturnErrors,
+  validateOperationIdLengthAndReturnErrors,
+} from '../../../rulesets/functions/utils/validations/validateOperationIdAndReturnErrors.js';
 
 describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperationIdAndReturnErrors.js', () => {
   it('should return no errors for valid operation ID', () => {
@@ -252,7 +255,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
     ]);
   });
 
-  it('should return errors for too long operation ID without override', () => {
+  it('should return no errors for long operation ID without override', () => {
     expect(
       validateOperationIdAndReturnErrors(
         'create',
@@ -262,13 +265,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
         },
         ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post']
       )
-    ).toEqual([
-      {
-        path: ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post', 'operationId'],
-        message:
-          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. For example: 'createLongChildResource'.",
-      },
-    ]);
+    ).toHaveLength(0);
   });
 
   it('should return errors for operation ID override with wrong verb', () => {
@@ -295,7 +292,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
     ]);
   });
 
-  it('should return errors for too long operation ID override', () => {
+  it('should NOT return errors for too long operation ID override (length is checked by validateOperationIdLengthAndReturnErrors)', () => {
     expect(
       validateOperationIdAndReturnErrors(
         'get',
@@ -306,17 +303,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
         },
         ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'get']
       )
-    ).toEqual([
-      {
-        path: [
-          'paths',
-          '/some/{id}/resource/{resourceId}/long/{id}/childResource',
-          'get',
-          'x-xgen-operation-id-override',
-        ],
-        message: 'The operation ID override is longer than 4 words. Please shorten it.',
-      },
-    ]);
+    ).toEqual([]);
   });
 
   it('should return errors for operation ID override with invalid nouns', () => {
@@ -368,7 +355,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
     ]);
   });
 
-  it('should return all override errors for invalid operation ID override', () => {
+  it('should return all override format errors for invalid operation ID override (but not length)', () => {
     const errors = validateOperationIdAndReturnErrors(
       'get',
       '/some/{id}/resource/{resourceId}/long/{id}/childResource',
@@ -378,7 +365,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
       },
       ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'get']
     );
-    expect(errors).toHaveLength(4);
+    expect(errors).toHaveLength(3); // Length error is not included (checked by validateOperationIdLengthAndReturnErrors)
     errors.forEach((error) => {
       expect(error.path).toEqual([
         'paths',
@@ -388,10 +375,97 @@ describe('tools/spectral/ipa/rulesets/functions/utils/validations/validateOperat
       ]);
     });
     expect(errors[0].message).toEqual("The operation ID override must start with the verb 'get'.");
-    expect(errors[1].message).toEqual('The operation ID override is longer than 4 words. Please shorten it.');
-    expect(errors[2].message).toEqual(
+    expect(errors[1].message).toEqual(
       "The operation ID override must only contain nouns from the operation ID 'getSomeResourceLongChildResource'."
     );
-    expect(errors[3].message).toEqual("The operation ID override must end with the noun 'Resource'.");
+    expect(errors[2].message).toEqual("The operation ID override must end with the noun 'Resource'.");
+  });
+});
+
+describe('validateOperationIdLengthAndReturnErrors', () => {
+  it('should return no errors for operation ID with 4 words or less', () => {
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'getResource',
+        },
+        ['paths', '/resource', 'get'],
+        'getResource'
+      )
+    ).toHaveLength(0);
+
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'getSomeResource',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}', 'get'],
+        'getSomeResource'
+      )
+    ).toHaveLength(0);
+
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'createSomeResourceChild',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}/child', 'post'],
+        'createSomeResourceChild'
+      )
+    ).toHaveLength(0);
+  });
+
+  it('should return errors for operation ID longer than 4 words without override', () => {
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'createSomeResourceLongChildResource',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post'],
+        'createSomeResourceLongChildResource'
+      )
+    ).toEqual([
+      {
+        path: ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post', 'operationId'],
+        message:
+          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. For example: 'createLongChildResource'.",
+      },
+    ]);
+  });
+
+  it('should return no errors for operation ID longer than 4 words with short override', () => {
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'createSomeResourceLongChildResource',
+          'x-xgen-operation-id-override': 'createLongChildResource',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post'],
+        'createSomeResourceLongChildResource'
+      )
+    ).toHaveLength(0);
+  });
+
+  it('should return errors for operation ID longer than 4 words with long override', () => {
+    expect(
+      validateOperationIdLengthAndReturnErrors(
+        {
+          operationId: 'createSomeResourceLongChildResource',
+          'x-xgen-operation-id-override': 'createSomeResourceLongChildResource',
+        },
+        ['paths', '/some/{id}/resource/{resourceId}/long/{id}/childResource', 'post'],
+        'createSomeResourceLongChildResource'
+      )
+    ).toEqual([
+      {
+        path: [
+          'paths',
+          '/some/{id}/resource/{resourceId}/long/{id}/childResource',
+          'post',
+          'x-xgen-operation-id-override',
+        ],
+        message: 'The operation ID override is longer than 4 words. Please shorten it.',
+      },
+    ]);
   });
 });

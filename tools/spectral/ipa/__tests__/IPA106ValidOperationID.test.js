@@ -65,13 +65,6 @@ testRule('xgen-IPA-106-valid-operation-id', [
         path: ['paths', '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList', 'post', 'operationId'],
         severity: DiagnosticSeverity.Error,
       },
-      {
-        code: 'xgen-IPA-106-valid-operation-id',
-        message:
-          "The Operation ID is longer than 4 words. Please add an 'x-xgen-operation-id-override' extension to the operation with a shorter operation ID. ",
-        path: ['paths', '/api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList', 'post', 'operationId'],
-        severity: DiagnosticSeverity.Error,
-      },
     ],
   },
   {
@@ -101,17 +94,7 @@ testRule('xgen-IPA-106-valid-operation-id', [
       },
     },
     errors: [
-      {
-        code: 'xgen-IPA-106-valid-operation-id',
-        message: 'The operation ID override is longer than 4 words. Please shorten it. ',
-        path: [
-          'paths',
-          '/api/atlas/v2/federationSettings/{federationSettingsId}/connectedOrgConfigs/{orgId}/roleMappings',
-          'post',
-          'x-xgen-operation-id-override',
-        ],
-        severity: DiagnosticSeverity.Error,
-      },
+      // Note: Override length error is now checked by xgen-IPA-106-operation-id-length rule, not this rule
       {
         code: 'xgen-IPA-106-valid-operation-id',
         message:

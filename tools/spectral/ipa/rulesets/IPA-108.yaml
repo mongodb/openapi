@@ -93,6 +93,33 @@ rules:
         methodName: 'delete'
         ignoreSingularizationList:
           - 'Fts'
+  xgen-IPA-108-operation-id-length:
+    description: |
+      The Operation ID should not be longer than 4 words. If the generated operation ID exceeds 4 words,
+      add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to DELETE methods that are not [custom methods](https://mongodb.github.io/ipa/109)
+        - Verifies that the operation ID is not longer than 4 words
+        - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
+        - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
+
+      ##### Configuration
+      This rule includes three configuration options:
+        - `methodName`: The verb to be used in the OperationIds
+        - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+        - `maxLength`: The maximum number of words allowed in the operation ID (default: 4)
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-108-operation-id-length'
+    severity: error
+    given: '#DeleteOperationObject'
+    then:
+      function: 'IPA108OperationIdLength'
+      functionOptions:
+        methodName: 'delete'
+        ignoreSingularizationList:
+          - 'Fts'
+        maxLength: 4
 
 functions:
   - IPA108DeleteMethodResponseShouldNotHaveSchema
@@ -100,3 +127,4 @@ functions:
   - IPA108DeleteMethodNoRequestBody
   - IPA108ReadOnlyResourceShouldNotHaveDeleteMethod
   - IPA108ValidOperationID
+  - IPA108OperationIdLength
