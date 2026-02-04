@@ -3,13 +3,6 @@ import { isResetMethod } from './utils/resourceEvaluation.js';
 
 const ERROR_MESSAGE = 'The :reset custom method must not have a request body.';
 
-/**
- * Reset method should not have a request body
- *
- * @param {object} input - The reset operation object
- * @param {object} _ - Unused
- * @param {object} context - The context object containing the path
- */
 export default (input, _, { path, rule }) => {
   const ruleName = rule.name;
   const pathString = path[1]; // e.g., ['paths', '/resource/{id}/singleton:reset', 'post']

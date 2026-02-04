@@ -6,13 +6,6 @@ import { getGETMethodResponseSchemaFromPathItem, getSchemaRef } from './utils/me
 const ERROR_MESSAGE =
   'The schema in the :reset method response must be the same schema as the response of the Get method.';
 
-/**
- * Reset method responses should reference the same schema as the Get method.
- *
- * @param {string} input - A reset operation 200 response content version
- * @param {object} _ - Unused
- * @param {{ path: string[], documentInventory: object, rule: object }} context - The context object containing the path, document, and rule
- */
 export default (input, _, { path, documentInventory, rule }) => {
   const ruleName = rule.name;
   const oas = documentInventory.unresolved;

@@ -5,13 +5,6 @@ import { checkResponseCodeAndReturnErrors } from './utils/validations/checkRespo
 const ERROR_MESSAGE =
   'The :reset custom method must return a 200 OK response with the reset resource in the response body. This method either lacks a 200 OK response or defines a different 2xx status code.';
 
-/**
- * Reset method must return 200 OK response code with response body
- *
- * @param {object} input - The reset operation object
- * @param {object} _ - Unused
- * @param {object} context - The context object containing the path
- */
 export default (input, _, { path, rule }) => {
   const ruleName = rule.name;
   const pathString = path[1];

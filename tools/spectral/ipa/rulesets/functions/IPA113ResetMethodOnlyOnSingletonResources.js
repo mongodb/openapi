@@ -9,13 +9,6 @@ import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/c
 
 const ERROR_MESSAGE = 'The :reset custom method must only be defined on singleton resources.';
 
-/**
- * Reset method must only be defined on singleton resources
- *
- * @param {object} input - The path item object
- * @param {object} _ - Unused
- * @param {object} context - The context object containing the path
- */
 export default (input, _, { path, documentInventory, rule }) => {
   const ruleName = rule.name;
   const oas = documentInventory.resolved;
