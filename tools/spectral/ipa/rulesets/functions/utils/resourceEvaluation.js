@@ -63,6 +63,17 @@ export function stripCustomMethodName(path) {
   return path.substring(0, path.indexOf(':'));
 }
 
+/**
+ * Checks if a path represents a :reset custom method.
+ * For example: '/resource/{id}/singleton:reset' returns true
+ *
+ * @param {string} path the path to evaluate
+ * @returns {boolean} true if the path is a :reset custom method, false otherwise
+ */
+export function isResetMethod(path) {
+  return isCustomMethodIdentifier(path) && getCustomMethodName(path) === 'reset';
+}
+
 export function isPathParam(string) {
   return string.startsWith('{') && string.endsWith('}');
 }
@@ -81,10 +92,18 @@ export function isSingletonResource(resourcePathItems) {
     return false;
   }
 
-  if (resourcePaths.length === 1) {
-    return resourceBelongsToSingleParent(resourcePaths[0]) && !hasPostMethod(resourcePathItems[resourcePaths[0]]);
+  const collectionPath = collectionIdentifier[0];
+
+  if (!resourceBelongsToSingleParent(collectionPath) || hasPostMethod(resourcePathItems[collectionPath])) {
+    return false;
   }
-  const additionalPaths = resourcePaths.splice(resourcePaths.indexOf(collectionIdentifier[0]), 1);
+
+  if (resourcePaths.length === 1) {
+    return true;
+  }
+
+  // If there are multiple paths, all additional paths must be custom methods
+  const additionalPaths = resourcePaths.filter(p => p !== collectionPath);
   return additionalPaths.every(isCustomMethodIdentifier);
 }
 

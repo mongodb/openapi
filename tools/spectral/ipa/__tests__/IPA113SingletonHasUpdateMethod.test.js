@@ -176,4 +176,53 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
       },
     ],
   },
+  {
+    name: 'valid singleton with custom methods',
+    document: {
+      paths: {
+        '/resource/{exampleId}/singleton': {
+          get: {},
+          patch: {},
+        },
+        '/resource/{exampleId}/singleton:reset': {
+          post: {
+            operationId: 'resetSingleton',
+            responses: { 200: {} },
+          },
+        },
+        '/resource/{exampleId}/singleton:customAction': {
+          post: {
+            operationId: 'customActionSingleton',
+            responses: { 200: {} },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid singleton with custom methods but no update method',
+    document: {
+      paths: {
+        '/resource/{exampleId}/singleton': {
+          get: {},
+        },
+        '/resource/{exampleId}/singleton:reset': {
+          post: {
+            operationId: 'resetSingleton',
+            responses: { 200: {} },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-113-singleton-should-have-update-method',
+        message:
+          'Singleton resources should define the Update method. If this is not a singleton resource, please implement all CRUDL methods.',
+        path: ['paths', '/resource/{exampleId}/singleton'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
 ]);

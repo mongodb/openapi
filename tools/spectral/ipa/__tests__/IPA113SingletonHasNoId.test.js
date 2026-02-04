@@ -211,4 +211,80 @@ testRule('xgen-IPA-113-singleton-must-not-have-id', [
     },
     errors: [],
   },
+  {
+    name: 'valid singleton with custom methods and no id',
+    document: {
+      paths: {
+        '/resource/{exampleId}/singleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        status: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          patch: {},
+        },
+        '/resource/{exampleId}/singleton:reset': {
+          post: {
+            operationId: 'resetSingleton',
+            responses: { 200: {} },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid singleton with custom methods but has id',
+    document: {
+      paths: {
+        '/resource/{exampleId}/singleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        name: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          patch: {},
+        },
+        '/resource/{exampleId}/singleton:reset': {
+          post: {
+            operationId: 'resetSingleton',
+            responses: { 200: {} },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-113-singleton-must-not-have-id',
+        message:
+          'Singleton resources must not have a user-provided or system-generated ID.',
+        path: ['paths', '/resource/{exampleId}/singleton'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
 ]);
