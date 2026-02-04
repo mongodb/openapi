@@ -726,7 +726,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-singleton-should-have-update-method
 
- ![error](https://img.shields.io/badge/error-red)
+ ![error](https://img.shields.io/badge/error-red) 
 Singleton resources should define the Update method. Validation for the presence of Get method is covered by IPA-104 (see [xgen-IPA-104-resource-has-GET](https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-104-resource-has-GET)).
 
 ##### Implementation details
@@ -737,7 +737,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-must-use-POST
 
- ![error](https://img.shields.io/badge/error-red)
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The :reset custom method must use the POST HTTP method.
 
 ##### Implementation details
@@ -749,7 +749,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-must-not-have-request-body
 
- ![error](https://img.shields.io/badge/error-red)
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The :reset custom method must not have a request body.
 
 ##### Implementation details
@@ -760,7 +760,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-must-return-200-OK
 
- ![error](https://img.shields.io/badge/error-red)
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The :reset custom method must return a 200 OK response with the reset resource in the response body.
 
 ##### Implementation details
@@ -772,7 +772,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-response-is-get-method-response
 
- ![error](https://img.shields.io/badge/error-red)
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The :reset custom method response must match the GET method response schema.
 
 ##### Implementation details
@@ -785,7 +785,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-only-on-singleton-resources
 
- ![error](https://img.shields.io/badge/error-red)
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The :reset custom method must only be defined on singleton resources.
 
 ##### Implementation details
@@ -797,7 +797,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-not-on-readonly-singleton
 
- ![error](https://img.shields.io/badge/error-red)
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Read-only singleton resources must not define a :reset custom method.
 
 ##### Implementation details
@@ -809,7 +809,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-valid-operation-id
 
- ![error](https://img.shields.io/badge/error-red)
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 The :reset custom method must have a valid operation ID.
 
 ##### Implementation details
