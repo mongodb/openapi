@@ -2,8 +2,18 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [9.1.1](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v9.1.0...9.1.1)
+#### [10.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v9.1.1...10.0.0)
 
+- feat(ipa): Support reset custom method for singletons [`#1122`](https://github.com/mongodb/openapi/pull/1122)
+- chore(ipa): bump @stoplight/spectral-core from 1.20.0 to 1.21.0 in /tools/spectral/ipa [`#1121`](https://github.com/mongodb/openapi/pull/1121)
+- fix(ipa): Separate the word-count validation for Operation IDs [`#1114`](https://github.com/mongodb/openapi/pull/1114)
+- chore(ipa): bump lodash from 4.17.21 to 4.17.23 in /tools/spectral/ipa [`#1111`](https://github.com/mongodb/openapi/pull/1111)
+
+#### [ipa-validation-ruleset-v9.1.1](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v9.1.0...ipa-validation-ruleset-v9.1.1)
+
+> 15 January 2026
+
+- fix(ipa): Add AI to tags ignore list [`#1093`](https://github.com/mongodb/openapi/pull/1093)
 - chore(ipa): remove temp overrides [`#1088`](https://github.com/mongodb/openapi/pull/1088)
 
 #### [ipa-validation-ruleset-v9.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v9.0.0...ipa-validation-ruleset-v9.1.0)
