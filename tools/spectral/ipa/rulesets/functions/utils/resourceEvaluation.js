@@ -103,7 +103,7 @@ export function isSingletonResource(resourcePathItems) {
   }
 
   // If there are multiple paths, all additional paths must be custom methods
-  const additionalPaths = resourcePaths.filter(p => p !== collectionPath);
+  const additionalPaths = resourcePaths.filter((p) => p !== collectionPath);
   return additionalPaths.every(isCustomMethodIdentifier);
 }
 

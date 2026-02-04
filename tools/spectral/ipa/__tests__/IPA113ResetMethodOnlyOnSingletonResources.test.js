@@ -36,8 +36,7 @@ testRule('xgen-IPA-113-reset-method-only-on-singleton-resources', [
     errors: [
       {
         code: 'xgen-IPA-113-reset-method-only-on-singleton-resources',
-        message:
-          'The :reset custom method must only be defined on singleton resources.',
+        message: 'The :reset custom method must only be defined on singleton resources.',
         path: ['paths', '/resource:reset'],
         severity: DiagnosticSeverity.Warning,
       },

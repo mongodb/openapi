@@ -5,13 +5,9 @@ import {
   isSingletonResource,
   stripCustomMethodName,
 } from './utils/resourceEvaluation.js';
-import {
-  evaluateAndCollectAdoptionStatus,
-  handleInternalError,
-} from './utils/collectionUtils.js';
+import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 
-const ERROR_MESSAGE =
-  'The :reset custom method must only be defined on singleton resources.';
+const ERROR_MESSAGE = 'The :reset custom method must only be defined on singleton resources.';
 
 /**
  * Reset method must only be defined on singleton resources
