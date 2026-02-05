@@ -45,18 +45,19 @@ ${VIOLATION_DETAILS}
 Total violations: ${WARNING_COUNT}"
 
 echo "Jira ticket does not exist. Creating..."
-# Create new Jira ticket with properly escaped JSON
+# Create new Jira ticket with properly escaped JSON (matching create_jira_ticket.sh format)
 TICKET_PAYLOAD=$(jq -n \
   --arg summary "Warning-level IPA violations found" \
   --arg description "$DESCRIPTION" \
   --arg teamId "$TEAM_ID" \
   '{
     fields: {
-      project: {key: "CLOUDP"},
+      project: {id: "10984"},
       summary: $summary,
       description: $description,
-      issuetype: {name: "Task"},
-      assignee: {id: $teamId}
+      issuetype: {id: "12"},
+      customfield_12751: [{id: $teamId}],
+      components: [{id: "35986"}]
     }
   }')
 
@@ -91,10 +92,6 @@ See Jira ticket for details: https://jira.mongodb.org/browse/${TICKET_KEY}"
     https://slack.com/api/chat.postMessage
 else
   echo "Failed to create Jira ticket"
-  echo "HTTP Status: ${HTTP_STATUS}"
-  echo "Response body: ${TICKET_BODY}"
-
-  # Try to extract error message from Jira response
   ERROR_MESSAGES=$(echo "${TICKET_BODY}" | jq -r '.errorMessages[]? // .errors? // "No error details available"' 2>/dev/null || echo "Could not parse error response")
   echo "Error details: ${ERROR_MESSAGES}"
   exit 1
