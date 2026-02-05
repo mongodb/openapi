@@ -22,7 +22,7 @@ fi
 
 # Check if warning ticket already exists
 echo "Check if a jira ticket already exists."
-JQL_QUERY="project=CLOUDP AND summary~'Warning-level IPA violations' AND status!=Done"
+JQL_QUERY="project=CLOUDP AND summary~'Warning-level IPA violations' AND status NOT IN (Done, Resolved, Closed)"
 EXISTING_TICKET=$(curl -G -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
   --data-urlencode "jql=${JQL_QUERY}" \
   "https://jira.mongodb.org/rest/api/2/search" \
