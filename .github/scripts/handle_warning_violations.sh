@@ -86,10 +86,28 @@ if [ -n "${TICKET_KEY}" ] && [ "${TICKET_KEY}" != "null" ]; then
 
 See Jira ticket for details: https://jira.mongodb.org/browse/${TICKET_KEY}"
 
-  curl -X POST -H "Authorization: Bearer ${SLACK_BEARER_TOKEN}" \
+  SLACK_RESPONSE=$(curl -X POST -H "Authorization: Bearer ${SLACK_BEARER_TOKEN}" \
     -H "Content-type: application/json" \
     --data "{\"channel\":\"${SLACK_CHANNEL_ID}\",\"text\":\"${SLACK_MESSAGE}\"}" \
-    https://slack.com/api/chat.postMessage
+    https://slack.com/api/chat.postMessage)
+
+  echo "Slack API response: ${SLACK_RESPONSE}"
+
+  SLACK_OK=$(echo "${SLACK_RESPONSE}" | jq -r '.ok')
+  if [ "${SLACK_OK}" != "true" ]; then
+    SLACK_ERROR=$(echo "${SLACK_RESPONSE}" | jq -r '.error')
+    echo "Warning: Failed to send Slack notification. Error: ${SLACK_ERROR}"
+
+    if [ "${SLACK_ERROR}" == "not_in_channel" ]; then
+      echo "The Slack bot is not a member of channel ${SLACK_CHANNEL_ID}."
+      echo "Please invite the bot to the channel or update SLACK_CHANNEL_ID."
+    fi
+
+    # Don't fail the script - Jira ticket was created successfully
+    echo "Continuing despite Slack notification failure..."
+  else
+    echo "Slack notification sent successfully."
+  fi
 else
   echo "Failed to create Jira ticket"
   ERROR_MESSAGES=$(echo "${TICKET_BODY}" | jq -r '.errorMessages[]? // .errors? // "No error details available"' 2>/dev/null || echo "Could not parse error response")
