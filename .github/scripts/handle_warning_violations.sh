@@ -1,6 +1,7 @@
 #!/bin/bash
 set -eou pipefail
 
+echo "Handle Warning Violations: WARNING_COUNT=${WARNING_COUNT}"
 if [ "${WARNING_COUNT}" -eq 0 ]; then
   echo "No warning violations found, skipping ticket creation"
   exit 0
@@ -17,7 +18,8 @@ if [ -f "tools/spectral/ipa/metrics/outputs/warning-violations.json" ]; then
 fi
 
 # Check if warning ticket already exists
-EXISTING_TICKET=$(curl -s -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
+echo "Check if a jira ticket already exists."
+EXISTING_TICKET=$(curl -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
   "https://jira.mongodb.org/rest/api/2/search?jql=project=CLOUDP AND summary~'Warning-level IPA violations' AND status!=Done" \
   | jq -r '.issues[0].key // empty')
 
@@ -25,6 +27,7 @@ if [ -n "${EXISTING_TICKET}" ]; then
   echo "Warning ticket already exists: ${EXISTING_TICKET}"
   exit 0
 fi
+
 
 # Create detailed description
 DESCRIPTION="Warning-level violations were found during IPA validation. Please review and add exceptions if valid, or address false positives.
@@ -36,8 +39,9 @@ ${VIOLATION_DETAILS}
 
 Total violations: ${WARNING_COUNT}"
 
+echo "Jira ticket does not exists. Creating..."
 # Create new Jira ticket
-TICKET_RESPONSE=$(curl -s -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
+TICKET_RESPONSE=$(curl -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "{
     \"fields\": {
@@ -51,11 +55,10 @@ TICKET_RESPONSE=$(curl -s -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
   "https://jira.mongodb.org/rest/api/2/issue/")
 
 TICKET_KEY=$(echo "${TICKET_RESPONSE}" | jq -r '.key')
-
+echo "Created Jira ticket: ${TICKET_KEY}."
 if [ "${TICKET_KEY}" != "null" ]; then
-  echo "Created Jira ticket: ${TICKET_KEY}"
-  
   # Create summary for Slack
+  echo "Creating Slack Summary with VIOLATION_DETAILS: ${VIOLATION_DETAILS}..."
   SLACK_SUMMARY=""
   if [ -n "${VIOLATION_DETAILS}" ]; then
     SLACK_SUMMARY=$(echo "${VIOLATION_DETAILS}" | head -3)
@@ -63,7 +66,8 @@ if [ "${TICKET_KEY}" != "null" ]; then
       SLACK_SUMMARY="${SLACK_SUMMARY}\n... and more"
     fi
   fi
-  
+
+  echo "Send Slack notification..."
   # Send Slack notification with violation summary
   SLACK_MESSAGE="Warning-level IPA violations found (${WARNING_COUNT} violations) (${SLACK_ONCALL_USER}).
 
