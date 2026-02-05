@@ -73,9 +73,6 @@ TICKET_RESPONSE=$(echo "${TICKET_PAYLOAD}" | curl -X POST -H "Authorization: Bea
 echo "Jira API response:"
 echo "${TICKET_RESPONSE}"
 
-HTTP_STATUS=$(echo "${TICKET_RESPONSE}" | grep "HTTP_STATUS:" | cut -d: -f2)
-TICKET_BODY=$(echo "${TICKET_RESPONSE}" | sed '/HTTP_STATUS:/d')
-
 TICKET_KEY=$(echo "${TICKET_BODY}" | jq -r '.key // empty')
 if [ -n "${TICKET_KEY}" ] && [ "${TICKET_KEY}" != "null" ]; then
   echo "Created Jira ticket: ${TICKET_KEY}."
