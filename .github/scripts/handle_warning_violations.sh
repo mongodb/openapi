@@ -11,16 +11,21 @@ fi
 VIOLATION_DETAILS=""
 if [ -f "tools/spectral/ipa/metrics/outputs/warning-violations.json" ]; then
   VIOLATION_DETAILS=$(jq -r '
-    group_by(.code) | 
-    map("• " + .[0].code + " (" + (length | tostring) + " violations)") | 
-    join("\n")
+    group_by(.code) |
+    map(
+      "• " + .[0].code + " (" + (length | tostring) + " violations):\n" +
+      (map("  - " + .component_id) | join("\n"))
+    ) |
+    join("\n\n")
   ' tools/spectral/ipa/metrics/outputs/warning-violations.json)
 fi
 
 # Check if warning ticket already exists
 echo "Check if a jira ticket already exists."
-EXISTING_TICKET=$(curl -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
-  "https://jira.mongodb.org/rest/api/2/search?jql=project=CLOUDP AND summary~'Warning-level IPA violations' AND status!=Done" \
+JQL_QUERY="project=CLOUDP AND summary~'Warning-level IPA violations' AND status!=Done"
+EXISTING_TICKET=$(curl -G -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
+  --data-urlencode "jql=${JQL_QUERY}" \
+  "https://jira.mongodb.org/rest/api/2/search" \
   | jq -r '.issues[0].key // empty')
 
 if [ -n "${EXISTING_TICKET}" ]; then
@@ -57,22 +62,13 @@ TICKET_RESPONSE=$(curl -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
 TICKET_KEY=$(echo "${TICKET_RESPONSE}" | jq -r '.key')
 if [ "${TICKET_KEY}" != "null" ]; then
   echo "Created Jira ticket: ${TICKET_KEY}."
-  # Create summary for Slack
-  echo "Creating Slack Summary with VIOLATION_DETAILS: ${VIOLATION_DETAILS}..."
-  SLACK_SUMMARY=""
-  if [ -n "${VIOLATION_DETAILS}" ]; then
-    SLACK_SUMMARY=$(echo "${VIOLATION_DETAILS}" | head -3)
-    if [ "$(echo "${VIOLATION_DETAILS}" | wc -l)" -gt 3 ]; then
-      SLACK_SUMMARY="${SLACK_SUMMARY}\n... and more"
-    fi
-  fi
 
   echo "Send Slack notification..."
-  # Send Slack notification with violation summary
+  # Send Slack notification with link to Jira ticket for details
   SLACK_MESSAGE="Warning-level IPA violations found (${WARNING_COUNT} violations) (${SLACK_ONCALL_USER}).
 
-Jira ticket: https://jira.mongodb.org/browse/${TICKET_KEY}"
-  
+See Jira ticket for details: https://jira.mongodb.org/browse/${TICKET_KEY}"
+
   curl -X POST -H "Authorization: Bearer ${SLACK_BEARER_TOKEN}" \
     -H "Content-type: application/json" \
     --data "{\"channel\":\"${SLACK_CHANNEL_ID}\",\"text\":\"${SLACK_MESSAGE}\"}" \
