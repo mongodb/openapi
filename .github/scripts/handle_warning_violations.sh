@@ -45,18 +45,22 @@ ${VIOLATION_DETAILS}
 Total violations: ${WARNING_COUNT}"
 
 echo "Jira ticket does not exists. Creating..."
-# Create new Jira ticket
-TICKET_RESPONSE=$(curl -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"fields\": {
-      \"project\": {\"key\": \"CLOUDP\"},
-      \"summary\": \"Warning-level IPA violations found\",
-      \"description\": \"${DESCRIPTION}\",
-      \"issuetype\": {\"name\": \"Task\"},
-      \"assignee\": {\"id\": \"${TEAM_ID}\"}
+# Create new Jira ticket with properly escaped JSON
+TICKET_RESPONSE=$(jq -n \
+  --arg summary "Warning-level IPA violations found" \
+  --arg description "$DESCRIPTION" \
+  --arg teamId "$TEAM_ID" \
+  '{
+    fields: {
+      project: {key: "CLOUDP"},
+      summary: $summary,
+      description: $description,
+      issuetype: {name: "Task"},
+      assignee: {id: $teamId}
     }
-  }" \
+  }' | curl -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d @- \
   "https://jira.mongodb.org/rest/api/2/issue/")
 
 TICKET_KEY=$(echo "${TICKET_RESPONSE}" | jq -r '.key')
