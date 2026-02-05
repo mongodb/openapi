@@ -55,8 +55,8 @@ TICKET_RESPONSE=$(curl -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
   "https://jira.mongodb.org/rest/api/2/issue/")
 
 TICKET_KEY=$(echo "${TICKET_RESPONSE}" | jq -r '.key')
-echo "Created Jira ticket: ${TICKET_KEY}."
 if [ "${TICKET_KEY}" != "null" ]; then
+  echo "Created Jira ticket: ${TICKET_KEY}."
   # Create summary for Slack
   echo "Creating Slack Summary with VIOLATION_DETAILS: ${VIOLATION_DETAILS}..."
   SLACK_SUMMARY=""
