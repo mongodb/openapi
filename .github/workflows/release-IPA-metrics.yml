@@ -65,7 +65,7 @@ jobs:
         working-directory: ${{ github.workspace }}
 
       - name: Upload OAS files as artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: oas-files
           path: |
@@ -80,6 +80,13 @@ jobs:
         run: |
           node runMetricCollection.js "${{ github.workspace }}/v2-filtered.json"
           echo "WARNING_COUNT=$(cat ../outputs/warning-count.txt)" >> "$GITHUB_ENV"
+
+      - name: Upload Warning Violations as Artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: warning-violations
+          path: tools/spectral/ipa/metrics/outputs/warning-violations.json
+          retention-days: 1
 
       - name: aws configure
         uses: aws-actions/configure-aws-credentials@v5
