@@ -44,9 +44,9 @@ ${VIOLATION_DETAILS}
 
 Total violations: ${WARNING_COUNT}"
 
-echo "Jira ticket does not exists. Creating..."
+echo "Jira ticket does not exist. Creating..."
 # Create new Jira ticket with properly escaped JSON
-TICKET_RESPONSE=$(jq -n \
+TICKET_PAYLOAD=$(jq -n \
   --arg summary "Warning-level IPA violations found" \
   --arg description "$DESCRIPTION" \
   --arg teamId "$TEAM_ID" \
@@ -58,13 +58,25 @@ TICKET_RESPONSE=$(jq -n \
       issuetype: {name: "Task"},
       assignee: {id: $teamId}
     }
-  }' | curl -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
+  }')
+
+echo "Jira ticket payload:"
+echo "${TICKET_PAYLOAD}"
+
+TICKET_RESPONSE=$(echo "${TICKET_PAYLOAD}" | curl -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d @- \
+  -w "\nHTTP_STATUS:%{http_code}" \
   "https://jira.mongodb.org/rest/api/2/issue/")
 
-TICKET_KEY=$(echo "${TICKET_RESPONSE}" | jq -r '.key')
-if [ "${TICKET_KEY}" != "null" ]; then
+echo "Jira API response:"
+echo "${TICKET_RESPONSE}"
+
+HTTP_STATUS=$(echo "${TICKET_RESPONSE}" | grep "HTTP_STATUS:" | cut -d: -f2)
+TICKET_BODY=$(echo "${TICKET_RESPONSE}" | sed '/HTTP_STATUS:/d')
+
+TICKET_KEY=$(echo "${TICKET_BODY}" | jq -r '.key // empty')
+if [ -n "${TICKET_KEY}" ] && [ "${TICKET_KEY}" != "null" ]; then
   echo "Created Jira ticket: ${TICKET_KEY}."
 
   echo "Send Slack notification..."
@@ -79,5 +91,11 @@ See Jira ticket for details: https://jira.mongodb.org/browse/${TICKET_KEY}"
     https://slack.com/api/chat.postMessage
 else
   echo "Failed to create Jira ticket"
+  echo "HTTP Status: ${HTTP_STATUS}"
+  echo "Response body: ${TICKET_BODY}"
+
+  # Try to extract error message from Jira response
+  ERROR_MESSAGES=$(echo "${TICKET_BODY}" | jq -r '.errorMessages[]? // .errors? // "No error details available"' 2>/dev/null || echo "Could not parse error response")
+  echo "Error details: ${ERROR_MESSAGES}"
   exit 1
 fi
