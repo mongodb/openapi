@@ -56,4 +56,55 @@ testRule('xgen-IPA-113-singleton-must-not-have-delete-method', [
     },
     errors: [],
   },
+  {
+    name: 'valid singleton with custom methods',
+    document: {
+      paths: {
+        '/resource/{exampleId}/singleton': {
+          get: {},
+          patch: {},
+        },
+        '/resource/{exampleId}/singleton:reset': {
+          post: {
+            operationId: 'resetSingleton',
+            responses: { 200: {} },
+          },
+        },
+        '/resource/{exampleId}/singleton:customAction': {
+          post: {
+            operationId: 'customActionSingleton',
+            responses: { 200: {} },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid singleton with custom methods and delete method',
+    document: {
+      paths: {
+        '/resource/{exampleId}/singleton': {
+          get: {},
+          patch: {},
+          delete: {},
+        },
+        '/resource/{exampleId}/singleton:reset': {
+          post: {
+            operationId: 'resetSingleton',
+            responses: { 200: {} },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-113-singleton-must-not-have-delete-method',
+        message:
+          'Singleton resources must not define the Delete standard method. If this is not a singleton resource, please implement all CRUDL methods.',
+        path: ['paths', '/resource/{exampleId}/singleton'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
 ]);

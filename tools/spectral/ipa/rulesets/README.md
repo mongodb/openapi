@@ -851,6 +851,93 @@ Rule checks for the following conditions:
   - Excludes read-only singleton resources (where all properties in the GET response schema are marked as readOnly; for List responses, all properties in the items schema must be readOnly)
   - Checks that the resource has the PUT and/or PATCH methods defined
 
+#### xgen-IPA-113-reset-method-must-use-POST
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The :reset custom method must use the POST HTTP method.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths ending with :reset
+  - Verifies that only POST method is defined
+  - Fails if GET or any other HTTP method is used
+  - Fails if multiple HTTP methods are defined for the same :reset endpoint
+
+#### xgen-IPA-113-reset-method-must-not-have-request-body
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The :reset custom method must not have a request body.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on paths ending with :reset
+  - Verifies that the operation object does not contain a requestBody property
+  - Fails if any request body is defined
+
+#### xgen-IPA-113-reset-method-must-return-200-OK
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The :reset custom method must return a 200 OK response with the reset resource in the response body.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on paths ending with :reset
+  - Verifies that a 200 OK response code is present
+  - Fails if the method lacks a 200 OK response or defines a different 2xx status code
+  - Verifies that the 200 response has a response body with schema
+
+#### xgen-IPA-113-reset-method-response-is-get-method-response
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The :reset custom method response must match the GET method response schema.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on paths ending with :reset
+  - Applies only to JSON response content types
+  - Verifies that both :reset and GET methods have schema references
+  - Confirms that the :reset method 200 response schema reference matches the GET method response schema reference
+  - Ensures the reset resource returned is the same type as the singleton resource
+
+#### xgen-IPA-113-reset-method-only-on-singleton-resources
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The :reset custom method must only be defined on singleton resources.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths ending with :reset
+  - Verifies that the parent path (without :reset) is a singleton resource
+  - Uses existing isSingletonResource() helper function
+  - Fails if :reset is defined on a non-singleton resource
+
+#### xgen-IPA-113-reset-method-not-on-readonly-singleton
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Read-only singleton resources must not define a :reset custom method.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to paths ending with :reset
+  - Verifies that the parent singleton resource is not read-only
+  - Uses existing isReadOnlyResource() helper function
+  - Fails if the singleton resource has all properties marked as readOnly: true
+
+#### xgen-IPA-113-reset-method-valid-operation-id
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The :reset custom method must have a valid operation ID.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to POST methods on paths ending with :reset
+  - Confirms that the operation ID follows the pattern: reset{ResourceName}
+  - Uses existing operation ID validation infrastructure
+
+##### Configuration
+This rule includes a configuration option:
+  - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
 
 
 ### IPA-114
