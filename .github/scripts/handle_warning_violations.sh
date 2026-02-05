@@ -67,13 +67,12 @@ echo "${TICKET_PAYLOAD}"
 TICKET_RESPONSE=$(echo "${TICKET_PAYLOAD}" | curl -X POST -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d @- \
-  -w "\nHTTP_STATUS:%{http_code}" \
   "https://jira.mongodb.org/rest/api/2/issue/")
 
 echo "Jira API response:"
 echo "${TICKET_RESPONSE}"
 
-TICKET_KEY=$(echo "${TICKET_BODY}" | jq -r '.key // empty')
+TICKET_KEY=$(echo "${TICKET_RESPONSE}" | jq -r '.key // empty')
 if [ -n "${TICKET_KEY}" ] && [ "${TICKET_KEY}" != "null" ]; then
   echo "Created Jira ticket: ${TICKET_KEY}."
 
@@ -107,7 +106,8 @@ See Jira ticket for details: https://jira.mongodb.org/browse/${TICKET_KEY}"
   fi
 else
   echo "Failed to create Jira ticket"
-  ERROR_MESSAGES=$(echo "${TICKET_BODY}" | jq -r '.errorMessages[]? // .errors? // "No error details available"' 2>/dev/null || echo "Could not parse error response")
+  echo "Response: ${TICKET_RESPONSE}"
+  ERROR_MESSAGES=$(echo "${TICKET_RESPONSE}" | jq -r '.errorMessages[]? // .errors? // "No error details available"' 2>/dev/null || echo "Could not parse error response")
   echo "Error details: ${ERROR_MESSAGES}"
   exit 1
 fi
