@@ -71,7 +71,7 @@ components:
                 pattern: ^([a-f0-9]{20})$
                 type: string
         includeCount:
-            description: Flag that indicates whether the response returns the total number of items (**totalCount**) in the response.
+            description: Flag that indicates whether the response returns the total number of items (`totalCount`) in the response.
             in: query
             name: includeCount
             schema:
@@ -104,7 +104,7 @@ components:
                 pattern: ^([a-f0-9]{24})$
                 type: string
         orgId:
-            description: Unique 24-hexadecimal digit string that identifies the organization that contains your projects. Use the [/orgs](#tag/Organizations/operation/listOrganizations) endpoint to retrieve all organizations to which the authenticated user has access.
+            description: Unique 24-hexadecimal digit string that identifies the organization that contains your projects. Use the [`/orgs`](#tag/Organizations/operation/listOrganizations) endpoint to retrieve all organizations to which the authenticated user has access.
             in: path
             name: orgId
             required: true
@@ -280,6 +280,16 @@ components:
                         $ref: '#/components/schemas/ApiError'
             description: Unauthorized.
     schemas:
+        AiModelsApiKeyCreateRequest:
+            properties:
+                name:
+                    description: A name for the new API key that will be created.
+                    maxLength: 250
+                    minLength: 1
+                    type: string
+            required:
+                - name
+            type: object
         AiModelsApiKeyResponse:
             properties:
                 apiKeyId:
@@ -330,6 +340,16 @@ components:
                     readOnly: true
                     type: string
             type: object
+        AiModelsApiKeyUpdateRequest:
+            properties:
+                name:
+                    description: A new name for the API key.
+                    maxLength: 250
+                    minLength: 1
+                    type: string
+            required:
+                - name
+            type: object
         AiModelsRateLimitResponse:
             properties:
                 modelGroupName:
@@ -345,17 +365,33 @@ components:
                     readOnly: true
                     type: array
                 requestsPerMinuteLimit:
-                    description: The number of requests per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    description: The number of requests per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
                     example: 2000
                     format: int32
-                    minimum: 0
+                    minimum: 1
                     type: integer
                 tokensPerMinuteLimit:
-                    description: The number of tokens per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.
+                    description: The number of tokens per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
                     example: 3e+06
                     format: int32
-                    minimum: 0
+                    minimum: 1
                     type: integer
+            type: object
+        AiModelsRateLimitUpdateRequest:
+            properties:
+                requestsPerMinuteLimit:
+                    description: The number of requests per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
+                    format: int32
+                    minimum: 1
+                    type: integer
+                tokensPerMinuteLimit:
+                    description: The number of tokens per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.
+                    format: int32
+                    minimum: 1
+                    type: integer
+            required:
+                - requestsPerMinuteLimit
+                - tokensPerMinuteLimit
             type: object
         ApiError:
             properties:
@@ -506,7 +542,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 4036be59f77c62fe0432d154f253836ab1acc44b
+    x-xgen-sha: 9699aa2fed46cfefacee34dd57b73caad5ad2e0c
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/aiModelApiKeys:
@@ -542,12 +578,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return AI Model API Keys for One Group
             tags:
-                - AI Models
+                - AI Model API Keys
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels listGroupModelKeys --help
+                  source: atlas api aiModelApiKeys listGroupModelKeys --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -564,7 +600,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listGroupAiModelApiKeys
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/listGroupAiModelApiKeys
             x-xgen-operation-id-override: listGroupModelKeys
         post:
             description: |-
@@ -577,7 +613,13 @@ paths:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/AiModelsApiKeyCreateRequest'
+                        x-xgen-preview:
+                            public: "true"
+                        x-xgen-version: preview
                 description: A request containing the name of the new API key.
                 required: true
             responses:
@@ -602,12 +644,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Create New AI Model API Key
             tags:
-                - AI Models
+                - AI Model API Keys
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels createModelApiKey --help
+                  source: atlas api aiModelApiKeys createModelApiKey --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -628,7 +670,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/createGroupAiModelApiKey
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/createGroupAiModelApiKey
             x-xgen-operation-id-override: createModelApiKey
     /api/atlas/v2/groups/{groupId}/aiModelApiKeys/{apiKeyId}:
         delete:
@@ -667,12 +709,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Delete Existing AI Model API Key
             tags:
-                - AI Models
+                - AI Model API Keys
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels deleteModelApiKey --help
+                  source: atlas api aiModelApiKeys deleteModelApiKey --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -689,7 +731,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/deleteGroupAiModelApiKey
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/deleteGroupAiModelApiKey
             x-xgen-operation-id-override: deleteModelApiKey
         get:
             description: |-
@@ -727,12 +769,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return Single AI Model API Key for One Group
             tags:
-                - AI Models
+                - AI Model API Keys
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels getGroupModelKey --help
+                  source: atlas api aiModelApiKeys getGroupModelKey --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -749,7 +791,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getGroupAiModelApiKey
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/getGroupAiModelApiKey
             x-xgen-operation-id-override: getGroupModelKey
         patch:
             description: |-
@@ -768,7 +810,13 @@ paths:
                   schema:
                     type: string
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/AiModelsApiKeyUpdateRequest'
+                        x-xgen-preview:
+                            public: "true"
+                        x-xgen-version: preview
                 description: A request containing the new name for the API key.
                 required: true
             responses:
@@ -793,12 +841,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Update Existing AI Model API Key
             tags:
-                - AI Models
+                - AI Model API Keys
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels updateModelApiKey --help
+                  source: atlas api aiModelApiKeys updateModelApiKey --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -819,7 +867,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/updateGroupAiModelApiKey
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/updateGroupAiModelApiKey
             x-xgen-operation-id-override: updateModelApiKey
     /api/atlas/v2/groups/{groupId}/aiModelRateLimits:
         get:
@@ -854,12 +902,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return AI Model Rate Limits for One Group
             tags:
-                - AI Models
+                - AI Model Rate Limits
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels listGroupModelLimits --help
+                  source: atlas api aiModelRateLimits listGroupModelLimits --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -876,7 +924,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listGroupAiModelRateLimits
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/listGroupAiModelRateLimits
             x-xgen-operation-id-override: listGroupModelLimits
     /api/atlas/v2/groups/{groupId}/aiModelRateLimits/{modelGroupName}:
         get:
@@ -915,12 +963,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return Single AI Model Rate Limit for One Group
             tags:
-                - AI Models
+                - AI Model Rate Limits
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels getGroupModelLimit --help
+                  source: atlas api aiModelRateLimits getGroupModelLimit --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -937,7 +985,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getGroupAiModelRateLimit
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/getGroupAiModelRateLimit
             x-xgen-operation-id-override: getGroupModelLimit
         patch:
             description: |-
@@ -956,7 +1004,13 @@ paths:
                   schema:
                     type: string
             requestBody:
-                content: {}
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/AiModelsRateLimitUpdateRequest'
+                        x-xgen-preview:
+                            public: "true"
+                        x-xgen-version: preview
                 description: A request containing the new rate limits for the given model group.
                 required: true
             responses:
@@ -981,12 +1035,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Update AI Model Rate Limit
             tags:
-                - AI Models
+                - AI Model Rate Limits
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels updateModelRateLimit --help
+                  source: atlas api aiModelRateLimits updateModelRateLimit --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -1007,7 +1061,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/updateGroupAiModelRateLimit
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/updateGroupAiModelRateLimit
             x-xgen-operation-id-override: updateModelRateLimit
     /api/atlas/v2/groups/{groupId}/aiModelRateLimits:reset:
         post:
@@ -1038,12 +1092,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Reset AI Model Rate Limits for Group
             tags:
-                - AI Models
+                - AI Model Rate Limits
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels resetModelRateLimits --help
+                  source: atlas api aiModelRateLimits resetModelRateLimits --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -1064,7 +1118,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/resetGroupAiModelRateLimits
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/resetGroupAiModelRateLimits
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: reset
@@ -1102,12 +1156,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return AI Model API Keys for One Organization
             tags:
-                - AI Models
+                - AI Model API Keys
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels listOrgModelKeys --help
+                  source: atlas api aiModelApiKeys listOrgModelKeys --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -1124,7 +1178,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listOrgAiModelApiKeys
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/listOrgAiModelApiKeys
             x-xgen-operation-id-override: listOrgModelKeys
     /api/atlas/v2/orgs/{orgId}/aiModelApiKeys/{apiKeyId}:
         get:
@@ -1163,12 +1217,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return Single AI Model API Key for One Organization
             tags:
-                - AI Models
+                - AI Model API Keys
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels getOrgModelKey --help
+                  source: atlas api aiModelApiKeys getOrgModelKey --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -1185,7 +1239,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getOrgAiModelApiKey
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/getOrgAiModelApiKey
             x-xgen-operation-id-override: getOrgModelKey
     /api/atlas/v2/orgs/{orgId}/aiModelRateLimits:
         get:
@@ -1220,12 +1274,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return AI Model Rate Limits for One Organization
             tags:
-                - AI Models
+                - AI Model Rate Limits
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels listOrgModelLimits --help
+                  source: atlas api aiModelRateLimits listOrgModelLimits --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -1242,7 +1296,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listOrgAiModelRateLimits
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/listOrgAiModelRateLimits
             x-xgen-operation-id-override: listOrgModelLimits
     /api/atlas/v2/orgs/{orgId}/aiModelRateLimits/{modelGroupName}:
         get:
@@ -1281,12 +1335,12 @@ paths:
                     $ref: '#/components/responses/internalServerError'
             summary: Return Single AI Model Rate Limit for One Organization
             tags:
-                - AI Models
+                - AI Model Rate Limits
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api aiModels getOrgModelLimit --help
+                  source: atlas api aiModelRateLimits getOrgModelLimit --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -1303,16 +1357,13 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getOrgAiModelRateLimit
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/getOrgAiModelRateLimit
             x-xgen-operation-id-override: getOrgModelLimit
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
-tags:
-    - description: Returns, adds, edits, and removes API Keys and Rate Limits for your AI Models.
-      name: AI Models
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
