@@ -37702,7 +37702,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: f25089155abd93a71d3527a55bffe54893f531ed
+    x-xgen-sha: 9d29f4ab9a16ac35272db5f8b03b9ff9ba09925d
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -43341,7 +43341,7 @@ paths:
         post:
             deprecated: true
             description: |-
-                Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting Service Account or API Key must have the Project Owner role. This feature is not available for serverless clusters.
+                Creates one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can create clusters with asymmetrically-sized shards. Each project supports up to 25 database deployments. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Cluster Creator role. This feature is not available for serverless clusters.
 
                 Please note that using an `instanceSize` of M2 or M5 will create a Flex cluster instead. Support for the `instanceSize` of M2 or M5 will be discontinued in January 2026. We recommend using the Create Flex Cluster API for such configurations moving forward. Deprecated versions: v2-{2023-02-01}, v2-{2023-01-01}
             externalDocs:
@@ -47911,7 +47911,7 @@ paths:
             x-xgen-operation-id-override: createManagedNamespace
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index:
         post:
-            description: Creates an index on the cluster identified by its name in a rolling manner. Creating the index in this way allows index builds on one replica set member as a standalone at a time, starting with the secondary members. Creating indexes in this way requires at least one replica set election. To use this resource, the requesting Service Account or API Key must have the Project Data Access Admin role.
+            description: Creates an index on the cluster identified by its name in a rolling manner. Creating the index in this way allows index builds on one replica set member as a standalone at a time, starting with the secondary members. Creating indexes in this way requires at least one replica set election. To use this resource, the requesting Service Account or API Key must have the Project Data Access Admin role or the Project Index Manager role.
             externalDocs:
                 description: Rolling Index Builds on Replica Sets
                 url: https://docs.mongodb.com/manual/tutorial/build-indexes-on-replica-sets/
@@ -48664,7 +48664,7 @@ paths:
             x-xgen-operation-id-override: downloadQueryLogs
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/outageSimulation:
         delete:
-            description: Ends a cluster outage simulation.
+            description: Ends a cluster outage simulation. To use this resource, the requesting Service Account or API Key must have the Project Cluster Manager role or Project Cluster Resilience Tester role.
             externalDocs:
                 description: Cluster Outage Simulation
                 url: https://dochub.mongodb.org/core/test-regional-outage
@@ -48842,7 +48842,7 @@ paths:
                 verb: get
             x-xgen-operation-id-override: getOutageSimulation
         post:
-            description: Starts a cluster outage simulation.
+            description: Starts a cluster outage simulation. To use this resource, the requesting Service Account or API Key must have the Project Cluster Manager role or Project Cluster Resilience Tester role.
             externalDocs:
                 description: Cluster Outage Simulation
                 url: https://dochub.mongodb.org/core/test-regional-outage
@@ -51727,7 +51727,7 @@ paths:
             x-xgen-operation-id-override: getClusterStatus
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:grantMongoDBEmployeeAccess:
         post:
-            description: Grants MongoDB employee cluster access for the given duration and at the specified level for one cluster.
+            description: Grants MongoDB employee cluster access for the given duration and at the specified level for one cluster. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Support Access Manager role.
             operationId: grantGroupClusterMongoDbEmployeeAccess
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -51914,7 +51914,7 @@ paths:
             x-xgen-operation-id-override: pinFeatureCompatibilityVersion
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:revokeMongoDBEmployeeAccess:
         post:
-            description: Revokes a previously granted MongoDB employee cluster access.
+            description: Revokes a previously granted MongoDB employee cluster access. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Support Access Manager role.
             operationId: revokeGroupClusterMongoDbEmployeeAccess
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -52088,7 +52088,7 @@ paths:
             x-xgen-operation-id-override: unpinFeatureCompatibilityVersion
     /api/atlas/v2/groups/{groupId}/clusters/{hostName}/logs/{logName}.gz:
         get:
-            description: 'Returns a compressed (.gz) log file that contains a range of log messages for the specified host for the specified project. MongoDB updates process and audit logs from the cluster backend infrastructure every five minutes. Logs are stored in chunks approximately five minutes in length, but this duration may vary. If you poll the API for log files, we recommend polling every five minutes even though consecutive polls could contain some overlapping logs. This feature isn''t available for `M0` free clusters, `M2`, `M5`, flex, or serverless clusters. To use this resource, the requesting Service Account or API Key must have the Project Data Access Read Only or higher role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: `Accept: application/vnd.atlas.YYYY-MM-DD+gzip`. Deprecated versions: v2-{2023-01-01}'
+            description: 'Returns a compressed (.gz) log file that contains a range of log messages for the specified host for the specified project. MongoDB updates process and audit logs from the cluster backend infrastructure every five minutes. Logs are stored in chunks approximately five minutes in length, but this duration may vary. If you poll the API for log files, we recommend polling every five minutes even though consecutive polls could contain some overlapping logs. This feature isn''t available for `M0` free clusters, `M2`, `M5`, flex, or serverless clusters. To use this resource, the requesting Service Account or API Key must have the Project Cluster Log Viewer role or Project Data Access Read Only role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: `Accept: application/vnd.atlas.YYYY-MM-DD+gzip`. Deprecated versions: v2-{2023-01-01}'
             operationId: downloadGroupClusterLog
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -55193,7 +55193,7 @@ paths:
             x-xgen-operation-id-override: createDatabaseUserCert
     /api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}:
         get:
-            description: Returns the access logs of one cluster identified by the cluster's name. Access logs contain a list of authentication requests made against your cluster. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting Service Account or API Key must have the Project Monitoring Admin role or the Project Database Access Admin role.
+            description: Returns the access logs of one cluster identified by the cluster's name. Access logs contain a list of authentication requests made against your cluster. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting Service Account or API Key must have the Project Monitoring Admin role, the Project Database Access Admin role, or the Project Cluster Log Viewer role.
             externalDocs:
                 description: Database Access History
                 url: https://docs.atlas.mongodb.com/access-tracking/
@@ -55314,7 +55314,7 @@ paths:
             x-xgen-operation-id-override: getAccessHistoryCluster
     /api/atlas/v2/groups/{groupId}/dbAccessHistory/processes/{hostname}:
         get:
-            description: Returns the access logs of one cluster identified by the cluster's hostname. Access logs contain a list of authentication requests made against your clusters. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting Service Account or API Key must have the Project Monitoring Admin role or the Project Database Access Admin role.
+            description: Returns the access logs of one cluster identified by the cluster's hostname. Access logs contain a list of authentication requests made against your clusters. You can't use this feature on tenant-tier clusters (M0, M2, M5). To use this resource, the requesting Service Account or API Key must have the Project Monitoring Admin role, the Project Database Access Admin role, or the Project Cluster Log Viewer role.
             externalDocs:
                 description: Database Access History
                 url: https://docs.atlas.mongodb.com/access-tracking/
