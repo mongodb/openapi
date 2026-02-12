@@ -86,7 +86,7 @@
         }
       },
       "includeCount": {
-        "description": "Flag that indicates whether the response returns the total number of items (**totalCount**) in the response.",
+        "description": "Flag that indicates whether the response returns the total number of items (`totalCount`) in the response.",
         "in": "query",
         "name": "includeCount",
         "schema": {
@@ -127,7 +127,7 @@
         }
       },
       "orgId": {
-        "description": "Unique 24-hexadecimal digit string that identifies the organization that contains your projects. Use the [/orgs](#tag/Organizations/operation/listOrganizations) endpoint to retrieve all organizations to which the authenticated user has access.",
+        "description": "Unique 24-hexadecimal digit string that identifies the organization that contains your projects. Use the [`/orgs`](#tag/Organizations/operation/listOrganizations) endpoint to retrieve all organizations to which the authenticated user has access.",
         "in": "path",
         "name": "orgId",
         "required": true,
@@ -417,6 +417,24 @@
         ],
         "type": "object"
       },
+      "ApiStandbyLinkFailoverRequest": {
+        "description": "Request to initiate a failover operation.",
+        "properties": {
+          "type": {
+            "description": "Type of failover operation to perform.",
+            "enum": [
+              "UNPLANNED",
+              "PLANNED_REVERSE",
+              "PLANNED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
       "ApiStandbyLinkFailoverResponse": {
         "description": "Response containing failover operation details.",
         "properties": {
@@ -454,6 +472,28 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "ApiStandbyLinkRequest": {
+        "description": "Request body for creating a standby link between clusters.",
+        "properties": {
+          "activeClusterUniqueId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the active cluster in the standby link.",
+            "example": "507f191e810c19729de860ea",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "type": "string"
+          },
+          "standbyClusterUniqueId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby cluster in the standby link.",
+            "example": "507f191e810c19729de860eb",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "activeClusterUniqueId",
+          "standbyClusterUniqueId"
+        ],
         "type": "object"
       },
       "ApiStandbyLinkResponse": {
@@ -638,7 +678,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "2b8b4bb9bb9ff3a7ee16069968abfa38a8c7820d"
+    "x-xgen-sha": "8afc7807f1480616ce254bcc9f26e3e54117b2e3"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -750,7 +790,17 @@
           }
         ],
         "requestBody": {
-          "content": {},
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiStandbyLinkRequest"
+              },
+              "x-xgen-preview": {
+                "name": "standby-links"
+              },
+              "x-xgen-version": "private-preview-standby-links"
+            }
+          },
           "description": "Request body containing the active and standby cluster identifiers.",
           "required": true
         },
@@ -854,7 +904,8 @@
               "application/vnd.atlas.preview+json": {
                 "x-xgen-preview": {
                   "name": "standby-links"
-                }
+                },
+                "x-xgen-version": "private-preview-standby-links"
               }
             },
             "description": "Standby link deleted successfully."
@@ -1125,7 +1176,17 @@
           }
         ],
         "requestBody": {
-          "content": {},
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiStandbyLinkFailoverRequest"
+              },
+              "x-xgen-preview": {
+                "name": "standby-links"
+              },
+              "x-xgen-version": "private-preview-standby-links"
+            }
+          },
           "description": "Request body containing the failover type (PLANNED or UNPLANNED).",
           "required": true
         },

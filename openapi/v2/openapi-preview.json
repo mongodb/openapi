@@ -86,7 +86,7 @@
         }
       },
       "includeCount": {
-        "description": "Flag that indicates whether the response returns the total number of items (**totalCount**) in the response.",
+        "description": "Flag that indicates whether the response returns the total number of items (`totalCount`) in the response.",
         "in": "query",
         "name": "includeCount",
         "schema": {
@@ -127,7 +127,7 @@
         }
       },
       "orgId": {
-        "description": "Unique 24-hexadecimal digit string that identifies the organization that contains your projects. Use the [/orgs](#tag/Organizations/operation/listOrganizations) endpoint to retrieve all organizations to which the authenticated user has access.",
+        "description": "Unique 24-hexadecimal digit string that identifies the organization that contains your projects. Use the [`/orgs`](#tag/Organizations/operation/listOrganizations) endpoint to retrieve all organizations to which the authenticated user has access.",
         "in": "path",
         "name": "orgId",
         "required": true,
@@ -373,6 +373,20 @@
       }
     },
     "schemas": {
+      "AiModelsApiKeyCreateRequest": {
+        "properties": {
+          "name": {
+            "description": "A name for the new API key that will be created.",
+            "maxLength": 250,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
       "AiModelsApiKeyResponse": {
         "properties": {
           "apiKeyId": {
@@ -434,6 +448,20 @@
         },
         "type": "object"
       },
+      "AiModelsApiKeyUpdateRequest": {
+        "properties": {
+          "name": {
+            "description": "A new name for the API key.",
+            "maxLength": 250,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
       "AiModelsRateLimitResponse": {
         "properties": {
           "modelGroupName": {
@@ -452,20 +480,41 @@
             "type": "array"
           },
           "requestsPerMinuteLimit": {
-            "description": "The number of requests per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.",
+            "description": "The number of requests per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.",
             "example": 2000,
             "format": "int32",
-            "minimum": 0,
+            "minimum": 1,
             "type": "integer"
           },
           "tokensPerMinuteLimit": {
-            "description": "The number of tokens per minute allowed for this model group. Cannot be less than zero. Cannot be more than the organization level limit for this group model.",
+            "description": "The number of tokens per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.",
             "example": 3000000,
             "format": "int32",
-            "minimum": 0,
+            "minimum": 1,
             "type": "integer"
           }
         },
+        "type": "object"
+      },
+      "AiModelsRateLimitUpdateRequest": {
+        "properties": {
+          "requestsPerMinuteLimit": {
+            "description": "The number of requests per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.",
+            "format": "int32",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "tokensPerMinuteLimit": {
+            "description": "The number of tokens per minute allowed for this model group. Must be a positive integer. Cannot be more than the organization level limit for this group model.",
+            "format": "int32",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "requestsPerMinuteLimit",
+          "tokensPerMinuteLimit"
+        ],
         "type": "object"
       },
       "ApiError": {
@@ -651,7 +700,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "2b8b4bb9bb9ff3a7ee16069968abfa38a8c7820d"
+    "x-xgen-sha": "8afc7807f1480616ce254bcc9f26e3e54117b2e3"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -706,14 +755,14 @@
         },
         "summary": "Return AI Model API Keys for One Group",
         "tags": [
-          "AI Models"
+          "AI Model API Keys"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels listGroupModelKeys --help"
+            "source": "atlas api aiModelApiKeys listGroupModelKeys --help"
           },
           {
             "lang": "cURL",
@@ -730,7 +779,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listGroupAiModelApiKeys",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/listGroupAiModelApiKeys",
         "x-xgen-operation-id-override": "listGroupModelKeys"
       },
       "post": {
@@ -748,7 +797,17 @@
           }
         ],
         "requestBody": {
-          "content": {},
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiModelsApiKeyCreateRequest"
+              },
+              "x-xgen-preview": {
+                "public": "true"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
           "description": "A request containing the name of the new API key.",
           "required": true
         },
@@ -785,14 +844,14 @@
         },
         "summary": "Create New AI Model API Key",
         "tags": [
-          "AI Models"
+          "AI Model API Keys"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels createModelApiKey --help"
+            "source": "atlas api aiModelApiKeys createModelApiKey --help"
           },
           {
             "lang": "cURL",
@@ -809,7 +868,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/createGroupAiModelApiKey",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/createGroupAiModelApiKey",
         "x-xgen-operation-id-override": "createModelApiKey"
       }
     },
@@ -867,14 +926,14 @@
         },
         "summary": "Delete Existing AI Model API Key",
         "tags": [
-          "AI Models"
+          "AI Model API Keys"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels deleteModelApiKey --help"
+            "source": "atlas api aiModelApiKeys deleteModelApiKey --help"
           },
           {
             "lang": "cURL",
@@ -891,7 +950,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/deleteGroupAiModelApiKey",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/deleteGroupAiModelApiKey",
         "x-xgen-operation-id-override": "deleteModelApiKey"
       },
       "get": {
@@ -947,14 +1006,14 @@
         },
         "summary": "Return Single AI Model API Key for One Group",
         "tags": [
-          "AI Models"
+          "AI Model API Keys"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels getGroupModelKey --help"
+            "source": "atlas api aiModelApiKeys getGroupModelKey --help"
           },
           {
             "lang": "cURL",
@@ -971,7 +1030,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getGroupAiModelApiKey",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/getGroupAiModelApiKey",
         "x-xgen-operation-id-override": "getGroupModelKey"
       },
       "patch": {
@@ -998,7 +1057,17 @@
           }
         ],
         "requestBody": {
-          "content": {},
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiModelsApiKeyUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "public": "true"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
           "description": "A request containing the new name for the API key.",
           "required": true
         },
@@ -1035,14 +1104,14 @@
         },
         "summary": "Update Existing AI Model API Key",
         "tags": [
-          "AI Models"
+          "AI Model API Keys"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels updateModelApiKey --help"
+            "source": "atlas api aiModelApiKeys updateModelApiKey --help"
           },
           {
             "lang": "cURL",
@@ -1059,7 +1128,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/updateGroupAiModelApiKey",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/updateGroupAiModelApiKey",
         "x-xgen-operation-id-override": "updateModelApiKey"
       }
     },
@@ -1114,14 +1183,14 @@
         },
         "summary": "Return AI Model Rate Limits for One Group",
         "tags": [
-          "AI Models"
+          "AI Model Rate Limits"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels listGroupModelLimits --help"
+            "source": "atlas api aiModelRateLimits listGroupModelLimits --help"
           },
           {
             "lang": "cURL",
@@ -1138,7 +1207,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listGroupAiModelRateLimits",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/listGroupAiModelRateLimits",
         "x-xgen-operation-id-override": "listGroupModelLimits"
       }
     },
@@ -1196,14 +1265,14 @@
         },
         "summary": "Return Single AI Model Rate Limit for One Group",
         "tags": [
-          "AI Models"
+          "AI Model Rate Limits"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels getGroupModelLimit --help"
+            "source": "atlas api aiModelRateLimits getGroupModelLimit --help"
           },
           {
             "lang": "cURL",
@@ -1220,7 +1289,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getGroupAiModelRateLimit",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/getGroupAiModelRateLimit",
         "x-xgen-operation-id-override": "getGroupModelLimit"
       },
       "patch": {
@@ -1247,7 +1316,17 @@
           }
         ],
         "requestBody": {
-          "content": {},
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiModelsRateLimitUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "public": "true"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
           "description": "A request containing the new rate limits for the given model group.",
           "required": true
         },
@@ -1284,14 +1363,14 @@
         },
         "summary": "Update AI Model Rate Limit",
         "tags": [
-          "AI Models"
+          "AI Model Rate Limits"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels updateModelRateLimit --help"
+            "source": "atlas api aiModelRateLimits updateModelRateLimit --help"
           },
           {
             "lang": "cURL",
@@ -1308,7 +1387,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/updateGroupAiModelRateLimit",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/updateGroupAiModelRateLimit",
         "x-xgen-operation-id-override": "updateModelRateLimit"
       }
     },
@@ -1354,14 +1433,14 @@
         },
         "summary": "Reset AI Model Rate Limits for Group",
         "tags": [
-          "AI Models"
+          "AI Model Rate Limits"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels resetModelRateLimits --help"
+            "source": "atlas api aiModelRateLimits resetModelRateLimits --help"
           },
           {
             "lang": "cURL",
@@ -1378,7 +1457,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/resetGroupAiModelRateLimits",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/resetGroupAiModelRateLimits",
         "x-xgen-method-verb-override": {
           "customMethod": "True",
           "verb": "reset"
@@ -1437,14 +1516,14 @@
         },
         "summary": "Return AI Model API Keys for One Organization",
         "tags": [
-          "AI Models"
+          "AI Model API Keys"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels listOrgModelKeys --help"
+            "source": "atlas api aiModelApiKeys listOrgModelKeys --help"
           },
           {
             "lang": "cURL",
@@ -1461,7 +1540,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listOrgAiModelApiKeys",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/listOrgAiModelApiKeys",
         "x-xgen-operation-id-override": "listOrgModelKeys"
       }
     },
@@ -1519,14 +1598,14 @@
         },
         "summary": "Return Single AI Model API Key for One Organization",
         "tags": [
-          "AI Models"
+          "AI Model API Keys"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels getOrgModelKey --help"
+            "source": "atlas api aiModelApiKeys getOrgModelKey --help"
           },
           {
             "lang": "cURL",
@@ -1543,7 +1622,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getOrgAiModelApiKey",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-API-Keys/operation/getOrgAiModelApiKey",
         "x-xgen-operation-id-override": "getOrgModelKey"
       }
     },
@@ -1598,14 +1677,14 @@
         },
         "summary": "Return AI Model Rate Limits for One Organization",
         "tags": [
-          "AI Models"
+          "AI Model Rate Limits"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels listOrgModelLimits --help"
+            "source": "atlas api aiModelRateLimits listOrgModelLimits --help"
           },
           {
             "lang": "cURL",
@@ -1622,7 +1701,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/listOrgAiModelRateLimits",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/listOrgAiModelRateLimits",
         "x-xgen-operation-id-override": "listOrgModelLimits"
       }
     },
@@ -1680,14 +1759,14 @@
         },
         "summary": "Return Single AI Model Rate Limit for One Organization",
         "tags": [
-          "AI Models"
+          "AI Model Rate Limits"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api aiModels getOrgModelLimit --help"
+            "source": "atlas api aiModelRateLimits getOrgModelLimit --help"
           },
           {
             "lang": "cURL",
@@ -1704,7 +1783,7 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Models/operation/getOrgAiModelRateLimit",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/getOrgAiModelRateLimit",
         "x-xgen-operation-id-override": "getOrgModelLimit"
       }
     }
@@ -1720,12 +1799,6 @@
   "servers": [
     {
       "url": "https://cloud.mongodb.com"
-    }
-  ],
-  "tags": [
-    {
-      "description": "Returns, adds, edits, and removes API Keys and Rate Limits for your AI Models.",
-      "name": "AI Models"
     }
   ],
   "x-externalLinks": [
