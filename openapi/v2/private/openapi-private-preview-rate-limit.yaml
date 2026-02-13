@@ -1,4 +1,17 @@
 components:
+    headers:
+        HeaderRateLimitLimit:
+            description: The maximum number of requests that a user can make within a specific time window.
+            schema:
+                type: integer
+        HeaderRateLimitRemaining:
+            description: The number of requests remaining in the current rate limit window before the limit is reached.
+            schema:
+                type: integer
+        HeaderRetryAfter:
+            description: The minimum time you should wait, in seconds, before retrying the API request. This header might be returned for 429 or 503 error responses.
+            schema:
+                type: integer
     parameters:
         collectionName:
             description: Human-readable label that identifies the collection.
@@ -268,6 +281,13 @@ components:
                     schema:
                         $ref: '#/components/schemas/ApiError'
             description: Too Many Requests.
+            headers:
+                RateLimit-Limit:
+                    $ref: '#/components/headers/HeaderRateLimitLimit'
+                RateLimit-Remaining:
+                    $ref: '#/components/headers/HeaderRateLimitRemaining'
+                Retry-After:
+                    $ref: '#/components/headers/HeaderRetryAfter'
         unauthorized:
             content:
                 application/json:
@@ -530,7 +550,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: db06b805ca5adbb1f74fe25050e03801be7bbc98
+    x-xgen-sha: 5f3fb9f99a505170261e967078983a02e9fd4fd1
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/ratelimits:
@@ -554,6 +574,11 @@ paths:
                                 public: "false"
                             x-xgen-version: private-preview-rate-limit
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "401":
@@ -562,6 +587,8 @@ paths:
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
             summary: Return Rate Limit State for One Group
@@ -610,6 +637,11 @@ paths:
                                 public: "false"
                             x-xgen-version: private-preview-rate-limit
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "401":
@@ -618,6 +650,8 @@ paths:
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
             summary: Return Rate Limit State for One Organization
@@ -647,10 +681,11 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getOrgRatelimits
     /api/atlas/v2/rateLimits:
         get:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Get all rate limits for all v2 Atlas Administration API endpoint sets.
+                 Get all rate limits for all v2 Atlas Administration API endpoint sets. Deprecated versions: v2-{2025-03-12}
             operationId: listRateLimits
             parameters:
                 - $ref: '#/components/parameters/itemsPerPage'
@@ -707,22 +742,29 @@ paths:
                                 public: "false"
                             x-xgen-version: private-preview-rate-limit
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
             summary: Return All Rate Limits
             tags:
-                - Rate Limit
+                - Rate Limiting
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api rateLimit listRateLimits --help
+                  source: atlas api rateLimiting listRateLimits --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -739,13 +781,15 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/listRateLimits
+            x-sunset: "2026-04-19"
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/listRateLimits
     /api/atlas/v2/rateLimits/{endpointSetId}:
         get:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Get one rate limit endpoint set.
+                 Get one rate limit endpoint set. Deprecated versions: v2-{2025-03-12}
             operationId: getRateLimit
             parameters:
                 - description: The ID of the rate limit endpoint set.
@@ -795,6 +839,11 @@ paths:
                                 public: "false"
                             x-xgen-version: private-preview-rate-limit
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "401":
@@ -803,16 +852,18 @@ paths:
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
             summary: Return One Rate Limit
             tags:
-                - Rate Limit
+                - Rate Limiting
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api rateLimit getRateLimit --help
+                  source: atlas api rateLimiting getRateLimit --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
@@ -829,7 +880,8 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getRateLimit
+            x-sunset: "2026-04-19"
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/getRateLimit
     /api/atlas/v2/unauth/ratelimits:
         get:
             description: |-
@@ -854,6 +906,11 @@ paths:
                                 public: "false"
                             x-xgen-version: private-preview-rate-limit
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "401":
@@ -862,6 +919,8 @@ paths:
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
             summary: Return Rate Limit State for Unauthenticated Requests
@@ -913,12 +972,19 @@ paths:
                                 public: "false"
                             x-xgen-version: private-preview-rate-limit
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
             summary: Return Rate Limit State for One User
@@ -952,10 +1018,16 @@ security:
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Inspect Rate Limit bucket states.
-      name: Rate Limit
+    - description: Returns details about rate limit policies for the Atlas Administration API.
+      externalDocs:
+        description: Atlas API Rate Limits documentation
+        url: http://dochub.mongodb.org/core/atlas-api-rate-limit
+      name: Rate Limiting
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
     - label: API Changelog
       url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/changelog/
+x-topics:
+    - content: The MongoDB Atlas Administration API is rate limited. To learn more about rate limiting, see the [Atlas Documentation on Rate Limiting](http://dochub.mongodb.org/core/atlas-api-rate-limit)
+      title: Rate Limiting
