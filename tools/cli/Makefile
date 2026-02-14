@@ -1,8 +1,11 @@
 # A Self-Documenting Makefile: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 
 GOLANGCI_VERSION=v2.1.0
-SOURCE_FILES?=./cmd
+SOURCE_FILES?=./cmd/foascli.go
 BINARY_NAME=foascli
+MCP_SOURCE_FILES?=./cmd/mcp
+MCP_BINARY_NAME=openapi-mcp
+MCP_DESTINATION=./bin/$(MCP_BINARY_NAME)
 VERSION=v0.0.1
 GIT_SHA?=$(shell git rev-parse HEAD)
 DESTINATION=./bin/$(BINARY_NAME)
@@ -55,6 +58,14 @@ build:
 build-debug:
 	@echo "==> Building foascli binary for debugging"
 	go build -gcflags="$(DEBUG_FLAGS)" -ldflags "$(LINKER_FLAGS)" -o $(DESTINATION) $(SOURCE_FILES)
+
+.PHONY: build-mcp
+build-mcp: ## Build the OpenAPI MCP server binary
+	@echo "==> Building openapi-mcp binary"
+	go build -ldflags "$(LINKER_FLAGS)" -o $(MCP_DESTINATION) $(MCP_SOURCE_FILES)
+
+.PHONY: build-all
+build-all: build build-mcp ## Build all binaries
 
 .PHONY: lint
 lint: ## Run linter
