@@ -37489,7 +37489,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 167691938616a3cd81b540ec498ef0e19bdb97b9
+    x-xgen-sha: e5f7e3c2a186683b9c3c17357f6d9207050daec6
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -39799,7 +39799,7 @@ paths:
                 verb: listEntries
             x-xgen-operation-id-override: listAccessListEntries
         post:
-            description: Adds one or more access list entries to the specified project. MongoDB Cloud only allows client connections to the cluster from entries in the project's IP access list. Write each entry as either one IP address or one CIDR-notated block of IP addresses. To use this resource, the requesting Service Account or API Key must have the Project Owner or Project Charts Admin roles. This resource replaces the whitelist resource. MongoDB Cloud removed whitelists in July 2021. Update your applications to use this new resource. The `/groups/{GROUP-ID}/accessList` endpoint manages the database IP access list. This endpoint is distinct from the `orgs/{ORG-ID}/apiKeys/{API-KEY-ID}/accesslist` endpoint, which manages the access list for MongoDB Cloud organizations. This endpoint doesn't support concurrent `POST` requests. You must submit multiple `POST` requests synchronously.
+            description: Adds one or more access list entries to the specified project. MongoDB Cloud only allows client connections to the cluster from entries in the project's IP access list. Write each entry as either one IP address or one CIDR-notated block of IP addresses. To use this resource, the requesting Service Account or API Key must have the Project Owner role, Project Charts Admin role, or Project Network Access Manager role. This resource replaces the whitelist resource. MongoDB Cloud removed whitelists in July 2021. Update your applications to use this new resource. The `/groups/{GROUP-ID}/accessList` endpoint manages the database IP access list. This endpoint is distinct from the `orgs/{ORG-ID}/apiKeys/{API-KEY-ID}/accesslist` endpoint, which manages the access list for MongoDB Cloud organizations. This endpoint doesn't support concurrent `POST` requests. You must submit multiple `POST` requests synchronously.
             externalDocs:
                 description: IP access list
                 url: https://docs.atlas.mongodb.com/security/ip-access-list/#std-label-access-list
@@ -39896,7 +39896,7 @@ paths:
             x-xgen-operation-id-override: createAccessListEntry
     /api/atlas/v2/groups/{groupId}/accessList/{entryValue}:
         delete:
-            description: Removes one access list entry from the specified project's IP access list. Each entry in the project's IP access list contains one IP address, one CIDR-notated block of IP addresses, or one AWS Security Group ID. MongoDB Cloud only allows client connections to the cluster from entries in the project's IP access list. To use this resource, the requesting Service Account or API Key must have the Project Owner role. This resource replaces the whitelist resource. MongoDB Cloud removed whitelists in July 2021. Update your applications to use this new resource. The `/groups/{GROUP-ID}/accessList` endpoint manages the database IP access list. This endpoint is distinct from the `orgs/{ORG-ID}/apiKeys/{API-KEY-ID}/accesslist` endpoint, which manages the access list for MongoDB Cloud organizations.
+            description: Removes one access list entry from the specified project's IP access list. Each entry in the project's IP access list contains one IP address, one CIDR-notated block of IP addresses, or one AWS Security Group ID. MongoDB Cloud only allows client connections to the cluster from entries in the project's IP access list. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Network Access Manager role. This resource replaces the whitelist resource. MongoDB Cloud removed whitelists in July 2021. Update your applications to use this new resource. The `/groups/{GROUP-ID}/accessList` endpoint manages the database IP access list. This endpoint is distinct from the `orgs/{ORG-ID}/apiKeys/{API-KEY-ID}/accesslist` endpoint, which manages the access list for MongoDB Cloud organizations.
             externalDocs:
                 description: IP access list
                 url: https://docs.atlas.mongodb.com/security/ip-access-list/#std-label-access-list
@@ -41243,7 +41243,7 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/apiKeys?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Programmatic-API-Keys/operation/listGroupApiKeys
         post:
-            description: Creates and assigns the specified organization API key to the specified project. Users with the Project Owner role in the project associated with the API key can use the organization API key to access the resources. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: Creates and assigns the specified organization API key to the specified project. Users with the Project Owner role in the project associated with the API key can use the organization API key to access the resources. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Access Manager role.
             operationId: createGroupApiKey
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -41326,7 +41326,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Programmatic-API-Keys/operation/createGroupApiKey
     /api/atlas/v2/groups/{groupId}/apiKeys/{apiUserId}:
         delete:
-            description: Removes one organization API key from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: Removes one organization API key from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Access Manager role.
             externalDocs:
                 description: Programmatic API Keys
                 url: https://docs.atlas.mongodb.com/configure-api-access/#std-label-atlas-prog-api-key
@@ -41410,7 +41410,7 @@ paths:
                 customMethod: "True"
                 verb: remove
         patch:
-            description: Updates the roles of the organization API key that you specify for the project that you specify. You must specify at least one valid role for the project. The application removes any roles that you do not include in this request if they were previously set in the organization API key that you specify for the project.
+            description: Updates the roles of the organization API key that you specify for the project that you specify. You must specify at least one valid role for the project. The application removes any roles that you do not include in this request if they were previously set in the organization API key that you specify for the project. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Access Manager role.
             operationId: updateGroupApiKeyRoles
             parameters:
                 - $ref: '#/components/parameters/groupId'
@@ -43511,7 +43511,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupCluster
             x-xgen-operation-id-override: getCluster
         patch:
-            description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting Service Account or API Key must have the Project Owner role. For all other updates, the requesting Service Account or API Key must have the Project Cluster Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters. Deprecated versions: v2-{2024-08-05}, v2-{2023-02-01}, v2-{2023-01-01}'
+            description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting Service Account or API Key must have the Project Owner role. For all other updates, the requesting Service Account or API Key must have the Project Cluster Manager role or the Project Replica Set Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters. Deprecated versions: v2-{2024-08-05}, v2-{2023-02-01}, v2-{2023-01-01}'
             operationId: updateGroupCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -44017,7 +44017,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupExports
             x-xgen-operation-id-override: listBackupExports
         post:
-            description: Exports one backup Snapshot for dedicated Atlas cluster using Cloud Backups to an Export Bucket. To use this resource, the requesting Service Account or API Key must have the Project Atlas Admin role.
+            description: Exports one backup Snapshot for dedicated Atlas cluster using Cloud Backups to an Export Bucket. To use this resource, the requesting Service Account or API Key must have the Project Backup Export Operator role.
             operationId: createGroupClusterBackupExport
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -44281,9 +44281,9 @@ paths:
             x-xgen-operation-id-override: listBackupRestoreJobs
         post:
             description: |-
-                Restores one snapshot of one cluster from the specified project. Atlas takes on-demand snapshots immediately and scheduled snapshots at regular intervals. If an on-demand snapshot with a status of `queued` or `inProgress` exists, before taking another snapshot, wait until Atlas completes completes processing the previously taken on-demand snapshot.
+                Restores one snapshot of one cluster from the specified project. Atlas takes on-demand snapshots immediately and scheduled snapshots at regular intervals. If an on-demand snapshot with a status of `queued` or `inProgress` exists, before taking another snapshot, wait until Atlas completes processing the previously taken on-demand snapshot.
 
-                 To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+                 To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role, Project Backup Export Operator role, or Project Backup Recovery Operator role.
             operationId: createGroupClusterBackupRestoreJob
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -44378,7 +44378,7 @@ paths:
             x-xgen-operation-id-override: createBackupRestoreJob
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/restoreJobs/{restoreJobId}:
         delete:
-            description: Cancels one cloud backup restore job of one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            description: Cancels one cloud backup restore job of one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role, Project Backup Export Operator role, or Project Backup Recovery Operator role.
             operationId: cancelGroupClusterBackupRestoreJob
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -44899,9 +44899,9 @@ paths:
             x-xgen-operation-id-override: listBackupSnapshots
         post:
             description: |-
-                Takes one on-demand snapshot for the specified cluster. Atlas takes on-demand snapshots immediately and scheduled snapshots at regular intervals. If an on-demand snapshot with a status of `queued` or `inProgress` exists, before taking another snapshot, wait until Atlas completes completes processing the previously taken on-demand snapshot.
+                Takes one on-demand snapshot for the specified cluster. Atlas takes on-demand snapshots immediately and scheduled snapshots at regular intervals. If an on-demand snapshot with a status of `queued` or `inProgress` exists, before taking another snapshot, wait until Atlas completes processing the previously taken on-demand snapshot.
 
-                 To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+                 To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role or Project Backup Creator role.
             operationId: takeGroupClusterBackupSnapshots
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -48459,7 +48459,7 @@ paths:
             x-xgen-operation-id-override: downloadQueryLogs
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/outageSimulation:
         delete:
-            description: Ends a cluster outage simulation. To use this resource, the requesting Service Account or API Key must have the Project Cluster Manager role or Project Cluster Resilience Tester role.
+            description: Ends a cluster outage simulation. To use this resource, the requesting Service Account or API Key must have the Project Cluster Manager role, Project Cluster Resilience Tester role, or Project Replica Set Manager role.
             externalDocs:
                 description: Cluster Outage Simulation
                 url: https://dochub.mongodb.org/core/test-regional-outage
@@ -48637,7 +48637,7 @@ paths:
                 verb: get
             x-xgen-operation-id-override: getOutageSimulation
         post:
-            description: Starts a cluster outage simulation. To use this resource, the requesting Service Account or API Key must have the Project Cluster Manager role or Project Cluster Resilience Tester role.
+            description: Starts a cluster outage simulation. To use this resource, the requesting Service Account or API Key must have the Project Cluster Manager role, Project Cluster Resilience Tester role, or Project Replica Set Manager role.
             externalDocs:
                 description: Cluster Outage Simulation
                 url: https://dochub.mongodb.org/core/test-regional-outage
@@ -59145,7 +59145,7 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/peers?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/listGroupPeers
         post:
-            description: Creates one new network peering connection in the specified project. Network peering allows multiple cloud-hosted applications to securely connect to the same project. To use this resource, the requesting Service Account or API Key must have the Project Owner role. To learn more about considerations and prerequisites, see the Network Peering Documentation.
+            description: Creates one new network peering connection in the specified project. Network peering allows multiple cloud-hosted applications to securely connect to the same project. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Network Access Manager role. To learn more about considerations and prerequisites, see the Network Peering Documentation.
             externalDocs:
                 description: Azure Network Peering Prerequisites
                 url: https://docs.atlas.mongodb.com/reference/api/vpc-create-peering-connection/#prerequisites
@@ -59235,7 +59235,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/createGroupPeer
     /api/atlas/v2/groups/{groupId}/peers/{peerId}:
         delete:
-            description: Removes one network peering connection in the specified project. If you Removes the last network peering connection associated with a project, MongoDB Cloud also removes any AWS security groups from the project IP access list. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: Removes one network peering connection in the specified project. If you remove the last network peering connection associated with a project, MongoDB Cloud also removes any AWS security groups from the project IP access list. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Network Access Manager role.
             operationId: deleteGroupPeer
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -59397,7 +59397,7 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/peers/{peerId}?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/getGroupPeer
         patch:
-            description: Updates one specified network peering connection in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: Updates one specified network peering connection in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Network Access Manager role.
             operationId: updateGroupPeer
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -66233,7 +66233,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/listGroupServiceAccountAccessList
             x-xgen-operation-id-override: listAccessList
         post:
-            description: Add Access List Entries for the specified Service Account for the project. Resources require all API requests to originate from IP addresses on the API access list.
+            description: Add Access List Entries for the specified Service Account for the project. Resources require all API requests to originate from IP addresses on the API access list. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Access Manager role.
             operationId: createGroupServiceAccountAccessList
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -66336,7 +66336,7 @@ paths:
             x-xgen-operation-id-override: createAccessList
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
-            description: Removes the specified access list entry from the specified Service Account for the project. You can't remove the requesting IP address from the access list.
+            description: Removes the specified access list entry from the specified Service Account for the project. You can't remove the requesting IP address from the access list. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Access Manager role.
             operationId: deleteGroupServiceAccountAccessListEntry
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -69281,7 +69281,7 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/teams?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/listGroupTeams
         post:
-            description: Adds multiple teams to the specified project. All members of a team share the same project access. MongoDB Cloud limits the number of users to a maximum of 100 teams per project and a maximum of 250 teams per organization. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: Adds multiple teams to the specified project. All members of a team share the same project access. MongoDB Cloud limits the number of users to a maximum of 100 teams per project and a maximum of 250 teams per organization. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Access Manager role.
             externalDocs:
                 description: Manage Organization Teams
                 url: https://docs.atlas.mongodb.com/access/manage-teams-in-orgs/#std-label-manage-teams
@@ -69374,7 +69374,7 @@ paths:
                 verb: add
     /api/atlas/v2/groups/{groupId}/teams/{teamId}:
         delete:
-            description: Removes one team specified using its unique 24-hexadecimal digit identifier from the project specified using its unique 24-hexadecimal digit identifier. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: Removes one team specified using its unique 24-hexadecimal digit identifier from the project specified using its unique 24-hexadecimal digit identifier. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Access Manager role.
             externalDocs:
                 description: Manage Organization Teams
                 url: https://docs.atlas.mongodb.com/access/manage-teams-in-orgs/#std-label-manage-teams
@@ -69539,7 +69539,7 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/teams/{teamId}?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/getGroupTeam
         patch:
-            description: Updates the project roles assigned to the specified team. You can grant team roles for specific projects and grant project access roles to users in the team. All members of the team share the same project access. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            description: Updates the project roles assigned to the specified team. You can grant team roles for specific projects and grant project access roles to users in the team. All members of the team share the same project access. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Access Manager role.
             externalDocs:
                 description: Manage Organization Teams
                 url: https://docs.atlas.mongodb.com/access/manage-teams-in-orgs/#std-label-manage-teams
@@ -70233,7 +70233,7 @@ paths:
         delete:
             deprecated: true
             description: |-
-                Removes one MongoDB Cloud user from the specified project. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+                Removes one MongoDB Cloud user from the specified project. You can remove an active user or a user that has not yet accepted the invitation to join the organization. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Access Manager role.
 
                 **Note**: This resource cannot be used to remove pending users invited via the deprecated Invite One MongoDB Cloud User to Join One Project endpoint.
 
