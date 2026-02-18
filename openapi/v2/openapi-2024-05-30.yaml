@@ -36628,7 +36628,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: d55edc53625c4f894007d584b047427d14022053
+    x-xgen-sha: 0f87f78e5c167d612c1ba221be2812135564808e
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -48371,7 +48371,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2024-05-30+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment?pretty=true"
-            x-sunset: "2026-03-12"
+            x-sunset: "2027-07-01"
             x-xgen-changelog:
                 "2025-03-12": Updates the return of the API when no nodes exist, the endpoint returns 200 with an empty JSON ({}) instead of 400.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/getGroupClusterSearchDeployment
@@ -64780,7 +64780,7 @@ paths:
             x-xgen-operation-id-override: updateStreamWorkspace
     /api/atlas/v2/groups/{groupId}/streams/{tenantName}/auditLogs:
         get:
-            description: 'Downloads the audit logs for the specified Atlas Streams Processing workspace. By default, logs cover periods of 30 days. To use this resource, the requesting Service Account or API Key must have the Project Data Access roles, Project Owner role or Project Stream Processing Owner role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: `Accept: application/vnd.atlas.YYYY-MM-DD+gzip`.'
+            description: 'Downloads the audit logs for the specified Atlas Streams Processing workspace or stream processor. By default, logs cover periods of 30 days. To use this resource, the requesting Service Account or API Key must have the Project Data Access roles, Project Owner role or Project Stream Processing Owner role. The API does not support direct calls with the json response schema. You must request a gzip response schema using an accept header of the format: `Accept: application/vnd.atlas.YYYY-MM-DD+gzip`.'
             operationId: downloadGroupStreamAuditLogs
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -64801,6 +64801,11 @@ paths:
                     format: int64
                     pattern: "1199145600"
                     type: integer
+                - description: Name of the stream processor to download logs for. An empty string will download logs for all stream processors in the workspace.
+                  in: query
+                  name: spName
+                  schema:
+                    type: string
                 - description: Label that identifies the stream workspace.
                   in: path
                   name: tenantName
@@ -64812,7 +64817,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-02-01+gzip:
                             schema:
-                                description: Compressed archive labeled `auditLogs.gz` downloads
+                                description: Compressed archive containing `[tenantName]_[spName]_[startTime]_[endTime]_audit.log` downloads
                                 format: binary
                                 type: string
                             x-xgen-version: "2023-02-01"
