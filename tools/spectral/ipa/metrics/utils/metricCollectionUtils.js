@@ -40,7 +40,7 @@ export function loadCollectorResults(collectorResultsFilePath) {
       [EntryType.EXCEPTION]: content[EntryType.EXCEPTION],
     };
   } catch (error) {
-    throw new Error(`Failed to parse Collector Results: ${error.message}`);
+    throw new Error(`Failed to parse Collector Results: ${error.message}`, { cause: error });
   }
 }
 
