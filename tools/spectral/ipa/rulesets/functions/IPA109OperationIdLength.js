@@ -13,7 +13,7 @@ export default (input, { ignoreSingularizationList, maxLength }, { path, rule })
   }
 
   let methodName;
-  let endpointUrl = resourcePath;
+  let endpointUrl;
 
   try {
     if (isCustomMethodIdentifier(resourcePath)) {

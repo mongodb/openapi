@@ -7,7 +7,7 @@ export async function loadRuleset(rulesetPath, spectral) {
     await spectral.setRuleset(ruleset);
     return ruleset;
   } catch (error) {
-    throw new Error(`Failed to load ruleset: ${error.message}`);
+    throw new Error(`Failed to load ruleset: ${error.message}`, { cause: error });
   }
 }
 
@@ -16,6 +16,6 @@ export function loadJsonFile(filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(content);
   } catch (error) {
-    throw new Error(`Failed to load file: ${error.message}`);
+    throw new Error(`Failed to load file: ${error.message}`, { cause: error });
   }
 }
