@@ -3649,6 +3649,45 @@
         "readOnly": true,
         "type": "object"
       },
+      "ApiDateCriteria": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementCriteria"
+          },
+          {
+            "properties": {
+              "dateField": {
+                "description": "Name of the date field used to evaluate transition eligibility.",
+                "example": "createDate",
+                "type": "string"
+              },
+              "transitionAfterDays": {
+                "description": "Number of days after the date field value when data becomes eligible for transition.",
+                "example": 90,
+                "format": "int32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": {
+                "description": "Type of criteria.",
+                "enum": [
+                  "DATE"
+                ],
+                "example": "DATE",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Date-based criteria for data transition.",
+        "required": [
+          "dateField",
+          "transitionAfterDays",
+          "type"
+        ],
+        "type": "object"
+      },
       "ApiError": {
         "properties": {
           "badRequestDetail": {
@@ -3887,6 +3926,133 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
             }
+          }
+        },
+        "type": "object"
+      },
+      "ApiLifecycleManagementAction": {
+        "description": "Action to perform on data matching the policy criteria.",
+        "discriminator": {
+          "mapping": {
+            "TRANSITION_DATA": "#/components/schemas/ApiTransitionDataAction"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ApiTransitionDataAction"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Type of action to perform on data matching the policy criteria.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiLifecycleManagementCriteria": {
+        "description": "Criteria that determines which data is eligible for the action.",
+        "discriminator": {
+          "mapping": {
+            "DATE": "#/components/schemas/ApiDateCriteria"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ApiDateCriteria"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Type of criteria used to determine data transition eligibility.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiLifecycleManagementPolicyCreateRequest": {
+        "description": "Request body for creating a lifecycle management policy.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementAction"
+          },
+          "dbName": {
+            "description": "Name of the database this policy applies to.",
+            "example": "myDatabase",
+            "type": "string"
+          },
+          "targetCollection": {
+            "description": "Name of the source collection for data transition.",
+            "example": "myTargetCollection",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "dbName",
+          "targetCollection"
+        ],
+        "type": "object"
+      },
+      "ApiLifecycleManagementPolicyResponse": {
+        "description": "Lifecycle management policy for automated data transition.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementAction"
+          },
+          "dbName": {
+            "description": "Name of the database this policy applies to.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique identifier of the policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "state": {
+            "description": "Current state of the policy.",
+            "enum": [
+              "ACTIVE",
+              "PAUSING",
+              "PAUSED",
+              "DELETED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "targetCollection": {
+            "description": "Name of the target collection for data transition.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "dbName",
+          "id",
+          "state",
+          "targetCollection"
+        ],
+        "type": "object"
+      },
+      "ApiLifecycleManagementPolicyUpdateRequest": {
+        "description": "Request body for updating a lifecycle management policy.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementAction"
+          },
+          "state": {
+            "description": "Requested state transition. Valid values: ACTIVE, PAUSED.",
+            "enum": [
+              "ACTIVE",
+              "PAUSED"
+            ],
+            "type": "string"
           }
         },
         "type": "object"
@@ -4309,6 +4475,41 @@
           "US_EAST4"
         ],
         "type": "string"
+      },
+      "ApiTransitionDataAction": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementAction"
+          },
+          {
+            "properties": {
+              "criteria": {
+                "$ref": "#/components/schemas/ApiLifecycleManagementCriteria"
+              },
+              "destinationCollName": {
+                "description": "Name of the destination collection for transitioned data.",
+                "example": "destinationCollection",
+                "type": "string"
+              },
+              "type": {
+                "description": "Type of action. Only `TRANSITION_DATA` is supported.",
+                "enum": [
+                  "TRANSITION_DATA"
+                ],
+                "example": "TRANSITION_DATA",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Action that transitions data from source to destination collection.",
+        "required": [
+          "criteria",
+          "destinationCollName",
+          "type"
+        ],
+        "type": "object"
       },
       "ApiUserEventTypeViewForNdsGroup": {
         "description": "Unique identifier of event type.",
@@ -41071,6 +41272,41 @@
         ],
         "type": "object"
       },
+      "PaginatedApiLifecycleManagementPolicyResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ApiLifecycleManagementPolicyResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
       "PaginatedApiSKUView": {
         "properties": {
           "links": {
@@ -56226,7 +56462,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "855dd872db34a532185bd21befa528391c5a4b71"
+    "x-xgen-sha": "41a02f02497cc73bd9d5bacb8b1786b1448c041b"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -68216,6 +68452,479 @@
       "x-xgen-IPA-exception": {
         "xgen-IPA-104-resource-has-GET": "Get method doesn't apply for custom method.",
         "xgen-IPA-105-resource-has-list": "List method doesn't apply for custom method."
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies": {
+      "get": {
+        "description": "Returns all lifecycle management policies for the specified cluster. Each policy represents automated data transition rules between collections.",
+        "operationId": "listGroupClusterLifecycleManagementPolicies",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiLifecycleManagementPolicyResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Lifecycle Management Policies for One Cluster",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/listGroupClusterLifecycleManagementPolicies",
+        "x-xgen-operation-id-override": "listLifecycleManagementPolicies",
+        "x-xgen-owner-team": "Lifecycle Management"
+      },
+      "post": {
+        "description": "Creates a lifecycle management policy for the specified cluster. The policy defines rules for taking lifecycle management actions against a cluster.",
+        "operationId": "createGroupClusterLifecycleManagementPolicy",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiLifecycleManagementPolicyCreateRequest"
+              },
+              "x-xgen-IPA-exception": {
+                "xgen-IPA-106-create-method-request-body-is-get-method-response": "Create request intentionally excludes server-generated fields (id, state)."
+              },
+              "x-xgen-preview": {
+                "name": "lifecycle-management"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Lifecycle management policy to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiLifecycleManagementPolicyResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Lifecycle Management Policy",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/createGroupClusterLifecycleManagementPolicy",
+        "x-xgen-operation-id-override": "createLifecycleManagementPolicy",
+        "x-xgen-owner-team": "Lifecycle Management"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}": {
+      "delete": {
+        "description": "Deletes the lifecycle management policy with the specified identifier. The policy must be in PAUSED state before deletion.",
+        "operationId": "deleteGroupClusterLifecycleManagementPolicy",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the policy.",
+            "in": "path",
+            "name": "policyId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete One Lifecycle Management Policy",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/deleteGroupClusterLifecycleManagementPolicy",
+        "x-xgen-operation-id-override": "deleteLifecycleManagementPolicy",
+        "x-xgen-owner-team": "Lifecycle Management"
+      },
+      "get": {
+        "description": "Returns the lifecycle management policy with the specified identifier.",
+        "operationId": "getGroupClusterLifecycleManagementPolicy",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the policy.",
+            "in": "path",
+            "name": "policyId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiLifecycleManagementPolicyResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Lifecycle Management Policy",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/getGroupClusterLifecycleManagementPolicy",
+        "x-xgen-operation-id-override": "getLifecycleManagementPolicy",
+        "x-xgen-owner-team": "Lifecycle Management"
+      },
+      "patch": {
+        "description": "Updates the lifecycle management policy with the specified identifier. Supports partial updates via PATCH semantics. Can update action fields, transition policy state, or both.",
+        "operationId": "updateGroupClusterLifecycleManagementPolicy",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the policy.",
+            "in": "path",
+            "name": "policyId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiLifecycleManagementPolicyUpdateRequest"
+              },
+              "x-xgen-IPA-exception": {
+                "xgen-IPA-107-update-method-request-body-is-get-method-response": "Update request uses PATCH semantics with only mutable fields."
+              },
+              "x-xgen-preview": {
+                "name": "lifecycle-management"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Lifecycle management policy fields to update.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiLifecycleManagementPolicyResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One Lifecycle Management Policy",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/updateGroupClusterLifecycleManagementPolicy",
+        "x-xgen-operation-id-override": "updateLifecycleManagementPolicy",
+        "x-xgen-owner-team": "Lifecycle Management"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/onlineArchives": {
@@ -101964,6 +102673,10 @@
     {
       "description": "Manages Legacy Backup snapshots, restore jobs, schedules and checkpoints.",
       "name": "Legacy Backup"
+    },
+    {
+      "description": "Returns, creates, updates, and removes lifecycle management policies for a cluster within a specified project.",
+      "name": "Lifecycle Management"
     },
     {
       "description": "Returns, edits, and removes maintenance windows. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. You can defer a scheduled maintenance event for a project up to two times. Deferred maintenance events occur during your preferred maintenance window exactly one week after the previously scheduled date and time.",
