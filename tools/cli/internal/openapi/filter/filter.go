@@ -32,14 +32,24 @@ type Filter interface {
 }
 
 type Metadata struct {
-	targetVersion *apiversion.APIVersion
-	targetEnv     string
+	targetVersion     *apiversion.APIVersion
+	targetEnv         string
+	keepIPAExceptions bool
 }
 
 func NewMetadata(targetVersion *apiversion.APIVersion, targetEnv string) *Metadata {
 	return &Metadata{
-		targetVersion: targetVersion,
-		targetEnv:     targetEnv,
+		targetVersion:     targetVersion,
+		targetEnv:         targetEnv,
+		keepIPAExceptions: false,
+	}
+}
+
+func NewMetadataWithIPAExceptions(targetVersion *apiversion.APIVersion, targetEnv string, keepIPAExceptions bool) *Metadata {
+	return &Metadata{
+		targetVersion:     targetVersion,
+		targetEnv:         targetEnv,
+		keepIPAExceptions: keepIPAExceptions,
 	}
 }
 

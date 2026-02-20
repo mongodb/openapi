@@ -24,20 +24,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestExtensionFilter_removeIpaException(t *testing.T) {
-	oas := getOasIpaExceptions()
-	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
-	require.NoError(t, err)
-
-	filter := &ExtensionFilter{
-		oas:      oas,
-		metadata: &Metadata{targetVersion: version, targetEnv: "dev"},
-	}
-	require.NoError(t, filter.Apply())
-
+func getIpaExceptionTestCases(oas *openapi3.T, version *apiversion.APIVersion) []struct {
+	name      string
+	component any
+	extension any
+} {
 	contentKey := fmt.Sprintf("application/vnd.atlas.%s+json", version)
 
-	tests := []struct {
+	return []struct {
 		name      string
 		component any
 		extension any
@@ -133,12 +127,48 @@ func TestExtensionFilter_removeIpaException(t *testing.T) {
 			extension: oas.Components.Schemas["schemaOneOf"].Value.OneOf[0].Value.Properties["property"].Extensions[ipaExceptionExtension],
 		},
 	}
+}
+
+func TestExtensionFilter_removeIpaException(t *testing.T) {
+	oas := getOasIpaExceptions()
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
+
+	filter := &ExtensionFilter{
+		oas:      oas,
+		metadata: &Metadata{targetVersion: version, targetEnv: "dev", keepIPAExceptions: false},
+	}
+	require.NoError(t, filter.Apply())
+
+	tests := getIpaExceptionTestCases(oas, version)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.NotNil(t, tt.component)
 			assert.Nil(t, tt.extension)
+		})
+	}
+}
+
+func TestExtensionFilter_keepIpaException(t *testing.T) {
+	oas := getOasIpaExceptions()
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
+
+	filter := &ExtensionFilter{
+		oas:      oas,
+		metadata: &Metadata{targetVersion: version, targetEnv: "dev", keepIPAExceptions: true},
+	}
+	require.NoError(t, filter.Apply())
+
+	tests := getIpaExceptionTestCases(oas, version)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.NotNil(t, tt.component)
+			assert.NotNil(t, tt.extension, "IPA exception should be kept when keepIPAExceptions is true")
 		})
 	}
 }
@@ -227,6 +257,7 @@ func getOasIpaExceptions() *openapi3.T {
 						Description: "description",
 						Extensions:  extension,
 					},
+					Extensions: extension,
 				},
 			},
 		},
@@ -251,6 +282,7 @@ func getOasIpaExceptions() *openapi3.T {
 								Description: "description",
 								Extensions:  extension,
 							},
+							Extensions: extension,
 						},
 					},
 					Extensions: extension,
