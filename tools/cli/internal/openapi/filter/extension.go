@@ -70,6 +70,13 @@ func (f *ExtensionFilter) Apply() error {
 				if response.Value.Content == nil {
 					continue
 				}
+
+				// Handle response content
+				_, contentsInVersion := getVersionsInContentType(response.Value.Content)
+				for _, content := range contentsInVersion {
+					f.deleteIpaExceptionExtensionIfNeeded(content.Extensions)
+					f.updateExtensionsForSchema(content.Schema)
+				}
 			}
 
 			request := operation.RequestBody
@@ -101,14 +108,16 @@ func (f *ExtensionFilter) updateExtensionsForRequestBody(requestBody *openapi3.R
 
 func (f *ExtensionFilter) updateExtensionsForOperationParameters(parameters openapi3.Parameters) {
 	for _, parameter := range parameters {
-		if parameter.Value == nil || parameter.Value.Schema == nil {
+		if parameter == nil {
 			continue
 		}
-		f.deleteIpaExceptionExtensionIfNeeded(parameter.Value.Schema.Extensions)
-		if parameter.Value.Schema.Value == nil {
+		f.deleteIpaExceptionExtensionIfNeeded(parameter.Extensions)
+
+		if parameter.Value == nil {
 			continue
 		}
-		f.deleteIpaExceptionExtensionIfNeeded(parameter.Value.Schema.Value.Extensions)
+		f.deleteIpaExceptionExtensionIfNeeded(parameter.Value.Extensions)
+		f.updateExtensionsForSchema(parameter.Value.Schema)
 	}
 }
 
@@ -119,6 +128,10 @@ func (f *ExtensionFilter) updateExtensionsForComponents(components *openapi3.Com
 	for _, parameter := range components.Parameters {
 		if parameter != nil {
 			f.deleteIpaExceptionExtensionIfNeeded(parameter.Extensions)
+			if parameter.Value != nil {
+				f.deleteIpaExceptionExtensionIfNeeded(parameter.Value.Extensions)
+				f.updateExtensionsForSchema(parameter.Value.Schema)
+			}
 		}
 	}
 }
@@ -132,50 +145,40 @@ func (f *ExtensionFilter) updateExtensionsForTags(tags *openapi3.Tags) {
 }
 
 func (f *ExtensionFilter) updateExtensionsForSchema(schema *openapi3.SchemaRef) {
-	if schema != nil {
-		f.deleteIpaExceptionExtensionIfNeeded(schema.Extensions)
+	if schema == nil {
+		return
 	}
-	if schema.Value != nil {
-		f.deleteIpaExceptionExtensionIfNeeded(schema.Value.Extensions)
-		for _, allOf := range schema.Value.AllOf {
-			if allOf.Value == nil {
-				continue
-			}
-			for _, property := range allOf.Value.Properties {
-				f.deleteIpaExceptionExtensionIfNeeded(property.Extensions)
-				if property.Value != nil {
-					f.deleteIpaExceptionExtensionIfNeeded(property.Value.Extensions)
-				}
-			}
-		}
-		for _, anyOf := range schema.Value.AnyOf {
-			if anyOf.Value == nil {
-				continue
-			}
-			for _, property := range anyOf.Value.Properties {
-				f.deleteIpaExceptionExtensionIfNeeded(property.Extensions)
-				if property.Value != nil {
-					f.deleteIpaExceptionExtensionIfNeeded(property.Value.Extensions)
-				}
-			}
-		}
-		for _, oneOf := range schema.Value.OneOf {
-			if oneOf.Value == nil {
-				continue
-			}
-			for _, property := range oneOf.Value.Properties {
-				f.deleteIpaExceptionExtensionIfNeeded(property.Extensions)
-				if property.Value != nil {
-					f.deleteIpaExceptionExtensionIfNeeded(property.Value.Extensions)
-				}
-			}
-		}
-		for _, property := range schema.Value.Properties {
-			f.deleteIpaExceptionExtensionIfNeeded(property.Extensions)
-			if property.Value != nil {
-				f.deleteIpaExceptionExtensionIfNeeded(property.Value.Extensions)
-			}
-		}
+	f.deleteIpaExceptionExtensionIfNeeded(schema.Extensions)
+
+	if schema.Value == nil {
+		return
+	}
+
+	f.deleteIpaExceptionExtensionIfNeeded(schema.Value.Extensions)
+
+	// Handle array items
+	if schema.Value.Items != nil {
+		f.updateExtensionsForSchema(schema.Value.Items)
+	}
+
+	// Handle allOf
+	for _, allOf := range schema.Value.AllOf {
+		f.updateExtensionsForSchema(allOf)
+	}
+
+	// Handle anyOf
+	for _, anyOf := range schema.Value.AnyOf {
+		f.updateExtensionsForSchema(anyOf)
+	}
+
+	// Handle oneOf
+	for _, oneOf := range schema.Value.OneOf {
+		f.updateExtensionsForSchema(oneOf)
+	}
+
+	// Handle properties (recursively)
+	for _, property := range schema.Value.Properties {
+		f.updateExtensionsForSchema(property)
 	}
 }
 
