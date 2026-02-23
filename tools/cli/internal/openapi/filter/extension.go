@@ -71,9 +71,11 @@ func (f *ExtensionFilter) Apply() error {
 					continue
 				}
 
-				// Handle response content
-				_, contentsInVersion := getVersionsInContentType(response.Value.Content)
-				for _, content := range contentsInVersion {
+				// Handle response content - iterate over ALL content types directly
+				for _, content := range response.Value.Content {
+					if content == nil {
+						continue
+					}
 					f.deleteIpaExceptionExtensionIfNeeded(content.Extensions)
 					f.updateExtensionsForSchema(content.Schema)
 				}
@@ -95,12 +97,16 @@ func (f *ExtensionFilter) Apply() error {
 }
 
 func (f *ExtensionFilter) updateExtensionsForRequestBody(requestBody *openapi3.RequestBodyRef) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Value == nil {
 		return
 	}
 	f.deleteIpaExceptionExtensionIfNeeded(requestBody.Extensions)
-	_, contentsInVersion := getVersionsInContentType(requestBody.Value.Content)
-	for _, content := range contentsInVersion {
+
+	// Handle request body content - iterate over ALL content types directly
+	for _, content := range requestBody.Value.Content {
+		if content == nil {
+			continue
+		}
 		f.deleteIpaExceptionExtensionIfNeeded(content.Extensions)
 		f.updateExtensionsForSchema(content.Schema)
 	}
