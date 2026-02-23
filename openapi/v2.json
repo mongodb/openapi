@@ -39955,6 +39955,39 @@
         },
         "type": "object"
       },
+      "PaginatedRateLimitEndpointSets": {
+        "description": "A list of rate limit endpoint sets.",
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/RateLimitEndpointSetResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PaginatedRestoreJobView": {
         "properties": {
           "links": {
@@ -41628,6 +41661,118 @@
         "required": [
           "metricName"
         ],
+        "type": "object"
+      },
+      "RateLimitEndpointSetCapacity": {
+        "description": "The rate limit capacity for the endpoint set.",
+        "properties": {
+          "defaultValue": {
+            "description": "The default request capacity of the endpoint set. Returned if there is a capacity override set for the requested entity.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "value": {
+            "description": "The applied request capacity of the endpoint set.",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RateLimitEndpointSetEndpoint": {
+        "properties": {
+          "method": {
+            "description": "The HTTP method of the endpoint.",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "PATCH"
+            ],
+            "type": "string"
+          },
+          "path": {
+            "description": "The URL path of the endpoint.",
+            "example": "/api/atlas/v2/rateLimits",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RateLimitEndpointSetRefillDurationSeconds": {
+        "description": "The rate limit refill duration for the endpoint set.",
+        "properties": {
+          "defaultValue": {
+            "description": "The default rate limit refill duration, in seconds, of the endpoint set. Returned if there is a rate limit refill duration override set for the requested entity.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "value": {
+            "description": "The applied rate limit refill duration of the endpoint set.",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RateLimitEndpointSetRefillRate": {
+        "description": "The rate limit refill rate for the endpoint set.",
+        "properties": {
+          "defaultValue": {
+            "description": "The default rate limit refill rate of the endpoint set. Returned if there is a rate limit refill rate override set for the requested entity.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "value": {
+            "description": "The applied rate limit refill rate of the endpoint set.",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RateLimitEndpointSetResponse": {
+        "properties": {
+          "capacity": {
+            "$ref": "#/components/schemas/RateLimitEndpointSetCapacity"
+          },
+          "endpointSetId": {
+            "description": "The ID of the endpoint set.",
+            "example": "rateLimitsInspection_group",
+            "type": "string"
+          },
+          "endpointSetName": {
+            "description": "The endpoint set name.",
+            "example": "Rate Limits Inspection",
+            "type": "string"
+          },
+          "endpoints": {
+            "description": "A list of endpoints associated with the specified endpoint set.",
+            "items": {
+              "$ref": "#/components/schemas/RateLimitEndpointSetEndpoint"
+            },
+            "maxItems": 100,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "refillDurationSeconds": {
+            "$ref": "#/components/schemas/RateLimitEndpointSetRefillDurationSeconds"
+          },
+          "refillRate": {
+            "$ref": "#/components/schemas/RateLimitEndpointSetRefillRate"
+          },
+          "scope": {
+            "description": "The scope of the endpoint set.",
+            "enum": [
+              "IP",
+              "GROUP",
+              "ORGANIZATION",
+              "USER"
+            ],
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "RawMetricAlertView": {
@@ -52354,7 +52499,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "67730a1da5a6d9fc326e66a1291eb7ec0f942771"
+    "x-xgen-sha": "564d84244de3328977048301b9c1520ff0d26b48"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -88539,6 +88684,231 @@
         "x-xgen-operation-id-override": "removeOrgRole"
       }
     },
+    "/api/atlas/v2/rateLimits": {
+      "get": {
+        "description": "Get all rate limits for all v2 Atlas Administration API endpoint sets.",
+        "operationId": "listRateLimits",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the Atlas Project to request rate limits for. When this parameter is provided, only group scoped endpoint sets are returned and the limits returned are applicable to the specified project. The requesting user must have the Project Read Only role for the specified project.",
+            "in": "query",
+            "name": "groupId",
+            "schema": {
+              "example": "32b6e34b3d91647abb20e7b8",
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the Atlas Organization to request rate limits for. When this parameter is provided, only organization scoped endpoint sets are returned and the limits returned are applicable to the specified organization. The requesting user must have the Organization Read Only role for the specified organization.",
+            "in": "query",
+            "name": "orgId",
+            "schema": {
+              "example": "32b6e34b3d91647abb20e7b8",
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "A string that identifies the Atlas user to request rate limits for. The ID can for example be the Service Account Client ID or the API Public Key. When this parameter is provided, only user scoped endpoint sets are returned and the limits returned are applicable to the specified user. The requesting user must be the same as the specified user.",
+            "in": "query",
+            "name": "userId",
+            "schema": {
+              "example": "mdb_sa_id_1234567890abcdef12345678",
+              "type": "string"
+            }
+          },
+          {
+            "description": "An IP address to request rate limits for. When this parameter is provided, only IP scoped endpoint sets are returned and the limits returned are applicable to the specified IP address. The requesting user must have the same IP address as the one provided in the request.",
+            "in": "query",
+            "name": "ipAddress",
+            "schema": {
+              "example": "127.0.0.1",
+              "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filters the returned endpoint sets by the provided endpoint set name. Multiple names may be provided, for example `/rateLimits?name=Name1&name=Name2`. For names that use spaces, replace the space with its URL-encoded value (`%20`).",
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "example": "Rate Limits Inspection",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filters the returned endpoint sets by the provided endpoint path. Multiple paths may be provided, for example `/rateLimits?endpointPath=%2Fapi%2Fatlas%2Fv2%2Fclusters&endpointPath=%2Fapi%2Fatlas%2Fv2%2Fgroups%2F%7BgroupId%7D%2F`. Replace `/`, `{` and `}` with their URL-encoded values (`%2F`, `%7B` and `%7D` respectively).",
+            "in": "query",
+            "name": "endpointPath",
+            "schema": {
+              "example": "/api/atlas/v2/clusters",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedRateLimitEndpointSets"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedRateLimitEndpointSets"
+                },
+                "x-sunset": "2026-04-19",
+                "x-xgen-preview": {
+                  "name": "rate-limit",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Rate Limits",
+        "tags": [
+          "Rate Limiting"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/listRateLimits"
+      }
+    },
+    "/api/atlas/v2/rateLimits/{endpointSetId}": {
+      "get": {
+        "description": "Get one rate limit endpoint set.",
+        "operationId": "getRateLimit",
+        "parameters": [
+          {
+            "description": "The ID of the rate limit endpoint set.",
+            "in": "path",
+            "name": "endpointSetId",
+            "required": true,
+            "schema": {
+              "example": "rateLimitsInspection_group",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the Atlas Project to request rate limits for. When this parameter is provided, the limits returned are applicable to the specified project. The requesting user must have the Project Read Only role for the specified project.",
+            "in": "query",
+            "name": "groupId",
+            "schema": {
+              "example": "32b6e34b3d91647abb20e7b8",
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the Atlas Organization to request rate limits for. When this parameter is provided, the limits returned are applicable to the specified organization. The requesting user must have the Organization Read Only role for the specified organization.",
+            "in": "query",
+            "name": "orgId",
+            "schema": {
+              "example": "32b6e34b3d91647abb20e7b8",
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "A string that identifies the Atlas user to request rate limits for. The ID can for example be the Service Account Client ID or the API Public Key. When this parameter is provided, the limits returned are applicable to the specified  user. The requesting user must be the same as the specified user.",
+            "in": "query",
+            "name": "userId",
+            "schema": {
+              "example": "mdb_sa_id_1234567890abcdef12345678",
+              "type": "string"
+            }
+          },
+          {
+            "description": "An IP address to request rate limits for. When this parameter is provided, the limits returned are applicable to the specified IP address. The requesting user must have the same IP address as the one provided in the request.",
+            "in": "query",
+            "name": "ipAddress",
+            "schema": {
+              "example": "127.0.0.1",
+              "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitEndpointSetResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitEndpointSetResponse"
+                },
+                "x-sunset": "2026-04-19",
+                "x-xgen-preview": {
+                  "name": "rate-limit",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Rate Limit",
+        "tags": [
+          "Rate Limiting"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/getRateLimit"
+      }
+    },
     "/api/atlas/v2/skus": {
       "get": {
         "description": "Returns all available SKUs (Stock Keeping Units) that can appear on MongoDB invoices. SKUs represent different products and services offered by MongoDB.",
@@ -89036,6 +89406,14 @@
     {
       "description": "You can continually export mongod, mongos, and audit logs to an AWS S3 bucket. The new `/logIntegrations` API provides 1-minute log export. The existing `/pushBasedLogExport` API provides 5-minute log export and will be deprecated in the future. The log export integrations are managed at the project level.",
       "name": "Push-Based Log Export"
+    },
+    {
+      "description": "Returns details about rate limit policies for the Atlas Administration API.",
+      "externalDocs": {
+        "description": "Atlas API Rate Limits documentation",
+        "url": "http://dochub.mongodb.org/core/atlas-api-rate-limit"
+      },
+      "name": "Rate Limiting"
     },
     {
       "description": "Configure and manage Atlas Resource Policies within your organization.",
