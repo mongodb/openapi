@@ -8,7 +8,7 @@ The Atlas Admin API OpenAPI specifications are used not only to document REST en
  - Filtering per version, so that only the endpoints that are available in that version are shown.
 ## What filters are available?
 ### List of filters
-[ExtensionFilter: is a filter that removes the x-xgen-IPA-exception extension from the OpenAPI spec.](../internal/openapi/filter/extension.go?plain=1#L21)  
+[ExtensionFilter: is a filter that removes the x-xgen-IPA-exception extension from the OpenAPI spec (unless keepIPAExceptions is set in metadata).](../internal/openapi/filter/extension.go?plain=1#L21)
 [HiddenEnvsFilter: is a filter that removes paths, operations,](../internal/openapi/filter/hidden_envs.go?plain=1#L28)  
 [InfoVersioningFilter: Filter that modifies the Info object in the OpenAPI spec with the target version.](../internal/openapi/filter/info.go?plain=1#L23)  
 [OperationsFilter: is a filter that removes the x-xgen-owner-team extension from operations.](../internal/openapi/filter/operations.go?plain=1#L20)  

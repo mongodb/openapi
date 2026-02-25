@@ -54,4 +54,5 @@ const (
 	OperationIDs             = "ids"
 	Tags                     = "tags"
 	Paths                    = "paths"
+	KeepIPAExceptions        = "keep-ipa-exceptions"
 )

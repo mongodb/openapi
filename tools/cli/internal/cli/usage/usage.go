@@ -42,4 +42,5 @@ const (
 	Tags                = "Comma-separated list of tags to extract."
 	OperationIDs        = "Comma-separated list of operation IDs to extract."
 	Paths               = "Comma-separated list of path patterns to extract."
+	KeepIPAExceptions   = "Keep x-xgen-IPA-exception extensions in the filtered output."
 )

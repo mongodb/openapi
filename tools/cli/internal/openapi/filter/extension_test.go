@@ -24,20 +24,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestExtensionFilter_removeIpaException(t *testing.T) {
-	oas := getOasIpaExceptions()
-	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
-	require.NoError(t, err)
-
-	filter := &ExtensionFilter{
-		oas:      oas,
-		metadata: &Metadata{targetVersion: version, targetEnv: "dev"},
-	}
-	require.NoError(t, filter.Apply())
-
+func getIpaExceptionTestCases(oas *openapi3.T, version *apiversion.APIVersion) []struct {
+	name      string
+	component any
+	extension any
+} {
 	contentKey := fmt.Sprintf("application/vnd.atlas.%s+json", version)
 
-	tests := []struct {
+	return []struct {
 		name      string
 		component any
 		extension any
@@ -132,13 +126,104 @@ func TestExtensionFilter_removeIpaException(t *testing.T) {
 			component: oas.Components.Schemas["schemaOneOf"].Value.OneOf[0].Value.Properties["property"],
 			extension: oas.Components.Schemas["schemaOneOf"].Value.OneOf[0].Value.Properties["property"].Extensions[ipaExceptionExtension],
 		},
+		{
+			name:      "componentAllOfSchemaItem",
+			component: oas.Components.Schemas["schemaAllOf"].Value.AllOf[0],
+			extension: oas.Components.Schemas["schemaAllOf"].Value.AllOf[0].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentAnyOfSchemaItem",
+			component: oas.Components.Schemas["schemaAnyOf"].Value.AnyOf[0],
+			extension: oas.Components.Schemas["schemaAnyOf"].Value.AnyOf[0].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentOneOfSchemaItem",
+			component: oas.Components.Schemas["schemaOneOf"].Value.OneOf[0],
+			extension: oas.Components.Schemas["schemaOneOf"].Value.OneOf[0].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentAllOfSchemaItemValue",
+			component: oas.Components.Schemas["schemaAllOf"].Value.AllOf[0].Value,
+			extension: oas.Components.Schemas["schemaAllOf"].Value.AllOf[0].Value.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentAnyOfSchemaItemValue",
+			component: oas.Components.Schemas["schemaAnyOf"].Value.AnyOf[0].Value,
+			extension: oas.Components.Schemas["schemaAnyOf"].Value.AnyOf[0].Value.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentOneOfSchemaItemValue",
+			component: oas.Components.Schemas["schemaOneOf"].Value.OneOf[0].Value,
+			extension: oas.Components.Schemas["schemaOneOf"].Value.OneOf[0].Value.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "arrayItems",
+			component: oas.Components.Schemas["schemaWithArrayItems"].Value.Items,
+			extension: oas.Components.Schemas["schemaWithArrayItems"].Value.Items.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "arrayItemsValue",
+			component: oas.Components.Schemas["schemaWithArrayItems"].Value.Items.Value,
+			extension: oas.Components.Schemas["schemaWithArrayItems"].Value.Items.Value.Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "responseContent",
+			component: oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey),
+			extension: oas.Paths.Find("/path").Get.Responses.Map()["200"].Value.Content.Get(contentKey).Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "operationParameterRef",
+			component: oas.Paths.Find("/path").Get.Parameters[0],
+			extension: oas.Paths.Find("/path").Get.Parameters[0].Extensions[ipaExceptionExtension],
+		},
+		{
+			name:      "componentParameterValue",
+			component: oas.Components.Parameters["parameter"].Value,
+			extension: oas.Components.Parameters["parameter"].Value.Extensions[ipaExceptionExtension],
+		},
 	}
+}
+
+func TestExtensionFilter_removeIpaException(t *testing.T) {
+	oas := getOasIpaExceptions()
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
+
+	filter := &ExtensionFilter{
+		oas:      oas,
+		metadata: &Metadata{targetVersion: version, targetEnv: "dev", keepIPAExceptions: false},
+	}
+	require.NoError(t, filter.Apply())
+
+	tests := getIpaExceptionTestCases(oas, version)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.NotNil(t, tt.component)
 			assert.Nil(t, tt.extension)
+		})
+	}
+}
+
+func TestExtensionFilter_keepIpaException(t *testing.T) {
+	oas := getOasIpaExceptions()
+	version, err := apiversion.New(apiversion.WithVersion("2023-01-01"))
+	require.NoError(t, err)
+
+	filter := &ExtensionFilter{
+		oas:      oas,
+		metadata: &Metadata{targetVersion: version, targetEnv: "dev", keepIPAExceptions: true},
+	}
+	require.NoError(t, filter.Apply())
+
+	tests := getIpaExceptionTestCases(oas, version)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.NotNil(t, tt.component)
+			assert.NotNil(t, tt.extension, "IPA exception should be kept when keepIPAExceptions is true")
 		})
 	}
 }
@@ -183,6 +268,7 @@ func getOasIpaExceptions() *openapi3.T {
 						},
 						Extensions: extension,
 					},
+					Extensions: extension,
 				},
 			},
 			Extensions: extension,
@@ -227,9 +313,12 @@ func getOasIpaExceptions() *openapi3.T {
 						Description: "description",
 						Extensions:  extension,
 					},
+					Extensions: extension,
 				},
 			},
+			Extensions: extension,
 		},
+		Extensions: extension,
 	})
 
 	components := &openapi3.Components{
@@ -237,6 +326,7 @@ func getOasIpaExceptions() *openapi3.T {
 			"parameter": {
 				Value: &openapi3.Parameter{
 					Description: "description",
+					Extensions:  extension,
 				},
 				Extensions: extension,
 			},
@@ -251,6 +341,7 @@ func getOasIpaExceptions() *openapi3.T {
 								Description: "description",
 								Extensions:  extension,
 							},
+							Extensions: extension,
 						},
 					},
 					Extensions: extension,
@@ -273,6 +364,19 @@ func getOasIpaExceptions() *openapi3.T {
 				Value: &openapi3.Schema{
 					Description: "description",
 					OneOf:       multipleSchemas,
+				},
+			},
+			"schemaWithArrayItems": {
+				Value: &openapi3.Schema{
+					Description: "description",
+					Type:        &openapi3.Types{"array"},
+					Items: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Description: "description",
+							Extensions:  extension,
+						},
+						Extensions: extension,
+					},
 				},
 			},
 		}}

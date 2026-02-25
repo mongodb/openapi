@@ -29,12 +29,13 @@ import (
 )
 
 type Opts struct {
-	fs         afero.Fs
-	basePath   string
-	outputPath string
-	env        string
-	versions   []string
-	format     string
+	fs                afero.Fs
+	basePath          string
+	outputPath        string
+	env               string
+	versions          []string
+	format            string
+	keepIPAExceptions bool
 }
 
 func (o *Opts) Run() error {
@@ -47,10 +48,10 @@ func (o *Opts) Run() error {
 	var filteredOAS *openapi3.T
 	// If versions are provided, versioning filters will also be applied.
 	if len(o.versions) > 0 {
-		filteredOAS, err = ByVersions(specInfo.Spec, o.versions, o.env)
+		filteredOAS, err = ByVersions(specInfo.Spec, o.versions, o.env, o.keepIPAExceptions)
 	} else {
 		filters := filter.FiltersWithoutVersioning
-		metadata := filter.NewMetadata(nil, o.env)
+		metadata := filter.NewMetadataWithIPAExceptions(nil, o.env, o.keepIPAExceptions)
 		filteredOAS, err = filter.ApplyFilters(specInfo.Spec, metadata, filters)
 	}
 
@@ -61,30 +62,30 @@ func (o *Opts) Run() error {
 	return openapi.Save(o.outputPath, filteredOAS, o.format, o.fs)
 }
 
-func ByVersion(oas *openapi3.T, version, env string) (result *openapi3.T, err error) {
+func ByVersion(oas *openapi3.T, version, env string, keepIPAExceptions bool) (result *openapi3.T, err error) {
 	log.Printf("Filtering OpenAPI document by version %q", version)
 	apiVersion, err := apiversion.New(apiversion.WithVersion(version))
 	if err != nil {
 		return nil, err
 	}
 
-	return filter.ApplyFilters(oas, filter.NewMetadata(apiVersion, env), filter.DefaultFilters)
+	return filter.ApplyFilters(oas, filter.NewMetadataWithIPAExceptions(apiVersion, env, keepIPAExceptions), filter.DefaultFilters)
 }
 
-func ByVersions(oas *openapi3.T, versions []string, env string) (result *openapi3.T, err error) {
+func ByVersions(oas *openapi3.T, versions []string, env string, keepIPAExceptions bool) (result *openapi3.T, err error) {
 	if len(versions) == 0 {
 		return nil, nil
 	}
 
 	if len(versions) == 1 {
-		return ByVersion(oas, versions[0], env)
+		return ByVersion(oas, versions[0], env, keepIPAExceptions)
 	}
 
 	log.Printf("Filtering OpenAPI document by versions %v", versions)
 
 	filteredSpecs := make([]*openapi3.T, 0, len(versions))
 	for _, version := range versions {
-		filtered, err := ByVersion(oas, version, env)
+		filtered, err := ByVersion(oas, version, env, keepIPAExceptions)
 		if err != nil {
 			return nil, fmt.Errorf("failed to filter by version %q: %w", version, err)
 		}
@@ -127,6 +128,7 @@ If a version is provided, versioning filters will also be applied.`,
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringSliceVar(&opts.versions, flag.Version, []string{}, usage.Version)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, openapi.ALL, usage.Format)
+	cmd.Flags().BoolVar(&opts.keepIPAExceptions, flag.KeepIPAExceptions, false, usage.KeepIPAExceptions)
 
 	// Required flags
 	_ = cmd.MarkFlagRequired(flag.Output)
