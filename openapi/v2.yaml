@@ -2699,6 +2699,26 @@ components:
                     type: string
             readOnly: true
             type: object
+        ApiCustomCriteria:
+            allOf:
+                - $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
+                - properties:
+                    query:
+                        description: MongoDB find() based filter string in JSON format to determine data transition eligibility.
+                        example: '{"status":"archived"}'
+                        type: string
+                    type:
+                        description: Type of criteria.
+                        enum:
+                            - CUSTOM
+                        example: CUSTOM
+                        type: string
+                  type: object
+            description: Custom query-based criteria for data transition.
+            required:
+                - query
+                - type
+            type: object
         ApiDateCriteria:
             allOf:
                 - $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
@@ -2925,10 +2945,12 @@ components:
             description: Criteria that determines which data is eligible for the action.
             discriminator:
                 mapping:
+                    CUSTOM: '#/components/schemas/ApiCustomCriteria'
                     DATE: '#/components/schemas/ApiDateCriteria'
                 propertyName: type
             oneOf:
                 - $ref: '#/components/schemas/ApiDateCriteria'
+                - $ref: '#/components/schemas/ApiCustomCriteria'
             properties:
                 type:
                     description: Type of criteria used to determine data transition eligibility.
@@ -42222,7 +42244,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 5c76a81ac4eccbb8acb8eac9d625647d2ae85a85
+    x-xgen-sha: 388e3341ef8636e1bb6cc42640b93d6263ada9dc
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
