@@ -15589,6 +15589,29 @@ components:
                 - id
             title: Any Other Events
             type: object
+        DefaultGroupLimitResponse:
+            description: Description of a user-configurable, project-level limit.
+            properties:
+                defaultValue:
+                    description: Default value for this limit. Returns null if no default value exists.
+                    format: int32
+                    readOnly: true
+                    type: integer
+                description:
+                    description: Human-friendly description of what the limit controls.
+                    readOnly: true
+                    type: string
+                maximumValue:
+                    description: Maximum value for this limit. Returns null if no maximum value exists.
+                    format: int32
+                    readOnly: true
+                    type: integer
+                name:
+                    description: Human-readable label that identifies the user-managed limit.
+                    readOnly: true
+                    type: string
+            title: Group limit description
+            type: object
         DefaultLimit:
             description: Details of user managed limits.
             properties:
@@ -33064,6 +33087,33 @@ components:
             required:
                 - results
             type: object
+        PaginatedDefaultGroupLimitResponse:
+            description: A list of user-configurable, project-level limits with descriptions.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/DefaultGroupLimitResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
         PaginatedDiskPartitionView:
             properties:
                 links:
@@ -43886,7 +43936,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 520659bd74b11679f6aae3115522a362a00194c7
+    x-xgen-sha: de736a48f862909576c804f3af85fd5fb16357e7
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -44010,6 +44060,90 @@ paths:
             x-xgen-owner-team: Intel I
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation.
+    /api/atlas/v2/defaultGroupLimits:
+        get:
+            description: Returns a list of all user-configurable, project-level limits, along with a description and their default and maximum values.
+            operationId: listDefaultGroupLimits
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedDefaultGroupLimitResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Descriptions of User-Configurable Project Limits
+            tags:
+                - Limit Description
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Limit-Description/operation/listDefaultGroupLimits
+            x-xgen-owner-team: Atlas Cluster Platforms II
+    /api/atlas/v2/defaultGroupLimits/{limitName}:
+        get:
+            description: Returns the description of one user-configurable, project-level limit, along with its default and maximum values.
+            operationId: getDefaultGroupLimit
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the user-managed limit whose description you want to retrieve.
+                  in: path
+                  name: limitName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/DefaultGroupLimitResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One User-Configurable Project Limit and Description
+            tags:
+                - Limit Description
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Limit-Description/operation/getDefaultGroupLimit
+            x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/eventTypes:
         get:
             description: Returns a list of all event types, along with a description and additional metadata about each event.
