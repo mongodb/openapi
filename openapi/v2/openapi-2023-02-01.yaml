@@ -971,6 +971,7 @@ components:
                     type: string
             required:
                 - cloudProvider
+                - interfaceEndpoints
             title: AWS
             type: object
         AWSRegionConfig:
@@ -1286,6 +1287,8 @@ components:
                     items:
                         $ref: '#/components/schemas/DiskBackupApiPolicyItem'
                     type: array
+            required:
+                - policyItems
             type: object
         AlertAudit:
             description: Alert audit indicates acknowledgement status of an alert.
@@ -2123,7 +2126,6 @@ components:
                 parameters:
                     description: Parameters used to give more information about the error.
                     items:
-                        readOnly: true
                         type: object
                     readOnly: true
                     type: array
@@ -2239,8 +2241,10 @@ components:
                     type: array
             readOnly: true
             required:
+                - accessList
                 - id
                 - publicKey
+                - roles
             type: object
         ApiKeyUserDetails:
             description: Details of the Programmatic API Keys.
@@ -3617,6 +3621,7 @@ components:
                     uniqueItems: true
             required:
                 - externalGroupName
+                - roleAssignments
             title: Federated Authentication Role Mapping
             type: object
         AutoExportPolicyView:
@@ -5410,58 +5415,6 @@ components:
                 - retentionUnit
                 - retentionValue
             type: object
-        BackupTenantSnapshot:
-            properties:
-                expiration:
-                    description: Date and time when the download link no longer works. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    format: date-time
-                    readOnly: true
-                    type: string
-                finishTime:
-                    description: Date and time when MongoDB Cloud completed writing this snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    format: date-time
-                    readOnly: true
-                    type: string
-                id:
-                    description: Unique 24-hexadecimal digit string that identifies the restore job.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    readOnly: true
-                    type: string
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                mongoDBVersion:
-                    description: MongoDB host version that the snapshot runs.
-                    readOnly: true
-                    type: string
-                scheduledTime:
-                    description: Date and time when MongoDB Cloud will take the snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    format: date-time
-                    readOnly: true
-                    type: string
-                startTime:
-                    description: Date and time when MongoDB Cloud began taking the snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    format: date-time
-                    readOnly: true
-                    type: string
-                status:
-                    description: Phase of the workflow for this snapshot at the time this resource made this request.
-                    enum:
-                        - PENDING
-                        - QUEUED
-                        - RUNNING
-                        - FAILED
-                        - COMPLETED
-                    readOnly: true
-                    type: string
-            type: object
         BadRequestDetail:
             description: Bad request detail.
             properties:
@@ -6606,6 +6559,7 @@ components:
                 - lastName
                 - mobileNumber
                 - password
+                - roles
                 - username
             type: object
         CloudCluster:
@@ -6784,6 +6738,7 @@ components:
             required:
                 - databaseName
                 - groupId
+                - roles
                 - username
             type: object
         CloudGCPProviderSettings:
@@ -7743,11 +7698,13 @@ components:
                     description: List that contains all available Atlas Search status metrics when MongoDB Atlas received this request.
                     items:
                         $ref: '#/components/schemas/FTSMetric'
-                    readOnly: true
                     type: array
             required:
                 - groupId
+                - hardwareMetrics
+                - indexMetrics
                 - processId
+                - statusMetrics
             type: object
         ClusterAlertConfigViewForNdsGroup:
             description: Cluster alert configuration allows to select which conditions of mongod cluster which trigger alerts and how users are notified.
@@ -9560,6 +9517,8 @@ components:
                     items:
                         $ref: '#/components/schemas/ZoneMapping'
                     type: array
+            required:
+                - customZoneMappings
             type: object
         DBRoleToExecute:
             description: The name of a Built in or Custom DB Role to connect to an Atlas Cluster.
@@ -11338,6 +11297,7 @@ components:
                     type: array
             required:
                 - action
+                - resources
             title: Database Privilege Action
             type: object
         DatabaseRollingIndexRequest:
@@ -11379,6 +11339,7 @@ components:
             required:
                 - collection
                 - db
+                - keys
             type: object
         DatabaseUserRole:
             description: Range of resources available to this database user.
@@ -12447,6 +12408,7 @@ components:
                           title: Online Archive Event Types
                           type: string
                         - enum:
+                            - CROSS_REGION_SUPPORTED_REGION_MODIFIED
                             - ENDPOINT_SERVICE_CREATED
                             - ENDPOINT_SERVICE_DELETED
                             - INTERFACE_ENDPOINT_CREATED
@@ -13904,6 +13866,8 @@ components:
                 useOrgAndGroupNamesInExportPrefix:
                     description: Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your Export Bucket.
                     type: boolean
+            required:
+                - policies
             type: object
         DiskBackupTimeBasedCopyPolicyItem:
             allOf:
@@ -15137,6 +15101,7 @@ components:
                     - HOST_MONGOT_PAUSE_INITIAL_SYNC
                     - HOST_MONGOT_SUFFICIENT_DISK_SPACE
                     - HOST_MONGOT_APPROACHING_STOP_REPLICATION
+                    - HOST_MONGOT_RESTARTED
                     - HOST_SEARCH_NODE_UNBLOCKED
                     - HOST_SEARCH_NODE_INDEX_FAILED
                     - HOST_EXTERNAL_LOG_SINK_EXPORT_DOWN
@@ -15552,6 +15517,7 @@ components:
                   title: Online Archive Event Types
                   type: string
                 - enum:
+                    - CROSS_REGION_SUPPORTED_REGION_MODIFIED
                     - ENDPOINT_SERVICE_CREATED
                     - ENDPOINT_SERVICE_DELETED
                     - INTERFACE_ENDPOINT_CREATED
@@ -17525,6 +17491,7 @@ components:
             description: Collection of settings that configures the network container for a virtual private connection on Amazon Web Services.
             required:
                 - atlasCidrBlock
+                - regions
             title: GCP
             type: object
         GCPComputeAutoScaling:
@@ -18432,6 +18399,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         GroupRole:
             properties:
@@ -18767,6 +18736,7 @@ components:
                 - HOST_MONGOT_PAUSE_INITIAL_SYNC
                 - HOST_MONGOT_SUFFICIENT_DISK_SPACE
                 - HOST_MONGOT_APPROACHING_STOP_REPLICATION
+                - HOST_MONGOT_RESTARTED
                 - HOST_SEARCH_NODE_UNBLOCKED
                 - HOST_SEARCH_NODE_INDEX_FAILED
                 - HOST_EXTERNAL_LOG_SINK_EXPORT_DOWN
@@ -21603,6 +21573,8 @@ components:
                     readOnly: true
                     type: string
             required:
+                - deployments
+                - migrationHosts
                 - name
                 - projectId
             type: object
@@ -21669,6 +21641,7 @@ components:
             required:
                 - destination
                 - dropEnabled
+                - migrationHosts
                 - source
             type: object
         LiveMigrationResponse:
@@ -25542,6 +25515,8 @@ components:
                         - ACTIVE
                         - INACTIVE
                     type: string
+            required:
+                - federatedDomains
             title: Organization Federation Settings
             type: object
         OrgGroup:
@@ -25664,6 +25639,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         OrgServiceAccount:
             description: Organization Service Account that Atlas created for the organization.
@@ -26044,6 +26021,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedAlertConfigView:
             properties:
@@ -26068,6 +26047,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedAlertView:
             properties:
@@ -26092,6 +26073,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiApiUserView:
             properties:
@@ -26116,6 +26099,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiAppUserView:
             properties:
@@ -26140,6 +26125,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiAtlasCheckpointView:
             properties:
@@ -26164,6 +26151,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiAtlasDatabaseUserView:
             description: List of MongoDB Database users granted access to databases in the specified project.
@@ -26189,6 +26178,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiAtlasDiskBackupExportJobView:
             properties:
@@ -26213,6 +26204,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiAtlasEARPrivateEndpointView:
             properties:
@@ -26237,6 +26230,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiAtlasProviderRegionsView:
             properties:
@@ -26261,6 +26256,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiAtlasServerlessBackupRestoreJobView:
             properties:
@@ -26285,6 +26282,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiAtlasServerlessBackupSnapshotView:
             properties:
@@ -26309,6 +26308,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiInvoiceMetadataView:
             properties:
@@ -26333,6 +26334,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiInvoiceView:
             properties:
@@ -26357,6 +26360,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiStreamsConnectionView:
             properties:
@@ -26381,6 +26386,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiStreamsPrivateLinkView:
             properties:
@@ -26405,6 +26412,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiStreamsTenantView:
             properties:
@@ -26429,6 +26438,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedApiUserAccessListResponseView:
             properties:
@@ -26453,6 +26464,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedAppUserView:
             properties:
@@ -26477,6 +26490,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedAtlasGroupView:
             properties:
@@ -26501,6 +26516,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedAvailableVersionView:
             properties:
@@ -26525,6 +26542,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedBackupSnapshotExportBucketView:
             properties:
@@ -26549,6 +26568,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedBackupSnapshotView:
             properties:
@@ -26573,6 +26594,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedCloudBackupReplicaSetView:
             properties:
@@ -26597,6 +26620,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedCloudBackupRestoreJobView:
             properties:
@@ -26621,6 +26646,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedCloudBackupShardedClusterSnapshotView:
             properties:
@@ -26645,6 +26672,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedCloudProviderContainerView:
             description: List of Network Peering Containers that Amazon Web Services serves.
@@ -26670,6 +26699,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             title: Network Peering
             type: object
         PaginatedConnectedOrgConfigsView:
@@ -26695,6 +26726,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedContainerPeerView:
             description: Group of Network Peering connection settings.
@@ -26720,6 +26753,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedDatabaseView:
             properties:
@@ -26744,6 +26779,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedDiskPartitionView:
             properties:
@@ -26768,6 +26805,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedEventTypeDetailsResponse:
             properties:
@@ -26792,6 +26831,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedFederationIdentityProvider:
             properties:
@@ -26816,6 +26857,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedHostView_Atlas:
             properties:
@@ -26840,6 +26883,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedIntegrationView:
             properties:
@@ -26864,6 +26909,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedNetworkAccessView:
             properties:
@@ -26888,6 +26935,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedOnlineArchiveView:
             properties:
@@ -26912,6 +26961,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedOrgGroupView:
             properties:
@@ -26936,6 +26987,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedOrganizationView:
             properties:
@@ -26960,6 +27013,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedPipelineRunView:
             properties:
@@ -26984,6 +27039,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedPrivateNetworkEndpointIdEntryView:
             properties:
@@ -27008,6 +27065,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedRestoreJobView:
             properties:
@@ -27032,6 +27091,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedRoleMappingView:
             description: List role mappings from the specified organization in the specified federation.
@@ -27057,6 +27118,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedServerlessInstanceDescriptionView:
             properties:
@@ -27081,6 +27144,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedSnapshotView:
             properties:
@@ -27105,6 +27170,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedTeamRoleView:
             properties:
@@ -27129,6 +27196,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PaginatedTeamView:
             properties:
@@ -27153,54 +27222,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
-            type: object
-        PaginatedTenantRestoreView:
-            properties:
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                results:
-                    description: List of returned documents that MongoDB Cloud provides when completing this request.
-                    items:
-                        $ref: '#/components/schemas/TenantRestore'
-                    readOnly: true
-                    type: array
-                totalCount:
-                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
-                    format: int32
-                    minimum: 0
-                    readOnly: true
-                    type: integer
-            type: object
-        PaginatedTenantSnapshotView:
-            properties:
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                results:
-                    description: List of returned documents that MongoDB Cloud provides when completing this request.
-                    items:
-                        $ref: '#/components/schemas/BackupTenantSnapshot'
-                    readOnly: true
-                    type: array
-                totalCount:
-                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
-                    format: int32
-                    minimum: 0
-                    readOnly: true
-                    type: integer
+            required:
+                - results
             type: object
         PaginatedUserCertView:
             properties:
@@ -27225,6 +27248,8 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+            required:
+                - results
             type: object
         PartitionFieldView:
             description: Metadata to partition this online archive.
@@ -28449,7 +28474,6 @@ components:
                     items:
                         example: 32b6e34b3d91647abb20e7b8
                         pattern: ^([a-f0-9]{8,32})$
-                        readOnly: true
                         type: string
                     readOnly: true
                     type: array
@@ -30197,65 +30221,6 @@ components:
             readOnly: true
             title: Serverless Instance Connection Strings
             type: object
-        ServerlessInstanceDescriptionCreate:
-            description: Settings that you can specify when you create a serverless instance.
-            properties:
-                name:
-                    description: Human-readable label that identifies the serverless instance.
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-                    writeOnly: true
-                providerSettings:
-                    $ref: '#/components/schemas/ServerlessProviderSettings'
-                serverlessBackupOptions:
-                    $ref: '#/components/schemas/ClusterServerlessBackupOptions'
-                stateName:
-                    description: |-
-                        Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
-
-                         - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.
-                         - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.
-                         - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.
-                         - `DELETING`: The cluster is in the process of deletion and will soon be deleted.
-                         - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.
-                    enum:
-                        - IDLE
-                        - CREATING
-                        - UPDATING
-                        - DELETING
-                        - REPAIRING
-                    readOnly: true
-                    type: string
-                tags:
-                    description: List that contains key-value pairs between 1 to 255 characters in length for tagging and categorizing the serverless instance.
-                    items:
-                        $ref: '#/components/schemas/ResourceTag'
-                    type: array
-                terminationProtectionEnabled:
-                    default: false
-                    description: Flag that indicates whether termination protection is enabled on the serverless instance. If set to `true`, MongoDB Cloud won't delete the serverless instance. If set to `false`, MongoDB Cloud will delete the serverless instance.
-                    type: boolean
-            required:
-                - name
-                - providerSettings
-            title: Serverless Instance Description Create
-            type: object
-        ServerlessInstanceDescriptionUpdate:
-            description: Settings that you can update when you request a serverless cluster update.
-            properties:
-                serverlessBackupOptions:
-                    $ref: '#/components/schemas/ClusterServerlessBackupOptions'
-                tags:
-                    description: List that contains key-value pairs between 1 to 255 characters in length for tagging and categorizing the serverless instance.
-                    items:
-                        $ref: '#/components/schemas/ResourceTag'
-                    type: array
-                terminationProtectionEnabled:
-                    default: false
-                    description: Flag that indicates whether termination protection is enabled on the serverless instance. If set to `true`, MongoDB Cloud won't delete the serverless instance. If set to `false`, MongoDB Cloud will delete the serverless instance.
-                    type: boolean
-            title: Serverless Instance Description Update
-            type: object
         ServerlessMetricAlertConfigViewForNdsGroup:
             description: Serverless metric alert configuration allows to select which serverless database metrics trigger alerts and how users are notified.
             properties:
@@ -31065,6 +31030,8 @@ components:
                     type: array
                     uniqueItems: true
                     writeOnly: true
+            required:
+                - key
             type: object
             writeOnly: true
         ShardingRequest:
@@ -31083,6 +31050,7 @@ components:
                     writeOnly: true
             required:
                 - createSupportingIndexes
+                - shardingEntries
             type: object
             writeOnly: true
         Slack:
@@ -31774,7 +31742,6 @@ components:
                     type: string
                 region:
                     description: The connection's region.
-                    readOnly: true
                     type: string
                 state:
                     description: The state of the connection.
@@ -32944,93 +32911,6 @@ components:
             description: Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.
             title: Tenant Regional Replication Specifications
             type: object
-        TenantRestore:
-            properties:
-                clusterName:
-                    description: Human-readable label that identifies the source cluster.
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    readOnly: true
-                    type: string
-                deliveryType:
-                    description: Means by which this resource returns the snapshot to the requesting MongoDB Cloud user.
-                    enum:
-                        - RESTORE
-                        - DOWNLOAD
-                    readOnly: true
-                    type: string
-                expirationDate:
-                    description: Date and time when the download link no longer works. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    format: date-time
-                    readOnly: true
-                    type: string
-                id:
-                    description: Unique 24-hexadecimal digit string that identifies the restore job.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    readOnly: true
-                    type: string
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                projectId:
-                    description: Unique 24-hexadecimal digit string that identifies the project from which the restore job originated.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    readOnly: true
-                    type: string
-                restoreFinishedDate:
-                    description: Date and time when MongoDB Cloud completed writing this snapshot. MongoDB Cloud changes the status of the restore job to `CLOSED`. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    format: date-time
-                    readOnly: true
-                    type: string
-                restoreScheduledDate:
-                    description: Date and time when MongoDB Cloud will restore this snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    format: date-time
-                    readOnly: true
-                    type: string
-                snapshotFinishedDate:
-                    description: Date and time when MongoDB Cloud completed writing this snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    format: date-time
-                    readOnly: true
-                    type: string
-                snapshotId:
-                    description: Unique 24-hexadecimal digit string that identifies the snapshot to restore.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-                snapshotUrl:
-                    description: 'Internet address from which you can download the compressed snapshot files. The resource returns this parameter when  `"deliveryType" : "DOWNLOAD"`.'
-                    readOnly: true
-                    type: string
-                status:
-                    description: Phase of the restore workflow for this job at the time this resource made this request.
-                    enum:
-                        - PENDING
-                        - QUEUED
-                        - RUNNING
-                        - FAILED
-                        - COMPLETED
-                    readOnly: true
-                    type: string
-                targetDeploymentItemName:
-                    description: Human-readable label that identifies the cluster on the target project to which you want to restore the snapshot. You can restore the snapshot to a cluster tier *M2* or greater.
-                    pattern: ^[\p{L}\p{N}\-_.(),:&@+']{1,64}$
-                    type: string
-                targetProjectId:
-                    description: Unique 24-hexadecimal digit string that identifies the project that contains the cluster to which you want to restore the snapshot.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-            required:
-                - snapshotId
-                - targetDeploymentItemName
-            type: object
         ThirdPartyIntegration:
             description: Collection of settings that describe third-party integrations.
             discriminator:
@@ -34168,6 +34048,10 @@ components:
                         items:
                             $ref: '#/components/schemas/BasicDBObject'
                         type: array
+                    nestedRoot:
+                        description: Top-level path to the array that contains vector fields. When provided, vector fields under this path are treated as nested.
+                        example: sections
+                        type: string
                   type: object
             required:
                 - collectionName
@@ -35052,7 +34936,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: d74c28e3fee5a4f5011a251b1ba00ae4e23c0890
+    x-xgen-sha: a665ed4065e01e65fc138f7c1d172d51666e4d6f
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -37183,7 +37067,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/access" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/addGroupAccessUser
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -40693,7 +40577,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters?pretty=true"
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupClusters
             x-xgen-operation-id-override: listClusters
         post:
@@ -40809,7 +40693,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-changelog:
                 "2025-06-05": Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createGroupCluster
@@ -41019,7 +40903,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}?pretty=true"
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupCluster
             x-xgen-operation-id-override: getCluster
         patch:
@@ -41134,7 +41018,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-changelog:
                 "2025-06-05": Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupCluster
@@ -42862,630 +42746,6 @@ paths:
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/shardedClusters?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupSnapshotShardedClusters
             x-xgen-operation-id-override: listBackupShardedClusters
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/download:
-        post:
-            deprecated: true
-            description: |-
-                Requests one snapshot for the specified shared cluster. This resource returns a `snapshotURL` that you can use to download the snapshot. This `snapshotURL` remains active for four hours after you make the request. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-
-                This endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the Download Flex Backup endpoint instead.
-            externalDocs:
-                description: Download Flex Backup
-                url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/downloadFlexBackup
-            operationId: downloadGroupClusterBackupTenant
-            parameters:
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/pretty'
-            requestBody:
-                content:
-                    application/vnd.atlas.2023-01-01+json:
-                        schema:
-                            $ref: '#/components/schemas/TenantRestore'
-                description: Snapshot to be downloaded.
-                required: true
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.2023-01-01+json:
-                            schema:
-                                $ref: '#/components/schemas/TenantRestore'
-                            x-xgen-version: "2023-01-01"
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Download One M2 or M5 Cluster Snapshot
-            tags:
-                - Shared-Tier Snapshots
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api sharedTierSnapshots downloadClusterBackupTenant --help
-                - label: Go
-                  lang: go
-                  source: |
-                    import (
-                    	"os"
-                    	"context"
-                    	"log"
-                    	sdk "go.mongodb.org/atlas-sdk/v20230201001/admin"
-                    )
-
-                    func main() {
-                    	ctx := context.Background()
-                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
-                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
-
-                    	if err != nil {
-                    		log.Fatalf("Error: %v", err)
-                    	}
-
-                    	params = &sdk.DownloadGroupClusterBackupTenantApiParams{}
-                    	sdkResp, httpResp, err := client.Shared - TierSnapshotsApi.
-                    		DownloadGroupClusterBackupTenantWithParams(ctx, params).
-                    		Execute()
-                    }
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/download" \
-                      -d '{ <Payload> }'
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/download" \
-                      -d '{ <Payload> }'
-            x-sunset: "2026-01-22"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/downloadGroupClusterBackupTenant
-            x-xgen-method-verb-override:
-                customMethod: "True"
-            x-xgen-operation-id-override: downloadClusterBackupTenant
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restore:
-        post:
-            deprecated: true
-            description: |-
-                Restores the specified M2 or M5 cluster. MongoDB Cloud limits which clusters can be the target clusters of a restore. The target cluster can't use encryption at rest, run a major release MongoDB version different than the snapshot, or receive client requests during restores. MongoDB Cloud deletes all existing data on the target cluster prior to the restore operation. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-
-                This endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the Create Flex Backup Restore Job endpoint instead.
-            externalDocs:
-                description: Create Flex Backup Restore Job
-                url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/createFlexBackupRestoreJob
-            operationId: createGroupClusterBackupTenantRestore
-            parameters:
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/pretty'
-            requestBody:
-                content:
-                    application/vnd.atlas.2023-01-01+json:
-                        schema:
-                            $ref: '#/components/schemas/TenantRestore'
-                description: The restore job details.
-                required: true
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.2023-01-01+json:
-                            schema:
-                                $ref: '#/components/schemas/TenantRestore'
-                            x-xgen-version: "2023-01-01"
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Create One Restore Job for One M2 or M5 Cluster
-            tags:
-                - Shared-Tier Restore Jobs
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api sharedTierRestoreJobs createBackupTenantRestore --help
-                - label: Go
-                  lang: go
-                  source: |
-                    import (
-                    	"os"
-                    	"context"
-                    	"log"
-                    	sdk "go.mongodb.org/atlas-sdk/v20230201001/admin"
-                    )
-
-                    func main() {
-                    	ctx := context.Background()
-                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
-                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
-
-                    	if err != nil {
-                    		log.Fatalf("Error: %v", err)
-                    	}
-
-                    	params = &sdk.CreateGroupClusterBackupTenantRestoreApiParams{}
-                    	sdkResp, httpResp, err := client.Shared - TierRestoreJobsApi.
-                    		CreateGroupClusterBackupTenantRestoreWithParams(ctx, params).
-                    		Execute()
-                    }
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restore" \
-                      -d '{ <Payload> }'
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restore" \
-                      -d '{ <Payload> }'
-            x-sunset: "2026-01-22"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/createGroupClusterBackupTenantRestore
-            x-xgen-operation-id-override: createBackupTenantRestore
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restores:
-        get:
-            deprecated: true
-            description: |-
-                Returns all restore jobs for the specified M2 or M5 cluster. Restore jobs restore a cluster using a snapshot. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-
-                This endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the List Flex Backup Restore Jobs endpoint instead.
-            externalDocs:
-                description: List Flex Backup Restore Jobs
-                url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/listFlexBackupRestoreJobs
-            operationId: listGroupClusterBackupTenantRestores
-            parameters:
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/pretty'
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.2023-01-01+json:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedTenantRestoreView'
-                            x-xgen-version: "2023-01-01"
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return All Restore Jobs for One M2 or M5 Cluster
-            tags:
-                - Shared-Tier Restore Jobs
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api sharedTierRestoreJobs listBackupTenantRestores --help
-                - label: Go
-                  lang: go
-                  source: |
-                    import (
-                    	"os"
-                    	"context"
-                    	"log"
-                    	sdk "go.mongodb.org/atlas-sdk/v20230201001/admin"
-                    )
-
-                    func main() {
-                    	ctx := context.Background()
-                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
-                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
-
-                    	if err != nil {
-                    		log.Fatalf("Error: %v", err)
-                    	}
-
-                    	params = &sdk.ListGroupClusterBackupTenantRestoresApiParams{}
-                    	sdkResp, httpResp, err := client.Shared - TierRestoreJobsApi.
-                    		ListGroupClusterBackupTenantRestoresWithParams(ctx, params).
-                    		Execute()
-                    }
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restores?pretty=true"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restores?pretty=true"
-            x-sunset: "2026-01-22"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/listGroupClusterBackupTenantRestores
-            x-xgen-operation-id-override: listBackupTenantRestores
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restores/{restoreId}:
-        get:
-            deprecated: true
-            description: |-
-                Returns the specified restore job for the specified M2 or M5 cluster. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-
-                This endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the Get Flex Backup Restore Job endpoint instead.
-            externalDocs:
-                description: Get Flex Backup Restore Job
-                url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/getFlexBackupRestoreJob
-            operationId: getGroupClusterBackupTenantRestore
-            parameters:
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/pretty'
-                - description: Unique 24-hexadecimal digit string that identifies the restore job to return.
-                  in: path
-                  name: restoreId
-                  required: true
-                  schema:
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.2023-01-01+json:
-                            schema:
-                                $ref: '#/components/schemas/TenantRestore'
-                            x-xgen-version: "2023-01-01"
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return One Restore Job for One M2 or M5 Cluster
-            tags:
-                - Shared-Tier Restore Jobs
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api sharedTierRestoreJobs getBackupTenantRestore --help
-                - label: Go
-                  lang: go
-                  source: |
-                    import (
-                    	"os"
-                    	"context"
-                    	"log"
-                    	sdk "go.mongodb.org/atlas-sdk/v20230201001/admin"
-                    )
-
-                    func main() {
-                    	ctx := context.Background()
-                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
-                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
-
-                    	if err != nil {
-                    		log.Fatalf("Error: %v", err)
-                    	}
-
-                    	params = &sdk.GetGroupClusterBackupTenantRestoreApiParams{}
-                    	sdkResp, httpResp, err := client.Shared - TierRestoreJobsApi.
-                    		GetGroupClusterBackupTenantRestoreWithParams(ctx, params).
-                    		Execute()
-                    }
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restores/{restoreId}?pretty=true"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restores/{restoreId}?pretty=true"
-            x-sunset: "2026-01-22"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/getGroupClusterBackupTenantRestore
-            x-xgen-operation-id-override: getBackupTenantRestore
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/snapshots:
-        get:
-            deprecated: true
-            description: |-
-                Returns details for all snapshots for the specified shared cluster. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-
-                This API also works for Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters, until January 22, 2026, after which this endpoint will be sunset. Please use the List Flex Backups endpoint instead.
-            externalDocs:
-                description: List Flex Backups
-                url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/listFlexBackups
-            operationId: listGroupClusterBackupTenantSnapshots
-            parameters:
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.2023-01-01+json:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedTenantSnapshotView'
-                            x-xgen-version: "2023-01-01"
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return All Snapshots for One M2 or M5 Cluster
-            tags:
-                - Shared-Tier Snapshots
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api sharedTierSnapshots listClusterBackupSnapshots --help
-                - label: Go
-                  lang: go
-                  source: |
-                    import (
-                    	"os"
-                    	"context"
-                    	"log"
-                    	sdk "go.mongodb.org/atlas-sdk/v20230201001/admin"
-                    )
-
-                    func main() {
-                    	ctx := context.Background()
-                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
-                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
-
-                    	if err != nil {
-                    		log.Fatalf("Error: %v", err)
-                    	}
-
-                    	params = &sdk.ListGroupClusterBackupTenantSnapshotsApiParams{}
-                    	sdkResp, httpResp, err := client.Shared - TierSnapshotsApi.
-                    		ListGroupClusterBackupTenantSnapshotsWithParams(ctx, params).
-                    		Execute()
-                    }
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/snapshots?pretty=true"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/snapshots?pretty=true"
-            x-sunset: "2026-01-22"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/listGroupClusterBackupTenantSnapshots
-            x-xgen-operation-id-override: listClusterBackupSnapshots
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/snapshots/{snapshotId}:
-        get:
-            deprecated: true
-            description: |-
-                Returns details for one snapshot for the specified shared cluster. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
-
-                This endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the Get Flex Backup endpoint instead.
-            externalDocs:
-                description: Get Flex Backup
-                url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/getFlexBackup
-            operationId: getGroupClusterBackupTenantSnapshot
-            parameters:
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
-                  in: path
-                  name: snapshotId
-                  required: true
-                  schema:
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.2023-01-01+json:
-                            schema:
-                                $ref: '#/components/schemas/BackupTenantSnapshot'
-                            x-xgen-version: "2023-01-01"
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return One Snapshot of One M2 or M5 Cluster
-            tags:
-                - Shared-Tier Snapshots
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api sharedTierSnapshots getBackupTenantSnapshot --help
-                - label: Go
-                  lang: go
-                  source: |
-                    import (
-                    	"os"
-                    	"context"
-                    	"log"
-                    	sdk "go.mongodb.org/atlas-sdk/v20230201001/admin"
-                    )
-
-                    func main() {
-                    	ctx := context.Background()
-                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
-                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
-
-                    	if err != nil {
-                    		log.Fatalf("Error: %v", err)
-                    	}
-
-                    	params = &sdk.GetGroupClusterBackupTenantSnapshotApiParams{}
-                    	sdkResp, httpResp, err := client.Shared - TierSnapshotsApi.
-                    		GetGroupClusterBackupTenantSnapshotWithParams(ctx, params).
-                    		Execute()
-                    }
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/snapshots/{snapshotId}?pretty=true"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/snapshots/{snapshotId}?pretty=true"
-            x-sunset: "2026-01-22"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/getGroupClusterBackupTenantSnapshot
-            x-xgen-operation-id-override: getBackupTenantSnapshot
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupCheckpoints:
         get:
             deprecated: true
@@ -44290,7 +43550,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites?pretty=true"
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/getGroupClusterGlobalWrites
             x-xgen-operation-id-override: getClusterGlobalWrites
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/customZoneMapping:
@@ -44382,7 +43642,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/customZoneMapping"
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/deleteGroupClusterGlobalWriteCustomZoneMapping
             x-xgen-operation-id-override: deleteCustomZoneMapping
         post:
@@ -44486,7 +43746,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/customZoneMapping" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/createGroupClusterGlobalWriteCustomZoneMapping
             x-xgen-operation-id-override: createCustomZoneMapping
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces:
@@ -44590,7 +43850,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces"
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/deleteGroupClusterGlobalWriteManagedNamespaces
             x-xgen-operation-id-override: deleteManagedNamespaces
         post:
@@ -44696,7 +43956,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Global-Clusters/operation/createGroupClusterGlobalWriteManagedNamespace
             x-xgen-operation-id-override: createManagedNamespace
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/index:
@@ -45878,7 +45138,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs?pretty=true"
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterProcessArgs
             x-xgen-operation-id-override: getProcessArgs
         patch:
@@ -45983,7 +45243,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-03-01"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterProcessArgs
             x-xgen-operation-id-override: updateProcessArgs
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries:
@@ -50718,6 +49978,7 @@ paths:
                   name: end
                   schema:
                     format: int64
+                    minimum: 1.1991456e+12
                     type: integer
                 - description: One Internet Protocol address that attempted to authenticate with the database.
                   in: query
@@ -50739,6 +50000,7 @@ paths:
                   name: start
                   schema:
                     format: int64
+                    minimum: 1.1991456e+12
                     type: integer
             responses:
                 "200":
@@ -50835,6 +50097,7 @@ paths:
                   name: end
                   schema:
                     format: int64
+                    minimum: 1.1991456e+12
                     type: integer
                 - description: Fully qualified domain name or IP address of the MongoDB host that stores the log files that you want to download.
                   in: path
@@ -50862,6 +50125,7 @@ paths:
                   name: start
                   schema:
                     format: int64
+                    minimum: 1.1991456e+12
                     type: integer
             responses:
                 "200":
@@ -52763,7 +52027,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites?pretty=true"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/listGroupInvites
         patch:
             deprecated: true
@@ -52856,7 +52120,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupInvites
         post:
             deprecated: true
@@ -52947,7 +52211,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/createGroupInvite
     /api/atlas/v2/groups/{groupId}/invites/{invitationId}:
         delete:
@@ -53032,7 +52296,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites/{invitationId}"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/deleteGroupInvite
         get:
             deprecated: true
@@ -53119,7 +52383,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites/{invitationId}?pretty=true"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/getGroupInvite
         patch:
             deprecated: true
@@ -53218,7 +52482,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/invites/{invitationId}" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupInviteById
             x-xgen-method-verb-override:
                 customMethod: false
@@ -53861,7 +53125,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-11-30"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createGroupLiveMigration
     /api/atlas/v2/groups/{groupId}/liveMigrations/{liveMigrationId}:
         get:
@@ -54123,7 +53387,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/liveMigrations/validate" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-11-30"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/validateGroupLiveMigrations
             x-xgen-method-verb-override:
                 customMethod: true
@@ -60737,113 +60001,6 @@ paths:
                 customMethod: false
                 verb: listInstances
             x-xgen-operation-id-override: listServerlessInstances
-        post:
-            deprecated: true
-            description: |-
-                Update as of Feb 2025: This endpoint now creates a Flex cluster instead. This endpoint will no longer be supported starting on January 22, 2026. Continuous backups are not supported and `serverlessContinuousBackupEnabled` will not take effect. Please use the Create Flex Cluster endpoint instead.
-
-                Creates one serverless instance in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-            externalDocs:
-                description: Create Flex Cluster
-                url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/createFlexCluster
-            operationId: createGroupServerlessInstance
-            parameters:
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/pretty'
-            requestBody:
-                content:
-                    application/vnd.atlas.2023-01-01+json:
-                        schema:
-                            $ref: '#/components/schemas/ServerlessInstanceDescriptionCreate'
-                description: Create One Serverless Instance in One Project.
-                required: true
-            responses:
-                "201":
-                    content:
-                        application/vnd.atlas.2023-01-01+json:
-                            schema:
-                                $ref: '#/components/schemas/ServerlessInstanceDescription'
-                            x-xgen-version: "2023-01-01"
-                    description: Created
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "402":
-                    $ref: '#/components/responses/paymentRequired'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Create One Serverless Instance in One Project
-            tags:
-                - Serverless Instances
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api serverlessInstances createServerlessInstance --help
-                - label: Go
-                  lang: go
-                  source: |
-                    import (
-                    	"os"
-                    	"context"
-                    	"log"
-                    	sdk "go.mongodb.org/atlas-sdk/v20230201001/admin"
-                    )
-
-                    func main() {
-                    	ctx := context.Background()
-                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
-                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
-
-                    	if err != nil {
-                    		log.Fatalf("Error: %v", err)
-                    	}
-
-                    	params = &sdk.CreateGroupServerlessInstanceApiParams{}
-                    	sdkResp, httpResp, err := client.ServerlessInstancesApi.
-                    		CreateGroupServerlessInstanceWithParams(ctx, params).
-                    		Execute()
-                    }
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless" \
-                      -d '{ <Payload> }'
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless" \
-                      -d '{ <Payload> }'
-            x-sunset: "2026-01-22"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createGroupServerlessInstance
-            x-xgen-method-verb-override:
-                customMethod: false
-                verb: createInstance
-            x-xgen-operation-id-override: createServerlessInstance
     /api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs:
         get:
             deprecated: true
@@ -61558,107 +60715,6 @@ paths:
                 verb: set
             x-xgen-operation-id-override: setServerlessAutoIndexing
     /api/atlas/v2/groups/{groupId}/serverless/{name}:
-        delete:
-            deprecated: true
-            description: |-
-                Removes one serverless instance from the specified project. The serverless instance must have termination protection disabled in order to be deleted. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-
-                This API can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) endpoint or Flex clusters that were migrated from Serverless instances. This endpoint will be sunset on January 22, 2026. Please use the Delete Flex Cluster endpoint instead.
-            externalDocs:
-                description: Delete Flex Cluster
-                url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/deleteFlexCluster
-            operationId: deleteGroupServerlessInstance
-            parameters:
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/pretty'
-                - $ref: '#/components/parameters/groupId'
-                - description: Human-readable label that identifies the serverless instance.
-                  in: path
-                  name: name
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-            responses:
-                "202":
-                    content:
-                        application/vnd.atlas.2023-01-01+json:
-                            schema:
-                                $ref: '#/components/schemas/RequestAccepted'
-                            x-xgen-version: "2023-01-01"
-                    description: Accepted
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Remove One Serverless Instance from One Project
-            tags:
-                - Serverless Instances
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api serverlessInstances deleteServerlessInstance --help
-                - label: Go
-                  lang: go
-                  source: |
-                    import (
-                    	"os"
-                    	"context"
-                    	"log"
-                    	sdk "go.mongodb.org/atlas-sdk/v20230201001/admin"
-                    )
-
-                    func main() {
-                    	ctx := context.Background()
-                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
-                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
-
-                    	if err != nil {
-                    		log.Fatalf("Error: %v", err)
-                    	}
-
-                    	params = &sdk.DeleteGroupServerlessInstanceApiParams{}
-                    	httpResp, err := client.ServerlessInstancesApi.
-                    		DeleteGroupServerlessInstanceWithParams(ctx, params).
-                    		Execute()
-                    }
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{name}"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{name}"
-            x-sunset: "2026-01-22"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/deleteGroupServerlessInstance
-            x-xgen-method-verb-override:
-                customMethod: false
-                verb: deleteInstance
-            x-xgen-operation-id-override: deleteServerlessInstance
         get:
             deprecated: true
             description: |-
@@ -61760,118 +60816,6 @@ paths:
                 customMethod: false
                 verb: getInstance
             x-xgen-operation-id-override: getServerlessInstance
-        patch:
-            deprecated: true
-            description: |-
-                Updates one serverless instance in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
-
-                This API can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) endpoint or Flex clusters that were migrated from Serverless instances. This endpoint will be sunset on January 22, 2026. Continuous backups are not supported and `serverlessContinuousBackupEnabled` will not take effect on these clusters. Please use the Update Flex Cluster endpoint instead.
-            externalDocs:
-                description: Update Flex Cluster
-                url: https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/updateFlexCluster
-            operationId: updateGroupServerlessInstance
-            parameters:
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the serverless instance.
-                  in: path
-                  name: name
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-            requestBody:
-                content:
-                    application/vnd.atlas.2023-01-01+json:
-                        schema:
-                            $ref: '#/components/schemas/ServerlessInstanceDescriptionUpdate'
-                description: Update One Serverless Instance in One Project.
-                required: true
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.2023-01-01+json:
-                            schema:
-                                $ref: '#/components/schemas/ServerlessInstanceDescription'
-                            x-xgen-version: "2023-01-01"
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "402":
-                    $ref: '#/components/responses/paymentRequired'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-            summary: Update One Serverless Instance in One Project
-            tags:
-                - Serverless Instances
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api serverlessInstances updateServerlessInstance --help
-                - label: Go
-                  lang: go
-                  source: |
-                    import (
-                    	"os"
-                    	"context"
-                    	"log"
-                    	sdk "go.mongodb.org/atlas-sdk/v20230201001/admin"
-                    )
-
-                    func main() {
-                    	ctx := context.Background()
-                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
-                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
-
-                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
-                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
-
-                    	if err != nil {
-                    		log.Fatalf("Error: %v", err)
-                    	}
-
-                    	params = &sdk.UpdateGroupServerlessInstanceApiParams{}
-                    	sdkResp, httpResp, err := client.ServerlessInstancesApi.
-                    		UpdateGroupServerlessInstanceWithParams(ctx, params).
-                    		Execute()
-                    }
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{name}" \
-                      -d '{ <Payload> }'
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.2023-02-01+json" \
-                      --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{name}" \
-                      -d '{ <Payload> }'
-            x-sunset: "2026-01-22"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/updateGroupServerlessInstance
-            x-xgen-method-verb-override:
-                customMethod: false
-                verb: updateInstance
-            x-xgen-operation-id-override: updateServerlessInstance
     /api/atlas/v2/groups/{groupId}/settings:
         get:
             description: Returns details about the specified project's settings. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
@@ -64916,7 +63860,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/users?pretty=true"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listGroupUsers
     /api/atlas/v2/groups/{groupId}/users/{userId}:
         delete:
@@ -65012,7 +63956,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/users/{userId}"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeGroupUser
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -65114,7 +64058,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PUT "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/users/{userId}/roles" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupUserRoles
     /api/atlas/v2/groups/byName/{groupName}:
         get:
@@ -67206,7 +66150,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites?pretty=true"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/listOrgInvites
         patch:
             deprecated: true
@@ -67305,7 +66249,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgInvites
         post:
             deprecated: true
@@ -67404,7 +66348,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/createOrgInvite
     /api/atlas/v2/orgs/{orgId}/invites/{invitationId}:
         delete:
@@ -67497,7 +66441,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites/{invitationId}"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/deleteOrgInvite
         get:
             deprecated: true
@@ -67591,7 +66535,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites/{invitationId}?pretty=true"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/getOrgInvite
         patch:
             deprecated: true
@@ -67697,7 +66641,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PATCH "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invites/{invitationId}" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgInviteById
             x-xgen-method-verb-override:
                 customMethod: false
@@ -69130,7 +68074,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/teams/{teamId}/users?pretty=true"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listOrgTeamUsers
             x-xgen-operation-id-override: listTeamUsers
         post:
@@ -69241,7 +68185,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/teams/{teamId}/users" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/addOrgTeamUsers
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -69346,7 +68290,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/teams/{teamId}/users/{userId}"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Teams/operation/removeOrgTeamUserFromTeam
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -69547,7 +68491,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/users?pretty=true"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/listOrgUsers
     /api/atlas/v2/orgs/{orgId}/users/{userId}:
         delete:
@@ -69643,7 +68587,7 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.2023-02-01+json" \
                       -X DELETE "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/users/{userId}"
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/MongoDB-Cloud-Users/operation/removeOrgUser
             x-xgen-method-verb-override:
                 customMethod: "True"
@@ -69745,7 +68689,7 @@ paths:
                       --header "Content-Type: application/json" \
                       -X PUT "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/users/{userId}/roles" \
                       -d '{ <Payload> }'
-            x-sunset: "2026-09-15"
+            x-sunset: "2027-07-01"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgUserRoles
     /api/atlas/v2/users:
         post:
@@ -70115,10 +69059,6 @@ tags:
         description: Set Up a Private Endpoint for a Serverless Instance Tutorial
         url: https://dochub.mongodb.org/core/serverless-private-endpoint
       name: Serverless Private Endpoints
-    - description: Returns and adds restore jobs for shared-tier database deployments.
-      name: Shared-Tier Restore Jobs
-    - description: Returns and requests to download shared-tier database deployment snapshots.
-      name: Shared-Tier Snapshots
     - description: Returns, adds, edits, and removes Streams Workspaces. This resource requires your project ID.
       name: Streams
     - description: Returns, adds, edits, or removes teams.

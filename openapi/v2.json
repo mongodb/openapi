@@ -1258,7 +1258,8 @@
           }
         },
         "required": [
-          "cloudProvider"
+          "cloudProvider",
+          "interfaceEndpoints"
         ],
         "title": "AWS",
         "type": "object"
@@ -1812,6 +1813,9 @@
             "type": "array"
           }
         },
+        "required": [
+          "policyItems"
+        ],
         "type": "object"
       },
       "AiModelsApiKeyCreateRequest": {
@@ -3331,6 +3335,76 @@
         "readOnly": true,
         "type": "object"
       },
+      "ApiCustomCriteria": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementCriteria"
+          },
+          {
+            "properties": {
+              "query": {
+                "description": "MongoDB find() based filter string in JSON format to determine data transition eligibility.",
+                "example": "{\"status\":\"archived\"}",
+                "type": "string"
+              },
+              "type": {
+                "description": "Type of criteria.",
+                "enum": [
+                  "CUSTOM"
+                ],
+                "example": "CUSTOM",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Custom query-based criteria for data transition.",
+        "required": [
+          "query",
+          "type"
+        ],
+        "type": "object"
+      },
+      "ApiDateCriteria": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementCriteria"
+          },
+          {
+            "properties": {
+              "dateField": {
+                "description": "Name of the date field used to evaluate transition eligibility.",
+                "example": "createDate",
+                "type": "string"
+              },
+              "transitionAfterDays": {
+                "description": "Number of days after the date field value when data becomes eligible for transition.",
+                "example": 90,
+                "format": "int32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": {
+                "description": "Type of criteria.",
+                "enum": [
+                  "DATE"
+                ],
+                "example": "DATE",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Date-based criteria for data transition.",
+        "required": [
+          "dateField",
+          "transitionAfterDays",
+          "type"
+        ],
+        "type": "object"
+      },
       "ApiError": {
         "properties": {
           "badRequestDetail": {
@@ -3357,7 +3431,6 @@
           "parameters": {
             "description": "Parameters used to give more information about the error.",
             "items": {
-              "readOnly": true,
               "type": "object"
             },
             "readOnly": true,
@@ -3503,8 +3576,10 @@
         },
         "readOnly": true,
         "required": [
+          "accessList",
           "id",
-          "publicKey"
+          "publicKey",
+          "roles"
         ],
         "type": "object"
       },
@@ -3556,6 +3631,137 @@
               "$ref": "#/components/schemas/CloudAccessRoleAssignment"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ApiLifecycleManagementAction": {
+        "description": "Action to perform on data matching the policy criteria.",
+        "discriminator": {
+          "mapping": {
+            "TRANSITION_DATA": "#/components/schemas/ApiTransitionDataAction"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ApiTransitionDataAction"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Type of action to perform on data matching the policy criteria.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiLifecycleManagementCriteria": {
+        "description": "Criteria that determines which data is eligible for the action.",
+        "discriminator": {
+          "mapping": {
+            "CUSTOM": "#/components/schemas/ApiCustomCriteria",
+            "DATE": "#/components/schemas/ApiDateCriteria"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ApiDateCriteria"
+          },
+          {
+            "$ref": "#/components/schemas/ApiCustomCriteria"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Type of criteria used to determine data transition eligibility.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiLifecycleManagementPolicyCreateRequest": {
+        "description": "Request body for creating a lifecycle management policy.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementAction"
+          },
+          "dbName": {
+            "description": "Name of the database this policy applies to.",
+            "example": "myDatabase",
+            "type": "string"
+          },
+          "targetCollection": {
+            "description": "Name of the source collection for data transition.",
+            "example": "myTargetCollection",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "dbName",
+          "targetCollection"
+        ],
+        "type": "object"
+      },
+      "ApiLifecycleManagementPolicyResponse": {
+        "description": "Lifecycle management policy for automated data transition.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementAction"
+          },
+          "dbName": {
+            "description": "Name of the database this policy applies to.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique identifier of the policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "state": {
+            "description": "Current state of the policy.",
+            "enum": [
+              "ACTIVE",
+              "PAUSING",
+              "PAUSED",
+              "DELETED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "targetCollection": {
+            "description": "Name of the target collection for data transition.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "dbName",
+          "id",
+          "state",
+          "targetCollection"
+        ],
+        "type": "object"
+      },
+      "ApiLifecycleManagementPolicyUpdateRequest": {
+        "description": "Request body for updating a lifecycle management policy.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementAction"
+          },
+          "state": {
+            "description": "Requested state transition. Valid values: ACTIVE, PAUSED.",
+            "enum": [
+              "ACTIVE",
+              "PAUSED"
+            ],
+            "type": "string"
           }
         },
         "type": "object"
@@ -3958,6 +4164,41 @@
           "US_EAST4"
         ],
         "type": "string"
+      },
+      "ApiTransitionDataAction": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementAction"
+          },
+          {
+            "properties": {
+              "criteria": {
+                "$ref": "#/components/schemas/ApiLifecycleManagementCriteria"
+              },
+              "destinationCollName": {
+                "description": "Name of the destination collection for transitioned data.",
+                "example": "destinationCollection",
+                "type": "string"
+              },
+              "type": {
+                "description": "Type of action. Only `TRANSITION_DATA` is supported.",
+                "enum": [
+                  "TRANSITION_DATA"
+                ],
+                "example": "TRANSITION_DATA",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Action that transitions data from source to destination collection.",
+        "required": [
+          "criteria",
+          "destinationCollName",
+          "type"
+        ],
+        "type": "object"
       },
       "ApiUserEventTypeViewForNdsGroup": {
         "description": "Unique identifier of event type.",
@@ -5721,7 +5962,8 @@
           }
         },
         "required": [
-          "externalGroupName"
+          "externalGroupName",
+          "roleAssignments"
         ],
         "title": "Federated Authentication Role Mapping",
         "type": "object"
@@ -6866,6 +7108,109 @@
         "title": "Azure Key Vault EAR Private Endpoint",
         "type": "object"
       },
+      "AzureLogIntegrationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationRequest"
+          },
+          {
+            "properties": {
+              "prefixPath": {
+                "description": "Path prefix where the log files will be stored. Atlas will add further sub-directories based on the log type.",
+                "example": "logs/mongodb/",
+                "type": "string"
+              },
+              "roleId": {
+                "description": "Unique 24-character hexadecimal string that identifies the Atlas Cloud Provider Access role.",
+                "example": "507f1f77bcf86cd799439011",
+                "pattern": "^[a-fA-F0-9]{24}$",
+                "type": "string"
+              },
+              "storageAccountName": {
+                "description": "Storage account name where logs will be stored.",
+                "example": "mylogstorageaccount",
+                "type": "string"
+              },
+              "storageContainerName": {
+                "description": "Storage container name for log files.",
+                "example": "mongodb-logs",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "AZURE_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Request schema for creating or updating an Azure Blob Storage log export integration.",
+        "required": [
+          "logTypes",
+          "prefixPath",
+          "roleId",
+          "storageAccountName",
+          "storageContainerName",
+          "type"
+        ],
+        "title": "Azure Log Export Integration Request",
+        "type": "object"
+      },
+      "AzureLogIntegrationResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationResponse"
+          },
+          {
+            "properties": {
+              "prefixPath": {
+                "description": "Path prefix where the log files will be stored. Atlas will add further sub-directories based on the log type.",
+                "example": "logs/mongodb/",
+                "type": "string"
+              },
+              "roleId": {
+                "description": "Unique 24-character hexadecimal string that identifies the Atlas Cloud Provider Access role.",
+                "example": "507f1f77bcf86cd799439011",
+                "pattern": "^[a-fA-F0-9]{24}$",
+                "type": "string"
+              },
+              "storageAccountName": {
+                "description": "Storage account name where logs will be stored.",
+                "example": "mylogstorageaccount",
+                "type": "string"
+              },
+              "storageContainerName": {
+                "description": "Storage container name for log files.",
+                "example": "mongodb-logs",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "AZURE_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Details to integrate Azure Blob Storage log export with one Atlas project.",
+        "required": [
+          "id",
+          "logTypes",
+          "prefixPath",
+          "roleId",
+          "storageAccountName",
+          "storageContainerName",
+          "type"
+        ],
+        "title": "Azure Log Export Integration Response",
+        "type": "object"
+      },
       "AzureNetworkPeeringConnectionSettings": {
         "description": "Group of Network Peering connection settings.",
         "properties": {
@@ -7927,71 +8272,6 @@
           "retentionUnit",
           "retentionValue"
         ],
-        "type": "object"
-      },
-      "BackupTenantSnapshot": {
-        "properties": {
-          "expiration": {
-            "description": "Date and time when the download link no longer works. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "finishTime": {
-            "description": "Date and time when MongoDB Cloud completed writing this snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "id": {
-            "description": "Unique 24-hexadecimal digit string that identifies the restore job.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "mongoDBVersion": {
-            "description": "MongoDB host version that the snapshot runs.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "scheduledTime": {
-            "description": "Date and time when MongoDB Cloud will take the snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "startTime": {
-            "description": "Date and time when MongoDB Cloud began taking the snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "status": {
-            "description": "Phase of the workflow for this snapshot at the time this resource made this request.",
-            "enum": [
-              "PENDING",
-              "QUEUED",
-              "RUNNING",
-              "FAILED",
-              "COMPLETED"
-            ],
-            "readOnly": true,
-            "type": "string"
-          }
-        },
         "type": "object"
       },
       "BadRequestDetail": {
@@ -9390,6 +9670,7 @@
           "lastName",
           "mobileNumber",
           "password",
+          "roles",
           "username"
         ],
         "type": "object"
@@ -9593,6 +9874,7 @@
         "required": [
           "databaseName",
           "groupId",
+          "roles",
           "username"
         ],
         "type": "object"
@@ -11073,13 +11355,15 @@
             "items": {
               "$ref": "#/components/schemas/FTSMetric"
             },
-            "readOnly": true,
             "type": "array"
           }
         },
         "required": [
           "groupId",
-          "processId"
+          "hardwareMetrics",
+          "indexMetrics",
+          "processId",
+          "statusMetrics"
         ],
         "type": "object"
       },
@@ -12705,6 +12989,9 @@
             "type": "array"
           }
         },
+        "required": [
+          "rankedNamespaces"
+        ],
         "type": "object"
       },
       "Collation": {
@@ -13900,6 +14187,9 @@
             "type": "array"
           }
         },
+        "required": [
+          "customZoneMappings"
+        ],
         "type": "object"
       },
       "DBRoleToExecute": {
@@ -16256,7 +16546,8 @@
           }
         },
         "required": [
-          "action"
+          "action",
+          "resources"
         ],
         "title": "Database Privilege Action",
         "type": "object"
@@ -16309,7 +16600,8 @@
         },
         "required": [
           "collection",
-          "db"
+          "db",
+          "keys"
         ],
         "type": "object"
       },
@@ -16410,6 +16702,103 @@
           "apiKey"
         ],
         "title": "DATADOG",
+        "type": "object"
+      },
+      "DatadogLogIntegrationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationRequest"
+          },
+          {
+            "properties": {
+              "apiKey": {
+                "description": "API key for authentication.",
+                "example": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
+                "format": "password",
+                "type": "string"
+              },
+              "region": {
+                "description": "Datadog site/region for log ingestion. Valid values: US1, US3, US5, EU, AP1, AP2, US1_FED.",
+                "enum": [
+                  "US1",
+                  "US3",
+                  "US5",
+                  "EU",
+                  "AP1",
+                  "AP2",
+                  "US1_FED"
+                ],
+                "example": "US1",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "DATADOG_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Request schema for creating or updating a Datadog log export integration.",
+        "required": [
+          "apiKey",
+          "logTypes",
+          "region",
+          "type"
+        ],
+        "title": "Datadog Log Export Integration Request",
+        "type": "object"
+      },
+      "DatadogLogIntegrationResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationResponse"
+          },
+          {
+            "properties": {
+              "apiKey": {
+                "description": "API key for authentication.",
+                "example": "****************************o5p6",
+                "format": "password",
+                "type": "string"
+              },
+              "region": {
+                "description": "Datadog site/region for log ingestion. Valid values: US1, US3, US5, EU, AP1, AP2, US1_FED.",
+                "enum": [
+                  "US1",
+                  "US3",
+                  "US5",
+                  "EU",
+                  "AP1",
+                  "AP2",
+                  "US1_FED"
+                ],
+                "example": "US1",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "DATADOG_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Details to integrate Datadog log export with one Atlas project.",
+        "required": [
+          "apiKey",
+          "id",
+          "logTypes",
+          "region",
+          "type"
+        ],
+        "title": "Datadog Log Export Integration Response",
         "type": "object"
       },
       "DatadogNotification": {
@@ -17707,6 +18096,7 @@
               },
               {
                 "enum": [
+                  "CROSS_REGION_SUPPORTED_REGION_MODIFIED",
                   "ENDPOINT_SERVICE_CREATED",
                   "ENDPOINT_SERVICE_DELETED",
                   "INTERFACE_ENDPOINT_CREATED",
@@ -18131,6 +18521,35 @@
           "id"
         ],
         "title": "Any Other Events",
+        "type": "object"
+      },
+      "DefaultGroupLimitResponse": {
+        "description": "Description of a user-configurable, project-level limit.",
+        "properties": {
+          "defaultValue": {
+            "description": "Default value for this limit. Returns null if no default value exists.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "description": {
+            "description": "Human-friendly description of what the limit controls.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "maximumValue": {
+            "description": "Maximum value for this limit. Returns null if no maximum value exists.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "name": {
+            "description": "Human-readable label that identifies the user-managed limit.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "title": "Group limit description",
         "type": "object"
       },
       "DefaultLimit": {
@@ -19798,6 +20217,9 @@
             "type": "boolean"
           }
         },
+        "required": [
+          "policies"
+        ],
         "type": "object"
       },
       "DiskBackupSnapshotSchedule20240805": {
@@ -19914,6 +20336,9 @@
             "type": "boolean"
           }
         },
+        "required": [
+          "policies"
+        ],
         "type": "object"
       },
       "DiskBackupTimeBasedCopyPolicyItem": {
@@ -21612,6 +22037,7 @@
               "HOST_MONGOT_PAUSE_INITIAL_SYNC",
               "HOST_MONGOT_SUFFICIENT_DISK_SPACE",
               "HOST_MONGOT_APPROACHING_STOP_REPLICATION",
+              "HOST_MONGOT_RESTARTED",
               "HOST_SEARCH_NODE_UNBLOCKED",
               "HOST_SEARCH_NODE_INDEX_FAILED",
               "HOST_EXTERNAL_LOG_SINK_EXPORT_DOWN",
@@ -22072,6 +22498,7 @@
           },
           {
             "enum": [
+              "CROSS_REGION_SUPPORTED_REGION_MODIFIED",
               "ENDPOINT_SERVICE_CREATED",
               "ENDPOINT_SERVICE_DELETED",
               "INTERFACE_ENDPOINT_CREATED",
@@ -25737,7 +26164,8 @@
         ],
         "description": "Collection of settings that configures the network container for a virtual private connection on Amazon Web Services.",
         "required": [
-          "atlasCidrBlock"
+          "atlasCidrBlock",
+          "regions"
         ],
         "title": "GCP",
         "type": "object"
@@ -26160,6 +26588,97 @@
         ],
         "description": "Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.",
         "title": "GCP Regional Replication Specifications",
+        "type": "object"
+      },
+      "GcsLogIntegrationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationRequest"
+          },
+          {
+            "properties": {
+              "bucketName": {
+                "description": "Name of the bucket to store log files.",
+                "example": "my-gcs-log-bucket",
+                "type": "string"
+              },
+              "prefixPath": {
+                "description": "Path prefix where the log files will be stored. Atlas will add further sub-directories based on the log type.",
+                "example": "mongodb-logs/",
+                "type": "string"
+              },
+              "roleId": {
+                "description": "Unique 24-character hexadecimal string that identifies the Atlas Cloud Provider Access role.",
+                "example": "507f1f77bcf86cd799439011",
+                "pattern": "^[a-fA-F0-9]{24}$",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "GCS_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Request schema for creating or updating a Google Cloud Storage log export integration.",
+        "required": [
+          "bucketName",
+          "logTypes",
+          "prefixPath",
+          "roleId",
+          "type"
+        ],
+        "title": "GCS Log Export Integration Request",
+        "type": "object"
+      },
+      "GcsLogIntegrationResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationResponse"
+          },
+          {
+            "properties": {
+              "bucketName": {
+                "description": "Name of the bucket to store log files.",
+                "example": "my-gcs-log-bucket",
+                "type": "string"
+              },
+              "prefixPath": {
+                "description": "Path prefix where the log files will be stored. Atlas will add further sub-directories based on the log type.",
+                "example": "mongodb-logs/",
+                "type": "string"
+              },
+              "roleId": {
+                "description": "Unique 24-character hexadecimal string that identifies the Atlas Cloud Provider Access role.",
+                "example": "507f1f77bcf86cd799439011",
+                "pattern": "^[a-fA-F0-9]{24}$",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "GCS_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Details to integrate Google Cloud Storage log export with one Atlas project.",
+        "required": [
+          "bucketName",
+          "id",
+          "logTypes",
+          "prefixPath",
+          "roleId",
+          "type"
+        ],
+        "title": "GCS Log Export Integration Response",
         "type": "object"
       },
       "GeoSharding": {
@@ -27109,6 +27628,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "GroupPendingUserResponse": {
@@ -27544,6 +28066,27 @@
         },
         "type": "object"
       },
+      "Header": {
+        "description": "HTTP header with name and value.",
+        "properties": {
+          "name": {
+            "description": "Header name.",
+            "example": "Authorization",
+            "type": "string"
+          },
+          "value": {
+            "description": "Header value.",
+            "example": "Bearer token123",
+            "format": "password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object"
+      },
       "HipChatNotification": {
         "description": "HipChat notification configuration for MongoDB Cloud to send information when an event triggers an alert condition.",
         "properties": {
@@ -27843,6 +28386,7 @@
           "HOST_MONGOT_PAUSE_INITIAL_SYNC",
           "HOST_MONGOT_SUFFICIENT_DISK_SPACE",
           "HOST_MONGOT_APPROACHING_STOP_REPLICATION",
+          "HOST_MONGOT_RESTARTED",
           "HOST_SEARCH_NODE_UNBLOCKED",
           "HOST_SEARCH_NODE_INDEX_FAILED",
           "HOST_EXTERNAL_LOG_SINK_EXPORT_DOWN",
@@ -31466,6 +32010,8 @@
           }
         },
         "required": [
+          "deployments",
+          "migrationHosts",
           "name",
           "projectId"
         ],
@@ -31550,6 +32096,7 @@
         "required": [
           "destination",
           "dropEnabled",
+          "migrationHosts",
           "source"
         ],
         "type": "object"
@@ -31604,6 +32151,7 @@
         },
         "required": [
           "destination",
+          "migrationHosts",
           "source"
         ],
         "type": "object"
@@ -31659,13 +32207,33 @@
         "description": "Request schema for creating or updating a log integration.",
         "discriminator": {
           "mapping": {
-            "S3_LOG_EXPORT": "#/components/schemas/S3LogIntegrationRequest"
+            "AZURE_LOG_EXPORT": "#/components/schemas/AzureLogIntegrationRequest",
+            "DATADOG_LOG_EXPORT": "#/components/schemas/DatadogLogIntegrationRequest",
+            "GCS_LOG_EXPORT": "#/components/schemas/GcsLogIntegrationRequest",
+            "OTEL_LOG_EXPORT": "#/components/schemas/OtelLogIntegrationRequest",
+            "S3_LOG_EXPORT": "#/components/schemas/S3LogIntegrationRequest",
+            "SPLUNK_LOG_EXPORT": "#/components/schemas/SplunkLogIntegrationRequest"
           },
           "propertyName": "type"
         },
         "oneOf": [
           {
             "$ref": "#/components/schemas/S3LogIntegrationRequest"
+          },
+          {
+            "$ref": "#/components/schemas/DatadogLogIntegrationRequest"
+          },
+          {
+            "$ref": "#/components/schemas/GcsLogIntegrationRequest"
+          },
+          {
+            "$ref": "#/components/schemas/OtelLogIntegrationRequest"
+          },
+          {
+            "$ref": "#/components/schemas/SplunkLogIntegrationRequest"
+          },
+          {
+            "$ref": "#/components/schemas/AzureLogIntegrationRequest"
           }
         ],
         "properties": {
@@ -31683,9 +32251,14 @@
             "uniqueItems": true
           },
           "type": {
-            "description": "Type of log integration. Identifies which service will receive the exported logs.",
+            "description": "Type of log integration. Identifies which service will receive the exported logs. This value cannot be modified after the integration is created.",
             "enum": [
-              "S3_LOG_EXPORT"
+              "S3_LOG_EXPORT",
+              "DATADOG_LOG_EXPORT",
+              "GCS_LOG_EXPORT",
+              "OTEL_LOG_EXPORT",
+              "SPLUNK_LOG_EXPORT",
+              "AZURE_LOG_EXPORT"
             ],
             "type": "string"
           }
@@ -31701,13 +32274,33 @@
         "description": "Response schema for log integration operations.",
         "discriminator": {
           "mapping": {
-            "S3_LOG_EXPORT": "#/components/schemas/S3LogIntegrationResponse"
+            "AZURE_LOG_EXPORT": "#/components/schemas/AzureLogIntegrationResponse",
+            "DATADOG_LOG_EXPORT": "#/components/schemas/DatadogLogIntegrationResponse",
+            "GCS_LOG_EXPORT": "#/components/schemas/GcsLogIntegrationResponse",
+            "OTEL_LOG_EXPORT": "#/components/schemas/OtelLogIntegrationResponse",
+            "S3_LOG_EXPORT": "#/components/schemas/S3LogIntegrationResponse",
+            "SPLUNK_LOG_EXPORT": "#/components/schemas/SplunkLogIntegrationResponse"
           },
           "propertyName": "type"
         },
         "oneOf": [
           {
             "$ref": "#/components/schemas/S3LogIntegrationResponse"
+          },
+          {
+            "$ref": "#/components/schemas/DatadogLogIntegrationResponse"
+          },
+          {
+            "$ref": "#/components/schemas/GcsLogIntegrationResponse"
+          },
+          {
+            "$ref": "#/components/schemas/OtelLogIntegrationResponse"
+          },
+          {
+            "$ref": "#/components/schemas/SplunkLogIntegrationResponse"
+          },
+          {
+            "$ref": "#/components/schemas/AzureLogIntegrationResponse"
           }
         ],
         "properties": {
@@ -31730,15 +32323,21 @@
             "uniqueItems": true
           },
           "type": {
-            "description": "Type of log integration. Identifies which service will receive the exported logs.",
+            "description": "Type of log integration. Identifies which service will receive the exported logs. This value cannot be modified after the integration is created.",
             "enum": [
-              "S3_LOG_EXPORT"
+              "S3_LOG_EXPORT",
+              "DATADOG_LOG_EXPORT",
+              "GCS_LOG_EXPORT",
+              "OTEL_LOG_EXPORT",
+              "SPLUNK_LOG_EXPORT",
+              "AZURE_LOG_EXPORT"
             ],
             "type": "string"
           }
         },
         "required": [
           "id",
+          "logTypes",
           "type"
         ],
         "title": "Log Integration Response",
@@ -37053,6 +37652,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "federatedDomains"
+        ],
         "title": "Organization Federation Settings",
         "type": "object"
       },
@@ -37195,6 +37797,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "OrgPendingUserResponse": {
@@ -37797,6 +38402,91 @@
         },
         "type": "object"
       },
+      "OtelLogIntegrationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationRequest"
+          },
+          {
+            "properties": {
+              "otelEndpoint": {
+                "description": "OpenTelemetry collector endpoint URL. Must be HTTPS and not exceed 2048 characters.",
+                "example": "https://otel-collector.example.com:4318/v1/logs",
+                "type": "string"
+              },
+              "otelSuppliedHeaders": {
+                "description": "HTTP headers for authentication and configuration. Maximum 10 headers, total size limit 2KB.",
+                "items": {
+                  "$ref": "#/components/schemas/Header"
+                },
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "OTEL_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Request schema for creating or updating an OpenTelemetry log export integration.",
+        "required": [
+          "logTypes",
+          "otelEndpoint",
+          "otelSuppliedHeaders",
+          "type"
+        ],
+        "title": "OTel Log Export Integration Request",
+        "type": "object"
+      },
+      "OtelLogIntegrationResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationResponse"
+          },
+          {
+            "properties": {
+              "otelEndpoint": {
+                "description": "OpenTelemetry collector endpoint URL.",
+                "example": "https://otel-collector.example.com:4318/v1/logs",
+                "type": "string"
+              },
+              "otelSuppliedHeaders": {
+                "description": "HTTP headers for authentication and configuration. Maximum 10 headers, total size limit 2KB.",
+                "items": {
+                  "$ref": "#/components/schemas/Header"
+                },
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "OTEL_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Details to integrate OpenTelemetry log export with one Atlas project.",
+        "required": [
+          "id",
+          "logTypes",
+          "otelEndpoint",
+          "otelSuppliedHeaders",
+          "type"
+        ],
+        "title": "OTel Log Export Integration Response",
+        "type": "object"
+      },
       "OutboundControlPlaneCloudProviderIPAddresses": {
         "description": "List of outbound IP addresses from the Atlas control plane, categorized by cloud provider. If your network allows inbound HTTP requests only from specific IP addresses, you must allow access from the following IP addresses so that Atlas can communicate with your webhooks and KMS.",
         "properties": {
@@ -37968,6 +38658,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedAlertConfigView": {
@@ -38000,6 +38693,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedAlertView": {
@@ -38032,6 +38728,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiApiUserView": {
@@ -38064,6 +38763,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAppUserView": {
@@ -38096,6 +38798,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasCheckpointView": {
@@ -38128,6 +38833,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasDatabaseUserView": {
@@ -38161,6 +38869,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasDiskBackupExportJobView": {
@@ -38193,6 +38904,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasEARPrivateEndpointView": {
@@ -38225,6 +38939,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasFlexBackupRestoreJob20241113View": {
@@ -38257,6 +38974,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasFlexBackupSnapshot20241113View": {
@@ -38289,6 +39009,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasObjectStoragePrivateEndpointResponseView": {
@@ -38321,6 +39044,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasProviderRegionsView": {
@@ -38353,6 +39079,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasServerlessBackupRestoreJobView": {
@@ -38385,6 +39114,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiAtlasServerlessBackupSnapshotView": {
@@ -38417,6 +39149,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiInvoiceMetadataView": {
@@ -38449,6 +39184,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiInvoiceView": {
@@ -38481,6 +39219,44 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedApiLifecycleManagementPolicyResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ApiLifecycleManagementPolicyResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiSKUView": {
@@ -38513,6 +39289,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiStandbyLinkFailoverResponse": {
@@ -38545,6 +39324,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiStandbyLinkResponse": {
@@ -38577,6 +39359,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiStreamsConnectionView": {
@@ -38609,6 +39394,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiStreamsPrivateLinkView": {
@@ -38641,6 +39429,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiStreamsStreamProcessorWithStatsView": {
@@ -38673,6 +39464,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiStreamsTenantView": {
@@ -38705,6 +39499,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedApiUserAccessListResponseView": {
@@ -38737,6 +39534,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedAppUserView": {
@@ -38769,6 +39569,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedAtlasAiModelsApiKeysResponse": {
@@ -38802,6 +39605,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedAtlasAiModelsRateLimitsResponse": {
@@ -38835,6 +39641,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedAtlasGroupView": {
@@ -38867,6 +39676,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedAvailableVersionView": {
@@ -38899,6 +39711,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedBackupSnapshotExportBucketView": {
@@ -38931,6 +39746,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedBackupSnapshotExportBucketsView": {
@@ -38963,6 +39781,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedBackupSnapshotView": {
@@ -38995,6 +39816,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedCloudBackupReplicaSetView": {
@@ -39027,6 +39851,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedCloudBackupRestoreJobView": {
@@ -39059,6 +39886,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedCloudBackupShardedClusterSnapshotView": {
@@ -39091,6 +39921,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedCloudProviderContainerView": {
@@ -39124,6 +39957,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "title": "Network Peering",
         "type": "object"
       },
@@ -39157,6 +39993,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedConnectedOrgConfigsView": {
@@ -39189,6 +40028,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedContainerPeerView": {
@@ -39222,6 +40064,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedDatabaseView": {
@@ -39254,6 +40099,45 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedDefaultGroupLimitResponse": {
+        "description": "A list of user-configurable, project-level limits with descriptions.",
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/DefaultGroupLimitResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedDiskPartitionView": {
@@ -39286,6 +40170,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedEventTypeDetailsResponse": {
@@ -39318,6 +40205,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedFederationIdentityProvider": {
@@ -39350,6 +40240,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedFlexClusters20241113": {
@@ -39382,6 +40275,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedGroupServiceAccounts": {
@@ -39415,6 +40311,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedGroupUserView": {
@@ -39447,6 +40346,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedHostView_Atlas": {
@@ -39479,6 +40381,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedIntegrationView": {
@@ -39511,6 +40416,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedLegacyClusterView": {
@@ -39543,6 +40451,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedLogIntegrationResponse": {
@@ -39575,6 +40486,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedNetworkAccessView": {
@@ -39607,6 +40521,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedOnlineArchiveView": {
@@ -39639,6 +40556,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedOrgGroupView": {
@@ -39671,6 +40591,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedOrgServiceAccounts": {
@@ -39704,6 +40627,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedOrgUserView": {
@@ -39736,6 +40662,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedOrganizationView": {
@@ -39768,6 +40697,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedPipelineRunView": {
@@ -39800,6 +40732,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedPrivateNetworkEndpointIdEntryView": {
@@ -39832,6 +40767,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedPublicApiUsageDetailsLineItemView": {
@@ -39864,6 +40802,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedQueryShapes": {
@@ -39897,6 +40838,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedRateLimitEndpointSets": {
@@ -39930,6 +40874,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedRestoreJobView": {
@@ -39962,6 +40909,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedRoleMappingView": {
@@ -39995,6 +40945,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedSandboxConfigs": {
@@ -40027,6 +40980,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedServerlessInstanceDescriptionView": {
@@ -40059,6 +41015,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedServiceAccountGroup": {
@@ -40092,6 +41051,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedServiceAccountIPAccessEntryView": {
@@ -40124,6 +41086,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedSnapshotView": {
@@ -40156,6 +41121,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedTeamRoleView": {
@@ -40188,6 +41156,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedTeamView": {
@@ -40220,70 +41191,9 @@
             "type": "integer"
           }
         },
-        "type": "object"
-      },
-      "PaginatedTenantRestoreView": {
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "results": {
-            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
-            "items": {
-              "$ref": "#/components/schemas/TenantRestore"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "totalCount": {
-            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
-            "format": "int32",
-            "minimum": 0,
-            "readOnly": true,
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "PaginatedTenantSnapshotView": {
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "results": {
-            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
-            "items": {
-              "$ref": "#/components/schemas/BackupTenantSnapshot"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "totalCount": {
-            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
-            "format": "int32",
-            "minimum": 0,
-            "readOnly": true,
-            "type": "integer"
-          }
-        },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PaginatedUserCertView": {
@@ -40316,6 +41226,9 @@
             "type": "integer"
           }
         },
+        "required": [
+          "results"
+        ],
         "type": "object"
       },
       "PartitionFieldView": {
@@ -40771,6 +41684,9 @@
             "type": "array"
           }
         },
+        "required": [
+          "pinnedNamespaces"
+        ],
         "type": "object"
       },
       "PipelineRunStats": {
@@ -42293,7 +43209,6 @@
             "items": {
               "example": "32b6e34b3d91647abb20e7b8",
               "pattern": "^([a-f0-9]{8,32})$",
-              "readOnly": true,
               "type": "string"
             },
             "readOnly": true,
@@ -43019,13 +43934,14 @@
           {
             "properties": {
               "bucketName": {
-                "description": "Human-readable label that identifies the S3 bucket name for storing log files.",
+                "description": "Name of the bucket to store log files.",
                 "example": "my-log-bucket",
                 "type": "string"
               },
               "iamRoleId": {
-                "description": "Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.",
+                "description": "Unique 24-character hexadecimal string that identifies the AWS IAM role that Atlas uses to access the S3 bucket.",
                 "example": "507f1f77bcf86cd799439011",
+                "pattern": "^[a-fA-F0-9]{24}$",
                 "type": "string"
               },
               "kmsKey": {
@@ -43035,12 +43951,12 @@
                 "type": "string"
               },
               "prefixPath": {
-                "description": "S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.",
+                "description": "Path prefix where the log files will be stored. Atlas will add further sub-directories based on the log type.",
                 "example": "mongo-logs/",
                 "type": "string"
               },
               "type": {
-                "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.",
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
                 "enum": [
                   "S3_LOG_EXPORT"
                 ],
@@ -43069,13 +43985,14 @@
           {
             "properties": {
               "bucketName": {
-                "description": "Human-readable label that identifies the S3 bucket name for storing log files.",
+                "description": "Name of the bucket to store log files.",
                 "example": "my-log-bucket",
                 "type": "string"
               },
               "iamRoleId": {
-                "description": "Unique 24-hexadecimal digit string that identifies the AWS IAM role that MongoDB Cloud uses to access your S3 bucket.",
+                "description": "Unique 24-character hexadecimal string that identifies the AWS IAM role that Atlas uses to access the S3 bucket.",
                 "example": "507f1f77bcf86cd799439011",
+                "pattern": "^[a-fA-F0-9]{24}$",
                 "type": "string"
               },
               "kmsKey": {
@@ -43085,12 +44002,12 @@
                 "type": "string"
               },
               "prefixPath": {
-                "description": "S3 directory path prefix where the log files will be stored. MongoDB Cloud will add further sub-directories based on the log type.",
+                "description": "Path prefix where the log files will be stored. Atlas will add further sub-directories based on the log type.",
                 "example": "mongo-logs/",
                 "type": "string"
               },
               "type": {
-                "description": "Human-readable label that identifies the service to which you want to integrate with MongoDB Cloud. The value must match the log integration type.",
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
                 "enum": [
                   "S3_LOG_EXPORT"
                 ],
@@ -43100,11 +44017,12 @@
             "type": "object"
           }
         ],
-        "description": "Details to integrate S3 log export with one MongoDB Cloud project.",
+        "description": "Details to integrate S3 log export with one Atlas project.",
         "required": [
           "bucketName",
           "iamRoleId",
           "id",
+          "logTypes",
           "prefixPath",
           "type"
         ],
@@ -44465,7 +45383,8 @@
           }
         },
         "required": [
-          "name"
+          "name",
+          "types"
         ],
         "title": "TypeSets",
         "type": "object"
@@ -45144,75 +46063,6 @@
         },
         "readOnly": true,
         "title": "Serverless Instance Connection Strings",
-        "type": "object"
-      },
-      "ServerlessInstanceDescriptionCreate": {
-        "description": "Settings that you can specify when you create a serverless instance.",
-        "properties": {
-          "name": {
-            "description": "Human-readable label that identifies the serverless instance.",
-            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-            "type": "string",
-            "writeOnly": true
-          },
-          "providerSettings": {
-            "$ref": "#/components/schemas/ServerlessProviderSettings"
-          },
-          "serverlessBackupOptions": {
-            "$ref": "#/components/schemas/ClusterServerlessBackupOptions"
-          },
-          "stateName": {
-            "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
-            "enum": [
-              "IDLE",
-              "CREATING",
-              "UPDATING",
-              "DELETING",
-              "REPAIRING"
-            ],
-            "readOnly": true,
-            "type": "string"
-          },
-          "tags": {
-            "description": "List that contains key-value pairs between 1 to 255 characters in length for tagging and categorizing the serverless instance.",
-            "items": {
-              "$ref": "#/components/schemas/ResourceTag"
-            },
-            "type": "array"
-          },
-          "terminationProtectionEnabled": {
-            "default": false,
-            "description": "Flag that indicates whether termination protection is enabled on the serverless instance. If set to `true`, MongoDB Cloud won't delete the serverless instance. If set to `false`, MongoDB Cloud will delete the serverless instance.",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "name",
-          "providerSettings"
-        ],
-        "title": "Serverless Instance Description Create",
-        "type": "object"
-      },
-      "ServerlessInstanceDescriptionUpdate": {
-        "description": "Settings that you can update when you request a serverless cluster update.",
-        "properties": {
-          "serverlessBackupOptions": {
-            "$ref": "#/components/schemas/ClusterServerlessBackupOptions"
-          },
-          "tags": {
-            "description": "List that contains key-value pairs between 1 to 255 characters in length for tagging and categorizing the serverless instance.",
-            "items": {
-              "$ref": "#/components/schemas/ResourceTag"
-            },
-            "type": "array"
-          },
-          "terminationProtectionEnabled": {
-            "default": false,
-            "description": "Flag that indicates whether termination protection is enabled on the serverless instance. If set to `true`, MongoDB Cloud won't delete the serverless instance. If set to `false`, MongoDB Cloud will delete the serverless instance.",
-            "type": "boolean"
-          }
-        },
-        "title": "Serverless Instance Description Update",
         "type": "object"
       },
       "ServerlessMetricAlertConfigViewForNdsGroup": {
@@ -46362,6 +47212,9 @@
             "writeOnly": true
           }
         },
+        "required": [
+          "key"
+        ],
         "type": "object",
         "writeOnly": true
       },
@@ -46384,7 +47237,8 @@
           }
         },
         "required": [
-          "createSupportingIndexes"
+          "createSupportingIndexes",
+          "shardingEntries"
         ],
         "type": "object",
         "writeOnly": true
@@ -46537,6 +47391,85 @@
           "managedAuthentication",
           "ssl"
         ],
+        "type": "object"
+      },
+      "SplunkLogIntegrationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationRequest"
+          },
+          {
+            "properties": {
+              "hecToken": {
+                "description": "HTTP Event Collector (HEC) token for authentication.",
+                "example": "12345678-1234-1234-1234-123456789012",
+                "format": "password",
+                "type": "string"
+              },
+              "hecUrl": {
+                "description": "HTTP Event Collector (HEC) endpoint URL.",
+                "example": "https://http-inputs-acme.splunkcloud.com:8088/services/collector/event",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "SPLUNK_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Request schema for creating or updating a Splunk log export integration.",
+        "required": [
+          "hecToken",
+          "hecUrl",
+          "logTypes",
+          "type"
+        ],
+        "title": "Splunk Log Export Integration Request",
+        "type": "object"
+      },
+      "SplunkLogIntegrationResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LogIntegrationResponse"
+          },
+          {
+            "properties": {
+              "hecToken": {
+                "description": "HTTP Event Collector (HEC) token for authentication.",
+                "example": "****************************9012",
+                "format": "password",
+                "type": "string"
+              },
+              "hecUrl": {
+                "description": "HTTP Event Collector (HEC) endpoint URL.",
+                "example": "https://http-inputs-acme.splunkcloud.com:8088/services/collector",
+                "type": "string"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "SPLUNK_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Details to integrate Splunk log export with one Atlas project.",
+        "required": [
+          "hecToken",
+          "hecUrl",
+          "id",
+          "logTypes",
+          "type"
+        ],
+        "title": "Splunk Log Export Integration Response",
         "type": "object"
       },
       "StateReason": {
@@ -47291,7 +48224,6 @@
           },
           "region": {
             "description": "The connection's region.",
-            "readOnly": true,
             "type": "string"
           },
           "state": {
@@ -49199,114 +50131,6 @@
         ],
         "description": "Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.",
         "title": "Tenant Regional Replication Specifications",
-        "type": "object"
-      },
-      "TenantRestore": {
-        "properties": {
-          "clusterName": {
-            "description": "Human-readable label that identifies the source cluster.",
-            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "deliveryType": {
-            "description": "Means by which this resource returns the snapshot to the requesting MongoDB Cloud user.",
-            "enum": [
-              "RESTORE",
-              "DOWNLOAD"
-            ],
-            "readOnly": true,
-            "type": "string"
-          },
-          "expirationDate": {
-            "description": "Date and time when the download link no longer works. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "id": {
-            "description": "Unique 24-hexadecimal digit string that identifies the restore job.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "projectId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the project from which the restore job originated.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "restoreFinishedDate": {
-            "description": "Date and time when MongoDB Cloud completed writing this snapshot. MongoDB Cloud changes the status of the restore job to `CLOSED`. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "restoreScheduledDate": {
-            "description": "Date and time when MongoDB Cloud will restore this snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "snapshotFinishedDate": {
-            "description": "Date and time when MongoDB Cloud completed writing this snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "snapshotId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the snapshot to restore.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "type": "string"
-          },
-          "snapshotUrl": {
-            "description": "Internet address from which you can download the compressed snapshot files. The resource returns this parameter when  `\"deliveryType\" : \"DOWNLOAD\"`.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "status": {
-            "description": "Phase of the restore workflow for this job at the time this resource made this request.",
-            "enum": [
-              "PENDING",
-              "QUEUED",
-              "RUNNING",
-              "FAILED",
-              "COMPLETED"
-            ],
-            "readOnly": true,
-            "type": "string"
-          },
-          "targetDeploymentItemName": {
-            "description": "Human-readable label that identifies the cluster on the target project to which you want to restore the snapshot. You can restore the snapshot to a cluster tier *M2* or greater.",
-            "pattern": "^[\\p{L}\\p{N}\\-_.(),:&@+']{1,64}$",
-            "type": "string"
-          },
-          "targetProjectId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the project that contains the cluster to which you want to restore the snapshot.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "type": "string"
-          }
-        },
-        "required": [
-          "snapshotId",
-          "targetDeploymentItemName"
-        ],
         "type": "object"
       },
       "TenantWithSampleConnections": {
@@ -51231,6 +52055,11 @@
                   "$ref": "#/components/schemas/BasicDBObject"
                 },
                 "type": "array"
+              },
+              "nestedRoot": {
+                "description": "Top-level path to the array that contains vector fields. When provided, vector fields under this path are treated as nested.",
+                "example": "sections",
+                "type": "string"
               }
             },
             "type": "object"
@@ -51280,6 +52109,11 @@
             },
             "type": "array"
           },
+          "nestedRoot": {
+            "description": "Top-level path to the array that contains vector fields. When provided, vector fields under this path are treated as nested.",
+            "example": "sections",
+            "type": "string"
+          },
           "numPartitions": {
             "default": 1,
             "description": "Number of index partitions. Allowed values are [1, 2, 4].",
@@ -51301,6 +52135,9 @@
             "type": "object"
           }
         },
+        "required": [
+          "fields"
+        ],
         "title": "Vector Search Index Definition",
         "type": "object"
       },
@@ -52436,7 +53273,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "d74c28e3fee5a4f5011a251b1ba00ae4e23c0890"
+    "x-xgen-sha": "a665ed4065e01e65fc138f7c1d172d51666e4d6f"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -52622,6 +53459,140 @@
           "customMethod": false,
           "verb": "listDetails"
         }
+      }
+    },
+    "/api/atlas/v2/defaultGroupLimits": {
+      "get": {
+        "description": "Returns a list of all user-configurable, project-level limits, along with a description and their default and maximum values.",
+        "operationId": "listDefaultGroupLimits",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedDefaultGroupLimitResponse"
+                },
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return Descriptions of User-Configurable Project Limits",
+        "tags": [
+          "Limit Description"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Limit-Description/operation/listDefaultGroupLimits"
+      }
+    },
+    "/api/atlas/v2/defaultGroupLimits/{limitName}": {
+      "get": {
+        "description": "Returns the description of one user-configurable, project-level limit, along with its default and maximum values.",
+        "operationId": "getDefaultGroupLimit",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the user-managed limit whose description you want to retrieve.",
+            "in": "path",
+            "name": "limitName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultGroupLimitResponse"
+                },
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One User-Configurable Project Limit and Description",
+        "tags": [
+          "Limit Description"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Limit-Description/operation/getDefaultGroupLimit"
       }
     },
     "/api/atlas/v2/eventTypes": {
@@ -54360,7 +55331,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/OrganizationInvitation"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               }
             },
@@ -55523,6 +56494,77 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/updateGroupAiModelRateLimit",
         "x-xgen-operation-id-override": "updateModelRateLimit"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/aiModelRateLimits/{modelGroupName}:reset": {
+      "post": {
+        "description": "Reset the AI model rate limit for the given model group to default values.",
+        "operationId": "resetGroupAiModelRateLimit",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "The name of the model group to be reset to default rate limits.",
+            "in": "path",
+            "name": "modelGroupName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "This endpoint does not return a response body.",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Reset AI Model Rate Limit for One Model Group",
+        "tags": [
+          "AI Model Rate Limits"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/resetGroupAiModelRateLimit",
+        "x-xgen-operation-id-override": "resetModelRateLimit"
       }
     },
     "/api/atlas/v2/groups/{groupId}/aiModelRateLimits:reset": {
@@ -58653,14 +59695,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedLegacyClusterView"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedAdvancedClusterDescriptionView"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -58996,14 +60038,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/LegacyAtlasCluster"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdvancedClusterDescription"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -59370,7 +60412,7 @@
           "202": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
@@ -59469,14 +60511,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/LegacyAtlasCluster"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdvancedClusterDescription"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -59599,14 +60641,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/LegacyAtlasCluster"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdvancedClusterDescription"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -61194,525 +62236,6 @@
         "x-xgen-operation-id-override": "updateBackupSnapshot"
       }
     },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/download": {
-      "post": {
-        "deprecated": true,
-        "description": "Requests one snapshot for the specified shared cluster. This resource returns a `snapshotURL` that you can use to download the snapshot. This `snapshotURL` remains active for four hours after you make the request. To use this resource, the requesting Service Account or API Key must have the Project Owner role.\n\nThis endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the Download Flex Backup endpoint instead.",
-        "externalDocs": {
-          "description": "Download Flex Backup",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/downloadFlexBackup"
-        },
-        "operationId": "downloadGroupClusterBackupTenant",
-        "parameters": [
-          {
-            "description": "Human-readable label that identifies the cluster.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          },
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.2023-01-01+json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantRestore"
-              }
-            }
-          },
-          "description": "Snapshot to be downloaded.",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantRestore"
-                },
-                "x-sunset": "2026-01-22",
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/conflict"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Download One M2 or M5 Cluster Snapshot",
-        "tags": [
-          "Shared-Tier Snapshots"
-        ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/downloadGroupClusterBackupTenant",
-        "x-xgen-method-verb-override": {
-          "customMethod": "True"
-        },
-        "x-xgen-operation-id-override": "downloadClusterBackupTenant"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restore": {
-      "post": {
-        "deprecated": true,
-        "description": "Restores the specified M2 or M5 cluster. MongoDB Cloud limits which clusters can be the target clusters of a restore. The target cluster can't use encryption at rest, run a major release MongoDB version different than the snapshot, or receive client requests during restores. MongoDB Cloud deletes all existing data on the target cluster prior to the restore operation. To use this resource, the requesting Service Account or API Key must have the Project Owner role.\n\nThis endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the Create Flex Backup Restore Job endpoint instead.",
-        "externalDocs": {
-          "description": "Create Flex Backup Restore Job",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/createFlexBackupRestoreJob"
-        },
-        "operationId": "createGroupClusterBackupTenantRestore",
-        "parameters": [
-          {
-            "description": "Human-readable label that identifies the cluster.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          },
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.2023-01-01+json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantRestore"
-              }
-            }
-          },
-          "description": "The restore job details.",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantRestore"
-                },
-                "x-sunset": "2026-01-22",
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/conflict"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Create One Restore Job for One M2 or M5 Cluster",
-        "tags": [
-          "Shared-Tier Restore Jobs"
-        ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/createGroupClusterBackupTenantRestore",
-        "x-xgen-operation-id-override": "createBackupTenantRestore"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restores": {
-      "get": {
-        "deprecated": true,
-        "description": "Returns all restore jobs for the specified M2 or M5 cluster. Restore jobs restore a cluster using a snapshot. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.\n\nThis endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the List Flex Backup Restore Jobs endpoint instead.",
-        "externalDocs": {
-          "description": "List Flex Backup Restore Jobs",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/listFlexBackupRestoreJobs"
-        },
-        "operationId": "listGroupClusterBackupTenantRestores",
-        "parameters": [
-          {
-            "description": "Human-readable label that identifies the cluster.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          },
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedTenantRestoreView"
-                },
-                "x-sunset": "2026-01-22",
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return All Restore Jobs for One M2 or M5 Cluster",
-        "tags": [
-          "Shared-Tier Restore Jobs"
-        ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/listGroupClusterBackupTenantRestores",
-        "x-xgen-operation-id-override": "listBackupTenantRestores"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/restores/{restoreId}": {
-      "get": {
-        "deprecated": true,
-        "description": "Returns the specified restore job for the specified M2 or M5 cluster. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.\n\nThis endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the Get Flex Backup Restore Job endpoint instead.",
-        "externalDocs": {
-          "description": "Get Flex Backup Restore Job",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/getFlexBackupRestoreJob"
-        },
-        "operationId": "getGroupClusterBackupTenantRestore",
-        "parameters": [
-          {
-            "description": "Human-readable label that identifies the cluster.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          },
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "Unique 24-hexadecimal digit string that identifies the restore job to return.",
-            "in": "path",
-            "name": "restoreId",
-            "required": true,
-            "schema": {
-              "pattern": "^([a-f0-9]{24})$",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantRestore"
-                },
-                "x-sunset": "2026-01-22",
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return One Restore Job for One M2 or M5 Cluster",
-        "tags": [
-          "Shared-Tier Restore Jobs"
-        ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Restore-Jobs/operation/getGroupClusterBackupTenantRestore",
-        "x-xgen-operation-id-override": "getBackupTenantRestore"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/snapshots": {
-      "get": {
-        "deprecated": true,
-        "description": "Returns details for all snapshots for the specified shared cluster. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.\n\nThis API also works for Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters, until January 22, 2026, after which this endpoint will be sunset. Please use the List Flex Backups endpoint instead.",
-        "externalDocs": {
-          "description": "List Flex Backups",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/listFlexBackups"
-        },
-        "operationId": "listGroupClusterBackupTenantSnapshots",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "Human-readable label that identifies the cluster.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedTenantSnapshotView"
-                },
-                "x-sunset": "2026-01-22",
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return All Snapshots for One M2 or M5 Cluster",
-        "tags": [
-          "Shared-Tier Snapshots"
-        ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/listGroupClusterBackupTenantSnapshots",
-        "x-xgen-operation-id-override": "listClusterBackupSnapshots"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/tenant/snapshots/{snapshotId}": {
-      "get": {
-        "deprecated": true,
-        "description": "Returns details for one snapshot for the specified shared cluster. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.\n\nThis endpoint can also be used on Flex clusters that were created using the [Create Cluster](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createCluster) endpoint or former M2/M5 clusters that have been migrated to Flex clusters until January 22, 2026, after which this endpoint will be sunset. Please use the Get Flex Backup endpoint instead.",
-        "externalDocs": {
-          "description": "Get Flex Backup",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/getFlexBackup"
-        },
-        "operationId": "getGroupClusterBackupTenantSnapshot",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "Human-readable label that identifies the cluster.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Unique 24-hexadecimal digit string that identifies the desired snapshot.",
-            "in": "path",
-            "name": "snapshotId",
-            "required": true,
-            "schema": {
-              "pattern": "^([a-f0-9]{24})$",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BackupTenantSnapshot"
-                },
-                "x-sunset": "2026-01-22",
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return One Snapshot of One M2 or M5 Cluster",
-        "tags": [
-          "Shared-Tier Snapshots"
-        ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shared-Tier-Snapshots/operation/getGroupClusterBackupTenantSnapshot",
-        "x-xgen-operation-id-override": "getBackupTenantSnapshot"
-      }
-    },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupCheckpoints": {
       "get": {
         "deprecated": true,
@@ -62731,14 +63254,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -62841,14 +63364,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -62971,14 +63494,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -63100,14 +63623,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -63233,14 +63756,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
                 "schema": {
                   "$ref": "#/components/schemas/GeoSharding"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-02-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -63493,6 +64016,468 @@
           "verb": "createRollingIndex"
         },
         "x-xgen-operation-id-override": "createRollingIndex"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies": {
+      "get": {
+        "description": "Returns all lifecycle management policies for the specified cluster. Each policy represents automated data transition rules between collections.",
+        "operationId": "listGroupClusterLifecycleManagementPolicies",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiLifecycleManagementPolicyResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Lifecycle Management Policies for One Cluster",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/listGroupClusterLifecycleManagementPolicies",
+        "x-xgen-operation-id-override": "listLifecycleManagementPolicies"
+      },
+      "post": {
+        "description": "Creates a lifecycle management policy for the specified cluster. The policy defines rules for taking lifecycle management actions against a cluster.",
+        "operationId": "createGroupClusterLifecycleManagementPolicy",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiLifecycleManagementPolicyCreateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "lifecycle-management"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Lifecycle management policy to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiLifecycleManagementPolicyResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Lifecycle Management Policy",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/createGroupClusterLifecycleManagementPolicy",
+        "x-xgen-operation-id-override": "createLifecycleManagementPolicy"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}": {
+      "delete": {
+        "description": "Deletes the lifecycle management policy with the specified identifier. The policy must be in PAUSED state before deletion.",
+        "operationId": "deleteGroupClusterLifecycleManagementPolicy",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the policy.",
+            "in": "path",
+            "name": "policyId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete One Lifecycle Management Policy",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/deleteGroupClusterLifecycleManagementPolicy",
+        "x-xgen-operation-id-override": "deleteLifecycleManagementPolicy"
+      },
+      "get": {
+        "description": "Returns the lifecycle management policy with the specified identifier.",
+        "operationId": "getGroupClusterLifecycleManagementPolicy",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the policy.",
+            "in": "path",
+            "name": "policyId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiLifecycleManagementPolicyResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Lifecycle Management Policy",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/getGroupClusterLifecycleManagementPolicy",
+        "x-xgen-operation-id-override": "getLifecycleManagementPolicy"
+      },
+      "patch": {
+        "description": "Updates the lifecycle management policy with the specified identifier. Supports partial updates via PATCH semantics. Can update action fields, transition policy state, or both.",
+        "operationId": "updateGroupClusterLifecycleManagementPolicy",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the policy.",
+            "in": "path",
+            "name": "policyId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiLifecycleManagementPolicyUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "lifecycle-management"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Lifecycle management policy fields to update.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiLifecycleManagementPolicyResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "lifecycle-management"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One Lifecycle Management Policy",
+        "tags": [
+          "Lifecycle Management"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/updateGroupClusterLifecycleManagementPolicy",
+        "x-xgen-operation-id-override": "updateLifecycleManagementPolicy"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/onlineArchives": {
@@ -64566,7 +65551,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/ClusterDescriptionProcessArgs"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -64665,7 +65650,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/ClusterDescriptionProcessArgs"
                 },
-                "x-sunset": "2026-03-01",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2024-08-05+json": {
@@ -65322,7 +66307,7 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+json": {
@@ -68113,7 +69098,7 @@
                   "format": "binary",
                   "type": "string"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2023-02-01+gzip": {
@@ -70581,6 +71566,7 @@
             "name": "end",
             "schema": {
               "format": "int64",
+              "minimum": 1199145600000,
               "type": "integer"
             }
           },
@@ -70611,6 +71597,7 @@
             "name": "start",
             "schema": {
               "format": "int64",
+              "minimum": 1199145600000,
               "type": "integer"
             }
           }
@@ -70694,6 +71681,7 @@
             "name": "end",
             "schema": {
               "format": "int64",
+              "minimum": 1199145600000,
               "type": "integer"
             }
           },
@@ -70733,6 +71721,7 @@
             "name": "start",
             "schema": {
               "format": "int64",
+              "minimum": 1199145600000,
               "type": "integer"
             }
           }
@@ -73284,7 +74273,7 @@
                   },
                   "type": "array"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -73353,7 +74342,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/GroupInvitation"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -73425,7 +74414,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/GroupInvitation"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -73489,7 +74478,7 @@
           "204": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -73557,7 +74546,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/GroupInvitation"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -73633,7 +74622,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/GroupInvitation"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -74119,7 +75108,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/LiveMigrationResponse"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2024-05-30+json": {
@@ -74205,7 +75194,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/LiveImportValidation"
                 },
-                "x-sunset": "2026-11-30",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2024-05-30+json": {
@@ -80434,93 +81423,6 @@
           "verb": "listInstances"
         },
         "x-xgen-operation-id-override": "listServerlessInstances"
-      },
-      "post": {
-        "deprecated": true,
-        "description": "Update as of Feb 2025: This endpoint now creates a Flex cluster instead. This endpoint will no longer be supported starting on January 22, 2026. Continuous backups are not supported and `serverlessContinuousBackupEnabled` will not take effect. Please use the Create Flex Cluster endpoint instead.\n\nCreates one serverless instance in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
-        "externalDocs": {
-          "description": "Create Flex Cluster",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/createFlexCluster"
-        },
-        "operationId": "createGroupServerlessInstance",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.2023-01-01+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ServerlessInstanceDescriptionCreate"
-              }
-            }
-          },
-          "description": "Create One Serverless Instance in One Project.",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerlessInstanceDescription"
-                },
-                "x-sunset": "2026-01-22",
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "Created",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/paymentRequired"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/conflict"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Create One Serverless Instance in One Project",
-        "tags": [
-          "Serverless Instances"
-        ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createGroupServerlessInstance",
-        "x-xgen-method-verb-override": {
-          "customMethod": false,
-          "verb": "createInstance"
-        },
-        "x-xgen-operation-id-override": "createServerlessInstance"
       }
     },
     "/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs": {
@@ -81121,89 +82023,6 @@
       }
     },
     "/api/atlas/v2/groups/{groupId}/serverless/{name}": {
-      "delete": {
-        "deprecated": true,
-        "description": "Removes one serverless instance from the specified project. The serverless instance must have termination protection disabled in order to be deleted. To use this resource, the requesting Service Account or API Key must have the Project Owner role.\n\nThis API can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) endpoint or Flex clusters that were migrated from Serverless instances. This endpoint will be sunset on January 22, 2026. Please use the Delete Flex Cluster endpoint instead.",
-        "externalDocs": {
-          "description": "Delete Flex Cluster",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/deleteFlexCluster"
-        },
-        "operationId": "deleteGroupServerlessInstance",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "description": "Human-readable label that identifies the serverless instance.",
-            "in": "path",
-            "name": "name",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RequestAccepted"
-                },
-                "x-sunset": "2026-01-22",
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "Accepted",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/conflict"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Remove One Serverless Instance from One Project",
-        "tags": [
-          "Serverless Instances"
-        ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/deleteGroupServerlessInstance",
-        "x-xgen-method-verb-override": {
-          "customMethod": false,
-          "verb": "deleteInstance"
-        },
-        "x-xgen-operation-id-override": "deleteServerlessInstance"
-      },
       "get": {
         "deprecated": true,
         "description": "Returns details for one serverless instance in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.\n\nThis API can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) endpoint or Flex clusters that were migrated from Serverless instances. Continuous backups are not supported and `serverlessContinuousBackupEnabled` will not take effect on these clusters. This endpoint will be sunset on January 15, 2027. Please use the Get Flex Cluster endpoint instead.",
@@ -81286,100 +82105,6 @@
           "verb": "getInstance"
         },
         "x-xgen-operation-id-override": "getServerlessInstance"
-      },
-      "patch": {
-        "deprecated": true,
-        "description": "Updates one serverless instance in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.\n\nThis API can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) endpoint or Flex clusters that were migrated from Serverless instances. This endpoint will be sunset on January 22, 2026. Continuous backups are not supported and `serverlessContinuousBackupEnabled` will not take effect on these clusters. Please use the Update Flex Cluster endpoint instead.",
-        "externalDocs": {
-          "description": "Update Flex Cluster",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/updateFlexCluster"
-        },
-        "operationId": "updateGroupServerlessInstance",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "Human-readable label that identifies the serverless instance.",
-            "in": "path",
-            "name": "name",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.2023-01-01+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ServerlessInstanceDescriptionUpdate"
-              }
-            }
-          },
-          "description": "Update One Serverless Instance in One Project.",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerlessInstanceDescription"
-                },
-                "x-sunset": "2026-01-22",
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/paymentRequired"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/conflict"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          }
-        },
-        "summary": "Update One Serverless Instance in One Project",
-        "tags": [
-          "Serverless Instances"
-        ],
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/updateGroupServerlessInstance",
-        "x-xgen-method-verb-override": {
-          "customMethod": false,
-          "verb": "updateInstance"
-        },
-        "x-xgen-operation-id-override": "updateServerlessInstance"
       }
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts": {
@@ -86144,7 +86869,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedAppUserView"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2025-02-19+json": {
@@ -86297,7 +87022,7 @@
           "204": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2025-02-19+json": {
@@ -86457,7 +87182,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/UpdateGroupRolesForUser"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -88808,7 +89533,7 @@
                   },
                   "type": "array"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -88884,7 +89609,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/OrganizationInvitation"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -88960,7 +89685,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/OrganizationInvitation"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -89033,7 +89758,7 @@
           "204": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -89105,7 +89830,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/OrganizationInvitation"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -89191,7 +89916,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/OrganizationInvitation"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -92302,7 +93027,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedAppUserView"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2025-02-19+json": {
@@ -92401,7 +93126,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedApiAppUserView"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -92493,7 +93218,7 @@
           "204": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -92763,7 +93488,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedAppUserView"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2025-02-19+json": {
@@ -92915,7 +93640,7 @@
           "204": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               },
               "application/vnd.atlas.2025-02-19+json": {
@@ -93159,7 +93884,7 @@
                 "schema": {
                   "$ref": "#/components/schemas/UpdateOrgRolesForUser"
                 },
-                "x-sunset": "2026-09-15",
+                "x-sunset": "2027-07-01",
                 "x-xgen-version": "2023-01-01"
               }
             },
@@ -94129,6 +94854,10 @@
       "name": "Legacy Backup"
     },
     {
+      "description": "Returns, creates, updates, and removes lifecycle management policies for a cluster within a specified project.",
+      "name": "Lifecycle Management"
+    },
+    {
       "description": "Returns, edits, and removes maintenance windows. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. You can defer a scheduled maintenance event for a project up to two times. Deferred maintenance events occur during your preferred maintenance window exactly one week after the previously scheduled date and time.",
       "name": "Maintenance Windows"
     },
@@ -94219,14 +94948,6 @@
         "url": "https://www.mongodb.com/docs/atlas/configure-api-access/"
       },
       "name": "Service Accounts"
-    },
-    {
-      "description": "Returns and adds restore jobs for shared-tier database deployments.",
-      "name": "Shared-Tier Restore Jobs"
-    },
-    {
-      "description": "Returns and requests to download shared-tier database deployment snapshots.",
-      "name": "Shared-Tier Snapshots"
     },
     {
       "description": "Returns, adds, edits, and removes standby links between clusters for disaster recovery within a specified project.",
