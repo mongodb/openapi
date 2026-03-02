@@ -3680,6 +3680,63 @@
         ],
         "type": "object"
       },
+      "ApiDailySchedule": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
+          {
+            "properties": {
+              "endHour": {
+                "description": "Hour of the day when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "endMinute": {
+                "description": "Minute of the hour when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startHour": {
+                "description": "Hour of the day when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startMinute": {
+                "description": "Minute of the hour when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": {
+                "description": "Type of schedule.",
+                "enum": [
+                  "DAILY"
+                ],
+                "example": "DAILY",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Daily schedule with a configurable time window.",
+        "required": [
+          "endHour",
+          "endMinute",
+          "startHour",
+          "startMinute",
+          "type"
+        ],
+        "type": "object"
+      },
       "ApiDateCriteria": {
         "allOf": [
           {
@@ -3715,6 +3772,31 @@
         "required": [
           "dateField",
           "transitionAfterDays",
+          "type"
+        ],
+        "type": "object"
+      },
+      "ApiDefaultSchedule": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
+          {
+            "properties": {
+              "type": {
+                "description": "Type of schedule.",
+                "enum": [
+                  "DEFAULT"
+                ],
+                "example": "DEFAULT",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Default schedule where the system determines when the policy runs.",
+        "required": [
           "type"
         ],
         "type": "object"
@@ -4018,6 +4100,9 @@
             "example": "myDatabase",
             "type": "string"
           },
+          "schedule": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
           "targetCollection": {
             "description": "Name of the source collection for data transition.",
             "example": "myTargetCollection",
@@ -4049,6 +4134,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "schedule": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
           "state": {
             "description": "Current state of the policy.",
             "enum": [
@@ -4070,6 +4158,7 @@
           "action",
           "dbName",
           "id",
+          "schedule",
           "state",
           "targetCollection"
         ],
@@ -4081,12 +4170,48 @@
           "action": {
             "$ref": "#/components/schemas/ApiLifecycleManagementAction"
           },
+          "schedule": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
           "state": {
             "description": "Requested state transition. Valid values: ACTIVE, PAUSED.",
             "enum": [
               "ACTIVE",
               "PAUSED"
             ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiLifecycleManagementSchedule": {
+        "description": "Schedule that controls when the lifecycle management policy runs.",
+        "discriminator": {
+          "mapping": {
+            "DAILY": "#/components/schemas/ApiDailySchedule",
+            "DEFAULT": "#/components/schemas/ApiDefaultSchedule",
+            "MONTHLY": "#/components/schemas/ApiMonthlySchedule",
+            "WEEKLY": "#/components/schemas/ApiWeeklySchedule"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ApiDefaultSchedule"
+          },
+          {
+            "$ref": "#/components/schemas/ApiDailySchedule"
+          },
+          {
+            "$ref": "#/components/schemas/ApiWeeklySchedule"
+          },
+          {
+            "$ref": "#/components/schemas/ApiMonthlySchedule"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Type of schedule that controls when the policy runs.",
             "type": "string"
           }
         },
@@ -4172,6 +4297,71 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "ApiMonthlySchedule": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
+          {
+            "properties": {
+              "dayOfMonth": {
+                "description": "Day of the month when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 31,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "endHour": {
+                "description": "Hour of the day when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "endMinute": {
+                "description": "Minute of the hour when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startHour": {
+                "description": "Hour of the day when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startMinute": {
+                "description": "Minute of the hour when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": {
+                "description": "Type of schedule.",
+                "enum": [
+                  "MONTHLY"
+                ],
+                "example": "MONTHLY",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Monthly schedule with a configurable day and time window.",
+        "required": [
+          "dayOfMonth",
+          "endHour",
+          "endMinute",
+          "startHour",
+          "startMinute",
+          "type"
+        ],
         "type": "object"
       },
       "ApiPrivateDownloadDeliveryUrl": {
@@ -4837,6 +5027,71 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "ApiWeeklySchedule": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
+          {
+            "properties": {
+              "dayOfWeek": {
+                "description": "Day of the week when the scheduled window starts. The week starts with Monday (`1`) and ends with Sunday (`7`).",
+                "format": "int32",
+                "maximum": 7,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "endHour": {
+                "description": "Hour of the day when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "endMinute": {
+                "description": "Minute of the hour when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startHour": {
+                "description": "Hour of the day when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startMinute": {
+                "description": "Minute of the hour when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": {
+                "description": "Type of schedule.",
+                "enum": [
+                  "WEEKLY"
+                ],
+                "example": "WEEKLY",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Weekly schedule with a configurable day and time window.",
+        "required": [
+          "dayOfWeek",
+          "endHour",
+          "endMinute",
+          "startHour",
+          "startMinute",
+          "type"
+        ],
         "type": "object"
       },
       "AppServiceAlertConfigViewForNdsGroup": {
@@ -56247,7 +56502,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "ebc63d2f88be29aa2b07b06c0b185a2bb1227f0e"
+    "x-xgen-sha": "050fc97ae4d478026201e2bfddb9dfe56d88b314"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -59766,9 +60021,15 @@
         "tags": [
           "AI Model Rate Limits"
         ],
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-113-reset-method-must-return-200-OK": "Temporary exception. This endpoint returns 204 No Content instead of 200 OK. This violation will be addressed in CLOUDP-381741."
+        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/resetGroupAiModelRateLimit",
         "x-xgen-operation-id-override": "resetModelRateLimit",
         "x-xgen-owner-team": "Search Web Platform"
+      },
+      "x-xgen-IPA-exception": {
+        "xgen-IPA-113-reset-method-only-on-singleton-resources": "Approved by API Champ on the 2026-02-13 meeting: API predates IPA validation and design was previously approved."
       }
     },
     "/api/atlas/v2/groups/{groupId}/aiModelRateLimits:reset": {
