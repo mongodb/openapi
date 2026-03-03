@@ -969,6 +969,12 @@ components:
                         - DELETING
                     readOnly: true
                     type: string
+                supportedRemoteRegions:
+                    description: List of regions that the endpoint service supports. Native cross region support is implemented for AWS only.
+                    items:
+                        type: string
+                    maxItems: 35
+                    type: array
             required:
                 - cloudProvider
                 - interfaceEndpoints
@@ -1858,6 +1864,23 @@ components:
                         url: https://dochub.mongodb.org/core/index-definitions-fts
                     type: object
             title: mappings
+            type: object
+        ApiAtlasModifyEndpointServiceRequestView:
+            properties:
+                cloudProvider:
+                    description: Human-readable label that identifies the cloud service provider for the private endpoint service which you want to update.
+                    enum:
+                        - AWS
+                    type: string
+                supportedRemoteRegions:
+                    description: List of regions that the endpoint service supports. Native cross region support is implemented for AWS only.
+                    items:
+                        type: string
+                    maxItems: 35
+                    type: array
+            required:
+                - cloudProvider
+                - supportedRemoteRegions
             type: object
         ApiAtlasSnapshotScheduleView:
             properties:
@@ -7391,6 +7414,13 @@ components:
                 region:
                     description: Cloud provider region in which you want to create the private endpoint service. Regions accepted as values differ for [Amazon Web Services](https://docs.atlas.mongodb.com/reference/amazon-aws/), [Google Cloud Platform](https://docs.atlas.mongodb.com/reference/google-gcp/), and [Microsoft Azure](https://docs.atlas.mongodb.com/reference/microsoft-azure/).
                     type: string
+                    writeOnly: true
+                supportedRemoteRegions:
+                    description: List of regions that the endpoint service supports. Native cross region support is implemented for AWS only.
+                    items:
+                        type: string
+                    maxItems: 35
+                    type: array
                     writeOnly: true
             required:
                 - providerName
@@ -36538,7 +36568,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: c3bc850f3c06e1b611082b0381258035eac55c2c
+    x-xgen-sha: 40c5b42b1cce9dd040219ede8db627accc7f7f34
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -60615,6 +60645,106 @@ paths:
                       -d '{ <Payload> }'
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/createGroupPrivateEndpointEndpointService
             x-xgen-operation-id-override: createPrivateEndpointService
+    /api/atlas/v2/groups/{groupId}/privateEndpoint/endpointService/{endpointServiceId}:
+        patch:
+            description: Updates the specified private endpoint service for the project. The cloud service provider manages the private endpoint service that belongs to the project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            operationId: updateGroupPrivateEndpointEndpointService
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique 24-hexadecimal digit string that identifies the private endpoint service that you want to update.
+                  in: path
+                  name: endpointServiceId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2023-01-01+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiAtlasModifyEndpointServiceRequestView'
+                description: Updates to apply to the private endpoint service.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2023-01-01+json:
+                            schema:
+                                $ref: '#/components/schemas/EndpointService'
+                            x-xgen-version: "2023-01-01"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Private Endpoint Service for One Provider
+            tags:
+                - Private Endpoint Services
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api privateEndpointServices updatePrivateEndpointService --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20240530001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.UpdateGroupPrivateEndpointEndpointServiceApiParams{}
+                    	sdkResp, httpResp, err := client.PrivateEndpointServicesApi.
+                    		UpdateGroupPrivateEndpointEndpointServiceWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2024-05-30+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/privateEndpoint/endpointService/{endpointServiceId}" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2024-05-30+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/privateEndpoint/endpointService/{endpointServiceId}" \
+                      -d '{ <Payload> }'
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/updateGroupPrivateEndpointEndpointService
+            x-xgen-operation-id-override: updatePrivateEndpointService
     /api/atlas/v2/groups/{groupId}/privateEndpoint/regionalMode:
         get:
             description: Checks whether each region in the specified cloud service provider can create multiple private endpoints per region. The cloud service provider manages the private endpoint for the project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
