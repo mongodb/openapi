@@ -5,7 +5,7 @@ SPECTRAL_VERSION=${SPECTRAL_VERSION:-6.11.1}
 .PHONY: deps
 deps:  ## Download go module dependencies
 	@echo "==> Installing npx..."
-	npm install -g npx
+	npm install -g npx --force
 
 
 .PHONY: devtools
