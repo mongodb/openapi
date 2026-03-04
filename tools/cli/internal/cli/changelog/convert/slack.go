@@ -143,7 +143,7 @@ func orderAttachments(attachments []*Attachment) []*Attachment {
 }
 
 func newAttachmentFromVersion(path *changelog.Path, version *changelog.Version) []*Attachment {
-	attachments := make([]*Attachment, 0)
+	attachments := make([]*Attachment, 0, len(version.Changes))
 	for _, change := range version.Changes {
 		attachments = append(attachments, newAttachmentFromChange(version.Version, path.HTTPMethod, path.URI, version.ChangeType, change))
 	}

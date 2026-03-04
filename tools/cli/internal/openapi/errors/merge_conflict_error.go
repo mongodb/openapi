@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package errors
+package errors //nolint:revive // internal package, no conflict with standard library
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/oasdiff/oasdiff/diff"
@@ -82,6 +83,15 @@ func (e PathDocsDiffConflictError) Error() string {
 	}
 
 	return fmt.Sprintf("the path: %q is enabled for merge but it has a diff between the base and external spec. See the diff:\n%s", e.Entry, pathDiff)
+}
+
+func (e PathDocsDiffConflictError) Is(target error) bool {
+	var t PathDocsDiffConflictError
+	ok := errors.As(target, &t)
+	if !ok {
+		return false
+	}
+	return e.Entry == t.Entry
 }
 
 type AllowDocsDiffNotSupportedError struct {

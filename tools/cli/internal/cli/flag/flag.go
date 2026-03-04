@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package flag
+package flag //nolint:revive // internal package, no conflict with standard library
 
 const (
 	Base                     = "base"

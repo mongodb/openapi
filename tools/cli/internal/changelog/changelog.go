@@ -298,7 +298,7 @@ func newEntriesBetweenVersionWithRunDate(metadata *Metadata, fromVersion, toVers
 }
 
 func newVersionEntries(entries []*Entry) []*Entry {
-	versionEntries := []*Entry{}
+	versionEntries := make([]*Entry, 0, len(entries))
 	for _, entry := range entries {
 		versionEntries = append(versionEntries, &Entry{
 			Date:        entry.Date,

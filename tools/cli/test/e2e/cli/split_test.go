@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -73,7 +74,7 @@ func TestSplitVersionsFilteredOASes(t *testing.T) {
 			folder := tc.env
 			base := getInputPath(t, tc.specType, tc.format, folder)
 			outputPath := getOutputFolder(t, folder) + "/" + tc.specType + "-" + folder + "-" + "output." + tc.format
-			cmd := exec.Command(cliPath,
+			cmd := exec.CommandContext(context.Background(), cliPath,
 				"split",
 				"-s",
 				base,
@@ -119,7 +120,7 @@ func TestSplitVersionsFilteredOASes_All(t *testing.T) {
 	folder := env
 	base := getInputPath(t, "filtered", "json", folder)
 	jsonOutputPath := getOutputFolder(t, folder) + "/filtered-dev-output.json"
-	cmd := exec.Command(cliPath,
+	cmd := exec.CommandContext(context.Background(), cliPath,
 		"split",
 		"-s",
 		base,
@@ -161,7 +162,7 @@ func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
 	require.NoError(t, err)
 	copyMMSFileToOutput(t, folder)
 
-	cmd := exec.Command(cliPath,
+	cmd := exec.CommandContext(context.Background(), cliPath,
 		"split",
 		"-s",
 		base,
@@ -202,7 +203,7 @@ func copyMMSFileToOutput(t *testing.T, folder string) {
 	// is needed for external references
 	srcPath := "../../data/split/" + folder + "/openapi-mms.json"
 	destPath := getOutputFolder(t, folder) + "/openapi-mms.json"
-	cpCmd := exec.Command(
+	cpCmd := exec.CommandContext(context.Background(),
 		"cp",
 		srcPath,
 		destPath,
@@ -215,7 +216,7 @@ func copyMMSFileToOutput(t *testing.T, folder string) {
 
 func getVersions(t *testing.T, cliPath, base, folder string) []string {
 	t.Helper()
-	cmd := exec.Command(cliPath,
+	cmd := exec.CommandContext(context.Background(), cliPath,
 		"versions",
 		"-s",
 		base,
@@ -298,7 +299,13 @@ func logOasdiff(t *testing.T, correctSpecPath, generatedSpecPath string) {
 		return
 	}
 	t.Log("Running oasdiff diff and comparing " + correctSpecPath + " with " + generatedSpecPath)
-	cmd := exec.Command("oasdiff", "diff", "--max-circular-dep", "15", "--exclude-elements", "examples", correctSpecPath, generatedSpecPath)
+	cmd := exec.CommandContext(
+		context.Background(),
+		"oasdiff", "diff",
+		"--max-circular-dep", "15",
+		"--exclude-elements", "examples",
+		correctSpecPath, generatedSpecPath,
+	)
 	var o, e bytes.Buffer
 	cmd.Stdout = &o
 	cmd.Stderr = &e

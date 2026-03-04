@@ -238,7 +238,7 @@ func getOasIpaExceptions() *openapi3.T {
 	oas.Tags = make([]*openapi3.Tag, 0)
 	oas.Components = &openapi3.Components{}
 
-	parameters := make(openapi3.Parameters, 0)
+	parameters := make(openapi3.Parameters, 0, 1)
 	parameters = append(parameters, &openapi3.ParameterRef{
 		Value: &openapi3.Parameter{
 			Description: "description",
@@ -303,7 +303,7 @@ func getOasIpaExceptions() *openapi3.T {
 		Extensions:  extension,
 	})
 
-	multipleSchemas := make(openapi3.SchemaRefs, 0)
+	multipleSchemas := make(openapi3.SchemaRefs, 0, 1)
 
 	multipleSchemas = append(multipleSchemas, &openapi3.SchemaRef{
 		Value: &openapi3.Schema{

@@ -17,8 +17,9 @@ func NewBin(t *testing.T) string {
 	path := os.Getenv("CLI_E2E_BINARY")
 	cliPath, err := filepath.Abs(path)
 	require.NoError(t, err)
+	cliPath = filepath.Clean(cliPath)
 
-	if _, err := os.Stat(cliPath); err != nil {
+	if _, err := os.Stat(cliPath); err != nil { // #nosec G703
 		assert.Fail(t, fmt.Sprintf("The binary %q does not exist", cliPath))
 	}
 	return cliPath
