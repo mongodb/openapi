@@ -1345,7 +1345,7 @@ func TestHandlePathConflict(t *testing.T) {
 			err := o.handlePathConflict(tc.externalPath, tc.externalPathName)
 			if tc.expectedError != nil {
 				require.Error(t, err)
-				assert.IsType(t, tc.expectedError, err) //nolint:testifylint // expectedError is interface type
+				assert.ErrorIs(t, err, tc.expectedError)
 			} else {
 				assert.NoError(t, err)
 			}
