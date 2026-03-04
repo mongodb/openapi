@@ -68,7 +68,7 @@ func printManualChangesLogs(changes []*outputfilter.OasDiffEntry, version, previ
 	log.Printf("Detected %d manual changelog entries for v%s between [%s, %s]\n  - %s",
 		len(changes), version, previousRunDate, runDate,
 		strings.Join(func() []string {
-			var result []string
+			result := make([]string, 0, len(changes))
 			for _, c := range changes {
 				result = append(result, fmt.Sprintf("%s %s %s", c.OperationID, c.Operation, c.Path))
 			}

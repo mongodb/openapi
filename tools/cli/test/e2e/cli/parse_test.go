@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -39,7 +40,7 @@ func TestParseCommand(t *testing.T) {
 			outputFilePath, err := filepath.Abs("../../data/exemptions/" + tc.expectedOutput)
 			require.NoError(t, err)
 
-			cmd := exec.Command(cliPath,
+			cmd := exec.CommandContext(context.Background(), cliPath,
 				"breaking-changes", "exemptions", "parse",
 				"-e", exemptionsFilePath,
 				"-o", outputFilePath,

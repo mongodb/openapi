@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -18,7 +19,7 @@ func TestMerge(t *testing.T) {
 		base := NewBaseSpecPath(t)
 		external := NewAPIRegistrySpecPath(t)
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"merge",
 			"-b",
 			base,
@@ -40,7 +41,7 @@ func TestMerge(t *testing.T) {
 		base := NewBaseSpecPath(t)
 		external := NewAPIRegistrySpecPath(t)
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"merge",
 			"-b",
 			base,
@@ -65,7 +66,7 @@ func TestMerge(t *testing.T) {
 		apiRegistrySpec := NewDuplicatedPathAPIRegistrySpecPath(t)
 		authnSpec := NewAuthNSpecPath(t)
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"merge",
 			"-b",
 			base,
@@ -87,7 +88,7 @@ func TestMerge(t *testing.T) {
 		apiRegistrySpec := NewAPIRegistrySpecPath(t)
 		authnSpec := NewDuplicatedTagAuthNSpecPath(t)
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"merge",
 			"-b",
 			base,
@@ -111,7 +112,7 @@ func TestMerge(t *testing.T) {
 		apiRegistrySpec := NewNotIdenticalComponentPIRegistrySpecPath(t)
 		authnSpec := NewAuthNSpecPath(t)
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"merge",
 			"-b",
 			base,

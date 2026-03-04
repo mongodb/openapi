@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -25,7 +26,7 @@ func TestChangelog(t *testing.T) {
 		exemptions := NewChangelogExepmtionFilePathNewAPIVersion(t)
 		commandOut := getOutputFolder(t, "changelog")
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"changelog",
 			"create",
 			"-b",
@@ -51,7 +52,7 @@ func TestChangelog(t *testing.T) {
 		exemptions := NewChangelogExemptionFilePathSameAPIVersion(t)
 		commandOut := getOutputFolder(t, "changelog")
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"changelog",
 			"create",
 			"-b",
@@ -77,7 +78,7 @@ func TestChangelog(t *testing.T) {
 		exemptions := newChangelogExemptionFilePathNewPreviewAPIVersion(t)
 		commandOut := getOutputFolder(t, "changelog")
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"changelog",
 			"create",
 			"-b",
@@ -103,7 +104,7 @@ func TestChangelog(t *testing.T) {
 		exemptions := newChangelogExemptionFilePathRenamedAPIVersion(t)
 		commandOut := getOutputFolder(t, "changelog")
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"changelog",
 			"create",
 			"-b",
@@ -129,7 +130,7 @@ func TestChangelog(t *testing.T) {
 		exemptions := newChangelogExemptionFilePathUpcomingAPIVersion(t)
 		commandOut := getOutputFolder(t, "changelog")
 
-		cmd := exec.Command(cliPath,
+		cmd := exec.CommandContext(context.Background(), cliPath,
 			"changelog",
 			"create",
 			"-b",
