@@ -7006,6 +7006,15 @@ components:
             required:
                 - providerName
             type: object
+        CloudProviderAccessAtlasLogIntegrationFeatureUsage:
+            allOf:
+                - $ref: '#/components/schemas/CloudProviderAccessFeatureUsage'
+                - properties:
+                    featureId:
+                        $ref: '#/components/schemas/CloudProviderAccessFeatureUsageAtlasLogIntegrationFeatureId'
+                  type: object
+            description: Details that describe the Atlas log integration linked to this cloud provider access role.
+            type: object
         CloudProviderAccessAzureServicePrincipal:
             allOf:
                 - $ref: '#/components/schemas/CloudProviderAccessRole'
@@ -7171,6 +7180,7 @@ components:
             discriminator:
                 mapping:
                     ATLAS_DATA_LAKE: '#/components/schemas/CloudProviderAccessDataLakeFeatureUsage'
+                    ATLAS_LOG_INTEGRATION: '#/components/schemas/CloudProviderAccessAtlasLogIntegrationFeatureUsage'
                     ENCRYPTION_AT_REST: '#/components/schemas/CloudProviderAccessEncryptionAtRestFeatureUsage'
                     EXPORT_SNAPSHOT: '#/components/schemas/CloudProviderAccessExportSnapshotFeatureUsage'
                     PUSH_BASED_LOG_EXPORT: '#/components/schemas/CloudProviderAccessPushBasedLogExportFeatureUsage'
@@ -7183,6 +7193,27 @@ components:
                         - ENCRYPTION_AT_REST
                         - EXPORT_SNAPSHOT
                         - PUSH_BASED_LOG_EXPORT
+                        - ATLAS_LOG_INTEGRATION
+                    readOnly: true
+                    type: string
+            type: object
+        CloudProviderAccessFeatureUsageAtlasLogIntegrationFeatureId:
+            description: Identifying characteristics about the Atlas log integration linked to this cloud provider access role.
+            properties:
+                configId:
+                    description: Unique 24-hexadecimal digit string that identifies the Atlas log integration configuration.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies your project.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                sinkName:
+                    description: Human-readable label that identifies the sink, such as an S3/GCS bucket or Azure container name.
                     readOnly: true
                     type: string
             type: object
@@ -11845,6 +11876,7 @@ components:
                             - HOST_SSL_CERTIFICATE_STALE
                             - HOST_SECURITY_CHECKUP_NOT_MET
                             - ALERT_HOST_SSH_SESSION_STARTED
+                            - PROFILER_CONFIGURED_TOO_WIDELY
                           title: Host Event Types
                           type: string
                     type: object
@@ -12112,6 +12144,7 @@ components:
                             - HOST_SSL_CERTIFICATE_STALE
                             - HOST_SECURITY_CHECKUP_NOT_MET
                             - ALERT_HOST_SSH_SESSION_STARTED
+                            - PROFILER_CONFIGURED_TOO_WIDELY
                           title: Host Event Types
                           type: string
                     readOnly: true
@@ -15154,6 +15187,7 @@ components:
                     - HOST_EXPOSED
                     - HOST_SSL_CERTIFICATE_STALE
                     - HOST_SECURITY_CHECKUP_NOT_MET
+                    - PROFILER_CONFIGURED_TOO_WIDELY
                   title: Host Event Types
                   type: string
                 - enum:
@@ -18794,6 +18828,7 @@ components:
                 - HOST_EXPOSED
                 - HOST_SSL_CERTIFICATE_STALE
                 - HOST_SECURITY_CHECKUP_NOT_MET
+                - PROFILER_CONFIGURED_TOO_WIDELY
             example: HOST_DOWN
             title: Host Event Types
             type: string
@@ -18819,6 +18854,7 @@ components:
                 - HOST_SSL_CERTIFICATE_STALE
                 - HOST_SECURITY_CHECKUP_NOT_MET
                 - ALERT_HOST_SSH_SESSION_STARTED
+                - PROFILER_CONFIGURED_TOO_WIDELY
             example: HOST_DOWN
             externalDocs:
                 description: Atlas Alert Event Types
@@ -34974,7 +35010,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: eb687bd35b6b91f97bd684b75588032e80a62ae6
+    x-xgen-sha: 99c59c6d0ee998d69b9cd6f93945a5f636e41ed2
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
