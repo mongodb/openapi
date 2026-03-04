@@ -9,8 +9,3 @@ setup-foascli:
 .PHONY: setup-spectral
 setup-spectral:
 	pushd tools/spectral/ && make setup  && popd
-
-
-
-
-
