@@ -5,7 +5,7 @@ go 1.26
 toolchain go1.26.0
 
 require (
-	github.com/getkin/kin-openapi v0.132.0
+	github.com/getkin/kin-openapi v0.133.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/oasdiff/oasdiff v1.11.4
 	github.com/spf13/afero v1.14.0
@@ -36,6 +36,7 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/wI2L/jsondiff v0.6.1 // indirect
+	github.com/woodsbury/decimal128 v1.3.0 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	github.com/yuin/goldmark v1.7.11 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
