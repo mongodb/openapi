@@ -8,11 +8,11 @@ require (
 	github.com/getkin/kin-openapi v0.133.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/oasdiff/oasdiff v1.11.4
-	github.com/spf13/afero v1.14.0
+	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/mock v0.6.0
-	golang.org/x/text v0.24.0
+	golang.org/x/text v0.28.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
