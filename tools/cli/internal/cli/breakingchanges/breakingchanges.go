@@ -15,6 +15,7 @@
 package breakingchanges
 
 import (
+	"github.com/mongodb/openapi/tools/cli/internal/cli/breakingchanges/check"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/breakingchanges/exemptions"
 	"github.com/spf13/cobra"
 )
@@ -26,6 +27,7 @@ func Builder() *cobra.Command {
 	}
 
 	cmd.AddCommand(
+		check.Builder(),
 		exemptions.Builder(),
 	)
 
