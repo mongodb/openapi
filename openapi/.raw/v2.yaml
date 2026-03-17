@@ -2207,6 +2207,91 @@ components:
                     type: boolean
             title: Toggle Request
             type: object
+        AlibabaCloudProviderContainer:
+            allOf:
+                - $ref: '#/components/schemas/CloudProviderContainer'
+                - properties:
+                    atlasCidrBlock:
+                        description: |-
+                            IP addresses expressed in Classless Inter-Domain Routing (CIDR) notation that MongoDB Cloud uses for the network peering containers in your project. MongoDB Cloud assigns all of the project's clusters deployed to this cloud provider an IP address from this range. MongoDB Cloud locks this value if an M10 or greater cluster or a network peering connection exists in this project.
+
+                            These CIDR blocks must fall within the ranges reserved per RFC 1918. AWS, Azure, and Alibaba further limit the block to between the `/24` and `/21` ranges.
+
+                            To modify the CIDR block, the target project cannot have:
+
+                            - Any M10 or greater clusters
+                            - Any other VPC peering connections
+
+                            You can also create a new project and create a network peering connection to set the desired MongoDB Cloud network peering container CIDR block for that project. MongoDB Cloud limits the number of MongoDB nodes per network peering connection based on the CIDR block and the region selected for the project.
+                        pattern: ^((([0-9]{1,3}\.){3}[0-9]{1,3})|(:{0,2}([0-9a-f]{1,4}:){0,7}[0-9a-f]{1,4}[:]{0,2}))((%2[fF]|/)[0-9]{1,3})+$
+                        type: string
+                    regionName:
+                        description: Geographic area that Alibaba Cloud defines to which MongoDB Cloud deployed this network peering container.
+                        enum:
+                            - US_EAST_1
+                            - US_WEST_1
+                            - EU_CENTRAL_1
+                            - EU_WEST_1
+                            - AP_SOUTHEAST_1
+                            - AP_SOUTHEAST_3
+                            - AP_SOUTHEAST_5
+                            - CN_HONGKONG
+                            - AP_SOUTHEAST_6
+                            - AP_SOUTHEAST_7
+                            - AP_NORTHEAST_1
+                            - AP_NORTHEAST_2
+                            - ME_EAST_1
+                        type: string
+                    vpcId:
+                        description: Unique string that identifies the MongoDB Cloud VPC on Alibaba Cloud.
+                        example: vpc-2ze1oetfhwb8ckgw3c0p4
+                        pattern: ^vpc-[0-9a-z]{21}$
+                        readOnly: true
+                        type: string
+                  type: object
+            description: Collection of settings that configures the network container for a virtual private connection on Alibaba Cloud.
+            required:
+                - regionName
+            title: Alibaba
+            type: object
+        AlibabaRegionConfig:
+            allOf:
+                - $ref: '#/components/schemas/CloudRegionConfig'
+                - properties:
+                    analyticsAutoScaling:
+                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                    analyticsSpecs:
+                        $ref: '#/components/schemas/DedicatedHardwareSpec'
+                    autoScaling:
+                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                    readOnlySpecs:
+                        $ref: '#/components/schemas/DedicatedHardwareSpec'
+                  type: object
+            description: Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.
+            title: Alibaba Regional Replication Specifications
+            type: object
+        AlibabaRegionConfig20240805:
+            allOf:
+                - $ref: '#/components/schemas/CloudRegionConfig20240805'
+                - properties:
+                    analyticsAutoScaling:
+                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                    analyticsSpecs:
+                        $ref: '#/components/schemas/DedicatedHardwareSpec20240805'
+                    autoScaling:
+                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                    effectiveAnalyticsSpecs:
+                        $ref: '#/components/schemas/DedicatedHardwareSpec20240805'
+                    effectiveElectableSpecs:
+                        $ref: '#/components/schemas/DedicatedHardwareSpec20240805'
+                    effectiveReadOnlySpecs:
+                        $ref: '#/components/schemas/DedicatedHardwareSpec20240805'
+                    readOnlySpecs:
+                        $ref: '#/components/schemas/DedicatedHardwareSpec20240805'
+                  type: object
+            description: Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.
+            title: Alibaba Regional Replication Specifications
+            type: object
         ApiAtlasCheckpointView:
             properties:
                 clusterId:
@@ -44251,7 +44336,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: e8c1ba5d03b89eef9046af649b980a2e3ccbd933
+    x-xgen-sha: 3b825798e0db2cdf89eb79e802be84d9b7dd685a
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
