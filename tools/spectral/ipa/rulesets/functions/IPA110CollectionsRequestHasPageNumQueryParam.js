@@ -18,6 +18,6 @@ export default (input, _, { path, documentInventory, rule }) => {
     return;
   }
 
-  const errors = checkPaginationQueryParameterAndReturnErrors(input, path, 'pageNum', 1, ruleName);
+  const errors = checkPaginationQueryParameterAndReturnErrors(input, path, 'pageNum', { value: 1 }, ruleName);
   return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
 };

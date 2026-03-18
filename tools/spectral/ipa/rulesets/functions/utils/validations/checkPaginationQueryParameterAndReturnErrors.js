@@ -6,7 +6,7 @@ import { handleInternalError } from '../collectionUtils.js';
  * @param {Object} operation - The OpenAPI operation object to check
  * @param {string[]} path - The path to the operation
  * @param {string} paramName - The name of the parameter to check ('pageNum' or 'itemsPerPage')
- * @param {number|{min: number}} defaultConstraint - The expected default value (exact match), or an object with a `min` property for a minimum value check
+ * @param {{value: number}|{min: number}} defaultConstraint - Either `{ value: N }` for an exact match, or `{ min: N }` for a minimum value check
  * @param {string} ruleName - The rule name for error handling
  * @returns {Array} - Array of error objects or empty array if no errors
  */
@@ -54,7 +54,7 @@ export function checkPaginationQueryParameterAndReturnErrors(operation, path, pa
       ];
     }
 
-    if (typeof defaultConstraint === 'object' && defaultConstraint !== null && 'min' in defaultConstraint) {
+    if ('min' in defaultConstraint) {
       if (param.schema.default <= defaultConstraint.min) {
         return [
           {
@@ -63,11 +63,11 @@ export function checkPaginationQueryParameterAndReturnErrors(operation, path, pa
           },
         ];
       }
-    } else if (param.schema.default !== defaultConstraint) {
+    } else if (param.schema.default !== defaultConstraint.value) {
       return [
         {
           path,
-          message: `${paramName} query parameter of List method must have a default value of ${defaultConstraint}.`,
+          message: `${paramName} query parameter of List method must have a default value of ${defaultConstraint.value}.`,
         },
       ];
     }
