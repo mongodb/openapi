@@ -62,6 +62,56 @@ testRule('xgen-IPA-110-collections-request-has-itemsPerPage-query-param', [
     errors: [],
   },
   {
+    name: 'valid - non-100 default value greater than 1',
+    document: {
+      paths: {
+        '/resources': {
+          get: {
+            parameters: [
+              {
+                name: 'itemsPerPage',
+                in: 'query',
+                schema: {
+                  type: 'integer',
+                  default: 50,
+                },
+              },
+            ],
+          },
+        },
+        'resources/{resourceId}': {
+          get: {},
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid - minimum allowed default value of 2',
+    document: {
+      paths: {
+        '/resources': {
+          get: {
+            parameters: [
+              {
+                name: 'itemsPerPage',
+                in: 'query',
+                schema: {
+                  type: 'integer',
+                  default: 2,
+                },
+              },
+            ],
+          },
+        },
+        'resources/{resourceId}': {
+          get: {},
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid - missing parameters',
     document: {
       paths: {
@@ -195,7 +245,7 @@ testRule('xgen-IPA-110-collections-request-has-itemsPerPage-query-param', [
     ],
   },
   {
-    name: 'invalid - wrong default value',
+    name: 'invalid - default value of 0',
     document: {
       paths: {
         '/resources': {
@@ -220,7 +270,39 @@ testRule('xgen-IPA-110-collections-request-has-itemsPerPage-query-param', [
     errors: [
       {
         code: 'xgen-IPA-110-collections-request-has-itemsPerPage-query-param',
-        message: 'itemsPerPage query parameter of List method must have a default value of 100.',
+        message: 'itemsPerPage query parameter of List method must have a default value greater than 1.',
+        path: ['paths', '/resources', 'get'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
+    name: 'invalid - default value of 1',
+    document: {
+      paths: {
+        '/resources': {
+          get: {
+            parameters: [
+              {
+                name: 'itemsPerPage',
+                in: 'query',
+                schema: {
+                  type: 'integer',
+                  default: 1,
+                },
+              },
+            ],
+          },
+        },
+        'resources/{resourceId}': {
+          get: {},
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-110-collections-request-has-itemsPerPage-query-param',
+        message: 'itemsPerPage query parameter of List method must have a default value greater than 1.',
         path: ['paths', '/resources', 'get'],
         severity: DiagnosticSeverity.Error,
       },

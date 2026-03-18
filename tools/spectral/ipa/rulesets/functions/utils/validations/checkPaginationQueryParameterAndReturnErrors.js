@@ -6,11 +6,11 @@ import { handleInternalError } from '../collectionUtils.js';
  * @param {Object} operation - The OpenAPI operation object to check
  * @param {string[]} path - The path to the operation
  * @param {string} paramName - The name of the parameter to check ('pageNum' or 'itemsPerPage')
- * @param {number} defaultValue - The expected default value (1 for pageNum, 100 for itemsPerPage)
+ * @param {number|{min: number}} defaultConstraint - The expected default value (exact match), or an object with a `min` property for a minimum value check
  * @param {string} ruleName - The rule name for error handling
  * @returns {Array} - Array of error objects or empty array if no errors
  */
-export function checkPaginationQueryParameterAndReturnErrors(operation, path, paramName, defaultValue, ruleName) {
+export function checkPaginationQueryParameterAndReturnErrors(operation, path, paramName, defaultConstraint, ruleName) {
   try {
     const parameters = operation.parameters;
 
@@ -54,11 +54,20 @@ export function checkPaginationQueryParameterAndReturnErrors(operation, path, pa
       ];
     }
 
-    if (param.schema.default !== defaultValue) {
+    if (typeof defaultConstraint === 'object' && defaultConstraint !== null && 'min' in defaultConstraint) {
+      if (param.schema.default <= defaultConstraint.min) {
+        return [
+          {
+            path,
+            message: `${paramName} query parameter of List method must have a default value greater than ${defaultConstraint.min}.`,
+          },
+        ];
+      }
+    } else if (param.schema.default !== defaultConstraint) {
       return [
         {
           path,
-          message: `${paramName} query parameter of List method must have a default value of ${defaultValue}.`,
+          message: `${paramName} query parameter of List method must have a default value of ${defaultConstraint}.`,
         },
       ];
     }
