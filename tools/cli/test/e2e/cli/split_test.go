@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/stretchr/testify/require"
 )
@@ -287,7 +287,6 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	require.Empty(t, d.ServersDiff, message)
 	// require.Empty(t, d.TagsDiff, message) TODO: adds in next PR
 	require.Empty(t, d.ExternalDocsDiff, message)
-	require.Empty(t, d.ExamplesDiff, message)
 	require.Empty(t, d.ComponentsDiff, message)
 }
 

@@ -23,7 +23,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"golang.org/x/text/cases"

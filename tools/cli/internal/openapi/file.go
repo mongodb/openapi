@@ -21,7 +21,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 )

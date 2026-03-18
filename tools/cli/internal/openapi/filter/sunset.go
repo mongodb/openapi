@@ -18,7 +18,7 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 const sunsetToBeDecided = "9999-12-31"

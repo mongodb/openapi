@@ -17,7 +17,7 @@ package filter
 import (
 	"slices"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // TagsFilter removes tags that are not used in the operations.

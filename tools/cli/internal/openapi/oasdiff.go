@@ -19,8 +19,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
+	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/oasdiff/oasdiff/load"
 )
@@ -171,11 +171,11 @@ func (o *OasDiff) shouldSkipPathConflict(basePath *openapi3.PathItem, basePathNa
 	}
 
 	if pathsDiff != nil && pathsDiff.Modified != nil && pathsDiff.Modified[basePathName] != nil {
-		if ok := pathsDiff.Modified[basePathName].OperationsDiff.Added; !ok.Empty() {
+		if added := pathsDiff.Modified[basePathName].OperationsDiff.Added; len(added) > 0 {
 			return false
 		}
 
-		if ok := pathsDiff.Modified[basePathName].OperationsDiff.Deleted; !ok.Empty() {
+		if deleted := pathsDiff.Modified[basePathName].OperationsDiff.Deleted; len(deleted) > 0 {
 			return false
 		}
 	}
@@ -431,17 +431,26 @@ func (o *OasDiff) mergeSchemas() error {
 }
 
 func (o *OasDiff) areParamsIdentical(paramName string) bool {
-	_, ok := o.result.Report.ParametersDiff.Modified[paramName]
+	if o.result.Report.ComponentsDiff == nil || o.result.Report.ComponentsDiff.ParametersDiff == nil {
+		return true
+	}
+	_, ok := o.result.Report.ComponentsDiff.ParametersDiff.Modified[paramName]
 	return !ok
 }
 
 func (o *OasDiff) areResponsesIdentical(name string) bool {
-	_, ok := o.result.Report.ResponsesDiff.Modified[name]
+	if o.result.Report.ComponentsDiff == nil || o.result.Report.ComponentsDiff.ResponsesDiff == nil {
+		return true
+	}
+	_, ok := o.result.Report.ComponentsDiff.ResponsesDiff.Modified[name]
 	return !ok
 }
 
 func (o *OasDiff) areSchemaIdentical(name string) bool {
-	_, ok := o.result.Report.SchemasDiff.Modified[name]
+	if o.result.Report.ComponentsDiff == nil || o.result.Report.ComponentsDiff.SchemasDiff == nil {
+		return true
+	}
+	_, ok := o.result.Report.ComponentsDiff.SchemasDiff.Modified[name]
 	return !ok
 }
 

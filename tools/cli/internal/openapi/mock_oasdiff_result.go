@@ -12,7 +12,7 @@ package openapi
 import (
 	reflect "reflect"
 
-	openapi3 "github.com/getkin/kin-openapi/openapi3"
+	openapi3 "github.com/oasdiff/kin-openapi/openapi3"
 	diff "github.com/oasdiff/oasdiff/diff"
 	load "github.com/oasdiff/oasdiff/load"
 	gomock "go.uber.org/mock/gomock"

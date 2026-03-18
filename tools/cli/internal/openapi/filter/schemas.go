@@ -21,7 +21,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // SchemasFilter removes unused #/components/schemas/.
@@ -167,8 +167,8 @@ func (f *SchemasFilter) discoverSchemaRefsInSchema(schema *openapi3.SchemaRef, o
 	// Check discriminator mappings for refs
 	if schema.Value.Discriminator != nil && schema.Value.Discriminator.Mapping != nil {
 		for _, ref := range schema.Value.Discriminator.Mapping {
-			if isSchemaRefString(ref) {
-				onDiscovered(getSchemaFromRef(ref))
+			if isSchemaRefString(ref.Ref) {
+				onDiscovered(getSchemaFromRef(ref.Ref))
 			}
 		}
 	}

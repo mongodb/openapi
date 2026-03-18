@@ -18,12 +18,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/mongodb/openapi/tools/cli/internal/pointer"
+	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/oasdiff/oasdiff/load"
-	"github.com/oasdiff/oasdiff/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	gomock "go.uber.org/mock/gomock"
@@ -439,7 +438,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 		{
 			name: "SuccessfulMergeIdenticalResponses",
 			diff: &diff.Diff{
-				ComponentsDiff: diff.ComponentsDiff{
+				ComponentsDiff: &diff.ComponentsDiff{
 					ResponsesDiff: &diff.ResponsesDiff{
 						Modified: map[string]*diff.ResponseDiff{},
 					},
@@ -529,7 +528,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 		{
 			name: "SuccessfulMergeWithNoIdenticalResponses",
 			diff: &diff.Diff{
-				ComponentsDiff: diff.ComponentsDiff{
+				ComponentsDiff: &diff.ComponentsDiff{
 					ResponsesDiff: &diff.ResponsesDiff{
 						Modified: map[string]*diff.ResponseDiff{
 							"external1": {Base: nil},
@@ -685,7 +684,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 		{
 			name: "SuccessfulMergeIdenticalSchemas",
 			diff: &diff.Diff{
-				ComponentsDiff: diff.ComponentsDiff{
+				ComponentsDiff: &diff.ComponentsDiff{
 					SchemasDiff: &diff.SchemasDiff{
 						Modified: map[string]*diff.SchemaDiff{},
 					},
@@ -761,7 +760,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 		{
 			name: "SuccessfulMergeWithNoIdenticalResponses",
 			diff: &diff.Diff{
-				ComponentsDiff: diff.ComponentsDiff{
+				ComponentsDiff: &diff.ComponentsDiff{
 					SchemasDiff: &diff.SchemasDiff{
 						Modified: map[string]*diff.SchemaDiff{
 							"base1": {Base: nil},
@@ -1197,7 +1196,7 @@ func TestHandlePathConflict(t *testing.T) {
 								Modified: diff.ModifiedOperations{
 									"get": {
 										TagsDiff: &diff.StringsDiff{
-											Added: utils.StringList{"tag1"},
+											Added: []string{"tag1"},
 										},
 									},
 								},
@@ -1227,8 +1226,8 @@ func TestHandlePathConflict(t *testing.T) {
 					Modified: map[string]*diff.PathDiff{
 						"/test": {
 							OperationsDiff: &diff.OperationsDiff{
-								Added:   utils.StringList{"get"},
-								Deleted: utils.StringList{},
+								Added:   []string{"get"},
+								Deleted: []string{},
 							},
 						},
 					},
@@ -1258,7 +1257,7 @@ func TestHandlePathConflict(t *testing.T) {
 								Modified: diff.ModifiedOperations{
 									"get": {
 										TagsDiff: &diff.StringsDiff{
-											Added: utils.StringList{"tag1"},
+											Added: []string{"tag1"},
 										},
 									},
 								},
@@ -1277,7 +1276,7 @@ func TestHandlePathConflict(t *testing.T) {
 									Modified: diff.ModifiedOperations{
 										"get": {
 											TagsDiff: &diff.StringsDiff{
-												Added: utils.StringList{"tag1"},
+												Added: []string{"tag1"},
 											},
 										},
 									},

@@ -15,7 +15,7 @@
 package filter
 
 import (
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // OperationsFilter is a filter that removes the x-xgen-owner-team extension from operations.
