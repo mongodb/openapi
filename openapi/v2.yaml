@@ -3381,10 +3381,29 @@ components:
         ApiStandbyLinkFailoverResponse:
             description: Response containing failover operation details.
             properties:
-                id:
+                completedAt:
+                    description: Date and time when the failover operation completed. Only present when status is COMPLETE. This value is in the ISO 8601 date and time format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                createdDate:
+                    description: Date and time when the failover operation was created. This value is in the ISO 8601 date and time format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                failoverId:
                     description: Unique 24-hexadecimal digit string that identifies the failover operation.
                     example: 32b6e34b3d91647abb20e7b8
                     pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                failoverStage:
+                    description: Current stage of the failover operation. Indicates progression from initiation to completion.
+                    enum:
+                        - PREPARING_TO_STOP_REPLICATION
+                        - STOPPING_REPLICATION
+                        - PREPARING_CLUSTER_FOR_SERVING
+                        - DONE
                     readOnly: true
                     type: string
                 standbyLinkId:
@@ -5685,6 +5704,28 @@ components:
                     title: Azure Instance Sizes
                     type: string
             title: Azure
+            type: object
+        AzureConnection:
+            description: Azure-specific configuration for the connection.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                region:
+                    description: Azure region where the storage account is located.
+                    type: string
+                servicePrincipalId:
+                    description: Unique ID of the Azure Service Principal that has access to the storage account.
+                    type: string
+                storageAccountName:
+                    description: Name of the Azure Storage Account to connect to.
+                    type: string
             type: object
         AzureCreateDataProcessRegionView:
             allOf:
@@ -31655,6 +31696,32 @@ components:
             required:
                 - results
             type: object
+        PaginatedApiStreamsVPCPeeringConnectionView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/VPCPeeringConnection'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
         PaginatedApiUserAccessListResponseView:
             properties:
                 links:
@@ -38389,6 +38456,17 @@ components:
                   type: object
             description: The configuration for AWS Lambda connections.
             type: object
+        StreamsAzureBlobStorageConnection:
+            allOf:
+                - $ref: '#/components/schemas/StreamsConnection'
+                - properties:
+                    azure:
+                        $ref: '#/components/schemas/AzureConnection'
+                    publicPrivateNetworking:
+                        $ref: '#/components/schemas/StreamsPublicPrivateLinkNetworking'
+                  type: object
+            description: The configuration for Azure Blob Storage connections.
+            type: object
         StreamsClusterConnection:
             allOf:
                 - $ref: '#/components/schemas/StreamsConnection'
@@ -38409,6 +38487,7 @@ components:
                 mapping:
                     AWSKinesisDataStreams: '#/components/schemas/StreamsAWSKinesisDataStreamsConnection'
                     AWSLambda: '#/components/schemas/StreamsAWSLambdaConnection'
+                    AzureBlobStorage: '#/components/schemas/StreamsAzureBlobStorageConnection'
                     Cluster: '#/components/schemas/StreamsClusterConnection'
                     Https: '#/components/schemas/StreamsHttpsConnection'
                     Kafka: '#/components/schemas/StreamsKafkaConnection'
@@ -38425,6 +38504,7 @@ components:
                 - $ref: '#/components/schemas/StreamsS3Connection'
                 - $ref: '#/components/schemas/StreamsAWSKinesisDataStreamsConnection'
                 - $ref: '#/components/schemas/StreamsSchemaRegistryConnection'
+                - $ref: '#/components/schemas/StreamsAzureBlobStorageConnection'
             properties:
                 id:
                     description: Unique identifier of the connection.
@@ -39032,6 +39112,46 @@ components:
                 - name
                 - pipeline
                 - state
+            type: object
+        StreamsPublicPrivateLinkNetworking:
+            description: Networking configuration for connections that support `PUBLIC` and `PRIVATE_LINK` access types.
+            properties:
+                access:
+                    $ref: '#/components/schemas/StreamsPublicPrivateLinkNetworkingAccess'
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+            type: object
+        StreamsPublicPrivateLinkNetworkingAccess:
+            description: Information about networking access.
+            properties:
+                connectionId:
+                    description: The ID of the Private Link connection. Required for `PRIVATE_LINK` type.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                type:
+                    description: Selected networking type. Either `PUBLIC` or `PRIVATE_LINK`. Defaults to `PUBLIC`.
+                    enum:
+                        - PUBLIC
+                        - PRIVATE_LINK
+                    title: Networking Access Type
+                    type: string
             type: object
         StreamsS3Connection:
             allOf:
@@ -41512,6 +41632,74 @@ components:
                     description: The AWS requester VPC ID.
                     type: string
             type: object
+        VPCPeeringConnection:
+            description: Represents a VPC Peering connection on AWS.
+            properties:
+                _id:
+                    description: Internal VPC Peering Connection ID.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                accepterAccountId:
+                    description: The account ID responsible for accepting the request.
+                    type: string
+                accepterCidr:
+                    description: The CIDR block for the accepter VPC.
+                    type: string
+                accepterVpcId:
+                    description: The VPC ID accepting the request.
+                    type: string
+                cloudStatus:
+                    description: The status in the cloud provider for this connection.
+                    type: string
+                expirationTime:
+                    description: The time when the VPC Peering Connection request expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    type: string
+                groupId:
+                    description: The internal project ID.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                localStatus:
+                    description: The local status of the VPC Peering Connection.
+                    enum:
+                        - NONE
+                        - SCAN_FAILED
+                        - UPDATE_FAILED
+                        - REQUEST_ACCEPT
+                        - ACCEPT_REQUESTED
+                        - REQUEST_REJECT
+                        - REJECT_REQUESTED
+                        - REQUEST_DELETE
+                        - DELETE_REQUESTED
+                        - ACTIVE
+                    type: string
+                name:
+                    description: Unique VPC Peering Connection name.
+                    type: string
+                requesterAccountId:
+                    description: The account ID requesting the VPC Peering connection.
+                    type: string
+                requesterCidr:
+                    description: The CIDR block for the requesting VPC.
+                    type: string
+                requesterVpcId:
+                    description: The VPC ID requesting the VPC Peering connection.
+                    type: string
+                statusMessage:
+                    description: A status message.
+                    type: string
+            type: object
         VectorSearchHostStatusDetail:
             properties:
                 hostname:
@@ -42541,7 +42729,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: bf93ceff8480371d81ccb12875dd93a22041ffe1
+    x-xgen-sha: 7d71a5951a40fe4bb652f544c330e5a4713ff72a
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -63611,6 +63799,8 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2024-11-13+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiStreamsVPCPeeringConnectionView'
                             x-xgen-version: "2024-11-13"
                     description: OK
                     headers:
@@ -63825,6 +64015,8 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2023-02-01+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiStreamsVPCPeeringConnectionView'
                             x-xgen-version: "2023-02-01"
                     description: OK
                     headers:
