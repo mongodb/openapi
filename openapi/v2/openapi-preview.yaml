@@ -1417,10 +1417,10 @@ components:
             readOnly: true
             type: object
         DefaultGroupLimitResponse:
-            description: Description of a user-configurable, project-level limit.
+            description: General information about a project-level, user-configured limit, including its name, maximum value, default value, and a description.
             properties:
-                defaultValue:
-                    description: Default value for this limit. Returns null if no default value exists.
+                defaultLimit:
+                    description: Default limit value. Returns null if no default exists.
                     format: int32
                     readOnly: true
                     type: integer
@@ -1428,8 +1428,8 @@ components:
                     description: Human-friendly description of what the limit controls.
                     readOnly: true
                     type: string
-                maximumValue:
-                    description: Maximum value for this limit. Returns null if no maximum value exists.
+                maximumLimit:
+                    description: Maximum limit value. Returns null if no maximum exists.
                     format: int32
                     readOnly: true
                     type: integer
@@ -1819,7 +1819,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 8ba01640c6a5ee281713394dfaeaf39d087b427b
+    x-xgen-sha: 4b259b210f3219eff6c68094136d398983b35e44
 openapi: 3.0.1
 paths:
     /api/atlas/v2/defaultGroupLimits:
@@ -1894,11 +1894,25 @@ paths:
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the user-managed limit whose description you want to retrieve.
+                - description: Identifies the user-managed limit.
                   in: path
                   name: limitName
                   required: true
                   schema:
+                    enum:
+                        - MONGODB_USERS
+                        - NUM_CLUSTERS
+                        - NUM_SERVERLESS_MTMS
+                        - NUM_USER_CUSTOM_ROLES
+                        - MAX_NETWORK_PERMISSION_ENTRIES
+                        - MAX_CROSS_REGION_NETWORK_PERMISSION_ENTRIES
+                        - MAX_NODES_PER_PRIVATELINK_REGION
+                        - BYTES_PROCESSED_QUERY
+                        - BYTES_PROCESSED_DAILY
+                        - BYTES_PROCESSED_WEEKLY
+                        - BYTES_PROCESSED_MONTHLY
+                        - NUM_PRIVATE_SERVICE_CONNECTIONS_PER_REGION_GROUP
+                        - GCP_PSC_NAT_SUBNET_MASK
                     type: string
             responses:
                 "200":
@@ -1915,8 +1929,6 @@ paths:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
