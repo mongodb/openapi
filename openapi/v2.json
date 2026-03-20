@@ -1255,6 +1255,16 @@
             ],
             "readOnly": true,
             "type": "string"
+          },
+          "supportedRemoteRegions": {
+            "description": "List of regions that the endpoint service supports. Native cross region support is implemented for AWS only.",
+            "items": {
+              "description": "AWS region name",
+              "type": "string"
+            },
+            "maxItems": 35,
+            "nullable": true,
+            "type": "array"
           }
         },
         "required": [
@@ -2899,6 +2909,31 @@
         },
         "type": "object"
       },
+      "ApiAtlasModifyEndpointServiceRequestView": {
+        "properties": {
+          "cloudProvider": {
+            "description": "Human-readable label that identifies the cloud service provider for the private endpoint service which you want to update.",
+            "enum": [
+              "AWS"
+            ],
+            "type": "string"
+          },
+          "supportedRemoteRegions": {
+            "description": "List of regions that the endpoint service supports. Native cross region support is implemented for AWS only.",
+            "items": {
+              "description": "AWS region name",
+              "type": "string"
+            },
+            "maxItems": 35,
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "required": [
+          "cloudProvider"
+        ],
+        "type": "object"
+      },
       "ApiAtlasNonCompliantResourceView": {
         "properties": {
           "orgId": {
@@ -3366,6 +3401,63 @@
         ],
         "type": "object"
       },
+      "ApiDailySchedule": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
+          {
+            "properties": {
+              "endHour": {
+                "description": "Hour of the day when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "endMinute": {
+                "description": "Minute of the hour when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startHour": {
+                "description": "Hour of the day when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startMinute": {
+                "description": "Minute of the hour when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": {
+                "description": "Type of schedule.",
+                "enum": [
+                  "DAILY"
+                ],
+                "example": "DAILY",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Daily schedule with a configurable time window.",
+        "required": [
+          "endHour",
+          "endMinute",
+          "startHour",
+          "startMinute",
+          "type"
+        ],
+        "type": "object"
+      },
       "ApiDateCriteria": {
         "allOf": [
           {
@@ -3401,6 +3493,31 @@
         "required": [
           "dateField",
           "transitionAfterDays",
+          "type"
+        ],
+        "type": "object"
+      },
+      "ApiDefaultSchedule": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
+          {
+            "properties": {
+              "type": {
+                "description": "Type of schedule.",
+                "enum": [
+                  "DEFAULT"
+                ],
+                "example": "DEFAULT",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Default schedule where the system determines when the policy runs.",
+        "required": [
           "type"
         ],
         "type": "object"
@@ -3692,6 +3809,9 @@
             "example": "myDatabase",
             "type": "string"
           },
+          "schedule": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
           "targetCollection": {
             "description": "Name of the source collection for data transition.",
             "example": "myTargetCollection",
@@ -3723,6 +3843,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "schedule": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
           "state": {
             "description": "Current state of the policy.",
             "enum": [
@@ -3744,6 +3867,7 @@
           "action",
           "dbName",
           "id",
+          "schedule",
           "state",
           "targetCollection"
         ],
@@ -3755,12 +3879,48 @@
           "action": {
             "$ref": "#/components/schemas/ApiLifecycleManagementAction"
           },
+          "schedule": {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
           "state": {
             "description": "Requested state transition. Valid values: ACTIVE, PAUSED.",
             "enum": [
               "ACTIVE",
               "PAUSED"
             ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiLifecycleManagementSchedule": {
+        "description": "Schedule that controls when the lifecycle management policy runs.",
+        "discriminator": {
+          "mapping": {
+            "DAILY": "#/components/schemas/ApiDailySchedule",
+            "DEFAULT": "#/components/schemas/ApiDefaultSchedule",
+            "MONTHLY": "#/components/schemas/ApiMonthlySchedule",
+            "WEEKLY": "#/components/schemas/ApiWeeklySchedule"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ApiDefaultSchedule"
+          },
+          {
+            "$ref": "#/components/schemas/ApiDailySchedule"
+          },
+          {
+            "$ref": "#/components/schemas/ApiWeeklySchedule"
+          },
+          {
+            "$ref": "#/components/schemas/ApiMonthlySchedule"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Type of schedule that controls when the policy runs.",
             "type": "string"
           }
         },
@@ -3843,6 +4003,71 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "ApiMonthlySchedule": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
+          {
+            "properties": {
+              "dayOfMonth": {
+                "description": "Day of the month when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 31,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "endHour": {
+                "description": "Hour of the day when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "endMinute": {
+                "description": "Minute of the hour when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startHour": {
+                "description": "Hour of the day when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startMinute": {
+                "description": "Minute of the hour when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": {
+                "description": "Type of schedule.",
+                "enum": [
+                  "MONTHLY"
+                ],
+                "example": "MONTHLY",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Monthly schedule with a configurable day and time window.",
+        "required": [
+          "dayOfMonth",
+          "endHour",
+          "endMinute",
+          "startHour",
+          "startMinute",
+          "type"
+        ],
         "type": "object"
       },
       "ApiPrivateDownloadDeliveryUrl": {
@@ -4025,10 +4250,33 @@
       "ApiStandbyLinkFailoverResponse": {
         "description": "Response containing failover operation details.",
         "properties": {
-          "id": {
+          "completedAt": {
+            "description": "Date and time when the failover operation completed. Only present when status is COMPLETE. This value is in the ISO 8601 date and time format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createdDate": {
+            "description": "Date and time when the failover operation was created. This value is in the ISO 8601 date and time format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "failoverId": {
             "description": "Unique 24-hexadecimal digit string that identifies the failover operation.",
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "failoverStage": {
+            "description": "Current stage of the failover operation. Indicates progression from initiation to completion.",
+            "enum": [
+              "PREPARING_TO_STOP_REPLICATION",
+              "STOPPING_REPLICATION",
+              "PREPARING_CLUSTER_FOR_SERVING",
+              "DONE"
+            ],
             "readOnly": true,
             "type": "string"
           },
@@ -4468,6 +4716,71 @@
           "id"
         ],
         "title": "API User Events",
+        "type": "object"
+      },
+      "ApiWeeklySchedule": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
+          },
+          {
+            "properties": {
+              "dayOfWeek": {
+                "description": "Day of the week when the scheduled window starts. The week starts with Monday (`1`) and ends with Sunday (`7`).",
+                "format": "int32",
+                "maximum": 7,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "endHour": {
+                "description": "Hour of the day when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "endMinute": {
+                "description": "Minute of the hour when the scheduled window ends.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startHour": {
+                "description": "Hour of the day when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 23,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "startMinute": {
+                "description": "Minute of the hour when the scheduled window starts.",
+                "format": "int32",
+                "maximum": 59,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": {
+                "description": "Type of schedule.",
+                "enum": [
+                  "WEEKLY"
+                ],
+                "example": "WEEKLY",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Weekly schedule with a configurable day and time window.",
+        "required": [
+          "dayOfWeek",
+          "endHour",
+          "endMinute",
+          "startHour",
+          "startMinute",
+          "type"
+        ],
         "type": "object"
       },
       "AppServiceAlertConfigViewForNdsGroup": {
@@ -6722,6 +7035,36 @@
         "title": "Azure",
         "type": "object"
       },
+      "AzureConnection": {
+        "description": "Azure-specific configuration for the connection.",
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "region": {
+            "description": "Azure region where the storage account is located.",
+            "type": "string"
+          },
+          "servicePrincipalId": {
+            "description": "Unique ID of the Azure Service Principal that has access to the storage account.",
+            "type": "string"
+          },
+          "storageAccountName": {
+            "description": "Name of the Azure Storage Account to connect to.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AzureCreateDataProcessRegionView": {
         "allOf": [
           {
@@ -8600,7 +8943,8 @@
           "ADMIN_OVERRIDE_PAYMENT_METHOD_EXPIRED",
           "PAYMENT_METHOD_FLAGGED",
           "PAYMENT_METHOD_UNFLAGGED",
-          "MARKETPLACE_REFUND_ISSUED"
+          "MARKETPLACE_REFUND_ISSUED",
+          "PAYMENT_DUE_DATE_EXTENDED"
         ],
         "example": "CHARGE_SUCCEEDED",
         "title": "Billing Event Types",
@@ -10866,6 +11210,17 @@
           "region": {
             "description": "Cloud provider region in which you want to create the private endpoint service. Regions accepted as values differ for [Amazon Web Services](https://docs.atlas.mongodb.com/reference/amazon-aws/), [Google Cloud Platform](https://docs.atlas.mongodb.com/reference/google-gcp/), and [Microsoft Azure](https://docs.atlas.mongodb.com/reference/microsoft-azure/).",
             "type": "string",
+            "writeOnly": true
+          },
+          "supportedRemoteRegions": {
+            "description": "List of regions that the endpoint service supports. Native cross region support is implemented for AWS only.",
+            "items": {
+              "description": "AWS region name",
+              "type": "string"
+            },
+            "maxItems": 35,
+            "nullable": true,
+            "type": "array",
             "writeOnly": true
           }
         },
@@ -14238,6 +14593,10 @@
       },
       "DBRoleToExecute": {
         "description": "The name of a Built in or Custom DB Role to connect to an Atlas Cluster.",
+        "externalDocs": {
+          "description": "Built-in Roles",
+          "url": "https://www.mongodb.com/docs/atlas/mongodb-users-roles-and-privileges/#mongodb-atlasrole-atlasAdmin"
+        },
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -14370,28 +14729,28 @@
           {
             "properties": {
               "endHour": {
-                "description": "Hour of the day when the scheduled window to run one online archive ends.",
+                "description": "Hour of the day when the scheduled window to run one online archive ends. This field uses the UTC time zone. The window must have a duration of at least two hours. If the end time is before or equal to the start time, the window extends to the next day.",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
                 "type": "integer"
               },
               "endMinute": {
-                "description": "Minute of the hour when the scheduled window to run one online archive ends.",
+                "description": "Minute of the hour when the scheduled window to run one online archive ends. This field uses the UTC time zone. The window must have a duration of at least two hours. If the end time is before or equal to the start time, the window extends to the next day.",
                 "format": "int32",
                 "maximum": 59,
                 "minimum": 0,
                 "type": "integer"
               },
               "startHour": {
-                "description": "Hour of the day when the when the scheduled window to run one online archive starts.",
+                "description": "Hour of the day when the scheduled window to run one online archive starts. This field uses the UTC time zone.",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
                 "type": "integer"
               },
               "startMinute": {
-                "description": "Minute of the hour when the scheduled window to run one online archive starts.",
+                "description": "Minute of the hour when the scheduled window to run one online archive starts. This field uses the UTC time zone.",
                 "format": "int32",
                 "maximum": 59,
                 "minimum": 0,
@@ -18284,6 +18643,14 @@
                   "MONGOTUNE_ALERT"
                 ],
                 "title": "Mongotune Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "AI_MODELS_API_KEY_CREATED",
+                  "AI_MODELS_API_KEY_DELETED"
+                ],
+                "title": "Ai Models Event Types",
                 "type": "string"
               }
             ],
@@ -22253,6 +22620,7 @@
               "ENCRYPTION_AT_REST_CONFIGURATION_UPDATED",
               "ENCRYPTION_AT_REST_CONFIGURATION_VALIDATION_FAILED",
               "ENCRYPTION_AT_REST_CONFIGURATION_VALIDATION_SUCCEEDED",
+              "ENCRYPTION_AT_REST_KEY_ROTATION_STARTED",
               "NDS_SET_IMAGE_OVERRIDES",
               "NDS_SET_CHEF_TARBALL_URI",
               "RESTRICTED_EMPLOYEE_ACCESS_BYPASS",
@@ -22409,7 +22777,9 @@
               "SHADOW_CLUSTER_CREATE_EXPOSURE",
               "SHADOW_CLUSTER_DELETE_EXPOSURE",
               "SHADOW_CLUSTER_RECORDING_STATUS_UPDATE",
-              "SHADOW_CLUSTER_REPLAY_STATUS_UPDATE"
+              "SHADOW_CLUSTER_REPLAY_STATUS_UPDATE",
+              "NODE_HIDDEN_BY_ADMIN",
+              "NODE_UNHIDDEN_BY_ADMIN"
             ],
             "title": "Atlas Audit Types",
             "type": "string"
@@ -22747,6 +23117,14 @@
             ],
             "title": "Query Shape Event Types",
             "type": "string"
+          },
+          {
+            "enum": [
+              "AI_MODELS_API_KEY_CREATED",
+              "AI_MODELS_API_KEY_DELETED"
+            ],
+            "title": "Ai Models Event Types",
+            "type": "string"
           }
         ],
         "type": "object"
@@ -22884,7 +23262,8 @@
               "ADMIN_OVERRIDE_PAYMENT_METHOD_EXPIRED",
               "PAYMENT_METHOD_FLAGGED",
               "PAYMENT_METHOD_UNFLAGGED",
-              "MARKETPLACE_REFUND_ISSUED"
+              "MARKETPLACE_REFUND_ISSUED",
+              "PAYMENT_DUE_DATE_EXTENDED"
             ],
             "title": "Billing Event Types",
             "type": "string"
@@ -27950,6 +28329,10 @@
           },
           "isExtendedStorageSizesEnabled": {
             "description": "Flag that indicates whether to enable extended storage sizes for the specified project.",
+            "type": "boolean"
+          },
+          "isNativeRerankingEnabled": {
+            "description": "Flag that indicates whether to enable Native Reranking with Voyage AI models in the Aggregation Pipeline for the specified project.",
             "type": "boolean"
           },
           "isPerformanceAdvisorEnabled": {
@@ -34379,28 +34762,28 @@
                 "type": "integer"
               },
               "endHour": {
-                "description": "Hour of the day when the scheduled window to run one online archive ends.",
+                "description": "Hour of the day when the scheduled window to run one online archive ends. This field uses the UTC time zone. The window must have a duration of at least two hours. If the end time is before or equal to the start time, the window extends to the next day.",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
                 "type": "integer"
               },
               "endMinute": {
-                "description": "Minute of the hour when the scheduled window to run one online archive ends.",
+                "description": "Minute of the hour when the scheduled window to run one online archive ends. This field uses the UTC time zone. The window must have a duration of at least two hours. If the end time is before or equal to the start time, the window extends to the next day.",
                 "format": "int32",
                 "maximum": 59,
                 "minimum": 0,
                 "type": "integer"
               },
               "startHour": {
-                "description": "Hour of the day when the when the scheduled window to run one online archive starts.",
+                "description": "Hour of the day when the scheduled window to run one online archive starts. This field uses the UTC time zone.",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
                 "type": "integer"
               },
               "startMinute": {
-                "description": "Minute of the hour when the scheduled window to run one online archive starts.",
+                "description": "Minute of the hour when the scheduled window to run one online archive starts. This field uses the UTC time zone.",
                 "format": "int32",
                 "maximum": 59,
                 "minimum": 0,
@@ -34771,6 +35154,7 @@
           "ENCRYPTION_AT_REST_CONFIGURATION_UPDATED",
           "ENCRYPTION_AT_REST_CONFIGURATION_VALIDATION_FAILED",
           "ENCRYPTION_AT_REST_CONFIGURATION_VALIDATION_SUCCEEDED",
+          "ENCRYPTION_AT_REST_KEY_ROTATION_STARTED",
           "NDS_SET_IMAGE_OVERRIDES",
           "NDS_SET_CHEF_TARBALL_URI",
           "RESTRICTED_EMPLOYEE_ACCESS_BYPASS",
@@ -34927,7 +35311,9 @@
           "SHADOW_CLUSTER_CREATE_EXPOSURE",
           "SHADOW_CLUSTER_DELETE_EXPOSURE",
           "SHADOW_CLUSTER_RECORDING_STATUS_UPDATE",
-          "SHADOW_CLUSTER_REPLAY_STATUS_UPDATE"
+          "SHADOW_CLUSTER_REPLAY_STATUS_UPDATE",
+          "NODE_HIDDEN_BY_ADMIN",
+          "NODE_UNHIDDEN_BY_ADMIN"
         ],
         "example": "CLUSTER_CREATED",
         "title": "Atlas Audit Types",
@@ -39577,6 +39963,41 @@
         ],
         "type": "object"
       },
+      "PaginatedApiStreamsVPCPeeringConnectionView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/VPCPeeringConnection"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
       "PaginatedApiUserAccessListResponseView": {
         "properties": {
           "links": {
@@ -42396,6 +42817,12 @@
               "aggregate"
             ],
             "type": "string"
+          },
+          "cpuNanos": {
+            "description": "Total CPU time in nanoseconds consumed by queries with the given query shape. Available for MDB 8.2 and higher.",
+            "format": "double",
+            "nullable": true,
+            "type": "number"
           },
           "docsExamined": {
             "description": "Total number of documents examined by queries with the given query shape.",
@@ -48214,6 +48641,26 @@
         "description": "The configuration for AWS Lambda connections.",
         "type": "object"
       },
+      "StreamsAzureBlobStorageConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsConnection"
+          },
+          {
+            "properties": {
+              "azure": {
+                "$ref": "#/components/schemas/AzureConnection"
+              },
+              "publicPrivateNetworking": {
+                "$ref": "#/components/schemas/StreamsPublicPrivateLinkNetworking"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "The configuration for Azure Blob Storage connections.",
+        "type": "object"
+      },
       "StreamsClusterConnection": {
         "allOf": [
           {
@@ -48244,6 +48691,7 @@
           "mapping": {
             "AWSKinesisDataStreams": "#/components/schemas/StreamsAWSKinesisDataStreamsConnection",
             "AWSLambda": "#/components/schemas/StreamsAWSLambdaConnection",
+            "AzureBlobStorage": "#/components/schemas/StreamsAzureBlobStorageConnection",
             "Cluster": "#/components/schemas/StreamsClusterConnection",
             "Https": "#/components/schemas/StreamsHttpsConnection",
             "Kafka": "#/components/schemas/StreamsKafkaConnection",
@@ -48277,9 +48725,17 @@
           },
           {
             "$ref": "#/components/schemas/StreamsSchemaRegistryConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsAzureBlobStorageConnection"
           }
         ],
         "properties": {
+          "id": {
+            "description": "Unique identifier of the connection.",
+            "readOnly": true,
+            "type": "string"
+          },
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
             "externalDocs": {
@@ -48325,7 +48781,6 @@
             "type": "string"
           }
         },
-        "readOnly": true,
         "type": "object"
       },
       "StreamsDLQ": {
@@ -49062,6 +49517,60 @@
           "pipeline",
           "state"
         ],
+        "type": "object"
+      },
+      "StreamsPublicPrivateLinkNetworking": {
+        "description": "Networking configuration for connections that support `PUBLIC` and `PRIVATE_LINK` access types.",
+        "properties": {
+          "access": {
+            "$ref": "#/components/schemas/StreamsPublicPrivateLinkNetworkingAccess"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "StreamsPublicPrivateLinkNetworkingAccess": {
+        "description": "Information about networking access.",
+        "properties": {
+          "connectionId": {
+            "description": "The ID of the Private Link connection. Required for `PRIVATE_LINK` type.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "type": {
+            "description": "Selected networking type. Either `PUBLIC` or `PRIVATE_LINK`. Defaults to `PUBLIC`.",
+            "enum": [
+              "PUBLIC",
+              "PRIVATE_LINK"
+            ],
+            "title": "Networking Access Type",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "StreamsS3Connection": {
@@ -52079,6 +52588,93 @@
         },
         "type": "object"
       },
+      "VPCPeeringConnection": {
+        "description": "Represents a VPC Peering connection on AWS.",
+        "properties": {
+          "_id": {
+            "description": "Internal VPC Peering Connection ID.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "accepterAccountId": {
+            "description": "The account ID responsible for accepting the request.",
+            "type": "string"
+          },
+          "accepterCidr": {
+            "description": "The CIDR block for the accepter VPC.",
+            "type": "string"
+          },
+          "accepterVpcId": {
+            "description": "The VPC ID accepting the request.",
+            "type": "string"
+          },
+          "cloudStatus": {
+            "description": "The status in the cloud provider for this connection.",
+            "type": "string"
+          },
+          "expirationTime": {
+            "description": "The time when the VPC Peering Connection request expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "groupId": {
+            "description": "The internal project ID.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "localStatus": {
+            "description": "The local status of the VPC Peering Connection.",
+            "enum": [
+              "NONE",
+              "SCAN_FAILED",
+              "UPDATE_FAILED",
+              "REQUEST_ACCEPT",
+              "ACCEPT_REQUESTED",
+              "REQUEST_REJECT",
+              "REJECT_REQUESTED",
+              "REQUEST_DELETE",
+              "DELETE_REQUESTED",
+              "ACTIVE"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "description": "Unique VPC Peering Connection name.",
+            "type": "string"
+          },
+          "requesterAccountId": {
+            "description": "The account ID requesting the VPC Peering connection.",
+            "type": "string"
+          },
+          "requesterCidr": {
+            "description": "The CIDR block for the requesting VPC.",
+            "type": "string"
+          },
+          "requesterVpcId": {
+            "description": "The VPC ID requesting the VPC Peering connection.",
+            "type": "string"
+          },
+          "statusMessage": {
+            "description": "A status message.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "VectorSearchHostStatusDetail": {
         "properties": {
           "hostname": {
@@ -52458,28 +53054,28 @@
                 "type": "integer"
               },
               "endHour": {
-                "description": "Hour of the day when the scheduled window to run one online archive ends.",
+                "description": "Hour of the day when the scheduled window to run one online archive ends. This field uses the UTC time zone. The window must have a duration of at least two hours. If the end time is before or equal to the start time, the window extends to the next day.",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
                 "type": "integer"
               },
               "endMinute": {
-                "description": "Minute of the hour when the scheduled window to run one online archive ends.",
+                "description": "Minute of the hour when the scheduled window to run one online archive ends. This field uses the UTC time zone. The window must have a duration of at least two hours. If the end time is before or equal to the start time, the window extends to the next day.",
                 "format": "int32",
                 "maximum": 59,
                 "minimum": 0,
                 "type": "integer"
               },
               "startHour": {
-                "description": "Hour of the day when the when the scheduled window to run one online archive starts.",
+                "description": "Hour of the day when the scheduled window to run one online archive starts. This field uses the UTC time zone.",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
                 "type": "integer"
               },
               "startMinute": {
-                "description": "Minute of the hour when the scheduled window to run one online archive starts.",
+                "description": "Minute of the hour when the scheduled window to run one online archive starts. This field uses the UTC time zone.",
                 "format": "int32",
                 "maximum": 59,
                 "minimum": 0,
@@ -53347,7 +53943,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "0accf6fec858d1a8a7454e2172d2a98936faaef9"
+    "x-xgen-sha": "805eed6755991bf3eece3e6b585b7575220918ae"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -65884,6 +66480,7 @@
                   "DOCS_RETURNED",
                   "TOTAL_TIME_TO_RESPONSE",
                   "BYTES_READ",
+                  "CPU_NANOS",
                   "KEYS_EXAMINED_RETURNED",
                   "DOCS_EXAMINED_RETURNED",
                   "LAST_EXECUTION_TIME",
@@ -65893,7 +66490,7 @@
                 ],
                 "type": "string"
               },
-              "maxItems": 14,
+              "maxItems": 15,
               "type": "array",
               "uniqueItems": true
             },
@@ -77962,6 +78559,89 @@
         "x-xgen-operation-id-override": "createPrivateEndpointService"
       }
     },
+    "/api/atlas/v2/groups/{groupId}/privateEndpoint/endpointService/{endpointServiceId}": {
+      "patch": {
+        "description": "Updates the specified private endpoint service for the project. The cloud service provider manages the private endpoint service that belongs to the project. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
+        "operationId": "updateGroupPrivateEndpointEndpointService",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the private endpoint service that you want to update.",
+            "in": "path",
+            "name": "endpointServiceId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2023-01-01+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiAtlasModifyEndpointServiceRequestView"
+              }
+            }
+          },
+          "description": "Updates to apply to the private endpoint service.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2023-01-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointService"
+                },
+                "x-xgen-version": "2023-01-01"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One Private Endpoint Service for One Provider",
+        "tags": [
+          "Private Endpoint Services"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Private-Endpoint-Services/operation/updateGroupPrivateEndpointEndpointService",
+        "x-xgen-operation-id-override": "updatePrivateEndpointService"
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/privateEndpoint/regionalMode": {
       "get": {
         "description": "Checks whether each region in the specified cloud service provider can create multiple private endpoints per region. The cloud service provider manages the private endpoint for the project. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
@@ -79266,7 +79946,11 @@
         "x-xgen-operation-id-override": "listPrivateEndpointIds"
       },
       "post": {
-        "description": "Adds one private endpoint for Federated Database Instances and Online Archives to the specified projects. If the endpoint ID already exists and the associated comment is unchanged, Atlas Data Federation makes no change to the endpoint ID list. If the endpoint ID already exists and the associated comment is changed, Atlas Data Federation updates the comment value only in the endpoint ID list. If the endpoint ID doesn't exist, Atlas Data Federation appends the new endpoint to the list of endpoints in the endpoint ID list. Each region has an associated service name for the various endpoints in each region.\n\n `us-east-1` is `com.amazonaws.vpce.us-east-1.vpce-svc-00e311695874992b4`.\n\n `us-west-1` is `com.amazonaws.vpce.us-west-2.vpce-svc-09d86b19e59d1b4bb`.\n\n `eu-west-1` is `com.amazonaws.vpce.eu-west-1.vpce-svc-0824460b72e1a420e`.\n\n `eu-west-2` is `com.amazonaws.vpce.eu-west-2.vpce-svc-052f1840aa0c4f1f9`.\n\n `eu-central-1` is `com.amazonaws.vpce.eu-central-1.vpce-svc-0ac8ce91871138c0d`.\n\n `sa-east-1` is `com.amazonaws.vpce.sa-east-1.vpce-svc-0b56e75e8cdf50044`.\n\n `ap-southeast-2` is `com.amazonaws.vpce.ap-southeast-2.vpce-svc-036f1de74d761706e`.\n\n `ap-south-1` is `com.amazonaws.vpce.ap-south-1.vpce-svc-03eb8a541f96d356d`.\n\n To use this resource, the requesting Service Account or API Key must have the Project Owner or Project Charts Admin roles.",
+        "description": "Adds one private endpoint for Federated Database Instances and Online Archives to the specified projects. If the endpoint ID already exists and the associated comment is unchanged, Atlas Data Federation makes no change to the endpoint ID list. If the endpoint ID already exists and the associated comment is changed, Atlas Data Federation updates the comment value only in the endpoint ID list. If the endpoint ID doesn't exist, Atlas Data Federation appends the new endpoint to the list of endpoints in the endpoint ID list. Each region has an associated service name for the various endpoints. For the latest list of supported regions and their service names, see the external documentation. To use this resource, the requesting Service Account or API Key must have the Project Owner or Project Charts Admin roles.",
+        "externalDocs": {
+          "description": "Atlas Data Federation Regions and Service Names",
+          "url": "https://www.mongodb.com/docs/atlas/data-federation/tutorial/config-private-endpoint/"
+        },
         "operationId": "createGroupPrivateNetworkSettingEndpointId",
         "parameters": [
           {
@@ -83933,6 +84617,9 @@
           "200": {
             "content": {
               "application/vnd.atlas.2024-11-13+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiStreamsVPCPeeringConnectionView"
+                },
                 "x-xgen-version": "2024-11-13"
               }
             },
@@ -84283,6 +84970,9 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-02-01+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiStreamsVPCPeeringConnectionView"
+                },
                 "x-xgen-version": "2023-02-01"
               }
             },
@@ -85272,6 +85962,112 @@
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/updateGroupStreamConnection",
         "x-xgen-operation-id-override": "updateStreamConnection"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/connections/{connectionName}/failoverConnections": {
+      "post": {
+        "description": "Creates one failover connection for a stream workspace in the specified project. To use this resource, the requesting Service Account or API Key must have the Project Owner or Project Stream Processing Owner role.",
+        "operationId": "createGroupStreamConnectionFailoverConnection",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Label that identifies the stream workspace.",
+            "in": "path",
+            "name": "tenantName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Label that identifies the stream connection name.",
+            "in": "path",
+            "name": "connectionName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamsConnection"
+              },
+              "x-xgen-preview": {
+                "name": "regional-failover",
+                "public": "false"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Details to create one failover connection for a streams workspace in the specified project.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamsConnection"
+                },
+                "x-xgen-preview": {
+                  "name": "regional-failover",
+                  "public": "false"
+                },
+                "x-xgen-version": "application/vnd.atlas.preview+json"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Failover Stream Connection",
+        "tags": [
+          "Streams"
+        ],
+        "x-xgen-changelog": {
+          "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as part of private preview, but is subject to change until GA."
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createGroupStreamConnectionFailoverConnection",
+        "x-xgen-operation-id-override": "createFailoverConnection"
       }
     },
     "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor": {
@@ -87516,6 +88312,9 @@
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/paymentRequired"
           },
           "403": {
             "$ref": "#/components/responses/forbidden"
