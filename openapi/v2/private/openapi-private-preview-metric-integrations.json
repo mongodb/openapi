@@ -441,59 +441,6 @@
         ],
         "type": "object"
       },
-      "AtlasRateLimitBucketState": {
-        "description": "Configuration and current state of a single rate limit token bucket.",
-        "properties": {
-          "capacity": {
-            "description": "The capacity of the bucket.",
-            "format": "int64",
-            "readOnly": true,
-            "type": "integer"
-          },
-          "name": {
-            "description": "The name of the bucket.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "remaining": {
-            "description": "The remaining tokens of the bucket.",
-            "format": "int64",
-            "readOnly": true,
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "AtlasRateLimitInspectionResponse": {
-        "description": "Rate limit inspection response containing bucket states for debugging and monitoring.",
-        "properties": {
-          "limits": {
-            "description": "List of bucket states.",
-            "items": {
-              "$ref": "#/components/schemas/AtlasRateLimitBucketState"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "scope": {
-            "description": "The scope type of the rate limit.",
-            "enum": [
-              "GROUP",
-              "ORGANIZATION",
-              "USER",
-              "IP"
-            ],
-            "readOnly": true,
-            "type": "string"
-          },
-          "scopeId": {
-            "description": "The scope id associated to the bucket.",
-            "readOnly": true,
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "BadRequestDetail": {
         "description": "Bad request detail.",
         "properties": {
@@ -525,6 +472,27 @@
         ],
         "type": "object"
       },
+      "Header": {
+        "description": "HTTP header with name and value.",
+        "properties": {
+          "name": {
+            "description": "Header name.",
+            "example": "Authorization",
+            "type": "string"
+          },
+          "value": {
+            "description": "Header value.",
+            "example": "Bearer token123",
+            "format": "password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object"
+      },
       "Link": {
         "properties": {
           "href": {
@@ -540,8 +508,221 @@
         },
         "type": "object"
       },
-      "PaginatedRateLimitEndpointSets": {
-        "description": "A list of rate limit endpoint sets.",
+      "MetricIntegrationRequest": {
+        "description": "Request schema for creating a metric integration.",
+        "properties": {
+          "aggregationTemporality": {
+            "description": "The temporality to send to the metric integration.",
+            "enum": [
+              "DELTA",
+              "CUMULATIVE"
+            ],
+            "type": "string"
+          },
+          "allMetricsEnabled": {
+            "description": "Flag that indicates whether to send all metrics to the integration. When true, `metricSelection` must be empty or not provided.",
+            "type": "boolean"
+          },
+          "endpoint": {
+            "description": "OpenTelemetry collector endpoint URL. Must use HTTPS.",
+            "example": "https://otel-collector.example.com:4318/v1/metrics",
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "headers": {
+            "description": "HTTP headers for authentication and configuration. Total size limit 2KB.",
+            "items": {
+              "$ref": "#/components/schemas/Header"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "type": "array"
+          },
+          "integrationType": {
+            "description": "Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.",
+            "enum": [
+              "OTEL"
+            ],
+            "type": "string"
+          },
+          "metricSelection": {
+            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration. If omitted, this field is treated as an empty array. Required when `allMetricsEnabled` is false.",
+            "items": {
+              "enum": [
+                "ATLAS_STREAM_PROCESSING"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "providerType": {
+            "description": "The provider type for the metric integration. Identifies the third-party service provider.",
+            "enum": [
+              "CUSTOM"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "aggregationTemporality",
+          "allMetricsEnabled",
+          "endpoint",
+          "headers",
+          "integrationType",
+          "providerType"
+        ],
+        "title": "Metric Integration Request",
+        "type": "object"
+      },
+      "MetricIntegrationResponse": {
+        "description": "Response schema for metric integration operations.",
+        "properties": {
+          "aggregationTemporality": {
+            "description": "The temporality to send to the metric integration.",
+            "enum": [
+              "DELTA",
+              "CUMULATIVE"
+            ],
+            "type": "string"
+          },
+          "allMetricsEnabled": {
+            "description": "Flag that indicates whether to send all metrics to the integration. When true, `metricSelection` must be empty or not provided.",
+            "type": "boolean"
+          },
+          "endpoint": {
+            "description": "OpenTelemetry collector endpoint URL.",
+            "example": "https://otel-collector.example.com:4318/v1/metrics",
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "headers": {
+            "description": "HTTP headers for authentication and configuration. Header values are redacted in responses.",
+            "items": {
+              "$ref": "#/components/schemas/Header"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "type": "array"
+          },
+          "integrationType": {
+            "description": "Type of metric integration. Identifies which protocol will be used for the integration.",
+            "enum": [
+              "OTEL"
+            ],
+            "type": "string"
+          },
+          "metricIntegrationId": {
+            "description": "Unique hexadecimal digit string that identifies the metric integration configuration.",
+            "example": "507f1f77bcf86cd799439011",
+            "maxLength": 24,
+            "minLength": 24,
+            "readOnly": true,
+            "type": "string"
+          },
+          "metricSelection": {
+            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration. If not applicable, this field is returned as an empty array.",
+            "items": {
+              "enum": [
+                "ATLAS_STREAM_PROCESSING"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "providerType": {
+            "description": "The provider type for the metric integration. Identifies the third-party service provider.",
+            "enum": [
+              "CUSTOM"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "aggregationTemporality",
+          "allMetricsEnabled",
+          "endpoint",
+          "headers",
+          "integrationType",
+          "metricIntegrationId",
+          "metricSelection",
+          "providerType"
+        ],
+        "title": "Metric Integration Response",
+        "type": "object"
+      },
+      "MetricIntegrationUpdateRequest": {
+        "description": "Request schema for updating a metric integration.",
+        "properties": {
+          "aggregationTemporality": {
+            "description": "The temporality to send to the metric integration.",
+            "enum": [
+              "DELTA",
+              "CUMULATIVE"
+            ],
+            "type": "string"
+          },
+          "allMetricsEnabled": {
+            "description": "Flag that indicates whether to send all metrics to the integration. When true, `metricSelection` must be empty or not provided.",
+            "type": "boolean"
+          },
+          "endpoint": {
+            "description": "OpenTelemetry collector endpoint URL. Must use HTTPS.",
+            "example": "https://otel-collector.example.com:4318/v1/metrics",
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "headers": {
+            "description": "HTTP headers for authentication and configuration. Total size limit 2KB.",
+            "items": {
+              "$ref": "#/components/schemas/Header"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "type": "array"
+          },
+          "integrationType": {
+            "description": "Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.",
+            "enum": [
+              "OTEL"
+            ],
+            "type": "string"
+          },
+          "metricSelection": {
+            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration. If omitted, this field is treated as an empty array. Required when `allMetricsEnabled` is false.",
+            "items": {
+              "enum": [
+                "ATLAS_STREAM_PROCESSING"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "providerType": {
+            "description": "The provider type for the metric integration. Identifies the third-party service provider.",
+            "enum": [
+              "CUSTOM"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "aggregationTemporality",
+          "allMetricsEnabled",
+          "endpoint",
+          "headers",
+          "integrationType",
+          "providerType"
+        ],
+        "title": "Metric Integration Update Request",
+        "type": "object"
+      },
+      "PaginatedMetricIntegrationResponse": {
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -558,7 +739,7 @@
           "results": {
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
-              "$ref": "#/components/schemas/RateLimitEndpointSetResponse"
+              "$ref": "#/components/schemas/MetricIntegrationResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -574,118 +755,6 @@
         "required": [
           "results"
         ],
-        "type": "object"
-      },
-      "RateLimitEndpointSetCapacity": {
-        "description": "The rate limit capacity for the endpoint set.",
-        "properties": {
-          "defaultValue": {
-            "description": "The default request capacity of the endpoint set. Returned if there is a capacity override set for the requested entity.",
-            "format": "int64",
-            "type": "integer"
-          },
-          "value": {
-            "description": "The applied request capacity of the endpoint set.",
-            "format": "int64",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "RateLimitEndpointSetEndpoint": {
-        "properties": {
-          "method": {
-            "description": "The HTTP method of the endpoint.",
-            "enum": [
-              "GET",
-              "POST",
-              "PUT",
-              "DELETE",
-              "PATCH"
-            ],
-            "type": "string"
-          },
-          "path": {
-            "description": "The URL path of the endpoint.",
-            "example": "/api/atlas/v2/rateLimits",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "RateLimitEndpointSetRefillDurationSeconds": {
-        "description": "The rate limit refill duration for the endpoint set.",
-        "properties": {
-          "defaultValue": {
-            "description": "The default rate limit refill duration, in seconds, of the endpoint set. Returned if there is a rate limit refill duration override set for the requested entity.",
-            "format": "int64",
-            "type": "integer"
-          },
-          "value": {
-            "description": "The applied rate limit refill duration of the endpoint set.",
-            "format": "int64",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "RateLimitEndpointSetRefillRate": {
-        "description": "The rate limit refill rate for the endpoint set.",
-        "properties": {
-          "defaultValue": {
-            "description": "The default rate limit refill rate of the endpoint set. Returned if there is a rate limit refill rate override set for the requested entity.",
-            "format": "int64",
-            "type": "integer"
-          },
-          "value": {
-            "description": "The applied rate limit refill rate of the endpoint set.",
-            "format": "int64",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "RateLimitEndpointSetResponse": {
-        "properties": {
-          "capacity": {
-            "$ref": "#/components/schemas/RateLimitEndpointSetCapacity"
-          },
-          "endpointSetId": {
-            "description": "The ID of the endpoint set.",
-            "example": "rateLimitsInspection_group",
-            "type": "string"
-          },
-          "endpointSetName": {
-            "description": "The endpoint set name.",
-            "example": "Rate Limits Inspection",
-            "type": "string"
-          },
-          "endpoints": {
-            "description": "A list of endpoints associated with the specified endpoint set.",
-            "items": {
-              "$ref": "#/components/schemas/RateLimitEndpointSetEndpoint"
-            },
-            "maxItems": 100,
-            "type": "array",
-            "uniqueItems": true
-          },
-          "refillDurationSeconds": {
-            "$ref": "#/components/schemas/RateLimitEndpointSetRefillDurationSeconds"
-          },
-          "refillRate": {
-            "$ref": "#/components/schemas/RateLimitEndpointSetRefillRate"
-          },
-          "scope": {
-            "description": "The scope of the endpoint set.",
-            "enum": [
-              "IP",
-              "GROUP",
-              "ORGANIZATION",
-              "USER"
-            ],
-            "type": "string"
-          }
-        },
         "type": "object"
       }
     },
@@ -707,7 +776,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses OAuth2 Service Accounts or HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.private-preview-rate-limit+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses OAuth2 Service Accounts or HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.private-preview-metric-integrations+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -719,180 +788,20 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/groups/{groupId}/ratelimits": {
+    "/api/atlas/v2/groups/{groupId}/metricIntegrations": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Retrieve rate limiting bucket state for the specified group.",
-        "operationId": "getGroupRatelimits",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all metric integration configurations for the project. Optionally filter by integration type and provider type. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
+        "operationId": "listGroupMetricIntegrations",
         "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
           {
             "$ref": "#/components/parameters/groupId"
           },
           {
-            "$ref": "#/components/parameters/envelope"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AtlasRateLimitInspectionResponse"
-                },
-                "x-xgen-preview": {
-                  "name": "rate-limit",
-                  "public": "false"
-                },
-                "x-xgen-version": "private-preview-rate-limit"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
+            "$ref": "#/components/parameters/includeCount"
           },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return Rate Limit State for One Group",
-        "tags": [
-          "Rate Limit"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api rateLimit getGroupRatelimits --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/ratelimits?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/ratelimits?pretty=true\""
-          }
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getGroupRatelimits"
-      }
-    },
-    "/api/atlas/v2/orgs/{orgId}/ratelimits": {
-      "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Retrieve rate limiting bucket state for the specified organization.",
-        "operationId": "getOrgRatelimits",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/orgId"
-          },
-          {
-            "$ref": "#/components/parameters/envelope"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AtlasRateLimitInspectionResponse"
-                },
-                "x-xgen-preview": {
-                  "name": "rate-limit",
-                  "public": "false"
-                },
-                "x-xgen-version": "private-preview-rate-limit"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return Rate Limit State for One Organization",
-        "tags": [
-          "Rate Limit"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api rateLimit getOrgRatelimits --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/ratelimits?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/ratelimits?pretty=true\""
-          }
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/getOrgRatelimits"
-      }
-    },
-    "/api/atlas/v2/rateLimits": {
-      "get": {
-        "deprecated": true,
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Get all rate limits for all v2 Atlas Administration API endpoint sets. Deprecated versions: v2-{2025-03-12}",
-        "operationId": "listRateLimits",
-        "parameters": [
           {
             "$ref": "#/components/parameters/itemsPerPage"
           },
@@ -903,62 +812,18 @@
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "description": "Unique 24-hexadecimal digit string that identifies the Atlas Project to request rate limits for. When this parameter is provided, only group scoped endpoint sets are returned and the limits returned are applicable to the specified project. The requesting user must have the Project Read Only role for the specified project.",
+            "description": "Optional filter by integration type (e.g., `OTEL`). When specified, `providerType` must also be specified.",
             "in": "query",
-            "name": "groupId",
+            "name": "integrationType",
             "schema": {
-              "example": "32b6e34b3d91647abb20e7b8",
-              "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             }
           },
           {
-            "description": "Unique 24-hexadecimal digit string that identifies the Atlas Organization to request rate limits for. When this parameter is provided, only organization scoped endpoint sets are returned and the limits returned are applicable to the specified organization. The requesting user must have the Organization Read Only role for the specified organization.",
+            "description": "Optional filter by provider type (e.g., `CUSTOM`). When specified, `integrationType` must also be specified.",
             "in": "query",
-            "name": "orgId",
+            "name": "providerType",
             "schema": {
-              "example": "32b6e34b3d91647abb20e7b8",
-              "pattern": "^([a-f0-9]{24})$",
-              "type": "string"
-            }
-          },
-          {
-            "description": "A string that identifies the Atlas user to request rate limits for. The ID can for example be the Service Account Client ID or the API Public Key. When this parameter is provided, only user scoped endpoint sets are returned and the limits returned are applicable to the specified user. The requesting user must be the same as the specified user.",
-            "in": "query",
-            "name": "userId",
-            "schema": {
-              "example": "mdb_sa_id_1234567890abcdef12345678",
-              "type": "string"
-            }
-          },
-          {
-            "description": "An IP address to request rate limits for. When this parameter is provided, only IP scoped endpoint sets are returned and the limits returned are applicable to the specified IP address. The requesting user must have the same IP address as the one provided in the request.",
-            "in": "query",
-            "name": "ipAddress",
-            "schema": {
-              "example": "127.0.0.1",
-              "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filters the returned endpoint sets by the provided endpoint set name. Multiple names may be provided, for example `/rateLimits?name=Name1&name=Name2`. For names that use spaces, replace the space with its URL-encoded value (`%20`).",
-            "in": "query",
-            "name": "name",
-            "schema": {
-              "example": "Rate Limits Inspection",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filters the returned endpoint sets by the provided endpoint path. Multiple paths may be provided, for example `/rateLimits?endpointPath=%2Fapi%2Fatlas%2Fv2%2Fclusters&endpointPath=%2Fapi%2Fatlas%2Fv2%2Fgroups%2F%7BgroupId%7D%2F`. Replace `/`, `{` and `}` with their URL-encoded values (`%2F`, `%7B` and `%7D` respectively).",
-            "in": "query",
-            "name": "endpointPath",
-            "schema": {
-              "example": "/api/atlas/v2/clusters",
               "type": "string"
             }
           }
@@ -968,13 +833,13 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedRateLimitEndpointSets"
+                  "$ref": "#/components/schemas/PaginatedMetricIntegrationResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "rate-limit",
+                  "name": "metric-integrations",
                   "public": "false"
                 },
-                "x-xgen-version": "private-preview-rate-limit"
+                "x-xgen-version": "private-preview-metric-integrations"
               }
             },
             "description": "OK",
@@ -996,6 +861,9 @@
           "403": {
             "$ref": "#/components/responses/forbidden"
           },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
           "429": {
             "$ref": "#/components/responses/tooManyRequests"
           },
@@ -1003,94 +871,247 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return All Rate Limits",
+        "summary": "Return All Active Metric Integrations",
         "tags": [
-          "Rate Limiting"
+          "Metric Integrations"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api rateLimiting listRateLimits --help"
+            "source": "atlas api metricIntegrations listGroupMetricIntegrations --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/rateLimits?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/rateLimits?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations?pretty=true\""
           }
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-sunset": "2026-04-19",
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/listRateLimits"
-      }
-    },
-    "/api/atlas/v2/rateLimits/{endpointSetId}": {
-      "get": {
-        "deprecated": true,
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Get one rate limit endpoint set. Deprecated versions: v2-{2025-03-12}",
-        "operationId": "getRateLimit",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/listGroupMetricIntegrations"
+      },
+      "post": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Creates a new metric integration configuration identified by a unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
+        "operationId": "createGroupMetricIntegration",
         "parameters": [
           {
-            "description": "The ID of the rate limit endpoint set.",
-            "in": "path",
-            "name": "endpointSetId",
-            "required": true,
-            "schema": {
-              "example": "rateLimitsInspection_group",
-              "type": "string"
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MetricIntegrationRequest"
+              },
+              "x-xgen-preview": {
+                "name": "metric-integrations",
+                "public": "false"
+              },
+              "x-xgen-version": "private-preview-metric-integrations"
             }
+          },
+          "description": "Metric integration configuration to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricIntegrationResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "metric-integrations",
+                  "public": "false"
+                },
+                "x-xgen-version": "private-preview-metric-integrations"
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Metric Integration",
+        "tags": [
+          "Metric Integrations"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api metricIntegrations createGroupMetricIntegration --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/createGroupMetricIntegration"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}": {
+      "delete": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Removes the configuration for one metric integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
+        "operationId": "deleteGroupMetricIntegration",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
           },
           {
             "$ref": "#/components/parameters/pretty"
           },
           {
+            "description": "Unique identifier of the metric integration configuration.",
+            "in": "path",
+            "name": "metricIntegrationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "metric-integrations",
+                  "public": "false"
+                },
+                "x-xgen-version": "private-preview-metric-integrations"
+              }
+            },
+            "description": "This endpoint does not return a response body.",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Remove One Metric Integration",
+        "tags": [
+          "Metric Integrations"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api metricIntegrations deleteGroupMetricIntegration --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}\""
+          }
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/deleteGroupMetricIntegration"
+      },
+      "get": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns the configuration for one metric integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
+        "operationId": "getGroupMetricIntegration",
+        "parameters": [
+          {
             "$ref": "#/components/parameters/envelope"
           },
           {
-            "description": "Unique 24-hexadecimal digit string that identifies the Atlas Project to request rate limits for. When this parameter is provided, the limits returned are applicable to the specified project. The requesting user must have the Project Read Only role for the specified project.",
-            "in": "query",
-            "name": "groupId",
-            "schema": {
-              "example": "32b6e34b3d91647abb20e7b8",
-              "pattern": "^([a-f0-9]{24})$",
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/groupId"
           },
           {
-            "description": "Unique 24-hexadecimal digit string that identifies the Atlas Organization to request rate limits for. When this parameter is provided, the limits returned are applicable to the specified organization. The requesting user must have the Organization Read Only role for the specified organization.",
-            "in": "query",
-            "name": "orgId",
-            "schema": {
-              "example": "32b6e34b3d91647abb20e7b8",
-              "pattern": "^([a-f0-9]{24})$",
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "A string that identifies the Atlas user to request rate limits for. The ID can for example be the Service Account Client ID or the API Public Key. When this parameter is provided, the limits returned are applicable to the specified  user. The requesting user must be the same as the specified user.",
-            "in": "query",
-            "name": "userId",
+            "description": "Unique identifier of the metric integration configuration.",
+            "in": "path",
+            "name": "metricIntegrationId",
+            "required": true,
             "schema": {
-              "example": "mdb_sa_id_1234567890abcdef12345678",
-              "type": "string"
-            }
-          },
-          {
-            "description": "An IP address to request rate limits for. When this parameter is provided, the limits returned are applicable to the specified IP address. The requesting user must have the same IP address as the one provided in the request.",
-            "in": "query",
-            "name": "ipAddress",
-            "schema": {
-              "example": "127.0.0.1",
-              "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
               "type": "string"
             }
           }
@@ -1100,13 +1121,13 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RateLimitEndpointSetResponse"
+                  "$ref": "#/components/schemas/MetricIntegrationResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "rate-limit",
+                  "name": "metric-integrations",
                   "public": "false"
                 },
-                "x-xgen-version": "private-preview-rate-limit"
+                "x-xgen-version": "private-preview-metric-integrations"
               }
             },
             "description": "OK",
@@ -1138,57 +1159,85 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return One Rate Limit",
+        "summary": "Return One Metric Integration",
         "tags": [
-          "Rate Limiting"
+          "Metric Integrations"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api rateLimiting getRateLimit --help"
+            "source": "atlas api metricIntegrations getGroupMetricIntegration --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/rateLimits/{endpointSetId}?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/rateLimits/{endpointSetId}?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}?pretty=true\""
           }
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-sunset": "2026-04-19",
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/getRateLimit"
-      }
-    },
-    "/api/atlas/v2/unauth/ratelimits": {
-      "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Retrieve rate limiting bucket state for unauthenticated requests.",
-        "operationId": "listRatelimits",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/getGroupMetricIntegration"
+      },
+      "put": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Updates the configuration for one metric integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.",
+        "operationId": "updateGroupMetricIntegration",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Unique identifier of the metric integration configuration.",
+            "in": "path",
+            "name": "metricIntegrationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MetricIntegrationUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "metric-integrations",
+                "public": "false"
+              },
+              "x-xgen-version": "private-preview-metric-integrations"
+            }
+          },
+          "description": "Updated metric integration configuration.",
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AtlasRateLimitInspectionResponse"
+                  "$ref": "#/components/schemas/MetricIntegrationResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "rate-limit",
+                  "name": "metric-integrations",
                   "public": "false"
                 },
-                "x-xgen-version": "private-preview-rate-limit"
+                "x-xgen-version": "private-preview-metric-integrations"
               }
             },
             "description": "OK",
@@ -1220,111 +1269,33 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return Rate Limit State for Unauthenticated Requests",
+        "summary": "Update One Metric Integration",
         "tags": [
-          "Rate Limit"
+          "Metric Integrations"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api rateLimit listRatelimits --help"
+            "source": "atlas api metricIntegrations updateGroupMetricIntegration --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/unauth/ratelimits?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PUT \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}\" \\\n  -d '{ <Payload> }'"
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/unauth/ratelimits?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PUT \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}\" \\\n  -d '{ <Payload> }'"
           }
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/listRatelimits"
-      }
-    },
-    "/api/atlas/v2/userRateLimits": {
-      "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Retrieve rate limiting bucket state for the current user.",
-        "operationId": "listUserRatelimits",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AtlasRateLimitInspectionResponse"
-                },
-                "x-xgen-preview": {
-                  "name": "rate-limit",
-                  "public": "false"
-                },
-                "x-xgen-version": "private-preview-rate-limit"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return Rate Limit State for One User",
-        "tags": [
-          "Rate Limit"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api rateLimit listUserRatelimits --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/userRateLimits?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/userRateLimits?pretty=true\""
-          }
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limit/operation/listUserRatelimits"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/updateGroupMetricIntegration"
       }
     }
   },
@@ -1343,12 +1314,8 @@
   ],
   "tags": [
     {
-      "description": "Returns details about rate limit policies for the Atlas Administration API.",
-      "externalDocs": {
-        "description": "Atlas API Rate Limits documentation",
-        "url": "http://dochub.mongodb.org/core/atlas-api-rate-limit"
-      },
-      "name": "Rate Limiting"
+      "description": "Returns, creates, updates, and removes metric integration configurations for a project.",
+      "name": "Metric Integrations"
     }
   ],
   "x-externalLinks": [
