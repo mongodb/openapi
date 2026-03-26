@@ -398,22 +398,147 @@
       }
     },
     "schemas": {
-      "ApiChartsDashboardImportResponseView": {
-        "description": "Imported dashboard and associated imported items.",
+      "ApiAtlasCollectionRestoreJobResponse": {
+        "description": "Collection restore job summary including the list of databases and collections in the restore scope (up to 100 items each).",
         "properties": {
-          "dashboard": {
-            "$ref": "#/components/schemas/ImportedDashboard"
+          "collectionSuffix": {
+            "description": "Suffix applied to restored collection names.",
+            "readOnly": true,
+            "type": "string"
           },
-          "items": {
-            "description": "Imported items.",
+          "collections": {
+            "description": "List of collections in the restore scope (up to 100 items).",
             "items": {
-              "$ref": "#/components/schemas/ImportedItem"
+              "$ref": "#/components/schemas/ApiAtlasRestoreNamespaceView"
             },
+            "maxItems": 100,
+            "readOnly": true,
             "type": "array"
+          },
+          "createdAt": {
+            "description": "Date and time when the restore job was created (ISO 8601 format in UTC).",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "databaseSuffix": {
+            "description": "Suffix applied to restored database names.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "databases": {
+            "description": "List of databases in the restore scope (up to 100 items).",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasRestoreNamespaceView"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array"
+          },
+          "errorMessage": {
+            "description": "Error message when the job has failed or been canceled.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "finishedAt": {
+            "description": "Date and time when the restore job finished (ISO 8601 format in UTC).",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies the collection restore job.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "indexStrategy": {
+            "description": "Strategy for restoring indexes (all, none, or all except TTL).",
+            "enum": [
+              "ALL",
+              "NONE",
+              "ALL_EXCEPT_TTL"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "oplogInc": {
+            "description": "Oplog increment for point-in-time restore.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "oplogTs": {
+            "description": "Oplog timestamp (seconds part) for point-in-time restore.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "overwriteStrategy": {
+            "description": "Strategy for overwriting existing data (new if exists or overwrite if exists).",
+            "enum": [
+              "NEW_IF_EXISTS",
+              "OVERWRITE_IF_EXISTS"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "pointInTimeUtcSeconds": {
+            "description": "Point-in-time restore time in seconds since UNIX epoch.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "snapshotId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the snapshot being restored.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "state": {
+            "description": "Current state of the collection restore job.",
+            "enum": [
+              "INITIALIZING",
+              "IN_PROGRESS",
+              "FINALIZING",
+              "SUCCESSFUL",
+              "CANCELED",
+              "FAILED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "targetClusterName": {
+            "description": "Human-readable label that identifies the target cluster.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "targetGroupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the target group.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiAtlasRestoreNamespaceView": {
+        "description": "Source and optional target namespace for a restore.",
+        "properties": {
+          "sourceNamespace": {
+            "description": "Namespace requested to restore (e.g. database name or `database.collection`).",
+            "type": "string"
+          },
+          "targetNamespace": {
+            "description": "Requested target namespace for the restored data; if empty, source namespace is used.",
+            "type": "string"
           }
         },
         "required": [
-          "items"
+          "sourceNamespace"
         ],
         "type": "object"
       },
@@ -491,47 +616,53 @@
         ],
         "type": "object"
       },
-      "ImportedDashboard": {
-        "description": "Imported dashboard.",
+      "Link": {
         "properties": {
-          "embeddingId": {
-            "description": "Embedding ID of the item. This field only returns if embedding is enabled for the entity.",
+          "href": {
+            "description": "Uniform Resource Locator (URL) that points another API resource to which this response has some relationship. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
+            "example": "https://cloud.mongodb.com/api/atlas",
             "type": "string"
           },
-          "id": {
-            "description": "ID of the dashboard.",
-            "type": "string"
-          },
-          "title": {
-            "description": "Title of the dashboard.",
+          "rel": {
+            "description": "Uniform Resource Locator (URL) that defines the semantic relationship between this resource and another API resource. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
+            "example": "self",
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "title"
-        ],
         "type": "object"
       },
-      "ImportedItem": {
-        "description": "Imported Item.",
+      "PaginatedApiAtlasCollectionRestoreJobView": {
         "properties": {
-          "embeddingId": {
-            "description": "Embedding ID of the item. This will only be returned if embedding is enabled for the entity.",
-            "type": "string"
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
           },
-          "id": {
-            "description": "ID of the item.",
-            "type": "string"
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
+            },
+            "readOnly": true,
+            "type": "array"
           },
-          "title": {
-            "description": "Title of the item.",
-            "type": "string"
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
           }
         },
         "required": [
-          "id",
-          "title"
+          "results"
         ],
         "type": "object"
       }
@@ -554,7 +685,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses OAuth2 Service Accounts or HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.private-preview-charts-dashboards+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API uses OAuth2 Service Accounts or HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:\n\n```\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" \\\n  --digest \\\n  --header \"Accept: application/vnd.atlas.private-preview-collection-restore-jobs+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true\"\n```\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -566,10 +697,10 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export": {
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Exports the specified Charts dashboard. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
-        "operationId": "exportGroupChartsDashboard",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all collection restore jobs for one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.",
+        "operationId": "listGroupClusterCollectionRestoreJobs",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -578,11 +709,21 @@
             "$ref": "#/components/parameters/groupId"
           },
           {
-            "description": "ID of the dashboard to export.",
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster with the collection restore jobs you want to return.",
             "in": "path",
-            "name": "dashboardId",
+            "name": "clusterName",
             "required": true,
             "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
               "type": "string"
             }
           }
@@ -592,17 +733,23 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "description": "This resource returns an exported Charts dashboard. You can use this response to import to the Charts Dashboard Import endpoint.",
-                  "type": "string"
+                  "$ref": "#/components/schemas/PaginatedApiAtlasCollectionRestoreJobView"
                 },
                 "x-xgen-preview": {
-                  "name": "charts-dashboards",
-                  "public": "false"
+                  "name": "collection-restore-jobs"
                 },
-                "x-xgen-version": "private-preview-charts-dashboards"
+                "x-xgen-version": "private-preview-collection-restore-jobs"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -623,40 +770,40 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Export One Charts Dashboard",
+        "summary": "Return All Collection Restore Jobs for One Cluster",
         "tags": [
-          "Charts Dashboards"
+          "Cloud Backups"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api chartsDashboards exportChartsDashboard --help"
+            "source": "atlas api cloudBackups listCollectionRestoreJobs --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs?pretty=true\""
           }
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/exportGroupChartsDashboard",
-        "x-xgen-operation-id-override": "exportChartsDashboard"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterCollectionRestoreJobs",
+        "x-xgen-operation-id-override": "listCollectionRestoreJobs"
       }
     },
-    "/api/atlas/v2/groups/{groupId}/chartsDashboards:import": {
-      "post": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Imports the Charts dashboard that the template specifies. Optionally, you can specify `overwrite=true` to import into an existing dashboard. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
-        "operationId": "importGroupChartsDashboards",
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}": {
+      "get": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns one collection restore job for one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.",
+        "operationId": "getGroupClusterCollectionRestoreJob",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -665,81 +812,51 @@
             "$ref": "#/components/parameters/groupId"
           },
           {
-            "description": "Setting this to true enables importing into an existing dashboard.",
-            "in": "query",
-            "name": "overwrite",
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster with the collection restore jobs you want to return.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
             "schema": {
-              "type": "boolean"
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the collection restore job to return.",
+            "in": "path",
+            "name": "jobId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.preview+json": {
-              "examples": {
-                "Sample import response body": {
-                  "description": "Sample import response body",
-                  "value": {
-                    "dashboards": {
-                      "dashboard-1": {
-                        "description": "Dashboard description",
-                        "embedding": {
-                          "anonymousAuthEnabled": true
-                        },
-                        "filters": [],
-                        "layout": [],
-                        "title": "Dashboard title"
-                      }
-                    },
-                    "dataSources": {
-                      "data-source-1": {
-                        "alias": "Sample Data: Movies",
-                        "collection": "movies",
-                        "database": "sample_data",
-                        "deployment": "sample-data-cluster",
-                        "sourceType": "cluster"
-                      }
-                    },
-                    "exportVersion": 9,
-                    "items": {
-                      "item-1": {
-                        "calculatedFields": [],
-                        "query": null,
-                        "sample": false
-                      }
-                    },
-                    "queries": {}
-                  }
-                }
-              },
-              "schema": {
-                "type": "object"
-              },
-              "x-xgen-preview": {
-                "name": "charts-dashboards",
-                "public": "false"
-              },
-              "x-xgen-version": "private-preview-charts-dashboards"
-            }
-          },
-          "description": "Schema corresponding to the response fetched from an exported dashboard.",
-          "required": true
-        },
         "responses": {
           "200": {
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiChartsDashboardImportResponseView"
+                  "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "charts-dashboards",
-                  "public": "false"
+                  "name": "collection-restore-jobs"
                 },
-                "x-xgen-version": "private-preview-charts-dashboards"
+                "x-xgen-version": "private-preview-collection-restore-jobs"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -760,34 +877,34 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Import One Charts Dashboard",
+        "summary": "Return One Collection Restore Job for One Cluster",
         "tags": [
-          "Charts Dashboards"
+          "Cloud Backups"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api chartsDashboards importChartsDashboards --help"
+            "source": "atlas api cloudBackups getCollectionRestoreJob --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards:import\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards:import\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}?pretty=true\""
           }
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/importGroupChartsDashboards",
-        "x-xgen-operation-id-override": "importChartsDashboards"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterCollectionRestoreJob",
+        "x-xgen-operation-id-override": "getCollectionRestoreJob"
       }
     }
   },
@@ -806,8 +923,8 @@
   ],
   "tags": [
     {
-      "description": "Returns, adds, and edits Charts Dashboard instances. This resource applies only to projects with a Charts tenant, and requires your Project ID.",
-      "name": "Charts Dashboards"
+      "description": "Manages Cloud Backup snapshots, snapshot export buckets, restore jobs, and schedules. This resource applies only to clusters that use Cloud Backups.",
+      "name": "Cloud Backups"
     }
   ],
   "x-externalLinks": [

@@ -296,6 +296,121 @@ components:
                         $ref: '#/components/schemas/ApiError'
             description: Unauthorized.
     schemas:
+        ApiAtlasCollectionRestoreJobResponse:
+            description: Collection restore job summary including the list of databases and collections in the restore scope (up to 100 items each).
+            properties:
+                collectionSuffix:
+                    description: Suffix applied to restored collection names.
+                    readOnly: true
+                    type: string
+                collections:
+                    description: List of collections in the restore scope (up to 100 items).
+                    items:
+                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                    maxItems: 100
+                    readOnly: true
+                    type: array
+                createdAt:
+                    description: Date and time when the restore job was created (ISO 8601 format in UTC).
+                    format: date-time
+                    readOnly: true
+                    type: string
+                databaseSuffix:
+                    description: Suffix applied to restored database names.
+                    readOnly: true
+                    type: string
+                databases:
+                    description: List of databases in the restore scope (up to 100 items).
+                    items:
+                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                    maxItems: 100
+                    readOnly: true
+                    type: array
+                errorMessage:
+                    description: Error message when the job has failed or been canceled.
+                    readOnly: true
+                    type: string
+                finishedAt:
+                    description: Date and time when the restore job finished (ISO 8601 format in UTC).
+                    format: date-time
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies the collection restore job.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                indexStrategy:
+                    description: Strategy for restoring indexes (all, none, or all except TTL).
+                    enum:
+                        - ALL
+                        - NONE
+                        - ALL_EXCEPT_TTL
+                    readOnly: true
+                    type: string
+                oplogInc:
+                    description: Oplog increment for point-in-time restore.
+                    format: int32
+                    readOnly: true
+                    type: integer
+                oplogTs:
+                    description: Oplog timestamp (seconds part) for point-in-time restore.
+                    format: int32
+                    readOnly: true
+                    type: integer
+                overwriteStrategy:
+                    description: Strategy for overwriting existing data (new if exists or overwrite if exists).
+                    enum:
+                        - NEW_IF_EXISTS
+                        - OVERWRITE_IF_EXISTS
+                    readOnly: true
+                    type: string
+                pointInTimeUtcSeconds:
+                    description: Point-in-time restore time in seconds since UNIX epoch.
+                    format: int32
+                    readOnly: true
+                    type: integer
+                snapshotId:
+                    description: Unique 24-hexadecimal digit string that identifies the snapshot being restored.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                state:
+                    description: Current state of the collection restore job.
+                    enum:
+                        - INITIALIZING
+                        - IN_PROGRESS
+                        - FINALIZING
+                        - SUCCESSFUL
+                        - CANCELED
+                        - FAILED
+                    readOnly: true
+                    type: string
+                targetClusterName:
+                    description: Human-readable label that identifies the target cluster.
+                    readOnly: true
+                    type: string
+                targetGroupId:
+                    description: Unique 24-hexadecimal digit string that identifies the target group.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+            type: object
+        ApiAtlasRestoreNamespaceView:
+            description: Source and optional target namespace for a restore.
+            properties:
+                sourceNamespace:
+                    description: Namespace requested to restore (e.g. database name or `database.collection`).
+                    type: string
+                targetNamespace:
+                    description: Requested target namespace for the restored data; if empty, source namespace is used.
+                    type: string
+            required:
+                - sourceNamespace
+            type: object
         ApiError:
             properties:
                 badRequestDetail:
@@ -327,12 +442,6 @@ components:
             required:
                 - error
                 - errorCode
-            type: object
-        ApiVersion:
-            properties:
-                version:
-                    description: Object representing a version of the Atlas Admin API.
-                    type: string
             type: object
         BadRequestDetail:
             description: Bad request detail.
@@ -367,7 +476,7 @@ components:
                     example: self
                     type: string
             type: object
-        PaginatedApiVersions:
+        PaginatedApiAtlasCollectionRestoreJobView:
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -381,7 +490,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/ApiVersion'
+                        $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -413,7 +522,7 @@ info:
         ```
         curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
           --digest \
-          --header "Accept: application/vnd.atlas.private-preview-version-resource+json" \
+          --header "Accept: application/vnd.atlas.private-preview-collection-restore-jobs+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
         ```
 
@@ -429,78 +538,165 @@ info:
     x-xgen-sha: 890ff82724fdcb974f2377028e2cbe70f16bf7db
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/unauth/openapi/versions:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 API that provides a list of available versions for a given environment. Deprecated versions: v2-{2024-08-05}
-            operationId: listOpenapiVersions
+                 Returns all collection restore jobs for one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: listGroupClusterCollectionRestoreJobs
             parameters:
                 - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-                - description: The environment to get the versions from. If not provided, it returns the versions for the given MongoDB URL. (E.g. prod for cloud.mongodb.com).
-                  in: query
-                  name: env
+                - description: Human-readable label that identifies the cluster with the collection restore jobs you want to return.
+                  in: path
+                  name: clusterName
+                  required: true
                   schema:
-                    enum:
-                        - dev
-                        - qa
-                        - prod
-                        - stage
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
+                                $ref: '#/components/schemas/PaginatedApiAtlasCollectionRestoreJobView'
                             x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
-                        application/vnd.atlas.preview+yaml:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
-                            x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
+                                name: collection-restore-jobs
+                            x-xgen-version: private-preview-collection-restore-jobs
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return All Versions for One Environment
+            summary: Return All Collection Restore Jobs for One Cluster
             tags:
-                - OpenAPI
+                - Cloud Backups
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api openApi listOpenapiVersions --help
+                  source: atlas api cloudBackups listCollectionRestoreJobs --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs?pretty=true"
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterCollectionRestoreJobs
+            x-xgen-operation-id-override: listCollectionRestoreJobs
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns one collection restore job for one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: getGroupClusterCollectionRestoreJob
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster with the collection restore jobs you want to return.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the collection restore job to return.
+                  in: path
+                  name: jobId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
+                            x-xgen-preview:
+                                name: collection-restore-jobs
+                            x-xgen-version: private-preview-collection-restore-jobs
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Collection Restore Job for One Cluster
+            tags:
+                - Cloud Backups
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api cloudBackups getCollectionRestoreJob --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}?pretty=true"
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterCollectionRestoreJob
+            x-xgen-operation-id-override: getCollectionRestoreJob
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns information about the MongoDB Atlas Specification.
-      name: OpenAPI
+    - description: Manages Cloud Backup snapshots, snapshot export buckets, restore jobs, and schedules. This resource applies only to clusters that use Cloud Backups.
+      name: Cloud Backups
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
