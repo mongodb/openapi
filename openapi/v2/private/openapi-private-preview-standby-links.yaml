@@ -545,25 +545,36 @@ info:
     description: |-
         The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.
 
-        The Atlas Administration API uses OAuth2 Service Accounts or HTTP Digest Authentication to authenticate requests. Provide a programmatic API public key and corresponding private key as the username and password when constructing the HTTP request. For example, to [return database access history](#tag/Access-Tracking/operation/listAccessLogsByClusterName) with [cURL](https://en.wikipedia.org/wiki/CURL), run the following command in the terminal:
+        The Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.
+
+        To authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).
+
+        For example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:
 
         ```
-        curl --user "{PUBLIC-KEY}:{PRIVATE-KEY}" \
-          --digest \
+        ACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \
+          --header "Authorization: Basic $(printf '%s' "${CLIENT_ID}:${CLIENT_SECRET}" | base64 | tr -d '\n')" \
+          --header "Content-Type: application/x-www-form-urlencoded" \
+          --header "Accept: application/json" \
+          --data "grant_type=client_credentials" | jq -r '.access_token')
+
+        curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
           --header "Accept: application/vnd.atlas.private-preview-standby-links+json" \
-          -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/dbAccessHistory/clusters/{clusterName}?pretty=true"
+          -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
+
+        If your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.
 
         To learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).
 
-        You can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/).
+        You can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).
     license:
         name: CC BY-NC-SA 3.0 US
         url: https://creativecommons.org/licenses/by-nc-sa/3.0/us/
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 10dce8422adf7dc006815b52b5ae2032c93e57c5
+    x-xgen-sha: 0bce265c7a1af20419a843c3db1f2f145d24609a
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/standbyLinks:
