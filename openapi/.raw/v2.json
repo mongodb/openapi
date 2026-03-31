@@ -3028,12 +3028,95 @@
         },
         "type": "object"
       },
+      "ApiAtlasCollectionRestoreJobRequest": {
+        "description": "Request body for creating a collection restore job.",
+        "properties": {
+          "collectionSuffix": {
+            "description": "Optional suffix applied to restored collection names.",
+            "type": "string"
+          },
+          "collections": {
+            "description": "List of collections to restore (up to 100 items).",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasRestoreNamespaceView"
+            },
+            "maxItems": 100,
+            "type": "array"
+          },
+          "databaseSuffix": {
+            "description": "Optional suffix applied to restored database names.",
+            "type": "string"
+          },
+          "databases": {
+            "description": "List of databases to restore (up to 100 items).",
+            "items": {
+              "$ref": "#/components/schemas/ApiAtlasRestoreNamespaceView"
+            },
+            "maxItems": 100,
+            "type": "array"
+          },
+          "indexStrategy": {
+            "description": "Strategy for restoring indexes (all, none, or all except TTL).",
+            "enum": [
+              "ALL",
+              "NONE",
+              "ALL_EXCEPT_TTL"
+            ],
+            "type": "string"
+          },
+          "oplogInc": {
+            "description": "Oplog increment for point-in-time restore.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "oplogTs": {
+            "description": "Oplog timestamp (seconds part) for point-in-time restore.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "overwriteStrategy": {
+            "description": "Strategy for overwriting existing data (new if exists or overwrite if exists).",
+            "enum": [
+              "NEW_IF_EXISTS",
+              "OVERWRITE_IF_EXISTS"
+            ],
+            "type": "string"
+          },
+          "pointInTimeUtcSeconds": {
+            "description": "Point-in-time restore time in seconds since UNIX epoch.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "snapshotId": {
+            "description": "ID of the snapshot to restore.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "targetClusterName": {
+            "description": "Target cluster name.",
+            "type": "string"
+          },
+          "targetGroupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the target group.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "indexStrategy",
+          "overwriteStrategy",
+          "targetClusterName",
+          "targetGroupId"
+        ],
+        "type": "object"
+      },
       "ApiAtlasCollectionRestoreJobResponse": {
         "description": "Collection restore job summary including the list of databases and collections in the restore scope (up to 100 items each).",
         "properties": {
           "collectionSuffix": {
             "description": "Suffix applied to restored collection names.",
-            "readOnly": true,
             "type": "string"
           },
           "collections": {
@@ -3042,7 +3125,6 @@
               "$ref": "#/components/schemas/ApiAtlasRestoreNamespaceView"
             },
             "maxItems": 100,
-            "readOnly": true,
             "type": "array"
           },
           "createdAt": {
@@ -3053,7 +3135,6 @@
           },
           "databaseSuffix": {
             "description": "Suffix applied to restored database names.",
-            "readOnly": true,
             "type": "string"
           },
           "databases": {
@@ -3062,7 +3143,6 @@
               "$ref": "#/components/schemas/ApiAtlasRestoreNamespaceView"
             },
             "maxItems": 100,
-            "readOnly": true,
             "type": "array"
           },
           "errorMessage": {
@@ -3090,19 +3170,16 @@
               "NONE",
               "ALL_EXCEPT_TTL"
             ],
-            "readOnly": true,
             "type": "string"
           },
           "oplogInc": {
             "description": "Oplog increment for point-in-time restore.",
             "format": "int32",
-            "readOnly": true,
             "type": "integer"
           },
           "oplogTs": {
             "description": "Oplog timestamp (seconds part) for point-in-time restore.",
             "format": "int32",
-            "readOnly": true,
             "type": "integer"
           },
           "overwriteStrategy": {
@@ -3111,20 +3188,17 @@
               "NEW_IF_EXISTS",
               "OVERWRITE_IF_EXISTS"
             ],
-            "readOnly": true,
             "type": "string"
           },
           "pointInTimeUtcSeconds": {
             "description": "Point-in-time restore time in seconds since UNIX epoch.",
             "format": "int32",
-            "readOnly": true,
             "type": "integer"
           },
           "snapshotId": {
             "description": "Unique 24-hexadecimal digit string that identifies the snapshot being restored.",
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
             "type": "string"
           },
           "state": {
@@ -3142,14 +3216,12 @@
           },
           "targetClusterName": {
             "description": "Human-readable label that identifies the target cluster.",
-            "readOnly": true,
             "type": "string"
           },
           "targetGroupId": {
             "description": "Unique 24-hexadecimal digit string that identifies the target group.",
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
             "type": "string"
           }
         },
@@ -36678,10 +36750,6 @@
             ],
             "type": "string"
           },
-          "allMetricsEnabled": {
-            "description": "Flag that indicates whether to send all metrics to the integration. When true, `metricSelection` must be empty or not provided.",
-            "type": "boolean"
-          },
           "endpoint": {
             "description": "OpenTelemetry collector endpoint URL. Must use HTTPS.",
             "example": "https://otel-collector.example.com:4318/v1/metrics",
@@ -36705,14 +36773,15 @@
             "type": "string"
           },
           "metricSelection": {
-            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration. If omitted, this field is treated as an empty array. Required when `allMetricsEnabled` is false.",
+            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration.",
             "items": {
               "enum": [
                 "ATLAS_STREAM_PROCESSING"
               ],
               "type": "string"
             },
-            "maxItems": 3,
+            "maxItems": 30,
+            "minItems": 1,
             "type": "array",
             "uniqueItems": true
           },
@@ -36728,10 +36797,10 @@
         },
         "required": [
           "aggregationTemporality",
-          "allMetricsEnabled",
           "endpoint",
           "headers",
           "integrationType",
+          "metricSelection",
           "providerType"
         ],
         "title": "Metric Integration Request",
@@ -36747,10 +36816,6 @@
               "CUMULATIVE"
             ],
             "type": "string"
-          },
-          "allMetricsEnabled": {
-            "description": "Flag that indicates whether to send all metrics to the integration. When true, `metricSelection` must be empty or not provided.",
-            "type": "boolean"
           },
           "endpoint": {
             "description": "OpenTelemetry collector endpoint URL.",
@@ -36783,14 +36848,15 @@
             "type": "string"
           },
           "metricSelection": {
-            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration. If not applicable, this field is returned as an empty array.",
+            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration.",
             "items": {
               "enum": [
                 "ATLAS_STREAM_PROCESSING"
               ],
               "type": "string"
             },
-            "maxItems": 3,
+            "maxItems": 30,
+            "minItems": 1,
             "type": "array",
             "uniqueItems": true
           },
@@ -36806,7 +36872,6 @@
         },
         "required": [
           "aggregationTemporality",
-          "allMetricsEnabled",
           "endpoint",
           "headers",
           "integrationType",
@@ -36827,10 +36892,6 @@
               "CUMULATIVE"
             ],
             "type": "string"
-          },
-          "allMetricsEnabled": {
-            "description": "Flag that indicates whether to send all metrics to the integration. When true, `metricSelection` must be empty or not provided.",
-            "type": "boolean"
           },
           "endpoint": {
             "description": "OpenTelemetry collector endpoint URL. Must use HTTPS.",
@@ -36855,14 +36916,15 @@
             "type": "string"
           },
           "metricSelection": {
-            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration. If omitted, this field is treated as an empty array. Required when `allMetricsEnabled` is false.",
+            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration.",
             "items": {
               "enum": [
                 "ATLAS_STREAM_PROCESSING"
               ],
               "type": "string"
             },
-            "maxItems": 3,
+            "maxItems": 30,
+            "minItems": 1,
             "type": "array",
             "uniqueItems": true
           },
@@ -36878,10 +36940,10 @@
         },
         "required": [
           "aggregationTemporality",
-          "allMetricsEnabled",
           "endpoint",
           "headers",
           "integrationType",
+          "metricSelection",
           "providerType"
         ],
         "title": "Metric Integration Update Request",
@@ -57641,7 +57703,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "57a72f1b51c91dba1b0536ed9528bfe9e1c55c22"
+    "x-xgen-sha": "4d623427827491d5f6a399af37ccecddc2afa2fd"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -67999,6 +68061,98 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterCollectionRestoreJobs",
         "x-xgen-operation-id-override": "listCollectionRestoreJobs",
+        "x-xgen-owner-team": "Backup - Atlas"
+      },
+      "post": {
+        "description": "Creates one collection-level restore job for one cluster from the specified project. Collection-level restores allow restoring specific databases or collections from a snapshot or point-in-time. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role or Project Backup Recovery Operator role.",
+        "operationId": "createGroupClusterCollectionRestoreJob",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the source cluster for the restore.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobRequest"
+              },
+              "x-xgen-preview": {
+                "name": "collection-restore-jobs"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Creates one collection-level restore job for one cluster from the specified project.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "collection-restore-jobs"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Collection Restore Job",
+        "tags": [
+          "Cloud Backups"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/createGroupClusterCollectionRestoreJob",
+        "x-xgen-operation-id-override": "createCollectionRestoreJob",
         "x-xgen-owner-team": "Backup - Atlas"
       }
     },
