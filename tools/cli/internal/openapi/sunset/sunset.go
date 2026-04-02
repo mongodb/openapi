@@ -15,11 +15,6 @@
 package sunset
 
 import (
-	"maps"
-	"regexp"
-	"slices"
-	"sort"
-
 	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/load"
 )
@@ -45,30 +40,29 @@ func NewListFromSpec(spec *load.SpecInfo) []*Sunset {
 	for path, pathBody := range paths.Map() {
 		for operationName, operationBody := range pathBody.Operations() {
 			teamName := teamName(operationBody)
-			extensions := successResponseExtensions(operationBody.Responses.Map())
-			if extensions == nil {
-				continue
-			}
+			extensionsList := successResponseExtensions(operationBody.Responses.Map())
 
-			apiVersion, ok := extensions[apiVersionExtensionName]
-			if !ok {
-				continue
-			}
+			for _, extensions := range extensionsList {
+				apiVersion, ok := extensions[apiVersionExtensionName]
+				if !ok {
+					continue
+				}
 
-			sunsetExt, ok := extensions[sunsetExtensionName]
-			if !ok {
-				continue
-			}
+				sunsetExt, ok := extensions[sunsetExtensionName]
+				if !ok {
+					continue
+				}
 
-			sunset := Sunset{
-				Operation:  operationName,
-				Path:       path,
-				SunsetDate: sunsetExt.(string),
-				Version:    apiVersion.(string),
-				Team:       teamName,
-			}
+				sunset := Sunset{
+					Operation:  operationName,
+					Path:       path,
+					SunsetDate: sunsetExt.(string),
+					Version:    apiVersion.(string),
+					Team:       teamName,
+				}
 
-			sunsets = append(sunsets, &sunset)
+				sunsets = append(sunsets, &sunset)
+			}
 		}
 	}
 
@@ -95,7 +89,7 @@ func teamName(op *openapi3.Operation) string {
 // Returns:
 //   - A map of extension names to their values from the first successful response content,
 //     or nil if no successful responses are found or if none contain relevant extensions
-func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) map[string]any {
+func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) []map[string]any {
 	if val, ok := responsesMap["200"]; ok {
 		return contentExtensions(val.Value.Content)
 	}
@@ -112,36 +106,28 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) ma
 	return nil
 }
 
-// contentExtensions extracts extensions from OpenAPI content objects, prioritizing content entries
-// with the oldest date in their keys.
+// contentExtensions extracts extensions from all OpenAPI content entries that have a sunset extension.
 //
-// The function sorts content keys by date (in YYYY-MM-DD format) if present, with older dates taking
-// precedence. If multiple keys contain dates, it selects the entry with the earliest date.
+// The function iterates over all content entries and returns the extensions for each entry
+// that contains a sunset extension, allowing multiple API versions with different sunset
+// dates to be tracked independently.
 //
 // Parameters:
 //   - content: An OpenAPI content map with media types as keys and schema objects as values
 //
 // Returns:
-//   - A map of extension names to their values from the selected content entry,
-//     or nil if the content map is empty or the selected entry has no extensions
-//
-// Assumption: the older version will have the earliest sunset date.
-func contentExtensions(content openapi3.Content) map[string]any {
-	keysContent := slices.Collect(maps.Keys(content))
-	// Regex to find a date in YYYY-MM-DD format.
-	dateRegex := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
-	// we need the content of the API version with the older date.
-	sort.Slice(keysContent, func(i, j int) bool {
-		dateI := dateRegex.FindString(keysContent[i])
-		dateJ := dateRegex.FindString(keysContent[j])
-
-		// If both have dates, compare them as strings.
-		if dateI != "" && dateJ != "" {
-			return dateI < dateJ
+//   - A slice of extension maps, one per content entry that has a sunset extension,
+//     or nil if no entries have sunset extensions
+func contentExtensions(content openapi3.Content) []map[string]any {
+	var result []map[string]any
+	for _, mediaType := range content {
+		if mediaType.Extensions == nil {
+			continue
 		}
-		// Strings with dates should come before those without.
-		return dateI != ""
-	})
-
-	return content[keysContent[0]].Extensions
+		if _, ok := mediaType.Extensions[sunsetExtensionName]; !ok {
+			continue
+		}
+		result = append(result, mediaType.Extensions)
+	}
+	return result
 }
