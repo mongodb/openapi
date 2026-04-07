@@ -51391,6 +51391,52 @@
         "title": "Splunk Log Export Integration Response",
         "type": "object"
       },
+      "StartStreamProcessorWithPreviewView": {
+        "description": "A request to start a stream processor.",
+        "properties": {
+          "failover": {
+            "$ref": "#/components/schemas/StreamsStartProcessorFailover"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "resumeFromCheckpoint": {
+            "description": "When true or not specified, the stream processor resumes from its last checkpoint. When false, the stream processor starts fresh.",
+            "type": "boolean"
+          },
+          "startAtOperationTime": {
+            "description": "The operation time after which the change stream source should begin reporting. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "type": "string"
+          },
+          "tier": {
+            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "enum": [
+              "SP50",
+              "SP30",
+              "SP10",
+              "SP5",
+              "SP2"
+            ],
+            "title": "Stream Workspace Tier",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "StateReason": {
         "description": "State reason of the Job. This is set when the job state is \"Failed\".",
         "properties": {
@@ -53186,6 +53232,32 @@
           "provider",
           "schemaRegistryAuthentication",
           "schemaRegistryUrls"
+        ],
+        "type": "object"
+      },
+      "StreamsStartProcessorFailover": {
+        "description": "Failover options for starting a stream processor.",
+        "properties": {
+          "dryRun": {
+            "description": "If true, simulates the operation without making any changes.",
+            "type": "boolean"
+          },
+          "mode": {
+            "description": "Strategy for the processor: GRACEFUL - attempt to stop the processor, error if processor cannot be stopped. if stop was successful, start the processor in the new region with the latest checkpoint.  FORCED - attempt to stop the processor, proceed to starting the processor in the new region with checkpoints disabled regardless of whether or not the stop succeeds.",
+            "enum": [
+              "GRACEFUL",
+              "FORCED"
+            ],
+            "type": "string"
+          },
+          "region": {
+            "description": "Cloud provider region where the stream processor should be started in failover mode. The region must be a valid region for the stream processor's cloud provider and must be included in the tenant's configured failover regions, or it may be the tenant's default (primary) region.",
+            "example": "VIRGINIA_USA",
+            "type": "string"
+          }
+        },
+        "required": [
+          "region"
         ],
         "type": "object"
       },
@@ -57950,7 +58022,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "234b00294ee3ef312a783d9676ed786b20f74ce3"
+    "x-xgen-sha": "bbbf885cc375962e6a575daaf66f1ba8079ca574"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -94330,6 +94402,16 @@
                 "$ref": "#/components/schemas/StreamsStartStreamProcessorWith"
               },
               "x-xgen-version": "2025-03-12"
+            },
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartStreamProcessorWithPreviewView"
+              },
+              "x-xgen-preview": {
+                "name": "regional-failover",
+                "public": "false"
+              },
+              "x-xgen-version": "preview"
             }
           },
           "description": "Options for starting a stream processor."
@@ -94339,6 +94421,13 @@
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
                 "x-xgen-version": "2025-03-12"
+              },
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "regional-failover",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
