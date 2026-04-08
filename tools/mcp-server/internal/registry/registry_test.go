@@ -129,9 +129,12 @@ func TestRegistry_Remove(t *testing.T) {
 	reg := New()
 	spec := createTestSpec("Test API", "1.0.0")
 
-	reg.Add("test-api", "/path/to/test.yaml", spec, nil)
+	err := reg.Add("test-api", "/path/to/test.yaml", spec, nil)
+	if err != nil {
+		t.Fatalf("Failed to add spec: %v", err)
+	}
 
-	err := reg.Remove("test-api")
+	err = reg.Remove("test-api")
 	if err != nil {
 		t.Fatalf("Remove() failed: %v", err)
 	}
@@ -146,7 +149,7 @@ func TestRegistry_Remove(t *testing.T) {
 	}
 }
 
-// Helper function to create a test spec
+// Helper function to create a test spec.
 func createTestSpec(title, version string) *openapi3.T {
 	return &openapi3.T{
 		OpenAPI: "3.0.0",

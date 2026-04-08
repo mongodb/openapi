@@ -56,7 +56,7 @@ func New() *Registry {
 // - File + File with same alias, same path, different checksum: update
 // - Virtual + Virtual with same alias, different checksum: update
 // - Virtual + Virtual with same alias, same checksum: idempotent no-op
-// - File + Virtual or Virtual + File with same alias: collision error
+// - File + Virtual or Virtual + File with same alias: collision error.
 func (r *Registry) Add(alias, filePath string, spec *openapi3.T, metadata map[string]string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()

@@ -33,7 +33,7 @@ func Register(server *mcp.Server, reg *registry.Registry) {
 
 // makeLoadHandler creates the handler for the load tool.
 func makeLoadHandler(reg *registry.Registry) mcp.ToolHandlerFor[LoadParams, LoadResult] {
-	return func(ctx context.Context, req *mcp.CallToolRequest, params LoadParams) (*mcp.CallToolResult, LoadResult, error) {
+	return func(_ context.Context, _ *mcp.CallToolRequest, params LoadParams) (*mcp.CallToolResult, LoadResult, error) {
 		result, err := handleLoad(reg, params)
 		return nil, result, err
 	}
@@ -41,7 +41,7 @@ func makeLoadHandler(reg *registry.Registry) mcp.ToolHandlerFor[LoadParams, Load
 
 // makeUnloadHandler creates the handler for the unload tool.
 func makeUnloadHandler(reg *registry.Registry) mcp.ToolHandlerFor[UnloadParams, UnloadResult] {
-	return func(ctx context.Context, req *mcp.CallToolRequest, params UnloadParams) (*mcp.CallToolResult, UnloadResult, error) {
+	return func(_ context.Context, _ *mcp.CallToolRequest, params UnloadParams) (*mcp.CallToolResult, UnloadResult, error) {
 		result, err := handleUnload(reg, params)
 		return nil, result, err
 	}
@@ -49,7 +49,7 @@ func makeUnloadHandler(reg *registry.Registry) mcp.ToolHandlerFor[UnloadParams, 
 
 // makeExportHandler creates the handler for the export tool.
 func makeExportHandler(reg *registry.Registry) mcp.ToolHandlerFor[ExportParams, ExportResult] {
-	return func(ctx context.Context, req *mcp.CallToolRequest, params ExportParams) (*mcp.CallToolResult, ExportResult, error) {
+	return func(_ context.Context, _ *mcp.CallToolRequest, params ExportParams) (*mcp.CallToolResult, ExportResult, error) {
 		result, err := handleExport(reg, params)
 		return nil, result, err
 	}
