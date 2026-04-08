@@ -15,6 +15,8 @@
 package sunset
 
 import (
+	"sort"
+
 	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/load"
 )
@@ -65,6 +67,13 @@ func NewListFromSpec(spec *load.SpecInfo) []*Sunset {
 			}
 		}
 	}
+
+	sort.Slice(sunsets, func(i, j int) bool {
+		if sunsets[i].SunsetDate != sunsets[j].SunsetDate {
+			return sunsets[i].SunsetDate < sunsets[j].SunsetDate
+		}
+		return sunsets[i].Version < sunsets[j].Version
+	})
 
 	return sunsets
 }
