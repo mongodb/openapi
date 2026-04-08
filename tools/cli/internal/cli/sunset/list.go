@@ -53,12 +53,15 @@ func (o *ListOpts) Run() error {
 		return err
 	}
 
-	// order sunset elements per Path,Operation in ascending order
+	// order sunset elements per Path, Operation, SunsetDate in ascending order
 	sort.Slice(sunsets, func(i, j int) bool {
 		if sunsets[i].Path != sunsets[j].Path {
 			return sunsets[i].Path < sunsets[j].Path
 		}
-		return sunsets[i].Operation < sunsets[j].Operation
+		if sunsets[i].Operation != sunsets[j].Operation {
+			return sunsets[i].Operation < sunsets[j].Operation
+		}
+		return sunsets[i].SunsetDate < sunsets[j].SunsetDate
 	})
 
 	bytes, err := o.newSunsetListBytes(sunsets)

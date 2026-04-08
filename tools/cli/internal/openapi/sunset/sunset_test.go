@@ -238,7 +238,7 @@ func TestNewExtensionsFrom2xxResponse(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result := successResponseExtensions(test.responsesMap)
+			result := sunsetExtensionsFromResponses(test.responsesMap)
 			assert.Equal(t, test.expected, result)
 		})
 	}
