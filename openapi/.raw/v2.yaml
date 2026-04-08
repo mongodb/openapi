@@ -3886,24 +3886,12 @@ components:
                     format: double
                     readOnly: true
                     type: number
-                generatedAt:
-                    description: Date and time when this readiness snapshot was computed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    format: date-time
-                    readOnly: true
-                    type: string
                 groupId:
                     description: Unique 24-hexadecimal digit string that identifies the project that owns the standby link.
                     example: 69af15ed46c6ab2dbf1c3d0e
                     pattern: ^([a-f0-9]{24})$
                     readOnly: true
                     type: string
-                replicationLags:
-                    description: Ordered list of per-stage replication lag metrics in the active-to-storage-to-standby path.
-                    items:
-                        $ref: '#/components/schemas/ApiStandbyLinkReplicationStage'
-                    maxItems: 10
-                    readOnly: true
-                    type: array
                 standbyLinkId:
                     description: Unique 24-hexadecimal digit string that identifies the standby link described by this readiness snapshot.
                     example: 6655f1f77bcf86cd79943901
@@ -3913,9 +3901,7 @@ components:
             required:
                 - estimatedDataLossSeconds
                 - estimatedFailoverTimeSeconds
-                - generatedAt
                 - groupId
-                - replicationLags
                 - standbyLinkId
             type: object
         ApiStandbyLinkFailoverRequest:
@@ -3981,28 +3967,6 @@ components:
                         - PLANNED
                     type: string
             type: object
-        ApiStandbyLinkReplicationStage:
-            properties:
-                lagSeconds:
-                    description: Replication lag for this replication stage in seconds.
-                    example: 1
-                    format: double
-                    readOnly: true
-                    type: number
-                name:
-                    $ref: '#/components/schemas/ApiStandbyLinkReplicationStageName'
-            required:
-                - lagSeconds
-                - name
-            type: object
-        ApiStandbyLinkReplicationStageName:
-            description: Identifier for the replication stage.
-            enum:
-                - ACTIVE_TO_STORAGE
-                - STORAGE_TO_STANDBY
-                - ACTIVE_TO_STANDBY
-            readOnly: true
-            type: string
         ApiStandbyLinkRequest:
             description: Request body for creating a standby link between clusters.
             properties:
@@ -45310,7 +45274,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 5e08ccac2ba48803883ebe4a3b38a864f01b5097
+    x-xgen-sha: 9d4c4dfc1252b91d6239fd2cf141441883cfa798
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -67251,7 +67215,7 @@ paths:
             x-xgen-owner-team: Standby Clusters
     /api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}:inspectFailoverReadiness:
         get:
-            description: Returns the failover readiness metrics for the specified standby link in the specified project. The response includes the readiness snapshot identifiers, estimated data loss and failover time values, and ordered per-stage replication lag metrics in seconds. Use this endpoint to assess potential data loss before triggering an unplanned failover.
+            description: Returns the failover readiness metrics for the specified standby link in the specified project. The response includes the readiness snapshot identifiers, estimated data loss and failover time values. Use this endpoint to assess potential data loss before triggering an unplanned failover.
             operationId: inspectGroupStandbyLinkFailoverReadiness
             parameters:
                 - description: Unique 24-hexadecimal digit string that identifies the project.
@@ -67294,6 +67258,15 @@ paths:
                     $ref: '#/components/responses/notFound'
                 "500":
                     $ref: '#/components/responses/internalServerError'
+                "503":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiError'
+                            x-xgen-preview:
+                                name: standby-links
+                            x-xgen-version: preview
+                    description: Service Unavailable.
             summary: Inspect Failover Readiness for One Standby Link
             tags:
                 - Standby Links
