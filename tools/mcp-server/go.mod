@@ -2,8 +2,6 @@ module github.com/mongodb/openapi/tools/mcp-server
 
 go 1.26
 
-toolchain go1.26.0
-
 require (
 	github.com/modelcontextprotocol/go-sdk v1.5.0
 	github.com/mongodb/openapi/tools/cli v0.0.0

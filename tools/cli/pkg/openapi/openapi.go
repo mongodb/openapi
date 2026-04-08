@@ -42,6 +42,6 @@ func (l *Loader) LoadFromPath(path string) (*load.SpecInfo, error) {
 
 // SaveToFile saves an OpenAPI spec to a file in the specified format.
 // Format can be "json", "yaml", or "all".
-func SaveToFile(path string, format string, spec *openapi3.T, fs afero.Fs) error {
+func SaveToFile(path, format string, spec *openapi3.T, fs afero.Fs) error {
 	return openapi.Save(path, spec, format, fs)
 }
