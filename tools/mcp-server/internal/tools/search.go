@@ -13,9 +13,9 @@ import (
 type SearchParams struct {
 	Alias         string   `json:"alias" jsonschema:"Alias of the spec to search"`
 	Pattern       string   `json:"pattern" jsonschema:"Regular expression pattern to search for"`
-	SearchIn      []string `json:"searchIn,omitempty" jsonschema:"Optional: categories to search (operations, schemas, parameters, responses, tags, paths). Default: all"`
-	CaseSensitive bool     `json:"caseSensitive,omitempty" jsonschema:"Optional: case-sensitive search (default: false)"`
-	Limit         int      `json:"limit,omitempty" jsonschema:"Optional: maximum results per category (default: 100)"`
+	SearchIn      []string `json:"searchIn,omitempty" jsonschema:"Optional: categories to search"`
+	CaseSensitive bool     `json:"caseSensitive,omitempty" jsonschema:"Optional: case-sensitive search"`
+	Limit         int      `json:"limit,omitempty" jsonschema:"Optional: max results per category"`
 }
 
 // SearchResult is the result of a search operation.
@@ -205,7 +205,7 @@ func handleSearch(reg *registry.Registry, params SearchParams) (SearchResult, er
 	}
 
 	// Apply per-category pagination
-	result = applyPagination(result, params.Limit)
+	applyPagination(&result, params.Limit)
 
 	return result, nil
 }
@@ -445,7 +445,7 @@ func searchPaths(spec *openapi3.T, re *regexp.Regexp) []PathMatch {
 }
 
 // applyPagination applies per-category limit to search results.
-func applyPagination(result SearchResult, limit int) SearchResult {
+func applyPagination(result *SearchResult, limit int) {
 	// Store counts before truncation
 	totalMatches := result.totalCount()
 	categoryCounts := result.categoryCounts()
@@ -484,6 +484,4 @@ func applyPagination(result SearchResult, limit int) SearchResult {
 		CategoryCounts:  categoryCounts,
 		CategoryHasMore: categoryHasMore,
 	}
-
-	return result
 }

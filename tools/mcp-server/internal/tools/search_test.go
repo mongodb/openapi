@@ -150,6 +150,7 @@ func createTestSpec() *openapi3.T {
 
 // setupTestRegistry creates a registry with the test spec loaded.
 func setupTestRegistry(t *testing.T) *registry.Registry {
+	t.Helper()
 	reg := registry.New()
 	spec := createTestSpec()
 	err := reg.Add("test-api", "/test/api.yaml", spec, nil)
@@ -159,7 +160,7 @@ func setupTestRegistry(t *testing.T) *registry.Registry {
 	return reg
 }
 
-// ExpectedResults defines expected search results for table-driven tests
+// ExpectedResults defines expected search results for table-driven tests.
 type ExpectedResults struct {
 	Operations []string
 	Schemas    []string
@@ -169,8 +170,8 @@ type ExpectedResults struct {
 	TotalCount int
 }
 
-// assertSearchResults verifies all aspects of search results
-func assertSearchResults(t *testing.T, result SearchResult, expected ExpectedResults) {
+// assertSearchResults verifies all aspects of search results.
+func assertSearchResults(t *testing.T, result *SearchResult, expected *ExpectedResults) {
 	t.Helper()
 	assertExactOperationIDs(t, result.Operations, expected.Operations)
 	assertExactSchemaNames(t, result.Schemas, expected.Schemas)
@@ -193,7 +194,7 @@ func assertSearchResults(t *testing.T, result SearchResult, expected ExpectedRes
 	}
 }
 
-// assertExactOperationIDs verifies the exact set of operation IDs
+// assertExactOperationIDs verifies the exact set of operation IDs.
 func assertExactOperationIDs(t *testing.T, operations []OperationMatch, expectedIDs []string) {
 	t.Helper()
 	if len(operations) != len(expectedIDs) {
@@ -202,8 +203,8 @@ func assertExactOperationIDs(t *testing.T, operations []OperationMatch, expected
 		t.Logf("Expected: %v", expectedIDs)
 	}
 	found := make(map[string]bool)
-	for _, op := range operations {
-		found[op.OperationID] = true
+	for i := range operations {
+		found[operations[i].OperationID] = true
 	}
 	for _, expectedID := range expectedIDs {
 		if !found[expectedID] {
@@ -214,14 +215,14 @@ func assertExactOperationIDs(t *testing.T, operations []OperationMatch, expected
 	for _, id := range expectedIDs {
 		expectedSet[id] = true
 	}
-	for _, op := range operations {
-		if !expectedSet[op.OperationID] {
-			t.Errorf("Unexpected operation ID '%s' found", op.OperationID)
+	for i := range operations {
+		if !expectedSet[operations[i].OperationID] {
+			t.Errorf("Unexpected operation ID '%s' found", operations[i].OperationID)
 		}
 	}
 }
 
-// assertExactSchemaNames verifies the exact set of schema names
+// assertExactSchemaNames verifies the exact set of schema names.
 func assertExactSchemaNames(t *testing.T, schemas []SchemaMatch, expectedNames []string) {
 	t.Helper()
 	if len(schemas) != len(expectedNames) {
@@ -240,7 +241,7 @@ func assertExactSchemaNames(t *testing.T, schemas []SchemaMatch, expectedNames [
 	}
 }
 
-// assertExactParameterNames verifies the exact set of parameter names
+// assertExactParameterNames verifies the exact set of parameter names.
 func assertExactParameterNames(t *testing.T, parameters []ParameterMatch, expectedNames []string) {
 	t.Helper()
 	if len(parameters) != len(expectedNames) {
@@ -259,7 +260,7 @@ func assertExactParameterNames(t *testing.T, parameters []ParameterMatch, expect
 	}
 }
 
-// assertExactPaths verifies the exact set of paths
+// assertExactPaths verifies the exact set of paths.
 func assertExactPaths(t *testing.T, paths []PathMatch, expectedPaths []string) {
 	t.Helper()
 	if len(paths) != len(expectedPaths) {
@@ -278,11 +279,11 @@ func assertExactPaths(t *testing.T, paths []PathMatch, expectedPaths []string) {
 	}
 }
 
-// Helper functions to extract names/IDs for logging
+// Helper functions to extract names/IDs for logging.
 func getOperationIDs(operations []OperationMatch) []string {
 	ids := make([]string, len(operations))
-	for i, op := range operations {
-		ids[i] = op.OperationID
+	for i := range operations {
+		ids[i] = operations[i].OperationID
 	}
 	return ids
 }
@@ -335,10 +336,11 @@ func TestHandleSearch_Patterns(t *testing.T) {
 				TotalCount: 8,
 			},
 			checkFn: func(t *testing.T, result SearchResult) {
+				t.Helper()
 				// Verify matchedIn is populated
-				for _, op := range result.Operations {
-					if len(op.MatchedIn) == 0 {
-						t.Errorf("Expected matchedIn populated for %s", op.OperationID)
+				for i := range result.Operations {
+					if len(result.Operations[i].MatchedIn) == 0 {
+						t.Errorf("Expected matchedIn populated for %s", result.Operations[i].OperationID)
 					}
 				}
 			},
@@ -358,6 +360,7 @@ func TestHandleSearch_Patterns(t *testing.T) {
 				TotalCount: 8,
 			},
 			checkFn: func(t *testing.T, result SearchResult) {
+				t.Helper()
 				// Verify Cluster schema matched by both name and property
 				if len(result.Schemas) > 0 {
 					schema := result.Schemas[0]
@@ -421,7 +424,7 @@ func TestHandleSearch_Patterns(t *testing.T) {
 				t.Error("Expected success=true")
 			}
 
-			assertSearchResults(t, result, tt.expected)
+			assertSearchResults(t, &result, &tt.expected)
 
 			if tt.checkFn != nil {
 				tt.checkFn(t, result)
@@ -603,7 +606,7 @@ func TestHandleSearch_SearchInFilter(t *testing.T) {
 				t.Fatalf("handleSearch() failed: %v", err)
 			}
 
-			assertSearchResults(t, result, tt.expected)
+			assertSearchResults(t, &result, &tt.expected)
 		})
 	}
 }
