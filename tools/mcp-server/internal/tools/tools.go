@@ -29,6 +29,13 @@ func Register(server *mcp.Server, reg *registry.Registry) {
 		Description: "Export a loaded OpenAPI specification to a file",
 	}
 	mcp.AddTool(server, exportTool, makeExportHandler(reg))
+
+	// Register search tool
+	searchTool := &mcp.Tool{
+		Name:        "search",
+		Description: "Search for patterns in an OpenAPI specification using regular expressions",
+	}
+	mcp.AddTool(server, searchTool, makeSearchHandler(reg))
 }
 
 // makeLoadHandler creates the handler for the load tool.
@@ -51,6 +58,14 @@ func makeUnloadHandler(reg *registry.Registry) mcp.ToolHandlerFor[UnloadParams, 
 func makeExportHandler(reg *registry.Registry) mcp.ToolHandlerFor[ExportParams, ExportResult] {
 	return func(_ context.Context, _ *mcp.CallToolRequest, params ExportParams) (*mcp.CallToolResult, ExportResult, error) {
 		result, err := handleExport(reg, params)
+		return nil, result, err
+	}
+}
+
+// makeSearchHandler creates the handler for the search tool.
+func makeSearchHandler(reg *registry.Registry) mcp.ToolHandlerFor[SearchParams, SearchResult] {
+	return func(_ context.Context, _ *mcp.CallToolRequest, params SearchParams) (*mcp.CallToolResult, SearchResult, error) {
+		result, err := handleSearch(reg, params)
 		return nil, result, err
 	}
 }
