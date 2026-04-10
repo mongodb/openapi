@@ -4477,6 +4477,27 @@
         },
         "type": "object"
       },
+      "ApiLifecycleManagementActionUpdate": {
+        "description": "Partial update for an action. Only provided fields are applied.",
+        "discriminator": {
+          "mapping": {
+            "TRANSITION_DATA": "#/components/schemas/ApiTransitionDataActionUpdate"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ApiTransitionDataActionUpdate"
+          }
+        ],
+        "properties": {
+          "type": {
+            "description": "Type of action.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ApiLifecycleManagementCriteria": {
         "description": "Criteria that determines which data is eligible for the action.",
         "discriminator": {
@@ -4564,7 +4585,6 @@
             "description": "Current state of the policy.",
             "enum": [
               "ACTIVE",
-              "PAUSING",
               "PAUSED"
             ],
             "readOnly": true,
@@ -4591,7 +4611,7 @@
         "description": "Request body for updating a lifecycle management policy.",
         "properties": {
           "action": {
-            "$ref": "#/components/schemas/ApiLifecycleManagementAction"
+            "$ref": "#/components/schemas/ApiLifecycleManagementActionUpdate"
           },
           "schedule": {
             "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
@@ -5210,6 +5230,37 @@
         "required": [
           "criteria",
           "destinationCollName",
+          "type"
+        ],
+        "type": "object"
+      },
+      "ApiTransitionDataActionUpdate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiLifecycleManagementActionUpdate"
+          },
+          {
+            "properties": {
+              "criteria": {
+                "$ref": "#/components/schemas/ApiLifecycleManagementCriteria"
+              },
+              "destinationCollName": {
+                "description": "Name of the destination collection. If omitted, existing value is preserved.",
+                "type": "string"
+              },
+              "type": {
+                "description": "Type of action. Must match existing action type.",
+                "enum": [
+                  "TRANSITION_DATA"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Partial update for a transition data action. Only provided fields are applied.",
+        "required": [
           "type"
         ],
         "type": "object"
@@ -58008,7 +58059,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "bcae127e32a96d1951586f444fe59762a070bf53"
+    "x-xgen-sha": "cbccd3527d8ac481f53873e067c84421101a58b0"
   },
   "openapi": "3.0.1",
   "paths": {
