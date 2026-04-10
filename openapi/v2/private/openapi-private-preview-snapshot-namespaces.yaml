@@ -338,6 +338,42 @@ components:
                     type: array
             readOnly: true
             type: object
+        DiskBackupCollectionResponse:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                name:
+                    description: Human-readable label that identifies the collection in the database within the snapshot.
+                    readOnly: true
+                    type: string
+            required:
+                - name
+            type: object
+        DiskBackupDatabaseResponse:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                name:
+                    description: Human-readable label that identifies the database within the snapshot.
+                    readOnly: true
+                    type: string
+            required:
+                - name
+            type: object
         FieldViolation:
             properties:
                 description:
@@ -361,8 +397,7 @@ components:
                     example: self
                     type: string
             type: object
-        PaginatedRateLimitEndpointSets:
-            description: A list of rate limit endpoint sets.
+        PaginatedApiAtlasDiskBackupCollectionView:
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -376,7 +411,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/RateLimitEndpointSetResponse'
+                        $ref: '#/components/schemas/DiskBackupCollectionResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -388,89 +423,31 @@ components:
             required:
                 - results
             type: object
-        RateLimitEndpointSetCapacity:
-            description: The rate limit capacity for the endpoint set.
+        PaginatedApiAtlasDiskBackupDatabaseView:
             properties:
-                defaultValue:
-                    description: The default request capacity of the endpoint set. Returned if there is a capacity override set for the requested entity.
-                    format: int64
-                    type: integer
-                value:
-                    description: The applied request capacity of the endpoint set.
-                    format: int64
-                    type: integer
-            type: object
-        RateLimitEndpointSetEndpoint:
-            properties:
-                method:
-                    description: The HTTP method of the endpoint.
-                    enum:
-                        - GET
-                        - POST
-                        - PUT
-                        - DELETE
-                        - PATCH
-                    type: string
-                path:
-                    description: The URL path of the endpoint.
-                    example: /api/atlas/v2/rateLimits
-                    type: string
-            type: object
-        RateLimitEndpointSetRefillDurationSeconds:
-            description: The rate limit refill duration for the endpoint set.
-            properties:
-                defaultValue:
-                    description: The default rate limit refill duration, in seconds, of the endpoint set. Returned if there is a rate limit refill duration override set for the requested entity.
-                    format: int64
-                    type: integer
-                value:
-                    description: The applied rate limit refill duration of the endpoint set.
-                    format: int64
-                    type: integer
-            type: object
-        RateLimitEndpointSetRefillRate:
-            description: The rate limit refill rate for the endpoint set.
-            properties:
-                defaultValue:
-                    description: The default rate limit refill rate of the endpoint set. Returned if there is a rate limit refill rate override set for the requested entity.
-                    format: int64
-                    type: integer
-                value:
-                    description: The applied rate limit refill rate of the endpoint set.
-                    format: int64
-                    type: integer
-            type: object
-        RateLimitEndpointSetResponse:
-            properties:
-                capacity:
-                    $ref: '#/components/schemas/RateLimitEndpointSetCapacity'
-                endpointSetId:
-                    description: The ID of the endpoint set.
-                    example: rateLimitsInspection_group
-                    type: string
-                endpointSetName:
-                    description: The endpoint set name.
-                    example: Rate Limits Inspection
-                    type: string
-                endpoints:
-                    description: A list of endpoints associated with the specified endpoint set.
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
                     items:
-                        $ref: '#/components/schemas/RateLimitEndpointSetEndpoint'
-                    maxItems: 100
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
                     type: array
-                    uniqueItems: true
-                refillDurationSeconds:
-                    $ref: '#/components/schemas/RateLimitEndpointSetRefillDurationSeconds'
-                refillRate:
-                    $ref: '#/components/schemas/RateLimitEndpointSetRefillRate'
-                scope:
-                    description: The scope of the endpoint set.
-                    enum:
-                        - IP
-                        - GROUP
-                        - ORGANIZATION
-                        - USER
-                    type: string
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/DiskBackupDatabaseResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
             type: object
     securitySchemes:
         DigestAuth:
@@ -501,7 +478,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-rate-limit+json" \
+          --header "Accept: application/vnd.atlas.private-preview-snapshot-namespaces+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -519,165 +496,43 @@ info:
     x-xgen-sha: 84121409d825266b5f3d9ae801fddb57dcef798f
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/rateLimits:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases:
         get:
-            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Get all rate limits for all v2 Atlas Administration API endpoint sets. Deprecated versions: v2-{2025-03-12}
-            operationId: listRateLimits
+                 Returns the list of databases that exist in the specified snapshot. Use this to discover namespaces before creating a collection restore job. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: listGroupClusterBackupSnapshotDatabases
             parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-                - $ref: '#/components/parameters/envelope'
-                - description: Unique 24-hexadecimal digit string that identifies the Atlas Project to request rate limits for. When this parameter is provided, only group scoped endpoint sets are returned and the limits returned are applicable to the specified project. The requesting user must have the Project Read Only role for the specified project.
-                  in: query
-                  name: groupId
-                  schema:
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-                - description: Unique 24-hexadecimal digit string that identifies the Atlas Organization to request rate limits for. When this parameter is provided, only organization scoped endpoint sets are returned and the limits returned are applicable to the specified organization. The requesting user must have the Organization Read Only role for the specified organization.
-                  in: query
-                  name: orgId
-                  schema:
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-                - description: A string that identifies the Atlas user to request rate limits for. The ID can for example be the Service Account Client ID or the API Public Key. When this parameter is provided, only user scoped endpoint sets are returned and the limits returned are applicable to the specified user. The requesting user must be the same as the specified user.
-                  in: query
-                  name: userId
-                  schema:
-                    example: mdb_sa_id_1234567890abcdef12345678
-                    type: string
-                - description: An IP address to request rate limits for. When this parameter is provided, only IP scoped endpoint sets are returned and the limits returned are applicable to the specified IP address. The requesting user must have the same IP address as the one provided in the request.
-                  in: query
-                  name: ipAddress
-                  schema:
-                    example: 127.0.0.1
-                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
-                    type: string
-                - description: Filters the returned endpoint sets by the provided endpoint set name. Multiple names may be provided, for example `/rateLimits?name=Name1&name=Name2`. For names that use spaces, replace the space with its URL-encoded value (`%20`).
-                  in: query
-                  name: name
-                  schema:
-                    example: Rate Limits Inspection
-                    type: string
-                - description: Filters the returned endpoint sets by the provided endpoint path. Multiple paths may be provided, for example `/rateLimits?endpointPath=%2Fapi%2Fatlas%2Fv2%2Fclusters&endpointPath=%2Fapi%2Fatlas%2Fv2%2Fgroups%2F%7BgroupId%7D%2F`. Replace `/`, `{` and `}` with their URL-encoded values (`%2F`, `%7B` and `%7D` respectively).
-                  in: query
-                  name: endpointPath
-                  schema:
-                    example: /api/atlas/v2/clusters
-                    type: string
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedRateLimitEndpointSets'
-                            x-xgen-preview:
-                                name: rate-limit
-                                public: "false"
-                            x-xgen-version: private-preview-rate-limit
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return All Rate Limits
-            tags:
-                - Rate Limiting
-            x-beta: true
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api rateLimiting listRateLimits --help
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/rateLimits?pretty=true"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/rateLimits?pretty=true"
-            x-state:
-                color: '#B89D09'
-                label: PREVIEW
-            x-sunset: "2026-04-21"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/listRateLimits
-    /api/atlas/v2/rateLimits/{endpointSetId}:
-        get:
-            deprecated: true
-            description: |-
-                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
-
-                 Get one rate limit endpoint set. Deprecated versions: v2-{2025-03-12}
-            operationId: getRateLimit
-            parameters:
-                - description: The ID of the rate limit endpoint set.
+                - description: Human-readable label that identifies the cluster.
                   in: path
-                  name: endpointSetId
+                  name: clusterName
                   required: true
                   schema:
-                    example: rateLimitsInspection_group
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
-                - $ref: '#/components/parameters/pretty'
-                - $ref: '#/components/parameters/envelope'
-                - description: Unique 24-hexadecimal digit string that identifies the Atlas Project to request rate limits for. When this parameter is provided, the limits returned are applicable to the specified project. The requesting user must have the Project Read Only role for the specified project.
-                  in: query
-                  name: groupId
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
                   schema:
-                    example: 32b6e34b3d91647abb20e7b8
                     pattern: ^([a-f0-9]{24})$
-                    type: string
-                - description: Unique 24-hexadecimal digit string that identifies the Atlas Organization to request rate limits for. When this parameter is provided, the limits returned are applicable to the specified organization. The requesting user must have the Organization Read Only role for the specified organization.
-                  in: query
-                  name: orgId
-                  schema:
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-                - description: A string that identifies the Atlas user to request rate limits for. The ID can for example be the Service Account Client ID or the API Public Key. When this parameter is provided, the limits returned are applicable to the specified  user. The requesting user must be the same as the specified user.
-                  in: query
-                  name: userId
-                  schema:
-                    example: mdb_sa_id_1234567890abcdef12345678
-                    type: string
-                - description: An IP address to request rate limits for. When this parameter is provided, the limits returned are applicable to the specified IP address. The requesting user must have the same IP address as the one provided in the request.
-                  in: query
-                  name: ipAddress
-                  schema:
-                    example: 127.0.0.1
-                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
                     type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/RateLimitEndpointSetResponse'
+                                $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupDatabaseView'
                             x-xgen-preview:
-                                name: rate-limit
-                                public: "false"
-                            x-xgen-version: private-preview-rate-limit
+                                name: snapshot-namespaces
+                            x-xgen-version: private-preview-snapshot-namespaces
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -696,43 +551,305 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return One Rate Limit
+            summary: Return Databases in One Snapshot
             tags:
-                - Rate Limiting
+                - Cloud Backups
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api rateLimiting getRateLimit --help
+                  source: atlas api cloudBackups listBackupSnapshotDatabases --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/rateLimits/{endpointSetId}?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/rateLimits/{endpointSetId}?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases?pretty=true"
+            x-rolesRequirements:
+                - Project Backup Manager
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-sunset: "2026-04-21"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/getRateLimit
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupSnapshotDatabases
+            x-xgen-operation-id-override: listBackupSnapshotDatabases
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns one database that exists in the specified snapshot. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: getGroupClusterBackupSnapshotDatabase
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: Human-readable label that identifies the database.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupDatabaseResponse'
+                            x-xgen-preview:
+                                name: snapshot-namespaces
+                            x-xgen-version: private-preview-snapshot-namespaces
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Database in One Snapshot
+            tags:
+                - Cloud Backups
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api cloudBackups getBackupSnapshotDatabase --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}?pretty=true"
+            x-rolesRequirements:
+                - Project Backup Manager
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSnapshotDatabase
+            x-xgen-operation-id-override: getBackupSnapshotDatabase
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns the list of collections in the specified database that exist in the snapshot. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: listGroupClusterBackupSnapshotDatabaseCollections
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: Human-readable label that identifies the database.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupCollectionView'
+                            x-xgen-preview:
+                                name: snapshot-namespaces
+                            x-xgen-version: private-preview-snapshot-namespaces
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Collections in One Database in One Snapshot
+            tags:
+                - Cloud Backups
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api cloudBackups listSnapshotDatabaseCollections --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections?pretty=true"
+            x-rolesRequirements:
+                - Project Backup Manager
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupSnapshotDatabaseCollections
+            x-xgen-operation-id-override: listSnapshotDatabaseCollections
+    ? /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}
+    :   get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns one collection that exists in the specified database in the snapshot. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: getGroupClusterBackupSnapshotDatabaseCollection
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: Human-readable label that identifies the database.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the collection.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupCollectionResponse'
+                            x-xgen-preview:
+                                name: snapshot-namespaces
+                            x-xgen-version: private-preview-snapshot-namespaces
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Collection in One Database in One Snapshot
+            tags:
+                - Cloud Backups
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api cloudBackups getSnapshotDatabaseCollection --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}?pretty=true"
+            x-rolesRequirements:
+                - Project Backup Manager
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSnapshotDatabaseCollection
+            x-xgen-operation-id-override: getSnapshotDatabaseCollection
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns details about rate limit policies for the Atlas Administration API.
-      externalDocs:
-        description: Atlas API Rate Limits documentation
-        url: http://dochub.mongodb.org/core/atlas-api-rate-limit
-      name: Rate Limiting
+    - description: Manages Cloud Backup snapshots, snapshot export buckets, restore jobs, and schedules. This resource applies only to clusters that use Cloud Backups.
+      name: Cloud Backups
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
