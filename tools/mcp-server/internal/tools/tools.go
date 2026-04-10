@@ -47,6 +47,20 @@ func Register(server *mcp.Server, reg *registry.Registry) {
 			"Use this to find specific endpoints, data structures, or API components by name or pattern.",
 	}
 	mcp.AddTool(server, searchTool, makeSearchHandler(reg))
+
+	// Register slice tool
+	sliceTool := &mcp.Tool{
+		Name: "slice",
+		Description: "Create a filtered subset of an OpenAPI specification by selecting specific operations. " +
+			"Filter by tags, operation IDs, or path patterns. " +
+			"Uses OR logic: operations matching ANY of the specified criteria are included. " +
+			"Automatically includes all schemas, parameters, and components referenced by the selected operations. " +
+			"Requires a 'saveAs' alias chosen by the agent to name the resulting virtual spec (e.g. 'atlas-api-users'). " +
+			"The same source spec can be sliced multiple times with different aliases for different subsets. " +
+			"Returns the alias and updated list of available specs. " +
+			"Useful for creating API subsets, generating client SDKs for specific features, or analyzing specific API areas.",
+	}
+	mcp.AddTool(server, sliceTool, makeSliceHandler(reg))
 }
 
 // makeLoadHandler creates the handler for the load tool.
@@ -77,6 +91,14 @@ func makeExportHandler(reg *registry.Registry) mcp.ToolHandlerFor[ExportParams, 
 func makeSearchHandler(reg *registry.Registry) mcp.ToolHandlerFor[SearchParams, SearchResult] {
 	return func(_ context.Context, _ *mcp.CallToolRequest, params SearchParams) (*mcp.CallToolResult, SearchResult, error) {
 		result, err := handleSearch(reg, params)
+		return nil, result, err
+	}
+}
+
+// makeSliceHandler creates the handler for the slice tool.
+func makeSliceHandler(reg *registry.Registry) mcp.ToolHandlerFor[SliceParams, SliceResult] {
+	return func(_ context.Context, _ *mcp.CallToolRequest, params SliceParams) (*mcp.CallToolResult, SliceResult, error) {
+		result, err := handleSlice(reg, &params)
 		return nil, result, err
 	}
 }

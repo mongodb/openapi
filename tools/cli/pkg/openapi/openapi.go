@@ -18,10 +18,20 @@ package openapi
 
 import (
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/slice"
 	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/load"
 	"github.com/spf13/afero"
 )
+
+// SliceCriteria defines the selection criteria for slicing an OpenAPI spec.
+// Operations matching ANY of the specified criteria will be included (OR logic).
+type SliceCriteria = slice.Criteria
+
+// Slice filters an OpenAPI spec to keep only operations matching the criteria.
+func Slice(spec *openapi3.T, criteria *SliceCriteria) error {
+	return slice.Slice(spec, criteria)
+}
 
 // Loader provides methods for loading OpenAPI specifications from files.
 type Loader struct {
