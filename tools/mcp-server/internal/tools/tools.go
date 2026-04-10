@@ -11,29 +11,40 @@ import (
 func Register(server *mcp.Server, reg *registry.Registry) {
 	// Register load tool
 	loadTool := &mcp.Tool{
-		Name:        "load",
-		Description: "Load an OpenAPI specification from a file into memory",
+		Name: "load",
+		Description: "Load an OpenAPI specification file (JSON or YAML) into memory. " +
+			"Assigns an alias for easy reference in other commands. " +
+			"Validates the spec and makes it available for searching, exporting, and inspection. " +
+			"Required before using search or export tools on a spec.",
 	}
 	mcp.AddTool(server, loadTool, makeLoadHandler(reg))
 
 	// Register unload tool
 	unloadTool := &mcp.Tool{
-		Name:        "unload",
-		Description: "Remove a loaded OpenAPI specification from memory",
+		Name: "unload",
+		Description: "Remove a previously loaded OpenAPI specification from memory by its alias. " +
+			"Frees up resources and removes the spec from the available list. " +
+			"Use this to clean up specs you no longer need to search or reference.",
 	}
 	mcp.AddTool(server, unloadTool, makeUnloadHandler(reg))
 
 	// Register export tool
 	exportTool := &mcp.Tool{
-		Name:        "export",
-		Description: "Export a loaded OpenAPI specification to a file",
+		Name: "export",
+		Description: "Export a loaded OpenAPI specification to a file in JSON or YAML format. " +
+			"Useful for converting between formats, saving modified specs, or creating copies. " +
+			"Specify the output path and desired format (json/yaml).",
 	}
 	mcp.AddTool(server, exportTool, makeExportHandler(reg))
 
 	// Register search tool
 	searchTool := &mcp.Tool{
-		Name:        "search",
-		Description: "Search for patterns in an OpenAPI specification using regular expressions",
+		Name: "search",
+		Description: "Search across OpenAPI specifications using regex patterns. " +
+			"Searches operations, schemas, parameters, responses, tags, and paths. " +
+			"Returns matches grouped by category with details on what matched (operationId, schema name, property names, etc.). " +
+			"Supports case-sensitive/insensitive search, category filtering, and per-category result limits. " +
+			"Use this to find specific endpoints, data structures, or API components by name or pattern.",
 	}
 	mcp.AddTool(server, searchTool, makeSearchHandler(reg))
 }
