@@ -84,8 +84,7 @@ func handleSlice(reg *registry.Registry, params *SliceParams) (SliceResult, erro
 		}, nil
 	}
 
-	virtualPath := "virtual://" + params.SaveAs
-	if addErr := reg.Add(params.SaveAs, virtualPath, specCopy, entry.Metadata); addErr != nil {
+	if addErr := reg.Add(params.SaveAs, "", specCopy, entry.Metadata); addErr != nil {
 		return SliceResult{
 			Success: false,
 			Error:   fmt.Sprintf("failed to save virtual spec: %v", addErr),

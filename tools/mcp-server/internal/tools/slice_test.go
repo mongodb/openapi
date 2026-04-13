@@ -15,12 +15,24 @@ func setupSliceRegistry(t *testing.T) *registry.Registry {
 	return reg
 }
 
-func collectOperationIDs(t *testing.T, reg *registry.Registry, alias string) map[string]bool {
+func getSlicedEntry(t *testing.T, reg *registry.Registry, alias string) *registry.Entry {
 	t.Helper()
 	entry, err := reg.GetByAlias(alias)
 	if err != nil {
 		t.Fatalf("GetByAlias(%q) failed: %v", alias, err)
 	}
+	if entry.SourceType != registry.SourceTypeVirtual {
+		t.Errorf("entry.SourceType = %q, want %q", entry.SourceType, registry.SourceTypeVirtual)
+	}
+	if entry.FilePath != "" {
+		t.Errorf("entry.FilePath = %q, want empty string", entry.FilePath)
+	}
+	return entry
+}
+
+func collectOperationIDs(t *testing.T, reg *registry.Registry, alias string) map[string]bool {
+	t.Helper()
+	entry := getSlicedEntry(t, reg, alias)
 	ops := make(map[string]bool)
 	for _, pathItem := range entry.Spec.Paths.Map() {
 		for _, op := range pathItem.Operations() {
