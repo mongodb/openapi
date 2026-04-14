@@ -152,7 +152,7 @@ func (o *ListOpts) validate() error {
 	return nil
 }
 
-// ListBuilder builds the merge command with the following signature:
+// ListBuilder builds the list command with the following signature:
 // sunset ls -s spec.json -f 2024-01-01 -t 2024-09-22.
 func ListBuilder() *cobra.Command {
 	opts := &ListOpts{
