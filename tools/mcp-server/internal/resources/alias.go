@@ -3,8 +3,6 @@ package resources
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/mongodb/openapi/tools/cli/pkg/apiversion"
@@ -121,16 +119,4 @@ func extractVersions(spec *openapi3.T) (stable []string, hasPreview, hasUpcoming
 		}
 	}
 	return stable, hasPreview, hasUpcoming
-}
-
-func aliasFromURI(uri string) (string, error) {
-	u, err := url.Parse(uri)
-	if err != nil {
-		return "", fmt.Errorf("invalid resource URI %q: expected openapi://specs/{alias}", uri)
-	}
-	alias := strings.TrimPrefix(u.Path, "/")
-	if alias == "" {
-		return "", fmt.Errorf("invalid resource URI %q: expected openapi://specs/{alias}", uri)
-	}
-	return alias, nil
 }

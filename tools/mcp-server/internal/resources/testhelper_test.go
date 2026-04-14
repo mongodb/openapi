@@ -23,24 +23,23 @@ func newTestRegistry(t *testing.T) *registry.Registry {
 	return reg
 }
 
-// newTestSpec creates a comprehensive OpenAPI spec shared across all resource tests.
-// It includes multiple paths, tags, schemas, and versioned media types.
+// newTestSpec builds a synthetic OpenAPI spec whose paths, operation IDs, summaries, and tag names
+// are modeled after the real Atlas v2 spec so that test assertions reflect realistic API data.
 func newTestSpec() *openapi3.T {
 	spec := &openapi3.T{
 		Info: &openapi3.Info{
 			Title:       "Test API",
-			Version:     "2.0",
 			Description: "A test API",
 		},
 		Paths: &openapi3.Paths{},
 		Tags: openapi3.Tags{
-			{Name: "Users", Description: "User operations"},
-			{Name: "Clusters", Description: "Cluster operations"},
+			{Name: "Clusters"},
+			{Name: "Flex Clusters"}, // space in name → percent-encoded as "Flex%20Clusters" in URIs
 		},
 		Components: &openapi3.Components{
 			Schemas: map[string]*openapi3.SchemaRef{
-				"User":    {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
-				"Cluster": {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
+				"Cluster":     {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
+				"FlexCluster": {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
 			},
 		},
 	}
@@ -78,44 +77,51 @@ func newTestSpec() *openapi3.T {
 		}))
 	}
 
-	spec.Paths.Set("/users", &openapi3.PathItem{
+	spec.Paths.Set("/api/atlas/v2/clusters", &openapi3.PathItem{
 		Get: &openapi3.Operation{
-			OperationID: "getUsers",
-			Summary:     "List users",
-			Tags:        []string{"Users"},
+			OperationID: "listClusterDetails",
+			Summary:     "Return All Authorized Clusters in All Projects",
+			Tags:        []string{"Clusters"},
+			Responses:   newStableResp(),
+		},
+	})
+
+	spec.Paths.Set("/api/atlas/v2/groups/{groupId}/clusters", &openapi3.PathItem{
+		Get: &openapi3.Operation{
+			OperationID: "listGroupClusters",
+			Summary:     "Return All Clusters in One Project",
+			Tags:        []string{"Clusters"},
 			Responses:   newStableResp(),
 		},
 		Post: &openapi3.Operation{
-			OperationID: "createUser",
-			Summary:     "Create a user",
-			Tags:        []string{"Users"},
+			OperationID: "createGroupCluster",
+			Summary:     "Create One Cluster in One Project",
+			Tags:        []string{"Clusters"},
 			Responses:   newStableResp(),
 		},
 	})
 
-	spec.Paths.Set("/users/{userId}", &openapi3.PathItem{
-		Get: &openapi3.Operation{
-			OperationID: "getUser",
-			Summary:     "Get a user",
-			Tags:        []string{"Users"},
-			Responses:   newStableResp(),
-		},
-	})
-
-	spec.Paths.Set("/clusters", &openapi3.PathItem{
-		Get: &openapi3.Operation{
-			OperationID: "listClusters",
-			Summary:     "List clusters",
+	spec.Paths.Set("/api/atlas/v2/groups/{groupId}/clusters/{clusterName}", &openapi3.PathItem{
+		Delete: &openapi3.Operation{
+			OperationID: "deleteGroupCluster",
+			Summary:     "Remove One Cluster from One Project",
 			Tags:        []string{"Clusters"},
 			Responses:   newPreviewResp(),
 		},
 	})
 
-	spec.Paths.Set("/clusters/{clusterId}/upcoming-feature", &openapi3.PathItem{
+	// Flex Clusters: tag name has a space, exercising percent-encoding in URIs.
+	spec.Paths.Set("/api/atlas/v2/groups/{groupId}/flexClusters", &openapi3.PathItem{
 		Get: &openapi3.Operation{
-			OperationID: "getUpcomingFeature",
-			Summary:     "Get upcoming feature",
-			Tags:        []string{"Clusters"},
+			OperationID: "listGroupFlexClusters",
+			Summary:     "Return All Flex Clusters from One Project",
+			Tags:        []string{"Flex Clusters"},
+			Responses:   newStableResp(),
+		},
+		Post: &openapi3.Operation{
+			OperationID: "createGroupFlexCluster",
+			Summary:     "Create One Flex Cluster in One Project",
+			Tags:        []string{"Flex Clusters"},
 			Responses:   newUpcomingResp(),
 		},
 	})

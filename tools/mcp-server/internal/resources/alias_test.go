@@ -7,7 +7,7 @@ import (
 	"github.com/mongodb/openapi/tools/mcp-server/internal/registry"
 )
 
-// TestHandleAlias_Overview verifies that the spec overview contains title, stats, and source info.
+// TestHandleAlias_Overview verifies that the spec overview contains title, stats, and version info.
 func TestHandleAlias_Overview(t *testing.T) {
 	reg := newTestRegistry(t)
 
@@ -31,8 +31,8 @@ func TestHandleAlias_Overview(t *testing.T) {
 	if body.Stats.Paths != 4 {
 		t.Errorf("stats.paths = %d, want 4", body.Stats.Paths)
 	}
-	if body.Stats.Operations != 5 {
-		t.Errorf("stats.operations = %d, want 5", body.Stats.Operations)
+	if body.Stats.Operations != 6 {
+		t.Errorf("stats.operations = %d, want 6", body.Stats.Operations)
 	}
 	if body.Stats.Tags != 2 {
 		t.Errorf("stats.tags = %d, want 2", body.Stats.Tags)
