@@ -7,7 +7,7 @@ import (
 	"github.com/mongodb/openapi/tools/mcp-server/internal/registry"
 )
 
-// Register registers all tool handlers with the server using the official SDK.
+// Register registers all tool handlers with the server.
 func Register(server *mcp.Server, reg *registry.Registry) {
 	// Register load tool
 	loadTool := &mcp.Tool{

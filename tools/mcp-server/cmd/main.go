@@ -7,6 +7,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/mongodb/openapi/tools/mcp-server/internal/registry"
+	"github.com/mongodb/openapi/tools/mcp-server/internal/resources"
 	"github.com/mongodb/openapi/tools/mcp-server/internal/tools"
 )
 
@@ -31,6 +32,7 @@ func run() error {
 	server := mcp.NewServer(impl, nil)
 
 	tools.Register(server, reg)
+	resources.Register(server, reg)
 
 	// Log to stderr (stdout is reserved for MCP protocol)
 	log.SetOutput(os.Stderr)

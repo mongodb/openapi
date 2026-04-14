@@ -24,6 +24,15 @@ import (
 	"github.com/spf13/afero"
 )
 
+// ExtractVersions returns all API version strings present in the spec,
+// including stable date versions (e.g. "2024-01-01"), preview names
+// (e.g. "preview", "public-preview"), and upcoming versions
+// (e.g. "2024-01-01.upcoming") when no stable counterpart exists.
+// The returned slice is sorted.
+func ExtractVersions(spec *openapi3.T) ([]string, error) {
+	return openapi.ExtractVersionsWithEnv(spec, "")
+}
+
 // SliceCriteria defines the selection criteria for slicing an OpenAPI spec.
 // Operations matching ANY of the specified criteria will be included (OR logic).
 type SliceCriteria = slice.Criteria
