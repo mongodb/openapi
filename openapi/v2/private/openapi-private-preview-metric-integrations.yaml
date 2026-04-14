@@ -296,111 +296,6 @@ components:
                         $ref: '#/components/schemas/ApiError'
             description: Unauthorized.
     schemas:
-        ApiCustomCriteria:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
-                - properties:
-                    query:
-                        description: MongoDB find() based filter string in JSON format to determine data transition eligibility.
-                        example: '{"status":"archived"}'
-                        type: string
-                    type:
-                        description: Type of criteria.
-                        enum:
-                            - CUSTOM
-                        example: CUSTOM
-                        type: string
-                  type: object
-            description: Custom query-based criteria for data transition.
-            required:
-                - query
-                - type
-            type: object
-        ApiDailySchedule:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                - properties:
-                    endHour:
-                        description: Hour of the day when the scheduled window ends.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    endMinute:
-                        description: Minute of the hour when the scheduled window ends.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    startHour:
-                        description: Hour of the day when the scheduled window starts.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    startMinute:
-                        description: Minute of the hour when the scheduled window starts.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    type:
-                        description: Type of schedule.
-                        enum:
-                            - DAILY
-                        example: DAILY
-                        type: string
-                  type: object
-            description: Daily schedule with a configurable time window.
-            required:
-                - endHour
-                - endMinute
-                - startHour
-                - startMinute
-                - type
-            type: object
-        ApiDateCriteria:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
-                - properties:
-                    dateField:
-                        description: Name of the date field used to evaluate transition eligibility.
-                        example: createDate
-                        type: string
-                    transitionAfterDays:
-                        description: Number of days after the date field value when data becomes eligible for transition.
-                        example: 90
-                        format: int32
-                        minimum: 0
-                        type: integer
-                    type:
-                        description: Type of criteria.
-                        enum:
-                            - DATE
-                        example: DATE
-                        type: string
-                  type: object
-            description: Date-based criteria for data transition.
-            required:
-                - dateField
-                - transitionAfterDays
-                - type
-            type: object
-        ApiDefaultSchedule:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                - properties:
-                    type:
-                        description: Type of schedule.
-                        enum:
-                            - DEFAULT
-                        example: DEFAULT
-                        type: string
-                  type: object
-            description: Default schedule where the system determines when the policy runs.
-            required:
-                - type
-            type: object
         ApiError:
             properties:
                 badRequestDetail:
@@ -433,256 +328,6 @@ components:
                 - error
                 - errorCode
             type: object
-        ApiLifecycleManagementAction:
-            description: Action to perform on data matching the policy criteria.
-            discriminator:
-                mapping:
-                    TRANSITION_DATA: '#/components/schemas/ApiTransitionDataAction'
-                propertyName: type
-            oneOf:
-                - $ref: '#/components/schemas/ApiTransitionDataAction'
-            properties:
-                type:
-                    description: Type of action to perform on data matching the policy criteria.
-                    type: string
-            type: object
-        ApiLifecycleManagementCriteria:
-            description: Criteria that determines which data is eligible for the action.
-            discriminator:
-                mapping:
-                    CUSTOM: '#/components/schemas/ApiCustomCriteria'
-                    DATE: '#/components/schemas/ApiDateCriteria'
-                propertyName: type
-            oneOf:
-                - $ref: '#/components/schemas/ApiDateCriteria'
-                - $ref: '#/components/schemas/ApiCustomCriteria'
-            properties:
-                type:
-                    description: Type of criteria used to determine data transition eligibility.
-                    type: string
-            type: object
-        ApiLifecycleManagementPolicyCreateRequest:
-            description: Request body for creating a lifecycle management policy.
-            properties:
-                action:
-                    $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                dbName:
-                    description: Name of the database this policy applies to.
-                    example: myDatabase
-                    type: string
-                schedule:
-                    $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                targetCollection:
-                    description: Name of the source collection for data transition.
-                    example: myTargetCollection
-                    type: string
-            required:
-                - action
-                - dbName
-                - targetCollection
-            type: object
-        ApiLifecycleManagementPolicyResponse:
-            description: Lifecycle management policy for automated data transition.
-            properties:
-                action:
-                    $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                dbName:
-                    description: Name of the database this policy applies to.
-                    readOnly: true
-                    type: string
-                effectiveState:
-                    description: Current effective state of the policy.
-                    enum:
-                        - ACTIVE
-                        - PAUSING
-                        - PAUSED
-                    readOnly: true
-                    type: string
-                id:
-                    description: Unique identifier of the policy.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^[a-fA-F0-9]{24}$
-                    readOnly: true
-                    type: string
-                schedule:
-                    $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                state:
-                    description: Current state of the policy.
-                    enum:
-                        - ACTIVE
-                        - PAUSING
-                        - PAUSED
-                    readOnly: true
-                    type: string
-                targetCollection:
-                    description: Name of the target collection for data transition.
-                    readOnly: true
-                    type: string
-            required:
-                - action
-                - dbName
-                - effectiveState
-                - id
-                - schedule
-                - state
-                - targetCollection
-            type: object
-        ApiLifecycleManagementPolicyUpdateRequest:
-            description: Request body for updating a lifecycle management policy.
-            properties:
-                action:
-                    $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                schedule:
-                    $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                state:
-                    description: 'Requested state transition. Valid values: ACTIVE, PAUSED.'
-                    enum:
-                        - ACTIVE
-                        - PAUSED
-                    type: string
-            type: object
-        ApiLifecycleManagementSchedule:
-            description: Schedule that controls when the lifecycle management policy runs.
-            discriminator:
-                mapping:
-                    DAILY: '#/components/schemas/ApiDailySchedule'
-                    DEFAULT: '#/components/schemas/ApiDefaultSchedule'
-                    MONTHLY: '#/components/schemas/ApiMonthlySchedule'
-                    WEEKLY: '#/components/schemas/ApiWeeklySchedule'
-                propertyName: type
-            oneOf:
-                - $ref: '#/components/schemas/ApiDefaultSchedule'
-                - $ref: '#/components/schemas/ApiDailySchedule'
-                - $ref: '#/components/schemas/ApiWeeklySchedule'
-                - $ref: '#/components/schemas/ApiMonthlySchedule'
-            properties:
-                type:
-                    description: Type of schedule that controls when the policy runs.
-                    type: string
-            type: object
-        ApiMonthlySchedule:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                - properties:
-                    dayOfMonth:
-                        description: Day of the month when the scheduled window starts.
-                        format: int32
-                        maximum: 31
-                        minimum: 1
-                        type: integer
-                    endHour:
-                        description: Hour of the day when the scheduled window ends.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    endMinute:
-                        description: Minute of the hour when the scheduled window ends.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    startHour:
-                        description: Hour of the day when the scheduled window starts.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    startMinute:
-                        description: Minute of the hour when the scheduled window starts.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    type:
-                        description: Type of schedule.
-                        enum:
-                            - MONTHLY
-                        example: MONTHLY
-                        type: string
-                  type: object
-            description: Monthly schedule with a configurable day and time window.
-            required:
-                - dayOfMonth
-                - endHour
-                - endMinute
-                - startHour
-                - startMinute
-                - type
-            type: object
-        ApiTransitionDataAction:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                - properties:
-                    criteria:
-                        $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
-                    destinationCollName:
-                        description: Name of the destination collection for transitioned data.
-                        example: destinationCollection
-                        type: string
-                    type:
-                        description: Type of action. Only `TRANSITION_DATA` is supported.
-                        enum:
-                            - TRANSITION_DATA
-                        example: TRANSITION_DATA
-                        type: string
-                  type: object
-            description: Action that transitions data from source to destination collection.
-            required:
-                - criteria
-                - destinationCollName
-                - type
-            type: object
-        ApiWeeklySchedule:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                - properties:
-                    dayOfWeek:
-                        description: Day of the week when the scheduled window starts. The week starts with Monday (`1`) and ends with Sunday (`7`).
-                        format: int32
-                        maximum: 7
-                        minimum: 1
-                        type: integer
-                    endHour:
-                        description: Hour of the day when the scheduled window ends.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    endMinute:
-                        description: Minute of the hour when the scheduled window ends.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    startHour:
-                        description: Hour of the day when the scheduled window starts.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    startMinute:
-                        description: Minute of the hour when the scheduled window starts.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    type:
-                        description: Type of schedule.
-                        enum:
-                            - WEEKLY
-                        example: WEEKLY
-                        type: string
-                  type: object
-            description: Weekly schedule with a configurable day and time window.
-            required:
-                - dayOfWeek
-                - endHour
-                - endMinute
-                - startHour
-                - startMinute
-                - type
-            type: object
         BadRequestDetail:
             description: Bad request detail.
             properties:
@@ -705,6 +350,22 @@ components:
                 - description
                 - field
             type: object
+        Header:
+            description: HTTP header with name and value.
+            properties:
+                name:
+                    description: Header name.
+                    example: Authorization
+                    type: string
+                value:
+                    description: Header value.
+                    example: Bearer token123
+                    format: password
+                    type: string
+            required:
+                - name
+                - value
+            type: object
         Link:
             properties:
                 href:
@@ -716,7 +377,171 @@ components:
                     example: self
                     type: string
             type: object
-        PaginatedApiLifecycleManagementPolicyResponse:
+        MetricIntegrationRequest:
+            description: Request schema for creating a metric integration.
+            properties:
+                aggregationTemporality:
+                    description: The temporality to send to the metric integration.
+                    enum:
+                        - DELTA
+                        - CUMULATIVE
+                    type: string
+                endpoint:
+                    description: OpenTelemetry collector endpoint URL. Must use HTTPS.
+                    example: https://otel-collector.example.com:4318/v1/metrics
+                    maxLength: 2048
+                    type: string
+                headers:
+                    description: HTTP headers for authentication and configuration. Total size limit 2KB.
+                    items:
+                        $ref: '#/components/schemas/Header'
+                    maxItems: 10
+                    minItems: 1
+                    type: array
+                integrationType:
+                    description: Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.
+                    enum:
+                        - OTEL
+                    type: string
+                metricSelection:
+                    description: Array of metric categories to export. Determines which types of metrics are sent to the integration.
+                    items:
+                        enum:
+                            - ATLAS_STREAM_PROCESSING
+                        type: string
+                    maxItems: 30
+                    minItems: 1
+                    type: array
+                    uniqueItems: true
+                providerType:
+                    description: The provider type for the metric integration. Identifies the third-party service provider.
+                    enum:
+                        - CUSTOM
+                        - DYNATRACE
+                        - NEW_RELIC
+                    type: string
+            required:
+                - aggregationTemporality
+                - endpoint
+                - headers
+                - integrationType
+                - metricSelection
+                - providerType
+            title: Metric Integration Request
+            type: object
+        MetricIntegrationResponse:
+            description: Response schema for metric integration operations.
+            properties:
+                aggregationTemporality:
+                    description: The temporality to send to the metric integration.
+                    enum:
+                        - DELTA
+                        - CUMULATIVE
+                    type: string
+                endpoint:
+                    description: OpenTelemetry collector endpoint URL.
+                    example: https://otel-collector.example.com:4318/v1/metrics
+                    maxLength: 2048
+                    type: string
+                headers:
+                    description: HTTP headers for authentication and configuration. Header values are redacted in responses.
+                    items:
+                        $ref: '#/components/schemas/Header'
+                    maxItems: 10
+                    minItems: 1
+                    type: array
+                integrationType:
+                    description: Type of metric integration. Identifies which protocol will be used for the integration.
+                    enum:
+                        - OTEL
+                    type: string
+                metricIntegrationId:
+                    description: Unique hexadecimal digit string that identifies the metric integration configuration.
+                    example: 507f1f77bcf86cd799439011
+                    maxLength: 24
+                    minLength: 24
+                    readOnly: true
+                    type: string
+                metricSelection:
+                    description: Array of metric categories to export. Determines which types of metrics are sent to the integration.
+                    items:
+                        enum:
+                            - ATLAS_STREAM_PROCESSING
+                        type: string
+                    maxItems: 30
+                    minItems: 1
+                    type: array
+                    uniqueItems: true
+                providerType:
+                    description: The provider type for the metric integration. Identifies the third-party service provider.
+                    enum:
+                        - CUSTOM
+                        - DYNATRACE
+                        - NEW_RELIC
+                    type: string
+            required:
+                - aggregationTemporality
+                - endpoint
+                - headers
+                - integrationType
+                - metricIntegrationId
+                - metricSelection
+                - providerType
+            title: Metric Integration Response
+            type: object
+        MetricIntegrationUpdateRequest:
+            description: Request schema for updating a metric integration.
+            properties:
+                aggregationTemporality:
+                    description: The temporality to send to the metric integration.
+                    enum:
+                        - DELTA
+                        - CUMULATIVE
+                    type: string
+                endpoint:
+                    description: OpenTelemetry collector endpoint URL. Must use HTTPS.
+                    example: https://otel-collector.example.com:4318/v1/metrics
+                    maxLength: 2048
+                    type: string
+                headers:
+                    description: HTTP headers for authentication and configuration. Total size limit 2KB.
+                    items:
+                        $ref: '#/components/schemas/Header'
+                    maxItems: 10
+                    minItems: 1
+                    type: array
+                integrationType:
+                    description: Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.
+                    enum:
+                        - OTEL
+                    type: string
+                metricSelection:
+                    description: Array of metric categories to export. Determines which types of metrics are sent to the integration.
+                    items:
+                        enum:
+                            - ATLAS_STREAM_PROCESSING
+                        type: string
+                    maxItems: 30
+                    minItems: 1
+                    type: array
+                    uniqueItems: true
+                providerType:
+                    description: The provider type for the metric integration. Identifies the third-party service provider.
+                    enum:
+                        - CUSTOM
+                        - DYNATRACE
+                        - NEW_RELIC
+                    type: string
+            required:
+                - aggregationTemporality
+                - endpoint
+                - headers
+                - integrationType
+                - metricSelection
+                - providerType
+            title: Metric Integration Update Request
+            type: object
+        PaginatedMetricIntegrationResponse:
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -730,7 +555,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/ApiLifecycleManagementPolicyResponse'
+                        $ref: '#/components/schemas/MetricIntegrationResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -771,7 +596,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-lifecycle-management+json" \
+          --header "Accept: application/vnd.atlas.private-preview-metric-integrations+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -789,46 +614,48 @@ info:
     x-xgen-sha: 7cc3e7aead47710776483099a37e74eff49be58a
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies:
+    /api/atlas/v2/groups/{groupId}/metricIntegrations:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns all lifecycle management policies for the specified cluster. Each policy represents automated data transition rules between collections.
-            operationId: listGroupClusterLifecycleManagementPolicies
+                 Returns all metric integration configurations for the project. Optionally filter by integration type and provider type. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: listGroupMetricIntegrations
             parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    type: string
                 - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
+                - description: Optional filter by integration type (e.g., `OTEL`). When specified, `providerType` must also be specified.
+                  in: query
+                  name: integrationType
+                  schema:
+                    type: string
+                - description: Optional filter by provider type (e.g., `CUSTOM`). When specified, `integrationType` must also be specified.
+                  in: query
+                  name: providerType
+                  schema:
+                    type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedApiLifecycleManagementPolicyResponse'
+                                $ref: '#/components/schemas/PaginatedMetricIntegrationResponse'
                             x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
+                                name: metric-integrations
+                                public: "false"
+                            x-xgen-version: private-preview-metric-integrations
                     description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
@@ -839,75 +666,64 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return All Lifecycle Management Policies for One Cluster
+            summary: Return All Active Metric Integrations
             tags:
-                - Lifecycle Management
+                - Metric Integrations
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api lifecycleManagement listLifecycleManagementPolicies --help
+                  source: atlas api metricIntegrations listGroupMetricIntegrations --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations?pretty=true"
             x-rolesRequirements:
-                - Project Read Only
+                - Project Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/listGroupClusterLifecycleManagementPolicies
-            x-xgen-operation-id-override: listLifecycleManagementPolicies
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/listGroupMetricIntegrations
         post:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Creates a lifecycle management policy for the specified cluster. The policy defines rules for taking lifecycle management actions against a cluster.
-            operationId: createGroupClusterLifecycleManagementPolicy
+                 Creates a new metric integration configuration identified by a unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: createGroupMetricIntegration
             parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    type: string
                 - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
                     application/vnd.atlas.preview+json:
                         schema:
-                            $ref: '#/components/schemas/ApiLifecycleManagementPolicyCreateRequest'
+                            $ref: '#/components/schemas/MetricIntegrationRequest'
                         x-xgen-preview:
-                            name: lifecycle-management
-                        x-xgen-version: private-preview-lifecycle-management
-                description: Lifecycle management policy to create.
+                            name: metric-integrations
+                            public: "false"
+                        x-xgen-version: private-preview-metric-integrations
+                description: Metric integration configuration to create.
                 required: true
             responses:
                 "201":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/ApiLifecycleManagementPolicyResponse'
+                                $ref: '#/components/schemas/MetricIntegrationResponse'
                             x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
+                                name: metric-integrations
+                                public: "false"
+                            x-xgen-version: private-preview-metric-integrations
                     description: Created
                     headers:
                         RateLimit-Limit:
@@ -922,27 +738,25 @@ paths:
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Create One Lifecycle Management Policy
+            summary: Create One Metric Integration
             tags:
-                - Lifecycle Management
+                - Metric Integrations
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api lifecycleManagement createLifecycleManagementPolicy --help
+                  source: atlas api metricIntegrations createGroupMetricIntegration --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations" \
                       -d '{ <Payload> }'
                 - label: curl (Digest)
                   lang: cURL
@@ -951,228 +765,110 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations" \
                       -d '{ <Payload> }'
             x-rolesRequirements:
-                - Project Data Access Admin
+                - Project Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/createGroupClusterLifecycleManagementPolicy
-            x-xgen-operation-id-override: createLifecycleManagementPolicy
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}:
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/createGroupMetricIntegration
+    /api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}:
         delete:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Deletes the lifecycle management policy with the specified identifier. The policy must be in PAUSED state before deletion.
-            operationId: deleteGroupClusterLifecycleManagementPolicy
+                 Removes the configuration for one metric integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: deleteGroupMetricIntegration
             parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    type: string
-                - description: Unique 24-hexadecimal digit string that identifies the policy.
-                  in: path
-                  name: policyId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
                 - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
+                - description: Unique identifier of the metric integration configuration.
+                  in: path
+                  name: metricIntegrationId
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "204":
                     content:
                         application/vnd.atlas.preview+json:
                             x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
-                    description: No Content
+                                name: metric-integrations
+                                public: "false"
+                            x-xgen-version: private-preview-metric-integrations
+                    description: This endpoint does not return a response body.
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Delete One Lifecycle Management Policy
+            summary: Remove One Metric Integration
             tags:
-                - Lifecycle Management
+                - Metric Integrations
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api lifecycleManagement deleteLifecycleManagementPolicy --help
+                  source: atlas api metricIntegrations deleteGroupMetricIntegration --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}"
+                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}"
+                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}"
             x-rolesRequirements:
-                - Project Data Access Admin
+                - Project Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/deleteGroupClusterLifecycleManagementPolicy
-            x-xgen-operation-id-override: deleteLifecycleManagementPolicy
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/deleteGroupMetricIntegration
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns the lifecycle management policy with the specified identifier.
-            operationId: getGroupClusterLifecycleManagementPolicy
+                 Returns the configuration for one metric integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: getGroupMetricIntegration
             parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    type: string
-                - description: Unique 24-hexadecimal digit string that identifies the policy.
-                  in: path
-                  name: policyId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
                 - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
+                - description: Unique identifier of the metric integration configuration.
+                  in: path
+                  name: metricIntegrationId
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/ApiLifecycleManagementPolicyResponse'
+                                $ref: '#/components/schemas/MetricIntegrationResponse'
                             x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return One Lifecycle Management Policy
-            tags:
-                - Lifecycle Management
-            x-beta: true
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api lifecycleManagement getLifecycleManagementPolicy --help
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}?pretty=true"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}?pretty=true"
-            x-rolesRequirements:
-                - Project Read Only
-            x-state:
-                color: '#B89D09'
-                label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/getGroupClusterLifecycleManagementPolicy
-            x-xgen-operation-id-override: getLifecycleManagementPolicy
-        patch:
-            description: |-
-                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
-
-                 Updates the lifecycle management policy with the specified identifier. Supports partial updates via PATCH semantics. Can update action fields, transition policy state, or both.
-            operationId: updateGroupClusterLifecycleManagementPolicy
-            parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    type: string
-                - description: Unique 24-hexadecimal digit string that identifies the policy.
-                  in: path
-                  name: policyId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/pretty'
-            requestBody:
-                content:
-                    application/vnd.atlas.preview+json:
-                        schema:
-                            $ref: '#/components/schemas/ApiLifecycleManagementPolicyUpdateRequest'
-                        x-xgen-preview:
-                            name: lifecycle-management
-                        x-xgen-version: private-preview-lifecycle-management
-                description: Lifecycle management policy fields to update.
-                required: true
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/ApiLifecycleManagementPolicyResponse'
-                            x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
+                                name: metric-integrations
+                                public: "false"
+                            x-xgen-version: private-preview-metric-integrations
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -1187,27 +883,107 @@ paths:
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Update One Lifecycle Management Policy
+            summary: Return One Metric Integration
             tags:
-                - Lifecycle Management
+                - Metric Integrations
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api lifecycleManagement updateLifecycleManagementPolicy --help
+                  source: atlas api metricIntegrations getGroupMetricIntegration --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}?pretty=true"
+            x-rolesRequirements:
+                - Project Owner
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/getGroupMetricIntegration
+        put:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Updates the configuration for one metric integration identified by its unique ID. To use this resource, the requesting Service Account or API Key must have the Organization Owner or Project Owner role.
+            operationId: updateGroupMetricIntegration
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Unique identifier of the metric integration configuration.
+                  in: path
+                  name: metricIntegrationId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/MetricIntegrationUpdateRequest'
+                        x-xgen-preview:
+                            name: metric-integrations
+                            public: "false"
+                        x-xgen-version: private-preview-metric-integrations
+                description: Updated metric integration configuration.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/MetricIntegrationResponse'
+                            x-xgen-preview:
+                                name: metric-integrations
+                                public: "false"
+                            x-xgen-version: private-preview-metric-integrations
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Metric Integration
+            tags:
+                - Metric Integrations
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api metricIntegrations updateGroupMetricIntegration --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}" \
+                      -X PUT "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}" \
                       -d '{ <Payload> }'
                 - label: curl (Digest)
                   lang: cURL
@@ -1216,23 +992,22 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}" \
+                      -X PUT "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}" \
                       -d '{ <Payload> }'
             x-rolesRequirements:
-                - Project Data Access Admin
+                - Project Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/updateGroupClusterLifecycleManagementPolicy
-            x-xgen-operation-id-override: updateLifecycleManagementPolicy
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/updateGroupMetricIntegration
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns, creates, updates, and removes lifecycle management policies for a cluster within a specified project.
-      name: Lifecycle Management
+    - description: Returns, creates, updates, and removes metric integration configurations for a project.
+      name: Metric Integrations
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/

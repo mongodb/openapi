@@ -296,111 +296,6 @@ components:
                         $ref: '#/components/schemas/ApiError'
             description: Unauthorized.
     schemas:
-        ApiCustomCriteria:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
-                - properties:
-                    query:
-                        description: MongoDB find() based filter string in JSON format to determine data transition eligibility.
-                        example: '{"status":"archived"}'
-                        type: string
-                    type:
-                        description: Type of criteria.
-                        enum:
-                            - CUSTOM
-                        example: CUSTOM
-                        type: string
-                  type: object
-            description: Custom query-based criteria for data transition.
-            required:
-                - query
-                - type
-            type: object
-        ApiDailySchedule:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                - properties:
-                    endHour:
-                        description: Hour of the day when the scheduled window ends.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    endMinute:
-                        description: Minute of the hour when the scheduled window ends.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    startHour:
-                        description: Hour of the day when the scheduled window starts.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    startMinute:
-                        description: Minute of the hour when the scheduled window starts.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    type:
-                        description: Type of schedule.
-                        enum:
-                            - DAILY
-                        example: DAILY
-                        type: string
-                  type: object
-            description: Daily schedule with a configurable time window.
-            required:
-                - endHour
-                - endMinute
-                - startHour
-                - startMinute
-                - type
-            type: object
-        ApiDateCriteria:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
-                - properties:
-                    dateField:
-                        description: Name of the date field used to evaluate transition eligibility.
-                        example: createDate
-                        type: string
-                    transitionAfterDays:
-                        description: Number of days after the date field value when data becomes eligible for transition.
-                        example: 90
-                        format: int32
-                        minimum: 0
-                        type: integer
-                    type:
-                        description: Type of criteria.
-                        enum:
-                            - DATE
-                        example: DATE
-                        type: string
-                  type: object
-            description: Date-based criteria for data transition.
-            required:
-                - dateField
-                - transitionAfterDays
-                - type
-            type: object
-        ApiDefaultSchedule:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                - properties:
-                    type:
-                        description: Type of schedule.
-                        enum:
-                            - DEFAULT
-                        example: DEFAULT
-                        type: string
-                  type: object
-            description: Default schedule where the system determines when the policy runs.
-            required:
-                - type
-            type: object
         ApiError:
             properties:
                 badRequestDetail:
@@ -433,256 +328,6 @@ components:
                 - error
                 - errorCode
             type: object
-        ApiLifecycleManagementAction:
-            description: Action to perform on data matching the policy criteria.
-            discriminator:
-                mapping:
-                    TRANSITION_DATA: '#/components/schemas/ApiTransitionDataAction'
-                propertyName: type
-            oneOf:
-                - $ref: '#/components/schemas/ApiTransitionDataAction'
-            properties:
-                type:
-                    description: Type of action to perform on data matching the policy criteria.
-                    type: string
-            type: object
-        ApiLifecycleManagementCriteria:
-            description: Criteria that determines which data is eligible for the action.
-            discriminator:
-                mapping:
-                    CUSTOM: '#/components/schemas/ApiCustomCriteria'
-                    DATE: '#/components/schemas/ApiDateCriteria'
-                propertyName: type
-            oneOf:
-                - $ref: '#/components/schemas/ApiDateCriteria'
-                - $ref: '#/components/schemas/ApiCustomCriteria'
-            properties:
-                type:
-                    description: Type of criteria used to determine data transition eligibility.
-                    type: string
-            type: object
-        ApiLifecycleManagementPolicyCreateRequest:
-            description: Request body for creating a lifecycle management policy.
-            properties:
-                action:
-                    $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                dbName:
-                    description: Name of the database this policy applies to.
-                    example: myDatabase
-                    type: string
-                schedule:
-                    $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                targetCollection:
-                    description: Name of the source collection for data transition.
-                    example: myTargetCollection
-                    type: string
-            required:
-                - action
-                - dbName
-                - targetCollection
-            type: object
-        ApiLifecycleManagementPolicyResponse:
-            description: Lifecycle management policy for automated data transition.
-            properties:
-                action:
-                    $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                dbName:
-                    description: Name of the database this policy applies to.
-                    readOnly: true
-                    type: string
-                effectiveState:
-                    description: Current effective state of the policy.
-                    enum:
-                        - ACTIVE
-                        - PAUSING
-                        - PAUSED
-                    readOnly: true
-                    type: string
-                id:
-                    description: Unique identifier of the policy.
-                    example: 32b6e34b3d91647abb20e7b8
-                    pattern: ^[a-fA-F0-9]{24}$
-                    readOnly: true
-                    type: string
-                schedule:
-                    $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                state:
-                    description: Current state of the policy.
-                    enum:
-                        - ACTIVE
-                        - PAUSING
-                        - PAUSED
-                    readOnly: true
-                    type: string
-                targetCollection:
-                    description: Name of the target collection for data transition.
-                    readOnly: true
-                    type: string
-            required:
-                - action
-                - dbName
-                - effectiveState
-                - id
-                - schedule
-                - state
-                - targetCollection
-            type: object
-        ApiLifecycleManagementPolicyUpdateRequest:
-            description: Request body for updating a lifecycle management policy.
-            properties:
-                action:
-                    $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                schedule:
-                    $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                state:
-                    description: 'Requested state transition. Valid values: ACTIVE, PAUSED.'
-                    enum:
-                        - ACTIVE
-                        - PAUSED
-                    type: string
-            type: object
-        ApiLifecycleManagementSchedule:
-            description: Schedule that controls when the lifecycle management policy runs.
-            discriminator:
-                mapping:
-                    DAILY: '#/components/schemas/ApiDailySchedule'
-                    DEFAULT: '#/components/schemas/ApiDefaultSchedule'
-                    MONTHLY: '#/components/schemas/ApiMonthlySchedule'
-                    WEEKLY: '#/components/schemas/ApiWeeklySchedule'
-                propertyName: type
-            oneOf:
-                - $ref: '#/components/schemas/ApiDefaultSchedule'
-                - $ref: '#/components/schemas/ApiDailySchedule'
-                - $ref: '#/components/schemas/ApiWeeklySchedule'
-                - $ref: '#/components/schemas/ApiMonthlySchedule'
-            properties:
-                type:
-                    description: Type of schedule that controls when the policy runs.
-                    type: string
-            type: object
-        ApiMonthlySchedule:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                - properties:
-                    dayOfMonth:
-                        description: Day of the month when the scheduled window starts.
-                        format: int32
-                        maximum: 31
-                        minimum: 1
-                        type: integer
-                    endHour:
-                        description: Hour of the day when the scheduled window ends.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    endMinute:
-                        description: Minute of the hour when the scheduled window ends.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    startHour:
-                        description: Hour of the day when the scheduled window starts.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    startMinute:
-                        description: Minute of the hour when the scheduled window starts.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    type:
-                        description: Type of schedule.
-                        enum:
-                            - MONTHLY
-                        example: MONTHLY
-                        type: string
-                  type: object
-            description: Monthly schedule with a configurable day and time window.
-            required:
-                - dayOfMonth
-                - endHour
-                - endMinute
-                - startHour
-                - startMinute
-                - type
-            type: object
-        ApiTransitionDataAction:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                - properties:
-                    criteria:
-                        $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
-                    destinationCollName:
-                        description: Name of the destination collection for transitioned data.
-                        example: destinationCollection
-                        type: string
-                    type:
-                        description: Type of action. Only `TRANSITION_DATA` is supported.
-                        enum:
-                            - TRANSITION_DATA
-                        example: TRANSITION_DATA
-                        type: string
-                  type: object
-            description: Action that transitions data from source to destination collection.
-            required:
-                - criteria
-                - destinationCollName
-                - type
-            type: object
-        ApiWeeklySchedule:
-            allOf:
-                - $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                - properties:
-                    dayOfWeek:
-                        description: Day of the week when the scheduled window starts. The week starts with Monday (`1`) and ends with Sunday (`7`).
-                        format: int32
-                        maximum: 7
-                        minimum: 1
-                        type: integer
-                    endHour:
-                        description: Hour of the day when the scheduled window ends.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    endMinute:
-                        description: Minute of the hour when the scheduled window ends.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    startHour:
-                        description: Hour of the day when the scheduled window starts.
-                        format: int32
-                        maximum: 23
-                        minimum: 0
-                        type: integer
-                    startMinute:
-                        description: Minute of the hour when the scheduled window starts.
-                        format: int32
-                        maximum: 59
-                        minimum: 0
-                        type: integer
-                    type:
-                        description: Type of schedule.
-                        enum:
-                            - WEEKLY
-                        example: WEEKLY
-                        type: string
-                  type: object
-            description: Weekly schedule with a configurable day and time window.
-            required:
-                - dayOfWeek
-                - endHour
-                - endMinute
-                - startHour
-                - startMinute
-                - type
-            type: object
         BadRequestDetail:
             description: Bad request detail.
             properties:
@@ -692,6 +337,42 @@ components:
                         $ref: '#/components/schemas/FieldViolation'
                     type: array
             readOnly: true
+            type: object
+        DiskBackupCollectionResponse:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                name:
+                    description: Human-readable label that identifies the collection in the database within the snapshot.
+                    readOnly: true
+                    type: string
+            required:
+                - name
+            type: object
+        DiskBackupDatabaseResponse:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                name:
+                    description: Human-readable label that identifies the database within the snapshot.
+                    readOnly: true
+                    type: string
+            required:
+                - name
             type: object
         FieldViolation:
             properties:
@@ -716,7 +397,7 @@ components:
                     example: self
                     type: string
             type: object
-        PaginatedApiLifecycleManagementPolicyResponse:
+        PaginatedApiAtlasDiskBackupCollectionView:
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -730,7 +411,33 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/ApiLifecycleManagementPolicyResponse'
+                        $ref: '#/components/schemas/DiskBackupCollectionResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
+        PaginatedApiAtlasDiskBackupDatabaseView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/DiskBackupDatabaseResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -771,7 +478,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-lifecycle-management+json" \
+          --header "Accept: application/vnd.atlas.private-preview-snapshot-namespaces+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -789,126 +496,44 @@ info:
     x-xgen-sha: 7cc3e7aead47710776483099a37e74eff49be58a
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns all lifecycle management policies for the specified cluster. Each policy represents automated data transition rules between collections.
-            operationId: listGroupClusterLifecycleManagementPolicies
+                 Returns the list of databases that exist in the specified snapshot. Use this to discover namespaces before creating a collection restore job. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: listGroupClusterBackupSnapshotDatabases
             parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    type: string
                 - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedApiLifecycleManagementPolicyResponse'
-                            x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return All Lifecycle Management Policies for One Cluster
-            tags:
-                - Lifecycle Management
-            x-beta: true
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api lifecycleManagement listLifecycleManagementPolicies --help
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies?pretty=true"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies?pretty=true"
-            x-rolesRequirements:
-                - Project Read Only
-            x-state:
-                color: '#B89D09'
-                label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/listGroupClusterLifecycleManagementPolicies
-            x-xgen-operation-id-override: listLifecycleManagementPolicies
-        post:
-            description: |-
-                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
-
-                 Creates a lifecycle management policy for the specified cluster. The policy defines rules for taking lifecycle management actions against a cluster.
-            operationId: createGroupClusterLifecycleManagementPolicy
-            parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
                 - description: Human-readable label that identifies the cluster.
                   in: path
                   name: clusterName
                   required: true
                   schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/pretty'
-            requestBody:
-                content:
-                    application/vnd.atlas.preview+json:
-                        schema:
-                            $ref: '#/components/schemas/ApiLifecycleManagementPolicyCreateRequest'
-                        x-xgen-preview:
-                            name: lifecycle-management
-                        x-xgen-version: private-preview-lifecycle-management
-                description: Lifecycle management policy to create.
-                required: true
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
             responses:
-                "201":
+                "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/ApiLifecycleManagementPolicyResponse'
+                                $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupDatabaseView'
                             x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
-                    description: Created
+                                name: snapshot-namespaces
+                            x-xgen-version: private-preview-snapshot-namespaces
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -922,165 +547,78 @@ paths:
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Create One Lifecycle Management Policy
+            summary: Return Databases in One Snapshot
             tags:
-                - Lifecycle Management
+                - Cloud Backups
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api lifecycleManagement createLifecycleManagementPolicy --help
+                  source: atlas api cloudBackups listBackupSnapshotDatabases --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies" \
-                      -d '{ <Payload> }'
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies" \
-                      -d '{ <Payload> }'
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases?pretty=true"
             x-rolesRequirements:
-                - Project Data Access Admin
+                - Project Backup Manager
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/createGroupClusterLifecycleManagementPolicy
-            x-xgen-operation-id-override: createLifecycleManagementPolicy
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}:
-        delete:
-            description: |-
-                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
-
-                 Deletes the lifecycle management policy with the specified identifier. The policy must be in PAUSED state before deletion.
-            operationId: deleteGroupClusterLifecycleManagementPolicy
-            parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    type: string
-                - description: Unique 24-hexadecimal digit string that identifies the policy.
-                  in: path
-                  name: policyId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/pretty'
-            responses:
-                "204":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
-                    description: No Content
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Delete One Lifecycle Management Policy
-            tags:
-                - Lifecycle Management
-            x-beta: true
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api lifecycleManagement deleteLifecycleManagementPolicy --help
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}"
-            x-rolesRequirements:
-                - Project Data Access Admin
-            x-state:
-                color: '#B89D09'
-                label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/deleteGroupClusterLifecycleManagementPolicy
-            x-xgen-operation-id-override: deleteLifecycleManagementPolicy
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupSnapshotDatabases
+            x-xgen-operation-id-override: listBackupSnapshotDatabases
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns the lifecycle management policy with the specified identifier.
-            operationId: getGroupClusterLifecycleManagementPolicy
+                 Returns one database that exists in the specified snapshot. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: getGroupClusterBackupSnapshotDatabase
             parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
                 - description: Human-readable label that identifies the cluster.
                   in: path
                   name: clusterName
                   required: true
                   schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
-                - description: Unique 24-hexadecimal digit string that identifies the policy.
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
                   in: path
-                  name: policyId
+                  name: snapshotId
                   required: true
                   schema:
-                    pattern: ^[a-fA-F0-9]{24}$
+                    pattern: ^([a-f0-9]{24})$
                     type: string
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the database.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/ApiLifecycleManagementPolicyResponse'
+                                $ref: '#/components/schemas/DiskBackupDatabaseResponse'
                             x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
+                                name: snapshot-namespaces
+                            x-xgen-version: private-preview-snapshot-namespaces
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -1097,82 +635,77 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return One Lifecycle Management Policy
+            summary: Return One Database in One Snapshot
             tags:
-                - Lifecycle Management
+                - Cloud Backups
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api lifecycleManagement getLifecycleManagementPolicy --help
+                  source: atlas api cloudBackups getBackupSnapshotDatabase --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}?pretty=true"
             x-rolesRequirements:
-                - Project Read Only
+                - Project Backup Manager
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/getGroupClusterLifecycleManagementPolicy
-            x-xgen-operation-id-override: getLifecycleManagementPolicy
-        patch:
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSnapshotDatabase
+            x-xgen-operation-id-override: getBackupSnapshotDatabase
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections:
+        get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Updates the lifecycle management policy with the specified identifier. Supports partial updates via PATCH semantics. Can update action fields, transition policy state, or both.
-            operationId: updateGroupClusterLifecycleManagementPolicy
+                 Returns the list of collections in the specified database that exist in the snapshot. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: listGroupClusterBackupSnapshotDatabaseCollections
             parameters:
-                - description: Unique 24-hexadecimal digit string that identifies the project.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^[a-fA-F0-9]{24}$
-                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
                 - description: Human-readable label that identifies the cluster.
                   in: path
                   name: clusterName
                   required: true
                   schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
-                - description: Unique 24-hexadecimal digit string that identifies the policy.
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
                   in: path
-                  name: policyId
+                  name: snapshotId
                   required: true
                   schema:
-                    pattern: ^[a-fA-F0-9]{24}$
+                    pattern: ^([a-f0-9]{24})$
                     type: string
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/pretty'
-            requestBody:
-                content:
-                    application/vnd.atlas.preview+json:
-                        schema:
-                            $ref: '#/components/schemas/ApiLifecycleManagementPolicyUpdateRequest'
-                        x-xgen-preview:
-                            name: lifecycle-management
-                        x-xgen-version: private-preview-lifecycle-management
-                description: Lifecycle management policy fields to update.
-                required: true
+                - description: Human-readable label that identifies the database.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/ApiLifecycleManagementPolicyResponse'
+                                $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupCollectionView'
                             x-xgen-preview:
-                                name: lifecycle-management
-                            x-xgen-version: private-preview-lifecycle-management
+                                name: snapshot-namespaces
+                            x-xgen-version: private-preview-snapshot-namespaces
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -1187,52 +720,136 @@ paths:
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Update One Lifecycle Management Policy
+            summary: Return Collections in One Database in One Snapshot
             tags:
-                - Lifecycle Management
+                - Cloud Backups
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api lifecycleManagement updateLifecycleManagementPolicy --help
+                  source: atlas api cloudBackups listSnapshotDatabaseCollections --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}" \
-                      -d '{ <Payload> }'
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/lifecycleManagementPolicies/{policyId}" \
-                      -d '{ <Payload> }'
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections?pretty=true"
             x-rolesRequirements:
-                - Project Data Access Admin
+                - Project Backup Manager
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Lifecycle-Management/operation/updateGroupClusterLifecycleManagementPolicy
-            x-xgen-operation-id-override: updateLifecycleManagementPolicy
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupSnapshotDatabaseCollections
+            x-xgen-operation-id-override: listSnapshotDatabaseCollections
+    ? /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}
+    :   get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns one collection that exists in the specified database in the snapshot. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.
+            operationId: getGroupClusterBackupSnapshotDatabaseCollection
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                  in: path
+                  name: snapshotId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+                - description: Human-readable label that identifies the database.
+                  in: path
+                  name: databaseName
+                  required: true
+                  schema:
+                    type: string
+                - description: Human-readable label that identifies the collection.
+                  in: path
+                  name: collectionName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupCollectionResponse'
+                            x-xgen-preview:
+                                name: snapshot-namespaces
+                            x-xgen-version: private-preview-snapshot-namespaces
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Collection in One Database in One Snapshot
+            tags:
+                - Cloud Backups
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api cloudBackups getSnapshotDatabaseCollection --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}?pretty=true"
+            x-rolesRequirements:
+                - Project Backup Manager
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSnapshotDatabaseCollection
+            x-xgen-operation-id-override: getSnapshotDatabaseCollection
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns, creates, updates, and removes lifecycle management policies for a cluster within a specified project.
-      name: Lifecycle Management
+    - description: Manages Cloud Backup snapshots, snapshot export buckets, restore jobs, and schedules. This resource applies only to clusters that use Cloud Backups.
+      name: Cloud Backups
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
