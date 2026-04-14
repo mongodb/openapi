@@ -60,7 +60,7 @@ func TestDiff_Run(t *testing.T) {
 	var results []*Diff
 	require.NoError(t, json.Unmarshal(b, &results))
 
-	assert.Equal(t, 4, len(results))
+	assert.Len(t, results, 4)
 	assert.Equal(t, "PATCH", results[0].Operation)
 	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/alerts/{alertId}", results[0].Path)
 	assert.Equal(t, "2023-01-01", results[0].Version)
@@ -71,12 +71,12 @@ func TestDiff_Run(t *testing.T) {
 	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment", results[3].Path)
 	assert.Equal(t, "2023-01-01", results[3].Version)
 	assert.Equal(t, "2026-03-01", results[3].BaseSunsetDate)
-	assert.Equal(t, "", results[3].SpecSunsetDate)
+	assert.Empty(t, results[3].SpecSunsetDate)
 
 	assert.Equal(t, "DELETE", results[2].Operation)
 	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces", results[2].Path)
 	assert.Equal(t, "2023-02-01", results[2].Version)
-	assert.Equal(t, "", results[2].BaseSunsetDate)
+	assert.Empty(t, results[2].BaseSunsetDate)
 	assert.Equal(t, "2025-06-01", results[2].SpecSunsetDate)
 
 	assert.Equal(t, "DELETE", results[1].Operation)
