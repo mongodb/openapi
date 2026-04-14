@@ -27,8 +27,11 @@ func Register(server *mcp.Server, reg *registry.Registry) {
 		Name:        "spec-overview",
 		Description: "Returns a structural overview of a single loaded spec identified by {alias}. " +
 			"Includes title, description, and stats (path count, operation count, schema count, tag count). " +
-			"For versioned APIs, also returns latestVersion (the most recent stable API version to use in Accept/Content-Type headers), " +
-			"availableVersions (all stable date-based versions), and hasPreview (true if preview operations exist). " +
+			"For versioned APIs, also returns: " +
+			"latestStableVersion (the most recent stable YYYY-MM-DD version), " +
+			"availableVersions (all stable date-based versions in ascending order), " +
+			"hasPreview (true if any preview operations exist), " +
+			"hasUpcoming (true if any upcoming operations exist). " +
 			"Use this to understand the scope of a spec before searching or slicing it.",
 		MIMEType: mimeTypeJSON,
 	}, makeAliasHandler(reg))
