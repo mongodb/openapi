@@ -26,10 +26,10 @@ type SpecOverview struct {
 	Title               string              `json:"title,omitempty"`
 	Description         string              `json:"description,omitempty"`
 	Stats               SpecStats           `json:"stats"`
-	LatestStableVersion string              `json:"latestStableVersion,omitempty"`
-	AvailableVersions   []string            `json:"availableVersions,omitempty"`
-	HasPreview          bool                `json:"hasPreview,omitempty"`
-	HasUpcoming         bool                `json:"hasUpcoming,omitempty"`
+	LatestStableVersion string              `json:"latestStableVersion"`
+	AvailableVersions   []string            `json:"availableVersions"`
+	HasPreview          bool                `json:"hasPreview"`
+	HasUpcoming         bool                `json:"hasUpcoming"`
 }
 
 func handleAlias(reg *registry.Registry, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
@@ -86,9 +86,9 @@ func buildSpecOverview(entry *registry.Entry) SpecOverview {
 	stable, hasPreview, hasUpcoming := extractVersions(entry.Spec)
 	overview.HasPreview = hasPreview
 	overview.HasUpcoming = hasUpcoming
+	// ExtractVersions returns versions sorted ascending by date string (YYYY-MM-DD).
+	overview.AvailableVersions = stable
 	if len(stable) > 0 {
-		// ExtractVersions returns versions sorted ascending by date string (YYYY-MM-DD).
-		overview.AvailableVersions = stable
 		overview.LatestStableVersion = stable[len(stable)-1]
 	}
 
@@ -104,9 +104,10 @@ func countOperations(spec *openapi3.T) int {
 }
 
 func extractVersions(spec *openapi3.T) (stable []string, hasPreview, hasUpcoming bool) {
+	stable = []string{}
 	all, err := openapi.ExtractVersions(spec)
 	if err != nil || len(all) == 0 {
-		return nil, false, false
+		return stable, false, false
 	}
 	for _, v := range all {
 		switch {
