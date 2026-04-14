@@ -20489,13 +20489,14 @@ components:
                 - $ref: '#/components/schemas/GroupUserResponse'
                 - properties:
                     invitationCreatedAt:
-                        description: Date and time when MongoDB Cloud sent the invitation. MongoDB Cloud represents this timestamp in ISO 8601 format in UTC.
+                        description: Date and time when MongoDB Cloud sent the invitation. MongoDB Cloud represents this timestamp in ISO 8601 format in UTC. This field is absent for active users.
                         format: date-time
                         readOnly: true
                         type: string
                     invitationExpiresAt:
-                        description: Date and time when the invitation from MongoDB Cloud expires. MongoDB Cloud represents this timestamp in ISO 8601 format in UTC.
+                        description: Date and time when the invitation from MongoDB Cloud expires. MongoDB Cloud represents this timestamp in ISO 8601 format in UTC. This field is absent for active users and null for rejected invitations.
                         format: date-time
+                        nullable: true
                         readOnly: true
                         type: string
                     inviterUsername:
@@ -20507,7 +20508,6 @@ components:
             required:
                 - id
                 - invitationCreatedAt
-                - invitationExpiresAt
                 - inviterUsername
                 - orgMembershipStatus
                 - roles
@@ -20740,6 +20740,8 @@ components:
             discriminator:
                 mapping:
                     ACTIVE: '#/components/schemas/GroupActiveUserResponse'
+                    INVITATION_EXPIRED: '#/components/schemas/GroupPendingUserResponse'
+                    INVITATION_REJECTED: '#/components/schemas/GroupPendingUserResponse'
                     PENDING: '#/components/schemas/GroupPendingUserResponse'
                 propertyName: orgMembershipStatus
             oneOf:
@@ -20753,10 +20755,12 @@ components:
                     readOnly: true
                     type: string
                 orgMembershipStatus:
-                    description: String enum that indicates whether the MongoDB Cloud user has a pending invitation to join the organization or they are already active in the organization.
+                    description: 'String enum that indicates the user''s organization membership status: ACTIVE (member), PENDING (invited), `INVITATION_EXPIRED` (invitation expired), or `INVITATION_REJECTED` (invitation declined).'
                     enum:
                         - PENDING
                         - ACTIVE
+                        - INVITATION_EXPIRED
+                        - INVITATION_REJECTED
                     readOnly: true
                     type: string
                 roles:
@@ -28489,13 +28493,14 @@ components:
                 - $ref: '#/components/schemas/OrgUserResponse'
                 - properties:
                     invitationCreatedAt:
-                        description: Date and time when MongoDB Cloud sent the invitation. MongoDB Cloud represents this timestamp in ISO 8601 format in UTC.
+                        description: Date and time when MongoDB Cloud sent the invitation. MongoDB Cloud represents this timestamp in ISO 8601 format in UTC. This field is absent for active users.
                         format: date-time
                         readOnly: true
                         type: string
                     invitationExpiresAt:
-                        description: Date and time when the invitation from MongoDB Cloud expires. MongoDB Cloud represents this timestamp in ISO 8601 format in UTC.
+                        description: Date and time when the invitation from MongoDB Cloud expires. MongoDB Cloud represents this timestamp in ISO 8601 format in UTC. This field is absent for active users and null for rejected invitations.
                         format: date-time
+                        nullable: true
                         readOnly: true
                         type: string
                     inviterUsername:
@@ -28507,7 +28512,6 @@ components:
             required:
                 - id
                 - invitationCreatedAt
-                - invitationExpiresAt
                 - inviterUsername
                 - orgMembershipStatus
                 - roles
@@ -28648,6 +28652,8 @@ components:
             discriminator:
                 mapping:
                     ACTIVE: '#/components/schemas/OrgActiveUserResponse'
+                    INVITATION_EXPIRED: '#/components/schemas/OrgPendingUserResponse'
+                    INVITATION_REJECTED: '#/components/schemas/OrgPendingUserResponse'
                     PENDING: '#/components/schemas/OrgPendingUserResponse'
                 propertyName: orgMembershipStatus
             oneOf:
@@ -28661,10 +28667,12 @@ components:
                     readOnly: true
                     type: string
                 orgMembershipStatus:
-                    description: String enum that indicates whether the MongoDB Cloud user has a pending invitation to join the organization or they are already active in the organization.
+                    description: 'String enum that indicates the user''s organization membership status: ACTIVE (member), PENDING (invited), `INVITATION_EXPIRED` (invitation expired), or `INVITATION_REJECTED` (invitation declined).'
                     enum:
                         - PENDING
                         - ACTIVE
+                        - INVITATION_EXPIRED
+                        - INVITATION_REJECTED
                     readOnly: true
                     type: string
                 roles:
@@ -40290,7 +40298,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: f5b9bb8654183652bf9b39bd0e5d1a6d4e707127
+    x-xgen-sha: 502cd032e032d9ef6a2287877746ab2a108f6e5a
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -78307,12 +78315,26 @@ paths:
                   schema:
                     default: false
                     type: boolean
-                - description: Flag that indicates whether to filter the returned list by users organization membership status. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.
+                - deprecated: true
+                  description: 'Deprecated: Use `orgMembershipStatuses` instead. Organization membership status to filter users by. Allowed values: `ACTIVE`, `PENDING`, `INVITATION_EXPIRED`, `INVITATION_REJECTED`. If you exclude this parameter, this resource returns ACTIVE and PENDING users. Not supported in deprecated versions.'
                   in: query
                   name: orgMembershipStatus
                   schema:
                     example: ACTIVE
                     type: string
+                - description: 'Organization membership status to filter users by. You can supply this parameter multiple times. Allowed values: `ACTIVE`, `PENDING`, `INVITATION_EXPIRED`, `INVITATION_REJECTED`. Replaces the deprecated `orgMembershipStatus` parameter. If you exclude this parameter, this resource returns ACTIVE and PENDING users. Cannot be combined with `orgMembershipStatus`. Not supported in deprecated versions.'
+                  in: query
+                  name: orgMembershipStatuses
+                  schema:
+                    items:
+                        enum:
+                            - PENDING
+                            - ACTIVE
+                            - INVITATION_EXPIRED
+                            - INVITATION_REJECTED
+                        type: string
+                    maxItems: 4
+                    type: array
                 - description: Email address to filter users by. Not supported in deprecated versions.
                   in: query
                   name: username
@@ -78608,6 +78630,19 @@ paths:
                   schema:
                     pattern: ^([a-f0-9]{24})$
                     type: string
+                - description: 'Organization membership status to filter users by. You can supply this parameter multiple times. Allowed values: `ACTIVE`, `PENDING`, `INVITATION_EXPIRED`, `INVITATION_REJECTED`. If you exclude this parameter, this resource returns ACTIVE and PENDING users. Not supported in deprecated versions.'
+                  in: query
+                  name: orgMembershipStatuses
+                  schema:
+                    items:
+                        enum:
+                            - PENDING
+                            - ACTIVE
+                            - INVITATION_EXPIRED
+                            - INVITATION_REJECTED
+                        type: string
+                    maxItems: 4
+                    type: array
             responses:
                 "200":
                     content:
@@ -85108,12 +85143,26 @@ paths:
                   schema:
                     format: email
                     type: string
-                - description: Organization membership status to filter users by. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.
+                - deprecated: true
+                  description: 'Deprecated: Use `orgMembershipStatuses` instead. Organization membership status to filter users by. Allowed values: `ACTIVE`, `PENDING`, `INVITATION_EXPIRED`, `INVITATION_REJECTED`. If you exclude this parameter, this resource returns ACTIVE and PENDING users. Not supported in deprecated versions.'
                   in: query
                   name: orgMembershipStatus
                   schema:
                     example: ACTIVE
                     type: string
+                - description: 'Organization membership status to filter users by. You can supply this parameter multiple times. Allowed values: `ACTIVE`, `PENDING`, `INVITATION_EXPIRED`, `INVITATION_REJECTED`. Replaces the deprecated `orgMembershipStatus` parameter. If you exclude this parameter, this resource returns ACTIVE and PENDING users. Cannot be combined with `orgMembershipStatus`. Not supported in deprecated versions.'
+                  in: query
+                  name: orgMembershipStatuses
+                  schema:
+                    items:
+                        enum:
+                            - PENDING
+                            - ACTIVE
+                            - INVITATION_EXPIRED
+                            - INVITATION_REJECTED
+                        type: string
+                    maxItems: 4
+                    type: array
                 - description: Unique 24-hexadecimal digit string to filter users by. Not supported in deprecated versions.
                   in: query
                   name: userId
@@ -85753,12 +85802,26 @@ paths:
                   schema:
                     format: email
                     type: string
-                - description: Organization membership status to filter users by. If you exclude this parameter, this resource returns both pending and active users. Not supported in deprecated versions.
+                - deprecated: true
+                  description: 'Deprecated: Use `orgMembershipStatuses` instead. Organization membership status to filter users by. Allowed values: `ACTIVE`, `PENDING`, `INVITATION_EXPIRED`, `INVITATION_REJECTED`. If you exclude this parameter, this resource returns ACTIVE and PENDING users. Not supported in deprecated versions.'
                   in: query
                   name: orgMembershipStatus
                   schema:
                     example: ACTIVE
                     type: string
+                - description: 'Organization membership status to filter users by. You can supply this parameter multiple times. Allowed values: `ACTIVE`, `PENDING`, `INVITATION_EXPIRED`, `INVITATION_REJECTED`. Replaces the deprecated `orgMembershipStatus` parameter. If you exclude this parameter, this resource returns ACTIVE and PENDING users. Cannot be combined with `orgMembershipStatus`. Not supported in deprecated versions.'
+                  in: query
+                  name: orgMembershipStatuses
+                  schema:
+                    items:
+                        enum:
+                            - PENDING
+                            - ACTIVE
+                            - INVITATION_EXPIRED
+                            - INVITATION_REJECTED
+                        type: string
+                    maxItems: 4
+                    type: array
             responses:
                 "200":
                     content:
@@ -86050,6 +86113,19 @@ paths:
                   schema:
                     pattern: ^([a-f0-9]{24})$
                     type: string
+                - description: 'Organization membership status to filter users by. You can supply this parameter multiple times. Allowed values: `ACTIVE`, `PENDING`, `INVITATION_EXPIRED`, `INVITATION_REJECTED`. If you exclude this parameter, this resource returns ACTIVE and PENDING users. Not supported in deprecated versions.'
+                  in: query
+                  name: orgMembershipStatuses
+                  schema:
+                    items:
+                        enum:
+                            - PENDING
+                            - ACTIVE
+                            - INVITATION_EXPIRED
+                            - INVITATION_REJECTED
+                        type: string
+                    maxItems: 4
+                    type: array
             responses:
                 "200":
                     content:
