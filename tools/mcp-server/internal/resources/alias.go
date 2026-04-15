@@ -19,7 +19,7 @@ type SpecStats struct {
 	Tags       int `json:"tags"`
 }
 
-// SpecOverview is the response body for the openapi://{alias} resource.
+// SpecOverview is the response body for the openapi://specs/{alias} resource.
 type SpecOverview struct {
 	Alias               string              `json:"alias"`
 	SourceType          registry.SourceType `json:"sourceType"`
