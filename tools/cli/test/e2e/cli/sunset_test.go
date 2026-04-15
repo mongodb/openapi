@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/mongodb/openapi/tools/cli/internal/cli/sunset"
 	"os"
 	"os/exec"
 	"testing"
 
+	"github.com/mongodb/openapi/tools/cli/internal/cli/sunset"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -40,7 +40,7 @@ func TestDiff_NoChanges(t *testing.T) {
 	var results []*sunset.Diff
 	require.NoError(t, json.Unmarshal(b, &results))
 
-	assert.Len(t, results, 0)
+	assert.Empty(t, results)
 }
 
 func TestDiff_WithChanges(t *testing.T) {

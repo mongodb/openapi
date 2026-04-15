@@ -15,9 +15,9 @@
 package sunset
 
 import (
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
 	"testing"
 
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,7 +33,7 @@ func TestFindDiffsEmpty(t *testing.T) {
 	}
 
 	diff := findDiffs(baseSpecSunsets, baseSpecSunsets, "base.json", "spec.json")
-	assert.Len(t, diff, 0)
+	assert.Empty(t, diff)
 }
 
 func TestFindDiffsNotEmpty(t *testing.T) {
