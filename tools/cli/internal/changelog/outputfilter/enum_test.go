@@ -19,14 +19,14 @@ func TestSquash(t *testing.T) {
 			entries: []*OasDiffEntry{
 				{
 					ID:          "response-write-only-property-enum-value-added",
-					Text:        "added the new `DUBLIN_IRL` enum value to the `/items/dataProcessRegion/region` response write-only property for the response status `200`",
+					Text:        "added the new `DUBLIN_IRL` enum value to the `/items/dataProcessRegion/region` response write-only property for the response status `200`", //nolint:lll //Test string
 					Operation:   "POST",
 					OperationID: "CreateClusterAdvancedConfiguration",
 					Path:        "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs",
 				},
 				{
 					ID:          "response-write-only-property-enum-value-added",
-					Text:        "added the new `TEST` enum value to the `/items/dataProcessRegion/region` response write-only property for the response status `200`",
+					Text:        "added the new `TEST` enum value to the `/items/dataProcessRegion/region` response write-only property for the response status `200`", //nolint:lll //Test string
 					Operation:   "POST",
 					OperationID: "CreateClusterAdvancedConfiguration",
 					Path:        "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs",
@@ -182,7 +182,7 @@ func TestSquash(t *testing.T) {
 			expectedEntries: []*OasDiffEntry{
 				{
 					ID:          "response-write-only-property-enum-value-added",
-					Text:        "added the new 'DUBLIN_IRL, TEST' enum values to the '/items/dataProcessRegion/region' response write-only property for the response status '200'",
+					Text:        "added the new 'DUBLIN_IRL, TEST' enum values to the '/items/dataProcessRegion/region' response write-only property for the response status '200'", //nolint:lll //Test string
 					Operation:   "POST",
 					OperationID: "CreateClusterAdvancedConfiguration",
 					Path:        "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs",
@@ -238,7 +238,7 @@ func TestSquash(t *testing.T) {
 				},
 				{
 					ID:          "response-property-enum-value-removed",
-					Text:        "removed the 'linearizable, majority, snapshot' enum values from the 'defaultReadConcern' response property for the response status '200'",
+					Text:        "removed the 'linearizable, majority, snapshot' enum values from the 'defaultReadConcern' response property for the response status '200'", //nolint:lll //Test string
 					Operation:   "GET",
 					OperationID: "listConnectgetClusterAdvancedConfigurationedOrgConfigs",
 					Path:        "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs",

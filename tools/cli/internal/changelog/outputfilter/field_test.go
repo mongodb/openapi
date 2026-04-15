@@ -189,7 +189,7 @@ func TestSquashRequestFieldAdded(t *testing.T) {
 				},
 				{
 					ID:          "response-optional-property-added",
-					Text:        "added the optional properties 'results/items/payments/items/currency, results/items/payments/items/unitPrice' to the response with the '200' status",
+					Text:        "added the optional properties 'results/items/payments/items/currency, results/items/payments/items/unitPrice' to the response with the '200' status", //nolint:lll //Test string
 					Operation:   "PUT",
 					OperationID: "listInvoices",
 					Path:        "/api/atlas/v2/orgs/{orgId}/invoices",

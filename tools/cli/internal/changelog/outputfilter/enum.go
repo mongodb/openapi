@@ -6,7 +6,8 @@ const (
 )
 
 // squashRequestPropertyEnumValueAdded squashes oasdiff entries with id: "response-property-enum-value-added"
-// Message format (oasdiff v1.14.0+): "added the new `DUBLIN_IRL` enum value to the `/items/dataProcessRegion/region` response property for the response status `200`".
+// Message format (oasdiff v1.14.0+): "added the new `VALUE` enum value to the `/path/to/property`
+// response property for the response status `200`".
 func squashResponsePropertyEnumValueAdded(entriesGroupedByOperationID map[string][]*OasDiffEntry) ([]*OasDiffEntry, error) {
 	return squashEntriesByValues(
 		"response-property-enum-value-added",
@@ -19,7 +20,8 @@ func squashResponsePropertyEnumValueAdded(entriesGroupedByOperationID map[string
 }
 
 // squashResponsePropertyEnumValueRemoved squashes oasdiff entries with id: "response-property-enum-value-removed"
-// Message format (oasdiff v1.14.0+): "removed the `DUBLIN_IRL` enum value from the `/items/dataProcessRegion/region` response property for the response status `200`".
+// Message format (oasdiff v1.14.0+): "removed the `VALUE` enum value from the `/path/to/property`
+// response property for the response status `200`".
 func squashResponsePropertyEnumValueRemoved(entriesGroupedByOperationID map[string][]*OasDiffEntry) ([]*OasDiffEntry, error) {
 	return squashEntriesByValues(
 		"response-property-enum-value-removed",
@@ -45,7 +47,8 @@ func squashResponseMediatypeEnumValueRemoved(entriesGroupedByOperationID map[str
 }
 
 // squashResponseWriteOnlyPropertyEnumValueAdded squashes oasdiff entries with id: "response-write-only-property-enum-value-added"
-// Message format (oasdiff v1.14.0+): "added the new `DUBLIN_IRL` enum value to the `/items/dataProcessRegion/region` response write-only property for the response status `200`",.
+// Message format (oasdiff v1.14.0+): "added the new `VALUE` enum value to the `/path/to/property`
+// response write-only property for the response status `200`".
 func squashResponseWriteOnlyPropertyEnumValueAdded(entriesGroupedByOperationID map[string][]*OasDiffEntry) ([]*OasDiffEntry, error) {
 	return squashEntriesByValues(
 		"response-write-only-property-enum-value-added",
