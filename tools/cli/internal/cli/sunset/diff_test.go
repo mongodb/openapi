@@ -15,73 +15,153 @@
 package sunset
 
 import (
-	"encoding/json"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
-func TestNoDiff_Run(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	opts := &DiffOpts{
-		basePath:   "../../../test/data/base_spec.json",
-		specPath:   "../../../test/data/base_spec.json",
-		outputPath: "diff.json",
-		fs:         fs,
-		format:     "json",
+func TestFindDiffsEmpty(t *testing.T) {
+	baseSpecSunsets := []*sunset.Sunset{
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/example/info",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "Team",
+		},
 	}
 
-	require.NoError(t, opts.Run())
-	b, err := afero.ReadFile(fs, opts.outputPath)
-	require.NoError(t, err)
-	assert.NotEmpty(t, b)
-	var results []*Diff
-	require.NoError(t, json.Unmarshal(b, &results))
-	// When comparing the same file, there should be no differences
-	assert.Empty(t, results)
+	diff := findDiffs(baseSpecSunsets, baseSpecSunsets, "base.json", "spec.json")
+	assert.Len(t, diff, 0)
 }
 
-func TestDiff_Run(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	opts := &DiffOpts{
-		basePath:   "../../../test/data/base_spec.json",
-		specPath:   "../../../test/data/base_spec_with_mismatching_sunset_dates.json",
-		outputPath: "diff.json",
-		fs:         fs,
-		format:     "json",
+func TestFindDiffsNotEmpty(t *testing.T) {
+	baseSpecSunsets := []*sunset.Sunset{
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/example/info",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "Team",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/versions",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "APIx",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/test",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "Test",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/groups",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "Groups",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/groups",
+			Version:    "2023-02-01",
+			SunsetDate: "2025-06-01",
+			Team:       "Groups",
+		},
+	}
+	specSunsets := []*sunset.Sunset{
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/example/info",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "Team",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/versions",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-02",
+			Team:       "APIx",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/users",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "Users",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/groups",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-03",
+			Team:       "Groups",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/groups",
+			Version:    "2023-02-01",
+			SunsetDate: "2025-06-03",
+			Team:       "Groups",
+		},
 	}
 
-	require.NoError(t, opts.Run())
-	b, err := afero.ReadFile(fs, opts.outputPath)
-	require.NoError(t, err)
-	assert.NotEmpty(t, b)
-	var results []*Diff
-	require.NoError(t, json.Unmarshal(b, &results))
+	diff := findDiffs(baseSpecSunsets, specSunsets, "base.json", "spec.json")
+	assert.Len(t, diff, 5)
 
-	assert.Len(t, results, 4)
-	assert.Equal(t, "PATCH", results[0].Operation)
-	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/alerts/{alertId}", results[0].Path)
-	assert.Equal(t, "2023-01-01", results[0].Version)
-	assert.Equal(t, "2025-05-30", results[0].BaseSunsetDate)
-	assert.Equal(t, "2025-05-31", results[0].SpecSunsetDate)
+	assert.Equal(t, "GET", diff[0].Operation)
+	assert.Equal(t, "/api/atlas/v2/groups", diff[0].Path)
+	assert.Equal(t, "2023-01-01", diff[0].Version)
+	assert.Equal(t, "2025-06-01", diff[0].BaseSunsetDate)
+	assert.Equal(t, "2025-06-03", diff[0].SpecSunsetDate)
+	assert.Equal(t, "base.json", diff[0].BaseSpec)
+	assert.Equal(t, "spec.json", diff[0].Spec)
+	assert.Equal(t, "Groups", diff[0].Team)
 
-	assert.Equal(t, "GET", results[3].Operation)
-	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment", results[3].Path)
-	assert.Equal(t, "2023-01-01", results[3].Version)
-	assert.Equal(t, "2026-03-01", results[3].BaseSunsetDate)
-	assert.Empty(t, results[3].SpecSunsetDate)
+	assert.Equal(t, "GET", diff[1].Operation)
+	assert.Equal(t, "/api/atlas/v2/groups", diff[1].Path)
+	assert.Equal(t, "2023-02-01", diff[1].Version)
+	assert.Equal(t, "2025-06-01", diff[1].BaseSunsetDate)
+	assert.Equal(t, "2025-06-03", diff[1].SpecSunsetDate)
+	assert.Equal(t, "base.json", diff[1].BaseSpec)
+	assert.Equal(t, "spec.json", diff[1].Spec)
+	assert.Equal(t, "Groups", diff[1].Team)
 
-	assert.Equal(t, "DELETE", results[2].Operation)
-	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces", results[2].Path)
-	assert.Equal(t, "2023-02-01", results[2].Version)
-	assert.Empty(t, results[2].BaseSunsetDate)
-	assert.Equal(t, "2025-06-01", results[2].SpecSunsetDate)
+	assert.Equal(t, "GET", diff[2].Operation)
+	assert.Equal(t, "/api/atlas/v2/test", diff[2].Path)
+	assert.Equal(t, "2023-01-01", diff[2].Version)
+	assert.Equal(t, "2025-06-01", diff[2].BaseSunsetDate)
+	assert.Empty(t, diff[2].SpecSunsetDate)
+	assert.Equal(t, "base.json", diff[2].BaseSpec)
+	assert.Equal(t, "spec.json", diff[2].Spec)
+	assert.Equal(t, "Test", diff[2].Team)
 
-	assert.Equal(t, "DELETE", results[1].Operation)
-	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/globalWrites/managedNamespaces", results[1].Path)
-	assert.Equal(t, "2023-01-01", results[1].Version)
-	assert.Equal(t, "2025-06-01", results[1].BaseSunsetDate)
-	assert.Equal(t, "2025-06-02", results[1].SpecSunsetDate)
+	assert.Equal(t, "GET", diff[3].Operation)
+	assert.Equal(t, "/api/atlas/v2/users", diff[3].Path)
+	assert.Equal(t, "2023-01-01", diff[3].Version)
+	assert.Empty(t, diff[3].BaseSunsetDate)
+	assert.Equal(t, "2025-06-01", diff[3].SpecSunsetDate)
+	assert.Equal(t, "base.json", diff[3].BaseSpec)
+	assert.Equal(t, "spec.json", diff[3].Spec)
+	assert.Equal(t, "Users", diff[3].Team)
+
+	assert.Equal(t, "GET", diff[4].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", diff[4].Path)
+	assert.Equal(t, "2023-01-01", diff[4].Version)
+	assert.Equal(t, "2025-06-01", diff[4].BaseSunsetDate)
+	assert.Equal(t, "2025-06-02", diff[4].SpecSunsetDate)
+	assert.Equal(t, "base.json", diff[4].BaseSpec)
+	assert.Equal(t, "spec.json", diff[4].Spec)
+	assert.Equal(t, "APIx", diff[4].Team)
+}
+
+func TestMakeKey(t *testing.T) {
+	key := makeKey("/api/atlas/v2/groups", "GET", "2023-01-01")
+	assert.Equal(t, "GET-/api/atlas/v2/groups-2023-01-01", key)
 }

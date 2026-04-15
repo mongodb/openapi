@@ -43,6 +43,8 @@ type Diff struct {
 	Version        string `json:"version" yaml:"version"`
 	BaseSunsetDate string `json:"base_sunset_date" yaml:"base_sunset_date"`
 	SpecSunsetDate string `json:"spec_sunset_date" yaml:"spec_sunset_date"`
+	BaseSpec       string `json:"base_spec" yaml:"base_spec"`
+	Spec           string `json:"spec" yaml:"spec"`
 	Team           string `json:"team" yaml:"team"`
 }
 
@@ -65,6 +67,24 @@ func (o *DiffOpts) Run() error {
 	baseSunsets := sunset.NewListFromSpec(baseSpecInfo)
 	specSunsets := sunset.NewListFromSpec(specInfo)
 
+	// Find differences
+	var diffs = findDiffs(baseSunsets, specSunsets, o.basePath, o.specPath)
+
+	// Write to output
+	bytes, err := o.newSunsetDiffBytes(diffs)
+	if err != nil {
+		return err
+	}
+
+	if o.outputPath != "" {
+		return afero.WriteFile(o.fs, o.outputPath, bytes, 0o600)
+	}
+
+	fmt.Println(string(bytes))
+	return nil
+}
+
+func findDiffs(baseSunsets, specSunsets []*sunset.Sunset, baseSpecPath, specPath string) []*Diff {
 	// Create maps for easy lookup
 	baseMap := make(map[string]*sunset.Sunset)
 	for _, s := range baseSunsets {
@@ -93,6 +113,8 @@ func (o *DiffOpts) Run() error {
 					Version:        baseSunset.Version,
 					BaseSunsetDate: baseSunset.SunsetDate,
 					SpecSunsetDate: specSunset.SunsetDate,
+					BaseSpec:       baseSpecPath,
+					Spec:           specPath,
 					Team:           baseSunset.Team,
 				})
 			}
@@ -104,6 +126,8 @@ func (o *DiffOpts) Run() error {
 				Version:        baseSunset.Version,
 				BaseSunsetDate: baseSunset.SunsetDate,
 				SpecSunsetDate: "",
+				BaseSpec:       baseSpecPath,
+				Spec:           specPath,
 				Team:           baseSunset.Team,
 			})
 		}
@@ -118,30 +142,21 @@ func (o *DiffOpts) Run() error {
 				Version:        specSunset.Version,
 				BaseSunsetDate: "",
 				SpecSunsetDate: specSunset.SunsetDate,
+				BaseSpec:       baseSpecPath,
+				Spec:           specPath,
 				Team:           specSunset.Team,
 			})
 		}
 	}
 
-	// Sort diffs by path and operation
+	// Sort diffs by path, operation and version for consistent output
 	sort.Slice(diffs, func(i, j int) bool {
-		if diffs[i].Path != diffs[j].Path {
-			return diffs[i].Path < diffs[j].Path
-		}
-		return diffs[i].Operation < diffs[j].Operation
+		iKey := makeKey(diffs[i].Path, diffs[i].Operation, diffs[i].Version)
+		jKey := makeKey(diffs[j].Path, diffs[j].Operation, diffs[j].Version)
+		return iKey < jKey
 	})
 
-	bytes, err := o.newSunsetDiffBytes(diffs)
-	if err != nil {
-		return err
-	}
-
-	if o.outputPath != "" {
-		return afero.WriteFile(o.fs, o.outputPath, bytes, 0o600)
-	}
-
-	fmt.Println(string(bytes))
-	return nil
+	return diffs
 }
 
 func makeKey(path, operation, version string) string {
