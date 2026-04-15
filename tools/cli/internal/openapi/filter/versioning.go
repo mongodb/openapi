@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
-	"github.com/oasdiff/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 // VersioningFilter is a filter that modifies the OpenAPI spec by removing paths, operations and responses

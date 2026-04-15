@@ -18,7 +18,7 @@ import (
 	"fmt"
 
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
-	"github.com/oasdiff/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 // InfoVersioningFilter modifies the Info object in the OpenAPI spec with the target version.

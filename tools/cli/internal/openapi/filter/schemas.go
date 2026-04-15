@@ -21,7 +21,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/oasdiff/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 // SchemasFilter removes unused #/components/schemas/.
