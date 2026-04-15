@@ -17,8 +17,8 @@ package filter
 import (
 	"testing"
 
-	"github.com/mongodb/openapi/tools/cli/internal/pointer"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/pointer"
 	"github.com/stretchr/testify/require"
 )
 

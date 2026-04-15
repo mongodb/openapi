@@ -18,8 +18,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/stretchr/testify/require"
 )
 

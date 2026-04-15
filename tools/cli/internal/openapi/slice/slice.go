@@ -19,8 +19,8 @@ import (
 	"regexp"
 	"slices"
 
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
 )
 
 // Criteria defines the selection criteria for slicing an OpenAPI spec.
