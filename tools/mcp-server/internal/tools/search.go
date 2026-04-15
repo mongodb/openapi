@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/mcp-server/internal/registry"
-	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // SearchParams are the parameters for the search tool.

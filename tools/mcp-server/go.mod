@@ -3,15 +3,14 @@ module github.com/mongodb/openapi/tools/mcp-server
 go 1.26
 
 require (
+	github.com/getkin/kin-openapi v0.135.0
 	github.com/modelcontextprotocol/go-sdk v1.5.0
 	github.com/mongodb/openapi/tools/cli v0.0.0
-	github.com/oasdiff/kin-openapi v0.136.10
 	github.com/spf13/afero v1.15.0
 )
 
 require (
 	cloud.google.com/go v0.123.0 // indirect
-	github.com/getkin/kin-openapi v0.135.0 // indirect
 	github.com/go-openapi/jsonpointer v0.22.5 // indirect
 	github.com/go-openapi/swag/jsonname v0.25.5 // indirect
 	github.com/google/jsonschema-go v0.4.2 // indirect

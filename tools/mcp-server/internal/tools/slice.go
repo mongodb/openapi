@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/pkg/openapi"
 	"github.com/mongodb/openapi/tools/mcp-server/internal/registry"
-	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // SliceParams are the parameters for the slice tool.

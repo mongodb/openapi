@@ -3,7 +3,7 @@ package registry
 import (
 	"testing"
 
-	"github.com/oasdiff/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 func TestRegistry_Add_NewEntry(t *testing.T) {
