@@ -34,10 +34,12 @@ func newTestSpec() *openapi3.T {
 		Paths: &openapi3.Paths{},
 		Tags: openapi3.Tags{
 			{Name: "Clusters"},
+			{Name: "Flex Clusters"}, // space in name → percent-encoded as "Flex%20Clusters" in URIs
 		},
 		Components: &openapi3.Components{
 			Schemas: map[string]*openapi3.SchemaRef{
-				"Cluster": {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
+				"Cluster":     {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
+				"FlexCluster": {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
 			},
 		},
 	}
@@ -65,6 +67,16 @@ func newTestSpec() *openapi3.T {
 			},
 		}))
 	}
+	newUpcomingResp := func() *openapi3.Responses {
+		return openapi3.NewResponses(openapi3.WithStatus(200, &openapi3.ResponseRef{
+			Value: &openapi3.Response{
+				Content: openapi3.Content{
+					"application/vnd.atlas.2026-01-01.upcoming+json": &openapi3.MediaType{},
+				},
+			},
+		}))
+	}
+
 	spec.Paths.Set("/api/atlas/v2/clusters", &openapi3.PathItem{
 		Get: &openapi3.Operation{
 			OperationID: "listClusterDetails",
@@ -95,6 +107,22 @@ func newTestSpec() *openapi3.T {
 			Summary:     "Remove One Cluster from One Project",
 			Tags:        []string{"Clusters"},
 			Responses:   newPreviewResp(),
+		},
+	})
+
+	// Flex Clusters: tag name has a space, exercising percent-encoding in URIs.
+	spec.Paths.Set("/api/atlas/v2/groups/{groupId}/flexClusters", &openapi3.PathItem{
+		Get: &openapi3.Operation{
+			OperationID: "listGroupFlexClusters",
+			Summary:     "Return All Flex Clusters from One Project",
+			Tags:        []string{"Flex Clusters"},
+			Responses:   newStableResp(),
+		},
+		Post: &openapi3.Operation{
+			OperationID: "createGroupFlexCluster",
+			Summary:     "Create One Flex Cluster in One Project",
+			Tags:        []string{"Flex Clusters"},
+			Responses:   newUpcomingResp(),
 		},
 	})
 

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/mongodb/openapi/tools/mcp-server/internal/registry"
-	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // TagOperation represents a single operation belonging to a tag.
@@ -63,7 +63,7 @@ func handleTags(reg *registry.Registry, req *mcp.ReadResourceRequest) (*mcp.Read
 // sorted by path then method for deterministic output.
 // Returns an error if no operations are found for the given tag.
 func operationsByTag(spec *openapi3.T, tagName string) ([]TagOperation, error) {
-	if spec.Paths == nil {
+	if spec == nil || spec.Paths == nil {
 		return nil, fmt.Errorf("tag %q not found in spec", tagName)
 	}
 

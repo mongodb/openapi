@@ -20,14 +20,14 @@ func TestHandleAlias_Overview(t *testing.T) {
 	assert.Equal(t, "test-api", body.Alias)
 	assert.Equal(t, "Test API", body.Title)
 	assert.Equal(t, registry.SourceTypeFile, body.SourceType)
-	assert.Equal(t, 3, body.Stats.Paths)
-	assert.Equal(t, 4, body.Stats.Operations)
-	assert.Equal(t, 1, body.Stats.Tags)
-	assert.Equal(t, 1, body.Stats.Schemas)
+	assert.Equal(t, 4, body.Stats.Paths)
+	assert.Equal(t, 6, body.Stats.Operations)
+	assert.Equal(t, 2, body.Stats.Tags)
+	assert.Equal(t, 2, body.Stats.Schemas)
 	assert.Equal(t, "2025-01-01", body.LatestStableVersion)
 	assert.Equal(t, []string{"2024-01-01", "2025-01-01"}, body.AvailableVersions)
 	assert.True(t, body.HasPreview)
-	assert.False(t, body.HasUpcoming)
+	assert.True(t, body.HasUpcoming)
 }
 
 // TestHandleAlias_NotFound verifies that reading a non-existent alias returns an error.
