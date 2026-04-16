@@ -5,7 +5,7 @@ go 1.26
 require (
 	github.com/getkin/kin-openapi v0.135.0
 	github.com/modelcontextprotocol/go-sdk v1.5.0
-	github.com/mongodb/openapi/tools/cli v0.0.1
+	github.com/mongodb/openapi/tools/cli v0.0.0
 	github.com/spf13/afero v1.15.0
 )
 
