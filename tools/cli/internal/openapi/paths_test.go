@@ -16,7 +16,7 @@ package openapi
 import (
 	"testing"
 
-	"github.com/oasdiff/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 func TestAllOperationsHaveExtension(t *testing.T) {

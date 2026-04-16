@@ -25,6 +25,7 @@ func Builder() *cobra.Command {
 	}
 
 	cmd.AddCommand(ListBuilder())
+	cmd.AddCommand(DiffBuilder())
 
 	return cmd
 }

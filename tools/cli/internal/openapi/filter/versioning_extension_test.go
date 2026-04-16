@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
-	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

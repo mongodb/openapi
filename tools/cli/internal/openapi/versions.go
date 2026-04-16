@@ -20,9 +20,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/filter"
-	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // ExtractVersionsWithEnv extracts API version Content Type strings from the given OpenAPI specification and environment.

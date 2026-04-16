@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/mongodb/openapi/tools/cli/pkg/apiversion"
 	"github.com/mongodb/openapi/tools/cli/pkg/openapi"
 	"github.com/mongodb/openapi/tools/mcp-server/internal/registry"
-	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // SpecStats holds counts of the spec's top-level components.
@@ -19,7 +19,7 @@ type SpecStats struct {
 	Tags       int `json:"tags"`
 }
 
-// SpecOverview is the response body for the openapi://{alias} resource.
+// SpecOverview is the response body for the openapi://specs/{alias} resource.
 type SpecOverview struct {
 	Alias               string              `json:"alias"`
 	SourceType          registry.SourceType `json:"sourceType"`

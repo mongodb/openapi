@@ -18,9 +18,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/errors"
 	"github.com/mongodb/openapi/tools/cli/internal/pointer"
-	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/oasdiff/oasdiff/load"
 	"github.com/stretchr/testify/assert"

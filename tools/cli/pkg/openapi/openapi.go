@@ -17,9 +17,9 @@
 package openapi
 
 import (
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/slice"
-	"github.com/oasdiff/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/load"
 	"github.com/spf13/afero"
 )

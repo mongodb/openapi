@@ -35,18 +35,6 @@ func Register(server *mcp.Server, reg *registry.Registry) {
 			"Use this to understand the scope of a spec before searching or slicing it.",
 		MIMEType: mimeTypeJSON,
 	}, makeAliasHandler(reg))
-
-	server.AddResourceTemplate(&mcp.ResourceTemplate{
-		URITemplate: "openapi://specs/{alias}/tags/{tagName}",
-		Name:        "spec-tag-operations",
-		Description: "Lists all operations for a specific tag in the spec identified by {alias}. " +
-			"{tagName} is case-sensitive and must match a tag name exactly as defined in the spec. " +
-			"Use the tag name as it appears in the spec — URI encoding is handled automatically. " +
-			"Each operation includes operationId, HTTP method, path, summary, and tags. " +
-			"Results are sorted by path then method. " +
-			"Returns an error if the alias or tag does not exist.",
-		MIMEType: mimeTypeJSON,
-	}, makeTagsHandler(reg))
 }
 
 // makeSpecsHandler creates the handler for the openapi://specs resource.
@@ -60,12 +48,5 @@ func makeSpecsHandler(reg *registry.Registry) mcp.ResourceHandler {
 func makeAliasHandler(reg *registry.Registry) mcp.ResourceHandler {
 	return func(_ context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 		return handleAlias(reg, req)
-	}
-}
-
-// makeTagsHandler creates the handler for the openapi://specs/{alias}/tags/{tagName} resource template.
-func makeTagsHandler(reg *registry.Registry) mcp.ResourceHandler {
-	return func(_ context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
-		return handleTags(reg, req)
 	}
 }

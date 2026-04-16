@@ -1,7 +1,7 @@
 package tools
 
 import (
-	"github.com/oasdiff/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 // createTestSpec creates a comprehensive test OpenAPI spec shared across test files.

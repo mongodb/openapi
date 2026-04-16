@@ -441,6 +441,46 @@
         ],
         "type": "object"
       },
+      "ApiStandbyLinkFailoverReadinessResponse": {
+        "description": "Response body containing a standby link failover readiness snapshot for assessing potential data loss before an unplanned failover.",
+        "properties": {
+          "estimatedDataLossSeconds": {
+            "description": "Best-effort estimate of potential data loss in seconds if failover is triggered now.",
+            "example": 3,
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          },
+          "estimatedFailoverTimeSeconds": {
+            "description": "Best-effort estimate of total expected recovery time in seconds, including Atlas-side failover overhead.",
+            "example": 45,
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project that owns the standby link.",
+            "example": "69af15ed46c6ab2dbf1c3d0e",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "standbyLinkId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby link described by this readiness snapshot.",
+            "example": "6655f1f77bcf86cd79943901",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "estimatedDataLossSeconds",
+          "estimatedFailoverTimeSeconds",
+          "groupId",
+          "standbyLinkId"
+        ],
+        "type": "object"
+      },
       "ApiStandbyLinkFailoverRequest": {
         "description": "Request to initiate a failover operation.",
         "properties": {
@@ -731,7 +771,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "d7dec0257048ea3d06c3072eae50e95f49bbf096"
+    "x-xgen-sha": "b6a75a90517e9191f3d91801704ccee2307abb9e"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -812,6 +852,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
@@ -910,6 +953,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks\" \\\n  -d '{ <Payload> }'"
           }
         ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -1000,6 +1046,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
         ],
         "x-state": {
           "label": "PREVIEW",
@@ -1092,6 +1141,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
@@ -1187,6 +1239,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
@@ -1296,6 +1351,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers\" \\\n  -d '{ <Payload> }'"
           }
         ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -1401,12 +1459,130 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}/failovers/{failoverId}?pretty=true\""
           }
         ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/getGroupStandbyLinkFailover",
         "x-xgen-operation-id-override": "getStandbyLinkFailover"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}:inspectFailoverReadiness": {
+      "get": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns the failover readiness metrics for the specified standby link in the specified project. The response includes the readiness snapshot identifiers, estimated data loss and failover time values. Use this endpoint to assess potential data loss before triggering an unplanned failover.",
+        "operationId": "inspectGroupStandbyLinkFailoverReadiness",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the standby link.",
+            "in": "path",
+            "name": "standbyLinkId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to wrap the response in an envelope.",
+            "in": "query",
+            "name": "envelope",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiStandbyLinkFailoverReadinessResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "standby-links"
+                },
+                "x-xgen-version": "private-preview-standby-links"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          },
+          "503": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "x-xgen-preview": {
+                  "name": "standby-links"
+                },
+                "x-xgen-version": "private-preview-standby-links"
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "summary": "Inspect Failover Readiness for One Standby Link",
+        "tags": [
+          "Standby Links"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api standbyLinks inspectFailoverReadiness --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}:inspectFailoverReadiness?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/standbyLinks/{standbyLinkId}:inspectFailoverReadiness?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/inspectGroupStandbyLinkFailoverReadiness",
+        "x-xgen-operation-id-override": "inspectFailoverReadiness"
       }
     }
   },

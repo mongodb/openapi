@@ -15,7 +15,7 @@
 package filter
 
 import (
-	"github.com/oasdiff/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 // BumpFilter modifies includes the fields "x-state" and "x-beta" to the "preview" and "upcoming" APIs Operations.

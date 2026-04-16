@@ -624,6 +624,52 @@
         ],
         "type": "object"
       },
+      "StartStreamProcessorWithPreviewView": {
+        "description": "A request to start a stream processor.",
+        "properties": {
+          "failover": {
+            "$ref": "#/components/schemas/StreamsStartProcessorFailover"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "resumeFromCheckpoint": {
+            "description": "When true or not specified, the stream processor resumes from its last checkpoint. When false, the stream processor starts fresh.",
+            "type": "boolean"
+          },
+          "startAtOperationTime": {
+            "description": "The operation time after which the change stream source should begin reporting. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "type": "string"
+          },
+          "tier": {
+            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "enum": [
+              "SP50",
+              "SP30",
+              "SP10",
+              "SP5",
+              "SP2"
+            ],
+            "title": "Stream Workspace Tier",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "StreamsAWSConnectionConfig": {
         "description": "AWS configurations for AWS-based connection types.",
         "properties": {
@@ -1226,6 +1272,32 @@
           "schemaRegistryUrls"
         ],
         "type": "object"
+      },
+      "StreamsStartProcessorFailover": {
+        "description": "Failover options for starting a stream processor.",
+        "properties": {
+          "dryRun": {
+            "description": "If true, simulates the operation without making any changes.",
+            "type": "boolean"
+          },
+          "mode": {
+            "description": "Strategy for the processor: GRACEFUL - attempt to stop the processor, error if processor cannot be stopped. if stop was successful, start the processor in the new region with the latest checkpoint.  FORCED - attempt to stop the processor, proceed to starting the processor in the new region with checkpoints disabled regardless of whether or not the stop succeeds.",
+            "enum": [
+              "GRACEFUL",
+              "FORCED"
+            ],
+            "type": "string"
+          },
+          "region": {
+            "description": "Cloud provider region where the stream processor should be started in failover mode. The region must be a valid region for the stream processor's cloud provider and must be included in the tenant's configured failover regions, or it may be the tenant's default (primary) region.",
+            "example": "VIRGINIA_USA",
+            "type": "string"
+          }
+        },
+        "required": [
+          "region"
+        ],
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -1254,7 +1326,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "d7dec0257048ea3d06c3072eae50e95f49bbf096"
+    "x-xgen-sha": "b6a75a90517e9191f3d91801704ccee2307abb9e"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -1375,6 +1447,10 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streams/{tenantName}/connections/{connectionName}/failoverConnections\" \\\n  -d '{ <Payload> }'"
           }
         ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -1384,6 +1460,128 @@
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createGroupStreamConnectionFailoverConnection",
         "x-xgen-operation-id-override": "createFailoverConnection"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:startWith": {
+      "post": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Start a Stream Processor within the specified stream workspace. To use this resource, the requesting Service Account or API Key must have the Project Owner role or Project Stream Processing Owner role. Deprecated versions: v2-{2025-03-12}",
+        "operationId": "startGroupStreamProcessorWith",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Label that identifies the stream workspace.",
+            "in": "path",
+            "name": "tenantName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Label that identifies the stream processor.",
+            "in": "path",
+            "name": "processorName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartStreamProcessorWithPreviewView"
+              },
+              "x-xgen-preview": {
+                "name": "regional-failover",
+                "public": "false"
+              },
+              "x-xgen-version": "private-preview-regional-failover"
+            }
+          },
+          "description": "Options for starting a stream processor."
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "regional-failover",
+                  "public": "false"
+                },
+                "x-xgen-version": "private-preview-regional-failover"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Start One Stream Processor With Options",
+        "tags": [
+          "Streams"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams startStreamProcessorWith --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:startWith\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streams/{tenantName}/processor/{processorName}:startWith\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/startGroupStreamProcessorWith",
+        "x-xgen-operation-id-override": "startStreamProcessorWith"
       }
     }
   },

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oasdiff/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 // SourceType represents the origin of a spec entry.

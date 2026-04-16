@@ -179,7 +179,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 		{
 			name:                   "Single value",
 			operation:              "test",
-			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test'"},
+			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test`"},
 			expectedNumberOfValues: 1,
 			want:                   []string{"test"},
 			wantErr:                require.NoError,
@@ -190,7 +190,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 			entry: &OasDiffEntry{
 				ID:          "response-write-only-property-enum-value-added",
 				OperationID: "op1",
-				Text:        "added the new 'GROUP_USER_ADMIN' enum value to the request property '/items/roles/items/'"},
+				Text:        "added the new `GROUP_USER_ADMIN` enum value to the request property `/items/roles/items/`"},
 			expectedNumberOfValues: 2,
 			want:                   []string{"GROUP_USER_ADMIN", "/items/roles/items/"},
 			wantErr:                require.NoError,
@@ -201,7 +201,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 			entry: &OasDiffEntry{
 				ID:          "response-write-only-property-enum-value-added",
 				OperationID: "op1",
-				Text:        "added the new '' enum value to the request property '/items/roles/items/'"},
+				Text:        "added the new `` enum value to the request property `/items/roles/items/`"},
 			expectedNumberOfValues: 2,
 			want:                   []string{"", "/items/roles/items/"},
 			wantErr:                require.NoError,
@@ -209,7 +209,7 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 		{
 			name:                   "Incorrect number of values",
 			operation:              "test",
-			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Values: 'test1', 'test2'"},
+			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Values: `test1`, `test2`"},
 			expectedNumberOfValues: 3,
 			want:                   nil,
 			wantErr:                require.Error,
@@ -251,7 +251,7 @@ func TestNewSquashMap(t *testing.T) {
 			name:      "Single entry",
 			operation: "test",
 			entries: []*OasDiffEntry{
-				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test'"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test`"},
 			},
 			expectedNumberOfValues: 1,
 			squashIdx:              0,
@@ -267,9 +267,9 @@ func TestNewSquashMap(t *testing.T) {
 			name:      "Multiple entries",
 			operation: "test",
 			entries: []*OasDiffEntry{
-				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test1'"},
-				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test2'"},
-				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: 'test3'"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test1`"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test2`"},
+				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test3`"},
 			},
 			expectedNumberOfValues: 1,
 			squashIdx:              0,
@@ -312,14 +312,14 @@ func TestSquashEntries(t *testing.T) {
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+					Text:        "added the new `ENUM1` enum value to the `region` response write-only property for the response status `200`",
 				},
 			},
 			want: []*OasDiffEntry{
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property for the response status '200'",
 				},
 			},
 		},
@@ -329,19 +329,19 @@ func TestSquashEntries(t *testing.T) {
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+					Text:        "added the new `ENUM1` enum value to the `region` response write-only property for the response status `200`",
 				},
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM2' enum value to the 'region' response write-only property",
+					Text:        "added the new `ENUM2` enum value to the `region` response write-only property for the response status `200`",
 				},
 			},
 			want: []*OasDiffEntry{
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM1, ENUM2' enum values to the 'region' response write-only property",
+					Text:        "added the new 'ENUM1, ENUM2' enum values to the 'region' response write-only property for the response status '200'",
 				},
 			},
 		},
@@ -351,24 +351,24 @@ func TestSquashEntries(t *testing.T) {
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+					Text:        "added the new `ENUM1` enum value to the `region` response write-only property for the response status `200`",
 				},
 				{
 					ID:          "request-write-only-property-enum-value-added",
 					OperationID: "op2",
-					Text:        "added the new 'ENUM2' enum value to the 'region' request write-only property",
+					Text:        "added the new `ENUM2` enum value to the `region` request write-only property",
 				},
 			},
 			want: []*OasDiffEntry{
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property for the response status '200'",
 				},
 				{
 					ID:          "request-write-only-property-enum-value-added",
 					OperationID: "op2",
-					Text:        "added the new 'ENUM2' enum value to the 'region' request write-only property",
+					Text:        "added the new `ENUM2` enum value to the `region` request write-only property",
 				},
 			},
 		},
@@ -378,13 +378,13 @@ func TestSquashEntries(t *testing.T) {
 				{
 					ID:                "response-write-only-property-enum-value-added",
 					OperationID:       "op1",
-					Text:              "added the new 'ENUM1' enum value to the 'region' response write-only property",
+					Text:              "added the new `ENUM1` enum value to the `region` response write-only property for the response status `200`",
 					HideFromChangelog: true,
 				},
 				{
 					ID:                "response-write-only-property-enum-value-added",
 					OperationID:       "op1",
-					Text:              "added the new 'ENUM2' enum value to the 'region' response write-only property",
+					Text:              "added the new `ENUM2` enum value to the `region` response write-only property for the response status `200`",
 					HideFromChangelog: true,
 				},
 			},
@@ -392,7 +392,7 @@ func TestSquashEntries(t *testing.T) {
 				{
 					ID:                "response-write-only-property-enum-value-added",
 					OperationID:       "op1",
-					Text:              "added the new 'ENUM1, ENUM2' enum values to the 'region' response write-only property",
+					Text:              "added the new 'ENUM1, ENUM2' enum values to the 'region' response write-only property for the response status '200'",
 					HideFromChangelog: true,
 				},
 			},
@@ -403,23 +403,23 @@ func TestSquashEntries(t *testing.T) {
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM1' enum value to the 'region' response write-only property",
+					Text:        "added the new `ENUM1` enum value to the `region` response write-only property for the response status `200`",
 				},
 				{
 					ID:                "response-write-only-property-enum-value-added",
 					OperationID:       "op1",
-					Text:              "added the new 'ENUM2' enum value to the 'region' response write-only property",
+					Text:              "added the new `ENUM2` enum value to the `region` response write-only property for the response status `200`",
 					HideFromChangelog: true,
 				},
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM3' enum value to the 'region' response write-only property",
+					Text:        "added the new `ENUM3` enum value to the `region` response write-only property for the response status `200`",
 				},
 				{
 					ID:                "response-write-only-property-enum-value-added",
 					OperationID:       "op1",
-					Text:              "added the new 'ENUM4' enum value to the 'region' response write-only property",
+					Text:              "added the new `ENUM4` enum value to the `region` response write-only property for the response status `200`",
 					HideFromChangelog: true,
 				},
 			},
@@ -427,12 +427,12 @@ func TestSquashEntries(t *testing.T) {
 				{
 					ID:          "response-write-only-property-enum-value-added",
 					OperationID: "op1",
-					Text:        "added the new 'ENUM1, ENUM3' enum values to the 'region' response write-only property",
+					Text:        "added the new 'ENUM1, ENUM3' enum values to the 'region' response write-only property for the response status '200'",
 				},
 				{
 					ID:                "response-write-only-property-enum-value-added",
 					OperationID:       "op1",
-					Text:              "added the new 'ENUM2, ENUM4' enum values to the 'region' response write-only property",
+					Text:              "added the new 'ENUM2, ENUM4' enum values to the 'region' response write-only property for the response status '200'",
 					HideFromChangelog: true,
 				},
 			},

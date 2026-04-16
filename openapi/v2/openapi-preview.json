@@ -600,10 +600,10 @@
         "type": "object"
       },
       "DefaultGroupLimitResponse": {
-        "description": "Description of a user-configurable, project-level limit.",
+        "description": "General information about a project-level, user-configured limit, including its name, maximum value, default value, and a description.",
         "properties": {
-          "defaultValue": {
-            "description": "Default value for this limit. Returns null if no default value exists.",
+          "defaultLimit": {
+            "description": "Default limit value. Returns null if no default exists.",
             "format": "int32",
             "readOnly": true,
             "type": "integer"
@@ -613,8 +613,8 @@
             "readOnly": true,
             "type": "string"
           },
-          "maximumValue": {
-            "description": "Maximum value for this limit. Returns null if no maximum value exists.",
+          "maximumLimit": {
+            "description": "Maximum limit value. Returns null if no maximum exists.",
             "format": "int32",
             "readOnly": true,
             "type": "integer"
@@ -795,7 +795,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "d7dec0257048ea3d06c3072eae50e95f49bbf096"
+    "x-xgen-sha": "b6a75a90517e9191f3d91801704ccee2307abb9e"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -897,11 +897,26 @@
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Human-readable label that identifies the user-managed limit whose description you want to retrieve.",
+            "description": "Identifies the user-managed limit.",
             "in": "path",
             "name": "limitName",
             "required": true,
             "schema": {
+              "enum": [
+                "MONGODB_USERS",
+                "NUM_CLUSTERS",
+                "NUM_SERVERLESS_MTMS",
+                "NUM_USER_CUSTOM_ROLES",
+                "MAX_NETWORK_PERMISSION_ENTRIES",
+                "MAX_CROSS_REGION_NETWORK_PERMISSION_ENTRIES",
+                "MAX_NODES_PER_PRIVATELINK_REGION",
+                "BYTES_PROCESSED_QUERY",
+                "BYTES_PROCESSED_DAILY",
+                "BYTES_PROCESSED_WEEKLY",
+                "BYTES_PROCESSED_MONTHLY",
+                "NUM_PRIVATE_SERVICE_CONNECTIONS_PER_REGION_GROUP",
+                "GCP_PSC_NAT_SUBNET_MASK"
+              ],
               "type": "string"
             }
           }
@@ -928,9 +943,6 @@
                 "$ref": "#/components/headers/HeaderRateLimitRemaining"
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -1059,6 +1071,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelApiKeys?pretty=true\""
           }
         ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -1159,6 +1174,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelApiKeys\" \\\n  -d '{ <Payload> }'"
           }
         ],
+        "x-rolesRequirements": [
+          "Project Model Owner"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -1252,6 +1270,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelApiKeys/{apiKeyId}\""
           }
         ],
+        "x-rolesRequirements": [
+          "Project Model Owner"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -1342,6 +1363,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelApiKeys/{apiKeyId}?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
@@ -1452,6 +1476,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelApiKeys/{apiKeyId}\" \\\n  -d '{ <Payload> }'"
           }
         ],
+        "x-rolesRequirements": [
+          "Project Model Owner"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -1541,6 +1568,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelRateLimits?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
@@ -1634,6 +1664,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelRateLimits/{modelGroupName}?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
@@ -1744,6 +1777,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelRateLimits/{modelGroupName}\" \\\n  -d '{ <Payload> }'"
           }
         ],
+        "x-rolesRequirements": [
+          "Project Model Owner"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -1837,6 +1873,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelRateLimits/{modelGroupName}:reset\" \\\n  -d '{ <Payload> }'"
           }
         ],
+        "x-rolesRequirements": [
+          "Project Model Owner"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -1917,6 +1956,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/aiModelRateLimits:reset\" \\\n  -d '{ <Payload> }'"
           }
+        ],
+        "x-rolesRequirements": [
+          "Project Model Owner"
         ],
         "x-state": {
           "label": "PREVIEW",
@@ -2012,6 +2054,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/aiModelApiKeys?pretty=true\""
           }
         ],
+        "x-rolesRequirements": [
+          "Organization Read Only"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -2105,6 +2150,9 @@
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/aiModelApiKeys/{apiKeyId}?pretty=true\""
           }
         ],
+        "x-rolesRequirements": [
+          "Organization Read Only"
+        ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
@@ -2194,6 +2242,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/aiModelRateLimits?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Organization Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
@@ -2287,6 +2338,9 @@
             "label": "curl (Digest)",
             "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/aiModelRateLimits/{modelGroupName}?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Organization Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",

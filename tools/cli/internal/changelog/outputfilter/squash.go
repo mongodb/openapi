@@ -8,11 +8,16 @@ import (
 )
 
 var (
-	// identifierRegex matches text enclosed in single quotes.
-	// Example: it'll match "value" from the string "added the new required request property 'value'".
+	// identifierRegex matches text enclosed in backticks.
+	// Example: it'll match "value" from the string "added the new required request property `value`".
 	// Example: it'll match "" and "/items/dataProcessRegion/region" from the string
-	// "removed the '' enum value from the '/items/dataProcessRegion/region' response property".
-	identifierRegex = regexp.MustCompile(`'([^']*)'`)
+	// "removed the `` enum value from the `/items/dataProcessRegion/region` response property".
+	// Note: oasdiff v1.14.0+ uses backticks in GetUncolorizedText() via quotedValues().
+	identifierRegex = regexp.MustCompile("`([^`]*)`")
+
+	// squashPlaceholder is used internally during squash text construction to mark substituted values.
+	// It must not appear in any oasdiff message text.  The final text replaces this with a single quote.
+	squashPlaceholder = "\x01"
 )
 
 type SquashHandler interface {
@@ -272,7 +277,7 @@ func squashEntriesByValues(
 			squashedEntry.Text = strings.ReplaceAll(
 				strings.ReplaceAll(
 					text,
-					"``",
+					squashPlaceholder,
 					"'",
 				),
 				pluralizeFrom,
@@ -287,8 +292,8 @@ func squashEntriesByValues(
 // replaceOnlyFirstOccurrence replaces only the first occurrence of the identifierRegex
 // in the template with the valuesToAddToTemplate.
 // Why do we need to replace only the first occurrence?
-// OasDiffEntry.Text may have messages with multiple values enclosed in single quotes such as
-// "added the new 'DUBLIN_IRL' enum value to the '/items/dataProcessRegion/region' response property".
+// OasDiffEntry.Text may have messages with multiple values enclosed in backticks such as
+// "added the new `DUBLIN_IRL` enum value to the `/items/dataProcessRegion/region` response property".
 // In this scenario, calling ReplaceAllStringFunc will also replace '/items/dataProcessRegion/region' which is not intended.
 func replaceOnlyFirstOccurrence(template, valuesToAddToTemplate string) string {
 	// Variable to track if a replacement has been made
@@ -297,7 +302,7 @@ func replaceOnlyFirstOccurrence(template, valuesToAddToTemplate string) string {
 	return identifierRegex.ReplaceAllStringFunc(template, func(match string) string {
 		if !replacementMade {
 			replacementMade = true
-			return fmt.Sprintf("``%v``", valuesToAddToTemplate)
+			return fmt.Sprintf("%v%v%v", squashPlaceholder, valuesToAddToTemplate, squashPlaceholder)
 		}
 		return match
 	})
