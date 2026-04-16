@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// wantOp holds the expected fields for a single TagOperation assertion.
 type wantOp struct {
 	operationID string
 	method      string
@@ -26,7 +25,6 @@ func assertOp(t *testing.T, got TagOperation, want wantOp) {
 }
 
 // TestHandleTags_Clusters verifies Clusters operations are returned sorted by path then method.
-// Operation IDs, paths, and summaries mirror the real Atlas v2 spec.
 func TestHandleTags_Clusters(t *testing.T) {
 	result, err := handleTags(newTestRegistry(t), makeRequest("openapi://specs/test-api/tags/Clusters"))
 	require.NoError(t, err)
@@ -36,11 +34,6 @@ func TestHandleTags_Clusters(t *testing.T) {
 	assert.Equal(t, "Clusters", body.Tag)
 	require.Equal(t, 4, body.Total)
 
-	// Sorted by path then method:
-	// 1. GET    /api/atlas/v2/clusters
-	// 2. GET    /api/atlas/v2/groups/{groupId}/clusters
-	// 3. POST   /api/atlas/v2/groups/{groupId}/clusters
-	// 4. DELETE /api/atlas/v2/groups/{groupId}/clusters/{clusterName}
 	assertOp(t, body.Operations[0], wantOp{"listClusterDetails", "GET",
 		"/api/atlas/v2/clusters", "Return All Authorized Clusters in All Projects"})
 	assertOp(t, body.Operations[1], wantOp{"listGroupClusters", "GET",
