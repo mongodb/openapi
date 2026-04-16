@@ -3,9 +3,9 @@ package resources
 import (
 	"testing"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/mongodb/openapi/tools/mcp-server/internal/registry"
-	"github.com/oasdiff/kin-openapi/openapi3"
 )
 
 // makeRequest builds a ReadResourceRequest for the given URI.
