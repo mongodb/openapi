@@ -11,6 +11,7 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
             responses: {
               200: {
                 content: {
+                  // Custom method POST response may be empty
                   'application/vnd.atlas.2024-08-05+json': {},
                 },
               },
@@ -19,27 +20,37 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
               },
             },
           },
+          get: {
+            responses: {
+              200: {
+                content: {
+                  // Valid schema
+                  'application/vnd.atlas.2024-08-05+json': {
+                    schema: {
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
-        '/resource/{id}': {
+        '/resource': {
           post: {
             responses: {
               200: {
                 content: {
+                  // Valid schema
                   'application/vnd.atlas.2024-08-05+json': {
-                    schema: {},
+                    schema: {
+                      type: 'string',
+                    },
                   },
+                  // Valid schema
                   'application/vnd.atlas.2023-08-05+json': {
                     properties: {
                       name: {
-                        type: 'object',
-                        properties: {},
-                      },
-                      hobbies: {
-                        type: 'array',
-                        items: {
-                          type: 'object',
-                          example: 'test',
-                        },
+                        type: 'string',
                       },
                     },
                   },
@@ -47,6 +58,7 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
               },
               202: {
                 content: {
+                  // 202 response may be empty
                   'application/vnd.atlas.2024-08-05+json': {},
                 },
               },
@@ -62,16 +74,22 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
             },
             requestBody: {
               content: {
+                // Valid schema
                 'application/vnd.atlas.2023-08-05+json': {
-                  examples: {},
+                  example: {
+                    name: 'Test',
+                  },
                 },
               },
             },
           },
+        },
+        '/resource/{id}': {
           get: {
             responses: {
               200: {
                 content: {
+                  // Valid schema
                   'application/vnd.atlas.2024-08-05+json': {
                     $ref: '#/components/schemas/Schema',
                   },
@@ -92,6 +110,7 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
             responses: {
               204: {
                 content: {
+                  // DELETE response may be empty
                   'application/vnd.atlas.2023-11-15+json': {},
                 },
                 description: 'No Response',
@@ -132,12 +151,14 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
           post: {
             requestBody: {
               content: {
+                // Invalid empty request body
                 'application/vnd.atlas.2024-08-05+json': {},
               },
             },
             responses: {
               200: {
                 content: {
+                  // Valid, custom method POST response may be empty
                   'application/vnd.atlas.2024-08-05+json': {},
                 },
               },
@@ -146,13 +167,25 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
               },
             },
           },
+          get: {
+            responses: {
+              200: {
+                content: {
+                  // Invalid empty response body
+                  'application/vnd.atlas.2024-08-05+json': {},
+                },
+              },
+            },
+          },
         },
-        '/resource/{id}': {
+        '/resource': {
           post: {
             responses: {
               200: {
                 content: {
+                  // Invalid empty response body
                   'application/vnd.atlas.2024-08-05+json': {},
+                  // Invalid empty response body
                   'application/vnd.atlas.2023-08-05+json': {
                     description: 'A response without a schema or example',
                   },
@@ -161,7 +194,10 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
             },
             requestBody: {
               content: {
-                'application/vnd.atlas.2023-08-05+json': {},
+                // Invalid empty request body
+                'application/vnd.atlas.2023-08-05+json': {
+                  schema: {},
+                },
               },
             },
           },
@@ -194,8 +230,8 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
         message: 'Request and response bodies must be well-defined, i.e. include a schema or example(s).',
         path: [
           'paths',
-          '/resource/{id}',
-          'post',
+          '/resource/{id}:customMethod',
+          'get',
           'responses',
           '200',
           'content',
@@ -206,21 +242,19 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
       {
         code: 'xgen-IPA-117-request-response-bodies-must-be-well-defined',
         message: 'Request and response bodies must be well-defined, i.e. include a schema or example(s).',
-        path: [
-          'paths',
-          '/resource/{id}',
-          'post',
-          'responses',
-          '200',
-          'content',
-          'application/vnd.atlas.2023-08-05+json',
-        ],
+        path: ['paths', '/resource', 'post', 'responses', '200', 'content', 'application/vnd.atlas.2024-08-05+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-117-request-response-bodies-must-be-well-defined',
         message: 'Request and response bodies must be well-defined, i.e. include a schema or example(s).',
-        path: ['paths', '/resource/{id}', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-08-05+json'],
+        path: ['paths', '/resource', 'post', 'responses', '200', 'content', 'application/vnd.atlas.2023-08-05+json'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-117-request-response-bodies-must-be-well-defined',
+        message: 'Request and response bodies must be well-defined, i.e. include a schema or example(s).',
+        path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-08-05+json'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
@@ -229,7 +263,7 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
     name: 'invalid OAS with exceptions',
     document: {
       paths: {
-        '/resource/{id}': {
+        '/resource': {
           post: {
             responses: {
               200: {
@@ -251,6 +285,7 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
             requestBody: {
               content: {
                 'application/vnd.atlas.2023-08-05+json': {
+                  schema: {},
                   'x-xgen-IPA-exception': {
                     'xgen-IPA-117-request-response-bodies-must-be-well-defined': 'reason',
                   },

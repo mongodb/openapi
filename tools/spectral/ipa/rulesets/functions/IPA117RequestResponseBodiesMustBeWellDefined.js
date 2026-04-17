@@ -1,7 +1,7 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { hasCustomMethodOverride } from './utils/extensions.js';
-import { resolveObject } from './utils/componentUtils.js';
+import { isEmpty, resolveObject } from './utils/componentUtils.js';
 
 const ERROR_MESSAGE = 'Request and response bodies must be well-defined, i.e. include a schema or example(s).';
 
@@ -46,7 +46,7 @@ function checkViolationsAndReturnErrors(object, path, ruleName) {
       return [{ path, message: ERROR_MESSAGE }];
     }
     const validProperties = ['schema', 'example', 'examples', 'allOf', 'anyOf', 'oneOf', 'properties', '$ref'];
-    if (Object.keys(object).some((key) => validProperties.includes(key))) {
+    if (validProperties.filter((key) => !isEmpty(object[key])).length > 0) {
       return [];
     }
     return [{ path, message: ERROR_MESSAGE }];

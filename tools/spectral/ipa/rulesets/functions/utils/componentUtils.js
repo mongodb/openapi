@@ -87,3 +87,17 @@ export function pathIsForResponseVersion(path) {
 export function pathIsForRequestVersion(path) {
   return path.length > 5 && path[0] === 'paths' && path[3] === 'requestBody' && path[4] === 'content';
 }
+
+/**
+ * Checks if an object is empty (i.e., has no own properties) or is null or undefined.
+ * true and false are not considered empty objects.
+ * 0 number is not considered an empty object.
+ * @param object - The object to check, may be any type
+ * @returns {boolean} True if the object is empty, false otherwise
+ */
+export function isEmpty(object) {
+  if (typeof object === 'number' || typeof object === 'boolean') {
+    return false;
+  }
+  return !object || Object.keys(object).length === 0;
+}
