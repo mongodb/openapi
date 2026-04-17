@@ -9,10 +9,8 @@ import (
 	"github.com/mongodb/openapi/tools/cli/pkg/apiversion"
 )
 
-// availableVersions classifies content type strings from the given content maps into stable date
-// versions (sorted ascending) and flags for preview and upcoming content.
-// It also returns a parsed version map (content type → *APIVersion) for reuse in filtering,
-// so each content type is passed to ParseVersionFromContentType exactly once.
+// availableVersions classifies content types from the given content maps into stable versions,
+// preview/upcoming flags, and a parsed version map reused by filterVersionedContent.
 func availableVersions(contents ...openapi3.Content) (
 	stable []string, hasPreview, hasUpcoming bool, parsedVersions map[string]*apiversion.APIVersion,
 ) {
@@ -44,8 +42,7 @@ func availableVersions(contents ...openapi3.Content) (
 	return
 }
 
-// filterVersionedContent filters a content map to entries matching versionFilter and returns them
-// sorted by content type string.
+// filterVersionedContent filters a content map to entries matching versionFilter, sorted by content type.
 func filterVersionedContent(
 	content openapi3.Content, parsedVersions map[string]*apiversion.APIVersion, versionFilter, targetVersion string,
 ) []ContentEntry {
@@ -63,7 +60,7 @@ func filterVersionedContent(
 			matched = version.IsPreview()
 		case apiversion.UpcomingStabilityLevel:
 			matched = version.IsUpcoming()
-		default: // "latest", "" or a specific date
+		default:
 			matched = targetVersion == "" || version.String() == targetVersion
 		}
 		if matched {
@@ -74,8 +71,8 @@ func filterVersionedContent(
 	return result
 }
 
-// resolveTargetVersion determines the exact date version to filter content by.
-// Returns an error when versionFilter is a specific date not present in stable.
+// resolveTargetVersion resolves versionFilter to the exact date string used for content filtering.
+// Returns an error if versionFilter is a specific date not present in stable.
 func resolveTargetVersion(versionFilter string, stable []string, latestStable string) (string, error) {
 	switch versionFilter {
 	case "latest", "":
@@ -91,7 +88,6 @@ func resolveTargetVersion(versionFilter string, stable []string, latestStable st
 	}
 }
 
-// buildParameters converts OpenAPI parameter refs into OperationParam values.
 func buildParameters(op *openapi3.Operation) []OperationParam {
 	params := []OperationParam{}
 	for _, pRef := range op.Parameters {
@@ -109,8 +105,8 @@ func buildParameters(op *openapi3.Operation) []OperationParam {
 	return params
 }
 
-// rawContentEntries converts a content map to ContentEntries without version filtering.
-// Used for non-200 responses (e.g. 202, 4xx, 5xx) that do not participate in versioning.
+// rawContentEntries returns content entries as-is, without version filtering.
+// Used for non-200 responses that do not participate in versioning.
 func rawContentEntries(content openapi3.Content) []ContentEntry {
 	result := make([]ContentEntry, 0, len(content))
 	for contentType, mediaType := range content {
@@ -120,7 +116,8 @@ func rawContentEntries(content openapi3.Content) []ContentEntry {
 	return result
 }
 
-// buildResponses builds the full response list for an operation sorted by status code.
+// buildResponses returns all responses sorted by status code.
+// The 200 response is version-filtered; all others are included as-is.
 func buildResponses(
 	op *openapi3.Operation, successContent openapi3.Content,
 	parsedVersions map[string]*apiversion.APIVersion, versionFilter, targetVersion string,
@@ -154,7 +151,6 @@ func buildResponses(
 	return responses
 }
 
-// buildOperationDetail assembles the full OperationDetail for an operation and version filter.
 func buildOperationDetail(op *openapi3.Operation, method, path, versionFilter string) (OperationDetail, error) {
 	var successContent openapi3.Content
 	if op.Responses != nil {
