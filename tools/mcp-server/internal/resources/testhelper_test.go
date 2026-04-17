@@ -40,19 +40,51 @@ func newTestSpec() *openapi3.T {
 			Schemas: map[string]*openapi3.SchemaRef{
 				"Cluster":     {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
 				"FlexCluster": {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
+				"Error":       {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
 			},
 		},
 	}
 
-	newStableResp := func() *openapi3.Responses {
+	clusterSchema := &openapi3.SchemaRef{Ref: "#/components/schemas/Cluster"}
+	flexClusterSchema := &openapi3.SchemaRef{Ref: "#/components/schemas/FlexCluster"}
+
+	newClusterResp := func() *openapi3.Responses {
 		return openapi3.NewResponses(openapi3.WithStatus(200, &openapi3.ResponseRef{
 			Value: &openapi3.Response{
 				Content: openapi3.Content{
-					"application/vnd.atlas.2024-01-01+json": &openapi3.MediaType{},
-					"application/vnd.atlas.2025-01-01+json": &openapi3.MediaType{},
+					"application/vnd.atlas.2023-02-01+json": {Schema: clusterSchema},
+					"application/vnd.atlas.2024-01-01+json": {Schema: clusterSchema},
+					"application/vnd.atlas.2025-01-01+json": {Schema: clusterSchema},
 				},
 			},
 		}))
+	}
+	newFlexClusterResp := func() *openapi3.Responses {
+		return openapi3.NewResponses(openapi3.WithStatus(200, &openapi3.ResponseRef{
+			Value: &openapi3.Response{
+				Content: openapi3.Content{
+					"application/vnd.atlas.2024-01-01+json": {Schema: flexClusterSchema},
+					"application/vnd.atlas.2025-01-01+json": {Schema: flexClusterSchema},
+				},
+			},
+		}))
+	}
+	errorSchema := &openapi3.SchemaRef{Ref: "#/components/schemas/Error"}
+
+	noContent := "No Content"
+	badRequest := "Bad Request"
+	newNoContentResp := func() *openapi3.Responses {
+		return openapi3.NewResponses(
+			openapi3.WithStatus(204, &openapi3.ResponseRef{
+				Value: &openapi3.Response{Description: &noContent},
+			}),
+			openapi3.WithStatus(400, &openapi3.ResponseRef{
+				Value: &openapi3.Response{
+					Description: &badRequest,
+					Content:     openapi3.Content{"application/json": {Schema: errorSchema}},
+				},
+			}),
+		)
 	}
 	newPreviewResp := func() *openapi3.Responses {
 		return openapi3.NewResponses(openapi3.WithStatus(200, &openapi3.ResponseRef{
@@ -82,31 +114,69 @@ func newTestSpec() *openapi3.T {
 			OperationID: "listClusterDetails",
 			Summary:     "Return All Authorized Clusters in All Projects",
 			Tags:        []string{"Clusters"},
-			Responses:   newStableResp(),
+			Responses:   newClusterResp(),
 		},
 	})
+
+	groupIDParam := &openapi3.ParameterRef{
+		Value: &openapi3.Parameter{
+			Name:        "groupId",
+			In:          "path",
+			Description: "Unique 24-hexadecimal digit string that identifies your project.",
+			Required:    true,
+		},
+	}
+	clusterNameParam := &openapi3.ParameterRef{
+		Value: &openapi3.Parameter{
+			Name:        "clusterName",
+			In:          "path",
+			Description: "Human-readable label that identifies the cluster.",
+			Required:    true,
+		},
+	}
+
+	clusterRequestBody := &openapi3.RequestBodyRef{
+		Value: &openapi3.RequestBody{
+			Required: true,
+			Content: openapi3.Content{
+				"application/vnd.atlas.2024-01-01+json": {Schema: clusterSchema},
+				"application/vnd.atlas.2025-01-01+json": {Schema: clusterSchema},
+			},
+		},
+	}
 
 	spec.Paths.Set("/api/atlas/v2/groups/{groupId}/clusters", &openapi3.PathItem{
 		Get: &openapi3.Operation{
 			OperationID: "listGroupClusters",
 			Summary:     "Return All Clusters in One Project",
 			Tags:        []string{"Clusters"},
-			Responses:   newStableResp(),
+			Parameters:  openapi3.Parameters{groupIDParam},
+			Responses:   newClusterResp(),
 		},
 		Post: &openapi3.Operation{
 			OperationID: "createGroupCluster",
 			Summary:     "Create One Cluster in One Project",
 			Tags:        []string{"Clusters"},
-			Responses:   newStableResp(),
+			Parameters:  openapi3.Parameters{groupIDParam},
+			RequestBody: clusterRequestBody,
+			Responses:   newFlexClusterResp(),
 		},
 	})
 
 	spec.Paths.Set("/api/atlas/v2/groups/{groupId}/clusters/{clusterName}", &openapi3.PathItem{
+		Get: &openapi3.Operation{
+			OperationID: "getGroupCluster",
+			Summary:     "Return One Cluster from One Project",
+			Tags:        []string{"Clusters"},
+			Parameters:  openapi3.Parameters{groupIDParam, clusterNameParam},
+			Responses:   newPreviewResp(),
+		},
 		Delete: &openapi3.Operation{
 			OperationID: "deleteGroupCluster",
 			Summary:     "Remove One Cluster from One Project",
 			Tags:        []string{"Clusters"},
-			Responses:   newPreviewResp(),
+			Parameters:  openapi3.Parameters{groupIDParam, clusterNameParam},
+			Responses:   newNoContentResp(),
 		},
 	})
 
@@ -116,7 +186,7 @@ func newTestSpec() *openapi3.T {
 			OperationID: "listGroupFlexClusters",
 			Summary:     "Return All Flex Clusters from One Project",
 			Tags:        []string{"Flex Clusters"},
-			Responses:   newStableResp(),
+			Responses:   newFlexClusterResp(),
 		},
 		Post: &openapi3.Operation{
 			OperationID: "createGroupFlexCluster",

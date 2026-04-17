@@ -32,7 +32,7 @@ func TestHandleTags_Clusters(t *testing.T) {
 	var body TagsResource
 	require.NoError(t, json.Unmarshal([]byte(result.Contents[0].Text), &body))
 	assert.Equal(t, "Clusters", body.Tag)
-	require.Equal(t, 4, body.Total)
+	require.Equal(t, 5, body.Total)
 
 	assertOp(t, body.Operations[0], wantOp{"listClusterDetails", "GET",
 		"/api/atlas/v2/clusters", "Return All Authorized Clusters in All Projects"})
@@ -42,6 +42,8 @@ func TestHandleTags_Clusters(t *testing.T) {
 		"/api/atlas/v2/groups/{groupId}/clusters", "Create One Cluster in One Project"})
 	assertOp(t, body.Operations[3], wantOp{"deleteGroupCluster", "DELETE",
 		"/api/atlas/v2/groups/{groupId}/clusters/{clusterName}", "Remove One Cluster from One Project"})
+	assertOp(t, body.Operations[4], wantOp{"getGroupCluster", "GET",
+		"/api/atlas/v2/groups/{groupId}/clusters/{clusterName}", "Return One Cluster from One Project"})
 }
 
 // TestHandleTags_FlexClusters verifies that tag names containing spaces are resolved correctly.

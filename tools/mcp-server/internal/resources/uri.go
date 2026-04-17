@@ -30,6 +30,28 @@ func aliasFromURI(uri string) (string, error) {
 	return parts[0], nil
 }
 
+// aliasAndOperationFromURI extracts the alias, operationId, and optional version from
+// openapi://specs/{alias}/operations/{operationId}?version=...
+// The operationId is percent-decoded. version is empty string when not provided.
+func aliasAndOperationFromURI(uri string) (alias, operationID, version string, err error) {
+	u, parseErr := parseSpecURI(uri)
+	if parseErr != nil {
+		return "", "", "", fmt.Errorf("invalid resource URI %q: expected openapi://specs/{alias}/operations/{operationId}", uri)
+	}
+
+	// path: /{alias}/operations/{operationId}
+	parts := strings.SplitN(strings.TrimPrefix(u.Path, "/"), "/", 3)
+	if len(parts) != 3 || parts[0] == "" || parts[1] != "operations" || parts[2] == "" {
+		return "", "", "", fmt.Errorf("invalid resource URI %q: expected openapi://specs/{alias}/operations/{operationId}", uri)
+	}
+
+	operationID, err = url.PathUnescape(parts[2])
+	if err != nil {
+		return "", "", "", fmt.Errorf("invalid operationId in URI %q: %w", uri, err)
+	}
+	return parts[0], operationID, u.Query().Get("version"), nil
+}
+
 // aliasAndTagFromURI extracts the alias and tag name from openapi://specs/{alias}/tags/{tagName}.
 // The tag name is percent-decoded so agents can use tag names as they appear in the spec.
 func aliasAndTagFromURI(uri string) (alias, tagName string, err error) {
