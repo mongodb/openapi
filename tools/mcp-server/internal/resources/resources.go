@@ -47,6 +47,15 @@ func Register(server *mcp.Server, reg *registry.Registry) {
 	}, makeTagsHandler(reg))
 
 	server.AddResourceTemplate(&mcp.ResourceTemplate{
+		URITemplate: "openapi://specs/{alias}/schemas/{schemaName}",
+		Name:        "spec-schema",
+		Description: "Returns full detail for a single schema identified by {schemaName} in the spec {alias}. " +
+			"Includes the schema definition, usedBy (operations and schemas that directly reference it), " +
+			"and references (schemas this schema directly references). ",
+		MIMEType: mimeTypeJSON,
+	}, makeSchemaHandler(reg))
+
+	server.AddResourceTemplate(&mcp.ResourceTemplate{
 		URITemplate: "openapi://specs/{alias}/operations/{operationId}",
 		Name:        "spec-operation",
 		Description: "Returns full detail for a single operation identified by {operationId} in the spec {alias}. " +
@@ -82,6 +91,13 @@ func makeAliasHandler(reg *registry.Registry) mcp.ResourceHandler {
 func makeTagsHandler(reg *registry.Registry) mcp.ResourceHandler {
 	return func(_ context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 		return handleTags(reg, req)
+	}
+}
+
+// makeSchemaHandler creates the handler for the openapi://specs/{alias}/schemas/{schemaName} template.
+func makeSchemaHandler(reg *registry.Registry) mcp.ResourceHandler {
+	return func(_ context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
+		return handleSchema(reg, req)
 	}
 }
 

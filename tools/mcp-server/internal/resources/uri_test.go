@@ -64,6 +64,62 @@ func TestAliasFromURI(t *testing.T) {
 	}
 }
 
+func TestAliasAndSchemaFromURI(t *testing.T) {
+	tests := []struct {
+		name           string
+		uri            string
+		wantAlias      string
+		wantSchemaName string
+		wantErr        bool
+	}{
+		{
+			name:           "valid URI",
+			uri:            "openapi://specs/atlas/schemas/Cluster",
+			wantAlias:      "atlas",
+			wantSchemaName: "Cluster",
+		},
+		{
+			name:           "percent-encoded schema name",
+			uri:            "openapi://specs/atlas/schemas/Cluster%20Request",
+			wantAlias:      "atlas",
+			wantSchemaName: "Cluster Request",
+		},
+		{
+			name:    "wrong segment (operations instead of schemas)",
+			uri:     "openapi://specs/atlas/operations/Cluster",
+			wantErr: true,
+		},
+		{
+			name:    "missing schema name",
+			uri:     "openapi://specs/atlas/schemas/",
+			wantErr: true,
+		},
+		{
+			name:    "too few segments",
+			uri:     "openapi://specs/atlas",
+			wantErr: true,
+		},
+		{
+			name:    "wrong scheme",
+			uri:     "https://specs/atlas/schemas/Cluster",
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			alias, schemaName, err := aliasAndSchemaFromURI(tc.uri)
+			if tc.wantErr {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tc.wantAlias, alias)
+			assert.Equal(t, tc.wantSchemaName, schemaName)
+		})
+	}
+}
+
 func TestAliasAndOperationFromURI(t *testing.T) {
 	tests := []struct {
 		name            string

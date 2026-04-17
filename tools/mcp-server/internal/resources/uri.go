@@ -52,6 +52,26 @@ func aliasAndOperationFromURI(uri string) (alias, operationID, version string, e
 	return parts[0], operationID, u.Query().Get("version"), nil
 }
 
+// aliasAndSchemaFromURI extracts the alias and schema name from openapi://specs/{alias}/schemas/{schemaName}.
+// The schema name is percent-decoded.
+func aliasAndSchemaFromURI(uri string) (alias, schemaName string, err error) {
+	u, err := parseSpecURI(uri)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid resource URI %q: expected openapi://specs/{alias}/schemas/{schemaName}", uri)
+	}
+
+	parts := strings.SplitN(strings.TrimPrefix(u.Path, "/"), "/", 3)
+	if len(parts) != 3 || parts[0] == "" || parts[1] != "schemas" || parts[2] == "" {
+		return "", "", fmt.Errorf("invalid resource URI %q: expected openapi://specs/{alias}/schemas/{schemaName}", uri)
+	}
+
+	schemaName, err = url.PathUnescape(parts[2])
+	if err != nil {
+		return "", "", fmt.Errorf("invalid schema name in URI %q: %w", uri, err)
+	}
+	return parts[0], schemaName, nil
+}
+
 // aliasAndTagFromURI extracts the alias and tag name from openapi://specs/{alias}/tags/{tagName}.
 // The tag name is percent-decoded so agents can use tag names as they appear in the spec.
 func aliasAndTagFromURI(uri string) (alias, tagName string, err error) {

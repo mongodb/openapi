@@ -41,6 +41,12 @@ func newTestSpec() *openapi3.T {
 				"Cluster":     {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
 				"FlexCluster": {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
 				"Error":       {Value: &openapi3.Schema{Type: &openapi3.Types{"object"}}},
+				"ClusterGroup": {Value: &openapi3.Schema{
+					Type: &openapi3.Types{"object"},
+					Properties: openapi3.Schemas{
+						"cluster": {Ref: "#/components/schemas/Cluster"},
+					},
+				}},
 			},
 		},
 	}
