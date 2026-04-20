@@ -147,26 +147,4 @@ describe('tools/spectral/ipa/rulesets/functions/utils/componentUtils.js', () => 
       expect(pathIsForRequestVersion(['components', 'schemas', 'ExampleSchema'])).toEqual(false);
     });
   });
-
-  describe('isEmpty', () => {
-    it('returns true for empty objects', () => {
-      expect(isEmpty(null)).toEqual(true);
-      expect(isEmpty(undefined)).toEqual(true);
-      expect(isEmpty('')).toEqual(true);
-      expect(isEmpty([])).toEqual(true);
-      expect(isEmpty({})).toEqual(true);
-    });
-    it('returns false for non-empty objects', () => {
-      expect(isEmpty(0)).toEqual(false);
-      expect(isEmpty(1)).toEqual(false);
-      expect(isEmpty(true)).toEqual(false);
-      expect(isEmpty(false)).toEqual(false);
-      expect(isEmpty('s')).toEqual(false);
-      expect(isEmpty(['s'])).toEqual(false);
-      expect(isEmpty([0])).toEqual(false);
-      expect(isEmpty({ key: 'value' })).toEqual(false);
-      expect(isEmpty({ key: false })).toEqual(false);
-      expect(isEmpty({ key: 5 })).toEqual(false);
-    });
-  });
 });

@@ -48,9 +48,11 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
                   },
                   // Valid schema
                   'application/vnd.atlas.2023-08-05+json': {
-                    properties: {
-                      name: {
-                        type: 'string',
+                    schema: {
+                      properties: {
+                        name: {
+                          type: 'string',
+                        },
                       },
                     },
                   },
@@ -76,6 +78,9 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
               content: {
                 // Valid schema
                 'application/vnd.atlas.2023-08-05+json': {
+                  schema: {
+                    type: 'string',
+                  },
                   example: {
                     name: 'Test',
                   },
@@ -91,7 +96,9 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
                 content: {
                   // Valid schema
                   'application/vnd.atlas.2024-08-05+json': {
-                    $ref: '#/components/schemas/Schema',
+                    schema: {
+                      $ref: '#/components/schemas/Schema',
+                    },
                   },
                 },
               },
@@ -214,7 +221,7 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
     errors: [
       {
         code: 'xgen-IPA-117-request-response-bodies-must-be-well-defined',
-        message: 'Request and response bodies must be well-defined, i.e. include a schema or example(s).',
+        message: 'Request and response bodies must have a schema.',
         path: [
           'paths',
           '/resource/{id}:customMethod',
@@ -227,7 +234,7 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
       },
       {
         code: 'xgen-IPA-117-request-response-bodies-must-be-well-defined',
-        message: 'Request and response bodies must be well-defined, i.e. include a schema or example(s).',
+        message: 'Request and response bodies must have a schema.',
         path: [
           'paths',
           '/resource/{id}:customMethod',
@@ -241,19 +248,19 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
       },
       {
         code: 'xgen-IPA-117-request-response-bodies-must-be-well-defined',
-        message: 'Request and response bodies must be well-defined, i.e. include a schema or example(s).',
+        message: 'Request and response bodies must have a schema.',
         path: ['paths', '/resource', 'post', 'responses', '200', 'content', 'application/vnd.atlas.2024-08-05+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-117-request-response-bodies-must-be-well-defined',
-        message: 'Request and response bodies must be well-defined, i.e. include a schema or example(s).',
+        message: 'Request and response bodies must have a schema.',
         path: ['paths', '/resource', 'post', 'responses', '200', 'content', 'application/vnd.atlas.2023-08-05+json'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-117-request-response-bodies-must-be-well-defined',
-        message: 'Request and response bodies must be well-defined, i.e. include a schema or example(s).',
+        message: 'Request and response bodies must have a schema.',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-08-05+json'],
         severity: DiagnosticSeverity.Warning,
       },

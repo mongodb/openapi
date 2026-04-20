@@ -1,13 +1,14 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isCustomMethodIdentifier } from './utils/resourceEvaluation.js';
 import { hasCustomMethodOverride } from './utils/extensions.js';
-import { isEmpty, resolveObject } from './utils/componentUtils.js';
+import { resolveObject } from './utils/componentUtils.js';
 
-const ERROR_MESSAGE = 'Request and response bodies must be well-defined, i.e. include a schema or example(s).';
+const ERROR_MESSAGE = 'Request and response bodies must have a schema.';
+
+const SCHEMA_PROPERTY_KEY = 'schema';
 
 /**
- * The rule checks request and response bodies for the presence of one of the properties:
- * `schema`, `examples`, `example`, `oneOf`, `anyOf`, `allOf`, `properties` or `$ref`.
+ * The rule checks request and response bodies for the presence of the `schema` property:
  *
  * @param input the component to evaluate
  * @param opts optional rule options, not used in this rule
@@ -45,8 +46,7 @@ function checkViolationsAndReturnErrors(object, path, ruleName) {
     if (!object || Object.keys(object).length === 0) {
       return [{ path, message: ERROR_MESSAGE }];
     }
-    const validProperties = ['schema', 'example', 'examples', 'allOf', 'anyOf', 'oneOf', 'properties', '$ref'];
-    if (validProperties.filter((key) => !isEmpty(object[key])).length > 0) {
+    if (object[SCHEMA_PROPERTY_KEY] && Object.keys(object[SCHEMA_PROPERTY_KEY]).length > 0) {
       return [];
     }
     return [{ path, message: ERROR_MESSAGE }];
