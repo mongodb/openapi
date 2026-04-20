@@ -1,6 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
 import {
-  isEmpty,
   isPathParam,
   pathIsForRequestVersion,
   pathIsForResponseVersion,

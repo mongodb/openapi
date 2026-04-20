@@ -1201,7 +1201,7 @@ This rule includes a configuration option:
 #### xgen-IPA-117-request-response-bodies-must-be-well-defined
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Request and response bodies must be well-defined, i.e. include a schema or example to ensure that consumers understand the expected format of the request/response.
+Request and response bodies must be well-defined, i.e. include a schema to ensure that consumers understand the expected format of the request/response.
 
 ##### Implementation details
 The rule applies to the following components:
@@ -1211,13 +1211,7 @@ The rule applies to the following components:
     - DELETE method 2xx responses
     - Custom method 2xx POST responses
 
- These components must be described, i.e. have of one of the properties:
-  - `schema`
-  - `examples`
-  - `example`
-  - `oneOf`, `anyOf` or `allOf`
-  - `properties`
-  - `$ref`
+ These components must be described, i.e. has the `schema` property:
 
 
 
