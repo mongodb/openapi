@@ -65,7 +65,13 @@ func (o *Opts) Run() error {
 			return err
 		}
 
-		if err := filteredOAS.Validate(loader.Loader.Context); err != nil {
+		// Validate the spec structure (skip defaults/examples validation
+		// to avoid stack overflow with circular schema references in kin-openapi).
+		ctx := openapi3.WithValidationOptions(loader.Loader.Context,
+			openapi3.DisableSchemaDefaultsValidation(),
+			openapi3.DisableExamplesValidation(),
+		)
+		if err := filteredOAS.Validate(ctx); err != nil {
 			log.Printf("[WARN] OpenAPI document is invalid: %v", err)
 		}
 	}

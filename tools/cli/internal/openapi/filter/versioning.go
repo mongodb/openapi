@@ -134,6 +134,12 @@ func updateResponses(op *openapi3.Operation, config *VersionConfig) error {
 			continue
 		}
 
+		// Skip $ref responses — they point to shared component responses
+		// that should not be mutated by per-operation versioning filters.
+		if response.Ref != "" {
+			continue
+		}
+
 		filteredResponse, err := filterResponse(response, op, config)
 		if err != nil {
 			return err

@@ -155,9 +155,18 @@ func duplicateOas(doc *openapi3.T) (*openapi3.T, error) {
 
 	// Unmarshal the JSON data into a new OpenAPI document
 	duplicateDoc := &openapi3.T{}
-	err = json.Unmarshal(jsonData, duplicateDoc)
-	if err != nil {
+	if err = json.Unmarshal(jsonData, duplicateDoc); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal duplicated OpenAPI specification: %w", err)
+	}
+
+	// Resolve $ref pointers so that SchemaRef.Value (and other ref types) are
+	// populated. Without this, filters that walk schemas would see nil .Value
+	// on every $ref. We use ResolveRefsIn rather than LoadFromData because the
+	// loader's full pipeline normalizes media types and other structures, which
+	// would change the output.
+	loader := openapi3.NewLoader()
+	if err = loader.ResolveRefsIn(duplicateDoc, nil); err != nil {
+		return nil, fmt.Errorf("failed to resolve refs in duplicated OpenAPI specification: %w", err)
 	}
 
 	return duplicateDoc, nil
