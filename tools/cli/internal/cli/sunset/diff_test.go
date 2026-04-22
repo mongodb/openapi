@@ -15,10 +15,10 @@
 package sunset
 
 import (
-	"testing"
-
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
 	"github.com/stretchr/testify/assert"
+	"testing"
+	"time"
 )
 
 func TestFindDiffsEmpty(t *testing.T) {
@@ -32,7 +32,13 @@ func TestFindDiffsEmpty(t *testing.T) {
 		},
 	}
 
-	diff := findDiffs(baseSpecSunsets, baseSpecSunsets, "base.json", "spec.json")
+	opts := &DiffOpts{
+		basePath: "base.json",
+		specPath: "spec.json",
+	}
+
+	diff, err := opts.findDiffs(baseSpecSunsets, baseSpecSunsets)
+	assert.Nil(t, err)
 	assert.Empty(t, diff)
 }
 
@@ -112,7 +118,14 @@ func TestFindDiffsNotEmpty(t *testing.T) {
 		},
 	}
 
-	diff := findDiffs(baseSpecSunsets, specSunsets, "base.json", "spec.json")
+	opts := &DiffOpts{
+		basePath: "base.json",
+		specPath: "spec.json",
+	}
+
+	diff, err := opts.findDiffs(baseSpecSunsets, specSunsets)
+
+	assert.Nil(t, err)
 	assert.Len(t, diff, 5)
 
 	assert.Equal(t, "GET", diff[0].Operation)
@@ -159,6 +172,113 @@ func TestFindDiffsNotEmpty(t *testing.T) {
 	assert.Equal(t, "base.json", diff[4].BaseSpec)
 	assert.Equal(t, "spec.json", diff[4].Spec)
 	assert.Equal(t, "APIx", diff[4].Team)
+}
+
+func TestFindDiffsFiltersByDate(t *testing.T) {
+	baseSpecSunsets := []*sunset.Sunset{
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/versions",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "APIx",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/test",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-07-01",
+			Team:       "Test",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/groups",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "Groups",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/groups",
+			Version:    "2023-02-01",
+			SunsetDate: "2025-07-01",
+			Team:       "Groups",
+		},
+	}
+	specSunsets := []*sunset.Sunset{
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/versions",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-02",
+			Team:       "APIx",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/users",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-06-01",
+			Team:       "Users",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/groups",
+			Version:    "2023-01-01",
+			SunsetDate: "2025-07-03",
+			Team:       "Groups",
+		},
+		{
+			Operation:  "GET",
+			Path:       "/api/atlas/v2/groups",
+			Version:    "2023-02-01",
+			SunsetDate: "2025-07-03",
+			Team:       "Groups",
+		},
+	}
+
+	fromDate := time.Date(2025, time.June, 1, 0, 0, 0, 0, time.UTC)
+	toDate := time.Date(2025, time.June, 15, 0, 0, 0, 0, time.UTC)
+
+	opts := &DiffOpts{
+		basePath: "base.json",
+		specPath: "spec.json",
+		from:     "2025-06-01",
+		to:       "2025-06-15",
+		fromDate: &fromDate,
+		toDate:   &toDate,
+	}
+
+	diff, err := opts.findDiffs(baseSpecSunsets, specSunsets)
+
+	assert.Nil(t, err)
+	assert.Len(t, diff, 3)
+
+	assert.Equal(t, "GET", diff[0].Operation)
+	assert.Equal(t, "/api/atlas/v2/groups", diff[0].Path)
+	assert.Equal(t, "2023-01-01", diff[0].Version)
+	assert.Equal(t, "2025-06-01", diff[0].BaseSunsetDate)
+	assert.Equal(t, "2025-07-03", diff[0].SpecSunsetDate)
+	assert.Equal(t, "base.json", diff[0].BaseSpec)
+	assert.Equal(t, "spec.json", diff[0].Spec)
+	assert.Equal(t, "Groups", diff[0].Team)
+
+	assert.Equal(t, "GET", diff[1].Operation)
+	assert.Equal(t, "/api/atlas/v2/users", diff[1].Path)
+	assert.Equal(t, "2023-01-01", diff[1].Version)
+	assert.Empty(t, diff[1].BaseSunsetDate)
+	assert.Equal(t, "2025-06-01", diff[1].SpecSunsetDate)
+	assert.Equal(t, "base.json", diff[1].BaseSpec)
+	assert.Equal(t, "spec.json", diff[1].Spec)
+	assert.Equal(t, "Users", diff[1].Team)
+
+	assert.Equal(t, "GET", diff[2].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", diff[2].Path)
+	assert.Equal(t, "2023-01-01", diff[2].Version)
+	assert.Equal(t, "2025-06-01", diff[2].BaseSunsetDate)
+	assert.Equal(t, "2025-06-02", diff[2].SpecSunsetDate)
+	assert.Equal(t, "base.json", diff[2].BaseSpec)
+	assert.Equal(t, "spec.json", diff[2].Spec)
+	assert.Equal(t, "APIx", diff[2].Team)
 }
 
 func TestMakeKey(t *testing.T) {
