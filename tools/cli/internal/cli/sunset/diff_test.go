@@ -15,10 +15,11 @@
 package sunset
 
 import (
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFindDiffsEmpty(t *testing.T) {
@@ -38,7 +39,7 @@ func TestFindDiffsEmpty(t *testing.T) {
 	}
 
 	diff, err := opts.findDiffs(baseSpecSunsets, baseSpecSunsets)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Empty(t, diff)
 }
 
@@ -125,7 +126,7 @@ func TestFindDiffsNotEmpty(t *testing.T) {
 
 	diff, err := opts.findDiffs(baseSpecSunsets, specSunsets)
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Len(t, diff, 5)
 
 	assert.Equal(t, "GET", diff[0].Operation)
@@ -250,7 +251,7 @@ func TestFindDiffsFiltersByDate(t *testing.T) {
 
 	diff, err := opts.findDiffs(baseSpecSunsets, specSunsets)
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Len(t, diff, 3)
 
 	assert.Equal(t, "GET", diff[0].Operation)
