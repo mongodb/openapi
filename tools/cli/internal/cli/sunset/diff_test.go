@@ -287,3 +287,216 @@ func TestMakeKey(t *testing.T) {
 	key := makeKey("/api/atlas/v2/groups", "GET", "2023-01-01")
 	assert.Equal(t, "GET-/api/atlas/v2/groups-2023-01-01", key)
 }
+
+func TestDiffsInRangeToAndFrom(t *testing.T) {
+	fromDate := time.Date(2025, time.June, 3, 0, 0, 0, 0, time.UTC)
+	toDate := time.Date(2025, time.June, 21, 0, 0, 0, 0, time.UTC)
+
+	opts := &DiffOpts{
+		from:     "2025-06-03",
+		to:       "2025-06-21",
+		fromDate: &fromDate,
+		toDate:   &toDate,
+	}
+
+	diffs := []*Diff{
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2023-01-01",
+			BaseSunsetDate: "2025-05-02",
+			SpecSunsetDate: "2025-05-04",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2024-01-01",
+			BaseSunsetDate: "2025-06-02",
+			SpecSunsetDate: "2025-06-04",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2025-01-01",
+			BaseSunsetDate: "2025-06-10",
+			SpecSunsetDate: "2025-06-12",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2026-01-01",
+			BaseSunsetDate: "2025-06-20",
+			SpecSunsetDate: "2025-06-22",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2027-01-01",
+			BaseSunsetDate: "2025-07-02",
+			SpecSunsetDate: "2025-07-04",
+		},
+	}
+
+	result, err := opts.diffsInRange(diffs)
+
+	require.NoError(t, err)
+	assert.Len(t, result, 3)
+
+	assert.Equal(t, "GET", result[0].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", result[0].Path)
+	assert.Equal(t, "2024-01-01", result[0].Version)
+	assert.Equal(t, "2025-06-02", result[0].BaseSunsetDate)
+	assert.Equal(t, "2025-06-04", result[0].SpecSunsetDate)
+
+	assert.Equal(t, "GET", result[1].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", result[1].Path)
+	assert.Equal(t, "2025-01-01", result[1].Version)
+	assert.Equal(t, "2025-06-10", result[1].BaseSunsetDate)
+	assert.Equal(t, "2025-06-12", result[1].SpecSunsetDate)
+
+	assert.Equal(t, "GET", result[2].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", result[2].Path)
+	assert.Equal(t, "2026-01-01", result[2].Version)
+	assert.Equal(t, "2025-06-20", result[2].BaseSunsetDate)
+	assert.Equal(t, "2025-06-22", result[2].SpecSunsetDate)
+}
+
+func TestDiffsInRangeOnlyTo(t *testing.T) {
+	toDate := time.Date(2025, time.June, 11, 0, 0, 0, 0, time.UTC)
+
+	opts := &DiffOpts{
+		to:     "2025-06-11",
+		toDate: &toDate,
+	}
+
+	diffs := []*Diff{
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2023-01-01",
+			BaseSunsetDate: "",
+			SpecSunsetDate: "2025-05-04",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2024-01-01",
+			BaseSunsetDate: "2025-06-02",
+			SpecSunsetDate: "2025-06-04",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2025-01-01",
+			BaseSunsetDate: "2025-06-10",
+			SpecSunsetDate: "2025-06-12",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2026-01-01",
+			BaseSunsetDate: "2025-06-20",
+			SpecSunsetDate: "2025-06-22",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2027-01-01",
+			BaseSunsetDate: "",
+			SpecSunsetDate: "2025-07-04",
+		},
+	}
+
+	result, err := opts.diffsInRange(diffs)
+
+	require.NoError(t, err)
+	assert.Len(t, result, 3)
+
+	assert.Equal(t, "GET", result[0].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", result[0].Path)
+	assert.Equal(t, "2023-01-01", result[0].Version)
+	assert.Empty(t, result[0].BaseSunsetDate)
+	assert.Equal(t, "2025-05-04", result[0].SpecSunsetDate)
+
+	assert.Equal(t, "GET", result[1].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", result[1].Path)
+	assert.Equal(t, "2024-01-01", result[1].Version)
+	assert.Equal(t, "2025-06-02", result[1].BaseSunsetDate)
+	assert.Equal(t, "2025-06-04", result[1].SpecSunsetDate)
+
+	assert.Equal(t, "GET", result[2].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", result[2].Path)
+	assert.Equal(t, "2025-01-01", result[2].Version)
+	assert.Equal(t, "2025-06-10", result[2].BaseSunsetDate)
+	assert.Equal(t, "2025-06-12", result[2].SpecSunsetDate)
+}
+
+func TestDiffsInRangeOnlyFrom(t *testing.T) {
+	fromDate := time.Date(2025, time.June, 11, 0, 0, 0, 0, time.UTC)
+
+	opts := &DiffOpts{
+		from:     "2025-06-11",
+		fromDate: &fromDate,
+	}
+
+	diffs := []*Diff{
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2023-01-01",
+			BaseSunsetDate: "2025-05-02",
+			SpecSunsetDate: "",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2024-01-01",
+			BaseSunsetDate: "2025-06-02",
+			SpecSunsetDate: "2025-06-04",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2025-01-01",
+			BaseSunsetDate: "2025-06-10",
+			SpecSunsetDate: "2025-06-12",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2026-01-01",
+			BaseSunsetDate: "2025-06-20",
+			SpecSunsetDate: "2025-06-22",
+		},
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2027-01-01",
+			BaseSunsetDate: "2025-07-02",
+			SpecSunsetDate: "",
+		},
+	}
+
+	result, err := opts.diffsInRange(diffs)
+
+	require.NoError(t, err)
+	assert.Len(t, result, 3)
+
+	assert.Equal(t, "GET", result[0].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", result[0].Path)
+	assert.Equal(t, "2025-01-01", result[0].Version)
+	assert.Equal(t, "2025-06-10", result[0].BaseSunsetDate)
+	assert.Equal(t, "2025-06-12", result[0].SpecSunsetDate)
+
+	assert.Equal(t, "GET", result[1].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", result[1].Path)
+	assert.Equal(t, "2026-01-01", result[1].Version)
+	assert.Equal(t, "2025-06-20", result[1].BaseSunsetDate)
+	assert.Equal(t, "2025-06-22", result[1].SpecSunsetDate)
+
+	assert.Equal(t, "GET", result[2].Operation)
+	assert.Equal(t, "/api/atlas/v2/versions", result[2].Path)
+	assert.Equal(t, "2027-01-01", result[2].Version)
+	assert.Equal(t, "2025-07-02", result[2].BaseSunsetDate)
+	assert.Empty(t, result[2].SpecSunsetDate)
+}
