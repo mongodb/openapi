@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"os/exec"
+	"path"
 	"testing"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/sunset"
@@ -15,7 +16,7 @@ import (
 
 func TestSunsetDiff_NoChanges(t *testing.T) {
 	baseSpecPath := "../../data/base_spec.json"
-	outputPath := getOutputFolder(t, "sunset") + "/diff.json"
+	outputPath := path.Join(getOutputFolder(t, "sunset"), "diff.json")
 
 	cliPath := NewBin(t)
 	cmd := exec.CommandContext(context.Background(), cliPath,
@@ -46,7 +47,7 @@ func TestSunsetDiff_NoChanges(t *testing.T) {
 func TestSunsetDiff_WithChanges(t *testing.T) {
 	baseSpecPath := "../../data/base_spec.json"
 	specPath := "../../data/base_spec_with_mismatching_sunset_dates.json"
-	outputPath := getOutputFolder(t, "sunset") + "/diff.json"
+	outputPath := path.Join(getOutputFolder(t, "sunset"), "diff.json")
 
 	cliPath := NewBin(t)
 	cmd := exec.CommandContext(context.Background(), cliPath,
@@ -108,7 +109,7 @@ func TestSunsetDiff_WithChanges(t *testing.T) {
 func TestSunsetDiff_WithFilteredChanges(t *testing.T) {
 	baseSpecPath := "../../data/base_spec.json"
 	specPath := "../../data/base_spec_with_mismatching_sunset_dates.json"
-	outputPath := getOutputFolder(t, "sunset") + "/diff.json"
+	outputPath := path.Join(getOutputFolder(t, "sunset"), "diff.json")
 
 	cliPath := NewBin(t)
 	cmd := exec.CommandContext(context.Background(), cliPath,
