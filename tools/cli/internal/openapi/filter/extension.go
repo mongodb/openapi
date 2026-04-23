@@ -156,12 +156,6 @@ func (f *ExtensionFilter) updateExtensionsForSchema(schema *openapi3.SchemaRef) 
 	}
 	f.deleteIpaExceptionExtensionIfNeeded(schema.Extensions)
 
-	// If this is a $ref, don't recurse into .Value — the referenced schema
-	// will be visited via updateExtensionsForComponents.
-	if isRef(schema) {
-		return
-	}
-
 	if schema.Value == nil {
 		return
 	}

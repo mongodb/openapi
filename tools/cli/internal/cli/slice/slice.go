@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
@@ -67,13 +66,8 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	// Validate the sliced spec structure (skip defaults/examples validation
-	// to avoid stack overflow with circular schema references in kin-openapi).
-	ctx := openapi3.WithValidationOptions(loader.Loader.Context,
-		openapi3.DisableSchemaDefaultsValidation(),
-		openapi3.DisableExamplesValidation(),
-	)
-	if err := specInfo.Spec.Validate(ctx); err != nil {
+	// Validate the sliced spec
+	if err := specInfo.Spec.Validate(loader.Loader.Context); err != nil {
 		log.Printf("[WARN] Sliced OpenAPI document has validation warnings: %v", err)
 	}
 
