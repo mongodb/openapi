@@ -94,7 +94,7 @@ func (o *ListOpts) newSunsetInRange(sunsets []*sunset.Sunset) ([]*sunset.Sunset,
 }
 
 func isDateInRange(date, from, to *time.Time) bool {
-	if date == nil || date.IsZero() {
+	if date == nil {
 		return false
 	}
 

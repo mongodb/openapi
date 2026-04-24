@@ -361,6 +361,33 @@ func TestDiffsInRangeToAndFrom(t *testing.T) {
 	assert.Equal(t, "2025-06-22", result[2].SpecSunsetDate)
 }
 
+func TestDiffsInRangeToAndFromInvalidSunsetDate(t *testing.T) {
+	fromDate := time.Date(2025, time.June, 3, 0, 0, 0, 0, time.UTC)
+	toDate := time.Date(2025, time.June, 21, 0, 0, 0, 0, time.UTC)
+
+	opts := &DiffOpts{
+		from:     "2025-06-03",
+		to:       "2025-06-21",
+		fromDate: &fromDate,
+		toDate:   &toDate,
+	}
+
+	diffs := []*Diff{
+		{
+			Operation:      "GET",
+			Path:           "/api/atlas/v2/versions",
+			Version:        "2023-01-01",
+			BaseSunsetDate: "2025-05", // Invalid date format
+			SpecSunsetDate: "2025-05-04",
+		},
+	}
+
+	result, err := opts.diffsInRange(diffs)
+
+	require.Error(t, err)
+	require.Empty(t, result)
+}
+
 func TestDiffsInRangeOnlyTo(t *testing.T) {
 	toDate := time.Date(2025, time.June, 11, 0, 0, 0, 0, time.UTC)
 
@@ -499,4 +526,26 @@ func TestDiffsInRangeOnlyFrom(t *testing.T) {
 	assert.Equal(t, "2027-01-01", result[2].Version)
 	assert.Equal(t, "2025-07-02", result[2].BaseSunsetDate)
 	assert.Empty(t, result[2].SpecSunsetDate)
+}
+
+func TestValidate(t *testing.T) {
+	opts := &DiffOpts{
+		from: "2025-06-01",
+		to:   "2025-06-15",
+	}
+
+	err := opts.validate()
+	require.NoError(t, err)
+	assert.Equal(t, time.Date(2025, time.June, 1, 0, 0, 0, 0, time.UTC), *opts.fromDate)
+	assert.Equal(t, time.Date(2025, time.June, 15, 0, 0, 0, 0, time.UTC), *opts.toDate)
+}
+
+func TestValidateToIsAfterFrom(t *testing.T) {
+	opts := &DiffOpts{
+		from: "2025-06-15",
+		to:   "2025-06-01",
+	}
+
+	err := opts.validate()
+	require.Error(t, err)
 }

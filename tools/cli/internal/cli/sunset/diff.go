@@ -180,22 +180,33 @@ func (o *DiffOpts) diffsInRange(diffs []*Diff) ([]*Diff, error) {
 	}
 
 	for _, d := range diffs {
-		baseSunsetDate, err := time.Parse("2006-01-02", d.BaseSunsetDate)
+		baseSunsetDate, err := parseSunsetDate(d.BaseSunsetDate)
 		if err != nil {
-			baseSunsetDate = time.Time{} // zero value for time if parsing fails
+			return nil, err
 		}
 
-		specSunsetDate, err := time.Parse("2006-01-02", d.SpecSunsetDate)
+		specSunsetDate, err := parseSunsetDate(d.SpecSunsetDate)
 		if err != nil {
-			specSunsetDate = time.Time{} // zero value for time if parsing fails
+			return nil, err
 		}
 
-		if isDateInRange(&baseSunsetDate, o.fromDate, o.toDate) || isDateInRange(&specSunsetDate, o.fromDate, o.toDate) {
+		if isDateInRange(baseSunsetDate, o.fromDate, o.toDate) || isDateInRange(specSunsetDate, o.fromDate, o.toDate) {
 			out = append(out, d)
 		}
 	}
 
 	return out, nil
+}
+
+func parseSunsetDate(dateStr string) (*time.Time, error) {
+	if dateStr == "" {
+		return nil, nil
+	}
+	parsedDate, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return nil, err
+	}
+	return &parsedDate, err
 }
 
 func makeKey(path, operation, version string) string {
@@ -240,6 +251,10 @@ func (o *DiffOpts) validate() error {
 			return err
 		}
 		o.toDate = &value
+	}
+
+	if o.from != "" && o.to != "" && o.fromDate.After(*o.toDate) {
+		return fmt.Errorf("%s date cannot be after %s date", flag.From, flag.To)
 	}
 
 	return nil
