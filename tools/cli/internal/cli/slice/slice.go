@@ -66,11 +66,6 @@ func (o *Opts) Run() error {
 		return err
 	}
 
-	// Validate the sliced spec
-	if err := specInfo.Spec.Validate(loader.Loader.Context); err != nil {
-		log.Printf("[WARN] Sliced OpenAPI document has validation warnings: %v", err)
-	}
-
 	return openapi.Save(o.outputPath, specInfo.Spec, o.format, o.fs)
 }
 
