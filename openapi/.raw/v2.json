@@ -53692,6 +53692,47 @@
         },
         "type": "object"
       },
+      "StreamsProcessorStatus": {
+        "description": "Desired status change to apply to a tenant's stream processors.",
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "mode": {
+            "description": "Strategy for the processor: GRACEFUL - attempt to stop the processor, error if processor cannot be stopped. if stop was successful, start the processor in the new region with the latest checkpoint.  FORCED - attempt to stop the processor, proceed to starting the processor in the new region with checkpoints disabled regardless of whether or not the stop succeeds.",
+            "enum": [
+              "GRACEFUL",
+              "FORCED"
+            ],
+            "type": "string"
+          },
+          "region": {
+            "description": "Name of the region against which to apply the status change.",
+            "type": "string"
+          },
+          "status": {
+            "description": "Represents the desired action to apply to stream processors within a workspace, such as starting all processors.",
+            "enum": [
+              "PROCESSORS_STARTED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "region",
+          "status"
+        ],
+        "type": "object"
+      },
       "StreamsProcessorWithStats": {
         "description": "An atlas stream processor with optional stats.",
         "properties": {
@@ -54061,6 +54102,44 @@
           },
           "sampleConnections": {
             "$ref": "#/components/schemas/StreamsSampleConnections"
+          },
+          "streamConfig": {
+            "$ref": "#/components/schemas/StreamConfig"
+          }
+        },
+        "type": "object"
+      },
+      "StreamsTenantUpdatePreviewUpdateRequest": {
+        "description": "Details to update a stream tenant, optionally accompanied by a processor status change (for example, triggering bulk regional failover).",
+        "properties": {
+          "cloudProvider": {
+            "description": "Human-readable label that identifies the cloud provider.",
+            "enum": [
+              "AWS",
+              "GCP",
+              "AZURE",
+              "TENANT",
+              "SERVERLESS"
+            ],
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "processorStatus": {
+            "$ref": "#/components/schemas/StreamsProcessorStatus"
+          },
+          "region": {
+            "$ref": "#/components/schemas/BaseStreamsRegion"
           },
           "streamConfig": {
             "$ref": "#/components/schemas/StreamConfig"
@@ -58716,7 +58795,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "715336704c5b729879b71e9e5c477ab6258447fe"
+    "x-xgen-sha": "ff7d48a43f714448b745f666cbb22decb4db52ed"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -94881,6 +94960,20 @@
                 "xgen-IPA-107-update-method-request-body-is-get-method-response": "Content predates IPA validation.",
                 "xgen-IPA-107-update-method-request-has-no-readonly-fields": "Content predates IPA validation."
               }
+            },
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamsTenantUpdatePreviewUpdateRequest"
+              },
+              "x-xgen-IPA-exception": {
+                "xgen-IPA-107-update-method-request-body-is-get-method-response": "Content predates IPA validation. Update request model differs from GET response schema and cannot be aligned without breaking existing clients.  The discrepancy originates from the parent schema.",
+                "xgen-IPA-107-update-method-request-has-no-readonly-fields": "Content predates IPA validation. Request/response share the same model, which includes readOnly fields.  The discrepancy originates from the parent schema."
+              },
+              "x-xgen-preview": {
+                "name": "regional-failover",
+                "public": "false"
+              },
+              "x-xgen-version": "preview"
             }
           },
           "description": "Details to update in the streams workspace.",
@@ -94894,6 +94987,16 @@
                   "$ref": "#/components/schemas/StreamsTenant"
                 },
                 "x-xgen-version": "2023-02-01"
+              },
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamsTenant"
+                },
+                "x-xgen-preview": {
+                  "name": "regional-failover",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
