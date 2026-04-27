@@ -16954,6 +16954,105 @@
         "type": "object",
         "writeOnly": true
       },
+      "DeprecatedStreamProcessorMetricThreshold": {
+        "deprecated": true,
+        "description": "Threshold value that triggers an alert. Deprecated: use `metricThreshold` instead.",
+        "discriminator": {
+          "mapping": {
+            "STREAM_PROCESSOR_CHANGE_STREAM_LAG": "#/components/schemas/TimeMetricThresholdView",
+            "STREAM_PROCESSOR_DLQ_MESSAGE_COUNT": "#/components/schemas/DLQRawMetricThresholdView",
+            "STREAM_PROCESSOR_KAFKA_LAG": "#/components/schemas/KafkaRawMetricThresholdView",
+            "STREAM_PROCESSOR_OUTPUT_MESSAGE_COUNT": "#/components/schemas/RawMetricThresholdView"
+          },
+          "propertyName": "metricName"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/KafkaRawMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/TimeMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/DLQRawMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/RawMetricThresholdView"
+          }
+        ],
+        "properties": {
+          "metricName": {
+            "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured `metricThreshold.threshold`.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "MongoDB Cloud computes the current metric value as an average.",
+            "enum": [
+              "AVERAGE"
+            ],
+            "type": "string"
+          },
+          "operator": {
+            "description": "Comparison operator to apply when checking the current metric value.",
+            "enum": [
+              "LESS_THAN",
+              "GREATER_THAN"
+            ],
+            "type": "string"
+          },
+          "threshold": {
+            "description": "Value of metric that, when exceeded, triggers an alert.",
+            "format": "double",
+            "type": "number"
+          },
+          "units": {
+            "description": "Element used to express the quantity. This can be an element of time, storage capacity, and the like.",
+            "enum": [
+              "bits",
+              "Kbits",
+              "Mbits",
+              "Gbits",
+              "bytes",
+              "KB",
+              "MB",
+              "GB",
+              "TB",
+              "PB",
+              "nsec",
+              "msec",
+              "sec",
+              "min",
+              "hours",
+              "million minutes",
+              "days",
+              "requests",
+              "1000 requests",
+              "tokens",
+              "million tokens",
+              "pixels",
+              "billion pixels",
+              "GB seconds",
+              "GB hours",
+              "GB days",
+              "RPU",
+              "thousand RPU",
+              "million RPU",
+              "WPU",
+              "thousand WPU",
+              "million WPU",
+              "count",
+              "thousand",
+              "million",
+              "billion"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "metricName"
+        ],
+        "type": "object"
+      },
       "Destination": {
         "description": "Document that describes the destination of the migration.",
         "properties": {
@@ -44501,6 +44600,9 @@
             },
             "type": "array"
           },
+          "metricThreshold": {
+            "$ref": "#/components/schemas/StreamProcessorMetricThreshold"
+          },
           "notifications": {
             "description": "List that contains the targets that MongoDB Cloud sends notifications.",
             "items": {
@@ -44514,7 +44616,7 @@
             "$ref": "#/components/schemas/EventSeverity"
           },
           "threshold": {
-            "$ref": "#/components/schemas/StreamProcessorMetricThreshold"
+            "$ref": "#/components/schemas/DeprecatedStreamProcessorMetricThreshold"
           },
           "updated": {
             "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
@@ -49962,7 +50064,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "7721c6810ed21a5b156aca3da2e029171dd31b5f"
+    "x-xgen-sha": "cc19849b4f13cbc4fd11ce02627d802192ccfbfa"
   },
   "openapi": "3.0.1",
   "paths": {
