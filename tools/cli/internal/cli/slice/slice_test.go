@@ -15,8 +15,12 @@
 package slice
 
 import (
+	"crypto/sha256"
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -115,4 +119,54 @@ func TestInvalidPath_PreRunE(t *testing.T) {
 	err := opts.PreRunE(nil)
 	require.Error(t, err)
 	require.EqualError(t, err, "output file must be either a JSON or YAML file, got slice.html")
+}
+
+func TestOptsRunDoesNotMutateInputFile(t *testing.T) {
+	dir := t.TempDir()
+	inPath := filepath.Join(dir, "in.json")
+	outPath := filepath.Join(dir, "out.json")
+
+	raw := []byte(`{
+		"openapi": "3.0.0",
+		"info": {"title": "T", "version": "1.0"},
+		"paths": {
+			"/users": {
+				"get": {
+					"operationId": "listUsers",
+					"tags": ["Users"],
+					"responses": {"200": {"description": "ok"}}
+				}
+			},
+			"/orgs": {
+				"get": {
+					"operationId": "listOrgs",
+					"tags": ["Orgs"],
+					"responses": {"200": {"description": "ok"}}
+				}
+			}
+		}
+	}`)
+	require.NoError(t, os.WriteFile(inPath, raw, 0o600))
+	sumBefore := sha256.Sum256(raw)
+
+	opts := &Opts{
+		fs:         afero.NewOsFs(),
+		basePath:   inPath,
+		outputPath: outPath,
+		format:     "json",
+		tags:       []string{"Users"},
+	}
+	require.NoError(t, opts.Run())
+
+	// Input file must be byte-identical before and after.
+	inAfter, err := os.ReadFile(inPath)
+	require.NoError(t, err)
+	sumAfter := sha256.Sum256(inAfter)
+	require.Equal(t, sumBefore, sumAfter, "slice must not modify the input file")
+
+	// Output should contain the kept tag's operation, not the dropped one.
+	outBytes, err := os.ReadFile(outPath)
+	require.NoError(t, err)
+	assert.Contains(t, string(outBytes), "listUsers")
+	assert.NotContains(t, string(outBytes), "listOrgs")
 }
