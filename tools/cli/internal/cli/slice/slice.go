@@ -22,6 +22,7 @@ import (
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/oasutil"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi/slice"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -61,12 +62,18 @@ func (o *Opts) Run() error {
 		log.Printf("Slicing operations by paths: %v", criteria.Paths)
 	}
 
-	// Slice the spec (includes automatic cleanup of unused tags and schemas)
-	if err := slice.Slice(specInfo.Spec, criteria); err != nil {
+	// Work on an independent copy so the caller's spec is not mutated.
+	sliced, err := oasutil.Duplicate(specInfo.Spec)
+	if err != nil {
 		return err
 	}
 
-	return openapi.Save(o.outputPath, specInfo.Spec, o.format, o.fs)
+	// Slice the spec (includes automatic cleanup of unused tags and schemas)
+	if err := slice.Slice(sliced, criteria); err != nil {
+		return err
+	}
+
+	return openapi.Save(o.outputPath, sliced, o.format, o.fs)
 }
 
 func (o *Opts) PreRunE(_ []string) error {
