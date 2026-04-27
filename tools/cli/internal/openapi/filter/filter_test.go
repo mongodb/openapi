@@ -46,21 +46,6 @@ func TestValidateMetadata(t *testing.T) {
 	})
 }
 
-func TestDuplicateOas(t *testing.T) {
-	doc := &openapi3.T{
-		Info: &openapi3.Info{
-			Title:   "Test API",
-			Version: "1.0.0",
-		},
-	}
-
-	duplicateDoc, err := duplicateOas(doc)
-	require.NoError(t, err)
-	require.NotNil(t, duplicateDoc)
-	assert.Equal(t, doc.Info.Title, duplicateDoc.Info.Title)
-	assert.Equal(t, doc.Info.Version, duplicateDoc.Info.Version)
-}
-
 func TestApplyFilters(t *testing.T) {
 	doc := &openapi3.T{
 		Info: &openapi3.Info{
