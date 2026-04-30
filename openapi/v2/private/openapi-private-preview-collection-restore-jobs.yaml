@@ -303,6 +303,8 @@ components:
                     description: Actual target namespace after restore (e.g. after conflict rename).
                     readOnly: true
                     type: string
+                indexStatus:
+                    $ref: '#/components/schemas/ApiAtlasCollectionRestoreIndexStatus'
                 restoredDocuments:
                     description: Number of documents restored so far.
                     format: int64
@@ -336,6 +338,50 @@ components:
                     format: int64
                     readOnly: true
                     type: integer
+            type: object
+        ApiAtlasCollectionRestoreIndexStatus:
+            description: Index build status for a collection within a restore job.
+            properties:
+                errorMessage:
+                    description: Error message if index build failed.
+                    type: string
+                failedIndexes:
+                    description: List of index specifications that failed to build (up to 64 items).
+                    items:
+                        additionalProperties: true
+                        description: Index specification with arbitrary fields (e.g. name, key, unique).
+                        type: object
+                    maxItems: 64
+                    type: array
+                state:
+                    description: Index build state indicating the status of index creation during or after a restore operation.
+                    enum:
+                        - NOT_STARTED
+                        - IN_PROGRESS
+                        - SUCCESSFUL
+                        - FAILED
+                        - NOT_RESTORED
+                    type: string
+            readOnly: true
+            type: object
+        ApiAtlasCollectionRestoreJobIndexStatus:
+            description: Overall index build status for a collection restore job.
+            properties:
+                failedCollectionCount:
+                    description: Number of collections that failed to build indexes.
+                    format: int32
+                    minimum: 0
+                    type: integer
+                state:
+                    description: Index build state indicating the status of index creation during or after a restore operation.
+                    enum:
+                        - NOT_STARTED
+                        - IN_PROGRESS
+                        - SUCCESSFUL
+                        - FAILED
+                        - NOT_RESTORED
+                    type: string
+            readOnly: true
             type: object
         ApiAtlasCollectionRestoreJobRequest:
             description: Request body for creating a collection restore job.
@@ -443,6 +489,8 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     readOnly: true
                     type: string
+                indexStatus:
+                    $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobIndexStatus'
                 indexStrategy:
                     description: Strategy for restoring indexes (all, none, or all except TTL).
                     enum:
@@ -678,7 +726,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: f1619b9c04fcbefa64612b84a57581768f3cdc55
+    x-xgen-sha: a56d45c19bc80812434e371a883301ac6a36b287
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs:
