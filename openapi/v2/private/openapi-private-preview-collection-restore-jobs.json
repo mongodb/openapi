@@ -406,6 +406,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "indexStatus": {
+            "$ref": "#/components/schemas/ApiAtlasCollectionRestoreIndexStatus"
+          },
           "restoredDocuments": {
             "description": "Number of documents restored so far.",
             "format": "int64",
@@ -446,6 +449,62 @@
             "type": "integer"
           }
         },
+        "type": "object"
+      },
+      "ApiAtlasCollectionRestoreIndexStatus": {
+        "description": "Index build status for a collection within a restore job.",
+        "properties": {
+          "errorMessage": {
+            "description": "Error message if index build failed.",
+            "type": "string"
+          },
+          "failedIndexes": {
+            "description": "List of index specifications that failed to build (up to 64 items).",
+            "items": {
+              "additionalProperties": true,
+              "description": "Index specification with arbitrary fields (e.g. name, key, unique).",
+              "type": "object"
+            },
+            "maxItems": 64,
+            "type": "array"
+          },
+          "state": {
+            "description": "Index build state indicating the status of index creation during or after a restore operation.",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "SUCCESSFUL",
+              "FAILED",
+              "NOT_RESTORED"
+            ],
+            "type": "string"
+          }
+        },
+        "readOnly": true,
+        "type": "object"
+      },
+      "ApiAtlasCollectionRestoreJobIndexStatus": {
+        "description": "Overall index build status for a collection restore job.",
+        "properties": {
+          "failedCollectionCount": {
+            "description": "Number of collections that failed to build indexes.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "state": {
+            "description": "Index build state indicating the status of index creation during or after a restore operation.",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "SUCCESSFUL",
+              "FAILED",
+              "NOT_RESTORED"
+            ],
+            "type": "string"
+          }
+        },
+        "readOnly": true,
         "type": "object"
       },
       "ApiAtlasCollectionRestoreJobRequest": {
@@ -583,6 +642,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "indexStatus": {
+            "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobIndexStatus"
+          },
           "indexStrategy": {
             "description": "Strategy for restoring indexes (all, none, or all except TTL).",
             "enum": [
@@ -615,6 +677,13 @@
             "format": "int32",
             "type": "integer"
           },
+          "restoredDocuments": {
+            "description": "Number of documents restored so far across all supported collections.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
           "snapshotId": {
             "description": "Unique 24-hexadecimal digit string that identifies the snapshot being restored.",
             "example": "32b6e34b3d91647abb20e7b8",
@@ -643,6 +712,13 @@
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
             "type": "string"
+          },
+          "totalDocuments": {
+            "description": "Total number of documents across all supported collections in the restore job. This value may initially reflect an estimate based on collection metadata and can change as accurate document counts become available during the restore.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
           }
         },
         "type": "object"
@@ -850,13 +926,13 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "085d5a4f7c8fbe107ad862ef4a9f193d8bd00de6"
+    "x-xgen-sha": "60e9373534c848ec3b29033d6ae2adefe2411527"
   },
   "openapi": "3.0.1",
   "paths": {
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all collection restore jobs for one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all collection restore jobs for one cluster from the specified project.",
         "operationId": "listGroupClusterCollectionRestoreJobs",
         "parameters": [
           {
@@ -960,7 +1036,7 @@
         "x-xgen-operation-id-override": "listCollectionRestoreJobs"
       },
       "post": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Creates one collection-level restore job for one cluster from the specified project. Collection-level restores allow restoring specific databases or collections from a snapshot or point-in-time. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role or Project Backup Recovery Operator role.",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Creates one collection-level restore job for one cluster from the specified project. Collection-level restores allow restoring specific databases or collections from a snapshot or point-in-time.",
         "operationId": "createGroupClusterCollectionRestoreJob",
         "parameters": [
           {
@@ -1078,7 +1154,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns one collection restore job for one cluster from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns one collection restore job for one cluster from the specified project.",
         "operationId": "getGroupClusterCollectionRestoreJob",
         "parameters": [
           {
@@ -1188,7 +1264,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}/collections": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all collection-level restore states for one collection restore job from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role. Note: If the restore job is in the INITIALIZING state, this endpoint returns an empty list because collection-level states have not yet been created.",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all collection-level restore states for one collection restore job from the specified project. Note: If the restore job is in the INITIALIZING state, this endpoint returns an empty list because collection-level states have not yet been created.",
         "operationId": "listGroupClusterCollectionRestoreJobCollections",
         "parameters": [
           {
@@ -1341,7 +1417,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}/collections/{sourceNamespace}": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns one collection-level restore state for one collection restore job from the specified project. To use this resource, the requesting Service Account or API Key must have the Project Backup Manager role.",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns one collection-level restore state for one collection restore job from the specified project.",
         "operationId": "getGroupClusterCollectionRestoreJobCollection",
         "parameters": [
           {
