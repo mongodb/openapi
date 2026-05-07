@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
@@ -35,6 +36,10 @@ type DiffOpts struct {
 	specPath   string
 	outputPath string
 	format     string
+	from       string
+	to         string
+	toDate     *time.Time
+	fromDate   *time.Time
 }
 
 type Diff struct {
@@ -68,7 +73,10 @@ func (o *DiffOpts) Run() error {
 	specSunsets := sunset.NewListFromSpec(specInfo)
 
 	// Find differences
-	var diffs = findDiffs(baseSunsets, specSunsets, o.basePath, o.specPath)
+	diffs, err := o.findDiffs(baseSunsets, specSunsets)
+	if err != nil {
+		return err
+	}
 
 	// Write to output
 	bytes, err := o.newSunsetDiffBytes(diffs)
@@ -84,7 +92,7 @@ func (o *DiffOpts) Run() error {
 	return nil
 }
 
-func findDiffs(baseSunsets, specSunsets []*sunset.Sunset, baseSpecPath, specPath string) []*Diff {
+func (o *DiffOpts) findDiffs(baseSunsets, specSunsets []*sunset.Sunset) ([]*Diff, error) {
 	// Create maps for easy lookup
 	baseMap := make(map[string]*sunset.Sunset)
 	for _, s := range baseSunsets {
@@ -106,15 +114,14 @@ func findDiffs(baseSunsets, specSunsets []*sunset.Sunset, baseSpecPath, specPath
 		if specSunset, exists := specMap[key]; exists {
 			// Endpoint exists in both specs
 			if baseSunset.SunsetDate != specSunset.SunsetDate {
-				// Different sunset dates
 				diffs = append(diffs, &Diff{
 					Operation:      baseSunset.Operation,
 					Path:           baseSunset.Path,
 					Version:        baseSunset.Version,
 					BaseSunsetDate: baseSunset.SunsetDate,
 					SpecSunsetDate: specSunset.SunsetDate,
-					BaseSpec:       baseSpecPath,
-					Spec:           specPath,
+					BaseSpec:       o.basePath,
+					Spec:           o.specPath,
 					Team:           baseSunset.Team,
 				})
 			}
@@ -126,8 +133,8 @@ func findDiffs(baseSunsets, specSunsets []*sunset.Sunset, baseSpecPath, specPath
 				Version:        baseSunset.Version,
 				BaseSunsetDate: baseSunset.SunsetDate,
 				SpecSunsetDate: "",
-				BaseSpec:       baseSpecPath,
-				Spec:           specPath,
+				BaseSpec:       o.basePath,
+				Spec:           o.specPath,
 				Team:           baseSunset.Team,
 			})
 		}
@@ -142,8 +149,8 @@ func findDiffs(baseSunsets, specSunsets []*sunset.Sunset, baseSpecPath, specPath
 				Version:        specSunset.Version,
 				BaseSunsetDate: "",
 				SpecSunsetDate: specSunset.SunsetDate,
-				BaseSpec:       baseSpecPath,
-				Spec:           specPath,
+				BaseSpec:       o.basePath,
+				Spec:           o.specPath,
 				Team:           specSunset.Team,
 			})
 		}
@@ -156,7 +163,50 @@ func findDiffs(baseSunsets, specSunsets []*sunset.Sunset, baseSpecPath, specPath
 		return iKey < jKey
 	})
 
-	return diffs
+	// Filter diffs by date range if specified
+	filteredDiffs, err := o.diffsInRange(diffs)
+	if err != nil {
+		return nil, err
+	}
+
+	return filteredDiffs, nil
+}
+
+func (o *DiffOpts) diffsInRange(diffs []*Diff) ([]*Diff, error) {
+	var out []*Diff
+
+	if o.from == "" && o.to == "" {
+		return diffs, nil
+	}
+
+	for _, d := range diffs {
+		baseSunsetDate, err := parseSunsetDate(d.BaseSunsetDate)
+		if err != nil {
+			return nil, err
+		}
+
+		specSunsetDate, err := parseSunsetDate(d.SpecSunsetDate)
+		if err != nil {
+			return nil, err
+		}
+
+		if isDateInRange(baseSunsetDate, o.fromDate, o.toDate) || isDateInRange(specSunsetDate, o.fromDate, o.toDate) {
+			out = append(out, d)
+		}
+	}
+
+	return out, nil
+}
+
+func parseSunsetDate(dateStr string) (*time.Time, error) {
+	if dateStr == "" {
+		return nil, nil
+	}
+	parsedDate, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return nil, err
+	}
+	return &parsedDate, err
 }
 
 func makeKey(path, operation, version string) string {
@@ -186,6 +236,30 @@ func (o *DiffOpts) newSunsetDiffBytes(diffs []*Diff) ([]byte, error) {
 	return yamlData, nil
 }
 
+func (o *DiffOpts) validate() error {
+	if o.from != "" {
+		value, err := time.Parse("2006-01-02", o.from)
+		if err != nil {
+			return err
+		}
+		o.fromDate = &value
+	}
+
+	if o.to != "" {
+		value, err := time.Parse("2006-01-02", o.to)
+		if err != nil {
+			return err
+		}
+		o.toDate = &value
+	}
+
+	if o.from != "" && o.to != "" && o.fromDate.After(*o.toDate) {
+		return fmt.Errorf("%s date cannot be after %s date", flag.From, flag.To)
+	}
+
+	return nil
+}
+
 // DiffBuilder builds the diff command with the following signature:
 // sunset diff --base base-spec.json --spec spec.json.
 func DiffBuilder() *cobra.Command {
@@ -197,6 +271,9 @@ func DiffBuilder() *cobra.Command {
 		Use:   "diff --base spec1.json --spec spec2.json",
 		Short: "List API endpoints with different sunset dates between two OpenAPI specs.",
 		Args:  cobra.NoArgs,
+		PreRunE: func(_ *cobra.Command, _ []string) error {
+			return opts.validate()
+		},
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return opts.Run()
 		},
@@ -206,6 +283,8 @@ func DiffBuilder() *cobra.Command {
 	cmd.Flags().StringVarP(&opts.specPath, flag.Spec, flag.SpecShort, "", usage.Spec)
 	cmd.Flags().StringVarP(&opts.outputPath, flag.Output, flag.OutputShort, "", usage.Output)
 	cmd.Flags().StringVarP(&opts.format, flag.Format, flag.FormatShort, "json", usage.Format)
+	cmd.Flags().StringVar(&opts.from, flag.From, "", usage.From)
+	cmd.Flags().StringVar(&opts.to, flag.To, "", usage.To)
 
 	_ = cmd.MarkFlagRequired(flag.Base)
 	_ = cmd.MarkFlagRequired(flag.Spec)

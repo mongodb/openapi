@@ -328,6 +328,11 @@ components:
                         url: https://dochub.mongodb.org/core/customize-storage
                     format: double
                     type: number
+                diskThroughput:
+                    description: Target throughput desired for storage attached to this hardware. Only returned for Gen 2 instance sizes with Standard (GP3) volume type.
+                    format: int32
+                    readOnly: true
+                    type: integer
                 ebsVolumeType:
                     default: STANDARD
                     description: "Type of storage you want to attach to your AWS-provisioned cluster.\n\n- `STANDARD` volume types can't exceed the default input/output operations per second (IOPS) rate for the selected volume size. \n\n- `PROVISIONED` volume types must fall within the allowable IOPS range for the selected volume size. You must set this value to (`PROVISIONED`) for NVMe clusters."
@@ -363,6 +368,28 @@ components:
                         - M80_NVME
                         - M200_NVME
                         - M400_NVME
+                        - M30_GEN_2
+                        - M40_GEN_2
+                        - M50_GEN_2
+                        - M60_GEN_2
+                        - M80_GEN_2
+                        - M140_GEN_2
+                        - M200_GEN_2
+                        - M300_GEN_2
+                        - R40_GEN_2
+                        - R50_GEN_2
+                        - R60_GEN_2
+                        - R80_GEN_2
+                        - R200_GEN_2
+                        - R300_GEN_2
+                        - R400_GEN_2
+                        - R700_GEN_2
+                        - M40_NVME_GEN_2
+                        - M50_NVME_GEN_2
+                        - M60_NVME_GEN_2
+                        - M80_NVME_GEN_2
+                        - M200_NVME_GEN_2
+                        - M400_NVME_GEN_2
                     title: AWS Instance Sizes
                     type: string
                 nodeCount:
@@ -616,6 +643,28 @@ components:
                     - M80_NVME
                     - M200_NVME
                     - M400_NVME
+                    - M30_GEN_2
+                    - M40_GEN_2
+                    - M50_GEN_2
+                    - M60_GEN_2
+                    - M80_GEN_2
+                    - M140_GEN_2
+                    - M200_GEN_2
+                    - M300_GEN_2
+                    - R40_GEN_2
+                    - R50_GEN_2
+                    - R60_GEN_2
+                    - R80_GEN_2
+                    - R200_GEN_2
+                    - R300_GEN_2
+                    - R400_GEN_2
+                    - R700_GEN_2
+                    - M40_NVME_GEN_2
+                    - M50_NVME_GEN_2
+                    - M60_NVME_GEN_2
+                    - M80_NVME_GEN_2
+                    - M200_NVME_GEN_2
+                    - M400_NVME_GEN_2
                   title: AWS Instance Sizes
                   type: string
                 - enum:
@@ -965,6 +1014,13 @@ components:
                         description: Reconfiguring a Replica Set during a regional outage
                         url: https://dochub.mongodb.org/core/regional-outage-reconfigure-replica-set
                     format: date-time
+                    type: string
+                adaptiveCapacity:
+                    description: Governs adaptive capacity behavior of Azure nodes in single-cloud Azure clusters or multi-cloud clusters that include Azure nodes. Adaptive capacity enables fallback hardware selection when the primary instance family is unavailable. ``ENABLED`` means the cluster explicitly opts in to adaptive capacity. ``DISABLED`` means the cluster explicitly opts out; the cluster receives capacity errors instead of being placed on fallback hardware. ``null`` means the field is unset; Azure clusters use adaptive capacity by default when the feature is enabled at the group level. Setting this field for single-cloud AWS or GCP clusters is a no-op.
+                    enum:
+                        - ENABLED
+                        - DISABLED
+                    nullable: true
                     type: string
                 advancedConfiguration:
                     $ref: '#/components/schemas/ApiAtlasClusterAdvancedConfigurationView'
@@ -1649,7 +1705,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: b6a75a90517e9191f3d91801704ccee2307abb9e
+    x-xgen-sha: 0f31003aef1474239d294ed770f5e08fd3171b2b
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/sandbox/{sandboxConfigId}:generateClusterDescription:

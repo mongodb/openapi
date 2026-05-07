@@ -10,6 +10,7 @@ functions:
   - IPA117DescriptionShouldNotUseLinks
   - IPA117PlaintextResponseMustHaveExample
   - IPA117ObjectsMustBeWellDefined
+  - IPA117RequestResponseBodiesMustBeWellDefined
   - IPA117ParameterHasExamplesOrSchema
   - IPA117OperationSummaryFormat
   - IPA117OperationSummaryStartsWith
@@ -210,6 +211,27 @@ rules:
         ignoredPaths:
           - 'components.schemas.NoBody'
           - 'components.schemas.ApiError.properties.parameters.items'
+  xgen-IPA-117-request-response-bodies-must-be-well-defined:
+    description: |
+      Request and response bodies must be well-defined, i.e. include a schema to ensure that consumers understand the expected format of the request/response.
+
+      ##### Implementation details
+      The rule applies to the following components:
+        - Operation request bodies
+        - Operation responses, except for:
+          - 202 Accepted responses
+          - DELETE method 2xx responses
+          - Custom method 2xx POST responses
+
+       These components must be described, i.e. has the `schema` property:
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-request-response-bodies-must-be-well-defined'
+    severity: warn
+    given:
+      - '#OperationObject.requestBody.content[*]'
+      - '#OperationObject.responses[*].content[*]'
+
+    then:
+      function: 'IPA117RequestResponseBodiesMustBeWellDefined'
   xgen-IPA-117-parameter-has-examples-or-schema:
     description: |
       API producers must provide a well-defined schema or example(s) for parameters.

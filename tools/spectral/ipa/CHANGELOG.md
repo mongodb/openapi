@@ -2,7 +2,24 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [10.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v9.1.1...10.0.0)
+#### [10.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v10.0.0...10.1.0)
+
+- feat(ipa): New rule for IPA 117 - requests/responses must have schema [`#1231`](https://github.com/mongodb/openapi/pull/1231)
+- chore(ipa): bump brace-expansion from 1.1.12 to 1.1.14 in /tools/spectral/ipa [`#1227`](https://github.com/mongodb/openapi/pull/1227)
+- chore(ipa): bump picomatch from 2.3.1 to 2.3.2 in /tools/spectral/ipa [`#1226`](https://github.com/mongodb/openapi/pull/1226)
+- chore(ipa): bump @stoplight/spectral-core from 1.21.0 to 1.22.0 in /tools/spectral/ipa [`#1212`](https://github.com/mongodb/openapi/pull/1212)
+- chore(ipa): bump rollup and @stoplight/spectral-ruleset-bundler in /tools/spectral/ipa [`#1222`](https://github.com/mongodb/openapi/pull/1222)
+- chore(ipa): bump handlebars from 4.7.8 to 4.7.9 in /tools/spectral/ipa [`#1220`](https://github.com/mongodb/openapi/pull/1220)
+- chore(ipa): bump @stoplight/spectral-cli from 6.15.0 to 6.15.1 in /tools/spectral/ipa [`#1214`](https://github.com/mongodb/openapi/pull/1214)
+- chore(ipa): bump @stoplight/spectral-functions from 1.10.1 to 1.10.2 in /tools/spectral/ipa [`#1216`](https://github.com/mongodb/openapi/pull/1216)
+- chore(ipa): bump lodash from 4.17.23 to 4.18.1 in /tools/spectral/ipa [`#1200`](https://github.com/mongodb/openapi/pull/1200)
+- fix(ipa): relax itemsPerPage validation to require default &gt; 1 for IPA-110 [`#1186`](https://github.com/mongodb/openapi/pull/1186)
+- chore(ipa): bump ajv from 8.17.1 to 8.18.0 in /tools/spectral/ipa [`#1154`](https://github.com/mongodb/openapi/pull/1154)
+- chore(ipa): bump @eslint/js from 9.39.2 to 10.0.1 [`#1140`](https://github.com/mongodb/openapi/pull/1140)
+
+### [ipa-validation-ruleset-v10.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v9.1.1...ipa-validation-ruleset-v10.0.0)
+
+> 5 February 2026
 
 - feat(ipa): Support reset custom method for singletons [`#1122`](https://github.com/mongodb/openapi/pull/1122)
 - chore(ipa): bump @stoplight/spectral-core from 1.20.0 to 1.21.0 in /tools/spectral/ipa [`#1121`](https://github.com/mongodb/openapi/pull/1121)

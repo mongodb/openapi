@@ -1198,6 +1198,21 @@ This rule includes a configuration option:
   - `preferredWords`: List of words that the operation summary should use for single items, defaults to `['one']`. Only used for error messages
   - `forbiddenWords`: List of words (lowercase) that the operation summary should not use, defaults to `['a', 'specified']`
 
+#### xgen-IPA-117-request-response-bodies-must-be-well-defined
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Request and response bodies must be well-defined, i.e. include a schema to ensure that consumers understand the expected format of the request/response.
+
+##### Implementation details
+The rule applies to the following components:
+  - Operation request bodies
+  - Operation responses, except for:
+    - 202 Accepted responses
+    - DELETE method 2xx responses
+    - Custom method 2xx POST responses
+
+ These components must be described, i.e. has the `schema` property:
+
 
 
 ### IPA-118

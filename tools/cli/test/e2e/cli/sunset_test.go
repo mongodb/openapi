@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"os/exec"
+	"path"
 	"testing"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/sunset"
@@ -13,9 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDiff_NoChanges(t *testing.T) {
+func TestSunsetDiff_NoChanges(t *testing.T) {
 	baseSpecPath := "../../data/base_spec.json"
-	outputPath := "diff.json"
+	outputPath := path.Join(getOutputFolder(t, "sunset"), "diff.json")
 
 	cliPath := NewBin(t)
 	cmd := exec.CommandContext(context.Background(), cliPath,
@@ -43,10 +44,10 @@ func TestDiff_NoChanges(t *testing.T) {
 	assert.Empty(t, results)
 }
 
-func TestDiff_WithChanges(t *testing.T) {
+func TestSunsetDiff_WithChanges(t *testing.T) {
 	baseSpecPath := "../../data/base_spec.json"
 	specPath := "../../data/base_spec_with_mismatching_sunset_dates.json"
-	outputPath := "diff.json"
+	outputPath := path.Join(getOutputFolder(t, "sunset"), "diff.json")
 
 	cliPath := NewBin(t)
 	cmd := exec.CommandContext(context.Background(), cliPath,
@@ -103,4 +104,47 @@ func TestDiff_WithChanges(t *testing.T) {
 	assert.Empty(t, results[2].SpecSunsetDate)
 	assert.Equal(t, baseSpecPath, results[2].BaseSpec)
 	assert.Equal(t, specPath, results[2].Spec)
+}
+
+func TestSunsetDiff_WithFilteredChanges(t *testing.T) {
+	baseSpecPath := "../../data/base_spec.json"
+	specPath := "../../data/base_spec_with_mismatching_sunset_dates.json"
+	outputPath := path.Join(getOutputFolder(t, "sunset"), "diff.json")
+
+	cliPath := NewBin(t)
+	cmd := exec.CommandContext(context.Background(), cliPath,
+		"sunset",
+		"diff",
+		"-b",
+		baseSpecPath,
+		"-s",
+		specPath,
+		"-o",
+		outputPath,
+		"--from",
+		"2026-02-20",
+		"--to",
+		"2026-03-03",
+	)
+
+	var o, e bytes.Buffer
+	cmd.Stdout = &o
+	cmd.Stderr = &e
+	require.NoError(t, cmd.Run(), e.String())
+
+	b, err := os.ReadFile(outputPath)
+	require.NoError(t, err)
+	assert.NotEmpty(t, b)
+	var results []*sunset.Diff
+	require.NoError(t, json.Unmarshal(b, &results))
+
+	assert.Len(t, results, 1)
+
+	assert.Equal(t, "GET", results[0].Operation)
+	assert.Equal(t, "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/deployment", results[0].Path)
+	assert.Equal(t, "2023-01-01", results[0].Version)
+	assert.Equal(t, "2026-03-01", results[0].BaseSunsetDate)
+	assert.Empty(t, results[0].SpecSunsetDate)
+	assert.Equal(t, baseSpecPath, results[0].BaseSpec)
+	assert.Equal(t, specPath, results[0].Spec)
 }
