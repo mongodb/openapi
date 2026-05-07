@@ -2,7 +2,6 @@ package resources
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -40,7 +39,7 @@ func handleAlias(reg *registry.Registry, req *mcp.ReadResourceRequest) (*mcp.Rea
 
 	entry, err := reg.GetByAlias(alias)
 	if err != nil {
-		return nil, fmt.Errorf("spec with alias %q not found", alias)
+		return nil, err
 	}
 
 	overview := buildSpecOverview(entry)

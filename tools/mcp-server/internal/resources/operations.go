@@ -20,7 +20,7 @@ type OperationParam struct {
 // ContentEntry represents a single versioned content type present in a request body or response.
 type ContentEntry struct {
 	ContentType string              `json:"contentType"`
-	Version     string              `json:"version"`
+	Version     string              `json:"version,omitempty"`
 	Schema      *openapi3.SchemaRef `json:"schema,omitempty"`
 }
 
@@ -61,7 +61,7 @@ func handleOperation(reg *registry.Registry, req *mcp.ReadResourceRequest) (*mcp
 
 	entry, err := reg.GetByAlias(alias)
 	if err != nil {
-		return nil, fmt.Errorf("spec with alias %q not found", alias)
+		return nil, err
 	}
 
 	method, path, op, err := findOperation(entry.Spec, operationID)
