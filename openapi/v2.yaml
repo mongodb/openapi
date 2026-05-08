@@ -32958,6 +32958,32 @@ components:
             required:
                 - results
             type: object
+        PaginatedApiStreamsFailoverConnection:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/StreamsConnection'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
         PaginatedApiStreamsPrivateLinkView:
             properties:
                 links:
@@ -44355,7 +44381,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 61849fe682a7f39f3c8a12aff95fa740c1f2a910
+    x-xgen-sha: c9033f3010d6ec3dd35893088a3807f4cd737b78
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -66478,6 +66504,63 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/updateGroupStreamConnection
             x-xgen-operation-id-override: updateStreamConnection
     /api/atlas/v2/groups/{groupId}/streams/{tenantName}/connections/{connectionName}/failoverConnections:
+        get:
+            description: Returns all failover connections for the specified connection in a stream workspace.
+            operationId: listGroupStreamConnectionFailoverConnections
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - description: Label that identifies the stream workspace.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the stream connection.
+                  in: path
+                  name: connectionName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiStreamsFailoverConnection'
+                            x-xgen-preview:
+                                name: regional-failover
+                                public: "false"
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Stream Failover Connections
+            tags:
+                - Streams
+            x-rolesRequirements:
+                - Organization Stream Processing Admin
+                - Project Stream Processing Owner
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/listGroupStreamConnectionFailoverConnections
+            x-xgen-operation-id-override: listFailoverConnections
         post:
             description: Creates one failover connection for a stream workspace in the specified project.
             operationId: createGroupStreamConnectionFailoverConnection
