@@ -2712,6 +2712,7 @@ components:
                     type: string
             type: object
         ApiSearchDeploymentSpecView:
+            description: Hardware specification for the Search Nodes that back a search deployment.
             properties:
                 instanceSize:
                     description: Hardware specification for the Search Node instance sizes.
@@ -8745,6 +8746,52 @@ components:
                     description: Flag that indicates whether the cluster tier can scale down via reactive auto-scaling. This is required if `autoScaling.compute.enabled` is `true`. If you enable this option, specify a value for `providerSettings.autoScaling.compute.minInstanceSize`.
                     type: boolean
             type: object
+        ClusterConfigurationValidation:
+            properties:
+                advancedConfiguration:
+                    $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                clusterDescription:
+                    $ref: '#/components/schemas/ClusterDescription20240805'
+                clusterName:
+                    description: Name of the existing cluster to validate against when editing is true.
+                    type: string
+                editing:
+                    description: When true, validates the configuration as an update to an existing cluster. When false, validates as a new cluster create.
+                    type: boolean
+                searchDeploymentSpec:
+                    $ref: '#/components/schemas/ApiSearchDeploymentSpecView'
+                tags:
+                    description: Optional list of resource tags.
+                    items:
+                        $ref: '#/components/schemas/ResourceTag'
+                    maxItems: 50
+                    type: array
+            required:
+                - clusterDescription
+                - editing
+            type: object
+        ClusterConfigurationValidationError:
+            properties:
+                errorCode:
+                    description: Machine-readable error code identifying the type of validation failure.
+                    example: CLUSTER_NOT_FOUND
+                    type: string
+                validationIssue:
+                    description: Description of the validation failure.
+                    type: string
+            type: object
+        ClusterConfigurationValidationResult:
+            properties:
+                errors:
+                    description: List of validation errors, present only when valid is false.
+                    items:
+                        $ref: '#/components/schemas/ClusterConfigurationValidationError'
+                    maxItems: 100
+                    type: array
+                valid:
+                    description: Whether the cluster configuration is valid.
+                    type: boolean
+            type: object
         ClusterConnectionStrings:
             description: Collection of Uniform Resource Locators that point to the MongoDB database.
             externalDocs:
@@ -8817,6 +8864,7 @@ components:
             title: Cluster Connection Strings
             type: object
         ClusterDescription20240805:
+            description: Configuration of a MongoDB Atlas cluster, including its replication topology, instance sizing, storage, and operational settings.
             properties:
                 acceptDataRisksAndForceReplicaSetReconfig:
                     description: If reconfiguration is necessary to regain a primary due to a regional outage, submit this field alongside your topology reconfiguration to request a new regional outage resistant topology. Forced reconfigurations during an outage of the majority of electable nodes carry a risk of data loss if replicated writes (even majority committed writes) have not been replicated to the new primary node. MongoDB Atlas docs contain more information. To proceed with an operation which carries that risk, set `acceptDataRisksAndForceReplicaSetReconfig` to the current date. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
@@ -9146,6 +9194,7 @@ components:
             title: Cluster Private Endpoint Connection Strings Endpoint
             type: object
         ClusterDescriptionProcessArgs20240805:
+            description: Advanced MongoDB process configuration options applied to the cluster.
             properties:
                 changeStreamOptionsPreAndPostImagesExpireAfterSeconds:
                     default: -1
@@ -40917,7 +40966,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 432442d4fce1b5cc9187ba9c18a5a95da3864c55
+    x-xgen-sha: ba842bb2210901028b8c83a677ce23a806166c95
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -47578,6 +47627,101 @@ paths:
                 customMethod: "True"
                 verb: authorizeRole
             x-xgen-operation-id-override: authorizeProviderAccessRole
+    /api/atlas/v2/groups/{groupId}/clusterConfigurations:validate:
+        post:
+            description: Checks if the given cluster configuration is valid and ready to be used to create or edit a cluster.
+            operationId: validateGroupClusterConfigurations
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterConfigurationValidation'
+                        x-xgen-version: "2025-03-12"
+                description: Cluster configuration to validate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterConfigurationValidationResult'
+                            x-xgen-version: "2025-03-12"
+                    description: Ok
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Validate One Cluster Configuration
+            tags:
+                - Clusters
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters validateGroupClusterConfigurations --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.ValidateGroupClusterConfigurationsApiParams{}
+                    	sdkResp, httpResp, err := client.ClustersApi.
+                    		ValidateGroupClusterConfigurationsWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusterConfigurations:validate" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusterConfigurations:validate" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/validateGroupClusterConfigurations
     /api/atlas/v2/groups/{groupId}/clusters:
         get:
             description: |-
