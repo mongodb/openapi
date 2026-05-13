@@ -5,7 +5,7 @@ go 1.26
 toolchain go1.26.0
 
 require (
-	github.com/getkin/kin-openapi v0.137.0
+	github.com/getkin/kin-openapi v0.138.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/oasdiff/oasdiff v1.15.2
 	github.com/spf13/afero v1.15.0
