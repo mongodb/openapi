@@ -356,7 +356,9 @@ func newChangelog(baseMetadata, revisionMetadata *Metadata, exceptionFilePath st
 	}
 
 	changelogConfig := checker.NewConfig(
-		checker.GetAllChecks()).WithSeverityLevels(breakingChangesAdditionalCheckers).WithDeprecation(deprecationDaysBeta, deprecationDaysStable)
+		checker.GetAllChecks(),
+		checker.WithSeverityLevels(breakingChangesAdditionalCheckers),
+		checker.WithDeprecation(deprecationDaysBeta, deprecationDaysStable))
 
 	return &Changelog{
 		BaseChangelog:     baseChangelog,
