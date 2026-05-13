@@ -267,7 +267,7 @@ func ValidateVersionedSpec(t *testing.T, correctSpecPath, generatedSpecPath stri
 	correctSpec := newOpenAPISpec(t, correctSpecPath)
 	generatedSpec := newOpenAPISpec(t, generatedSpecPath)
 	examples := []string{"examples"}
-	d, err := diff.Get(diff.NewConfig().WithExcludeElements(examples), correctSpec, generatedSpec)
+	d, err := diff.Get(diff.NewConfig(diff.WithExcludeElements(examples)), correctSpec, generatedSpec)
 	require.NoError(t, err)
 
 	message := "Generated spec is not equal to the correct spec for path: " + correctSpecPath + "\n\n" +
