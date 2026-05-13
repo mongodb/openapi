@@ -102,7 +102,7 @@ func TestGetDiffWithConfig(t *testing.T) {
 	mockDiffGet := NewMockDiffGetter(ctrl)
 
 	exclude := []string{"extensions"}
-	customConfig := diff.NewConfig().WithExcludeElements(exclude)
+	customConfig := diff.NewConfig(diff.WithExcludeElements(exclude))
 
 	testCases := []struct {
 		name           string
