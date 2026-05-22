@@ -242,8 +242,6 @@ components:
                     schema:
                         $ref: '#/components/schemas/ApiError'
             description: Method Not Allowed.
-        noBody:
-            description: This endpoint does not return a response body.
         notFound:
             content:
                 application/json:
@@ -266,6 +264,17 @@ components:
                     schema:
                         $ref: '#/components/schemas/ApiError'
             description: Payment Required.
+        serviceUnavailable:
+            content:
+                application/json:
+                    example:
+                        detail: (This is just an example, the exception may not be related to this endpoint)
+                        error: 503
+                        errorCode: SERVICE_UNAVAILABLE
+                        reason: Service Unavailable
+                    schema:
+                        $ref: '#/components/schemas/ApiError'
+            description: Service Unavailable.
         tooManyRequests:
             content:
                 application/json:
@@ -607,7 +616,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 0a74f5e1e2dd743b9544d083237856dbb389a168
+    x-xgen-sha: 07d86cca372783fa2d55445459fb27eed6583df1
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/standbyLinks:
@@ -1027,6 +1036,8 @@ paths:
                     $ref: '#/components/responses/notFound'
                 "500":
                     $ref: '#/components/responses/internalServerError'
+                "503":
+                    $ref: '#/components/responses/serviceUnavailable'
             summary: Create Standby Link Failover
             tags:
                 - Standby Links
@@ -1197,14 +1208,7 @@ paths:
                 "500":
                     $ref: '#/components/responses/internalServerError'
                 "503":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/ApiError'
-                            x-xgen-preview:
-                                name: standby-links
-                            x-xgen-version: private-preview-standby-links
-                    description: Service Unavailable.
+                    $ref: '#/components/responses/serviceUnavailable'
             summary: Inspect Failover Readiness for One Standby Link
             tags:
                 - Standby Links

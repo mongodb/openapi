@@ -246,8 +246,6 @@ components:
                     schema:
                         $ref: '#/components/schemas/ApiError'
             description: Method Not Allowed.
-        noBody:
-            description: This endpoint does not return a response body.
         notFound:
             content:
                 application/json:
@@ -270,6 +268,17 @@ components:
                     schema:
                         $ref: '#/components/schemas/ApiError'
             description: Payment Required.
+        serviceUnavailable:
+            content:
+                application/json:
+                    example:
+                        detail: (This is just an example, the exception may not be related to this endpoint)
+                        error: 503
+                        errorCode: SERVICE_UNAVAILABLE
+                        reason: Service Unavailable
+                    schema:
+                        $ref: '#/components/schemas/ApiError'
+            description: Service Unavailable.
         tooManyRequests:
             content:
                 application/json:
@@ -2377,6 +2386,109 @@ components:
                 - regionName
             title: Alibaba
             type: object
+        AlibabaCloudProviderSettings:
+            allOf:
+                - $ref: '#/components/schemas/ClusterProviderSettings'
+                - properties:
+                    autoScaling:
+                        $ref: '#/components/schemas/CloudProviderAlibabaAutoScaling'
+                    instanceSizeName:
+                        description: Cluster tier, with a default storage and memory capacity, that applies to all the data-bearing hosts in your cluster.
+                        enum:
+                            - M10
+                            - M20
+                            - M30
+                            - M40
+                            - M50
+                            - M60
+                            - M80
+                            - M140
+                            - M200
+                            - M300
+                            - M400
+                            - R40
+                            - R50
+                            - R60
+                            - R80
+                            - R200
+                            - R300
+                            - R400
+                            - R700
+                        title: Alibaba Instance Sizes
+                        type: string
+                    regionName:
+                        description: Physical location where MongoDB Cloud deploys your Alibaba Cloud-hosted MongoDB cluster nodes. The region you choose can affect network latency for clients accessing your databases. When MongoDB Cloud deploys a dedicated cluster, it checks if a VPC or VPC connection exists for that provider and region. If not, MongoDB Cloud creates them as part of the deployment.
+                        enum:
+                            - US_EAST_1
+                            - US_WEST_1
+                            - EU_CENTRAL_1
+                            - EU_WEST_1
+                            - AP_SOUTHEAST_1
+                            - AP_SOUTHEAST_3
+                            - AP_SOUTHEAST_5
+                            - CN_HONGKONG
+                            - AP_SOUTHEAST_6
+                            - AP_SOUTHEAST_7
+                            - AP_NORTHEAST_1
+                            - AP_NORTHEAST_2
+                            - ME_EAST_1
+                        title: Alibaba Regions
+                        type: string
+                  type: object
+            type: object
+        AlibabaComputeAutoScaling:
+            description: Collection of settings that configures how a cluster might scale its cluster tier and whether the cluster can scale down. Cluster tier auto-scaling is unavailable for clusters using Low CPU or NVME storage classes.
+            properties:
+                maxInstanceSize:
+                    description: Maximum instance size to which your cluster can automatically scale.
+                    enum:
+                        - M10
+                        - M20
+                        - M30
+                        - M40
+                        - M50
+                        - M60
+                        - M80
+                        - M140
+                        - M200
+                        - M300
+                        - M400
+                        - R40
+                        - R50
+                        - R60
+                        - R80
+                        - R200
+                        - R300
+                        - R400
+                        - R700
+                    title: Alibaba Instance Sizes
+                    type: string
+                minInstanceSize:
+                    description: Minimum instance size to which your cluster can automatically scale.
+                    enum:
+                        - M10
+                        - M20
+                        - M30
+                        - M40
+                        - M50
+                        - M60
+                        - M80
+                        - M140
+                        - M200
+                        - M300
+                        - M400
+                        - R40
+                        - R50
+                        - R60
+                        - R80
+                        - R200
+                        - R300
+                        - R400
+                        - R700
+                    title: Alibaba Instance Sizes
+                    type: string
+            title: Alibaba
+            type: object
         AlibabaRegionConfig:
             allOf:
                 - $ref: '#/components/schemas/CloudRegionConfig'
@@ -4152,6 +4264,7 @@ components:
                     type: string
             type: object
         ApiSearchDeploymentSpecView:
+            description: Hardware specification for the Search Nodes that back a search deployment.
             properties:
                 instanceSize:
                     description: Hardware specification for the Search Node instance sizes.
@@ -9195,6 +9308,10 @@ components:
             enum:
                 - CHARTS_API_SUCCESS
                 - CHARTS_API_FAILURE
+                - CHARTS_DASHBOARD_EXPORTED
+                - CHARTS_DASHBOARD_EXPORT_FAILED
+                - CHARTS_DASHBOARD_IMPORTED
+                - CHARTS_DASHBOARD_IMPORT_FAILED
             example: CHARTS_API_SUCCESS
             title: Charts Api Call Audit Types
             type: string
@@ -10215,6 +10332,12 @@ components:
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: Schema predates IPA validation.
             type: object
+        CloudProviderAlibabaAutoScaling:
+            description: Range of instance sizes to which your cluster can scale.
+            properties:
+                compute:
+                    $ref: '#/components/schemas/AlibabaComputeAutoScaling'
+            type: object
         CloudProviderAzureAutoScaling:
             description: Range of instance sizes to which your cluster can scale.
             properties:
@@ -11002,6 +11125,52 @@ components:
                     description: Flag that indicates whether the cluster tier can scale down via reactive auto-scaling. This is required if `autoScaling.compute.enabled` is `true`. If you enable this option, specify a value for `providerSettings.autoScaling.compute.minInstanceSize`.
                     type: boolean
             type: object
+        ClusterConfigurationValidation:
+            properties:
+                advancedConfiguration:
+                    $ref: '#/components/schemas/ClusterDescriptionProcessArgs20240805'
+                clusterDescription:
+                    $ref: '#/components/schemas/ClusterDescription20240805'
+                clusterName:
+                    description: Name of the existing cluster to validate against when editing is true.
+                    type: string
+                editing:
+                    description: When true, validates the configuration as an update to an existing cluster. When false, validates as a new cluster create.
+                    type: boolean
+                searchDeploymentSpec:
+                    $ref: '#/components/schemas/ApiSearchDeploymentSpecView'
+                tags:
+                    description: Optional list of resource tags.
+                    items:
+                        $ref: '#/components/schemas/ResourceTag'
+                    maxItems: 50
+                    type: array
+            required:
+                - clusterDescription
+                - editing
+            type: object
+        ClusterConfigurationValidationError:
+            properties:
+                errorCode:
+                    description: Machine-readable error code identifying the type of validation failure.
+                    example: CLUSTER_NOT_FOUND
+                    type: string
+                validationIssue:
+                    description: Description of the validation failure.
+                    type: string
+            type: object
+        ClusterConfigurationValidationResult:
+            properties:
+                errors:
+                    description: List of validation errors, present only when valid is false.
+                    items:
+                        $ref: '#/components/schemas/ClusterConfigurationValidationError'
+                    maxItems: 100
+                    type: array
+                valid:
+                    description: Whether the cluster configuration is valid.
+                    type: boolean
+            type: object
         ClusterConnectionStrings:
             description: Collection of Uniform Resource Locators that point to the MongoDB database.
             externalDocs:
@@ -11078,6 +11247,7 @@ components:
             title: Cluster Connection Strings
             type: object
         ClusterDescription20240805:
+            description: Configuration of a MongoDB Atlas cluster, including its replication topology, instance sizing, storage, and operational settings.
             properties:
                 acceptDataRisksAndForceReplicaSetReconfig:
                     description: If reconfiguration is necessary to regain a primary due to a regional outage, submit this field alongside your topology reconfiguration to request a new regional outage resistant topology. Forced reconfigurations during an outage of the majority of electable nodes carry a risk of data loss if replicated writes (even majority committed writes) have not been replicated to the new primary node. MongoDB Atlas docs contain more information. To proceed with an operation which carries that risk, set `acceptDataRisksAndForceReplicaSetReconfig` to the current date. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
@@ -11595,6 +11765,7 @@ components:
                     type: integer
             type: object
         ClusterDescriptionProcessArgs20240805:
+            description: Advanced MongoDB process configuration options applied to the cluster.
             properties:
                 changeStreamOptionsPreAndPostImagesExpireAfterSeconds:
                     default: -1
@@ -15695,6 +15866,8 @@ components:
                             - NETWORK_PERMISSION_ENTRY_UPDATED
                             - CLUSTER_BLOCK_WRITE
                             - CLUSTER_UNBLOCK_WRITE
+                            - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
+                            - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
                           title: Atlas Audit Types
                           type: string
                         - enum:
@@ -15953,6 +16126,8 @@ components:
                             - NETWORK_PERMISSION_ENTRY_UPDATED
                             - CLUSTER_BLOCK_WRITE
                             - CLUSTER_UNBLOCK_WRITE
+                            - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
+                            - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
                           title: Atlas Audit Types
                           type: string
                         - enum:
@@ -19887,6 +20062,11 @@ components:
                     - OTEL_LOG_STREAMING_ENABLED
                     - OTEL_LOG_STREAMING_CONFIGURATION_UPDATED
                     - OTEL_LOG_STREAMING_DISABLED
+                    - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
+                    - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
+                    - LOG_STREAMING_EXPORT_RECOVERED
+                    - LOG_STREAMING_REPLAY_STARTED
+                    - LOG_STREAMING_REPLAY_COMPLETE
                     - OTEL_METRIC_INTEGRATION_ENABLED
                     - OTEL_METRIC_INTEGRATION_CONFIGURATION_UPDATED
                     - OTEL_METRIC_INTEGRATION_DISABLED
@@ -19946,6 +20126,7 @@ components:
                     - MAINTENANCE_WAVE_ASSIGNMENT_REMOVED
                     - CLUSTER_MONGUARD_ENABLED
                     - CLUSTER_MONGUARD_DISABLED
+                    - CLUSTER_APPLY_CONNECTION_RATE_LIMIT_REQUESTED
                   title: Atlas Audit Types
                   type: string
                   x-xgen-IPA-exception:
@@ -20183,11 +20364,25 @@ components:
                 - enum:
                     - CHARTS_API_SUCCESS
                     - CHARTS_API_FAILURE
+                    - CHARTS_DASHBOARD_EXPORTED
+                    - CHARTS_DASHBOARD_EXPORT_FAILED
+                    - CHARTS_DASHBOARD_IMPORTED
+                    - CHARTS_DASHBOARD_IMPORT_FAILED
                   title: Charts Api Call Audit Types
                   type: string
                 - enum:
                     - RESOURCE_POLICY_VIOLATED
                   title: Atlas Resource Policy Audit Types
+                  type: string
+                - description: Audit event types for Lifecycle Management policy mutations in an Atlas group context.
+                  enum:
+                    - LIFECYCLE_MANAGEMENT_POLICY_CREATED
+                    - LIFECYCLE_MANAGEMENT_POLICY_UPDATED
+                    - LIFECYCLE_MANAGEMENT_POLICY_DELETED
+                    - LIFECYCLE_MANAGEMENT_POLICY_PAUSE_REQUESTED
+                    - LIFECYCLE_MANAGEMENT_POLICY_PAUSED
+                    - LIFECYCLE_MANAGEMENT_POLICY_RESUMED
+                  title: Lifecycle Management Policy Audit Types For Atlas Group
                   type: string
                 - enum:
                     - QUERY_SHAPE_BLOCKED
@@ -20582,6 +20777,7 @@ components:
                 - $ref: '#/components/schemas/StreamProcessorEventViewForNdsGroup'
                 - $ref: '#/components/schemas/ChartsAudit'
                 - $ref: '#/components/schemas/AtlasResourcePolicyAuditForNdsGroup'
+                - $ref: '#/components/schemas/LifecycleManagementPolicyAuditForNdsGroup'
             type: object
             x-xgen-IPA-exception:
                 xgen-IPA-125-oneOf-must-have-discriminator: Schema predates IPA validation.
@@ -24026,6 +24222,7 @@ components:
                 - $ref: '#/components/schemas/HostAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/HostMetricAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/MongotuneAlertConfigViewForNdsGroup'
+                - $ref: '#/components/schemas/NDSAutoscalingAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/NDSX509UserAuthenticationAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/ReplicaSetAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/ReplicaSetThresholdAlertConfigViewForNdsGroup'
@@ -24162,6 +24359,13 @@ components:
                     maximum: 7
                     minimum: 1
                     type: integer
+                effectiveWaveAssignment:
+                    description: Maintenance wave that Atlas uses when scheduling maintenance for this project. This value can differ from `waveAssignment` when cross-organization maintenance sequencing is enabled or when the organization derives waves from environment tags.
+                    format: int32
+                    maximum: 3
+                    minimum: 1
+                    readOnly: true
+                    type: integer
                 hourOfDay:
                     description: Zero-based integer that represents the hour of the of the day that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon.
                     format: int32
@@ -24184,6 +24388,13 @@ components:
                     description: Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.
                     readOnly: true
                     type: string
+                waveAssignment:
+                    description: Maintenance wave explicitly assigned to this project. Editable when the organization's effective wave assignment mode is MANUAL. Must be between 1 and 3, inclusive. Pass `null` to clear an explicit assignment.
+                    format: int32
+                    maximum: 3
+                    minimum: 1
+                    nullable: true
+                    type: integer
             required:
                 - dayOfWeek
             type: object
@@ -27939,6 +28150,122 @@ components:
                     example: https://creativecommons.org/licenses/by-nc-sa/3.0/us/
                     type: string
             type: object
+        LifecycleManagementPolicyAuditForNdsGroup:
+            description: Lifecycle Management policy audits scoped to an Atlas project/group.
+            properties:
+                apiKeyId:
+                    description: Unique 24-hexadecimal digit string that identifies the API Key that triggered the event. If this resource returns this parameter, it doesn't return the `userId` parameter.
+                    example: 32b6e34b3d91647abb20e7b8
+                    externalDocs:
+                        description: Create Programmatic API Key
+                        url: https://dochub.mongodb.org/core/atlas-create-prog-api-key
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                clusterId:
+                    description: Unique 24-hexadecimal character string that identifies the cluster the policy belongs to.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                clusterName:
+                    description: Human-readable label of the cluster the policy belongs to.
+                    readOnly: true
+                    type: string
+                created:
+                    description: Date and time when this event occurred. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+                eventTypeName:
+                    description: Audit event types for Lifecycle Management policy mutations in an Atlas group context.
+                    enum:
+                        - LIFECYCLE_MANAGEMENT_POLICY_CREATED
+                        - LIFECYCLE_MANAGEMENT_POLICY_UPDATED
+                        - LIFECYCLE_MANAGEMENT_POLICY_DELETED
+                        - LIFECYCLE_MANAGEMENT_POLICY_PAUSE_REQUESTED
+                        - LIFECYCLE_MANAGEMENT_POLICY_PAUSED
+                        - LIFECYCLE_MANAGEMENT_POLICY_RESUMED
+                    example: LIFECYCLE_MANAGEMENT_POLICY_CREATED
+                    title: Lifecycle Management Policy Audit Types For Atlas Group
+                    type: string
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The `eventId` identifies the specific event.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies the event.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                isGlobalAdmin:
+                    description: Flag that indicates whether a MongoDB employee triggered the specified event.
+                    readOnly: true
+                    type: boolean
+                    x-xgen-IPA-exception:
+                        xgen-IPA-112-boolean-field-names-avoid-is-prefix: Schema predates IPA validation.
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                orgId:
+                    description: Unique 24-hexadecimal digit string that identifies the organization to which these events apply.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                policyId:
+                    description: Unique 24-hexadecimal character string that identifies the Lifecycle Management policy.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                publicKey:
+                    description: Public part of the API key that triggered the event. If this resource returns this parameter, it doesn't return the **username** parameter.
+                    externalDocs:
+                        url: https://dochub.mongodb.org/core/atlas-create-prog-api-key
+                    readOnly: true
+                    type: string
+                raw:
+                    $ref: '#/components/schemas/raw'
+                remoteAddress:
+                    description: IPv4 or IPv6 address from which the user triggered this event.
+                    example: 216.172.40.186
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    readOnly: true
+                    type: string
+                userAgent:
+                    description: User agent of the request that triggered the audit event.
+                    readOnly: true
+                    type: string
+                userId:
+                    description: Unique 24-hexadecimal digit string that identifies the console user who triggered the event. If this resource returns this parameter, it doesn't return the `apiKeyId` parameter.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                username:
+                    description: Email address for the user who triggered this event. If this resource returns this parameter, it doesn't return the `publicApiKey` parameter.
+                    format: email
+                    readOnly: true
+                    type: string
+            required:
+                - created
+                - eventTypeName
+                - id
+            title: Lifecycle Management Policy Audits For Atlas Group
+            type: object
         Link:
             properties:
                 href:
@@ -28384,6 +28711,10 @@ components:
                 - enum:
                     - SOFTWARE_TYPE
                   title: Global Software Type Matcher Fields
+                  type: string
+                - enum:
+                    - CLUSTER_NAME
+                  title: NDS Autoscaling Matcher Fields
                   type: string
             type: object
         MatcherHostType:
@@ -30350,6 +30681,11 @@ components:
                 - OTEL_LOG_STREAMING_ENABLED
                 - OTEL_LOG_STREAMING_CONFIGURATION_UPDATED
                 - OTEL_LOG_STREAMING_DISABLED
+                - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
+                - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
+                - LOG_STREAMING_EXPORT_RECOVERED
+                - LOG_STREAMING_REPLAY_STARTED
+                - LOG_STREAMING_REPLAY_COMPLETE
                 - OTEL_METRIC_INTEGRATION_ENABLED
                 - OTEL_METRIC_INTEGRATION_CONFIGURATION_UPDATED
                 - OTEL_METRIC_INTEGRATION_DISABLED
@@ -30409,6 +30745,7 @@ components:
                 - MAINTENANCE_WAVE_ASSIGNMENT_REMOVED
                 - CLUSTER_MONGUARD_ENABLED
                 - CLUSTER_MONGUARD_DISABLED
+                - CLUSTER_APPLY_CONNECTION_RATE_LIMIT_REQUESTED
             example: CLUSTER_CREATED
             title: Atlas Audit Types
             type: string
@@ -30615,6 +30952,33 @@ components:
                 - id
             title: Atlas Organization Audits
             type: object
+        NDSAutoScalingAuditTypeViewAlertable:
+            description: Event type that triggers an alert.
+            enum:
+                - COMPUTE_AUTO_SCALE_INITIATED_BASE
+                - COMPUTE_AUTO_SCALE_INITIATED_ANALYTICS
+                - COMPUTE_AUTO_SCALE_SCALE_DOWN_FAIL_BASE
+                - COMPUTE_AUTO_SCALE_SCALE_DOWN_FAIL_ANALYTICS
+                - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_BASE
+                - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_ANALYTICS
+                - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
+                - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
+                - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
+                - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                - DISK_AUTO_SCALE_INITIATED
+                - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
+                - DISK_AUTO_SCALE_OPLOG_FAIL
+                - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
+                - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
+                - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
+                - CLUSTER_AUTO_SHARDING_INITIATED
+                - CLUSTER_RESHARDING_COMPLETED
+            example: COMPUTE_AUTO_SCALE_INITIATED_BASE
+            externalDocs:
+                description: Atlas Alert Event Types
+                url: https://www.mongodb.com/docs/atlas/reference/atlas-alert-event-types/
+            title: Auto Scaling Audit Types
+            type: string
         NDSAutoScalingAuditTypeViewForNdsGroup:
             description: Unique identifier of event type.
             enum:
@@ -30726,6 +31090,105 @@ components:
                 - id
             title: Auto Scaling Audits
             type: object
+        NDSAutoscalingAlertConfigViewForNdsGroup:
+            description: NDS Auto-Scaling alert configuration allows selecting which auto-scaling events trigger alerts and how users are notified.
+            properties:
+                created:
+                    description: Date and time when MongoDB Cloud created the alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+                enabled:
+                    default: false
+                    description: Flag that indicates whether someone enabled this alert configuration for the specified project.
+                    type: boolean
+                eventTypeName:
+                    $ref: '#/components/schemas/NDSAutoScalingAuditTypeViewAlertable'
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies this alert configuration.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                matchers:
+                    description: List of rules that determine whether MongoDB Cloud checks an object for the alert configuration.
+                    items:
+                        $ref: '#/components/schemas/NDSAutoscalingMatcher'
+                    maxItems: 1
+                    type: array
+                notifications:
+                    description: List that contains the targets that MongoDB Cloud sends notifications.
+                    items:
+                        $ref: '#/components/schemas/AlertsNotificationRootForGroup'
+                    maxItems: 25
+                    minItems: 1
+                    type: array
+                severityOverride:
+                    $ref: '#/components/schemas/EventSeverity'
+                updated:
+                    description: Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+            required:
+                - eventTypeName
+                - notifications
+            title: NDS Auto-Scaling Alert Configuration
+            type: object
+        NDSAutoscalingMatcher:
+            description: Rules to apply when comparing a cluster against this alert configuration.
+            properties:
+                fieldName:
+                    $ref: '#/components/schemas/NDSAutoscalingMatcherField'
+                operator:
+                    description: Comparison operator to apply when checking the current metric value against **matcher[n].value**. The `REGEX` operator only supports inclusive matches. Use the `NOT_CONTAINS` operator to exclude values.
+                    enum:
+                        - EQUALS
+                        - CONTAINS
+                        - STARTS_WITH
+                        - ENDS_WITH
+                        - NOT_EQUALS
+                        - NOT_CONTAINS
+                        - REGEX
+                    type: string
+                value:
+                    description: Value to match or exceed using the specified `matchers.operator`.
+                    example: event-replica-set
+                    type: string
+            required:
+                - fieldName
+                - operator
+                - value
+            title: Matchers
+            type: object
+        NDSAutoscalingMatcherField:
+            description: Name of the parameter in the target object that MongoDB Cloud checks. The parameter must match all rules for MongoDB Cloud to check for alert configurations.
+            enum:
+                - CLUSTER_NAME
+            example: CLUSTER_NAME
+            title: NDS Autoscaling Matcher Fields
+            type: string
         NDSNotificationView:
             description: Notification configuration for MongoDB Cloud to send information when an event triggers an alert condition.
             properties:
@@ -32499,6 +32962,38 @@ components:
                     example: "2024"
                     type: string
             type: object
+        OrgDelegationSettingsResponse:
+            properties:
+                delegatedMcpAccess:
+                    description: Policy that controls how MCP (Model Context Protocol) delegated access is permitted within this organization. Possible values are `DISALLOWED`, `READ_ONLY`, and `READ_WRITE`. Defaults to `DISALLOWED`.
+                    enum:
+                        - DISALLOWED
+                        - READ_ONLY
+                        - READ_WRITE
+                    type: string
+                delegatedPartnerAccess:
+                    description: Policy that controls whether partner delegated access is permitted within this organization. Possible values are `DISALLOWED` and `READ_WRITE`. Defaults to `DISALLOWED`.
+                    enum:
+                        - DISALLOWED
+                        - READ_WRITE
+                    type: string
+            type: object
+        OrgDelegationSettingsUpdateRequest:
+            properties:
+                delegatedMcpAccess:
+                    description: Policy that controls how MCP (Model Context Protocol) delegated access is permitted within this organization. Possible values are `DISALLOWED`, `READ_ONLY`, and `READ_WRITE`. Defaults to `DISALLOWED`.
+                    enum:
+                        - DISALLOWED
+                        - READ_ONLY
+                        - READ_WRITE
+                    type: string
+                delegatedPartnerAccess:
+                    description: Policy that controls whether partner delegated access is permitted within this organization. Possible values are `DISALLOWED` and `READ_WRITE`. Defaults to `DISALLOWED`.
+                    enum:
+                        - DISALLOWED
+                        - READ_WRITE
+                    type: string
+            type: object
         OrgEventTypeViewForOrg:
             description: Unique identifier of event type.
             enum:
@@ -34193,6 +34688,32 @@ components:
                 - results
             type: object
         PaginatedApiStreamsConnectionView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/StreamsConnection'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
+        PaginatedApiStreamsFailoverConnection:
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -40323,6 +40844,12 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     readOnly: true
                     type: string
+                roles:
+                    description: A list of project roles assigned to the Service Account in this project.
+                    items:
+                        type: string
+                    maxItems: 100
+                    type: array
             type: object
         ServiceAccountGroupEvents:
             description: Service Account event identifies different activities around user API keys.
@@ -42071,15 +42598,16 @@ components:
                         - FORCED
                     type: string
                 region:
-                    description: Name of the region against which to apply the status change.
+                    description: Name of the region against which to apply the status change. Required when `status` is `FAILED_OVER`; optional otherwise.
                     type: string
                 status:
-                    description: Represents the desired action to apply to stream processors within a workspace, such as starting all processors.
+                    description: Represents the desired action to apply to stream processors within a workspace, such as starting all processors, stopping all processors, or performing a bulk regional failover.
                     enum:
-                        - PROCESSORS_STARTED
+                        - STARTED
+                        - STOPPED
+                        - FAILED_OVER
                     type: string
             required:
-                - region
                 - status
             type: object
         StreamsProcessorWithStats:
@@ -46055,7 +46583,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 0a74f5e1e2dd743b9544d083237856dbb389a168
+    x-xgen-sha: 07d86cca372783fa2d55445459fb27eed6583df1
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -46079,11 +46607,7 @@ paths:
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
                 "401":
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ApiError'
-                    description: Unauthorized.
+                    $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
                 "429":
@@ -46457,7 +46981,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -47357,7 +47881,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -47685,7 +48209,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -48016,7 +48540,7 @@ paths:
                             x-xgen-preview:
                                 public: "true"
                             x-xgen-version: preview
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -48309,13 +48833,15 @@ paths:
                   schema:
                     type: string
             responses:
-                "204":
+                "200":
                     content:
                         application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AiModelsRateLimitResponse'
                             x-xgen-preview:
                                 public: "true"
                             x-xgen-version: preview
-                    description: This endpoint does not return a response body.
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -48338,13 +48864,9 @@ paths:
                 - AI Model Rate Limits
             x-rolesRequirements:
                 - Project Model Owner
-            x-xgen-IPA-exception:
-                xgen-IPA-113-reset-method-must-return-200-OK: Temporary exception. This endpoint returns 204 No Content instead of 200 OK. This violation will be addressed in CLOUDP-381741.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/resetGroupAiModelRateLimit
             x-xgen-operation-id-override: resetModelRateLimit
             x-xgen-owner-team: Search Web Platform
-        x-xgen-IPA-exception:
-            xgen-IPA-113-reset-method-only-on-singleton-resources: 'Approved by API Champ on the 2026-02-13 meeting: API predates IPA validation and design was previously approved.'
     /api/atlas/v2/groups/{groupId}/aiModelRateLimits:reset:
         post:
             description: Reset the AI Model rate limits for the given group to default values.
@@ -48354,13 +48876,15 @@ paths:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
             responses:
-                "204":
+                "200":
                     content:
                         application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedAtlasAiModelsRateLimitsResponse'
                             x-xgen-preview:
                                 public: "true"
                             x-xgen-version: preview
-                    description: This endpoint does not return a response body.
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -48381,16 +48905,12 @@ paths:
                 - AI Model Rate Limits
             x-rolesRequirements:
                 - Project Model Owner
-            x-xgen-IPA-exception:
-                xgen-IPA-113-reset-method-must-return-200-OK: Temporary exception. This endpoint returns 204 No Content instead of 200 OK. This violation will be addressed in CLOUDP-381741.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/resetGroupAiModelRateLimits
             x-xgen-method-verb-override:
                 customMethod: "True"
                 verb: reset
             x-xgen-operation-id-override: resetModelRateLimits
             x-xgen-owner-team: Search Web Platform
-        x-xgen-IPA-exception:
-            xgen-IPA-113-reset-method-only-on-singleton-resources: 'Approved by API Champ on the 2026-02-13 meeting: API predates IPA validation and design was previously approved.'
     /api/atlas/v2/groups/{groupId}/alertConfigs:
         get:
             description: "Returns all alert configurations for one project. These alert configurations apply to any component in the project. Alert configurations define the triggers and notification methods for alerts. \n\nThis resource remains under revision and may change."
@@ -49142,7 +49662,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -49265,7 +49785,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -49609,7 +50129,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-11-13+json:
                             x-xgen-version: "2024-11-13"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -49889,7 +50409,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -50082,7 +50602,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-11-13+json:
                             x-xgen-version: "2024-11-13"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -50634,6 +51154,54 @@ paths:
                 verb: authorizeRole
             x-xgen-operation-id-override: authorizeProviderAccessRole
             x-xgen-owner-team: Atlas Dedicated
+    /api/atlas/v2/groups/{groupId}/clusterConfigurations:validate:
+        post:
+            description: Checks if the given cluster configuration is valid and ready to be used to create or edit a cluster.
+            operationId: validateGroupClusterConfigurations
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterConfigurationValidation'
+                        x-xgen-version: "2025-03-12"
+                description: Cluster configuration to validate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterConfigurationValidationResult'
+                            x-xgen-version: "2025-03-12"
+                    description: Ok
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Validate One Cluster Configuration
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/validateGroupClusterConfigurations
+            x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/groups/{groupId}/clusters:
         get:
             description: |-
@@ -51339,7 +51907,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/MeasurementsCollStatsLatencyCluster'
                             x-xgen-version: "2023-11-15"
-                    description: Succeeded
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -51401,7 +51969,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/CollStatsRankedNamespacesView'
                             x-xgen-version: "2023-11-15"
-                    description: Succeeded
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -51779,7 +52347,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -52190,7 +52758,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -52614,7 +53182,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -53588,7 +54156,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             x-sunset: "2027-07-01"
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -54776,7 +55344,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -56227,7 +56795,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-05-30+json:
                             x-xgen-version: "2024-05-30"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -56505,11 +57073,7 @@ paths:
                 "500":
                     $ref: '#/components/responses/internalServerError'
                 "503":
-                    content:
-                        application/vnd.atlas.2024-05-30+json:
-                            schema:
-                                $ref: '#/components/schemas/ApiError'
-                    description: Service Unavailable.
+                    $ref: '#/components/responses/serviceUnavailable'
             summary: Return All Atlas Search Indexes for One Cluster
             tags:
                 - Atlas Search
@@ -56643,11 +57207,7 @@ paths:
                 "500":
                     $ref: '#/components/responses/internalServerError'
                 "503":
-                    content:
-                        application/vnd.atlas.2024-05-30+json:
-                            schema:
-                                $ref: '#/components/schemas/ApiError'
-                    description: Service Unavailable.
+                    $ref: '#/components/responses/serviceUnavailable'
             summary: Return All Atlas Search Indexes for One Collection
             tags:
                 - Atlas Search
@@ -56703,7 +57263,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-05-30+json:
                             x-xgen-version: "2024-05-30"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -56918,7 +57478,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-05-30+json:
                             x-xgen-version: "2024-05-30"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -56996,11 +57556,7 @@ paths:
                 "500":
                     $ref: '#/components/responses/internalServerError'
                 "503":
-                    content:
-                        application/vnd.atlas.2024-05-30+json:
-                            schema:
-                                $ref: '#/components/schemas/ApiError'
-                    description: Service Unavailable.
+                    $ref: '#/components/responses/serviceUnavailable'
             summary: Return One Atlas Search Index by ID
             tags:
                 - Atlas Search
@@ -57295,7 +57851,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -57523,7 +58079,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             x-xgen-version: "2024-08-05"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -57580,7 +58136,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-05-30+json:
                             x-xgen-version: "2024-05-30"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -57628,7 +58184,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             x-xgen-version: "2024-08-05"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -57678,7 +58234,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-05-30+json:
                             x-xgen-version: "2024-05-30"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -58006,7 +58562,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/CollStatsLatencyNamespaceMetrics'
                             x-xgen-version: "2023-11-15"
-                    description: Succeeded
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -58162,7 +58718,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -58722,7 +59278,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -58955,7 +59511,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -59439,7 +59995,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -60155,7 +60711,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -60525,7 +61081,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-11-13+json:
                             x-xgen-version: "2024-11-13"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -61385,7 +61941,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -61796,7 +62352,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             x-sunset: "2027-07-01"
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -62071,7 +62627,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -62666,7 +63222,7 @@ paths:
                     content:
                         application/vnd.atlas.2025-03-12+json:
                             x-xgen-version: "2025-03-12"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -62803,7 +63359,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -63064,7 +63620,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -63105,7 +63661,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -63264,7 +63820,7 @@ paths:
                                 name: metric-integrations
                                 public: "false"
                             x-xgen-version: preview
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -64590,7 +65146,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -64799,7 +65355,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -65251,7 +65807,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             x-sunset: "2026-01-22"
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -65626,7 +66182,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -65843,7 +66399,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/MeasurementsCollStatsLatencyHost'
                             x-xgen-version: "2023-11-15"
-                    description: Succeeded
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -65889,7 +66445,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/CollStatsRankedNamespacesView'
                             x-xgen-version: "2023-11-15"
-                    description: Succeeded
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -67848,7 +68404,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             x-xgen-version: "2024-08-05"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -68128,7 +68684,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             x-xgen-version: "2024-08-05"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -68243,7 +68799,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             x-xgen-version: "2024-08-05"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -68702,6 +69258,8 @@ paths:
                     $ref: '#/components/responses/notFound'
                 "500":
                     $ref: '#/components/responses/internalServerError'
+                "503":
+                    $ref: '#/components/responses/serviceUnavailable'
             summary: Create Standby Link Failover
             tags:
                 - Standby Links
@@ -68822,14 +69380,7 @@ paths:
                 "500":
                     $ref: '#/components/responses/internalServerError'
                 "503":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/ApiError'
-                            x-xgen-preview:
-                                name: standby-links
-                            x-xgen-version: preview
-                    description: Service Unavailable.
+                    $ref: '#/components/responses/serviceUnavailable'
             summary: Inspect Failover Readiness for One Standby Link
             tags:
                 - Standby Links
@@ -69510,6 +70061,66 @@ paths:
             x-xgen-operation-id-override: updateStreamConnection
             x-xgen-owner-team: Atlas Streams
     /api/atlas/v2/groups/{groupId}/streams/{tenantName}/connections/{connectionName}/failoverConnections:
+        get:
+            description: Returns all failover connections for the specified connection in a stream workspace.
+            operationId: listGroupStreamConnectionFailoverConnections
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - description: Label that identifies the stream workspace.
+                  in: path
+                  name: tenantName
+                  required: true
+                  schema:
+                    type: string
+                - description: Label that identifies the stream connection.
+                  in: path
+                  name: connectionName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiStreamsFailoverConnection'
+                            x-xgen-preview:
+                                name: regional-failover
+                                public: "false"
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Stream Failover Connections
+            tags:
+                - Streams
+            x-rolesRequirements:
+                - Organization Stream Processing Admin
+                - Project Stream Processing Owner
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/listGroupStreamConnectionFailoverConnections
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: listFailoverConnections
+            x-xgen-owner-team: Atlas Streams
         post:
             description: Creates one failover connection for a stream workspace in the specified project.
             operationId: createGroupStreamConnectionFailoverConnection
@@ -69584,8 +70195,6 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createGroupStreamConnectionFailoverConnection
             x-xgen-operation-id-override: createFailoverConnection
             x-xgen-owner-team: Atlas Streams
-        x-xgen-IPA-exception:
-            xgen-IPA-105-resource-has-list: List operation will be implemented in following PR.
     /api/atlas/v2/groups/{groupId}/streams/{tenantName}/connections/{connectionName}/failoverConnections/{failoverConnectionId}:
         delete:
             description: Delete one failover connection of the specified stream workspace.
@@ -69879,7 +70488,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-05-30+json:
                             x-xgen-version: "2024-05-30"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -71118,7 +71727,7 @@ paths:
                             x-xgen-preview:
                                 name: aws-transit-gateway
                             x-xgen-version: preview
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -71220,7 +71829,7 @@ paths:
                             x-xgen-preview:
                                 name: aws-transit-gateway
                             x-xgen-version: preview
-                    description: This endpoint does not return a response body.
+                    description: No Content
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "401":
@@ -71266,7 +71875,7 @@ paths:
                             x-xgen-preview:
                                 name: aws-transit-gateway
                             x-xgen-version: preview
-                    description: This endpoint does not return a response body.
+                    description: No Content
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "401":
@@ -71618,7 +72227,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -72216,7 +72825,7 @@ paths:
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2025-02-19+json:
                             x-xgen-version: "2025-02-19"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -72744,7 +73353,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -73239,7 +73848,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -73524,7 +74133,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -73789,6 +74398,95 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgBillingCostExplorerUsage
             x-xgen-operation-id-override: getCostExplorerUsage
             x-xgen-owner-team: Billing Platform
+    /api/atlas/v2/orgs/{orgId}/delegationSettings:
+        get:
+            description: Returns the delegation settings for the specified organization.
+            operationId: getOrgDelegationSettings
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgDelegationSettingsResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Delegation Settings for One Organization
+            tags:
+                - Organizations
+            x-rolesRequirements:
+                - Organization Member
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/getOrgDelegationSettings
+            x-xgen-hidden-env:
+                envs: stage,prod
+            x-xgen-owner-team: IAM
+        patch:
+            description: Updates the delegation settings for the specified organization. Only fields present in the request body are updated; omitted fields retain their current values.
+            operationId: updateOrgDelegationSettings
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/OrgDelegationSettingsUpdateRequest'
+                        x-xgen-version: "2025-03-12"
+                description: Delegation settings to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgDelegationSettingsResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update Delegation Settings for One Organization
+            tags:
+                - Organizations
+            x-rolesRequirements:
+                - Organization Owner
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgDelegationSettings
+            x-xgen-hidden-env:
+                envs: stage,prod
+            x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/events:
         get:
             description: "Returns events for the specified organization. Events identify significant database, billing, or security activities or status changes. \n\nThis resource remains under revision and may change."
@@ -74232,7 +74930,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             x-sunset: "2027-07-01"
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -74818,7 +75516,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -75132,7 +75830,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             x-xgen-version: "2024-08-05"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -75647,7 +76345,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             x-xgen-version: "2024-08-05"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -75926,7 +76624,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             x-xgen-version: "2024-08-05"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -76007,6 +76705,8 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Service-Accounts/operation/getOrgServiceAccountGroups
             x-xgen-operation-id-override: getServiceAccountGroups
             x-xgen-owner-team: IAM Workload Identity
+        x-xgen-IPA-exception:
+            xgen-IPA-113-singleton-should-have-update-method: Resource is read-only. IPA does not yet support read-only singleton resources.
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/secrets:
         post:
             description: Create a secret for the specified Service Account.
@@ -76093,7 +76793,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             x-xgen-version: "2024-08-05"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -76331,7 +77031,7 @@ paths:
                     content:
                         application/vnd.atlas.2023-01-01+json:
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -76674,7 +77374,7 @@ paths:
                         application/vnd.atlas.2023-01-01+json:
                             x-sunset: "2027-07-01"
                             x-xgen-version: "2023-01-01"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -77029,7 +77729,7 @@ paths:
                             x-xgen-version: "2023-01-01"
                         application/vnd.atlas.2025-02-19+json:
                             x-xgen-version: "2025-02-19"
-                    description: This endpoint does not return a response body.
+                    description: No Content
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
