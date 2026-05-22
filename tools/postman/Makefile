@@ -29,6 +29,10 @@ transform_collection_test:
 upload_collection:
 	./scripts/upload-collection.sh
 
+.PHONY: delete_sunsetted
+delete_sunsetted:
+	./scripts/delete-sunsetted-collections.sh
+
 .PHONY: build
 build: fetch_openapi convert_to_collection
 
