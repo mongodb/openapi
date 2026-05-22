@@ -32948,6 +32948,38 @@ components:
                     example: "2024"
                     type: string
             type: object
+        OrgDelegationSettingsResponse:
+            properties:
+                delegatedMcpAccess:
+                    description: Policy that controls how MCP (Model Context Protocol) delegated access is permitted within this organization. Possible values are `DISALLOWED`, `READ_ONLY`, and `READ_WRITE`. Defaults to `DISALLOWED`.
+                    enum:
+                        - DISALLOWED
+                        - READ_ONLY
+                        - READ_WRITE
+                    type: string
+                delegatedPartnerAccess:
+                    description: Policy that controls whether partner delegated access is permitted within this organization. Possible values are `DISALLOWED` and `READ_WRITE`. Defaults to `DISALLOWED`.
+                    enum:
+                        - DISALLOWED
+                        - READ_WRITE
+                    type: string
+            type: object
+        OrgDelegationSettingsUpdateRequest:
+            properties:
+                delegatedMcpAccess:
+                    description: Policy that controls how MCP (Model Context Protocol) delegated access is permitted within this organization. Possible values are `DISALLOWED`, `READ_ONLY`, and `READ_WRITE`. Defaults to `DISALLOWED`.
+                    enum:
+                        - DISALLOWED
+                        - READ_ONLY
+                        - READ_WRITE
+                    type: string
+                delegatedPartnerAccess:
+                    description: Policy that controls whether partner delegated access is permitted within this organization. Possible values are `DISALLOWED` and `READ_WRITE`. Defaults to `DISALLOWED`.
+                    enum:
+                        - DISALLOWED
+                        - READ_WRITE
+                    type: string
+            type: object
         OrgEventTypeViewForOrg:
             description: Unique identifier of event type.
             enum:
@@ -46537,7 +46569,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: e3845f4d996e56dae53d03e523a49e0084b735e9
+    x-xgen-sha: 57ebb83fa911bf5c82b80e57630980f1bc4cf1f4
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -74356,6 +74388,95 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgBillingCostExplorerUsage
             x-xgen-operation-id-override: getCostExplorerUsage
             x-xgen-owner-team: Billing Platform
+    /api/atlas/v2/orgs/{orgId}/delegationSettings:
+        get:
+            description: Returns the delegation settings for the specified organization.
+            operationId: getOrgDelegationSettings
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgDelegationSettingsResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Delegation Settings for One Organization
+            tags:
+                - Organizations
+            x-rolesRequirements:
+                - Organization Member
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/getOrgDelegationSettings
+            x-xgen-hidden-env:
+                envs: stage,prod
+            x-xgen-owner-team: IAM
+        patch:
+            description: Updates the delegation settings for the specified organization. Only fields present in the request body are updated; omitted fields retain their current values.
+            operationId: updateOrgDelegationSettings
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/OrgDelegationSettingsUpdateRequest'
+                        x-xgen-version: "2025-03-12"
+                description: Delegation settings to update.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgDelegationSettingsResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update Delegation Settings for One Organization
+            tags:
+                - Organizations
+            x-rolesRequirements:
+                - Organization Owner
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgDelegationSettings
+            x-xgen-hidden-env:
+                envs: stage,prod
+            x-xgen-owner-team: IAM
     /api/atlas/v2/orgs/{orgId}/events:
         get:
             description: "Returns events for the specified organization. Events identify significant database, billing, or security activities or status changes. \n\nThis resource remains under revision and may change."
