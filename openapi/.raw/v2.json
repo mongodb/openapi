@@ -30964,6 +30964,14 @@
             "minimum": 1,
             "type": "integer"
           },
+          "effectiveWaveAssignment": {
+            "description": "Maintenance wave that Atlas uses when scheduling maintenance for this project. This value can differ from `waveAssignment` when cross-organization maintenance sequencing is enabled or when the organization derives waves from environment tags.",
+            "format": "int32",
+            "maximum": 3,
+            "minimum": 1,
+            "readOnly": true,
+            "type": "integer"
+          },
           "hourOfDay": {
             "description": "Zero-based integer that represents the hour of the of the day that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon.",
             "format": "int32",
@@ -30991,6 +30999,14 @@
             "description": "Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.",
             "readOnly": true,
             "type": "string"
+          },
+          "waveAssignment": {
+            "description": "Maintenance wave explicitly assigned to this project. Editable when the organization's effective wave assignment mode is MANUAL. Must be between 1 and 3, inclusive. Pass `null` to clear an explicit assignment.",
+            "format": "int32",
+            "maximum": 3,
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
           }
         },
         "required": [
@@ -59574,7 +59590,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "57ebb83fa911bf5c82b80e57630980f1bc4cf1f4"
+    "x-xgen-sha": "169af3674d1ebee69356f59fa8e45c86765d3427"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -63166,16 +63182,19 @@
           }
         ],
         "responses": {
-          "204": {
+          "200": {
             "content": {
               "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiModelsRateLimitResponse"
+                },
                 "x-xgen-preview": {
                   "public": "true"
                 },
                 "x-xgen-version": "preview"
               }
             },
-            "description": "No Content",
+            "description": "OK",
             "headers": {
               "RateLimit-Limit": {
                 "$ref": "#/components/headers/HeaderRateLimitLimit"
@@ -63211,15 +63230,9 @@
         "x-rolesRequirements": [
           "Project Model Owner"
         ],
-        "x-xgen-IPA-exception": {
-          "xgen-IPA-113-reset-method-must-return-200-OK": "Temporary exception. This endpoint returns 204 No Content instead of 200 OK. This violation will be addressed in CLOUDP-381741."
-        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/resetGroupAiModelRateLimit",
         "x-xgen-operation-id-override": "resetModelRateLimit",
         "x-xgen-owner-team": "Search Web Platform"
-      },
-      "x-xgen-IPA-exception": {
-        "xgen-IPA-113-reset-method-only-on-singleton-resources": "Approved by API Champ on the 2026-02-13 meeting: API predates IPA validation and design was previously approved."
       }
     },
     "/api/atlas/v2/groups/{groupId}/aiModelRateLimits:reset": {
@@ -63238,16 +63251,19 @@
           }
         ],
         "responses": {
-          "204": {
+          "200": {
             "content": {
               "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedAtlasAiModelsRateLimitsResponse"
+                },
                 "x-xgen-preview": {
                   "public": "true"
                 },
                 "x-xgen-version": "preview"
               }
             },
-            "description": "No Content",
+            "description": "OK",
             "headers": {
               "RateLimit-Limit": {
                 "$ref": "#/components/headers/HeaderRateLimitLimit"
@@ -63280,9 +63296,6 @@
         "x-rolesRequirements": [
           "Project Model Owner"
         ],
-        "x-xgen-IPA-exception": {
-          "xgen-IPA-113-reset-method-must-return-200-OK": "Temporary exception. This endpoint returns 204 No Content instead of 200 OK. This violation will be addressed in CLOUDP-381741."
-        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/AI-Model-Rate-Limits/operation/resetGroupAiModelRateLimits",
         "x-xgen-method-verb-override": {
           "customMethod": "True",
@@ -63290,9 +63303,6 @@
         },
         "x-xgen-operation-id-override": "resetModelRateLimits",
         "x-xgen-owner-team": "Search Web Platform"
-      },
-      "x-xgen-IPA-exception": {
-        "xgen-IPA-113-reset-method-only-on-singleton-resources": "Approved by API Champ on the 2026-02-13 meeting: API predates IPA validation and design was previously approved."
       }
     },
     "/api/atlas/v2/groups/{groupId}/alertConfigs": {
