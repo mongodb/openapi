@@ -35,14 +35,29 @@ fi
 
 
 # Create detailed description
-DESCRIPTION="Warning-level violations were found during IPA validation. Please review and add exceptions if valid, or address false positives.
+DESCRIPTION="
+h2. Context
+Warning-level violations were found during IPA validation. Please review and add exceptions if valid, or address false positives.
+
 These warning-level checks are part of the rule rollout process. See the IPA Validation Technical Documentation for details:
 https://wiki.corp.mongodb.com/spaces/MMS/pages/315003555/IPA+Validation+Technical+Documentation+Runbook#IPAValidationTechnicalDocumentation%26Runbook-RolloutofNewRule
 
 Violation Summary:
 ${VIOLATION_DETAILS}
 
-Total violations: ${WARNING_COUNT}"
+Total violations: ${WARNING_COUNT}
+
+h2. Actions
+
+Triage new violations
+ * Verify that the violations are not false-positives
+ ** Inspect the OpenAPI component that violates the rule
+ ** Inspect the source code
+ * If the violations are correct:
+ ** File a ticket for the owning team to address the violation, or add a new exception to the component if the violation has been approved by the APIx Platform team.
+ * If the violations are false-positives:
+ ** Create a ticket to fix the rule's implementation, correcting any bugs or adjusting the validation approach.
+"
 
 echo "Jira ticket does not exist. Creating..."
 # Create new Jira ticket with properly escaped JSON (matching create_jira_ticket.sh format)
