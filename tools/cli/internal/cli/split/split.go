@@ -16,7 +16,6 @@ package split
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -63,10 +62,6 @@ func (o *Opts) Run() error {
 
 		if err := o.saveVersionedOas(filteredOAS, version); err != nil {
 			return err
-		}
-
-		if err := filteredOAS.Validate(loader.Loader.Context); err != nil {
-			log.Printf("[WARN] OpenAPI document is invalid: %v", err)
 		}
 	}
 

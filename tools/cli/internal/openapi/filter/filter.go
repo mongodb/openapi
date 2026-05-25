@@ -15,7 +15,6 @@
 package filter
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -23,6 +22,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/cli/internal/openapi/oasutil"
 )
 
 //go:generate mockgen -destination=../filter/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi/filter Filter
@@ -127,7 +127,7 @@ func ApplyFilters(doc *openapi3.T, metadata *Metadata, filters func(oas *openapi
 	}
 
 	// make a copy of the oas to avoid modifying the original document when applying filters
-	oas, err := duplicateOas(doc)
+	oas, err := oasutil.Duplicate(doc)
 	if err != nil {
 		return nil, err
 	}
@@ -146,23 +146,6 @@ func ApplyFilters(doc *openapi3.T, metadata *Metadata, filters func(oas *openapi
 	return oas, nil
 }
 
-func duplicateOas(doc *openapi3.T) (*openapi3.T, error) {
-	// Marshal the original document to JSON
-	jsonData, err := json.Marshal(doc)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal original OpenAPI specification: %w", err)
-	}
-
-	// Unmarshal the JSON data into a new OpenAPI document
-	duplicateDoc := &openapi3.T{}
-	err = json.Unmarshal(jsonData, duplicateDoc)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal duplicated OpenAPI specification: %w", err)
-	}
-
-	return duplicateDoc, nil
-}
-
 // MergeFilteredSpecs merges multiple filtered OpenAPI specs into a single spec.
 func MergeFilteredSpecs(specs []*openapi3.T) (*openapi3.T, error) {
 	if len(specs) == 0 {
@@ -174,7 +157,7 @@ func MergeFilteredSpecs(specs []*openapi3.T) (*openapi3.T, error) {
 	}
 
 	// Use the first spec as the base and merge others into it
-	base, err := duplicateOas(specs[0])
+	base, err := oasutil.Duplicate(specs[0])
 	if err != nil {
 		return nil, fmt.Errorf("failed to duplicate base spec: %w", err)
 	}
