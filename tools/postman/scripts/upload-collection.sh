@@ -57,26 +57,6 @@ execute_curl --show-error --fail --silent -o "${COLLECTIONS_LIST_FILE}" \
      collection_exists=$(jq '.collections | any(.name=="'"${current_collection_name}"'")' "${COLLECTIONS_LIST_FILE}")
 
 if [  "$collection_exists" = "false" ]; then
-  # Check if a collection with a star icon already exists
-  previous_star_collection_id=$(jq -r '.collections | map(select(.name | startswith("⭐")).id)[0] // empty' "${COLLECTIONS_LIST_FILE}")
-  if [[ -n "${previous_star_collection_id}" ]]; then
-    previous_collection_name=$(jq -r '.collections | map(select(.id=="'"${previous_star_collection_id}"'").name)[0]' "${COLLECTIONS_LIST_FILE}")
-    new_collection_name="${previous_collection_name//⭐/}"
-
-    echo "Removing star icon from the previous collection name"
-    echo "curl -o ${COLLECTIONS_LIST_FILE}
-     --location 'https://api.getpostman.com/collections/${previous_star_collection_id}'
-     --header 'X-API-Key: **********'
-     --data '{\"collection\": {\"info\": {\"name\": \"${new_collection_name}\"}}}'"
-
-    execute_curl --show-error --fail --silent --request PATCH \
-     --location "https://api.getpostman.com/collections/${previous_star_collection_id}" \
-     --header "Content-Type: application/json" \
-     --header "X-API-Key: ${POSTMAN_API_KEY}" \
-     --data "{\"collection\": {\"info\": {\"name\": \"${new_collection_name}\"}}}"
-
-  fi
-
   # Create new collection
   echo "Creating new remote collection ${current_collection_name}"
   echo "curl -o ${COLLECTIONS_LIST_FILE}
@@ -110,5 +90,30 @@ else
      --data "@${collection_transformed_path}"
 
 fi
+
+# Delete all previous Atlas Admin API collections from the workspace.
+# The current collection is excluded by name — it was either just created (not in the
+# initial list) or matched by name in the update case.
+deleted=0
+while IFS= read -r row; do
+  id=$(echo "${row}" | jq -r '.id')
+  name=$(echo "${row}" | jq -r '.name')
+  echo "Deleting old collection: ${name} (id: ${id})"
+  echo "curl --request DELETE --location 'https://api.getpostman.com/collections/${id}' --header 'X-API-Key: **********'"
+  http_code=$(execute_curl --silent --show-error \
+    --write-out "%{http_code}" \
+    -o /dev/null \
+    --request DELETE \
+    --location "https://api.getpostman.com/collections/${id}" \
+    --header "X-API-Key: ${POSTMAN_API_KEY}")
+  if [[ "${http_code}" != "200" ]]; then
+    echo "[ERROR] Failed to delete old collection: ${name} (id: ${id}), HTTP status: ${http_code}"
+  else
+    deleted=$((deleted + 1))
+  fi
+done < <(jq -c --arg current "${current_collection_name}" \
+  '.collections[] | select(.name | contains("MongoDB Atlas Administration API")) | select(.name != $current)' \
+  "${COLLECTIONS_LIST_FILE}")
+echo "[SUMMARY] Deleted ${deleted} old collection(s)"
 
 popd -0
