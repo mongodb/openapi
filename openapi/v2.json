@@ -23380,8 +23380,7 @@
               "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
               "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED",
               "CLUSTER_MONGUARD_ENABLED",
-              "CLUSTER_MONGUARD_DISABLED",
-              "CLUSTER_APPLY_CONNECTION_RATE_LIMIT_REQUESTED"
+              "CLUSTER_MONGUARD_DISABLED"
             ],
             "title": "Atlas Audit Types",
             "type": "string"
@@ -36473,8 +36472,7 @@
           "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
           "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED",
           "CLUSTER_MONGUARD_ENABLED",
-          "CLUSTER_MONGUARD_DISABLED",
-          "CLUSTER_APPLY_CONNECTION_RATE_LIMIT_REQUESTED"
+          "CLUSTER_MONGUARD_DISABLED"
         ],
         "example": "CLUSTER_CREATED",
         "title": "Atlas Audit Types",
@@ -38162,7 +38160,46 @@
             "type": "string"
           },
           "regionName": {
-            "description": "Cloud provider region in which the Object Storage private endpoint is located.",
+            "description": "Cloud provider region of the S3 bucket that the Object Storage private endpoint accesses. For same-region endpoints, this is also the region where the VPC interface endpoint is deployed.",
+            "oneOf": [
+              {
+                "description": "Physical location where MongoDB Cloud deploys your AWS-hosted MongoDB cluster nodes. The region you choose can affect network latency for clients accessing your databases.\nWhen MongoDB Cloud deploys a dedicated cluster, it checks if a VPC or VPC connection exists for that provider and region. If not, MongoDB Cloud creates them as part of the deployment. MongoDB Cloud assigns the VPC a CIDR block.\nTo limit a new VPC peering connection to one CIDR block and region, create the connection first. Deploy the cluster after the connection starts.",
+                "enum": [
+                  "US_GOV_WEST_1",
+                  "US_GOV_EAST_1",
+                  "US_EAST_1",
+                  "US_EAST_2",
+                  "US_WEST_1",
+                  "US_WEST_2",
+                  "CA_CENTRAL_1",
+                  "EU_NORTH_1",
+                  "EU_WEST_1",
+                  "EU_WEST_2",
+                  "EU_WEST_3",
+                  "EU_CENTRAL_1",
+                  "AP_EAST_1",
+                  "AP_NORTHEAST_1",
+                  "AP_NORTHEAST_2",
+                  "AP_NORTHEAST_3",
+                  "AP_SOUTHEAST_1",
+                  "AP_SOUTHEAST_2",
+                  "AP_SOUTHEAST_3",
+                  "AP_SOUTH_1",
+                  "SA_EAST_1",
+                  "CN_NORTH_1",
+                  "CN_NORTHWEST_1",
+                  "ME_SOUTH_1",
+                  "AF_SOUTH_1",
+                  "EU_SOUTH_1",
+                  "GLOBAL"
+                ],
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          },
+          "vpcRegionName": {
+            "description": "Cloud provider region in which the VPC interface endpoint is deployed. Omit to deploy the interface endpoint in the same region as the S3 bucket (same-region endpoint). Set to a region different from `regionName` to create a cross-region endpoint.",
             "oneOf": [
               {
                 "description": "Physical location where MongoDB Cloud deploys your AWS-hosted MongoDB cluster nodes. The region you choose can affect network latency for clients accessing your databases.\nWhen MongoDB Cloud deploys a dedicated cluster, it checks if a VPC or VPC connection exists for that provider and region. If not, MongoDB Cloud creates them as part of the deployment. MongoDB Cloud assigns the VPC a CIDR block.\nTo limit a new VPC peering connection to one CIDR block and region, create the connection first. Deploy the cluster after the connection starts.",
@@ -38230,7 +38267,7 @@
             "type": "string"
           },
           "regionName": {
-            "description": "Cloud provider region in which the Object Storage private endpoint is located.",
+            "description": "Cloud provider region in which the Object Storage bucket is located. For cross-region endpoints, this differs from `vpcRegionName`, which is the region in which the VPC interface endpoint is deployed.",
             "oneOf": [
               {
                 "description": "Physical location where MongoDB Cloud deploys your AWS-hosted MongoDB cluster nodes. The region you choose can affect network latency for clients accessing your databases.\nWhen MongoDB Cloud deploys a dedicated cluster, it checks if a VPC or VPC connection exists for that provider and region. If not, MongoDB Cloud creates them as part of the deployment. MongoDB Cloud assigns the VPC a CIDR block.\nTo limit a new VPC peering connection to one CIDR block and region, create the connection first. Deploy the cluster after the connection starts.",
@@ -38280,6 +38317,45 @@
             ],
             "readOnly": true,
             "type": "string"
+          },
+          "vpcRegionName": {
+            "description": "Cloud provider region in which the VPC interface endpoint is deployed. Echoes `regionName` for same-region endpoints.",
+            "oneOf": [
+              {
+                "description": "Physical location where MongoDB Cloud deploys your AWS-hosted MongoDB cluster nodes. The region you choose can affect network latency for clients accessing your databases.\nWhen MongoDB Cloud deploys a dedicated cluster, it checks if a VPC or VPC connection exists for that provider and region. If not, MongoDB Cloud creates them as part of the deployment. MongoDB Cloud assigns the VPC a CIDR block.\nTo limit a new VPC peering connection to one CIDR block and region, create the connection first. Deploy the cluster after the connection starts.",
+                "enum": [
+                  "US_GOV_WEST_1",
+                  "US_GOV_EAST_1",
+                  "US_EAST_1",
+                  "US_EAST_2",
+                  "US_WEST_1",
+                  "US_WEST_2",
+                  "CA_CENTRAL_1",
+                  "EU_NORTH_1",
+                  "EU_WEST_1",
+                  "EU_WEST_2",
+                  "EU_WEST_3",
+                  "EU_CENTRAL_1",
+                  "AP_EAST_1",
+                  "AP_NORTHEAST_1",
+                  "AP_NORTHEAST_2",
+                  "AP_NORTHEAST_3",
+                  "AP_SOUTHEAST_1",
+                  "AP_SOUTHEAST_2",
+                  "AP_SOUTHEAST_3",
+                  "AP_SOUTH_1",
+                  "SA_EAST_1",
+                  "CN_NORTH_1",
+                  "CN_NORTHWEST_1",
+                  "ME_SOUTH_1",
+                  "AF_SOUTH_1",
+                  "EU_SOUTH_1",
+                  "GLOBAL"
+                ],
+                "type": "string"
+              }
+            ],
+            "type": "object"
           }
         },
         "type": "object"
@@ -56078,7 +56154,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "a586d73e36f25e310cad298d8f852f1359476e93"
+    "x-xgen-sha": "9502b317d9904ff9c8f58888e7067d83c5b39d1b"
   },
   "openapi": "3.0.1",
   "paths": {
