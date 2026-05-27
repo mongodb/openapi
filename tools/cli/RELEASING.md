@@ -10,7 +10,16 @@
 
 - Using [GitHub CLI](https://cli.github.com/), run the command
 ```bash
-cd tools/foas
 # Make sure to update version_number with the release version
 gh workflow run release-cli.yml -f version_number=vX.Y.Z -f skip_tests=false -f use_existing_tag=false
 ```
+
+## What the workflow does
+
+1. Validates the version number format.
+2. Creates three tags pointing at the release commit:
+   - `vX.Y.Z` — used by GoReleaser to publish the foascli binary and archives (`mongodb-foas-cli_*.tar.gz`).
+   - `tools/foas/vX.Y.Z` — Go submodule tag for the library module; external consumers (e.g. mcp-server in `mongodb-labs/oasis`) pin this.
+   - `tools/cli/vX.Y.Z` — Go submodule tag for the binary module (informational; rarely imported).
+3. Runs the QA test suite (`code-health-foascli.yml`) against both modules unless `skip_tests=true`.
+4. Runs GoReleaser in `tools/cli/` to build and publish the binary archives to GitHub Releases.
