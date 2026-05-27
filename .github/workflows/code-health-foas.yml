@@ -1,0 +1,69 @@
+name: 'Code Health FOAS'
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/foas/**'
+      - '.github/workflows/code-health-foas.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tools/foas/**'
+      - '.github/workflows/code-health-foas.yml'
+  workflow_dispatch: {}
+  workflow_call: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Install Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+        with:
+          go-version-file: 'tools/foas/go.mod'
+      - name: Build
+        working-directory: tools/foas
+        run: make build
+  unit-tests:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Install Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+        with:
+          go-version-file: 'tools/foas/go.mod'
+      - name: Run unit tests
+        working-directory: tools/foas
+        run: make unit-test
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          sparse-checkout: |
+            .github
+            tools/foas
+      - name: Install Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+        with:
+          go-version-file: 'tools/foas/go.mod'
+          cache: false # see https://github.com/golangci/golangci-lint-action/issues/807
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee
+        with:
+          version: v2.10.1
+          working-directory: tools/foas

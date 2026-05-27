@@ -1,9 +1,10 @@
 name: 'FOASCLI New Release'
 run-name: 'Release ${{ inputs.version_number }} (skip tests: ${{ inputs.skip_tests }}, use existing tag: ${{ inputs.use_existing_tag}})'
 
-# Used for creating a new release. This workflow runs QA acceptance tests, creates three tags
-# (vX.Y.Z for the binary release plus tools/foas/vX.Y.Z and tools/cli/vX.Y.Z Go submodule tags),
-# and publishes the foascli binary with GoReleaser.
+# Used for releasing the foascli binary. Creates two tags (vX.Y.Z for the binary
+# release plus tools/cli/vX.Y.Z Go submodule tag), runs QA acceptance tests, and
+# publishes the foascli binary with GoReleaser. Library releases are handled
+# separately by release-foas.yml.
 on:
   workflow_dispatch:
     inputs:
@@ -39,13 +40,6 @@ jobs:
           commit_sha: ${{ steps.get-sha.outputs.sha }}
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg_passphrase: ${{ secrets.PASSPHRASE }}
-      - name: Create Go submodule tag for tools/foas
-        uses: rickstaa/action-create-tag@a1c7777fcb2fee4f19b0f283ba888afa11678b72
-        with:
-          tag: tools/foas/${{ inputs.version_number }}
-          commit_sha: ${{ steps.get-sha.outputs.sha }}
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg_passphrase: ${{ secrets.PASSPHRASE }}
       - name: Create Go submodule tag for tools/cli
         uses: rickstaa/action-create-tag@a1c7777fcb2fee4f19b0f283ba888afa11678b72
         with:
@@ -61,7 +55,7 @@ jobs:
       && !contains(needs.*.result, 'failure')
       && inputs.skip_tests == 'false'
     secrets: inherit
-    uses: ./.github/workflows/code-health-foascli.yml
+    uses: ./.github/workflows/code-health-cli.yml
 
   release:
     runs-on: ubuntu-latest

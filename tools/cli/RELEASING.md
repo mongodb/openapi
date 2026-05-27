@@ -17,9 +17,18 @@ gh workflow run release-cli.yml -f version_number=vX.Y.Z -f skip_tests=false -f 
 ## What the workflow does
 
 1. Validates the version number format.
-2. Creates three tags pointing at the release commit:
+2. Creates two tags pointing at the release commit:
    - `vX.Y.Z` — used by GoReleaser to publish the foascli binary and archives (`mongodb-foas-cli_*.tar.gz`).
-   - `tools/foas/vX.Y.Z` — Go submodule tag for the library module; external consumers (e.g. mcp-server in `mongodb-labs/oasis`) pin this.
    - `tools/cli/vX.Y.Z` — Go submodule tag for the binary module (informational; rarely imported).
-3. Runs the QA test suite (`code-health-foascli.yml`) against both modules unless `skip_tests=true`.
+3. Runs the cli QA test suite (`code-health-cli.yml`) unless `skip_tests=true`.
 4. Runs GoReleaser in `tools/cli/` to build and publish the binary archives to GitHub Releases.
+
+## When to bump the binary version
+
+Cli releases are on-demand — bump when you want users (mms, humans, anyone running `foascli`) to get accumulated changes. Triggers:
+
+- Any change to cli plumbing (cobra commands, flags, output formats, bug fixes).
+- A library change that adds a user-facing capability now exposed by cli.
+- A library bugfix that affects binary behavior.
+
+Don't bump the binary for library-only refactors or library changes that don't surface through cli. Those are library-only releases (see [`tools/foas/RELEASING.md`](../foas/RELEASING.md)).
