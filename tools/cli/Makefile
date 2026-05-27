@@ -75,9 +75,9 @@ e2e-test: build ## Run E2E tests
 	$(TEST_CMD) -v -p 1 -parallel $(E2E_PARALLEL) -timeout $(E2E_TIMEOUT)  ./test/e2e... $(E2E_EXTRA_ARGS)
 
 .PHONY: unit-test
-unit-test: ## Run unit-tests
+unit-test: ## Run unit-tests (excludes ./test/e2e — see e2e-test target)
 	@echo "==> Running unit tests..."
-	$(TEST_CMD) -race -cover ./...
+	$(TEST_CMD) -race -cover $$(go list ./... | grep -v '/test/e2e')
 
 .PHONY: gen-mocks
 gen-mocks: ## Generate mocks

@@ -19,10 +19,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mongodb/openapi/tools/foas/apiversion"
-	"github.com/mongodb/openapi/tools/foas/changelog"
 	"github.com/mongodb/openapi/tools/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/usage"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
+	"github.com/mongodb/openapi/tools/foas/changelog"
 	"github.com/mongodb/openapi/tools/foas/openapi"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"

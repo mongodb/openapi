@@ -17,9 +17,9 @@ package exemptions
 import (
 	"errors"
 
-	"github.com/mongodb/openapi/tools/foas/breakingchanges"
 	"github.com/mongodb/openapi/tools/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/usage"
+	"github.com/mongodb/openapi/tools/foas/breakingchanges"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )

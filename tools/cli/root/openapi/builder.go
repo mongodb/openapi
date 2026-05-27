@@ -25,8 +25,8 @@ import (
 	"github.com/mongodb/openapi/tools/cli/slice"
 	"github.com/mongodb/openapi/tools/cli/split"
 	"github.com/mongodb/openapi/tools/cli/sunset"
-	"github.com/mongodb/openapi/tools/cli/versions"
 	"github.com/mongodb/openapi/tools/cli/version"
+	"github.com/mongodb/openapi/tools/cli/versions"
 	"github.com/spf13/cobra"
 )
 

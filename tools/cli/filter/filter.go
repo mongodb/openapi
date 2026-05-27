@@ -19,9 +19,9 @@ import (
 	"log"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/mongodb/openapi/tools/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/usage"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/mongodb/openapi/tools/foas/openapi"
 	"github.com/mongodb/openapi/tools/foas/openapi/filter"
 	"github.com/spf13/afero"
