@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/stretchr/testify/require"
 )
@@ -158,7 +158,7 @@ func TestSplitVersionsForOASWithExternalReferences(t *testing.T) {
 	t.Parallel()
 	folder := "dev"
 	cliPath := NewBin(t)
-	base, err := filepath.Abs("../../data/split/" + folder + "/openapi-api-registry.json")
+	base, err := filepath.Abs("../../../../foas/test/data/split/" + folder + "/openapi-api-registry.json")
 	require.NoError(t, err)
 	copyMMSFileToOutput(t, folder)
 
@@ -201,7 +201,7 @@ func copyMMSFileToOutput(t *testing.T, folder string) {
 	t.Helper()
 	// copy mms file to output folder because the split command will not copy it and it
 	// is needed for external references
-	srcPath := "../../data/split/" + folder + "/openapi-mms.json"
+	srcPath := "../../../../foas/test/data/split/" + folder + "/openapi-mms.json"
 	destPath := getOutputFolder(t, folder) + "/openapi-mms.json"
 	cpCmd := exec.CommandContext(context.Background(),
 		"cp",
@@ -238,12 +238,12 @@ func getVersions(t *testing.T, cliPath, base, folder string) []string {
 func getInputPath(t *testing.T, specType, format, folder string) string {
 	t.Helper()
 	if specType == "not-filtered" {
-		cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-mms.json")
+		cliPath, err := filepath.Abs("../../../../foas/test/data/split/" + folder + "/openapi-mms.json")
 		require.NoError(t, err)
 		return cliPath
 	}
 
-	cliPath, err := filepath.Abs("../../data/split/" + folder + "/openapi-v2." + format)
+	cliPath, err := filepath.Abs("../../../../foas/test/data/split/" + folder + "/openapi-v2." + format)
 	require.NoError(t, err)
 	return cliPath
 }

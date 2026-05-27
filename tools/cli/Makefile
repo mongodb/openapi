@@ -13,8 +13,8 @@ E2E_TIMEOUT?=60m
 E2E_PARALLEL?=1
 E2E_EXTRA_ARGS?=
 
-LINKER_GH_SHA_FLAG=-s -w -X github.com/mongodb/openapi/tools/cli/internal/version.GitCommit=${GIT_SHA}
-LINKER_FLAGS=${LINKER_GH_SHA_FLAG} -X github.com/mongodb/openapi/tools/cli/internal/version.Version=${VERSION}
+LINKER_GH_SHA_FLAG=-s -w -X github.com/mongodb/openapi/tools/cli/version.GitCommit=${GIT_SHA}
+LINKER_FLAGS=${LINKER_GH_SHA_FLAG} -X github.com/mongodb/openapi/tools/cli/version.Version=${VERSION}
 
 DEBUG_FLAGS=all=-N -l
 TEST_CMD?=go test
@@ -74,20 +74,15 @@ e2e-test: build ## Run E2E tests
 	rm -rf test/e2e/cli/output
 	$(TEST_CMD) -v -p 1 -parallel $(E2E_PARALLEL) -timeout $(E2E_TIMEOUT)  ./test/e2e... $(E2E_EXTRA_ARGS)
 
-.PHONY: gen-docs
-gen-docs: ## Generate docs
-	@echo "==> Updating docs"
-	./scripts/update_docs.sh
-
 .PHONY: unit-test
 unit-test: ## Run unit-tests
 	@echo "==> Running unit tests..."
-	$(TEST_CMD) -race -cover ./internal...
+	$(TEST_CMD) -race -cover ./...
 
 .PHONY: gen-mocks
 gen-mocks: ## Generate mocks
 	@echo "==> Generating mocks"
-	go generate ./internal...
+	go generate ./...
 
 .PHONY: pre-commit
 pre-commit: fmt lint unit-test ## Run pre-commit checks

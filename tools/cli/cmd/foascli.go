@@ -18,7 +18,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/mongodb/openapi/tools/cli/internal/cli/root/openapi"
+	"github.com/mongodb/openapi/tools/cli/root/openapi"
 )
 
 // Execute adds all child commands to the root command and sets flags appropriately.

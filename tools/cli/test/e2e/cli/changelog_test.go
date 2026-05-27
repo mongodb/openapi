@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mongodb/openapi/tools/cli/internal/changelog"
+	"github.com/mongodb/openapi/tools/foas/changelog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

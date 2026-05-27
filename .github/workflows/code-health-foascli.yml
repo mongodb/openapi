@@ -3,13 +3,15 @@ on:
   push:
     branches:
       - main
-    paths: 
+    paths:
+      - 'tools/foas/**'
       - 'tools/cli/**'
       - '.github/workflows/code-health-foascli.yml'
   pull_request:
     branches:
       - main
     paths:
+      - 'tools/foas/**'
       - 'tools/cli/**'
       - '.github/workflows/code-health-foascli.yml'
   workflow_dispatch: {}
@@ -21,15 +23,19 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [foas, cli]
     steps:
     - name: Checkout CLI
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
     - name: Install Go
       uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
       with:
-        go-version-file: 'tools/cli/go.mod'
-    - name: Build CLI
-      working-directory: tools/cli
+        go-version-file: 'tools/${{ matrix.module }}/go.mod'
+    - name: Build
+      working-directory: tools/${{ matrix.module }}
       run: make build
   unit-tests:
     needs: build
@@ -41,6 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
+        module: [foas, cli]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -48,12 +55,16 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
-          go-version-file: 'tools/cli/go.mod'
+          go-version-file: 'tools/${{ matrix.module }}/go.mod'
       - name: Run unit tests
-        working-directory: tools/cli
+        working-directory: tools/${{ matrix.module }}
         run: make unit-test
   lint:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [foas, cli]
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -64,13 +75,16 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
-          go-version-file: 'tools/cli/go.mod'
+          go-version-file: 'tools/${{ matrix.module }}/go.mod'
           cache: false # see https://github.com/golangci/golangci-lint-action/issues/807
       - name: golangci-lint
         uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee
         with:
           version: v2.10.1
-          working-directory: tools/cli
+          working-directory: tools/${{ matrix.module }}
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout GitHub actions
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:

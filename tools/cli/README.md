@@ -1,39 +1,17 @@
-# FOASCLI
-FOASCLI is a Go-based CLI tool that provides commands for generating the Federated OpenAPI specification and the API changelog.
+# FOAS CLI
 
-### Build From Source
+Binary entrypoint for the FOAS OpenAPI tooling. Depends on the [`tools/foas`](../foas) library module.
 
-#### Fetch Source
+See [RELEASING.md](./RELEASING.md) for release instructions.
 
-```bash
-git clone https://github.com/mongodb/openapi.git
-cd openapi/tools/cli
-```
-
-#### Build
-To build `foascli`, run:
+## Build
 
 ```bash
-make build
+make build       # produces ./bin/foascli
 ```
 
-The resulting `foascli` binary is placed in `./bin`.
+## Test
 
-## Usage
-To get a list of available commands, run `foascli help`.
-
-## Setup Environment
-To set up the development environment, run:
 ```bash
-make setup
+make test
 ```
-
-### Run tests
-To run unit and e2e tests, run:
-```bash
-make lint && unit-test && e2e-test
-```
-
-## Contributing
-
-See our [CONTRIBUTING.md](../../CONTRIBUTING.md) guide.

@@ -9,13 +9,13 @@ import (
 	"path"
 	"testing"
 
-	"github.com/mongodb/openapi/tools/cli/internal/cli/sunset"
+	"github.com/mongodb/openapi/tools/cli/sunset"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestSunsetDiff_NoChanges(t *testing.T) {
-	baseSpecPath := "../../data/base_spec.json"
+	baseSpecPath := "../../../../foas/test/data/base_spec.json"
 	outputPath := path.Join(getOutputFolder(t, "sunset"), "diff.json")
 
 	cliPath := NewBin(t)
@@ -45,8 +45,8 @@ func TestSunsetDiff_NoChanges(t *testing.T) {
 }
 
 func TestSunsetDiff_WithChanges(t *testing.T) {
-	baseSpecPath := "../../data/base_spec.json"
-	specPath := "../../data/base_spec_with_mismatching_sunset_dates.json"
+	baseSpecPath := "../../../../foas/test/data/base_spec.json"
+	specPath := "../../../../foas/test/data/base_spec_with_mismatching_sunset_dates.json"
 	outputPath := path.Join(getOutputFolder(t, "sunset"), "diff.json")
 
 	cliPath := NewBin(t)
@@ -107,8 +107,8 @@ func TestSunsetDiff_WithChanges(t *testing.T) {
 }
 
 func TestSunsetDiff_WithFilteredChanges(t *testing.T) {
-	baseSpecPath := "../../data/base_spec.json"
-	specPath := "../../data/base_spec_with_mismatching_sunset_dates.json"
+	baseSpecPath := "../../../../foas/test/data/base_spec.json"
+	specPath := "../../../../foas/test/data/base_spec_with_mismatching_sunset_dates.json"
 	outputPath := path.Join(getOutputFolder(t, "sunset"), "diff.json")
 
 	cliPath := NewBin(t)

@@ -10,6 +10,6 @@ Includes resources and scripts to generate [MongoDB Atlas Postman Collections](h
 
 MongoDB [Spectral](https://github.com/stoplightio/spectral) OpenAPI specification validation rules for IPA-compliance.
 
-## CLI
+## FOAS
 
-OpenAPI CLI. Internal MongoDB CLI used for OpenAPI transformations.
+The OpenAPI tooling library (`tools/foas`) and its CLI binary (`tools/cli`).

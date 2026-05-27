@@ -10,7 +10,7 @@
 
 - Using [GitHub CLI](https://cli.github.com/), run the command
 ```bash
-cd tools/cli
+cd tools/foas
 # Make sure to update version_number with the release version
 gh workflow run release-cli.yml -f version_number=vX.Y.Z -f skip_tests=false -f use_existing_tag=false
 ```

@@ -35,9 +35,9 @@ func TestParseCommand(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			exemptionsFilePath, err := filepath.Abs("../../data/exemptions/" + tc.exemptionsFile)
+			exemptionsFilePath, err := filepath.Abs("../../../../foas/test/data/exemptions/" + tc.exemptionsFile)
 			require.NoError(t, err)
-			outputFilePath, err := filepath.Abs("../../data/exemptions/" + tc.expectedOutput)
+			outputFilePath, err := filepath.Abs("../../../../foas/test/data/exemptions/" + tc.expectedOutput)
 			require.NoError(t, err)
 
 			cmd := exec.CommandContext(context.Background(), cliPath,
