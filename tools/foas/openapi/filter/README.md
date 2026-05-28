@@ -8,10 +8,14 @@ The Atlas Admin API OpenAPI specifications are used not only to document REST en
  - Filtering per version, so that only the endpoints that are available in that version are shown.
 ## What filters are available?
 ### List of filters
-[ExtensionFilter: is a filter that removes the x-xgen-IPA-exception extension from the OpenAPI spec (unless keepIPAExceptions is set in metadata).](./extension.go?plain=1#L21)
-[HiddenEnvsFilter: is a filter that removes paths, operations,](./hidden_envs.go?plain=1#L28)  
-[InfoVersioningFilter: Filter that modifies the Info object in the OpenAPI spec with the target version.](./info.go?plain=1#L23)  
-[OperationsFilter: is a filter that removes the x-xgen-owner-team extension from operations.](./operations.go?plain=1#L20)  
-[TagsFilter: removes tags that are not used in the operations.](./tags.go?plain=1#L23)  
-[VersioningExtensionFilter: is a filter that updates the x-sunset and x-xgen-version extensions to a date string](./versioning_extension.go?plain=1#L25)  
-[VersioningFilter: is a filter that modifies the OpenAPI spec by removing operations and responses](./versioning.go?plain=1#L25)  
+[BumpFilter modifies includes the fields "x-state" and "x-beta" to the "preview" and "upcoming" APIs Operations.](./bump.go?plain=1#L21)  
+[CodeSampleFilter modifies includes the fields "x-state" and "x-beta" to the "preview" and "upcoming" APIs Operations.](./code_sample.go?plain=1#L45)  
+[ExtensionFilter is a filter that removes the x-xgen-IPA-exception extension from the OpenAPI spec.](./extension.go?plain=1#L21)  
+[HiddenEnvsFilter removes paths, operations, request/response bodies and content types](./hidden_envs.go?plain=1#L30)  
+[InfoVersioningFilter modifies the Info object in the OpenAPI spec with the target version.](./info.go?plain=1#L24)  
+[OperationsFilter is a filter that removes the x-xgen-owner-team extension from operations.](./operations.go?plain=1#L21)  
+[SchemasFilter removes unused #/components/schemas/.](./schemas.go?plain=1#L27)  
+[SunsetFilter removes the sunsetToBeDecided from the openapi specification.](./sunset.go?plain=1#L26)  
+[TagsFilter removes tags that are not used in the operations.](./tags.go?plain=1#L23)  
+[VersioningExtensionFilter is a filter that updates the x-sunset and x-xgen-version extensions to a date string](./versioning_extension.go?plain=1#L25)  
+[VersioningFilter is a filter that modifies the OpenAPI spec by removing paths, operations and responses](./versioning.go?plain=1#L25)  

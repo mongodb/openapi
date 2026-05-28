@@ -3,8 +3,8 @@
 echo "# List of filters applied to the OpenAPI specification"
 echo "These examples are automatically generated from filters docs."
 
-# Expected format:
-# // PlaceHolderFilter: is a filter that modifies the Info object in the OpenAPI spec.
+# Expected format (Go doc comment on the type declaration):
+# // PlaceHolderFilter is a filter that modifies the Info object in the OpenAPI spec.
 
 echo "# OpenAPI Filters"
 
@@ -19,4 +19,4 @@ echo " - Filtering per version, so that only the endpoints that are available in
 echo "## What filters are available?"
 
 echo "### List of filters"
-grep -n '// .*Filter: .*' openapi/filter/*.go | sort -u -k2 | sed -n "s|openapi/filter/\([^:]*\):\([0-9]*\):// \(.*Filter: .*\)|[\3](./\1?plain=1#L\2)  |p" | sort
+grep -n '^// [A-Z][A-Za-z]*Filter ' openapi/filter/*.go | grep -v Mock | sort -u -k2 | sed -n "s|openapi/filter/\([^:]*\):\([0-9]*\):// \(.*\)|[\3](./\1?plain=1#L\2)  |p" | sort
