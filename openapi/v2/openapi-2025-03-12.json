@@ -37667,6 +37667,42 @@
         },
         "type": "object"
       },
+      "OrganizationMaintenanceSettingsResponse": {
+        "description": "Maintenance configuration settings for an organization.",
+        "properties": {
+          "effectiveWaveAssignmentMode": {
+            "description": "Wave assignment mode that Atlas uses when scheduling maintenance for projects in this organization. This read-only field takes precedence over `waveAssignmentMode` for scheduling. It matches `waveAssignmentMode` except when cross-organization maintenance sequencing is enabled and this organization is a linked non-paying organization, in which case it reflects the paying organization's `waveAssignmentMode`. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when no mode is configured. Omitted from GET responses when maintenance sequencing is disabled for this organization.",
+            "enum": [
+              "MANUAL",
+              "ENV_TAG_MAPPING"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "waveAssignmentMode": {
+            "description": "Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Atlas uses read-only `effectiveWaveAssignmentMode` (not this field) for scheduling when the two values differ.",
+            "enum": [
+              "MANUAL",
+              "ENV_TAG_MAPPING"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OrganizationMaintenanceSettingsUpdateRequest": {
+        "properties": {
+          "waveAssignmentMode": {
+            "description": "Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Only this field can be updated; Atlas derives read-only `effectiveWaveAssignmentMode` on GET responses and uses that value for scheduling when it differs from `waveAssignmentMode`. Omit this field to leave the current value unchanged. Specify null to reset to the default value (`MANUAL`).",
+            "enum": [
+              "MANUAL",
+              "ENV_TAG_MAPPING"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "OrganizationSettings": {
         "description": "Collection of settings that configures the organization.",
         "properties": {
@@ -52375,7 +52411,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "3f13af738c98ad59de48b4be61c3db434f7254af"
+    "x-xgen-sha": "cd35f5061322d69c118adc5c0fb7f599f4578d94"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -97901,6 +97937,188 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Migration-Service/operation/createOrgLiveMigrationLinkToken",
         "x-xgen-operation-id-override": "createLinkToken"
+      }
+    },
+    "/api/atlas/v2/orgs/{orgId}/maintenanceSettings": {
+      "get": {
+        "description": "Returns maintenance settings for the specified organization.",
+        "operationId": "getOrgMaintenanceSettings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationMaintenanceSettingsResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return Maintenance Settings for One Organization",
+        "tags": [
+          "Organizations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api organizations getOrgMaintenanceSettings --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetOrgMaintenanceSettingsApiParams{}\n\tsdkResp, httpResp, err := client.OrganizationsApi.\n\t\tGetOrgMaintenanceSettingsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Member"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/getOrgMaintenanceSettings"
+      },
+      "patch": {
+        "description": "Updates maintenance settings for the specified organization. Omit optional fields from the request body to leave their current values unchanged. Specify null on an optional field to reset it to its default value.",
+        "operationId": "updateOrgMaintenanceSettings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationMaintenanceSettingsUpdateRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "Maintenance settings to update for the specified organization.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationMaintenanceSettingsResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update Maintenance Settings for One Organization",
+        "tags": [
+          "Organizations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api organizations updateOrgMaintenanceSettings --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateOrgMaintenanceSettingsApiParams{}\n\tsdkResp, httpResp, err := client.OrganizationsApi.\n\t\tUpdateOrgMaintenanceSettingsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgMaintenanceSettings"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/nonCompliantResources": {
