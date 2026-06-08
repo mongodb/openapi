@@ -51759,6 +51759,9 @@
       "StreamsStartStreamProcessorWith": {
         "description": "A request to start a stream processor.",
         "properties": {
+          "failover": {
+            "$ref": "#/components/schemas/StreamsStartProcessorFailover"
+          },
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
             "externalDocs": {
@@ -51861,7 +51864,7 @@
         },
         "type": "object"
       },
-      "StreamsTenantUpdatePreviewUpdateRequest": {
+      "StreamsTenantUpdateRequest": {
         "description": "Details to update a stream tenant, optionally accompanied by a processor status change (for example, triggering bulk regional failover).",
         "properties": {
           "cloudProvider": {
@@ -51889,41 +51892,6 @@
           },
           "processorStatus": {
             "$ref": "#/components/schemas/StreamsProcessorStatus"
-          },
-          "region": {
-            "$ref": "#/components/schemas/BaseStreamsRegion"
-          },
-          "streamConfig": {
-            "$ref": "#/components/schemas/StreamConfig"
-          }
-        },
-        "type": "object"
-      },
-      "StreamsTenantUpdateRequest": {
-        "description": "Details to update a stream tenant.",
-        "properties": {
-          "cloudProvider": {
-            "description": "Human-readable label that identifies the cloud provider.",
-            "enum": [
-              "AWS",
-              "GCP",
-              "AZURE",
-              "TENANT",
-              "SERVERLESS"
-            ],
-            "type": "string"
-          },
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
           },
           "region": {
             "$ref": "#/components/schemas/BaseStreamsRegion"
@@ -56240,7 +56208,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "aa50f5969ad945e4e65a4e555fc5f6624a2dbab8"
+    "x-xgen-sha": "8d0b4ff1eed676b29f418b94ee7cd07486d788ef"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -90177,7 +90145,7 @@
             },
             "application/vnd.atlas.preview+json": {
               "schema": {
-                "$ref": "#/components/schemas/StreamsTenantUpdatePreviewUpdateRequest"
+                "$ref": "#/components/schemas/StreamsTenantUpdateRequest"
               },
               "x-xgen-preview": {
                 "name": "regional-failover",
@@ -90846,10 +90814,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiStreamsFailoverConnection"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedApiStreamsFailoverConnection"
                 },
+                "x-sunset": "2026-07-20",
                 "x-xgen-preview": {
                   "name": "regional-failover",
                   "public": "false"
@@ -90931,15 +90906,11 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.preview+json": {
+            "application/vnd.atlas.2025-03-12+json": {
               "schema": {
                 "$ref": "#/components/schemas/StreamsConnection"
               },
-              "x-xgen-preview": {
-                "name": "regional-failover",
-                "public": "false"
-              },
-              "x-xgen-version": "preview"
+              "x-xgen-version": "application/vnd.atlas.2025-03-12+json"
             }
           },
           "description": "Details to create one failover connection for a streams workspace in the specified project.",
@@ -90948,15 +90919,22 @@
         "responses": {
           "201": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamsConnection"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/StreamsConnection"
                 },
+                "x-sunset": "2026-07-20",
                 "x-xgen-preview": {
                   "name": "regional-failover",
                   "public": "false"
                 },
-                "x-xgen-version": "application/vnd.atlas.preview+json"
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -90999,9 +90977,6 @@
           "Organization Stream Processing Admin",
           "Project Stream Processing Owner"
         ],
-        "x-xgen-changelog": {
-          "2023-09-11": "The MongoDB Atlas Streams Processing API is now exposed as part of private preview, but is subject to change until GA."
-        },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createGroupStreamConnectionFailoverConnection",
         "x-xgen-operation-id-override": "createFailoverConnection"
       }
@@ -91051,7 +91026,11 @@
         "responses": {
           "204": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
+                "x-sunset": "2026-07-20",
                 "x-xgen-preview": {
                   "name": "regional-failover",
                   "public": "false"
@@ -91140,10 +91119,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamsConnection"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/StreamsConnection"
                 },
+                "x-sunset": "2026-07-20",
                 "x-xgen-preview": {
                   "name": "regional-failover",
                   "public": "false"
@@ -91231,15 +91217,10 @@
         ],
         "requestBody": {
           "content": {
-            "application/vnd.atlas.preview+json": {
+            "application/vnd.atlas.2025-03-12+json": {
               "schema": {
                 "$ref": "#/components/schemas/StreamsConnection"
-              },
-              "x-xgen-preview": {
-                "name": "regional-failover",
-                "public": "false"
-              },
-              "x-xgen-version": "preview"
+              }
             }
           },
           "description": "Details to update one failover connection for a streams workspace in the specified project.",
@@ -91248,10 +91229,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamsConnection"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/StreamsConnection"
                 },
+                "x-sunset": "2026-07-20",
                 "x-xgen-preview": {
                   "name": "regional-failover",
                   "public": "false"
