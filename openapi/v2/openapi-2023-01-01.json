@@ -2876,7 +2876,8 @@
             "type": "string"
           },
           "specs": {
-            "description": "List of settings that configure the Search Nodes for your cluster. The configuration will be returned for each region and shard.",
+            "deprecated": true,
+            "description": "Deprecated. `specs` will be removed in a future release. We strongly recommend that you use `effectiveSpecs` instead.",
             "items": {
               "$ref": "#/components/schemas/ApiSearchDeploymentSpecView"
             },
@@ -13586,7 +13587,11 @@
               "SAMPLE_STREAM_PROCESSOR",
               "LIST_STREAM_PROCESSORS",
               "LIST_CONNECTIONS",
-              "STREAM_PROCESSOR_STATS"
+              "STREAM_PROCESSOR_STATS",
+              "CREATE_SEARCH_INDEX",
+              "DROP_SEARCH_INDEX",
+              "LIST_SEARCH_INDEXES",
+              "UPDATE_SEARCH_INDEX"
             ],
             "type": "string"
           },
@@ -15175,13 +15180,14 @@
               },
               {
                 "enum": [
-                  "AI_MODELS_API_KEY_CREATED",
-                  "AI_MODELS_API_KEY_DELETED",
-                  "AI_MODELS_API_KEY_UPDATED",
-                  "AI_MODELS_RATE_LIMIT_UPDATED",
-                  "AI_MODELS_RATE_LIMIT_RESET"
+                  "AI_MODELS_APIS_API_KEY_CREATED",
+                  "AI_MODELS_APIS_API_KEY_DELETED",
+                  "AI_MODELS_APIS_API_KEY_UPDATED",
+                  "AI_MODELS_APIS_RATE_LIMIT_UPDATED",
+                  "AI_MODELS_APIS_RATE_LIMIT_RESET",
+                  "AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE"
                 ],
-                "title": "Ai Models Event Types",
+                "title": "AI Models APIs Event Types",
                 "type": "string"
               }
             ],
@@ -15390,9 +15396,10 @@
               },
               {
                 "enum": [
-                  "AI_MODELS_USAGE_TIER_UPDATED"
+                  "AI_MODELS_APIS_USAGE_TIER_UPDATED",
+                  "AI_MODELS_APIS_FREE_TOKENS_ADMIN_ADJUSTED"
                 ],
-                "title": "Ai Models Event Types",
+                "title": "AI Models APIs Event Types",
                 "type": "string"
               }
             ],
@@ -18688,6 +18695,7 @@
               "PROJECT_SCHEDULED_MAINTENANCE",
               "PROJECT_LIMIT_UPDATED",
               "PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED",
+              "PROJECT_ENABLE_DATA_VALIDATION_UPDATED",
               "PROJECT_COLLECT_DATABASE_STATISTICS_UPDATED",
               "OS_MAINTENANCE",
               "OS_MAINTENANCE_RESTART",
@@ -18880,7 +18888,8 @@
               "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
               "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED",
               "CLUSTER_MONGUARD_ENABLED",
-              "CLUSTER_MONGUARD_DISABLED"
+              "CLUSTER_MONGUARD_DISABLED",
+              "CLUSTER_MONGODB_VERSION_UPDATED"
             ],
             "title": "Atlas Audit Types",
             "type": "string"
@@ -19238,13 +19247,14 @@
           },
           {
             "enum": [
-              "AI_MODELS_API_KEY_CREATED",
-              "AI_MODELS_API_KEY_DELETED",
-              "AI_MODELS_API_KEY_UPDATED",
-              "AI_MODELS_RATE_LIMIT_UPDATED",
-              "AI_MODELS_RATE_LIMIT_RESET"
+              "AI_MODELS_APIS_API_KEY_CREATED",
+              "AI_MODELS_APIS_API_KEY_DELETED",
+              "AI_MODELS_APIS_API_KEY_UPDATED",
+              "AI_MODELS_APIS_RATE_LIMIT_UPDATED",
+              "AI_MODELS_APIS_RATE_LIMIT_RESET",
+              "AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE"
             ],
-            "title": "Ai Models Event Types",
+            "title": "AI Models APIs Event Types",
             "type": "string"
           }
         ],
@@ -19537,6 +19547,7 @@
               "SANDBOX_DISABLED_FOR_ORG",
               "SANDBOX_CONFIG_DELETED",
               "SANDBOX_TEMPLATE_UPDATED",
+              "ORG_DELEGATION_SETTINGS_UPDATED",
               "ORGANIZATION_VOYAGE_SETTINGS_CREATED",
               "ORGANIZATION_VOYAGE_SETTINGS_DELETED",
               "ORG_WAVE_ASSIGNMENT_MODE_MANUAL",
@@ -19630,9 +19641,10 @@
           },
           {
             "enum": [
-              "AI_MODELS_USAGE_TIER_UPDATED"
+              "AI_MODELS_APIS_USAGE_TIER_UPDATED",
+              "AI_MODELS_APIS_FREE_TOKENS_ADMIN_ADJUSTED"
             ],
-            "title": "Ai Models Event Types",
+            "title": "AI Models APIs Event Types",
             "type": "string"
           }
         ],
@@ -22869,14 +22881,6 @@
             "minimum": 1,
             "type": "integer"
           },
-          "effectiveWaveAssignment": {
-            "description": "Maintenance wave that Atlas uses when scheduling maintenance for this project. This value can differ from `waveAssignment` when cross-organization maintenance sequencing is enabled or when the organization derives waves from environment tags.",
-            "format": "int32",
-            "maximum": 3,
-            "minimum": 1,
-            "readOnly": true,
-            "type": "integer"
-          },
           "hourOfDay": {
             "description": "Zero-based integer that represents the hour of the of the day that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon.",
             "format": "int32",
@@ -22901,14 +22905,6 @@
             "description": "Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.",
             "readOnly": true,
             "type": "string"
-          },
-          "waveAssignment": {
-            "description": "Maintenance wave explicitly assigned to this project. Editable when the organization's effective wave assignment mode is MANUAL. Must be between 1 and 3, inclusive. Pass `null` to clear an explicit assignment.",
-            "format": "int32",
-            "maximum": 3,
-            "minimum": 1,
-            "nullable": true,
-            "type": "integer"
           }
         },
         "required": [
@@ -23062,6 +23058,10 @@
           "isDataExplorerGenAISampleDocumentPassingEnabled": {
             "default": false,
             "description": "Flag that indicates whether to enable the passing of sample field values with the use of generative AI features in the Data Explorer for the specified project.",
+            "type": "boolean"
+          },
+          "isDataValidationEnabled": {
+            "description": "Flag that indicates whether data validation is enabled for all clusters in the specified project.",
             "type": "boolean"
           },
           "isExtendedStorageSizesEnabled": {
@@ -26163,7 +26163,8 @@
             "description": "Disk warming mode selection.",
             "enum": [
               "FULLY_WARMED",
-              "VISIBLE_EARLIER"
+              "VISIBLE_EARLIER",
+              "ENHANCED_FULLY_WARMED"
             ],
             "externalDocs": {
               "description": "Reduce Secondary Disk Warming Impact",
@@ -26511,7 +26512,8 @@
             "description": "Disk warming mode selection.",
             "enum": [
               "FULLY_WARMED",
-              "VISIBLE_EARLIER"
+              "VISIBLE_EARLIER",
+              "ENHANCED_FULLY_WARMED"
             ],
             "externalDocs": {
               "description": "Reduce Secondary Disk Warming Impact",
@@ -29328,6 +29330,7 @@
           "PROJECT_SCHEDULED_MAINTENANCE",
           "PROJECT_LIMIT_UPDATED",
           "PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED",
+          "PROJECT_ENABLE_DATA_VALIDATION_UPDATED",
           "PROJECT_COLLECT_DATABASE_STATISTICS_UPDATED",
           "OS_MAINTENANCE",
           "OS_MAINTENANCE_RESTART",
@@ -29520,7 +29523,8 @@
           "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
           "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED",
           "CLUSTER_MONGUARD_ENABLED",
-          "CLUSTER_MONGUARD_DISABLED"
+          "CLUSTER_MONGUARD_DISABLED",
+          "CLUSTER_MONGODB_VERSION_UPDATED"
         ],
         "example": "CLUSTER_CREATED",
         "title": "Atlas Audit Types",
@@ -32098,6 +32102,7 @@
           "SANDBOX_DISABLED_FOR_ORG",
           "SANDBOX_CONFIG_DELETED",
           "SANDBOX_TEMPLATE_UPDATED",
+          "ORG_DELEGATION_SETTINGS_UPDATED",
           "ORGANIZATION_VOYAGE_SETTINGS_CREATED",
           "ORGANIZATION_VOYAGE_SETTINGS_DELETED",
           "ORG_WAVE_ASSIGNMENT_MODE_MANUAL",
@@ -43374,7 +43379,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "84d03a91cdff922916c667306b771fc16f7c9355"
+    "x-xgen-sha": "ad4d2497f6953026b5a54b3bd81114f24d6cf516"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -62731,7 +62736,7 @@
         "operationId": "deleteGroupLimit",
         "parameters": [
           {
-            "description": "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| `atlas.project.deployment.clusters` | Limit on the number of clusters in this project | 25 | 100 |\n| `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on the number of nodes per Private Link region in this project | 50 | 90 |\n| `atlas.project.security.databaseAccess.customRoles` | Limit on the number of custom roles in this project | 100 | 1400 |\n| `atlas.project.security.databaseAccess.users` | Limit on the number of database users in this project | 100 | 100 |\n| `atlas.project.security.networkAccess.crossRegionEntries` | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| `atlas.project.security.networkAccess.entries` | Limit on the number of network access entries in this project | 200 | 20 |\n| `dataFederation.bytesProcessed.query` | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| `dataFederation.bytesProcessed.daily` | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| `dataFederation.bytesProcessed.weekly` | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| `dataFederation.bytesProcessed.monthly` | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| `atlas.project.deployment.privateServiceConnectionsPerRegionGroup` | Number of Private Service Connections per Region Group | 50 | 100|\n| `atlas.project.deployment.privateServiceConnectionsSubnetMask` | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
+            "description": "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| `atlas.project.deployment.clusters` | Limit on the number of clusters in this project | 25 | 100 |\n| `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on AWS PrivateLink addressable target nodes per region in this project. For sharded clusters using optimized (load-balanced) connection strings, `currentUsage` doesn't grow with the number of `mongos` — the load balancer is counted as a single addressable target regardless of how many `mongos` sit behind it. | 50 | 90 |\n| `atlas.project.security.databaseAccess.customRoles` | Limit on the number of custom roles in this project | 100 | 1400 |\n| `atlas.project.security.databaseAccess.users` | Limit on the number of database users in this project | 100 | 100 |\n| `atlas.project.security.networkAccess.crossRegionEntries` | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| `atlas.project.security.networkAccess.entries` | Limit on the number of network access entries in this project | 200 | 20 |\n| `dataFederation.bytesProcessed.query` | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| `dataFederation.bytesProcessed.daily` | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| `dataFederation.bytesProcessed.weekly` | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| `dataFederation.bytesProcessed.monthly` | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| `atlas.project.deployment.privateServiceConnectionsPerRegionGroup` | Number of Private Service Connections per Region Group | 50 | 100|\n| `atlas.project.deployment.privateServiceConnectionsSubnetMask` | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
             "in": "path",
             "name": "limitName",
             "required": true,
@@ -62839,7 +62844,7 @@
         "operationId": "getGroupLimit",
         "parameters": [
           {
-            "description": "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| `atlas.project.deployment.clusters` | Limit on the number of clusters in this project | 25 | 100 |\n| `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on the number of nodes per Private Link region in this project | 50 | 90 |\n| `atlas.project.security.databaseAccess.customRoles` | Limit on the number of custom roles in this project | 100 | 1400 |\n| `atlas.project.security.databaseAccess.users` | Limit on the number of database users in this project | 100 | 100 |\n| `atlas.project.security.networkAccess.crossRegionEntries` | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| `atlas.project.security.networkAccess.entries` | Limit on the number of network access entries in this project | 200 | 20 |\n| `dataFederation.bytesProcessed.query` | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| `dataFederation.bytesProcessed.daily` | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| `dataFederation.bytesProcessed.weekly` | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| `dataFederation.bytesProcessed.monthly` | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| `atlas.project.deployment.privateServiceConnectionsPerRegionGroup` | Number of Private Service Connections per Region Group | 50 | 100|\n| `atlas.project.deployment.privateServiceConnectionsSubnetMask` | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
+            "description": "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| `atlas.project.deployment.clusters` | Limit on the number of clusters in this project | 25 | 100 |\n| `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on AWS PrivateLink addressable target nodes per region in this project. For sharded clusters using optimized (load-balanced) connection strings, `currentUsage` doesn't grow with the number of `mongos` — the load balancer is counted as a single addressable target regardless of how many `mongos` sit behind it. | 50 | 90 |\n| `atlas.project.security.databaseAccess.customRoles` | Limit on the number of custom roles in this project | 100 | 1400 |\n| `atlas.project.security.databaseAccess.users` | Limit on the number of database users in this project | 100 | 100 |\n| `atlas.project.security.networkAccess.crossRegionEntries` | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| `atlas.project.security.networkAccess.entries` | Limit on the number of network access entries in this project | 200 | 20 |\n| `dataFederation.bytesProcessed.query` | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| `dataFederation.bytesProcessed.daily` | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| `dataFederation.bytesProcessed.weekly` | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| `dataFederation.bytesProcessed.monthly` | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| `atlas.project.deployment.privateServiceConnectionsPerRegionGroup` | Number of Private Service Connections per Region Group | 50 | 100|\n| `atlas.project.deployment.privateServiceConnectionsSubnetMask` | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
             "in": "path",
             "name": "limitName",
             "required": true,
@@ -62950,7 +62955,7 @@
         "operationId": "setGroupLimit",
         "parameters": [
           {
-            "description": "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| `atlas.project.deployment.clusters` | Limit on the number of clusters in this project | 25 | 100 |\n| `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on the number of nodes per Private Link region in this project | 50 | 90 |\n| `atlas.project.security.databaseAccess.customRoles` | Limit on the number of custom roles in this project | 100 | 1400 |\n| `atlas.project.security.databaseAccess.users` | Limit on the number of database users in this project | 100 | 100 |\n| `atlas.project.security.networkAccess.crossRegionEntries` | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| `atlas.project.security.networkAccess.entries` | Limit on the number of network access entries in this project | 200 | 20 |\n| `dataFederation.bytesProcessed.query` | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| `dataFederation.bytesProcessed.daily` | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| `dataFederation.bytesProcessed.weekly` | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| `dataFederation.bytesProcessed.monthly` | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| `atlas.project.deployment.privateServiceConnectionsPerRegionGroup` | Number of Private Service Connections per Region Group | 50 | 100|\n| `atlas.project.deployment.privateServiceConnectionsSubnetMask` | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
+            "description": "Human-readable label that identifies this project limit.\n\n| Limit Name | Description | Default | API Override Limit |\n| --- | --- | --- | --- |\n| `atlas.project.deployment.clusters` | Limit on the number of clusters in this project | 25 | 100 |\n| `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on AWS PrivateLink addressable target nodes per region in this project. For sharded clusters using optimized (load-balanced) connection strings, `currentUsage` doesn't grow with the number of `mongos` — the load balancer is counted as a single addressable target regardless of how many `mongos` sit behind it. | 50 | 90 |\n| `atlas.project.security.databaseAccess.customRoles` | Limit on the number of custom roles in this project | 100 | 1400 |\n| `atlas.project.security.databaseAccess.users` | Limit on the number of database users in this project | 100 | 100 |\n| `atlas.project.security.networkAccess.crossRegionEntries` | Limit on the number of cross-region network access entries in this project | 40 | 220 |\n| `atlas.project.security.networkAccess.entries` | Limit on the number of network access entries in this project | 200 | 20 |\n| `dataFederation.bytesProcessed.query` | Limit on the number of bytes processed during a single Data Federation query | N/A | N/A |\n| `dataFederation.bytesProcessed.daily` | Limit on the number of bytes processed across all Data Federation tenants for the current day | N/A | N/A |\n| `dataFederation.bytesProcessed.weekly` | Limit on the number of bytes processed across all Data Federation tenants for the current week | N/A | N/A |\n| `dataFederation.bytesProcessed.monthly` | Limit on the number of bytes processed across all Data Federation tenants for the current month | N/A | N/A |\n| `atlas.project.deployment.privateServiceConnectionsPerRegionGroup` | Number of Private Service Connections per Region Group | 50 | 100|\n| `atlas.project.deployment.privateServiceConnectionsSubnetMask` | Subnet mask for GCP PSC Networks. Has lower limit of 20. | 27 | 27|\n",
             "in": "path",
             "name": "limitName",
             "required": true,
