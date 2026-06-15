@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
