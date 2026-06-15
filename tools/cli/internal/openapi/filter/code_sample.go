@@ -25,7 +25,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )

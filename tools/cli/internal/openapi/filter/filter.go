@@ -22,7 +22,7 @@ import (
 	reflect "reflect"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 )
 
 //go:generate mockgen -destination=../filter/mock_filter.go -package=filter github.com/mongodb/openapi/tools/cli/internal/openapi/filter Filter

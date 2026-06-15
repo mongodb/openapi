@@ -19,7 +19,7 @@ import (
 	"log"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"

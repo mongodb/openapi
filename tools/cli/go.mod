@@ -16,6 +16,12 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
+require github.com/mongodb/openapi/tools/foas v0.0.0
+
+// foas is developed in this repo; resolved locally via go.work during dev/CI and
+// via this replace directive when GOWORK=off (e.g. GoReleaser).
+replace github.com/mongodb/openapi/tools/foas => ../foas
+
 require (
 	cloud.google.com/go v0.123.0 // indirect
 	github.com/TwiN/go-color v1.4.1 // indirect

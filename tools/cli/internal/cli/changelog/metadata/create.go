@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"

@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/mongodb/openapi/tools/cli/internal/openapi"
 	"github.com/oasdiff/oasdiff/checker"
 	"github.com/oasdiff/oasdiff/diff"

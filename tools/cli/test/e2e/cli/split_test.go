@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/cli/internal/apiversion"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/stretchr/testify/require"
 )
