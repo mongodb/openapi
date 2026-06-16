@@ -2281,7 +2281,8 @@ components:
                     readOnly: true
                     type: string
                 specs:
-                    description: List of settings that configure the Search Nodes for your cluster. The configuration will be returned for each region and shard.
+                    deprecated: true
+                    description: Deprecated. `specs` will be removed in a future release. We strongly recommend that you use `effectiveSpecs` instead.
                     items:
                         $ref: '#/components/schemas/ApiSearchDeploymentSpecView'
                     readOnly: true
@@ -10912,6 +10913,10 @@ components:
                         - LIST_STREAM_PROCESSORS
                         - LIST_CONNECTIONS
                         - STREAM_PROCESSOR_STATS
+                        - CREATE_SEARCH_INDEX
+                        - DROP_SEARCH_INDEX
+                        - LIST_SEARCH_INDEXES
+                        - UPDATE_SEARCH_INDEX
                     type: string
                 resources:
                     description: List of resources on which you grant the action.
@@ -12145,12 +12150,13 @@ components:
                           title: Mongotune Event Types
                           type: string
                         - enum:
-                            - AI_MODELS_API_KEY_CREATED
-                            - AI_MODELS_API_KEY_DELETED
-                            - AI_MODELS_API_KEY_UPDATED
-                            - AI_MODELS_RATE_LIMIT_UPDATED
-                            - AI_MODELS_RATE_LIMIT_RESET
-                          title: Ai Models Event Types
+                            - AI_MODELS_APIS_API_KEY_CREATED
+                            - AI_MODELS_APIS_API_KEY_DELETED
+                            - AI_MODELS_APIS_API_KEY_UPDATED
+                            - AI_MODELS_APIS_RATE_LIMIT_UPDATED
+                            - AI_MODELS_APIS_RATE_LIMIT_RESET
+                            - AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE
+                          title: AI Models APIs Event Types
                           type: string
                     type: object
                 groupId:
@@ -12320,8 +12326,9 @@ components:
                           title: Support Event Types
                           type: string
                         - enum:
-                            - AI_MODELS_USAGE_TIER_UPDATED
-                          title: Ai Models Event Types
+                            - AI_MODELS_APIS_USAGE_TIER_UPDATED
+                            - AI_MODELS_APIS_FREE_TOKENS_ADMIN_ADJUSTED
+                          title: AI Models APIs Event Types
                           type: string
                     type: object
                 groupId:
@@ -14896,6 +14903,7 @@ components:
                     - PROJECT_SCHEDULED_MAINTENANCE
                     - PROJECT_LIMIT_UPDATED
                     - PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED
+                    - PROJECT_ENABLE_DATA_VALIDATION_UPDATED
                     - PROJECT_COLLECT_DATABASE_STATISTICS_UPDATED
                     - OS_MAINTENANCE
                     - OS_MAINTENANCE_RESTART
@@ -15089,6 +15097,7 @@ components:
                     - MAINTENANCE_WAVE_ASSIGNMENT_REMOVED
                     - CLUSTER_MONGUARD_ENABLED
                     - CLUSTER_MONGUARD_DISABLED
+                    - CLUSTER_MONGODB_VERSION_UPDATED
                   title: Atlas Audit Types
                   type: string
                 - enum:
@@ -15347,12 +15356,13 @@ components:
                   title: Shard Key Advisor Event Types
                   type: string
                 - enum:
-                    - AI_MODELS_API_KEY_CREATED
-                    - AI_MODELS_API_KEY_DELETED
-                    - AI_MODELS_API_KEY_UPDATED
-                    - AI_MODELS_RATE_LIMIT_UPDATED
-                    - AI_MODELS_RATE_LIMIT_RESET
-                  title: Ai Models Event Types
+                    - AI_MODELS_APIS_API_KEY_CREATED
+                    - AI_MODELS_APIS_API_KEY_DELETED
+                    - AI_MODELS_APIS_API_KEY_UPDATED
+                    - AI_MODELS_APIS_RATE_LIMIT_UPDATED
+                    - AI_MODELS_APIS_RATE_LIMIT_RESET
+                    - AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE
+                  title: AI Models APIs Event Types
                   type: string
             type: object
         EventTypeForOrg:
@@ -15614,6 +15624,7 @@ components:
                     - SANDBOX_DISABLED_FOR_ORG
                     - SANDBOX_CONFIG_DELETED
                     - SANDBOX_TEMPLATE_UPDATED
+                    - ORG_DELEGATION_SETTINGS_UPDATED
                     - ORGANIZATION_VOYAGE_SETTINGS_CREATED
                     - ORGANIZATION_VOYAGE_SETTINGS_DELETED
                     - ORG_WAVE_ASSIGNMENT_MODE_MANUAL
@@ -15686,8 +15697,9 @@ components:
                   title: Atlas Resource Policy Audit Types
                   type: string
                 - enum:
-                    - AI_MODELS_USAGE_TIER_UPDATED
-                  title: Ai Models Event Types
+                    - AI_MODELS_APIS_USAGE_TIER_UPDATED
+                    - AI_MODELS_APIS_FREE_TOKENS_ADMIN_ADJUSTED
+                  title: AI Models APIs Event Types
                   type: string
             type: object
         EventViewForNdsGroup:
@@ -18252,6 +18264,9 @@ components:
                     default: false
                     description: Flag that indicates whether to enable the passing of sample field values with the use of generative AI features in the Data Explorer for the specified project.
                     type: boolean
+                isDataValidationEnabled:
+                    description: Flag that indicates whether data validation is enabled for all clusters in the specified project.
+                    type: boolean
                 isExtendedStorageSizesEnabled:
                     description: Flag that indicates whether to enable extended storage sizes for the specified project.
                     type: boolean
@@ -20660,6 +20675,7 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
+                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -20980,6 +20996,7 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
+                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -23153,6 +23170,7 @@ components:
                 - PROJECT_SCHEDULED_MAINTENANCE
                 - PROJECT_LIMIT_UPDATED
                 - PROJECT_ENABLE_EXTENDED_STORAGE_SIZES_UPDATED
+                - PROJECT_ENABLE_DATA_VALIDATION_UPDATED
                 - PROJECT_COLLECT_DATABASE_STATISTICS_UPDATED
                 - OS_MAINTENANCE
                 - OS_MAINTENANCE_RESTART
@@ -23346,6 +23364,7 @@ components:
                 - MAINTENANCE_WAVE_ASSIGNMENT_REMOVED
                 - CLUSTER_MONGUARD_ENABLED
                 - CLUSTER_MONGUARD_DISABLED
+                - CLUSTER_MONGODB_VERSION_UPDATED
             example: CLUSTER_CREATED
             title: Atlas Audit Types
             type: string
@@ -25370,6 +25389,7 @@ components:
                 - SANDBOX_DISABLED_FOR_ORG
                 - SANDBOX_CONFIG_DELETED
                 - SANDBOX_TEMPLATE_UPDATED
+                - ORG_DELEGATION_SETTINGS_UPDATED
                 - ORGANIZATION_VOYAGE_SETTINGS_CREATED
                 - ORGANIZATION_VOYAGE_SETTINGS_DELETED
                 - ORG_WAVE_ASSIGNMENT_MODE_MANUAL
@@ -34192,7 +34212,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 609a16dc3b9be827ed2fd6e003986f27d7ff3544
+    x-xgen-sha: 2b8b1287c4fb8ad80e2222aa449620635463f0c0
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -52208,7 +52228,7 @@ paths:
                     | Limit Name | Description | Default | API Override Limit |
                     | --- | --- | --- | --- |
                     | `atlas.project.deployment.clusters` | Limit on the number of clusters in this project | 25 | 100 |
-                    | `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on the number of nodes per Private Link region in this project | 50 | 90 |
+                    | `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on AWS PrivateLink addressable target nodes per region in this project. For sharded clusters using optimized (load-balanced) connection strings, `currentUsage` doesn't grow with the number of `mongos` — the load balancer is counted as a single addressable target regardless of how many `mongos` sit behind it. | 50 | 90 |
                     | `atlas.project.security.databaseAccess.customRoles` | Limit on the number of custom roles in this project | 100 | 1400 |
                     | `atlas.project.security.databaseAccess.users` | Limit on the number of database users in this project | 100 | 100 |
                     | `atlas.project.security.networkAccess.crossRegionEntries` | Limit on the number of cross-region network access entries in this project | 40 | 220 |
@@ -52326,7 +52346,7 @@ paths:
                     | Limit Name | Description | Default | API Override Limit |
                     | --- | --- | --- | --- |
                     | `atlas.project.deployment.clusters` | Limit on the number of clusters in this project | 25 | 100 |
-                    | `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on the number of nodes per Private Link region in this project | 50 | 90 |
+                    | `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on AWS PrivateLink addressable target nodes per region in this project. For sharded clusters using optimized (load-balanced) connection strings, `currentUsage` doesn't grow with the number of `mongos` — the load balancer is counted as a single addressable target regardless of how many `mongos` sit behind it. | 50 | 90 |
                     | `atlas.project.security.databaseAccess.customRoles` | Limit on the number of custom roles in this project | 100 | 1400 |
                     | `atlas.project.security.databaseAccess.users` | Limit on the number of database users in this project | 100 | 100 |
                     | `atlas.project.security.networkAccess.crossRegionEntries` | Limit on the number of cross-region network access entries in this project | 40 | 220 |
@@ -52446,7 +52466,7 @@ paths:
                     | Limit Name | Description | Default | API Override Limit |
                     | --- | --- | --- | --- |
                     | `atlas.project.deployment.clusters` | Limit on the number of clusters in this project | 25 | 100 |
-                    | `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on the number of nodes per Private Link region in this project | 50 | 90 |
+                    | `atlas.project.deployment.nodesPerPrivateLinkRegion` | Limit on AWS PrivateLink addressable target nodes per region in this project. For sharded clusters using optimized (load-balanced) connection strings, `currentUsage` doesn't grow with the number of `mongos` — the load balancer is counted as a single addressable target regardless of how many `mongos` sit behind it. | 50 | 90 |
                     | `atlas.project.security.databaseAccess.customRoles` | Limit on the number of custom roles in this project | 100 | 1400 |
                     | `atlas.project.security.databaseAccess.users` | Limit on the number of database users in this project | 100 | 100 |
                     | `atlas.project.security.networkAccess.crossRegionEntries` | Limit on the number of cross-region network access entries in this project | 40 | 220 |
