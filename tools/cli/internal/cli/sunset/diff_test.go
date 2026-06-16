@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
+	"github.com/mongodb/openapi/tools/foas/openapi/sunset"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

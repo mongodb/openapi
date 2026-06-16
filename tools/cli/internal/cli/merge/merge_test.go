@@ -20,7 +20,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
-	"github.com/mongodb/openapi/tools/cli/internal/openapi"
+	"github.com/mongodb/openapi/tools/foas/openapi"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"

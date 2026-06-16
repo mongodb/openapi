@@ -20,9 +20,9 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/mongodb/openapi/tools/cli/internal/changelog"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
+	"github.com/mongodb/openapi/tools/foas/changelog"
 	"github.com/spf13/cobra"
 )
 

@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/mongodb/openapi/tools/cli/internal/openapi/sunset"
+	"github.com/mongodb/openapi/tools/foas/openapi/sunset"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
