@@ -1,11 +1,7 @@
-name: 'Foas Library New Release'
+name: 'FOAS Library New Release'
 run-name: 'Release foas ${{ inputs.version_number }} (skip tests: ${{ inputs.skip_tests }})'
 
-# Used for releasing the tools/foas Go library module. The module is consumed as
-# source by tools/cli (via go.work/replace), so a "release" is simply a Go
-# submodule tag (tools/foas/vX.Y.Z) that external repos can `go get`.
-# Tests run before the tag is created: the tag is immutable on the Go module
-# proxy once published, so we validate the candidate commit first.
+# Used for releasing the tools/foas Go library module.
 on:
   workflow_dispatch:
     inputs:
@@ -17,19 +13,20 @@ on:
         default: 'false'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   run-tests:
     if: >-
       !cancelled()
       && inputs.skip_tests == 'false'
-    secrets: inherit
     uses: ./.github/workflows/code-health-foas-lib.yml
 
   create-tag:
     runs-on: ubuntu-latest
     needs: [ run-tests ]
+    permissions:
+      contents: write # required to push the release tag
     # Tag is created only when tests pass (or are explicitly skipped).
     if: >-
       !cancelled()
@@ -53,12 +50,12 @@ jobs:
 
   failure-handler:
     name: Failure Handler
-    needs: [ create-tag ]
+    needs: [ run-tests, create-tag ]
     if: ${{ always() && contains(needs.*.result, 'failure') }}
     uses: ./.github/workflows/failure-handler.yml
     with:
       env: "prod"
-      release_name: "Foas Library"
+      release_name: "FOAS Library"
       team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
     secrets:
       jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
