@@ -1,0 +1,64 @@
+name: 'Foas Library New Release'
+run-name: 'Release foas ${{ inputs.version_number }} (skip tests: ${{ inputs.skip_tests }})'
+
+# Used for releasing the tools/foas Go library module. The module is consumed as
+# source by tools/cli (via go.work/replace), so a "release" is simply a Go
+# submodule tag (tools/foas/vX.Y.Z) that external repos can `go get`.
+# Tests run before the tag is created: the tag is immutable on the Go module
+# proxy once published, so we validate the candidate commit first.
+on:
+  workflow_dispatch:
+    inputs:
+      version_number:
+        description: 'Version number (e.g., v1.0.0, v1.0.0-pre, v1.0.0-pre1)'
+        required: true
+      skip_tests:
+        description: 'Set value to `true` to skip tests, default is `false`'
+        default: 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  run-tests:
+    if: >-
+      !cancelled()
+      && inputs.skip_tests == 'false'
+    secrets: inherit
+    uses: ./.github/workflows/code-health-foas-lib.yml
+
+  create-tag:
+    runs-on: ubuntu-latest
+    needs: [ run-tests ]
+    # Tag is created only when tests pass (or are explicitly skipped).
+    if: >-
+      !cancelled()
+      && !contains(needs.*.result, 'failure')
+    steps:
+      - name: Validation of version format
+        run: |
+          echo "${{ inputs.version_number }}" | grep -P '^v\d+\.\d+\.\d+(-pre[A-Za-z0-9-]*)?$'
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+      - name: Get the latest commit SHA
+        id: get-sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Create Go submodule tag for tools/foas
+        uses: rickstaa/action-create-tag@a1c7777fcb2fee4f19b0f283ba888afa11678b72
+        with:
+          tag: tools/foas/${{ inputs.version_number }}
+          commit_sha: ${{ steps.get-sha.outputs.sha }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg_passphrase: ${{ secrets.PASSPHRASE }}
+
+  failure-handler:
+    name: Failure Handler
+    needs: [ create-tag ]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    uses: ./.github/workflows/failure-handler.yml
+    with:
+      env: "prod"
+      release_name: "Foas Library"
+      team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
+    secrets:
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
