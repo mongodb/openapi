@@ -337,16 +337,6 @@ components:
                 - error
                 - errorCode
             type: object
-        AssociatedInvoice:
-            description: An invoice associated with an organization.
-            properties:
-                invoiceId:
-                    description: Unique 24-hexadecimal digit identifier for an invoice.
-                    type: string
-                orgId:
-                    description: Unique 24-hexadecimal digit identifier for an organization.
-                    type: string
-            type: object
         BadRequestDetail:
             description: Bad request detail.
             properties:
@@ -369,37 +359,30 @@ components:
                 - description
                 - field
             type: object
-        OrgAssociatedInvoiceResponse:
-            description: Response containing associated invoices for an organization.
+        OrganizationMaintenanceSettingsResponse:
+            description: Maintenance configuration settings for an organization.
             properties:
-                associatedInvoices:
-                    description: List of invoices associated with the organization for the specified period.
-                    items:
-                        $ref: '#/components/schemas/AssociatedInvoice'
-                    type: array
-                month:
-                    description: Two-digit number that represents the month of the associated invoices.
-                    example: "01"
+                effectiveWaveAssignmentMode:
+                    description: Wave assignment mode that Atlas uses when scheduling maintenance for projects in this organization. This read-only field takes precedence over `waveAssignmentMode` for scheduling. It matches `waveAssignmentMode` except when cross-organization maintenance sequencing is enabled and this organization is a linked non-paying organization, in which case it reflects the paying organization's `waveAssignmentMode`. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when no mode is configured. Omitted from GET responses when maintenance sequencing is disabled for this organization.
+                    enum:
+                        - MANUAL
+                        - ENV_TAG_MAPPING
+                    readOnly: true
                     type: string
-                year:
-                    description: Four-digit number that represents the year of the associated invoices.
-                    example: "2024"
+                waveAssignmentMode:
+                    description: Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Atlas uses read-only `effectiveWaveAssignmentMode` (not this field) for scheduling when the two values differ.
+                    enum:
+                        - MANUAL
+                        - ENV_TAG_MAPPING
                     type: string
             type: object
-        ReportGenerationRequest:
+        OrganizationMaintenanceSettingsUpdateRequest:
             properties:
-                reportFormat:
-                    description: Format of the report.
+                waveAssignmentMode:
+                    description: Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Only this field can be updated; Atlas derives read-only `effectiveWaveAssignmentMode` on GET responses and uses that value for scheduling when it differs from `waveAssignmentMode`. Omit this field to leave the current value unchanged. Specify null to reset to the default value (`MANUAL`).
                     enum:
-                        - CSV
-                    type: string
-                reportType:
-                    description: Type of report to generate.
-                    enum:
-                        - FOCUS
-                    type: string
-                version:
-                    description: Version of the report format specification.
+                        - MANUAL
+                        - ENV_TAG_MAPPING
                     type: string
             type: object
     securitySchemes:
@@ -431,7 +414,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-invoicereporting+json" \
+          --header "Accept: application/vnd.atlas.private-preview-organization-maintenance+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -449,45 +432,27 @@ info:
     x-xgen-sha: 577c502627f2b9d6d8c28d4a0b693faa032b628c
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/orgs/{orgId}/associatedInvoices:
+    /api/atlas/v2/orgs/{orgId}/maintenanceSettings:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns a list of invoice IDs for the specified organization and month/year. Optionally includes invoices from linked organizations.
-            operationId: getOrgAssociatedInvoices
+                 Returns maintenance settings for the specified organization.
+            operationId: getOrgMaintenanceSettings
             parameters:
+                - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/orgId'
-                - description: The month for which to retrieve invoices (1-12). Defaults to current month.
-                  in: query
-                  name: month
-                  schema:
-                    format: int64
-                    maximum: 12
-                    minimum: 1
-                    type: integer
-                - description: The year for which to retrieve invoices. Defaults to current year.
-                  in: query
-                  name: year
-                  schema:
-                    format: int64
-                    minimum: 2000
-                    type: integer
-                - description: Whether to include invoices from linked organizations. Defaults to false.
-                  in: query
-                  name: includeLinkedOrgs
-                  schema:
-                    type: boolean
+                - $ref: '#/components/parameters/pretty'
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/OrgAssociatedInvoiceResponse'
+                                $ref: '#/components/schemas/OrganizationMaintenanceSettingsResponse'
                             x-xgen-preview:
-                                name: invoicereporting
-                            x-xgen-version: private-preview-invoicereporting
-                    description: Associated invoices retrieved successfully
+                                name: organization-maintenance
+                            x-xgen-version: private-preview-organization-maintenance
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -505,70 +470,63 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return Associated Invoices
+            summary: Return Maintenance Settings for One Organization
             tags:
-                - Invoices
+                - Organizations
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api invoices getOrgAssociatedInvoices --help
+                  source: atlas api organizations getOrgMaintenanceSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/associatedInvoices?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/associatedInvoices?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings?pretty=true"
             x-rolesRequirements:
-                - Organization Billing Viewer
+                - Organization Member
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgAssociatedInvoices
-    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport:
-        post:
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/getOrgMaintenanceSettings
+        patch:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Generates and downloads a report for the specified invoice.
-            operationId: generateOrgInvoiceAndDownloadReport
+                 Updates maintenance settings for the specified organization. Omit optional fields from the request body to leave their current values unchanged. Specify null on an optional field to reset it to its default value.
+            operationId: updateOrgMaintenanceSettings
             parameters:
+                - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/orgId'
-                - description: Unique string that identifies the invoice for which to generate the report.
-                  in: path
-                  name: invoiceId
-                  required: true
-                  schema:
-                    type: string
+                - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
                     application/vnd.atlas.preview+json:
                         schema:
-                            $ref: '#/components/schemas/ReportGenerationRequest'
+                            $ref: '#/components/schemas/OrganizationMaintenanceSettingsUpdateRequest'
                         x-xgen-preview:
-                            name: invoicereporting
-                        x-xgen-version: private-preview-invoicereporting
-                description: Generate and Download Invoice Report request body.
+                            name: organization-maintenance
+                        x-xgen-version: private-preview-organization-maintenance
+                description: Maintenance settings to update for the specified organization.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.preview+gzip:
-                            example: |
-                                invoice_abc123_focus.csv.gz
+                        application/vnd.atlas.preview+json:
                             schema:
-                                type: string
+                                $ref: '#/components/schemas/OrganizationMaintenanceSettingsResponse'
                             x-xgen-preview:
-                                name: invoicereporting
-                            x-xgen-version: private-preview-invoicereporting
-                    description: Report generated successfully
+                                name: organization-maintenance
+                            x-xgen-version: private-preview-organization-maintenance
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -586,46 +544,45 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Generate and Download Invoice Report
+            summary: Update Maintenance Settings for One Organization
             tags:
-                - Invoices
+                - Organizations
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api invoices generateInvoiceReport --help
+                  source: atlas api organizations updateOrgMaintenanceSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.preview+gzip" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings" \
                       -d '{ <Payload> }'
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
-                      --header "Accept: application/vnd.atlas.preview+gzip" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings" \
                       -d '{ <Payload> }'
             x-rolesRequirements:
-                - Organization Billing Viewer
+                - Organization Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/generateOrgInvoiceAndDownloadReport
-            x-xgen-operation-id-override: generateInvoiceReport
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgMaintenanceSettings
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns invoices.
-      name: Invoices
+    - description: Returns, adds, and edits organizational units in MongoDB Cloud.
+      name: Organizations
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
