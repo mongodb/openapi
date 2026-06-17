@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [10.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v10.0.0...10.1.0)
+#### [10.1.1](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v10.1.0...10.1.1)
+
+- feat(ipa): add MCP to acronym ignore lists [`#1322`](https://github.com/mongodb/openapi/pull/1322)
+- chore(ipa): bump @stoplight/spectral-functions from 1.10.2 to 1.10.3 in /tools/spectral/ipa [`#1316`](https://github.com/mongodb/openapi/pull/1316)
+- chore(ipa): bump auto-changelog from 2.5.1 to 2.6.0 in /tools/spectral/ipa [`#1297`](https://github.com/mongodb/openapi/pull/1297)
+- chore(ipa): bump @stoplight/spectral-core from 1.22.0 to 1.23.0 in /tools/spectral/ipa [`#1267`](https://github.com/mongodb/openapi/pull/1267)
+- chore(ipa): bump auto-changelog from 2.5.0 to 2.5.1 in /tools/spectral/ipa [`#1265`](https://github.com/mongodb/openapi/pull/1265)
+- chore(ipa): bump @stoplight/spectral-cli from 6.15.1 to 6.16.0 in /tools/spectral/ipa [`#1268`](https://github.com/mongodb/openapi/pull/1268)
+
+#### [ipa-validation-ruleset-v10.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v10.0.0...ipa-validation-ruleset-v10.1.0)
+
+> 21 April 2026
 
 - feat(ipa): New rule for IPA 117 - requests/responses must have schema [`#1231`](https://github.com/mongodb/openapi/pull/1231)
 - chore(ipa): bump brace-expansion from 1.1.12 to 1.1.14 in /tools/spectral/ipa [`#1227`](https://github.com/mongodb/openapi/pull/1227)
