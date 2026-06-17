@@ -27,7 +27,6 @@ jobs:
     needs: [ run-tests ]
     permissions:
       contents: write # required to push the release tag
-    # Tag is created only when tests pass (or are explicitly skipped).
     if: >-
       !cancelled()
       && !contains(needs.*.result, 'failure')
@@ -53,7 +52,7 @@ jobs:
     needs: [ run-tests, create-tag ]
     if: ${{ always() && contains(needs.*.result, 'failure') }}
     permissions:
-      contents: write # failure-handler.yml requires these to open a Jira ticket / issue
+      contents: write #required to open a Jira ticket / issue
       issues: write
     uses: ./.github/workflows/failure-handler.yml
     with:
