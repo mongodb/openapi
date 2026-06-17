@@ -454,15 +454,6 @@
         ],
         "type": "object"
       },
-      "ApiVersion": {
-        "properties": {
-          "version": {
-            "description": "Object representing a version of the Atlas Admin API.",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "BadRequestDetail": {
         "description": "Bad request detail.",
         "properties": {
@@ -494,54 +485,40 @@
         ],
         "type": "object"
       },
-      "Link": {
+      "OrganizationMaintenanceSettingsResponse": {
+        "description": "Maintenance configuration settings for an organization.",
         "properties": {
-          "href": {
-            "description": "Uniform Resource Locator (URL) that points another API resource to which this response has some relationship. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
-            "example": "https://cloud.mongodb.com/api/atlas",
+          "effectiveWaveAssignmentMode": {
+            "description": "Wave assignment mode that Atlas uses when scheduling maintenance for projects in this organization. This read-only field takes precedence over `waveAssignmentMode` for scheduling. It matches `waveAssignmentMode` except when cross-organization maintenance sequencing is enabled and this organization is a linked non-paying organization, in which case it reflects the paying organization's `waveAssignmentMode`. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when no mode is configured. Omitted from GET responses when maintenance sequencing is disabled for this organization.",
+            "enum": [
+              "MANUAL",
+              "ENV_TAG_MAPPING"
+            ],
+            "readOnly": true,
             "type": "string"
           },
-          "rel": {
-            "description": "Uniform Resource Locator (URL) that defines the semantic relationship between this resource and another API resource. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
-            "example": "self",
+          "waveAssignmentMode": {
+            "description": "Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Atlas uses read-only `effectiveWaveAssignmentMode` (not this field) for scheduling when the two values differ.",
+            "enum": [
+              "MANUAL",
+              "ENV_TAG_MAPPING"
+            ],
             "type": "string"
           }
         },
         "type": "object"
       },
-      "PaginatedApiVersions": {
+      "OrganizationMaintenanceSettingsUpdateRequest": {
         "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "results": {
-            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
-            "items": {
-              "$ref": "#/components/schemas/ApiVersion"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "totalCount": {
-            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
-            "format": "int32",
-            "minimum": 0,
-            "readOnly": true,
-            "type": "integer"
+          "waveAssignmentMode": {
+            "description": "Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Only this field can be updated; Atlas derives read-only `effectiveWaveAssignmentMode` on GET responses and uses that value for scheduling when it differs from `waveAssignmentMode`. Omit this field to leave the current value unchanged. Specify null to reset to the default value (`MANUAL`).",
+            "enum": [
+              "MANUAL",
+              "ENV_TAG_MAPPING"
+            ],
+            "type": "string"
           }
         },
-        "required": [
-          "results"
-        ],
         "type": "object"
       }
     },
@@ -563,7 +540,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-version-resource+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-organization-maintenance+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -575,36 +552,19 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/unauth/openapi/versions": {
+    "/api/atlas/v2/orgs/{orgId}/maintenanceSettings": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n API that provides a list of available versions for a given environment. Deprecated versions: v2-{2024-08-05}",
-        "operationId": "listOpenapiVersions",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns maintenance settings for the specified organization.",
+        "operationId": "getOrgMaintenanceSettings",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
           },
           {
-            "$ref": "#/components/parameters/itemsPerPage"
-          },
-          {
-            "$ref": "#/components/parameters/pageNum"
+            "$ref": "#/components/parameters/orgId"
           },
           {
             "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "The environment to get the versions from. If not provided, it returns the versions for the given MongoDB URL. (E.g. prod for cloud.mongodb.com).",
-            "in": "query",
-            "name": "env",
-            "schema": {
-              "enum": [
-                "dev",
-                "qa",
-                "prod",
-                "stage"
-              ],
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -612,55 +572,175 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedApiVersions"
+                  "$ref": "#/components/schemas/OrganizationMaintenanceSettingsResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "version-resource"
+                  "name": "organization-maintenance"
                 },
-                "x-xgen-version": "private-preview-version-resource"
-              },
-              "application/vnd.atlas.preview+yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedApiVersions"
-                },
-                "x-xgen-preview": {
-                  "name": "version-resource"
-                },
-                "x-xgen-version": "private-preview-version-resource"
+                "x-xgen-version": "private-preview-organization-maintenance"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return All Versions for One Environment",
+        "summary": "Return Maintenance Settings for One Organization",
         "tags": [
-          "OpenAPI"
+          "Organizations"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api openApi listOpenapiVersions --help"
+            "source": "atlas api organizations getOrgMaintenanceSettings --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Organization Member"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
-        }
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/getOrgMaintenanceSettings"
+      },
+      "patch": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Updates maintenance settings for the specified organization. Omit optional fields from the request body to leave their current values unchanged. Specify null on an optional field to reset it to its default value.",
+        "operationId": "updateOrgMaintenanceSettings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationMaintenanceSettingsUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "organization-maintenance"
+              },
+              "x-xgen-version": "private-preview-organization-maintenance"
+            }
+          },
+          "description": "Maintenance settings to update for the specified organization.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationMaintenanceSettingsResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "organization-maintenance"
+                },
+                "x-xgen-version": "private-preview-organization-maintenance"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update Maintenance Settings for One Organization",
+        "tags": [
+          "Organizations"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api organizations updateOrgMaintenanceSettings --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgMaintenanceSettings"
       }
     }
   },
@@ -679,8 +759,8 @@
   ],
   "tags": [
     {
-      "description": "Returns information about the MongoDB Atlas Specification.",
-      "name": "OpenAPI"
+      "description": "Returns, adds, and edits organizational units in MongoDB Cloud.",
+      "name": "Organizations"
     }
   ],
   "x-externalLinks": [
