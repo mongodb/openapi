@@ -373,7 +373,7 @@ components:
                     readOnly: true
                     type: string
                 waveAssignmentMode:
-                    description: Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Atlas uses read-only `effectiveWaveAssignmentMode` (not this field) for scheduling when the two values differ.
+                    description: Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Atlas uses read-only `effectiveWaveAssignmentMode` (not this field) for scheduling. In a cross-organization billing hierarchy, a linked non-paying organization cannot update its `effectiveWaveAssignmentMode` field, which inherits from the paying organization's `waveAssignmentMode`. In this case, a linked non-paying organization's `effectiveWaveAssignmentMode` and `waveAssignmentMode` might differ.
                     enum:
                         - MANUAL
                         - ENV_TAG_MAPPING
@@ -432,7 +432,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 23382240ed55b2a2b7ff5d3952f4607956ffefe9
+    x-xgen-sha: 59c6b3762daa8bdb8f1810df4ded51908f096923
 openapi: 3.0.1
 paths:
     /api/atlas/v2/orgs/{orgId}/maintenanceSettings:
@@ -578,6 +578,79 @@ paths:
                 color: '#B89D09'
                 label: PREVIEW
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgMaintenanceSettings
+    /api/atlas/v2/orgs/{orgId}/maintenanceSettings:reset:
+        post:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Resets maintenance settings for the specified organization to their default values. Restores the wave assignment mode to the default manual mode.
+            operationId: resetOrgMaintenanceSettings
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/orgId'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationMaintenanceSettingsResponse'
+                            x-xgen-preview:
+                                name: organization-maintenance
+                            x-xgen-version: private-preview-organization-maintenance
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Reset Maintenance Settings for One Organization
+            tags:
+                - Organizations
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api organizations resetOrgMaintenanceSettings --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings:reset" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/maintenanceSettings:reset" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Organization Owner
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/resetOrgMaintenanceSettings
+            x-xgen-method-verb-override:
+                customMethod: "True"
+                verb: reset
+            x-xgen-operation-id-override: resetOrgMaintenanceSettings
 security:
     - ServiceAccounts: []
     - DigestAuth: []
