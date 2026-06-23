@@ -44,7 +44,7 @@ testRule('xgen-IPA-113-reset-method-must-not-have-request-body', [
         code: 'xgen-IPA-113-reset-method-must-not-have-request-body',
         message: 'The :reset custom method must not have a request body.',
         path: ['paths', '/resource/{exampleId}/singleton:reset', 'post'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },

@@ -65,7 +65,7 @@ testRule('xgen-IPA-113-reset-method-not-on-readonly-singleton', [
         message:
           'Read-only singleton resources must not define a :reset custom method. Read-only resources cannot be modified, so reset is not applicable.',
         path: ['paths', '/resource/{exampleId}/singleton:reset'],
-        severity: DiagnosticSeverity.Warning,
+        severity: DiagnosticSeverity.Error,
       },
     ],
   },
