@@ -16564,6 +16564,82 @@
         "title": "GCP Forwarding Rules",
         "type": "object"
       },
+      "CreateGroupMcpConfigRequest": {
+        "properties": {
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 100,
+            "type": "array"
+          },
+          "mcpConfigName": {
+            "description": "Human-readable name that identifies this MCP configuration.",
+            "minLength": 1,
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of project roles to assign to this MCP configuration.",
+            "externalDocs": {
+              "description": "Project-level Roles for Service Accounts",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "mcpConfigName",
+          "roles"
+        ],
+        "type": "object"
+      },
+      "CreateOrgMcpConfigRequest": {
+        "properties": {
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 100,
+            "type": "array"
+          },
+          "mcpConfigName": {
+            "description": "Human-readable name that identifies this MCP configuration.",
+            "minLength": 1,
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of organization roles to assign to this MCP configuration.",
+            "items": {
+              "description": "Organization roles available for Service Accounts.",
+              "enum": [
+                "ORG_MEMBER",
+                "ORG_READ_ONLY",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_STREAM_PROCESSING_ADMIN",
+                "ORG_GROUP_CREATOR",
+                "ORG_OWNER"
+              ],
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "mcpConfigName",
+          "roles"
+        ],
+        "type": "object"
+      },
       "CreateOrganizationRequest": {
         "properties": {
           "apiKey": {
@@ -31131,12 +31207,14 @@
             "description": "Unique identifier for the Service Account client associated with this MCP configuration. Use this Service Account to connect to the Atlas Remote MCP.",
             "example": "mdb_sa_id_1234567890abcdef12345678",
             "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "readOnly": true,
             "type": "string"
           },
           "egressClientId": {
             "description": "Unique identifier for the egress Service Account client associated with this MCP configuration. This Service Account is managed by MongoDB Atlas.",
             "example": "mdb_sa_id_1234567890abcdef12345678",
             "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "readOnly": true,
             "type": "string"
           },
           "ipAccessList": {
@@ -31151,6 +31229,7 @@
             "description": "Unique 24-hexadecimal digit string that identifies this MCP configuration.",
             "example": "32b6e34b3d91647adeabc012",
             "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
             "type": "string"
           },
           "mcpConfigName": {
@@ -42495,12 +42574,14 @@
             "description": "Unique identifier for the Service Account client associated with this MCP configuration. Use this Service Account to connect to the Atlas Remote MCP.",
             "example": "mdb_sa_id_1234567890abcdef12345678",
             "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "readOnly": true,
             "type": "string"
           },
           "egressClientId": {
             "description": "Unique identifier for the egress Service Account client associated with this MCP configuration. This Service Account is managed by MongoDB Atlas.",
             "example": "mdb_sa_id_1234567890abcdef12345678",
             "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "readOnly": true,
             "type": "string"
           },
           "ipAccessList": {
@@ -42515,6 +42596,7 @@
             "description": "Unique 24-hexadecimal digit string that identifies this MCP configuration.",
             "example": "32b6e34b3d91647adeabc012",
             "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
             "type": "string"
           },
           "mcpConfigName": {
@@ -59943,7 +60025,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "cc591a33a6213073c09f6d48def34c0737244466"
+    "x-xgen-sha": "ffa095fd5855d76c0bd437ebeacef818a237d3ab"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -86392,9 +86474,143 @@
           "envs": "qa,stage,prod"
         },
         "x-xgen-owner-team": "apix-devtools"
+      },
+      "post": {
+        "description": "Creates an MCP configuration for the specified project. Returns the configuration ID and ingress credentials.",
+        "operationId": "createGroupMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGroupMcpConfigRequest"
+              },
+              "x-xgen-IPA-exception": {
+                "xgen-IPA-106-create-method-request-has-no-readonly-fields": "IpAccessList entries are user-supplied on create; readOnly sub-fields are ignored on write."
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "MCP configuration to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One MCP Configuration for One Project",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-117-operation-summary-format": "MCP is an acronym not included in the IPA ignore list."
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createGroupMcpConfig",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
+        "x-xgen-owner-team": "apix-devtools"
       }
     },
     "/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}": {
+      "delete": {
+        "description": "Deletes the MCP configuration with the specified ID for the specified project.",
+        "operationId": "deleteGroupMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration to delete.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to delete the MCP configuration even if it has active secrets. If false and active secrets exist, the request returns an error. Defaults to false.",
+            "in": "query",
+            "name": "cascading",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete One MCP Configuration for One Project",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-117-operation-summary-format": "MCP is an acronym not included in the IPA ignore list."
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteGroupMcpConfig",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
+        "x-xgen-owner-team": "apix-devtools"
+      },
       "get": {
         "description": "Returns the MCP configuration with the specified ID for the specified project.",
         "operationId": "getGroupMcpConfig",
@@ -105034,9 +105250,143 @@
           "envs": "qa,stage,prod"
         },
         "x-xgen-owner-team": "apix-devtools"
+      },
+      "post": {
+        "description": "Creates an MCP configuration for the specified organization. Returns the configuration ID and ingress credentials.",
+        "operationId": "createOrgMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/orgId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrgMcpConfigRequest"
+              },
+              "x-xgen-IPA-exception": {
+                "xgen-IPA-106-create-method-request-has-no-readonly-fields": "IpAccessList entries are user-supplied on create; readOnly sub-fields are ignored on write."
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "MCP configuration to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One MCP Configuration for One Organization",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-117-operation-summary-format": "MCP is an acronym not included in the IPA ignore list."
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createOrgMcpConfig",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
+        "x-xgen-owner-team": "apix-devtools"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}": {
+      "delete": {
+        "description": "Deletes the MCP configuration with the specified ID for the specified organization.",
+        "operationId": "deleteOrgMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration to delete.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to delete the MCP configuration even if it has active secrets. If false and active secrets exist, the request returns an error. Defaults to false.",
+            "in": "query",
+            "name": "cascading",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete One MCP Configuration for One Organization",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-117-operation-summary-format": "MCP is an acronym not included in the IPA ignore list."
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteOrgMcpConfig",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
+        "x-xgen-owner-team": "apix-devtools"
+      },
       "get": {
         "description": "Returns the MCP configuration with the specified ID for the specified organization.",
         "operationId": "getOrgMcpConfig",
