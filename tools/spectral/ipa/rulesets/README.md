@@ -853,7 +853,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-must-use-POST
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The :reset custom method must use the POST HTTP method.
 
 ##### Implementation details
@@ -865,7 +865,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-must-not-have-request-body
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The :reset custom method must not have a request body.
 
 ##### Implementation details
@@ -876,7 +876,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-must-return-200-OK
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The :reset custom method must return a 200 OK response with the reset resource in the response body.
 
 ##### Implementation details
@@ -888,7 +888,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-response-is-get-method-response
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The :reset custom method response must match the GET method response schema.
 
 ##### Implementation details
@@ -901,7 +901,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-only-on-singleton-resources
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The :reset custom method must only be defined on singleton resources.
 
 ##### Implementation details
@@ -913,7 +913,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-not-on-readonly-singleton
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 Read-only singleton resources must not define a :reset custom method.
 
 ##### Implementation details
@@ -925,7 +925,7 @@ Rule checks for the following conditions:
 
 #### xgen-IPA-113-reset-method-valid-operation-id
 
- ![warn](https://img.shields.io/badge/warning-yellow) 
+ ![error](https://img.shields.io/badge/error-red) 
 The :reset custom method must have a valid operation ID.
 
 ##### Implementation details
@@ -1114,6 +1114,21 @@ The rule applies to the following components:
   - `items` properties defined in `components/schemas`
 The rule is applied to the unresolved OAS, and ignores components with `$ref` properties. Specific paths can be ignored using the `ignoredPaths` option.
 
+#### xgen-IPA-117-request-response-bodies-must-be-well-defined
+
+ ![error](https://img.shields.io/badge/error-red) 
+Request and response bodies must be well-defined, i.e. include a schema to ensure that consumers understand the expected format of the request/response.
+
+##### Implementation details
+The rule applies to the following components:
+  - Operation request bodies
+  - Operation responses, except for:
+    - 202 Accepted responses
+    - DELETE method 2xx responses
+    - Custom method 2xx POST responses
+
+ These components must be described, i.e. has the `schema` property:
+
 #### xgen-IPA-117-parameter-has-examples-or-schema
 
  ![error](https://img.shields.io/badge/error-red) 
@@ -1197,21 +1212,6 @@ API Producers must use "One" when referring to a single item instead of "a" or "
 This rule includes a configuration option:
   - `preferredWords`: List of words that the operation summary should use for single items, defaults to `['one']`. Only used for error messages
   - `forbiddenWords`: List of words (lowercase) that the operation summary should not use, defaults to `['a', 'specified']`
-
-#### xgen-IPA-117-request-response-bodies-must-be-well-defined
-
- ![warn](https://img.shields.io/badge/warning-yellow) 
-Request and response bodies must be well-defined, i.e. include a schema to ensure that consumers understand the expected format of the request/response.
-
-##### Implementation details
-The rule applies to the following components:
-  - Operation request bodies
-  - Operation responses, except for:
-    - 202 Accepted responses
-    - DELETE method 2xx responses
-    - Custom method 2xx POST responses
-
- These components must be described, i.e. has the `schema` property:
 
 
 
