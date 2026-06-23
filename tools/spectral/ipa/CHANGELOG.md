@@ -2,8 +2,16 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [10.1.1](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v10.1.0...10.1.1)
+#### [11.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v10.1.1...11.0.0)
 
+- feat(ipa): Promote warning rules to error [`#1329`](https://github.com/mongodb/openapi/pull/1329)
+- fix(ipa): Update ipa-spectral to include mongoDBEmployeeAccessGrant [`#1328`](https://github.com/mongodb/openapi/pull/1328)
+
+#### [ipa-validation-ruleset-v10.1.1](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v10.1.0...ipa-validation-ruleset-v10.1.1)
+
+> 17 June 2026
+
+- chore(ipa): bump version to 10.1.1 [`#1324`](https://github.com/mongodb/openapi/pull/1324)
 - feat(ipa): add MCP to acronym ignore lists [`#1322`](https://github.com/mongodb/openapi/pull/1322)
 - chore(ipa): bump @stoplight/spectral-functions from 1.10.2 to 1.10.3 in /tools/spectral/ipa [`#1316`](https://github.com/mongodb/openapi/pull/1316)
 - chore(ipa): bump auto-changelog from 2.5.1 to 2.6.0 in /tools/spectral/ipa [`#1297`](https://github.com/mongodb/openapi/pull/1297)
