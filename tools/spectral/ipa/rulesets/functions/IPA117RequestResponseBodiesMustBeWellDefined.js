@@ -31,7 +31,7 @@ export default (input, opts, { path, documentInventory, rule }) => {
   // Custom POST method 2xx responses
   if (
     httpResponseCode === '202' ||
-    (httpMethod === 'delete' && httpResponseCode.startsWith('2')) ||
+    (httpMethod === 'delete' && httpResponseCode?.startsWith('2')) ||
     (operationIsCustomMethod && httpMethod === 'post' && httpResponseCode?.startsWith('2'))
   ) {
     return;
