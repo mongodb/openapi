@@ -1,0 +1,84 @@
+name: 'Check sunset date drift between OASes'
+
+on:
+  workflow_dispatch: # Allow manual triggering
+  schedule:
+    - cron: '0 9 * * 1-5' # at 9:00 UTC on Monday
+
+jobs:
+  sunset-api-drift-3week-check:
+    name: 3 Week Sunset Date Drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Install Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+      - name: Install FOASCLI
+        env:
+          foascli_version: ${{ vars.FOASCLI_VERSION }}
+        run: |
+          wget https://github.com/mongodb/openapi/releases/download/v"${foascli_version}"/mongodb-foas-cli_"${foascli_version}"_linux_x86_64.tar.gz -O foascli.tar.gz
+          tar -xzvf foascli.tar.gz 
+          pushd mongodb-foas-cli_*
+          echo "$(pwd)/bin" >> "${GITHUB_PATH}"
+          popd
+      - name: Retrieve Sunset Date Drifts
+        id: retrieve-sunset-date-drifts
+        env:
+          dev_openapi_spec_url: "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/dev/openapi/.raw/v2.json"
+          qa_openapi_spec_url: "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/qa/openapi/.raw/v2.json"
+          prod_openapi_spec_url: "https://raw.githubusercontent.com/mongodb/openapi/refs/heads/main/openapi/.raw/v2.json"
+        run: |
+          three_week_date=""
+          
+          # Determine if the system is macOS or Linux
+          if [[ "$(uname)" == "Darwin" ]]; then
+          # macOS date command format
+            three_week_date=$(date -v+3w +"%Y-%m-%d")
+          else
+          # Linux date command format
+            three_week_date=$(date --date="+3 week" +"%Y-%m-%d")
+          fi 
+          # Check dev/qa drift
+          ./.github/scripts/get_sunset_date_drift.sh "${dev_openapi_spec_url}" "${qa_openapi_spec_url}" "${three_week_date} dev-qa-sunset-drifts.json hash_code_sunset_drifts_qa"
+          # Check dev/prod drift
+          ./.github/scripts/get_sunset_date_drift.sh "${dev_openapi_spec_url}" "${prod_openapi_spec_url}" "${three_week_date} dev-prod-sunset-drifts.json hash_code_sunset_drifts_prod"
+
+      # Create a JIRA ticket only if the there is not already a ticket with the same title
+      - name: Create JIRA Ticket
+        id: create-jira-ticket
+        if: steps.retrieve-sunset-date-drifts.outputs.hash_code_sunset_drifts_qa != null || steps.retrieve-sunset-date-drifts.outputs.hash_code_sunset_drifts_prod != null
+        env:
+          JIRA_API_TOKEN: ${{ secrets.jira_api_token }}
+          JIRA_TEAM_ID: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM}}
+          JIRA_TICKET_TITLE: "Some sunset dates are different between envs. ID: ${{steps.retrieve-sunset-date-drifts.outputs.hash_code_sunset_drifts_qa}}${{steps.retrieve-sunset-date-drifts.outputs.hash_code_sunset_drifts_prod}}"
+        run: |
+          dev-qa-sunset-drifts=$(sed 's/"/\\"/g' dev-qa-sunset-drifts.json)
+          dev-prod-sunset-drifts=$(sed 's/"/\\"/g' dev-prod-sunset-drifts.json)
+          
+          ticket_summary="Some APIs sunsetting within 3 weeks have different sunset dates across environments. Please verify the correct sunset dates, see [wiki|https://wiki.corp.mongodb.com/x/taa1HQ]."
+          ticket_qa_drifts="Dev vs QA:\n{noformat}${dev-qa-sunset-drifts}{noformat}"
+          ticket_prod_drifts="Dev vs Prod:\n{noformat}${dev-prod-sunset-drifts}{noformat}"
+          
+          JIRA_TICKET_DESCRIPTION="${ticket_summary}\n${ticket_qa_drifts}\n${ticket_prod_drifts}"
+          export JIRA_TICKET_DESCRIPTION
+          
+          .github/scripts/create_jira_ticket.sh
+
+      # Send Slack notification only if the Jira ticket was created
+      - name: Send Slack Notification
+        if: steps.create-jira-ticket.outputs.jira-ticket-id != null
+        env:
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          SLACK_BEARER_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
+          SLACK_APIX_PLATFORM_ONCALL_USER: ${{secrets.SLACK_APIX_PLATFORM_ONCALL_USER}}
+          JIRA_TICKET_ID: ${{ steps.create-jira-ticket.outputs.jira-ticket-id }}
+        run: |
+          echo "JIRA_TICKET_ID: ${JIRA_TICKET_ID}"
+          message_id=$(curl -X POST -H 'Authorization: Bearer '"${SLACK_BEARER_TOKEN}" \
+          -H 'Content-type: application/json' \
+          --data '{"channel":"'"${SLACK_CHANNEL_ID}"'","text":"Some APIs sunsetting within 3 weeks have different sunset dates across different environments ('"${SLACK_APIX_PLATFORM_ONCALL_USER}"'). See Jira Ticket: https://jira.mongodb.org/browse/'"${JIRA_TICKET_ID}"'","parse": "full",}' https://slack.com/api/chat.postMessage | jq '.ts')
+          echo "message_id=${message_id}"
