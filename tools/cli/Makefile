@@ -35,7 +35,7 @@ devtools:  ## Install dev tools
 	@echo "==> Installing dev tools..."
 	go install go.uber.org/mock/mockgen@latest
 	go install github.com/oasdiff/oasdiff@v1.11.4
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin $(GOLANGCI_VERSION)
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_VERSION)
 
 .PHONY: setup
 setup: deps devtools ## Set up dev env
