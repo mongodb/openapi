@@ -26702,9 +26702,9 @@
             "type": "array"
           },
           "mcpConfigId": {
-            "description": "Unique 24-hexadecimal digit string that identifies this MCP configuration.",
-            "example": "32b6e34b3d91647adeabc012",
-            "pattern": "^[a-fA-F0-9]{24}$",
+            "description": "Unique identifier that identifies this MCP configuration.",
+            "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
             "readOnly": true,
             "type": "string"
           },
@@ -26715,6 +26715,39 @@
           },
           "roles": {
             "description": "List of project roles associated with this MCP configuration.",
+            "externalDocs": {
+              "description": "Project-level Roles for Service Accounts",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "GroupMcpConfigUpdateRequest": {
+        "properties": {
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration. If provided, replaces the existing IP access list.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 200,
+            "type": "array"
+          },
+          "mcpConfigName": {
+            "description": "Updated human-readable name for this MCP configuration.",
+            "maxLength": 64,
+            "minLength": 1,
+            "nullable": true,
+            "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of project roles associated with this MCP configuration. If provided, replaces the existing list of roles.",
             "externalDocs": {
               "description": "Project-level Roles for Service Accounts",
               "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
@@ -37330,9 +37363,9 @@
             "type": "array"
           },
           "mcpConfigId": {
-            "description": "Unique 24-hexadecimal digit string that identifies this MCP configuration.",
-            "example": "32b6e34b3d91647adeabc012",
-            "pattern": "^[a-fA-F0-9]{24}$",
+            "description": "Unique identifier that identifies this MCP configuration.",
+            "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
             "readOnly": true,
             "type": "string"
           },
@@ -37354,6 +37387,46 @@
                 "ORG_GROUP_CREATOR",
                 "ORG_OWNER"
               ],
+              "type": "string"
+            },
+            "maxItems": 100,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "OrgMcpConfigUpdateRequest": {
+        "properties": {
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration. If provided, replaces the existing IP access list.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 200,
+            "type": "array"
+          },
+          "mcpConfigName": {
+            "description": "Updated human-readable name for this MCP configuration.",
+            "maxLength": 64,
+            "minLength": 1,
+            "nullable": true,
+            "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of organization roles associated with this MCP configuration. If provided, replaces the existing list of roles.",
+            "items": {
+              "description": "Organization roles available for Service Accounts.",
+              "enum": [
+                "ORG_MEMBER",
+                "ORG_READ_ONLY",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_STREAM_PROCESSING_ADMIN",
+                "ORG_GROUP_CREATOR",
+                "ORG_OWNER"
+              ],
+              "nullable": true,
               "type": "string"
             },
             "maxItems": 100,
@@ -52993,7 +53066,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "34180cdf58de9ffab41310849e2246d755304cee"
+    "x-xgen-sha": "987efbad119a301a8d02f8cda996b68e1fcae063"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -80761,6 +80834,8 @@
             "name": "mcpConfigId",
             "required": true,
             "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
               "type": "string"
             }
           },
@@ -80849,8 +80924,8 @@
             "name": "mcpConfigId",
             "required": true,
             "schema": {
-              "example": "32b6e34b3d91647adeabc012",
-              "pattern": "^[a-fA-F0-9]{24}$",
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
               "type": "string"
             }
           }
@@ -80910,6 +80985,99 @@
           "Project Read Only"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getGroupMcpConfig"
+      },
+      "patch": {
+        "description": "Updates the specified MCP configuration for the project. Supports partial updates: only provided fields are changed.",
+        "operationId": "updateGroupMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration to update.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupMcpConfigUpdateRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "MCP configuration fields to update.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One MCP Configuration for One Project",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations updateGroupMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateGroupMcpConfigApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tUpdateGroupMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/updateGroupMcpConfig"
       }
     },
     "/api/atlas/v2/groups/{groupId}/mongoDBVersions": {
@@ -99595,6 +99763,8 @@
             "name": "mcpConfigId",
             "required": true,
             "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
               "type": "string"
             }
           },
@@ -99683,8 +99853,8 @@
             "name": "mcpConfigId",
             "required": true,
             "schema": {
-              "example": "32b6e34b3d91647adeabc012",
-              "pattern": "^[a-fA-F0-9]{24}$",
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
               "type": "string"
             }
           }
@@ -99744,6 +99914,99 @@
           "Organization Read Only"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getOrgMcpConfig"
+      },
+      "patch": {
+        "description": "Updates the specified MCP configuration for the organization. Supports partial updates: only provided fields are changed.",
+        "operationId": "updateOrgMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration to update.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgMcpConfigUpdateRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "MCP configuration fields to update.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One MCP Configuration for One Organization",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations updateOrgMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateOrgMcpConfigApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tUpdateOrgMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/updateOrgMcpConfig"
       }
     },
     "/api/atlas/v2/orgs/{orgId}/nonCompliantResources": {
