@@ -36379,6 +36379,32 @@ components:
             required:
                 - results
             type: object
+        PaginatedMcpConfigSecretView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/ServiceAccountSecret'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
         PaginatedMetricIntegrationResponse:
             properties:
                 links:
@@ -47382,7 +47408,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: a85f098b506c869931feb748035d7db2d86c4973
+    x-xgen-sha: ea9abe7c566c19cec138f87277e00c9cce040b26
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -64729,6 +64755,207 @@ paths:
             x-xgen-hidden-env:
                 envs: qa,stage,prod
             x-xgen-owner-team: apix-devtools
+    /api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets:
+        get:
+            description: Returns metadata for all secrets on the ingress service account of the specified project-level MCP configuration. Secret values are never returned.
+            operationId: listGroupMcpConfigSecrets
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique identifier of the MCP configuration.
+                  in: path
+                  name: mcpConfigId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc012
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedMcpConfigSecretView'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Secrets for One Project MCP Configuration
+            tags:
+                - Remote MCP Configurations
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listGroupMcpConfigSecrets
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: listGroupMcpSecrets
+            x-xgen-owner-team: apix-devtools
+        post:
+            description: Creates a new secret on the ingress service account of the specified project-level MCP configuration. The plain-text secret value is returned only in this response and is never shown again.
+            operationId: createGroupMcpConfigSecret
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique identifier of the MCP configuration.
+                  in: path
+                  name: mcpConfigId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc012
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/ServiceAccountSecretRequest'
+                        x-xgen-IPA-exception:
+                            xgen-IPA-106-create-method-request-body-is-get-method-response: Create request body (secretExpiresAfterHours) intentionally differs from the get response (expiresAt). Builds on the existing service account secrets contract introduced before IPA validation.
+                        x-xgen-version: "2025-03-12"
+                description: Secret creation request.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceAccountSecret'
+                            x-xgen-version: "2025-03-12"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Secret for One Project MCP Configuration
+            tags:
+                - Remote MCP Configurations
+            x-rolesRequirements:
+                - Project Owner
+            x-xgen-IPA-exception:
+                xgen-IPA-106-readonly-resource-should-not-have-create-method: Falsely identified as a readonly resource. Tracked in CLOUDP-416905.
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createGroupMcpConfigSecret
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: createGroupMcpSecret
+            x-xgen-owner-team: apix-devtools
+    /api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}:
+        delete:
+            description: Deletes the specified secret from the ingress service account of the specified project-level MCP configuration.
+            operationId: deleteGroupMcpConfigSecret
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique identifier of the MCP configuration.
+                  in: path
+                  name: mcpConfigId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc012
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the secret.
+                  in: path
+                  name: secretId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc013
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            x-xgen-version: "2025-03-12"
+                    description: No Content
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Secret for One Project MCP Configuration
+            tags:
+                - Remote MCP Configurations
+            x-rolesRequirements:
+                - Project Owner
+            x-xgen-IPA-exception:
+                xgen-IPA-108-readonly-resource-should-not-have-delete-method: Falsely identified as a readonly resource. Tracked in CLOUDP-416905.
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteGroupMcpConfigSecret
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: deleteGroupMcpSecret
+            x-xgen-owner-team: apix-devtools
+        get:
+            description: Returns metadata for the specified secret on the ingress service account of a project-level MCP configuration. The secret value is never returned.
+            operationId: getGroupMcpConfigSecret
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Unique identifier of the MCP configuration.
+                  in: path
+                  name: mcpConfigId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc012
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the secret.
+                  in: path
+                  name: secretId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc013
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceAccountSecret'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-104-get-method-returns-response-suffixed-object: Uses the existing ServiceAccountSecret view introduced before IPA validation.
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Secret for One Project MCP Configuration
+            tags:
+                - Remote MCP Configurations
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getGroupMcpConfigSecret
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: getGroupMcpSecret
+            x-xgen-owner-team: apix-devtools
     /api/atlas/v2/groups/{groupId}/metricIntegrations:
         get:
             description: Returns all metric integration configurations for the project. Optionally filter by integration type and provider type.
@@ -76999,6 +77226,207 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/updateOrgMcpConfig
             x-xgen-hidden-env:
                 envs: qa,stage,prod
+            x-xgen-owner-team: apix-devtools
+    /api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets:
+        get:
+            description: Returns metadata for all secrets on the ingress service account of the specified organization-level MCP configuration. Secret values are never returned.
+            operationId: listOrgMcpConfigSecrets
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique identifier of the MCP configuration.
+                  in: path
+                  name: mcpConfigId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc012
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedMcpConfigSecretView'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Secrets for One Organization MCP Configuration
+            tags:
+                - Remote MCP Configurations
+            x-rolesRequirements:
+                - Organization Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listOrgMcpConfigSecrets
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: listOrgMcpSecrets
+            x-xgen-owner-team: apix-devtools
+        post:
+            description: Creates a new secret on the ingress service account of the specified organization-level MCP configuration. The plain-text secret value is returned only in this response and is never shown again.
+            operationId: createOrgMcpConfigSecret
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique identifier of the MCP configuration.
+                  in: path
+                  name: mcpConfigId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc012
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/ServiceAccountSecretRequest'
+                        x-xgen-IPA-exception:
+                            xgen-IPA-106-create-method-request-body-is-get-method-response: Create request body (secretExpiresAfterHours) intentionally differs from the get response (expiresAt). Builds on the existing service account secrets contract introduced before IPA validation.
+                        x-xgen-version: "2025-03-12"
+                description: Secret creation request.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceAccountSecret'
+                            x-xgen-version: "2025-03-12"
+                    description: Created
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Secret for One Organization MCP Configuration
+            tags:
+                - Remote MCP Configurations
+            x-rolesRequirements:
+                - Organization Owner
+            x-xgen-IPA-exception:
+                xgen-IPA-106-readonly-resource-should-not-have-create-method: Falsely identified as a readonly resource. Tracked in CLOUDP-416905.
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createOrgMcpConfigSecret
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: createOrgMcpSecret
+            x-xgen-owner-team: apix-devtools
+    /api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}:
+        delete:
+            description: Deletes the specified secret from the ingress service account of the specified organization-level MCP configuration.
+            operationId: deleteOrgMcpConfigSecret
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique identifier of the MCP configuration.
+                  in: path
+                  name: mcpConfigId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc012
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the secret.
+                  in: path
+                  name: secretId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc013
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            x-xgen-version: "2025-03-12"
+                    description: No Content
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Secret for One Organization MCP Configuration
+            tags:
+                - Remote MCP Configurations
+            x-rolesRequirements:
+                - Organization Owner
+            x-xgen-IPA-exception:
+                xgen-IPA-108-readonly-resource-should-not-have-delete-method: Falsely identified as a readonly resource. Tracked in CLOUDP-416905.
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteOrgMcpConfigSecret
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: deleteOrgMcpSecret
+            x-xgen-owner-team: apix-devtools
+        get:
+            description: Returns metadata for the specified secret on the ingress service account of an organization-level MCP configuration. The secret value is never returned.
+            operationId: getOrgMcpConfigSecret
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique identifier of the MCP configuration.
+                  in: path
+                  name: mcpConfigId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc012
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the secret.
+                  in: path
+                  name: secretId
+                  required: true
+                  schema:
+                    example: 32b6e34b3d91647adeabc013
+                    pattern: ^[a-fA-F0-9]{24}$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceAccountSecret'
+                            x-xgen-IPA-exception:
+                                xgen-IPA-104-get-method-returns-response-suffixed-object: Uses the existing ServiceAccountSecret view introduced before IPA validation.
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Secret for One Organization MCP Configuration
+            tags:
+                - Remote MCP Configurations
+            x-rolesRequirements:
+                - Organization Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getOrgMcpConfigSecret
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: getOrgMcpSecret
             x-xgen-owner-team: apix-devtools
     /api/atlas/v2/orgs/{orgId}/nonCompliantResources:
         get:
