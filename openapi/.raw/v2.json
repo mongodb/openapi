@@ -3803,14 +3803,6 @@
             "nullable": true,
             "type": "integer"
           },
-          "overwriteStrategy": {
-            "description": "Strategy for overwriting existing data (new if exists or overwrite if exists).",
-            "enum": [
-              "NEW_IF_EXISTS",
-              "OVERWRITE_IF_EXISTS"
-            ],
-            "type": "string"
-          },
           "pointInTimeUtcSeconds": {
             "description": "Point-in-time restore time in seconds since UNIX epoch.",
             "format": "int32",
@@ -3832,13 +3824,21 @@
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
             "type": "string"
+          },
+          "writeStrategy": {
+            "description": "Strategy for writing data on the target (create as new or overwrite existing). For overwrite existing, writes to overwritten databases or collections during the restore may be lost.",
+            "enum": [
+              "CREATE_NEW",
+              "OVERWRITE_EXISTING"
+            ],
+            "type": "string"
           }
         },
         "required": [
           "indexStrategy",
-          "overwriteStrategy",
           "targetClusterName",
-          "targetGroupId"
+          "targetGroupId",
+          "writeStrategy"
         ],
         "type": "object"
       },
@@ -3915,14 +3915,6 @@
             "format": "int32",
             "type": "integer"
           },
-          "overwriteStrategy": {
-            "description": "Strategy for overwriting existing data (new if exists or overwrite if exists).",
-            "enum": [
-              "NEW_IF_EXISTS",
-              "OVERWRITE_IF_EXISTS"
-            ],
-            "type": "string"
-          },
           "pointInTimeUtcSeconds": {
             "description": "Point-in-time restore time in seconds since UNIX epoch.",
             "format": "int32",
@@ -3970,6 +3962,14 @@
             "minimum": 0,
             "readOnly": true,
             "type": "integer"
+          },
+          "writeStrategy": {
+            "description": "Strategy for writing data on the target (create as new or overwrite existing). For overwrite existing, writes to overwritten databases or collections during the restore may be lost.",
+            "enum": [
+              "CREATE_NEW",
+              "OVERWRITE_EXISTING"
+            ],
+            "type": "string"
           }
         },
         "type": "object"
@@ -19596,6 +19596,7 @@
               "DROP_COLLECTION",
               "ENABLE_PROFILER",
               "KILL_ANY_CURSOR",
+              "ANALYZE",
               "CHANGE_STREAM",
               "COLL_MOD",
               "COMPACT",
@@ -60572,7 +60573,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "cb729f7c81c7267e113a3efe8363db586520341f"
+    "x-xgen-sha": "3542b3deeb821f36fa1260ee9c6b8f8a7f5c2422"
   },
   "openapi": "3.0.1",
   "paths": {
