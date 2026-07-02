@@ -1479,12 +1479,14 @@
         "properties": {
           "cidrBlock": {
             "description": "Range of IP addresses in Classless Inter-Domain Routing (CIDR) notation that found in this project's access list.",
+            "nullable": true,
             "pattern": "^((([0-9]{1,3}\\.){3}[0-9]{1,3})|(:{0,2}([0-9a-f]{1,4}:){0,7}[0-9a-f]{1,4}[:]{0,2}))((%2[fF]|/)[0-9]{1,3})+$",
             "readOnly": true,
             "type": "string"
           },
           "ipAddress": {
             "description": "IP address included in the API access list.",
+            "nullable": true,
             "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
             "readOnly": true,
             "type": "string"
@@ -2030,6 +2032,7 @@
           "lastUsedAt": {
             "description": "UTC date when the API key was last used. This parameter is formatted as an ISO 8601 timestamp.",
             "example": "2026-01-15T16:47:49.855000+00:00",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -2050,6 +2053,7 @@
             "description": "The full API key secret used for interacting with the embedding / reranking service. Note: this will only be fully populated in the response to a create API key request. Responses to get, list, and update requests will not include the secret.",
             "example": "al-jZsluhPMzPM9CFXepRWwMwvpZDDra6tZMgoAZKdodu2",
             "format": "password",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -2930,9 +2934,11 @@
       },
       "ApiAtlasCollectionRestoreJobRequest": {
         "description": "Request body for creating a collection restore job.",
+        "nullable": true,
         "properties": {
           "collectionSuffix": {
             "description": "Optional suffix applied to restored collection names.",
+            "nullable": true,
             "type": "string"
           },
           "collections": {
@@ -2945,6 +2951,7 @@
           },
           "databaseSuffix": {
             "description": "Optional suffix applied to restored database names.",
+            "nullable": true,
             "type": "string"
           },
           "databases": {
@@ -2967,24 +2974,19 @@
           "oplogInc": {
             "description": "Oplog increment for point-in-time restore.",
             "format": "int32",
+            "nullable": true,
             "type": "integer"
           },
           "oplogTs": {
             "description": "Oplog timestamp (seconds part) for point-in-time restore.",
             "format": "int32",
+            "nullable": true,
             "type": "integer"
-          },
-          "overwriteStrategy": {
-            "description": "Strategy for overwriting existing data (new if exists or overwrite if exists).",
-            "enum": [
-              "NEW_IF_EXISTS",
-              "OVERWRITE_IF_EXISTS"
-            ],
-            "type": "string"
           },
           "pointInTimeUtcSeconds": {
             "description": "Point-in-time restore time in seconds since UNIX epoch.",
             "format": "int32",
+            "nullable": true,
             "type": "integer"
           },
           "snapshotId": {
@@ -3002,13 +3004,21 @@
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
             "type": "string"
+          },
+          "writeStrategy": {
+            "description": "Strategy for writing data on the target (create as new or overwrite existing). For overwrite existing, writes to overwritten databases or collections during the restore may be lost.",
+            "enum": [
+              "CREATE_NEW",
+              "OVERWRITE_EXISTING"
+            ],
+            "type": "string"
           }
         },
         "required": [
           "indexStrategy",
-          "overwriteStrategy",
           "targetClusterName",
-          "targetGroupId"
+          "targetGroupId",
+          "writeStrategy"
         ],
         "type": "object"
       },
@@ -3085,14 +3095,6 @@
             "format": "int32",
             "type": "integer"
           },
-          "overwriteStrategy": {
-            "description": "Strategy for overwriting existing data (new if exists or overwrite if exists).",
-            "enum": [
-              "NEW_IF_EXISTS",
-              "OVERWRITE_IF_EXISTS"
-            ],
-            "type": "string"
-          },
           "pointInTimeUtcSeconds": {
             "description": "Point-in-time restore time in seconds since UNIX epoch.",
             "format": "int32",
@@ -3140,6 +3142,14 @@
             "minimum": 0,
             "readOnly": true,
             "type": "integer"
+          },
+          "writeStrategy": {
+            "description": "Strategy for writing data on the target (create as new or overwrite existing). For overwrite existing, writes to overwritten databases or collections during the restore may be lost.",
+            "enum": [
+              "CREATE_NEW",
+              "OVERWRITE_EXISTING"
+            ],
+            "type": "string"
           }
         },
         "type": "object"
@@ -3512,6 +3522,7 @@
         "properties": {
           "description": {
             "description": "Description of the atlas resource policy.",
+            "nullable": true,
             "type": "string"
           },
           "name": {
@@ -3536,10 +3547,12 @@
         "properties": {
           "description": {
             "description": "Description of the atlas resource policy.",
+            "nullable": true,
             "type": "string"
           },
           "name": {
             "description": "Human-readable label that describes the atlas resource policy.",
+            "nullable": true,
             "type": "string"
           },
           "policies": {
@@ -3881,6 +3894,7 @@
           },
           "detail": {
             "description": "Describes the specific conditions or reasons that cause each type of error.",
+            "nullable": true,
             "type": "string"
           },
           "error": {
@@ -3907,6 +3921,7 @@
           },
           "reason": {
             "description": "Application error message returned with this error.",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           }
@@ -4240,6 +4255,7 @@
           "instanceSize": {
             "description": "Hardware specification for the Search Node instance sizes.",
             "enum": [
+              "S10_HIGHCPU",
               "S20_HIGHCPU_NVME",
               "S30_HIGHCPU_NVME",
               "S40_HIGHCPU_NVME",
@@ -4296,11 +4312,13 @@
               "AZURE",
               "GCP"
             ],
+            "nullable": true,
             "type": "string"
           },
           "instanceSize": {
             "description": "Hardware specification for the Search Node instance sizes.",
             "enum": [
+              "S10_HIGHCPU",
               "S20_HIGHCPU_NVME",
               "S30_HIGHCPU_NVME",
               "S40_HIGHCPU_NVME",
@@ -4335,11 +4353,13 @@
             "format": "int32",
             "maximum": 32,
             "minimum": 2,
+            "nullable": true,
             "type": "integer"
           },
           "regionName": {
             "description": "Cloud provider region where Search Nodes are provisioned. Required when the request configures more than one region; optional for single-region requests.",
             "example": "US_EAST_1",
+            "nullable": true,
             "type": "string"
           }
         },
@@ -4356,6 +4376,7 @@
             "format": "int32",
             "maximum": 32,
             "minimum": 2,
+            "nullable": true,
             "type": "integer"
           },
           "specs": {
@@ -4394,6 +4415,7 @@
               "description": "Encryption at Rest using Customer Key Management",
               "url": "https://www.mongodb.com/docs/atlas/security-kms-encryption/"
             },
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -4439,6 +4461,7 @@
           "instanceSize": {
             "description": "Hardware specification for the Search Node instance sizes.",
             "enum": [
+              "S10_HIGHCPU",
               "S20_HIGHCPU_NVME",
               "S30_HIGHCPU_NVME",
               "S40_HIGHCPU_NVME",
@@ -4832,6 +4855,7 @@
           "targetPublicKey": {
             "description": "Public part of the API key that this event targets.",
             "example": "zmmrboas",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -4851,6 +4875,7 @@
           "whitelistEntry": {
             "description": "Entry in the list of source host addresses that the API key accepts and this event targets.",
             "example": "0.0.0.0",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           }
@@ -4949,6 +4974,7 @@
           "targetPublicKey": {
             "description": "Public part of the API key that this event targets.",
             "example": "zmmrboas",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -4968,6 +4994,7 @@
           "whitelistEntry": {
             "description": "Entry in the list of source host addresses that the API key accepts and this event targets.",
             "example": "0.0.0.0",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           }
@@ -7029,7 +7056,7 @@
               },
               "vnetName": {
                 "description": "Unique string that identifies the Azure VNet in which MongoDB Cloud clusters in this network peering container exist. The response returns **null** if no clusters exist in this network peering container.",
-                "pattern": "^([-\\w._()])$",
+                "pattern": "^([-\\w._()])+$",
                 "readOnly": true,
                 "type": "string"
               }
@@ -7821,7 +7848,7 @@
           },
           "vnetName": {
             "description": "Human-readable label that identifies the VNet that you want to peer with the MongoDB Cloud VNet.",
-            "pattern": "^([-\\w._()])$",
+            "pattern": "^([-\\w._()])+$",
             "type": "string"
           }
         },
@@ -8626,6 +8653,7 @@
           },
           "clusterName": {
             "description": "Human-readable label that identifies the cluster.",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -8827,6 +8855,7 @@
       },
       "BadRequestDetail": {
         "description": "Bad request detail.",
+        "nullable": true,
         "properties": {
           "fields": {
             "description": "Describes all violations in a client request.",
@@ -8959,7 +8988,21 @@
               "R200",
               "R300",
               "R400",
-              "R600"
+              "R600",
+              "M30_GEN_2",
+              "M40_GEN_2",
+              "M50_GEN_2",
+              "M60_GEN_2",
+              "M80_GEN_2",
+              "M140_GEN_2",
+              "M200_GEN_2",
+              "R40_GEN_2",
+              "R50_GEN_2",
+              "R60_GEN_2",
+              "R80_GEN_2",
+              "R200_GEN_2",
+              "R300_GEN_2",
+              "R400_GEN_2"
             ],
             "title": "GCP Instance Sizes",
             "type": "string"
@@ -10500,7 +10543,21 @@
                   "R200",
                   "R300",
                   "R400",
-                  "R600"
+                  "R600",
+                  "M30_GEN_2",
+                  "M40_GEN_2",
+                  "M50_GEN_2",
+                  "M60_GEN_2",
+                  "M80_GEN_2",
+                  "M140_GEN_2",
+                  "M200_GEN_2",
+                  "R40_GEN_2",
+                  "R50_GEN_2",
+                  "R60_GEN_2",
+                  "R80_GEN_2",
+                  "R200_GEN_2",
+                  "R300_GEN_2",
+                  "R400_GEN_2"
                 ],
                 "title": "GCP Instance Sizes",
                 "type": "string"
@@ -13717,6 +13774,7 @@
               "TOTAL_OPS_P99_VALUE"
             ],
             "example": "READS_OPS",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -13725,6 +13783,7 @@
             "enum": [
               "MILLISECONDS"
             ],
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           }
@@ -14106,8 +14165,14 @@
           },
           "identityProviderId": {
             "description": "Legacy 20-hexadecimal digit string that identifies the UI access identity provider that this connected organization configuration is associated with. This id can be found within the Federation Management Console > Identity Providers tab by clicking the info icon in the IdP ID row of a configured identity provider.",
+            "nullable": true,
             "pattern": "^([a-f0-9]{20})$",
             "type": "string"
+          },
+          "instantUserProvisioningDisabled": {
+            "description": "Flag that indicates whether instant user provisioning is disabled for this connected organization.",
+            "nullable": true,
+            "type": "boolean"
           },
           "orgId": {
             "description": "Unique 24-hexadecimal digit string that identifies the connected organization configuration.",
@@ -14128,6 +14193,7 @@
                 "ORG_STREAM_PROCESSING_ADMIN",
                 "ORG_READ_ONLY"
               ],
+              "nullable": true,
               "type": "string"
             },
             "type": "array",
@@ -14368,7 +14434,7 @@
                 "Cloud Manager",
                 "Cloud Manager Standard/Premium",
                 "Legacy Backup",
-                "AI Models",
+                "AI Model APIs",
                 "Automated Embedding",
                 "Native Reranking",
                 "Flex Consulting",
@@ -14555,6 +14621,7 @@
                 "ORG_STREAM_PROCESSING_ADMIN",
                 "ORG_READ_ONLY"
               ],
+              "nullable": true,
               "type": "string"
             },
             "minItems": 1,
@@ -15026,6 +15093,7 @@
           "description": "Built-in Roles",
           "url": "https://www.mongodb.com/docs/atlas/mongodb-users-roles-and-privileges/#mongodb-atlasrole-atlasAdmin"
         },
+        "nullable": true,
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -17304,6 +17372,7 @@
               "DROP_COLLECTION",
               "ENABLE_PROFILER",
               "KILL_ANY_CURSOR",
+              "ANALYZE",
               "CHANGE_STREAM",
               "COLL_MOD",
               "COMPACT",
@@ -18754,6 +18823,7 @@
               {
                 "enum": [
                   "CPS_RESTORE_REQUESTED_AUDIT",
+                  "CPS_RESTORE_AUTH_AUDIT",
                   "CPS_SNAPSHOT_SCHEDULE_UPDATED_AUDIT",
                   "CPS_SNAPSHOT_FASTER_RESTORES_START_AUDIT",
                   "CPS_SNAPSHOT_FASTER_RESTORES_SUCCESS_AUDIT",
@@ -19027,6 +19097,7 @@
               {
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
+                  "STREAM_PROCESSOR_STARTED",
                   "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
                   "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ],
@@ -19435,6 +19506,7 @@
           "defaultLimit": {
             "description": "Default limit value. Returns null if no default exists.",
             "format": "int32",
+            "nullable": true,
             "readOnly": true,
             "type": "integer"
           },
@@ -19446,6 +19518,7 @@
           "maximumLimit": {
             "description": "Maximum limit value. Returns null if no maximum exists.",
             "format": "int32",
+            "nullable": true,
             "readOnly": true,
             "type": "integer"
           },
@@ -19619,6 +19692,7 @@
           },
           "privateLinkId": {
             "description": "Represents the endpoint to use when the host schema type is `PRIVATE_LINK`.",
+            "nullable": true,
             "type": "string"
           }
         },
@@ -20041,6 +20115,7 @@
         "type": "object"
       },
       "DiskBackupExportJobRequest": {
+        "nullable": true,
         "properties": {
           "customData": {
             "description": "Collection of key-value pairs that represent custom data to add to the metadata file that MongoDB Cloud uploads to the bucket when the export job finishes.",
@@ -20789,6 +20864,7 @@
           },
           "propertyName": "cloudProvider"
         },
+        "nullable": true,
         "properties": {
           "cloudProvider": {
             "description": "Human-readable label that identifies the cloud provider.",
@@ -22869,6 +22945,7 @@
           {
             "enum": [
               "CPS_RESTORE_REQUESTED_AUDIT",
+              "CPS_RESTORE_AUTH_AUDIT",
               "CPS_SNAPSHOT_SCHEDULE_UPDATED_AUDIT",
               "CPS_SNAPSHOT_FASTER_RESTORES_START_AUDIT",
               "CPS_SNAPSHOT_FASTER_RESTORES_SUCCESS_AUDIT",
@@ -23250,6 +23327,7 @@
               "SERVERLESS_UPGRADE_TO_DEDICATED_SUCCESSFUL",
               "SERVERLESS_UPGRADE_TO_DEDICATED_FAILED",
               "CLUSTER_FORCE_RECONFIG_REQUESTED",
+              "AGENT_FORCE_RESTART_REQUESTED",
               "CLUSTER_RESET_FORCE_RECONFIG_REQUESTED",
               "PROJECT_BYPASSED_MAINTENANCE",
               "FEATURE_FLAG_MAINTENANCE",
@@ -23585,6 +23663,7 @@
           {
             "enum": [
               "STREAM_PROCESSOR_STATE_IS_FAILED",
+              "STREAM_PROCESSOR_STARTED",
               "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
               "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
             ],
@@ -23929,7 +24008,8 @@
             "enum": [
               "ORG_LIMIT_UPDATED",
               "SHADOW_CLUSTER_ORG_OPT_IN",
-              "SHADOW_CLUSTER_ORG_OPT_OUT"
+              "SHADOW_CLUSTER_ORG_OPT_OUT",
+              "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN"
             ],
             "title": "Atlas Audit Types",
             "type": "string"
@@ -23939,6 +24019,7 @@
               "ORG_CREATED",
               "CUSTOM_SESSION_TIMEOUT_MODIFIED",
               "SECURITY_CONTACT_MODIFIED",
+              "OPERATIONS_CONTACT_MODIFIED",
               "ORG_CREDIT_CARD_ADDED",
               "ORG_CREDIT_CARD_UPDATED",
               "ORG_CREDIT_CARD_CURRENT",
@@ -24485,6 +24566,7 @@
               "JVM_MAX_MEMORY",
               "PAGE_FAULTS"
             ],
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -24505,6 +24587,7 @@
               "SCALAR_PER_SECOND",
               "SECONDS"
             ],
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           }
@@ -24584,6 +24667,7 @@
           },
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -24611,6 +24695,7 @@
           },
           "oktaIdpId": {
             "description": "Legacy 20-hexadecimal digit string that identifies the identity provider.",
+            "nullable": true,
             "pattern": "^([a-f0-9]{20})$",
             "type": "string"
           },
@@ -24625,6 +24710,7 @@
           "updatedAt": {
             "description": "Date that the identity provider was last updated on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "format": "date-time",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           }
@@ -24650,6 +24736,7 @@
         "properties": {
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -24702,6 +24789,7 @@
           },
           "audience": {
             "description": "Identifier of the intended recipient of the token.",
+            "nullable": true,
             "type": "string"
           },
           "authorizationType": {
@@ -24720,6 +24808,7 @@
           },
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -24728,6 +24817,7 @@
           },
           "groupsClaim": {
             "description": "Identifier of the claim which contains IdP Group IDs in the token.",
+            "nullable": true,
             "type": "string"
           },
           "id": {
@@ -24751,6 +24841,7 @@
           },
           "oktaIdpId": {
             "description": "Legacy 20-hexadecimal digit string that identifies the identity provider.",
+            "nullable": true,
             "pattern": "^([a-f0-9]{20})$",
             "type": "string"
           },
@@ -24765,6 +24856,7 @@
           "updatedAt": {
             "description": "Date that the identity provider was last updated on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "format": "date-time",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -24803,6 +24895,7 @@
           },
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -24863,6 +24956,7 @@
           },
           "audience": {
             "description": "Identifier of the intended recipient of the token.",
+            "nullable": true,
             "type": "string"
           },
           "authorizationType": {
@@ -24875,6 +24969,7 @@
           },
           "clientId": {
             "description": "Client identifier that is assigned to an application by the Identity Provider.",
+            "nullable": true,
             "type": "string"
           },
           "createdAt": {
@@ -24885,6 +24980,7 @@
           },
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -24893,6 +24989,7 @@
           },
           "groupsClaim": {
             "description": "Identifier of the claim which contains IdP Group IDs in the token.",
+            "nullable": true,
             "type": "string"
           },
           "id": {
@@ -24916,6 +25013,7 @@
           },
           "oktaIdpId": {
             "description": "Legacy 20-hexadecimal digit string that identifies the identity provider.",
+            "nullable": true,
             "pattern": "^([a-f0-9]{20})$",
             "type": "string"
           },
@@ -24937,6 +25035,7 @@
           "updatedAt": {
             "description": "Date that the identity provider was last updated on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "format": "date-time",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -24980,6 +25079,7 @@
           },
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -25040,6 +25140,7 @@
           },
           "audience": {
             "description": "Identifier of the intended recipient of the token.",
+            "nullable": true,
             "type": "string"
           },
           "authorizationType": {
@@ -25058,6 +25159,7 @@
           },
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -25066,6 +25168,7 @@
           },
           "groupsClaim": {
             "description": "Identifier of the claim which contains IdP Group IDs in the token.",
+            "nullable": true,
             "type": "string"
           },
           "id": {
@@ -25089,6 +25192,7 @@
           },
           "oktaIdpId": {
             "description": "Legacy 20-hexadecimal digit string that identifies the identity provider.",
+            "nullable": true,
             "pattern": "^([a-f0-9]{20})$",
             "type": "string"
           },
@@ -25103,6 +25207,7 @@
           "updatedAt": {
             "description": "Date that the identity provider was last updated on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "format": "date-time",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -25134,6 +25239,7 @@
           },
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -25179,6 +25285,7 @@
         "properties": {
           "acsUrl": {
             "description": "URL that points to where to send the SAML response.",
+            "nullable": true,
             "type": "string"
           },
           "associatedDomains": {
@@ -25199,6 +25306,7 @@
           },
           "audienceUri": {
             "description": "Unique string that identifies the intended audience of the SAML assertion.",
+            "nullable": true,
             "type": "string"
           },
           "createdAt": {
@@ -25209,6 +25317,7 @@
           },
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -25236,6 +25345,7 @@
           },
           "oktaIdpId": {
             "description": "Legacy 20-hexadecimal digit string that identifies the identity provider.",
+            "nullable": true,
             "pattern": "^([a-f0-9]{20})$",
             "type": "string"
           },
@@ -25268,6 +25378,7 @@
           },
           "slug": {
             "description": "Custom SSO URL for the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "ssoDebugEnabled": {
@@ -25289,6 +25400,7 @@
           "updatedAt": {
             "description": "Date that the identity provider was last updated on. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "format": "date-time",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           }
@@ -25312,6 +25424,7 @@
           },
           "description": {
             "description": "The description of the identity provider.",
+            "nullable": true,
             "type": "string"
           },
           "displayName": {
@@ -25379,6 +25492,7 @@
               "ACTIVE",
               "INACTIVE"
             ],
+            "nullable": true,
             "type": "string"
           }
         },
@@ -27416,7 +27530,21 @@
               "R200",
               "R300",
               "R400",
-              "R600"
+              "R600",
+              "M30_GEN_2",
+              "M40_GEN_2",
+              "M50_GEN_2",
+              "M60_GEN_2",
+              "M80_GEN_2",
+              "M140_GEN_2",
+              "M200_GEN_2",
+              "R40_GEN_2",
+              "R50_GEN_2",
+              "R60_GEN_2",
+              "R80_GEN_2",
+              "R200_GEN_2",
+              "R300_GEN_2",
+              "R400_GEN_2"
             ],
             "title": "GCP Instance Sizes",
             "type": "string"
@@ -27443,7 +27571,21 @@
               "R200",
               "R300",
               "R400",
-              "R600"
+              "R600",
+              "M30_GEN_2",
+              "M40_GEN_2",
+              "M50_GEN_2",
+              "M60_GEN_2",
+              "M80_GEN_2",
+              "M140_GEN_2",
+              "M200_GEN_2",
+              "R40_GEN_2",
+              "R50_GEN_2",
+              "R60_GEN_2",
+              "R80_GEN_2",
+              "R200_GEN_2",
+              "R300_GEN_2",
+              "R400_GEN_2"
             ],
             "title": "GCP Instance Sizes",
             "type": "string"
@@ -27628,7 +27770,21 @@
               "R200",
               "R300",
               "R400",
-              "R600"
+              "R600",
+              "M30_GEN_2",
+              "M40_GEN_2",
+              "M50_GEN_2",
+              "M60_GEN_2",
+              "M80_GEN_2",
+              "M140_GEN_2",
+              "M200_GEN_2",
+              "R40_GEN_2",
+              "R50_GEN_2",
+              "R60_GEN_2",
+              "R80_GEN_2",
+              "R200_GEN_2",
+              "R300_GEN_2",
+              "R400_GEN_2"
             ],
             "title": "GCP Instance Sizes",
             "type": "string"
@@ -27674,7 +27830,21 @@
               "R200",
               "R300",
               "R400",
-              "R600"
+              "R600",
+              "M30_GEN_2",
+              "M40_GEN_2",
+              "M50_GEN_2",
+              "M60_GEN_2",
+              "M80_GEN_2",
+              "M140_GEN_2",
+              "M200_GEN_2",
+              "R40_GEN_2",
+              "R50_GEN_2",
+              "R60_GEN_2",
+              "R80_GEN_2",
+              "R200_GEN_2",
+              "R300_GEN_2",
+              "R400_GEN_2"
             ],
             "title": "GCP Instance Sizes",
             "type": "string"
@@ -28737,6 +28907,107 @@
         ],
         "type": "object"
       },
+      "GroupMaintenanceWindowPreviewResponse": {
+        "properties": {
+          "autoDeferOnceEnabled": {
+            "description": "Flag that indicates whether MongoDB Cloud should defer all maintenance windows for one week after you enable them. This setting controls the same underlying auto-deferral feature as the `/maintenanceWindow/autoDefer` endpoint. Use either this field (to set a specific value) or that endpoint (to toggle the current value). For most use cases, this field in the PATCH request is preferred because it allows setting an explicit value rather than toggling.",
+            "type": "boolean"
+          },
+          "dayOfWeek": {
+            "description": "One-based integer that represents the day of the week that the maintenance window starts.\n\n- `1`: Sunday.\n- `2`: Monday.\n- `3`: Tuesday.\n- `4`: Wednesday.\n- `5`: Thursday.\n- `6`: Friday.\n- `7`: Saturday.",
+            "format": "int32",
+            "maximum": 7,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "effectiveWaveAssignment": {
+            "description": "Maintenance wave Atlas uses for scheduling (1–3). May differ from `waveAssignment` when the organization uses environment-tag mapping or cross-organization maintenance sequencing.",
+            "format": "int32",
+            "maximum": 3,
+            "minimum": 1,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "hourOfDay": {
+            "description": "Zero-based integer that represents the hour of the of the day that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon.",
+            "format": "int32",
+            "maximum": 23,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "numberOfDeferrals": {
+            "description": "Number of times the current maintenance event for this project has been deferred.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "protectedHours": {
+            "$ref": "#/components/schemas/ProtectedHours"
+          },
+          "startASAP": {
+            "description": "Flag that indicates whether MongoDB Cloud starts the maintenance window immediately upon receiving this request. To start the maintenance window immediately for your project, MongoDB Cloud must have maintenance scheduled and you must set a maintenance window. This flag resets to `false` after MongoDB Cloud completes maintenance.",
+            "type": "boolean"
+          },
+          "timeZoneId": {
+            "description": "Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "waveAssignment": {
+            "description": "Maintenance wave assigned to this project (1–3). Not used for scheduling when the organization's `effectiveWaveAssignmentMode` is `ENV_TAG_MAPPING`. Pass `null` to clear.",
+            "format": "int32",
+            "maximum": 3,
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "dayOfWeek"
+        ],
+        "type": "object"
+      },
+      "GroupMaintenanceWindowPreviewUpdateRequest": {
+        "properties": {
+          "autoDeferOnceEnabled": {
+            "description": "Flag that indicates whether MongoDB Cloud should defer all maintenance windows for one week after you enable them. This setting controls the same underlying auto-deferral feature as the `/maintenanceWindow/autoDefer` endpoint. Use either this field (to set a specific value) or that endpoint (to toggle the current value). For most use cases, this field in the PATCH request is preferred because it allows setting an explicit value rather than toggling.",
+            "type": "boolean"
+          },
+          "dayOfWeek": {
+            "description": "One-based integer that represents the day of the week that the maintenance window starts.\n\n- `1`: Sunday.\n- `2`: Monday.\n- `3`: Tuesday.\n- `4`: Wednesday.\n- `5`: Thursday.\n- `6`: Friday.\n- `7`: Saturday.",
+            "format": "int32",
+            "maximum": 7,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "hourOfDay": {
+            "description": "Zero-based integer that represents the hour of the of the day that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon.",
+            "format": "int32",
+            "maximum": 23,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "protectedHours": {
+            "$ref": "#/components/schemas/ProtectedHours"
+          },
+          "startASAP": {
+            "description": "Flag that indicates whether MongoDB Cloud starts the maintenance window immediately upon receiving this request. To start the maintenance window immediately for your project, MongoDB Cloud must have maintenance scheduled and you must set a maintenance window. This flag resets to `false` after MongoDB Cloud completes maintenance.",
+            "type": "boolean"
+          },
+          "waveAssignment": {
+            "description": "Maintenance wave assigned to this project (1–3). Not used for scheduling when the organization's `effectiveWaveAssignmentMode` is `ENV_TAG_MAPPING`. Pass `null` to clear. Requires a user-defined maintenance window.",
+            "format": "int32",
+            "maximum": 3,
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "dayOfWeek"
+        ],
+        "type": "object"
+      },
       "GroupMigrationRequest": {
         "properties": {
           "destinationOrgId": {
@@ -29030,7 +29301,9 @@
           "secretExpiresAfterHours": {
             "description": "The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.",
             "example": 8,
+            "exclusiveMinimum": true,
             "format": "int32",
+            "minimum": 0,
             "type": "integer"
           }
         },
@@ -29069,6 +29342,7 @@
             "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
+            "nullable": true,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
@@ -29076,6 +29350,7 @@
             "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
+            "nullable": true,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
@@ -33455,6 +33730,7 @@
               "COMPLETE",
               "EXPIRED"
             ],
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           }
@@ -34994,6 +35270,7 @@
             "description": "List that contains the Atlas Search index identifiers.",
             "items": {
               "description": "Unique 24-hexadecimal digit string that identifies the index.",
+              "nullable": true,
               "type": "string"
             },
             "readOnly": true,
@@ -36265,6 +36542,7 @@
           "SERVERLESS_UPGRADE_TO_DEDICATED_SUCCESSFUL",
           "SERVERLESS_UPGRADE_TO_DEDICATED_FAILED",
           "CLUSTER_FORCE_RECONFIG_REQUESTED",
+          "AGENT_FORCE_RESTART_REQUESTED",
           "CLUSTER_RESET_FORCE_RECONFIG_REQUESTED",
           "PROJECT_BYPASSED_MAINTENANCE",
           "FEATURE_FLAG_MAINTENANCE",
@@ -36378,7 +36656,8 @@
         "enum": [
           "ORG_LIMIT_UPDATED",
           "SHADOW_CLUSTER_ORG_OPT_IN",
-          "SHADOW_CLUSTER_ORG_OPT_OUT"
+          "SHADOW_CLUSTER_ORG_OPT_OUT",
+          "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN"
         ],
         "example": "ORG_LIMIT_UPDATED",
         "title": "Atlas Audit Types",
@@ -39185,6 +39464,7 @@
               "READ_ONLY",
               "READ_WRITE"
             ],
+            "nullable": true,
             "type": "string"
           },
           "delegatedPartnerAccess": {
@@ -39193,7 +39473,24 @@
               "DISALLOWED",
               "READ_WRITE"
             ],
+            "nullable": true,
             "type": "string"
+          },
+          "idleRefreshTokenLifetime": {
+            "description": "Maximum number of seconds a refresh token may be idle before it expires. When not set, the system default applies.",
+            "format": "int64",
+            "maximum": 31536000,
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "maximumRefreshTokenLifetime": {
+            "description": "Maximum lifetime of a refresh token in seconds, regardless of activity. When not set, the system default applies.",
+            "format": "int64",
+            "maximum": 31536000,
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
           }
         },
         "type": "object"
@@ -39207,6 +39504,7 @@
               "READ_ONLY",
               "READ_WRITE"
             ],
+            "nullable": true,
             "type": "string"
           },
           "delegatedPartnerAccess": {
@@ -39215,7 +39513,24 @@
               "DISALLOWED",
               "READ_WRITE"
             ],
+            "nullable": true,
             "type": "string"
+          },
+          "idleRefreshTokenLifetime": {
+            "description": "Maximum number of seconds a refresh token may be idle before it expires. Omit to leave unchanged; set to null to reset to the system default. Must be between 1 and 31536000 (1 year) when provided.",
+            "format": "int64",
+            "maximum": 31536000,
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          },
+          "maximumRefreshTokenLifetime": {
+            "description": "Maximum lifetime of a refresh token in seconds, regardless of activity. Omit to leave unchanged; set to null to reset to the system default. Must be between 1 and 31536000 (1 year) when provided.",
+            "format": "int64",
+            "maximum": 31536000,
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
           }
         },
         "type": "object"
@@ -39226,6 +39541,7 @@
           "ORG_CREATED",
           "CUSTOM_SESSION_TIMEOUT_MODIFIED",
           "SECURITY_CONTACT_MODIFIED",
+          "OPERATIONS_CONTACT_MODIFIED",
           "ORG_CREDIT_CARD_ADDED",
           "ORG_CREDIT_CARD_UPDATED",
           "ORG_CREDIT_CARD_CURRENT",
@@ -39701,6 +40017,7 @@
       },
       "OrgServiceAccountRequest": {
         "description": "Organization Service Account that Atlas creates for this organization. If omitted, Atlas doesn't create an organization Service Account for this organization. If specified, this object requires all body parameters. Note that API Keys cannot be specified in the same request.",
+        "nullable": true,
         "properties": {
           "description": {
             "description": "Human readable description for the Service Account.",
@@ -39737,7 +40054,9 @@
           "secretExpiresAfterHours": {
             "description": "The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.",
             "example": 8,
+            "exclusiveMinimum": true,
             "format": "int32",
+            "minimum": 0,
             "type": "integer"
           }
         },
@@ -39755,6 +40074,7 @@
             "description": "Human readable description for the Service Account.",
             "maxLength": 250,
             "minLength": 1,
+            "nullable": true,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
@@ -39762,6 +40082,7 @@
             "description": "Human-readable name for the Service Account. The name is modifiable and does not have to be unique.",
             "maxLength": 64,
             "minLength": 1,
+            "nullable": true,
             "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
             "type": "string"
           },
@@ -40179,11 +40500,12 @@
             "type": "string"
           },
           "waveAssignmentMode": {
-            "description": "Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Atlas uses read-only `effectiveWaveAssignmentMode` (not this field) for scheduling when the two values differ.",
+            "description": "Mode explicitly configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Omitted from the response when no explicit preference has been set; in that case `effectiveWaveAssignmentMode` reflects the value the system uses (`MANUAL` by default). Atlas uses read-only `effectiveWaveAssignmentMode` (not this field) for scheduling. In a cross-organization billing hierarchy, a linked non-paying organization cannot update its `effectiveWaveAssignmentMode` field, which inherits from the paying organization's `waveAssignmentMode`. In this case, a linked non-paying organization's `effectiveWaveAssignmentMode` and `waveAssignmentMode` might differ.",
             "enum": [
               "MANUAL",
               "ENV_TAG_MAPPING"
             ],
+            "nullable": true,
             "type": "string"
           }
         },
@@ -40192,7 +40514,7 @@
       "OrganizationMaintenanceSettingsUpdateRequest": {
         "properties": {
           "waveAssignmentMode": {
-            "description": "Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Only this field can be updated; Atlas derives read-only `effectiveWaveAssignmentMode` on GET responses and uses that value for scheduling when it differs from `waveAssignmentMode`. Omit this field to leave the current value unchanged. Specify null to reset to the default value (`MANUAL`).",
+            "description": "Mode configured for this organization that determines how maintenance waves are assigned to projects. Possible values are `MANUAL` and `ENV_TAG_MAPPING`. Defaults to `MANUAL` when unset. Set the organization to `ENV_TAG_MAPPING` mode to have Atlas derive the maintenance wave from each project's environment tag. The tag key must be `environment`. The tag value determines the wave: `development` or `test` maps to Wave 1, `staging` maps to Wave 2, and `production` maps to Wave 3. Only this field can be updated; Atlas derives read-only `effectiveWaveAssignmentMode` on GET responses and uses that value for scheduling when it differs from `waveAssignmentMode`. Omit this field to leave the current value unchanged. Specify null to reset to the default value (`MANUAL`).",
             "enum": [
               "MANUAL",
               "ENV_TAG_MAPPING"
@@ -43327,6 +43649,7 @@
       },
       "PemFileInfo": {
         "description": "PEM file information for the identity provider's current certificates.",
+        "nullable": true,
         "properties": {
           "certificates": {
             "description": "List of certificates in the file.",
@@ -44592,6 +44915,7 @@
           "defaultValue": {
             "description": "The default request capacity of the endpoint set. Returned if there is a capacity override set for the requested entity.",
             "format": "int64",
+            "nullable": true,
             "type": "integer"
           },
           "value": {
@@ -44629,6 +44953,7 @@
           "defaultValue": {
             "description": "The default rate limit refill duration, in seconds, of the endpoint set. Returned if there is a rate limit refill duration override set for the requested entity.",
             "format": "int64",
+            "nullable": true,
             "type": "integer"
           },
           "value": {
@@ -44645,6 +44970,7 @@
           "defaultValue": {
             "description": "The default rate limit refill rate of the endpoint set. Returned if there is a rate limit refill rate override set for the requested entity.",
             "format": "int64",
+            "nullable": true,
             "type": "integer"
           },
           "value": {
@@ -46192,6 +46518,7 @@
       },
       "SandboxClusterTemplateView": {
         "description": "Cluster template configuration for sandbox clusters.",
+        "nullable": true,
         "properties": {
           "provider": {
             "description": "The provider for a cluster.",
@@ -46219,6 +46546,7 @@
           },
           "enabled": {
             "description": "Whether sandbox mode is enabled for the organization.",
+            "nullable": true,
             "type": "boolean"
           }
         },
@@ -46232,6 +46560,7 @@
           },
           "enabled": {
             "description": "Whether sandbox mode is enabled for the organization.",
+            "nullable": true,
             "type": "boolean"
           },
           "id": {
@@ -46252,6 +46581,7 @@
           },
           "enabled": {
             "description": "Whether sandbox mode is enabled for the organization.",
+            "nullable": true,
             "type": "boolean"
           }
         },
@@ -49090,6 +49420,7 @@
           "cidrBlock": {
             "description": "Range of network addresses in the access list for the Service Account. This parameter requires the range to be expressed in Classless Inter-Domain Routing (CIDR) notation of Internet Protocol version 4 or version 6 addresses. You can set a value for this parameter or `ipAddress`, but not for both in the same request.",
             "example": "203.0.113.0/24",
+            "nullable": true,
             "pattern": "^((([0-9]{1,3}\\.){3}[0-9]{1,3})|(:{0,2}([0-9a-f]{1,4}:){0,7}[0-9a-f]{1,4}[:]{0,2}))((%2[fF]|/)[0-9]{1,3})+$",
             "type": "string"
           },
@@ -49102,18 +49433,21 @@
           "ipAddress": {
             "description": "Network address in the access list for the Service Account. This parameter requires the address to be expressed as one Internet Protocol version 4 or version 6 address. You can set a value for this parameter or `cidrBlock`, but not for both in the same request.",
             "example": "203.0.113.10",
+            "nullable": true,
             "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$",
             "type": "string"
           },
           "lastUsedAddress": {
             "description": "Network address that issued the most recent request to the API. This parameter requires the address to be expressed as one Internet Protocol version 4 or version 6 address. The resource returns this parameter after this IP address makes at least one request.",
             "example": "203.0.113.10",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
           "lastUsedAt": {
             "description": "Date when MongoDB Cloud received the most recent request that originated from this Internet Protocol version 4 or version 6 address. The resource returns this parameter when at least one request originates from this IP address. MongoDB Cloud updates this parameter each time a client accesses the permitted resource, with a delay of up to 5 minutes. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "format": "date-time",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -49255,6 +49589,7 @@
           "lastUsedAt": {
             "description": "The last time the secret was used. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
             "format": "date-time",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -49340,6 +49675,7 @@
       },
       "ShardingRequest": {
         "description": "Document that configures sharding on the destination cluster when migrating from a replica set source to a sharded cluster destination on MongoDB 6.0 or higher. If you don't wish to shard any collections on the destination cluster, leave this empty.",
+        "nullable": true,
         "properties": {
           "createSupportingIndexes": {
             "description": "Flag that lets the migration create supporting indexes for the shard keys, if none exists, as the destination cluster also needs compatible indexes for the specified shard keys.",
@@ -49473,6 +49809,7 @@
         "properties": {
           "caCertificatePath": {
             "description": "Path to the CA certificate that signed SSL certificates use to authenticate to the source cluster.",
+            "nullable": true,
             "type": "string"
           },
           "clusterName": {
@@ -49492,6 +49829,7 @@
           },
           "password": {
             "description": "Password that authenticates the username to the source cluster.",
+            "nullable": true,
             "type": "string",
             "writeOnly": true
           },
@@ -49501,6 +49839,7 @@
           },
           "username": {
             "description": "Label that identifies the SCRAM-SHA user that connects to the source cluster.",
+            "nullable": true,
             "type": "string",
             "writeOnly": true
           }
@@ -49965,6 +50304,7 @@
         "description": "Unique identifier of event type.",
         "enum": [
           "STREAM_PROCESSOR_STATE_IS_FAILED",
+          "STREAM_PROCESSOR_STARTED",
           "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
           "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
         ],
@@ -50338,6 +50678,7 @@
             "properties": {
               "clusterGroupId": {
                 "description": "Unique 24-hexadecimal digit string that identifies the project that contains the configured cluster. Required if the ID does not match the project containing the streams workspace. You must first enable the organization setting.",
+                "nullable": true,
                 "type": "string"
               },
               "clusterName": {
@@ -51191,10 +51532,12 @@
               "GRACEFUL",
               "FORCED"
             ],
+            "nullable": true,
             "type": "string"
           },
           "region": {
             "description": "Name of the region against which to apply the status change. Required when `status` is `FAILED_OVER`; optional otherwise.",
+            "nullable": true,
             "type": "string"
           },
           "status": {
@@ -53632,6 +53975,7 @@
                 "ORG_STREAM_PROCESSING_ADMIN",
                 "ORG_READ_ONLY"
               ],
+              "nullable": true,
               "type": "string"
             },
             "type": "array"
@@ -53815,7 +54159,7 @@
                 "Cloud Manager",
                 "Cloud Manager Standard/Premium",
                 "Legacy Backup",
-                "AI Models",
+                "AI Model APIs",
                 "Automated Embedding",
                 "Native Reranking",
                 "Flex Consulting",
@@ -54143,6 +54487,7 @@
             "description": "Email address for the console user that this event targets. The resource returns this parameter when `\"eventTypeName\" : \"USER\"`.",
             "example": "test.user@mongodb.com",
             "format": "email",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -54255,6 +54600,7 @@
             "description": "Email address for the console user that this event targets. The resource returns this parameter when `\"eventTypeName\" : \"USER\"`.",
             "example": "test.user@mongodb.com",
             "format": "email",
+            "nullable": true,
             "readOnly": true,
             "type": "string"
           },
@@ -54790,6 +55136,18 @@
       "Webhook": {
         "description": "Details to integrate one webhook with one MongoDB Cloud project.",
         "properties": {
+          "bodyTemplate": {
+            "description": "HTTP body template for a webhook-based alert. The rendered output MUST be valid JSON — MongoDB Cloud sends the rendered body with `Content-Type: application/json`. If the template fails to render, exceeds the 16 KB limit, or renders non-JSON output, MongoDB Cloud sends the webhook with its default JSON payload instead.",
+            "example": "{\"alert\":\"${id}\",\"severity\":\"${severity}\"}",
+            "format": "password",
+            "type": "string"
+          },
+          "headersTemplate": {
+            "description": "HTTP headers template for a webhook-based alert. The rendered output MUST be a JSON object mapping header name to header value (e.g. `{\"X-Custom-Header\": \"static-value\", \"X-Alert-Id\": \"${id}\"}`). Placeholders may reference any alert-view field plus `${eventType}`; the webhook secret and the signature header are NOT exposed to templates. If the template fails to render, exceeds the 4 KB limit, or renders output that is not a valid JSON name→value object, MongoDB Cloud sends the webhook with its default set of headers instead.",
+            "example": "{\"X-Alert-Id\":\"${id}\",\"X-Event-Type\":\"${eventType}\"}",
+            "format": "password",
+            "type": "string"
+          },
           "id": {
             "description": "Integration id.",
             "nullable": true,
@@ -54849,6 +55207,16 @@
             "enum": [
               "WEBHOOK"
             ],
+            "type": "string"
+          },
+          "webhookBodyTemplate": {
+            "description": "Template, using ${field} interpolation, that renders the HTTP body MongoDB Cloud sends with each webhook notification. Must render valid JSON. When unset, MongoDB Cloud sends its default JSON payload.",
+            "format": "password",
+            "type": "string"
+          },
+          "webhookHeadersTemplate": {
+            "description": "Template, using ${field} interpolation, that renders the HTTP headers MongoDB Cloud sends with each webhook notification. Must render a JSON object mapping header name to header value. The webhook secret and the signature header are NOT exposed to templates.",
+            "format": "password",
             "type": "string"
           },
           "webhookSecret": {
@@ -55106,6 +55474,7 @@
           "description": {
             "description": "Description of the event.",
             "example": "Alert Acknowledged",
+            "nullable": true,
             "type": "string"
           },
           "gn": {
@@ -55780,7 +56149,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "89e98728ddf13f27e390b2b43bb13c76987e1916"
+    "x-xgen-sha": "9b28b0a93484c3ba4ea0d34badf47e2eb2c0dcbf"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -62048,7 +62417,7 @@
           "Cloud Provider Access"
         ],
         "x-rolesRequirements": [
-          "Project Owner"
+          "Project Read Only"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/listGroupCloudProviderAccess",
         "x-xgen-operation-id-override": "listCloudProviderAccess"
@@ -62285,7 +62654,7 @@
           "Cloud Provider Access"
         ],
         "x-rolesRequirements": [
-          "Project Owner"
+          "Project Read Only"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Provider-Access/operation/getGroupCloudProviderAccess",
         "x-xgen-operation-id-override": "getCloudProviderAccess"
@@ -79732,6 +80101,15 @@
                   "$ref": "#/components/schemas/GroupMaintenanceWindow"
                 },
                 "x-xgen-version": "2023-01-01"
+              },
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupMaintenanceWindowPreviewResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "organization-maintenance"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -79787,6 +80165,15 @@
               "schema": {
                 "$ref": "#/components/schemas/GroupMaintenanceWindow"
               }
+            },
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupMaintenanceWindowPreviewUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "organization-maintenance"
+              },
+              "x-xgen-version": "preview"
             }
           },
           "description": "Updates the maintenance window for the specified project.",
@@ -79797,6 +80184,12 @@
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
                 "x-xgen-version": "2023-01-01"
+              },
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "organization-maintenance"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -86695,7 +87088,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/serviceAccounts": {
       "get": {
-        "description": "Returns all Service Accounts for the specified Project.",
+        "description": "Returns all Service Accounts for the specified Project. By default, system-managed Service Accounts are excluded. Set `includeSystemManaged=true` to include them.",
         "operationId": "listGroupServiceAccounts",
         "parameters": [
           {
@@ -86712,6 +87105,15 @@
           },
           {
             "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "Flag that indicates whether system-managed Service Accounts (such as those used for MCP ingress/egress integrations) are included in the response. When false, only user-managed Service Accounts are returned.",
+            "in": "query",
+            "name": "includeSystemManaged",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -96595,6 +96997,78 @@
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/updateOrgMaintenanceSettings"
       }
     },
+    "/api/atlas/v2/orgs/{orgId}/maintenanceSettings:reset": {
+      "post": {
+        "description": "Resets maintenance settings for the specified organization to their default values. Restores the wave assignment mode to the default manual mode.",
+        "operationId": "resetOrgMaintenanceSettings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationMaintenanceSettingsResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "organization-maintenance"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Reset Maintenance Settings for One Organization",
+        "tags": [
+          "Organizations"
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Organizations/operation/resetOrgMaintenanceSettings",
+        "x-xgen-method-verb-override": {
+          "customMethod": "True",
+          "verb": "reset"
+        },
+        "x-xgen-operation-id-override": "resetOrgMaintenanceSettings"
+      }
+    },
     "/api/atlas/v2/orgs/{orgId}/nonCompliantResources": {
       "get": {
         "description": "Return all non-compliant resources for an organization.",
@@ -97481,7 +97955,7 @@
     },
     "/api/atlas/v2/orgs/{orgId}/serviceAccounts": {
       "get": {
-        "description": "Returns all Service Accounts for the specified Organization.",
+        "description": "Returns all Service Accounts for the specified Organization. By default, system-managed Service Accounts are excluded. Set `includeSystemManaged=true` to include them.",
         "operationId": "listOrgServiceAccounts",
         "parameters": [
           {
@@ -97498,6 +97972,15 @@
           },
           {
             "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "Flag that indicates whether system-managed Service Accounts (such as those used for MCP ingress/egress integrations) are included in the response. When false, only user-managed Service Accounts are returned.",
+            "in": "query",
+            "name": "includeSystemManaged",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
