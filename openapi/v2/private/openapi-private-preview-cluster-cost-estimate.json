@@ -1261,6 +1261,39 @@
         "title": "Cluster Connection Strings",
         "type": "object"
       },
+      "ClusterCostEstimate": {
+        "description": "Estimated compute cost of running a cluster.",
+        "properties": {
+          "disclaimer": {
+            "description": "Human-readable notes about what the estimate does and does not cover. Suitable for rendering line-by-line to the user.",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "readOnly": true,
+            "type": "array"
+          },
+          "hourlyEstimateCents": {
+            "description": "Estimated compute cost per hour, in hundredths of a credit. One Atlas credit converts 1:1 to one US dollar.",
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "monthlyEstimateCents": {
+            "description": "Estimated compute cost per month, in hundredths of a credit. One Atlas credit converts 1:1 to one US dollar.",
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "disclaimer",
+          "hourlyEstimateCents",
+          "monthlyEstimateCents"
+        ],
+        "title": "Cluster Cost Estimate",
+        "type": "object"
+      },
       "ClusterDescription20240805": {
         "description": "Configuration of a MongoDB Atlas cluster, including its replication topology, instance sizing, storage, and operational settings.",
         "properties": {
@@ -1890,41 +1923,6 @@
         },
         "type": "object"
       },
-      "PaginatedSandboxConfigs": {
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "results": {
-            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
-            "items": {
-              "$ref": "#/components/schemas/SandboxConfigResponse"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "totalCount": {
-            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
-            "format": "int32",
-            "minimum": 0,
-            "readOnly": true,
-            "type": "integer"
-          }
-        },
-        "required": [
-          "results"
-        ],
-        "type": "object"
-      },
       "ReplicationSpec20240805": {
         "description": "Details that explain how MongoDB Cloud replicates data on the specified MongoDB database.",
         "properties": {
@@ -1978,77 +1976,6 @@
           "value"
         ],
         "title": "Resource Tag",
-        "type": "object"
-      },
-      "SandboxClusterTemplateView": {
-        "description": "Cluster template configuration for sandbox clusters.",
-        "nullable": true,
-        "properties": {
-          "provider": {
-            "description": "The provider for a cluster.",
-            "example": "AWS",
-            "type": "string"
-          },
-          "region": {
-            "description": "The region for a cluster.",
-            "example": "US_EAST_1",
-            "type": "string"
-          },
-          "tier": {
-            "description": "The tier for a cluster.",
-            "example": "M0",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "SandboxConfigRequest": {
-        "description": "Settings to configure the sandbox feature for an organization.",
-        "properties": {
-          "clusterTemplate": {
-            "$ref": "#/components/schemas/SandboxClusterTemplateView"
-          },
-          "enabled": {
-            "description": "Whether sandbox mode is enabled for the organization.",
-            "nullable": true,
-            "type": "boolean"
-          }
-        },
-        "type": "object"
-      },
-      "SandboxConfigResponse": {
-        "description": "Configuration details for the sandbox feature of an organization.",
-        "properties": {
-          "clusterTemplate": {
-            "$ref": "#/components/schemas/SandboxClusterTemplateView"
-          },
-          "enabled": {
-            "description": "Whether sandbox mode is enabled for the organization.",
-            "nullable": true,
-            "type": "boolean"
-          },
-          "id": {
-            "description": "The ID of the sandbox configuration.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "SandboxConfigUpdateRequest": {
-        "description": "Settings to update an existing sandbox for an organization.",
-        "properties": {
-          "clusterTemplate": {
-            "$ref": "#/components/schemas/SandboxClusterTemplateView"
-          },
-          "enabled": {
-            "description": "Whether sandbox mode is enabled for the organization.",
-            "nullable": true,
-            "type": "boolean"
-          }
-        },
         "type": "object"
       },
       "TenantHardwareSpec20240805": {
@@ -2133,7 +2060,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-sandbox-resource+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-cluster-cost-estimate+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -2145,10 +2072,10 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/groups/{groupId}/sandbox/{sandboxConfigId}:generateClusterDescription": {
-      "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Return cluster description from sandbox template configuration for M0 and M10 clusters only. Results from this endpoint can be put directly into the /clusters endpoint. View https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-creategroupcluster for more information. For Flex clusters, please visit https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-creategroupflexcluster for an example.",
-        "operationId": "generateGroupSandboxClusterDescription",
+    "/api/atlas/v2/groups/{groupId}/clusters:estimateCreateCost": {
+      "post": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n This endpoint validates a supplied cluster configuration and provides an estimated hourly and monthly compute cost without creating the cluster. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. The request body matches that of the Create One Cluster endpoint, and the same configuration validation is applied. Invalid configurations are rejected with the same errors. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during actual cluster creation.",
+        "operationId": "estimateGroupClusterCreateCost",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -2158,198 +2085,45 @@
           },
           {
             "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/sandboxConfigId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClusterDescription20240805"
-                },
-                "x-xgen-preview": {
-                  "name": "sandbox-resource"
-                },
-                "x-xgen-version": "private-preview-sandbox-resource"
-              }
-            },
-            "description": "OK"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return Cluster Description from Sandbox Template Configuration",
-        "tags": [
-          "Sandbox"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api sandbox generateSandboxClusterDescription --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/sandbox/{sandboxConfigId}:generateClusterDescription?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/sandbox/{sandboxConfigId}:generateClusterDescription?pretty=true\""
-          }
-        ],
-        "x-rolesRequirements": [
-          "Organization Project Creator"
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/generateGroupSandboxClusterDescription",
-        "x-xgen-operation-id-override": "generateSandboxClusterDescription"
-      }
-    },
-    "/api/atlas/v2/orgs/{orgId}/sandboxConfig": {
-      "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Return an array of sandbox configuration IDs for an organization.",
-        "operationId": "listOrgSandboxConfig",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "$ref": "#/components/parameters/orgId"
-          },
-          {
-            "$ref": "#/components/parameters/itemsPerPage"
-          },
-          {
-            "$ref": "#/components/parameters/pageNum"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedSandboxConfigs"
-                },
-                "x-xgen-preview": {
-                  "name": "sandbox-resource"
-                },
-                "x-xgen-version": "private-preview-sandbox-resource"
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return Sandbox Configuration IDs for an Organization",
-        "tags": [
-          "Sandbox"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api sandbox listOrgSandboxConfig --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig?pretty=true\""
-          }
-        ],
-        "x-rolesRequirements": [
-          "Organization Project Creator"
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/listOrgSandboxConfig"
-      },
-      "post": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Create one sandbox configuration for an organization.",
-        "operationId": "createOrgSandboxConfig",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "$ref": "#/components/parameters/orgId"
           }
         ],
         "requestBody": {
           "content": {
             "application/vnd.atlas.preview+json": {
               "schema": {
-                "$ref": "#/components/schemas/SandboxConfigRequest"
+                "$ref": "#/components/schemas/ClusterDescription20240805"
               },
               "x-xgen-preview": {
-                "name": "sandbox-resource"
+                "name": "cluster-cost-estimate"
               },
-              "x-xgen-version": "private-preview-sandbox-resource"
+              "x-xgen-version": "private-preview-cluster-cost-estimate"
             }
           },
-          "description": "Settings to configure the sandbox feature for an organization.",
+          "description": "Cluster configuration to estimate.",
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SandboxConfigResponse"
+                  "$ref": "#/components/schemas/ClusterCostEstimate"
                 },
                 "x-xgen-preview": {
-                  "name": "sandbox-resource"
+                  "name": "cluster-cost-estimate"
                 },
-                "x-xgen-version": "private-preview-sandbox-resource"
+                "x-xgen-version": "private-preview-cluster-cost-estimate"
               }
             },
-            "description": "Created"
+            "description": "Estimated hourly and monthly compute cost for the supplied configuration.",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -2366,282 +2140,44 @@
           "409": {
             "$ref": "#/components/responses/conflict"
           },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Create One Sandbox Configuration for an Organization",
+        "summary": "Estimate the Cost of Creating One Cluster",
         "tags": [
-          "Sandbox"
+          "Clusters"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api sandbox createOrgSandboxConfig --help"
+            "source": "atlas api clusters estimateCreateClusterCost --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters:estimateCreateCost\" \\\n  -d '{ <Payload> }'"
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters:estimateCreateCost\" \\\n  -d '{ <Payload> }'"
           }
         ],
         "x-rolesRequirements": [
-          "Organization Owner"
+          "Project Cluster Creator"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/createOrgSandboxConfig"
-      }
-    },
-    "/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}": {
-      "delete": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Delete the default sandbox configuration and disable sandbox for an organization.",
-        "operationId": "deleteOrgSandboxConfig",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/orgId"
-          },
-          {
-            "$ref": "#/components/parameters/sandboxConfigId"
-          }
-        ],
-        "responses": {
-          "204": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "x-xgen-preview": {
-                  "name": "sandbox-resource"
-                },
-                "x-xgen-version": "private-preview-sandbox-resource"
-              }
-            },
-            "description": "No Content"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Delete the Default Sandbox Configuration and Disable Sandbox",
-        "tags": [
-          "Sandbox"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api sandbox deleteOrgSandboxConfig --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}\""
-          }
-        ],
-        "x-rolesRequirements": [
-          "Organization Owner"
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/deleteOrgSandboxConfig"
-      },
-      "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Return the default sandbox configuration for an organization.",
-        "operationId": "getOrgSandboxConfig",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "$ref": "#/components/parameters/orgId"
-          },
-          {
-            "$ref": "#/components/parameters/sandboxConfigId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SandboxConfigResponse"
-                },
-                "x-xgen-preview": {
-                  "name": "sandbox-resource"
-                },
-                "x-xgen-version": "private-preview-sandbox-resource"
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return Default Sandbox Configuration for One Organization",
-        "tags": [
-          "Sandbox"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api sandbox getOrgSandboxConfig --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}?pretty=true\""
-          }
-        ],
-        "x-rolesRequirements": [
-          "Organization Project Creator"
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/getOrgSandboxConfig"
-      },
-      "patch": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Update an existing sandbox configuration for an organization.",
-        "operationId": "updateOrgSandboxConfig",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "$ref": "#/components/parameters/orgId"
-          },
-          {
-            "$ref": "#/components/parameters/sandboxConfigId"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.preview+json": {
-              "schema": {
-                "$ref": "#/components/schemas/SandboxConfigUpdateRequest"
-              },
-              "x-xgen-preview": {
-                "name": "sandbox-resource"
-              },
-              "x-xgen-version": "private-preview-sandbox-resource"
-            }
-          },
-          "description": "Settings to update the sandbox configuration for an organization.",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SandboxConfigResponse"
-                },
-                "x-xgen-preview": {
-                  "name": "sandbox-resource"
-                },
-                "x-xgen-version": "private-preview-sandbox-resource"
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Update an Existing Sandbox Configuration",
-        "tags": [
-          "Sandbox"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api sandbox updateOrgSandboxConfig --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}\" \\\n  -d '{ <Payload> }'"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/sandboxConfig/{sandboxConfigId}\" \\\n  -d '{ <Payload> }'"
-          }
-        ],
-        "x-rolesRequirements": [
-          "Organization Owner"
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sandbox/operation/updateOrgSandboxConfig"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateGroupClusterCreateCost",
+        "x-xgen-operation-id-override": "estimateCreateClusterCost"
       }
     }
   },
@@ -2660,8 +2196,8 @@
   ],
   "tags": [
     {
-      "description": "Returns, adds, edits, and removes sandbox templates. Also enables/disables sandbox for an organization.",
-      "name": "Sandbox"
+      "description": "Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.",
+      "name": "Clusters"
     }
   ],
   "x-externalLinks": [

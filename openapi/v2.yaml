@@ -2728,7 +2728,7 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 writeStrategy:
-                    description: Strategy for writing data on the target (create as new or overwrite existing). For overwrite existing, writes to overwritten databases or collections during the restore may be lost.
+                    description: Strategy for writing data on the target (create as new or overwrite existing). With `OVERWRITE_EXISTING`, any writes to the affected databases or collections during the restore will be lost when the existing namespaces are dropped and replaced. To avoid data loss, stop writes to the affected namespaces before starting the restore.
                     enum:
                         - CREATE_NEW
                         - OVERWRITE_EXISTING
@@ -2838,7 +2838,7 @@ components:
                     readOnly: true
                     type: integer
                 writeStrategy:
-                    description: Strategy for writing data on the target (create as new or overwrite existing). For overwrite existing, writes to overwritten databases or collections during the restore may be lost.
+                    description: Strategy for writing data on the target (create as new or overwrite existing). With `OVERWRITE_EXISTING`, any writes to the affected databases or collections during the restore will be lost when the existing namespaces are dropped and replaced. To avoid data loss, stop writes to the affected namespaces before starting the restore.
                     enum:
                         - CREATE_NEW
                         - OVERWRITE_EXISTING
@@ -10528,6 +10528,32 @@ components:
                     type: string
             readOnly: true
             title: Cluster Connection Strings
+            type: object
+        ClusterCostEstimate:
+            description: Estimated compute cost of running a cluster.
+            properties:
+                disclaimer:
+                    description: Human-readable notes about what the estimate does and does not cover. Suitable for rendering line-by-line to the user.
+                    items:
+                        type: string
+                    maxItems: 10
+                    readOnly: true
+                    type: array
+                hourlyEstimateCents:
+                    description: Estimated compute cost per hour, in hundredths of a credit. One Atlas credit converts 1:1 to one US dollar.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                monthlyEstimateCents:
+                    description: Estimated compute cost per month, in hundredths of a credit. One Atlas credit converts 1:1 to one US dollar.
+                    format: int64
+                    readOnly: true
+                    type: integer
+            required:
+                - disclaimer
+                - hourlyEstimateCents
+                - monthlyEstimateCents
+            title: Cluster Cost Estimate
             type: object
         ClusterDescription20240805:
             description: Configuration of a MongoDB Atlas cluster, including its replication topology, instance sizing, storage, and operational settings.
@@ -18408,6 +18434,7 @@ components:
                         $ref: '#/components/schemas/Link'
                     readOnly: true
                     type: array
+            readOnly: true
             required:
                 - expirationTime
                 - grantType
@@ -32825,6 +32852,10 @@ components:
                 multiFactorAuthRequired:
                     description: 'Flag that indicates whether to require users to set up Multi-Factor Authentication (MFA) before accessing the specified organization. To learn more, see: https://www.mongodb.com/docs/atlas/security-multi-factor-authentication/.'
                     type: boolean
+                operationsContact:
+                    description: String that specifies a distribution list email address for the specified organization to receive proactive notifications about its infrastructure. The operations contact is used for notifications only and is not authorized to make decisions or approvals. Passing an explicit null clears the existing operations contact (if any). An empty string is invalid and is rejected with a validation error.
+                    nullable: true
+                    type: string
                 restrictEmployeeAccess:
                     description: 'Flag that indicates whether to block MongoDB Support from accessing Atlas infrastructure and cluster logs for any deployment in the specified organization without explicit permission. Once this setting is turned on, you can grant MongoDB Support a 24-hour bypass access to the Atlas deployment to resolve support issues. To learn more, see: https://www.mongodb.com/docs/atlas/security-restrict-support-access/.'
                     type: boolean
@@ -45229,7 +45260,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: d4cf0ac2126fa75b9b89a699dbff525ca49797c4
+    x-xgen-sha: 0e18af3380db579d98a1689ae01f3a554be29de7
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -51181,9 +51212,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupDatabaseView'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupDatabaseView'
+                            x-sunset: "2026-08-10"
                             x-xgen-preview:
                                 name: snapshot-namespaces
                             x-xgen-version: preview
@@ -51214,7 +51250,7 @@ paths:
             x-xgen-operation-id-override: listBackupSnapshotDatabases
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}:
         get:
-            description: Returns one database that exists in the specified snapshot.
+            description: Returns one database that exists in the specified snapshot. Use this to confirm a known database exists before referencing it in a collection restore job.
             operationId: getGroupClusterBackupSnapshotDatabase
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -51243,9 +51279,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupDatabaseResponse'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/DiskBackupDatabaseResponse'
+                            x-sunset: "2026-08-10"
                             x-xgen-preview:
                                 name: snapshot-namespaces
                             x-xgen-version: preview
@@ -51274,7 +51315,7 @@ paths:
             x-xgen-operation-id-override: getBackupSnapshotDatabase
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections:
         get:
-            description: Returns the list of collections in the specified database that exist in the snapshot.
+            description: Returns the list of collections in the specified database that exist in the snapshot. Use this to discover namespaces before creating a collection restore job.
             operationId: listGroupClusterBackupSnapshotDatabaseCollections
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -51306,9 +51347,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupCollectionView'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupCollectionView'
+                            x-sunset: "2026-08-10"
                             x-xgen-preview:
                                 name: snapshot-namespaces
                             x-xgen-version: preview
@@ -51339,7 +51385,7 @@ paths:
             x-xgen-operation-id-override: listSnapshotDatabaseCollections
     ? /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}
     :   get:
-            description: Returns one collection that exists in the specified database in the snapshot.
+            description: Returns one collection that exists in the specified database in the snapshot. Use this to confirm a known collection exists before referencing it in a collection restore job.
             operationId: getGroupClusterBackupSnapshotDatabaseCollection
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -51374,9 +51420,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/DiskBackupCollectionResponse'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/DiskBackupCollectionResponse'
+                            x-sunset: "2026-08-10"
                             x-xgen-preview:
                                 name: snapshot-namespaces
                             x-xgen-version: preview
@@ -51916,9 +51967,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasCollectionRestoreJobView'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiAtlasCollectionRestoreJobView'
+                            x-sunset: "2026-08-10"
                             x-xgen-preview:
                                 name: collection-restore-jobs
                             x-xgen-version: preview
@@ -51963,9 +52019,14 @@ paths:
                     type: string
             requestBody:
                 content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobRequest'
+                        x-xgen-version: "2025-03-12"
                     application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobRequest'
+                        x-sunset: "2026-08-10"
                         x-xgen-preview:
                             name: collection-restore-jobs
                         x-xgen-version: preview
@@ -51974,9 +52035,14 @@ paths:
             responses:
                 "201":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
+                            x-sunset: "2026-08-10"
                             x-xgen-preview:
                                 name: collection-restore-jobs
                             x-xgen-version: preview
@@ -52032,9 +52098,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
+                            x-sunset: "2026-08-10"
                             x-xgen-preview:
                                 name: collection-restore-jobs
                             x-xgen-version: preview
@@ -52117,9 +52188,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiAtlasCollectionRestoreCollectionStateView'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiAtlasCollectionRestoreCollectionStateView'
+                            x-sunset: "2026-08-10"
                             x-xgen-preview:
                                 name: collection-restore-jobs
                             x-xgen-version: preview
@@ -52179,9 +52255,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiAtlasCollectionRestoreCollectionStateResponse'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/ApiAtlasCollectionRestoreCollectionStateResponse'
+                            x-sunset: "2026-08-10"
                             x-xgen-preview:
                                 name: collection-restore-jobs
                             x-xgen-version: preview
@@ -53613,6 +53694,12 @@ paths:
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
+                - description: Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query. Endpoints that return a list of results use the results object as an envelope. Application adds the status parameter to the response body.
+                  in: query
+                  name: envelope
+                  schema:
+                    default: true
+                    type: boolean
             responses:
                 "200":
                     content:
@@ -53651,6 +53738,12 @@ paths:
             operationId: listGroupClusterPerformanceAdvisorSchemaAdvice
             parameters:
                 - $ref: '#/components/parameters/groupId'
+                - description: Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query. Endpoints that return a list of results use the results object as an envelope. Application adds the status parameter to the response body.
+                  in: query
+                  name: envelope
+                  schema:
+                    default: true
+                    type: boolean
                 - description: Human-readable label that identifies the cluster.
                   in: path
                   name: clusterName
@@ -53703,6 +53796,12 @@ paths:
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
+                - description: Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query. Endpoints that return a list of results use the results object as an envelope. Application adds the status parameter to the response body.
+                  in: query
+                  name: envelope
+                  schema:
+                    default: true
+                    type: boolean
                 - description: Process IDs from which to retrieve suggested indexes. A `processId` is a combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests. To include multiple `processIds`, pass the parameter multiple times delimited with an ampersand (`&`) between each `processId`.
                   in: query
                   name: processIds
@@ -56239,6 +56338,60 @@ paths:
                 customMethod: true
                 verb: upgrade
             x-xgen-operation-id-override: upgradeClusterToServerless
+    /api/atlas/v2/groups/{groupId}/clusters:estimateCreateCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and provides an estimated hourly and monthly compute cost without creating the cluster. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. The request body matches that of the Create One Cluster endpoint, and the same configuration validation is applied. Invalid configurations are rejected with the same errors. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during actual cluster creation.
+            operationId: estimateGroupClusterCreateCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Cluster configuration to estimate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Creating One Cluster
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Cluster Creator
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateGroupClusterCreateCost
+            x-xgen-operation-id-override: estimateCreateClusterCost
     /api/atlas/v2/groups/{groupId}/collStats/metrics:
         get:
             description: Returns all available Coll Stats Latency metric names and their respective units for the specified project at the time of request.
