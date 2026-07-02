@@ -3006,7 +3006,7 @@
             "type": "string"
           },
           "writeStrategy": {
-            "description": "Strategy for writing data on the target (create as new or overwrite existing). For overwrite existing, writes to overwritten databases or collections during the restore may be lost.",
+            "description": "Strategy for writing data on the target (create as new or overwrite existing). With `OVERWRITE_EXISTING`, any writes to the affected databases or collections during the restore will be lost when the existing namespaces are dropped and replaced. To avoid data loss, stop writes to the affected namespaces before starting the restore.",
             "enum": [
               "CREATE_NEW",
               "OVERWRITE_EXISTING"
@@ -3144,7 +3144,7 @@
             "type": "integer"
           },
           "writeStrategy": {
-            "description": "Strategy for writing data on the target (create as new or overwrite existing). For overwrite existing, writes to overwritten databases or collections during the restore may be lost.",
+            "description": "Strategy for writing data on the target (create as new or overwrite existing). With `OVERWRITE_EXISTING`, any writes to the affected databases or collections during the restore will be lost when the existing namespaces are dropped and replaced. To avoid data loss, stop writes to the affected namespaces before starting the restore.",
             "enum": [
               "CREATE_NEW",
               "OVERWRITE_EXISTING"
@@ -40554,6 +40554,11 @@
             "description": "Flag that indicates whether to require users to set up Multi-Factor Authentication (MFA) before accessing the specified organization. To learn more, see: https://www.mongodb.com/docs/atlas/security-multi-factor-authentication/.",
             "type": "boolean"
           },
+          "operationsContact": {
+            "description": "String that specifies a distribution list email address for the specified organization to receive proactive notifications about its infrastructure. The operations contact is used for notifications only and is not authorized to make decisions or approvals. Passing an explicit null clears the existing operations contact (if any). An empty string is invalid and is rejected with a validation error.",
+            "nullable": true,
+            "type": "string"
+          },
           "restrictEmployeeAccess": {
             "description": "Flag that indicates whether to block MongoDB Support from accessing Atlas infrastructure and cluster logs for any deployment in the specified organization without explicit permission. Once this setting is turned on, you can grant MongoDB Support a 24-hour bypass access to the Atlas deployment to resolve support issues. To learn more, see: https://www.mongodb.com/docs/atlas/security-restrict-support-access/.",
             "type": "boolean"
@@ -56149,7 +56154,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "ec202facb2a6c66c1725f365132586defcd7ab0d"
+    "x-xgen-sha": "cbb06895a79fff66224643a750f7b013056ae1dc"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -65584,10 +65589,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiAtlasDiskBackupDatabaseView"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedApiAtlasDiskBackupDatabaseView"
                 },
+                "x-sunset": "2026-08-10",
                 "x-xgen-preview": {
                   "name": "snapshot-namespaces"
                 },
@@ -65636,7 +65648,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}": {
       "get": {
-        "description": "Returns one database that exists in the specified snapshot.",
+        "description": "Returns one database that exists in the specified snapshot. Use this to confirm a known database exists before referencing it in a collection restore job.",
         "operationId": "getGroupClusterBackupSnapshotDatabase",
         "parameters": [
           {
@@ -65681,10 +65693,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiskBackupDatabaseResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/DiskBackupDatabaseResponse"
                 },
+                "x-sunset": "2026-08-10",
                 "x-xgen-preview": {
                   "name": "snapshot-namespaces"
                 },
@@ -65730,7 +65749,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections": {
       "get": {
-        "description": "Returns the list of collections in the specified database that exist in the snapshot.",
+        "description": "Returns the list of collections in the specified database that exist in the snapshot. Use this to discover namespaces before creating a collection restore job.",
         "operationId": "listGroupClusterBackupSnapshotDatabaseCollections",
         "parameters": [
           {
@@ -65784,10 +65803,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiAtlasDiskBackupCollectionView"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedApiAtlasDiskBackupCollectionView"
                 },
+                "x-sunset": "2026-08-10",
                 "x-xgen-preview": {
                   "name": "snapshot-namespaces"
                 },
@@ -65836,7 +65862,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}": {
       "get": {
-        "description": "Returns one collection that exists in the specified database in the snapshot.",
+        "description": "Returns one collection that exists in the specified database in the snapshot. Use this to confirm a known collection exists before referencing it in a collection restore job.",
         "operationId": "getGroupClusterBackupSnapshotDatabaseCollection",
         "parameters": [
           {
@@ -65890,10 +65916,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiskBackupCollectionResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/DiskBackupCollectionResponse"
                 },
+                "x-sunset": "2026-08-10",
                 "x-xgen-preview": {
                   "name": "snapshot-namespaces"
                 },
@@ -66510,10 +66543,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiAtlasCollectionRestoreJobView"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedApiAtlasCollectionRestoreJobView"
                 },
+                "x-sunset": "2026-08-10",
                 "x-xgen-preview": {
                   "name": "collection-restore-jobs"
                 },
@@ -66585,10 +66625,17 @@
         ],
         "requestBody": {
           "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            },
             "application/vnd.atlas.preview+json": {
               "schema": {
                 "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobRequest"
               },
+              "x-sunset": "2026-08-10",
               "x-xgen-preview": {
                 "name": "collection-restore-jobs"
               },
@@ -66601,10 +66648,17 @@
         "responses": {
           "201": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
                 },
+                "x-sunset": "2026-08-10",
                 "x-xgen-preview": {
                   "name": "collection-restore-jobs"
                 },
@@ -66692,10 +66746,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
                 },
+                "x-sunset": "2026-08-10",
                 "x-xgen-preview": {
                   "name": "collection-restore-jobs"
                 },
@@ -66823,10 +66884,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiAtlasCollectionRestoreCollectionStateView"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedApiAtlasCollectionRestoreCollectionStateView"
                 },
+                "x-sunset": "2026-08-10",
                 "x-xgen-preview": {
                   "name": "collection-restore-jobs"
                 },
@@ -66920,10 +66988,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiAtlasCollectionRestoreCollectionStateResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiAtlasCollectionRestoreCollectionStateResponse"
                 },
+                "x-sunset": "2026-08-10",
                 "x-xgen-preview": {
                   "name": "collection-restore-jobs"
                 },
