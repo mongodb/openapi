@@ -54074,6 +54074,55 @@
         "title": "Splunk Log Export Integration Response",
         "type": "object"
       },
+      "SqlInterfaceStatusResponse": {
+        "properties": {
+          "status": {
+            "description": "Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.",
+            "enum": [
+              "ON",
+              "OFF"
+            ],
+            "type": "string"
+          },
+          "supported": {
+            "default": false,
+            "description": "Whether the cluster tier and type support SQL Interface.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "unsupportedReason": {
+            "description": "Machine-readable reason why SQL Interface isn't supported for this cluster. Present only when supported is false.",
+            "enum": [
+              "UNSUPPORTED_TIER",
+              "UNSUPPORTED_TYPE",
+              "UNSUPPORTED_MONGODB_VERSION"
+            ],
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "SqlInterfaceStatusUpdateRequest": {
+        "properties": {
+          "status": {
+            "description": "Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.",
+            "enum": [
+              "ON",
+              "OFF"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
       "StartStreamProcessorWithPreviewView": {
         "description": "A request to start a stream processor.",
         "properties": {
@@ -60843,7 +60892,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "4d84a51885511cfe83ff57544b5657bb66ab0ce6"
+    "x-xgen-sha": "acdb83d2c660eba298547f9e73495dee3b7f1989"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -78681,6 +78730,109 @@
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/updateGroupClusterSnapshot",
         "x-xgen-operation-id-override": "updateClusterSnapshot",
         "x-xgen-owner-team": "Backup - Atlas"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface": {
+      "patch": {
+        "description": "Enables or disables the SQL Interface for the specified cluster by setting its status to ON or OFF. Returns a conflict if SQL Interface can't be enabled for this cluster or project.",
+        "operationId": "updateGroupClusterSqlInterface",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SqlInterfaceStatusUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "sql-interface"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Desired SQL Interface status for the cluster.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SqlInterfaceStatusResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "sql-interface"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "SQL Interface status successfully updated.",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update SQL Interface Status",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager",
+          "Project Replica Set Manager"
+        ],
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-117-operation-summary-format": "Atlas SQL is a product name; the SQL acronym is not present in the IPA-117 ignoreList."
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterSqlInterface",
+        "x-xgen-operation-id-override": "updateClusterSqlInterface",
+        "x-xgen-owner-team": "Atlas SQL"
+      },
+      "x-xgen-IPA-exception": {
+        "xgen-IPA-104-resource-has-GET": "PATCH-only preview endpoint; the GET method is added in SQL-3265."
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/status": {
