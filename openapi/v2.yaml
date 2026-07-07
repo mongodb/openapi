@@ -27191,6 +27191,12 @@ components:
                 - name
             title: Tenant Cluster Upgrade Request
             type: object
+        LegacyRegionsConfig:
+            additionalProperties:
+                $ref: '#/components/schemas/RegionSpec'
+            description: Physical location where MongoDB Cloud provisions cluster nodes.
+            title: Region Configuration
+            type: object
         LegacyReplicationSpec:
             properties:
                 id:
@@ -27212,11 +27218,7 @@ components:
                     format: int32
                     type: integer
                 regionsConfig:
-                    additionalProperties:
-                        $ref: '#/components/schemas/RegionSpec'
-                    description: Physical location where MongoDB Cloud provisions cluster nodes.
-                    title: Region Configuration
-                    type: object
+                    $ref: '#/components/schemas/LegacyRegionsConfig'
                 zoneName:
                     description: Human-readable label that identifies the zone in a Global Cluster. Provide this value only if `clusterType` is `GEOSHARDED`.
                     type: string
@@ -45453,7 +45455,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 3cb52d9b66a6f87d51044a9331b6f61f093975d5
+    x-xgen-sha: 07172da15a5a109a2d5f48e91901aa59bf0a9856
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -56720,6 +56722,60 @@ paths:
                 - Project Cluster Creator
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateGroupClusterCreateCost
             x-xgen-operation-id-override: estimateCreateClusterCost
+    /api/atlas/v2/groups/{groupId}/clusters:estimateTenantUpgradeCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Upgrade One Shared-Tier Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupClusterTenantUpgradeCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/LegacyAtlasTenantClusterUpgradeRequest'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Shared-tier cluster upgrade to estimate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Upgrading One Shared-Tier Cluster
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateGroupClusterTenantUpgradeCost
+            x-xgen-operation-id-override: estimateTenantUpgradeCost
     /api/atlas/v2/groups/{groupId}/collStats/metrics:
         get:
             description: Returns all available Coll Stats Latency metric names and their respective units for the specified project at the time of request.
