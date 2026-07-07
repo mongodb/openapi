@@ -394,9 +394,11 @@ components:
             type: object
         ApiAtlasCollectionRestoreJobRequest:
             description: Request body for creating a collection restore job.
+            nullable: true
             properties:
                 collectionSuffix:
                     description: Optional suffix applied to restored collection names.
+                    nullable: true
                     type: string
                 collections:
                     description: List of collections to restore (up to 100 items).
@@ -406,6 +408,7 @@ components:
                     type: array
                 databaseSuffix:
                     description: Optional suffix applied to restored database names.
+                    nullable: true
                     type: string
                 databases:
                     description: List of databases to restore (up to 100 items).
@@ -423,20 +426,17 @@ components:
                 oplogInc:
                     description: Oplog increment for point-in-time restore.
                     format: int32
+                    nullable: true
                     type: integer
                 oplogTs:
                     description: Oplog timestamp (seconds part) for point-in-time restore.
                     format: int32
+                    nullable: true
                     type: integer
-                overwriteStrategy:
-                    description: Strategy for overwriting existing data (new if exists or overwrite if exists).
-                    enum:
-                        - NEW_IF_EXISTS
-                        - OVERWRITE_IF_EXISTS
-                    type: string
                 pointInTimeUtcSeconds:
                     description: Point-in-time restore time in seconds since UNIX epoch.
                     format: int32
+                    nullable: true
                     type: integer
                 snapshotId:
                     description: ID of the snapshot to restore.
@@ -451,11 +451,17 @@ components:
                     example: 32b6e34b3d91647abb20e7b8
                     pattern: ^([a-f0-9]{24})$
                     type: string
+                writeStrategy:
+                    description: Strategy for writing data on the target (create as new or overwrite existing). With `OVERWRITE_EXISTING`, any writes to the affected databases or collections during the restore will be lost when the existing namespaces are dropped and replaced. To avoid data loss, stop writes to the affected namespaces before starting the restore.
+                    enum:
+                        - CREATE_NEW
+                        - OVERWRITE_EXISTING
+                    type: string
             required:
                 - indexStrategy
-                - overwriteStrategy
                 - targetClusterName
                 - targetGroupId
+                - writeStrategy
             type: object
         ApiAtlasCollectionRestoreJobResponse:
             description: Collection restore job summary including the list of databases and collections in the restore scope (up to 100 items each).
@@ -515,12 +521,6 @@ components:
                     description: Oplog timestamp (seconds part) for point-in-time restore.
                     format: int32
                     type: integer
-                overwriteStrategy:
-                    description: Strategy for overwriting existing data (new if exists or overwrite if exists).
-                    enum:
-                        - NEW_IF_EXISTS
-                        - OVERWRITE_IF_EXISTS
-                    type: string
                 pointInTimeUtcSeconds:
                     description: Point-in-time restore time in seconds since UNIX epoch.
                     format: int32
@@ -561,6 +561,12 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+                writeStrategy:
+                    description: Strategy for writing data on the target (create as new or overwrite existing). With `OVERWRITE_EXISTING`, any writes to the affected databases or collections during the restore will be lost when the existing namespaces are dropped and replaced. To avoid data loss, stop writes to the affected namespaces before starting the restore.
+                    enum:
+                        - CREATE_NEW
+                        - OVERWRITE_EXISTING
+                    type: string
             type: object
         ApiAtlasRestoreNamespaceView:
             description: Source and optional target namespace for a restore.
@@ -580,6 +586,7 @@ components:
                     $ref: '#/components/schemas/BadRequestDetail'
                 detail:
                     description: Describes the specific conditions or reasons that cause each type of error.
+                    nullable: true
                     type: string
                 error:
                     description: HTTP status code returned with this error.
@@ -600,6 +607,7 @@ components:
                     type: array
                 reason:
                     description: Application error message returned with this error.
+                    nullable: true
                     readOnly: true
                     type: string
             required:
@@ -608,6 +616,7 @@ components:
             type: object
         BadRequestDetail:
             description: Bad request detail.
+            nullable: true
             properties:
                 fields:
                     description: Describes all violations in a client request.
@@ -735,15 +744,16 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: e5ca8f93f4b8d4f0577d7e5f78f833ec76d07ad9
+    x-xgen-sha: 975bac77c80a9ef1889a72e3fd501b5d45aa97e2
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs:
         get:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns all collection restore jobs for one cluster from the specified project.
+                 Returns all collection restore jobs for one cluster from the specified project. Deprecated versions: v2-{2025-03-12}
             operationId: listGroupClusterCollectionRestoreJobs
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -811,13 +821,15 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-08-10"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterCollectionRestoreJobs
             x-xgen-operation-id-override: listCollectionRestoreJobs
         post:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Creates one collection-level restore job for one cluster from the specified project. Collection-level restores allow restoring specific databases or collections from a snapshot or point-in-time.
+                 Creates one collection-level restore job for one cluster from the specified project. Collection-level restores allow restoring specific databases or collections from a snapshot or point-in-time. Deprecated versions: v2-{2025-03-12}
             operationId: createGroupClusterCollectionRestoreJob
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -835,6 +847,7 @@ paths:
                     application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobRequest'
+                        x-sunset: "2026-08-10"
                         x-xgen-preview:
                             name: collection-restore-jobs
                         x-xgen-version: private-preview-collection-restore-jobs
@@ -899,14 +912,16 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-08-10"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/createGroupClusterCollectionRestoreJob
             x-xgen-operation-id-override: createCollectionRestoreJob
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}:
         get:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns one collection restore job for one cluster from the specified project.
+                 Returns one collection restore job for one cluster from the specified project. Deprecated versions: v2-{2025-03-12}
             operationId: getGroupClusterCollectionRestoreJob
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -979,14 +994,16 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-08-10"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterCollectionRestoreJob
             x-xgen-operation-id-override: getCollectionRestoreJob
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}/collections:
         get:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns all collection-level restore states for one collection restore job from the specified project. Note: If the restore job is in the INITIALIZING state, this endpoint returns an empty list because collection-level states have not yet been created.
+                 Returns all collection-level restore states for one collection restore job from the specified project. Note: If the restore job is in the INITIALIZING state, this endpoint returns an empty list because collection-level states have not yet been created. Deprecated versions: v2-{2025-03-12}
             operationId: listGroupClusterCollectionRestoreJobCollections
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -1088,14 +1105,16 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-08-10"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterCollectionRestoreJobCollections
             x-xgen-operation-id-override: listRestoreJobCollections
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collectionRestoreJobs/{jobId}/collections/{sourceNamespace}:
         get:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns one collection-level restore state for one collection restore job from the specified project.
+                 Returns one collection-level restore state for one collection restore job from the specified project. Deprecated versions: v2-{2025-03-12}
             operationId: getGroupClusterCollectionRestoreJobCollection
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -1174,6 +1193,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-08-10"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterCollectionRestoreJobCollection
             x-xgen-operation-id-override: getRestoreJobCollection
 security:
