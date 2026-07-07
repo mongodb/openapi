@@ -13569,6 +13569,14 @@ components:
                         - GCP
                     type: string
             type: object
+        CreateEphemeralClusterRequest:
+            description: Create an ephemeral Atlas cluster.
+            properties:
+                clusterName:
+                    description: Designate the name of the ephemeral cluster.
+                    nullable: true
+                    type: string
+            type: object
         CreateGCPEndpointGroupRequest:
             allOf:
                 - $ref: '#/components/schemas/CreateEndpointRequest'
@@ -20082,6 +20090,33 @@ components:
             required:
                 - content
                 - status
+            type: object
+        EphemeralClusterCreated:
+            description: Details for the ephemeral Atlas cluster that was created.
+            properties:
+                claimUrl:
+                    description: URL that redirects users to the Atlas registration page.
+                    format: uri
+                    type: string
+                clusterId:
+                    description: Unique ID that can be used to check the status of an ephemeral cluster.
+                    type: string
+                connectionString:
+                    description: Atlas cluster connection string with SCRAM database user credentials included.
+                    type: string
+                expiresAt:
+                    description: Date and time when the cluster will be paused and no longer accessible until it is claimed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    type: string
+                status:
+                    description: Status of the ephemeral cluster.
+                    enum:
+                        - ACTIVE
+                        - PAUSED
+                    type: string
+                termsOfService:
+                    description: Legal Terms of Service agreement.
+                    type: string
             type: object
         EventSeverity:
             description: Severity of the event.
@@ -47817,7 +47852,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 1e985fabced425a7966c3bdf219d9c7d18c86d5e
+    x-xgen-sha: b5e241a04f42e59238a72902209fb23339d9057a
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -80939,6 +80974,43 @@ paths:
         x-xgen-IPA-exception:
             xgen-IPA-102-collection-identifier-camelCase: API predates IPA validation.
             xgen-IPA-104-resource-has-GET: API predates IPA validation.
+    /api/atlas/v2/unauth/ephemeralClusters:create:
+        post:
+            description: Creates an ephemeral Atlas cluster for users or agents.
+            operationId: createEphemeralCluster
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/CreateEphemeralClusterRequest'
+                description: Ephemeral cluster to create.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/EphemeralClusterCreated'
+                            x-xgen-version: "2025-03-12"
+                    description: Created
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create an Ephemeral Atlas Cluster
+            tags:
+                - EphemeralClusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/EphemeralClusters/operation/createEphemeralCluster
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Atlas Growth
     /api/atlas/v2/unauth/openapi/versions:
         get:
             description: API that provides a list of available versions for a given environment.
