@@ -26093,7 +26093,9 @@
               "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED",
               "CLUSTER_MONGUARD_ENABLED",
               "CLUSTER_MONGUARD_DISABLED",
-              "CLUSTER_MONGODB_VERSION_UPDATED"
+              "CLUSTER_MONGODB_VERSION_UPDATED",
+              "VOLUME_IMPAIRED",
+              "VOLUME_IMPAIRED_RESOLVED"
             ],
             "title": "Atlas Audit Types",
             "type": "string",
@@ -40091,7 +40093,9 @@
           "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED",
           "CLUSTER_MONGUARD_ENABLED",
           "CLUSTER_MONGUARD_DISABLED",
-          "CLUSTER_MONGODB_VERSION_UPDATED"
+          "CLUSTER_MONGODB_VERSION_UPDATED",
+          "VOLUME_IMPAIRED",
+          "VOLUME_IMPAIRED_RESOLVED"
         ],
         "example": "CLUSTER_CREATED",
         "title": "Atlas Audit Types",
@@ -61041,7 +61045,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "6fff61af54940cdcc7ef1e7cc13f7559ff7b7630"
+    "x-xgen-sha": "1e985fabced425a7966c3bdf219d9c7d18c86d5e"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -79313,6 +79317,125 @@
         "xgen-IPA-102-path-alternate-resource-name-path-param": "API predates IPA validation."
       }
     },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}:estimateUpdateCost": {
+      "post": {
+        "description": "This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Update One Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.",
+        "operationId": "estimateGroupClusterUpdateCost",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "When true, hardware specification fields for autoscaling-enabled clusters are resolved to their effective (current operational) values before pricing. When false (default), the client-specified values are priced. Set this to match the header sent on the corresponding cluster update.",
+            "in": "header",
+            "name": "Use-Effective-Instance-Fields",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Controls how `replicationSpecs` are interpreted for auto-sharded clusters before pricing. When false (default), `replicationSpecs` is treated as the actual cluster state.",
+            "in": "header",
+            "name": "Use-Effective-Fields-Replication-Specs",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClusterDescription20240805"
+              },
+              "x-xgen-preview": {
+                "name": "cluster-cost-estimate"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Cluster update to estimate pricing for.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClusterCostEstimate"
+                },
+                "x-xgen-preview": {
+                  "name": "cluster-cost-estimate"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Estimated hourly and monthly compute cost for the supplied configuration.",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Estimate the Cost of Updating One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager",
+          "Project Replica Set Manager"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateGroupClusterUpdateCost",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
+        "x-xgen-operation-id-override": "estimateUpdateClusterCost",
+        "x-xgen-owner-team": "Atlas Clusters Platform II"
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}:grantMongoDBEmployeeAccess": {
       "post": {
         "description": "Grants MongoDB employee cluster access for the given duration and at the specified level for one cluster.",
@@ -79793,7 +79916,7 @@
     },
     "/api/atlas/v2/groups/{groupId}/clusters:estimateCreateCost": {
       "post": {
-        "description": "This endpoint validates a supplied cluster configuration and provides an estimated hourly and monthly compute cost without creating the cluster. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. The request body matches that of the Create One Cluster endpoint, and the same configuration validation is applied. Invalid configurations are rejected with the same errors. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during actual cluster creation.",
+        "description": "This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Create One Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.",
         "operationId": "estimateGroupClusterCreateCost",
         "parameters": [
           {
