@@ -1,17 +1,18 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isTitleCase } from './utils/casing.js';
 import { resolveObject } from './utils/componentUtils.js';
+import { IPA_117_GRAMMATICAL_WORDS, IPA_117_IGNORE_LIST } from './utils/grammaticalWordsAndIgnoreList.js';
 
-export default (input, { ignoreList, grammaticalWords }, { path, rule, documentInventory }) => {
+export default (input, options, { path, rule, documentInventory }) => {
   const operationObjectPath = path.slice(0, -1);
   const operationObject = resolveObject(documentInventory.resolved, operationObjectPath);
-  const errors = checkViolationsAndReturnErrors(input, ignoreList, grammaticalWords, operationObjectPath, rule.name);
+  const errors = checkViolationsAndReturnErrors(input, operationObjectPath, rule.name);
   return evaluateAndCollectAdoptionStatus(errors, rule.name, operationObject, operationObjectPath);
 };
 
-function checkViolationsAndReturnErrors(summary, ignoreList, grammaticalWords, path, ruleName) {
+function checkViolationsAndReturnErrors(summary, path, ruleName) {
   try {
-    if (!isTitleCase(summary, ignoreList, grammaticalWords)) {
+    if (!isTitleCase(summary, IPA_117_IGNORE_LIST, IPA_117_GRAMMATICAL_WORDS)) {
       return [
         {
           path,
