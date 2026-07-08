@@ -488,52 +488,112 @@
         ],
         "type": "object"
       },
-      "SqlInterfaceStatusResponse": {
+      "Link": {
         "properties": {
-          "status": {
-            "description": "Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.",
-            "enum": [
-              "ON",
-              "OFF"
-            ],
+          "href": {
+            "description": "Uniform Resource Locator (URL) that points another API resource to which this response has some relationship. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
+            "example": "https://cloud.mongodb.com/api/atlas",
             "type": "string"
           },
-          "supported": {
-            "default": false,
-            "description": "Whether the cluster tier and type support SQL Interface.",
-            "readOnly": true,
-            "type": "boolean"
-          },
-          "unsupportedReason": {
-            "description": "Machine-readable reason why SQL Interface isn't supported for this cluster. Present only when supported is false.",
-            "enum": [
-              "UNSUPPORTED_TIER",
-              "UNSUPPORTED_TYPE",
-              "UNSUPPORTED_MONGODB_VERSION"
-            ],
-            "nullable": true,
-            "readOnly": true,
+          "rel": {
+            "description": "Uniform Resource Locator (URL) that defines the semantic relationship between this resource and another API resource. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
+            "example": "self",
             "type": "string"
           }
         },
-        "required": [
-          "status"
-        ],
         "type": "object"
       },
-      "SqlInterfaceStatusUpdateRequest": {
+      "LoadSheddingSimulationRequest": {
+        "description": "Request to start a load shedding simulation for a cluster.",
         "properties": {
-          "status": {
-            "description": "Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.",
-            "enum": [
-              "ON",
-              "OFF"
-            ],
+          "durationSeconds": {
+            "description": "Duration of the load shedding simulation in seconds.",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "LoadSheddingSimulationResponse": {
+        "description": "Load shedding simulation for a cluster.",
+        "properties": {
+          "clusterName": {
+            "description": "Human-readable label that identifies the cluster on which the simulation is running.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "durationSeconds": {
+            "description": "Duration of the load shedding simulation in seconds.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "expiresAt": {
+            "description": "Date and time when the load shedding simulation expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal character string that identifies the project that contains the cluster.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "requestDate": {
+            "description": "Date and time when the load shedding simulation was requested. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "simulationId": {
+            "description": "Unique identifier of the load shedding simulation.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "state": {
+            "description": "Current state of the load shedding simulation.",
+            "readOnly": true,
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "PaginatedLoadSheddingSimulationResponse": {
+        "description": "List of load shedding simulations for a cluster.",
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/LoadSheddingSimulationResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
         "required": [
-          "status"
+          "results"
         ],
         "type": "object"
       }
@@ -556,7 +616,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-sql-interface+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-load-shedding-simulation+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -568,26 +628,131 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface": {
-      "patch": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Enables or disables the SQL Interface for the specified cluster by setting its status to ON or OFF. Returns a conflict if SQL Interface can't be enabled for this cluster or project.",
-        "operationId": "updateGroupClusterSqlInterface",
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations": {
+      "get": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all load shedding simulations for one cluster.",
+        "operationId": "listGroupClusterOverloadSimulations",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
           },
           {
-            "$ref": "#/components/parameters/groupId"
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
           },
           {
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Human-readable label that identifies the cluster.",
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster on which the load shedding simulations are running.",
             "in": "path",
             "name": "clusterName",
             "required": true,
             "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedLoadSheddingSimulationResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "load-shedding-simulation"
+                },
+                "x-xgen-version": "private-preview-load-shedding-simulation"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Load Shedding Simulations",
+        "tags": [
+          "Load Shedding Simulation"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api loadSheddingSimulation listClusterOverloadSimulations --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Load-Shedding-Simulation/operation/listGroupClusterOverloadSimulations",
+        "x-xgen-operation-id-override": "listClusterOverloadSimulations"
+      },
+      "post": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Starts a load shedding simulation for one cluster. Returns a 409 if a simulation is already in progress or completed; DELETE the existing simulation before starting a new one.",
+        "operationId": "createGroupClusterOverloadSimulation",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster on which to start the load shedding simulation.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
               "type": "string"
             }
           }
@@ -596,31 +761,31 @@
           "content": {
             "application/vnd.atlas.preview+json": {
               "schema": {
-                "$ref": "#/components/schemas/SqlInterfaceStatusUpdateRequest"
+                "$ref": "#/components/schemas/LoadSheddingSimulationRequest"
               },
               "x-xgen-preview": {
-                "name": "sql-interface"
+                "name": "load-shedding-simulation"
               },
-              "x-xgen-version": "private-preview-sql-interface"
+              "x-xgen-version": "private-preview-load-shedding-simulation"
             }
           },
-          "description": "Desired SQL Interface status for the cluster.",
+          "description": "Details of the load shedding simulation to start. Valid durations (in seconds): 900, 3600, 28800, 86400.",
           "required": true
         },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SqlInterfaceStatusResponse"
+                  "$ref": "#/components/schemas/LoadSheddingSimulationResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "sql-interface"
+                  "name": "load-shedding-simulation"
                 },
-                "x-xgen-version": "private-preview-sql-interface"
+                "x-xgen-version": "private-preview-load-shedding-simulation"
               }
             },
-            "description": "SQL Interface status successfully updated.",
+            "description": "Created",
             "headers": {
               "RateLimit-Limit": {
                 "$ref": "#/components/headers/HeaderRateLimitLimit"
@@ -652,38 +817,146 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Update SQL Interface Status",
+        "summary": "Create One Load Shedding Simulation",
         "tags": [
-          "Clusters"
+          "Load Shedding Simulation"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api clusters updateClusterSqlInterface --help"
+            "source": "atlas api loadSheddingSimulation createClusterOverloadSimulation --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations\" \\\n  -d '{ <Payload> }'"
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations\" \\\n  -d '{ <Payload> }'"
           }
         ],
         "x-rolesRequirements": [
-          "Project Cluster Manager",
-          "Project Replica Set Manager"
+          "Project Cluster Manager"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterSqlInterface",
-        "x-xgen-operation-id-override": "updateClusterSqlInterface"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Load-Shedding-Simulation/operation/createGroupClusterOverloadSimulation",
+        "x-xgen-operation-id-override": "createClusterOverloadSimulation"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}": {
+      "get": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns the load shedding simulation for one cluster.",
+        "operationId": "getGroupClusterOverloadSimulation",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster on which the load shedding simulation is running.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the load shedding simulation.",
+            "in": "path",
+            "name": "simulationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoadSheddingSimulationResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "load-shedding-simulation"
+                },
+                "x-xgen-version": "private-preview-load-shedding-simulation"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Load Shedding Simulation",
+        "tags": [
+          "Load Shedding Simulation"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api loadSheddingSimulation getClusterOverloadSimulation --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Load-Shedding-Simulation/operation/getGroupClusterOverloadSimulation",
+        "x-xgen-operation-id-override": "getClusterOverloadSimulation"
       }
     }
   },
@@ -702,8 +975,8 @@
   ],
   "tags": [
     {
-      "description": "Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.",
-      "name": "Clusters"
+      "description": "Returns and starts load shedding simulations for a cluster.",
+      "name": "Load Shedding Simulation"
     }
   ],
   "x-externalLinks": [

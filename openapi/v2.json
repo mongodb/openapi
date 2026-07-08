@@ -34595,6 +34595,64 @@
         },
         "type": "object"
       },
+      "LoadSheddingSimulationRequest": {
+        "description": "Request to start a load shedding simulation for a cluster.",
+        "properties": {
+          "durationSeconds": {
+            "description": "Duration of the load shedding simulation in seconds.",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "LoadSheddingSimulationResponse": {
+        "description": "Load shedding simulation for a cluster.",
+        "properties": {
+          "clusterName": {
+            "description": "Human-readable label that identifies the cluster on which the simulation is running.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "durationSeconds": {
+            "description": "Duration of the load shedding simulation in seconds.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "expiresAt": {
+            "description": "Date and time when the load shedding simulation expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal character string that identifies the project that contains the cluster.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "requestDate": {
+            "description": "Date and time when the load shedding simulation was requested. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "simulationId": {
+            "description": "Unique identifier of the load shedding simulation.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "state": {
+            "description": "Current state of the load shedding simulation.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "LogIntegrationRequest": {
         "description": "Request schema for creating or updating a log integration.",
         "discriminator": {
@@ -43949,6 +44007,42 @@
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
               "$ref": "#/components/schemas/LegacyAtlasCluster"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedLoadSheddingSimulationResponse": {
+        "description": "List of load shedding simulations for a cluster.",
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/LoadSheddingSimulationResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -57661,7 +57755,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "679f144a14a5f9a2054c4cf2ad7161ef7e376c72"
+    "x-xgen-sha": "69c10ab88cc5fe5fc73bf82c9f3e2c2594952b7c"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -70915,6 +71009,271 @@
           "verb": "start"
         },
         "x-xgen-operation-id-override": "startOutageSimulation"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations": {
+      "get": {
+        "description": "Returns all load shedding simulations for one cluster.",
+        "operationId": "listGroupClusterOverloadSimulations",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster on which the load shedding simulations are running.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedLoadSheddingSimulationResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "load-shedding-simulation"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Load Shedding Simulations",
+        "tags": [
+          "Load Shedding Simulation"
+        ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Load-Shedding-Simulation/operation/listGroupClusterOverloadSimulations",
+        "x-xgen-operation-id-override": "listClusterOverloadSimulations"
+      },
+      "post": {
+        "description": "Starts a load shedding simulation for one cluster. Returns a 409 if a simulation is already in progress or completed; DELETE the existing simulation before starting a new one.",
+        "operationId": "createGroupClusterOverloadSimulation",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster on which to start the load shedding simulation.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoadSheddingSimulationRequest"
+              },
+              "x-xgen-preview": {
+                "name": "load-shedding-simulation"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Details of the load shedding simulation to start. Valid durations (in seconds): 900, 3600, 28800, 86400.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoadSheddingSimulationResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "load-shedding-simulation"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Load Shedding Simulation",
+        "tags": [
+          "Load Shedding Simulation"
+        ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Load-Shedding-Simulation/operation/createGroupClusterOverloadSimulation",
+        "x-xgen-operation-id-override": "createClusterOverloadSimulation"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}": {
+      "get": {
+        "description": "Returns the load shedding simulation for one cluster.",
+        "operationId": "getGroupClusterOverloadSimulation",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster on which the load shedding simulation is running.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the load shedding simulation.",
+            "in": "path",
+            "name": "simulationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoadSheddingSimulationResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "load-shedding-simulation"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Load Shedding Simulation",
+        "tags": [
+          "Load Shedding Simulation"
+        ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Load-Shedding-Simulation/operation/getGroupClusterOverloadSimulation",
+        "x-xgen-operation-id-override": "getClusterOverloadSimulation"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/performanceAdvisor/dropIndexSuggestions": {
@@ -106350,6 +106709,10 @@
     {
       "description": "Returns User-Configurable Project Limits.",
       "name": "Limit Description"
+    },
+    {
+      "description": "Returns and starts load shedding simulations for a cluster.",
+      "name": "Load Shedding Simulation"
     },
     {
       "description": "Returns, edits, and removes maintenance windows. The maintenance procedure that MongoDB Cloud performs requires at least one replica set election during the maintenance window per replica set. You can defer a scheduled maintenance event for a project up to two times. Deferred maintenance events occur during your preferred maintenance window exactly one week after the previously scheduled date and time.",

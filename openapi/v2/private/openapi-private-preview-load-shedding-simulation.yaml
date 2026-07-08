@@ -339,12 +339,6 @@ components:
                 - error
                 - errorCode
             type: object
-        ApiVersion:
-            properties:
-                version:
-                    description: Object representing a version of the Atlas Admin API.
-                    type: string
-            type: object
         BadRequestDetail:
             description: Bad request detail.
             nullable: true
@@ -379,7 +373,54 @@ components:
                     example: self
                     type: string
             type: object
-        PaginatedApiVersions:
+        LoadSheddingSimulationRequest:
+            description: Request to start a load shedding simulation for a cluster.
+            properties:
+                durationSeconds:
+                    description: Duration of the load shedding simulation in seconds.
+                    format: int32
+                    type: integer
+            type: object
+        LoadSheddingSimulationResponse:
+            description: Load shedding simulation for a cluster.
+            properties:
+                clusterName:
+                    description: Human-readable label that identifies the cluster on which the simulation is running.
+                    readOnly: true
+                    type: string
+                durationSeconds:
+                    description: Duration of the load shedding simulation in seconds.
+                    format: int32
+                    type: integer
+                expiresAt:
+                    description: Date and time when the load shedding simulation expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                groupId:
+                    description: Unique 24-hexadecimal character string that identifies the project that contains the cluster.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                requestDate:
+                    description: Date and time when the load shedding simulation was requested. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                simulationId:
+                    description: Unique identifier of the load shedding simulation.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                state:
+                    description: Current state of the load shedding simulation.
+                    readOnly: true
+                    type: string
+            type: object
+        PaginatedLoadSheddingSimulationResponse:
+            description: List of load shedding simulations for a cluster.
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -393,7 +434,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/ApiVersion'
+                        $ref: '#/components/schemas/LoadSheddingSimulationResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -434,7 +475,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-version-resource+json" \
+          --header "Accept: application/vnd.atlas.private-preview-load-shedding-simulation+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -452,78 +493,256 @@ info:
     x-xgen-sha: 69c10ab88cc5fe5fc73bf82c9f3e2c2594952b7c
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/unauth/openapi/versions:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 API that provides a list of available versions for a given environment. Deprecated versions: v2-{2024-08-05}
-            operationId: listOpenapiVersions
+                 Returns all load shedding simulations for one cluster.
+            operationId: listGroupClusterOverloadSimulations
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-                - description: The environment to get the versions from. If not provided, it returns the versions for the given MongoDB URL. (E.g. prod for cloud.mongodb.com).
-                  in: query
-                  name: env
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the load shedding simulations are running.
+                  in: path
+                  name: clusterName
+                  required: true
                   schema:
-                    enum:
-                        - dev
-                        - qa
-                        - prod
-                        - stage
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
+                                $ref: '#/components/schemas/PaginatedLoadSheddingSimulationResponse'
                             x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
-                        application/vnd.atlas.preview+yaml:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
-                            x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
+                                name: load-shedding-simulation
+                            x-xgen-version: private-preview-load-shedding-simulation
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return All Versions for One Environment
+            summary: Return All Load Shedding Simulations
             tags:
-                - OpenAPI
+                - Load Shedding Simulation
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api openApi listOpenapiVersions --help
+                  source: atlas api loadSheddingSimulation listClusterOverloadSimulations --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true"
+            x-rolesRequirements:
+                - Project Cluster Manager
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Load-Shedding-Simulation/operation/listGroupClusterOverloadSimulations
+            x-xgen-operation-id-override: listClusterOverloadSimulations
+        post:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Starts a load shedding simulation for one cluster. Returns a 409 if a simulation is already in progress or completed; DELETE the existing simulation before starting a new one.
+            operationId: createGroupClusterOverloadSimulation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which to start the load shedding simulation.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/LoadSheddingSimulationRequest'
+                        x-xgen-preview:
+                            name: load-shedding-simulation
+                        x-xgen-version: private-preview-load-shedding-simulation
+                description: 'Details of the load shedding simulation to start. Valid durations (in seconds): 900, 3600, 28800, 86400.'
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/LoadSheddingSimulationResponse'
+                            x-xgen-preview:
+                                name: load-shedding-simulation
+                            x-xgen-version: private-preview-load-shedding-simulation
+                    description: Created
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Load Shedding Simulation
+            tags:
+                - Load Shedding Simulation
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api loadSheddingSimulation createClusterOverloadSimulation --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Load-Shedding-Simulation/operation/createGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: createClusterOverloadSimulation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns the load shedding simulation for one cluster.
+            operationId: getGroupClusterOverloadSimulation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the load shedding simulation is running.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the load shedding simulation.
+                  in: path
+                  name: simulationId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/LoadSheddingSimulationResponse'
+                            x-xgen-preview:
+                                name: load-shedding-simulation
+                            x-xgen-version: private-preview-load-shedding-simulation
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Load Shedding Simulation
+            tags:
+                - Load Shedding Simulation
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api loadSheddingSimulation getClusterOverloadSimulation --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true"
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Load-Shedding-Simulation/operation/getGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: getClusterOverloadSimulation
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns information about the MongoDB Atlas Specification.
-      name: OpenAPI
+    - description: Returns and starts load shedding simulations for a cluster.
+      name: Load Shedding Simulation
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
