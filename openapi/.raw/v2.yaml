@@ -47921,7 +47921,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 4e9e2f3a47144560150a1a56f8cb6dac70ecbabf
+    x-xgen-sha: 09f3979342ffae0a86ff3552175e5031b39d32d3
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -63409,6 +63409,63 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/getGroupFlexClusterBackupSnapshot
             x-xgen-operation-id-override: getFlexBackupSnapshot
             x-xgen-owner-team: Atlas Clusters Security III
+    /api/atlas/v2/groups/{groupId}/flexClusters:estimateCreateCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Create One Flex Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupFlexClusterCreateCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/FlexClusterDescriptionCreate20241113'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Flex cluster configuration to estimate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Creating One Flex Cluster
+            tags:
+                - Flex Clusters
+            x-rolesRequirements:
+                - Project Owner
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/estimateGroupFlexClusterCreateCost
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: estimateCreateFlexCost
+            x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/groups/{groupId}/flexClusters:tenantUpgrade:
         post:
             description: Upgrades a flex cluster to a dedicated cluster (M10+) in the specified project.

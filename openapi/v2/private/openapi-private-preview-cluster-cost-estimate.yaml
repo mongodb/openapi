@@ -2110,6 +2110,75 @@ components:
                 - description
                 - field
             type: object
+        FlexClusterDescriptionCreate20241113:
+            description: Settings that you can specify when you create a flex cluster.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                name:
+                    description: Human-readable label that identifies the instance.
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                    writeOnly: true
+                providerSettings:
+                    $ref: '#/components/schemas/FlexProviderSettingsCreate20241113'
+                tags:
+                    description: List that contains key-value pairs between 1 to 255 characters in length for tagging and categorizing the instance.
+                    externalDocs:
+                        description: Resource Tags
+                        url: https://dochub.mongodb.org/core/add-cluster-tag-atlas
+                    items:
+                        $ref: '#/components/schemas/ResourceTag'
+                    type: array
+                terminationProtectionEnabled:
+                    default: false
+                    description: Flag that indicates whether termination protection is enabled on the cluster. If set to `true`, MongoDB Cloud won't delete the cluster. If set to `false`, MongoDB Cloud will delete the cluster.
+                    type: boolean
+            required:
+                - name
+                - providerSettings
+            title: Flex Cluster Description Create
+            type: object
+        FlexProviderSettingsCreate20241113:
+            description: Group of cloud provider settings that configure the provisioned MongoDB flex cluster.
+            properties:
+                backingProviderName:
+                    description: Cloud service provider on which MongoDB Cloud provisioned the flex cluster.
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+                    writeOnly: true
+                diskSizeGB:
+                    description: Storage capacity available to the flex cluster expressed in gigabytes.
+                    format: double
+                    readOnly: true
+                    type: number
+                providerName:
+                    default: FLEX
+                    description: Human-readable label that identifies the provider type.
+                    enum:
+                        - FLEX
+                    readOnly: true
+                    type: string
+                regionName:
+                    description: Human-readable label that identifies the geographic location of your MongoDB flex cluster. The region you choose can affect network latency for clients accessing your databases. For a complete list of region names, see [AWS](https://docs.atlas.mongodb.com/reference/amazon-aws/#std-label-amazon-aws), [GCP](https://docs.atlas.mongodb.com/reference/google-gcp/), and [Azure](https://docs.atlas.mongodb.com/reference/microsoft-azure/).
+                    type: string
+                    writeOnly: true
+            required:
+                - backingProviderName
+                - regionName
+            title: Cloud Service Provider Settings for a Flex Cluster
+            type: object
+            writeOnly: true
         FreeComputeAutoScalingRules:
             description: Collection of settings that configures how a cluster might scale its cluster tier and whether the cluster can scale down.
             properties:
@@ -2836,7 +2905,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 4e9e2f3a47144560150a1a56f8cb6dac70ecbabf
+    x-xgen-sha: 09f3979342ffae0a86ff3552175e5031b39d32d3
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:estimateUpdateCost:
@@ -3105,6 +3174,88 @@ paths:
                 label: PREVIEW
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateGroupClusterTenantUpgradeCost
             x-xgen-operation-id-override: estimateTenantUpgradeCost
+    /api/atlas/v2/groups/{groupId}/flexClusters:estimateCreateCost:
+        post:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Create One Flex Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupFlexClusterCreateCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/FlexClusterDescriptionCreate20241113'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: private-preview-cluster-cost-estimate
+                description: Flex cluster configuration to estimate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: private-preview-cluster-cost-estimate
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Creating One Flex Cluster
+            tags:
+                - Flex Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api flexClusters estimateCreateFlexCost --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/flexClusters:estimateCreateCost" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/flexClusters:estimateCreateCost" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Owner
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/estimateGroupFlexClusterCreateCost
+            x-xgen-operation-id-override: estimateCreateFlexCost
 security:
     - ServiceAccounts: []
     - DigestAuth: []
@@ -3113,6 +3264,8 @@ servers:
 tags:
     - description: Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.
       name: Clusters
+    - description: Returns, adds, edits, and removes flex clusters.
+      name: Flex Clusters
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
