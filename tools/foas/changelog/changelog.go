@@ -102,6 +102,10 @@ type Change struct {
 	Code               string `json:"changeCode"`
 	BackwardCompatible bool   `json:"backwardCompatible"`
 	HideFromChangelog  bool   `json:"hideFromChangelog,omitempty"`
+	DeprecatedVersion  string `json:"deprecatedVersion,omitempty"`
+	SunsetDate         string `json:"sunsetDate,omitempty"`
+	ReplacedByVersion  string `json:"replacedByVersion,omitempty"`
+	ReplacesVersion    string `json:"replacesVersion,omitempty"`
 }
 
 // NewEntries generates the changelog entries between the base and revision specs.

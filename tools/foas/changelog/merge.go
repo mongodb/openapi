@@ -25,14 +25,15 @@ import (
 )
 
 const (
-	endpointAddedCode       = "endpoint-added"
-	endpointDeprecatedCode  = "endpoint-deprecated"
-	endpointReactivatedCode = "endpoint-reactivated"
-	notSetPriority          = 10
-	changeTypeRelease       = "release"
-	changeTypeUpdate        = "update"
-	changeTypeDeprecated    = "deprecate"
-	changeTypeRemove        = "remove"
+	endpointAddedCode           = "endpoint-added"
+	endpointDeprecatedCode      = "endpoint-deprecated"
+	endpointReactivatedCode     = "endpoint-reactivated"
+	endpointVersionReleasedCode = "endpoint-version-released"
+	notSetPriority              = 10
+	changeTypeRelease           = "release"
+	changeTypeUpdate            = "update"
+	changeTypeDeprecated        = "deprecate"
+	changeTypeRemove            = "remove"
 )
 
 func newChangeTypePriority() map[string]int {
@@ -46,7 +47,10 @@ func newChangeTypePriority() map[string]int {
 
 func newChangeTypeOverrides() map[string]string {
 	return map[string]string{
-		endpointAddedCode: changeTypeRelease,
+		endpointAddedCode:           changeTypeRelease,
+		endpointVersionReleasedCode: changeTypeRelease,
+		endpointDeprecatedCode:      changeTypeDeprecated,
+		endpointRemovedCode:         changeTypeRemove,
 	}
 }
 
@@ -131,12 +135,7 @@ func (m *Changelog) newEntryFromOasDiff() ([]*Entry, error) {
 
 	conf := outputfilter.NewOperationConfigs(m.Base, m.Revision)
 
-	changeType := changeTypeUpdate
-	if m.BaseMetadata.ActiveVersion != m.RevisionMetadata.ActiveVersion {
-		changeType = changeTypeRelease
-	}
-
-	return m.mergeChangelog(changeType, changes, conf)
+	return m.mergeChangelog(changeTypeUpdate, changes, conf)
 }
 
 // mergeChangelog merges the base changelog with the new changes
@@ -270,6 +269,10 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 			Code:               change.ID,
 			BackwardCompatible: change.LevelWithDefault() < int(checker.ERR),
 			HideFromChangelog:  change.HideFromChangelog,
+			DeprecatedVersion:  change.DeprecatedVersion,
+			SunsetDate:         change.SunsetDate,
+			ReplacedByVersion:  change.ReplacedByVersion,
+			ReplacesVersion:    change.ReplacesVersion,
 		}
 
 		pathEntryVersion.Changes = append(pathEntryVersion.Changes, versionChange)
@@ -331,14 +334,35 @@ func newDeprecatedChangeEntry(
 		Operation:   change.Operation,
 		OperationID: change.OperationID,
 		Text: fmt.Sprintf(
-			"New resource added %s. Resource version %s deprecated and marked for removal on %s",
-			revisionVersion, baseVersion, baseVersionSunset),
+			"API version %s is deprecated and sunsets on %s. Use API version %s instead.",
+			baseVersion, baseVersionSunset, revisionVersion),
 		Level:             change.Level,
 		Path:              change.Path,
 		HideFromChangelog: change.HideFromChangelog,
 		Date:              change.Date,
 		Source:            change.Source,
 		Section:           change.Section,
+		DeprecatedVersion: baseVersion,
+		SunsetDate:        baseVersionSunset,
+		ReplacedByVersion: revisionVersion,
+	}
+}
+
+func newEndpointVersionReleasedChangeEntry(change *outputfilter.OasDiffEntry, baseVersion, revisionVersion string) *outputfilter.OasDiffEntry {
+	return &outputfilter.OasDiffEntry{
+		ID:          endpointVersionReleasedCode,
+		Operation:   change.Operation,
+		OperationID: change.OperationID,
+		Text: fmt.Sprintf(
+			"API version %s is now available. It replaces API version %s.",
+			revisionVersion, baseVersion),
+		Level:             change.Level,
+		Path:              change.Path,
+		HideFromChangelog: change.HideFromChangelog,
+		Date:              change.Date,
+		Source:            change.Source,
+		Section:           change.Section,
+		ReplacesVersion:   baseVersion,
 	}
 }
 
@@ -395,9 +419,12 @@ func (m *Changelog) newRevisionChanges(changes []*outputfilter.OasDiffEntry) []*
 
 	out := make([]*outputfilter.OasDiffEntry, 0)
 	for _, change := range changes {
-		if change.ID != endpointReactivatedCode {
-			out = append(out, change)
+		if change.ID == endpointReactivatedCode {
+			out = append(out, newEndpointVersionReleasedChangeEntry(change,
+				m.BaseMetadata.ActiveVersion, m.RevisionMetadata.ActiveVersion))
+			continue
 		}
+		out = append(out, change)
 	}
 
 	return out
