@@ -45528,7 +45528,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 143cfc74c83641954235305e0a7e079dba350120
+    x-xgen-sha: 74c74d7a073e36c40c59f94263578be65ab7a61d
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -56259,6 +56259,54 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/updateGroupClusterSnapshot
             x-xgen-operation-id-override: updateClusterSnapshot
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface:
+        get:
+            description: Returns the current SQL Interface status, either ON or OFF, for the specified cluster. If no status is configured, this resource returns OFF. The response also indicates whether SQL Interface is supported for this cluster.
+            operationId: getGroupClusterSqlInterface
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/SqlInterfaceStatusResponse'
+                            x-xgen-preview:
+                                name: sql-interface
+                            x-xgen-version: preview
+                    description: SQL Interface status successfully retrieved.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return SQL Interface Status
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterSqlInterface
+            x-xgen-operation-id-override: getClusterSqlInterface
         patch:
             description: Enables or disables the SQL Interface for the specified cluster by setting its status to ON or OFF. Returns a conflict if SQL Interface can't be enabled for this cluster or project.
             operationId: updateGroupClusterSqlInterface
