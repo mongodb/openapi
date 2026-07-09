@@ -126,6 +126,10 @@ func newEndpointConfig(pathName, operatioName string, operation *openapi3.Operat
 	}
 }
 
+// operationVersion returns the latest API version exposed by the operation, derived from the
+// versions declared on its response and request-body media types. An operation may advertise
+// several versioned media types; we take the greatest so that a per-version spec resolves to the
+// single version it represents. Returns "" when no version can be determined.
 func operationVersion(operation *openapi3.Operation) string {
 	var latest *apiversion.APIVersion
 	updateLatest := func(content openapi3.Content) {
@@ -159,6 +163,11 @@ func operationVersion(operation *openapi3.Operation) string {
 	return latest.String()
 }
 
+// versionFromMediaType extracts the API version of a single media type. It prefers the
+// x-xgen-version extension because it survives spec normalization (normalizeMediaType rewrites
+// versioned content types such as application/vnd.atlas.2023-01-01+json to application/json but
+// leaves the extension intact), which is the case the version-lifecycle changelog relies on. The
+// content-type parsing is the fallback for non-normalized specs that still carry a versioned type.
 func versionFromMediaType(contentType string, mediaType *openapi3.MediaType) *apiversion.APIVersion {
 	if mediaType == nil {
 		return nil

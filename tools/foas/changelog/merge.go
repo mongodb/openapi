@@ -28,6 +28,7 @@ const (
 	endpointAddedCode        = "endpoint-added"
 	endpointDeprecatedCode   = "endpoint-deprecated"
 	endpointReactivatedCode  = "endpoint-reactivated"
+	endpointRemovedCode      = "endpoint-removed"
 	endpointVersionAddedCode = "endpoint-version-added"
 	notSetPriority           = 10
 	changeTypeRelease        = "release"
@@ -292,6 +293,9 @@ func newDeprecatedByNewerVersionOasDiffEntries(
 	changes []*outputfilter.OasDiffEntry,
 	operationConfig map[string]*outputfilter.OperationConfigs) []*outputfilter.OasDiffEntry {
 	newChanges := make([]*outputfilter.OasDiffEntry, 0)
+	// Deduplicate by OperationID: a single operation can surface several reactivation signals
+	// (one per media type), but the version transition is one event, so emit at most one
+	// deprecation entry per operation.
 	added := make(map[string]struct{})
 	for _, change := range changes {
 		// Normalized versioned specs surface "old version deprecated, new version active" as reactivation.
@@ -424,6 +428,8 @@ func newRevisionChanges(
 	changes []*outputfilter.OasDiffEntry,
 	operationConfig map[string]*outputfilter.OperationConfigs) []*outputfilter.OasDiffEntry {
 	out := make([]*outputfilter.OasDiffEntry, 0)
+	// Deduplicate by OperationID: an operation can surface several reactivation signals (one per
+	// media type), but endpoint-version-added is one event per operation.
 	added := make(map[string]struct{})
 	for _, change := range changes {
 		if change.ID == endpointReactivatedCode {

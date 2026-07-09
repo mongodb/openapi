@@ -7,8 +7,159 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/foas/openapi"
 	"github.com/oasdiff/oasdiff/load"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func xgenMediaType(version string) *openapi3.MediaType {
+	return &openapi3.MediaType{Extensions: map[string]any{"x-xgen-version": version}}
+}
+
+func responsesWithContent(content openapi3.Content) *openapi3.Responses {
+	return openapi3.NewResponses(
+		openapi3.WithStatus(200, &openapi3.ResponseRef{Value: &openapi3.Response{Content: content}}),
+	)
+}
+
+func TestVersionFromMediaType(t *testing.T) {
+	tests := []struct {
+		name        string
+		contentType string
+		mediaType   *openapi3.MediaType
+		expected    string // "" means a nil version is expected
+	}{
+		{
+			name:      "nil media type",
+			mediaType: nil,
+			expected:  "",
+		},
+		{
+			name:        "x-xgen-version extension takes precedence",
+			contentType: "application/json",
+			mediaType:   xgenMediaType("2024-05-30"),
+			expected:    "2024-05-30",
+		},
+		{
+			name:        "empty x-xgen-version falls back to content type",
+			contentType: "application/vnd.atlas.2023-01-01+json",
+			mediaType:   xgenMediaType(""),
+			expected:    "2023-01-01",
+		},
+		{
+			name:        "invalid x-xgen-version falls back to content type",
+			contentType: "application/vnd.atlas.2023-01-01+json",
+			mediaType:   xgenMediaType("not-a-date"),
+			expected:    "2023-01-01",
+		},
+		{
+			name:        "versioned content type without extension",
+			contentType: "application/vnd.atlas.2023-11-15+json",
+			mediaType:   &openapi3.MediaType{},
+			expected:    "2023-11-15",
+		},
+		{
+			name:        "normalized content type without extension yields no version",
+			contentType: "application/json",
+			mediaType:   &openapi3.MediaType{},
+			expected:    "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := versionFromMediaType(tt.contentType, tt.mediaType)
+			if tt.expected == "" {
+				assert.Nil(t, got)
+				return
+			}
+			require.NotNil(t, got)
+			assert.Equal(t, tt.expected, got.String())
+		})
+	}
+}
+
+func TestOperationVersion(t *testing.T) {
+	tests := []struct {
+		name      string
+		operation *openapi3.Operation
+		expected  string
+	}{
+		{
+			name:      "no responses or request body",
+			operation: &openapi3.Operation{},
+			expected:  "",
+		},
+		{
+			name: "version from a single response media type",
+			operation: &openapi3.Operation{
+				Responses: responsesWithContent(openapi3.Content{
+					"application/vnd.atlas.2023-01-01+json": &openapi3.MediaType{},
+				}),
+			},
+			expected: "2023-01-01",
+		},
+		{
+			name: "picks the latest version across response media types",
+			operation: &openapi3.Operation{
+				Responses: responsesWithContent(openapi3.Content{
+					"application/vnd.atlas.2023-01-01+json": &openapi3.MediaType{},
+					"application/vnd.atlas.2024-05-30+json": &openapi3.MediaType{},
+					"application/vnd.atlas.2023-11-15+json": &openapi3.MediaType{},
+				}),
+			},
+			expected: "2024-05-30",
+		},
+		{
+			name: "version from request body only",
+			operation: &openapi3.Operation{
+				RequestBody: &openapi3.RequestBodyRef{Value: &openapi3.RequestBody{
+					Content: openapi3.Content{
+						"application/vnd.atlas.2023-11-15+json": &openapi3.MediaType{},
+					},
+				}},
+			},
+			expected: "2023-11-15",
+		},
+		{
+			name: "picks the latest version across responses and request body",
+			operation: &openapi3.Operation{
+				Responses: responsesWithContent(openapi3.Content{
+					"application/vnd.atlas.2023-01-01+json": &openapi3.MediaType{},
+				}),
+				RequestBody: &openapi3.RequestBodyRef{Value: &openapi3.RequestBody{
+					Content: openapi3.Content{
+						"application/vnd.atlas.2024-05-30+json": &openapi3.MediaType{},
+					},
+				}},
+			},
+			expected: "2024-05-30",
+		},
+		{
+			name: "version from x-xgen-version extension on normalized media type",
+			operation: &openapi3.Operation{
+				Responses: responsesWithContent(openapi3.Content{
+					"application/json": xgenMediaType("2023-11-15"),
+				}),
+			},
+			expected: "2023-11-15",
+		},
+		{
+			name: "no version when media types are unversioned",
+			operation: &openapi3.Operation{
+				Responses: responsesWithContent(openapi3.Content{
+					"application/json": &openapi3.MediaType{},
+				}),
+			},
+			expected: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, operationVersion(tt.operation))
+		})
+	}
+}
 
 func TestOpenApiSpecMethods(t *testing.T) {
 	loader := openapi.NewOpenAPI3().WithExcludedPrivatePaths()
