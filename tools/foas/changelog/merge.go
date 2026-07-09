@@ -331,8 +331,8 @@ func newDeprecatedChangeEntry(
 		Operation:   change.Operation,
 		OperationID: change.OperationID,
 		Text: fmt.Sprintf(
-			"A new version %s of this resource was released. All previous versions are deprecated and marked for removal on %s.",
-			revisionVersion, baseVersionSunset),
+			"API version %s is deprecated and sunsets on %s. Use API version %s instead.",
+			baseVersion, baseVersionSunset, revisionVersion),
 		Level:             change.Level,
 		Path:              change.Path,
 		HideFromChangelog: change.HideFromChangelog,
@@ -351,8 +351,8 @@ func newEndpointVersionAddedChangeEntry(change *outputfilter.OasDiffEntry, baseV
 		Operation:   change.Operation,
 		OperationID: change.OperationID,
 		Text: fmt.Sprintf(
-			"A new version %s of this resource was released.",
-			revisionVersion),
+			"API version %s was added. It replaces API version %s.",
+			revisionVersion, baseVersion),
 		Level:             change.Level,
 		Path:              change.Path,
 		HideFromChangelog: change.HideFromChangelog,
