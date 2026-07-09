@@ -244,3 +244,66 @@ func newPathsFromPath(t *testing.T, path string) []*changelog.Path {
 	require.NoError(t, json.Unmarshal(contents, &paths))
 	return paths
 }
+
+// TestChangelogVersionReleaseSurfacesDeprecation exercises the changelog pipeline
+// (changelog.NewEntriesWithRunDate) directly — no CLI binary — to guard that a new
+// API version release is recorded in changelog.json as a `release` on the new version
+// plus a `deprecate` on the superseded one, independently of the golden fixtures.
+func TestChangelogVersionReleaseSurfacesDeprecation(t *testing.T) {
+	entries, err := changelog.NewEntriesWithRunDate(
+		NewChangelogBasePathNewAPIVersion(t),
+		NewChangelogRevisionPathNewAPIVersion(t),
+		NewChangelogExepmtionFilePathNewAPIVersion(t),
+		"2026-07-09", // date on which 2024-08-05 is the active version
+	)
+	require.NoError(t, err)
+	require.NotEmpty(t, entries)
+
+	// entries are sorted by date DESC, so the run-date entry is first.
+	runEntry := entries[0]
+	path := findChangelogPath(t, runEntry, "GET", "/api/atlas/v2/groups/{groupId}/clusters")
+
+	newVersion := findChangelogVersion(t, path, "2024-08-05")
+	assert.Equal(t, "release", newVersion.ChangeType, "new version should be a release")
+	versionAdded := findChange(t, newVersion, "endpoint-version-added")
+	assert.Equal(t, "2023-02-01", versionAdded.ReplacesVersion)
+
+	oldVersion := findChangelogVersion(t, path, "2024-05-30")
+	assert.Equal(t, "deprecate", oldVersion.ChangeType, "superseded version should be deprecated")
+	deprecated := findChange(t, oldVersion, "endpoint-deprecated")
+	assert.NotEmpty(t, deprecated.SunsetDate, "deprecation should carry the resource's own sunset date")
+	assert.Equal(t, "2024-08-05", deprecated.ReplacedByVersion)
+}
+
+func findChangelogPath(t *testing.T, entry *changelog.Entry, method, uri string) *changelog.Path {
+	t.Helper()
+	for _, p := range entry.Paths {
+		if p.HTTPMethod == method && p.URI == uri {
+			return p
+		}
+	}
+	t.Fatalf("path %s %s not found in changelog entry for %s", method, uri, entry.Date)
+	return nil
+}
+
+func findChangelogVersion(t *testing.T, path *changelog.Path, version string) *changelog.Version {
+	t.Helper()
+	for _, v := range path.Versions {
+		if v.Version == version {
+			return v
+		}
+	}
+	t.Fatalf("version %s not found for %s %s", version, path.HTTPMethod, path.URI)
+	return nil
+}
+
+func findChange(t *testing.T, version *changelog.Version, code string) *changelog.Change {
+	t.Helper()
+	for _, c := range version.Changes {
+		if c.Code == code {
+			return c
+		}
+	}
+	t.Fatalf("change code %s not found in version %s", code, version.Version)
+	return nil
+}
