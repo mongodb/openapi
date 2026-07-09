@@ -719,7 +719,7 @@ func TestMergeChangelogWithDeprecations(t *testing.T) {
 
 	assert.Equal(t, "endpoint-deprecated", firstVersionEntry.Changes[1].Code)
 	assert.True(t, firstVersionEntry.Changes[1].BackwardCompatible)
-	assert.Contains(t, firstVersionEntry.Changes[1].Description, "deprecated and sunsets on "+sunset)
+	assert.Contains(t, firstVersionEntry.Changes[1].Description, "deprecated and marked for removal on "+sunset)
 	assert.Equal(t, firstVersion, firstVersionEntry.Changes[1].DeprecatedVersion)
 	assert.Equal(t, sunset, firstVersionEntry.Changes[1].SunsetDate)
 	assert.Equal(t, secondVersion, firstVersionEntry.Changes[1].ReplacedByVersion)
@@ -898,7 +898,7 @@ func TestMergeChangelogCompare(t *testing.T) {
 						ChangeType:     "release",
 						Changes: []*Change{
 							{
-								Description:        "API version 2023-02-02 was added. It replaces API version 2023-01-01.",
+								Description:        "A new version 2023-02-02 of this resource was released.",
 								Code:               "endpoint-version-added",
 								BackwardCompatible: true,
 								ReplacesVersion:    "2023-01-01",
@@ -921,7 +921,7 @@ func TestMergeChangelogCompare(t *testing.T) {
 								BackwardCompatible: true,
 							},
 							{
-								Description:        "API version 2023-01-01 is deprecated and sunsets on 2024-02-02. Use API version 2023-02-02 instead.",
+								Description:        "A new version 2023-02-02 of this resource was released. All previous versions are deprecated and marked for removal on 2024-02-02.",
 								Code:               "endpoint-deprecated",
 								BackwardCompatible: true,
 								DeprecatedVersion:  "2023-01-01",
@@ -944,7 +944,7 @@ func TestMergeChangelogCompare(t *testing.T) {
 						ChangeType:     "release",
 						Changes: []*Change{
 							{
-								Description:        "API version 2023-02-02 was added. It replaces API version 2023-01-01.",
+								Description:        "A new version 2023-02-02 of this resource was released.",
 								Code:               "endpoint-version-added",
 								BackwardCompatible: true,
 								ReplacesVersion:    "2023-01-01",
@@ -967,7 +967,7 @@ func TestMergeChangelogCompare(t *testing.T) {
 								BackwardCompatible: true,
 							},
 							{
-								Description:        "API version 2023-01-01 is deprecated and sunsets on 2024-02-02. Use API version 2023-02-02 instead.",
+								Description:        "A new version 2023-02-02 of this resource was released. All previous versions are deprecated and marked for removal on 2024-02-02.",
 								Code:               "endpoint-deprecated",
 								BackwardCompatible: true,
 								DeprecatedVersion:  "2023-01-01",
