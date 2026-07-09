@@ -47921,7 +47921,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 20a3e2a57539178c562cd1e2030ba31f9da83d4c
+    x-xgen-sha: 87eb38309abfb4ee6bc8ffee5daf4ac419b588a1
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -62917,6 +62917,70 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/createGroupFlexCluster
             x-xgen-operation-id-override: createFlexCluster
             x-xgen-owner-team: Atlas Clusters Security III
+    /api/atlas/v2/groups/{groupId}/flexClusters/{clusterName}:estimateUpdateCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Update One Flex Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupFlexClusterUpdateCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/FlexClusterDescriptionUpdate20241113'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Flex cluster update to estimate pricing for.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Updating One Flex Cluster
+            tags:
+                - Flex Clusters
+            x-rolesRequirements:
+                - Project Owner
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/estimateGroupFlexClusterUpdateCost
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: estimateUpdateFlexCost
+            x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/groups/{groupId}/flexClusters/{name}:
         delete:
             description: Removes one flex cluster from the specified project. The flex cluster must have termination protection disabled in order to be deleted.
