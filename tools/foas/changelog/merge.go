@@ -25,14 +25,16 @@ import (
 )
 
 const (
-	endpointAddedCode       = "endpoint-added"
-	endpointDeprecatedCode  = "endpoint-deprecated"
-	endpointReactivatedCode = "endpoint-reactivated"
-	notSetPriority          = 10
-	changeTypeRelease       = "release"
-	changeTypeUpdate        = "update"
-	changeTypeDeprecated    = "deprecate"
-	changeTypeRemove        = "remove"
+	endpointAddedCode        = "endpoint-added"
+	endpointDeprecatedCode   = "endpoint-deprecated"
+	endpointReactivatedCode  = "endpoint-reactivated"
+	endpointRemovedCode      = "endpoint-removed"
+	endpointVersionAddedCode = "endpoint-version-added"
+	notSetPriority           = 10
+	changeTypeRelease        = "release"
+	changeTypeUpdate         = "update"
+	changeTypeDeprecated     = "deprecate"
+	changeTypeRemove         = "remove"
 )
 
 func newChangeTypePriority() map[string]int {
@@ -46,7 +48,10 @@ func newChangeTypePriority() map[string]int {
 
 func newChangeTypeOverrides() map[string]string {
 	return map[string]string{
-		endpointAddedCode: changeTypeRelease,
+		endpointAddedCode:        changeTypeRelease,
+		endpointVersionAddedCode: changeTypeRelease,
+		endpointDeprecatedCode:   changeTypeDeprecated,
+		endpointRemovedCode:      changeTypeRemove,
 	}
 }
 
@@ -131,12 +136,7 @@ func (m *Changelog) newEntryFromOasDiff() ([]*Entry, error) {
 
 	conf := outputfilter.NewOperationConfigs(m.Base, m.Revision)
 
-	changeType := changeTypeUpdate
-	if m.BaseMetadata.ActiveVersion != m.RevisionMetadata.ActiveVersion {
-		changeType = changeTypeRelease
-	}
-
-	return m.mergeChangelog(changeType, changes, conf)
+	return m.mergeChangelog(changeTypeUpdate, changes, conf)
 }
 
 // mergeChangelog merges the base changelog with the new changes
@@ -190,7 +190,7 @@ func (m *Changelog) newPathsFromRevisionChanges(
 	changes []*outputfilter.OasDiffEntry,
 	changeType string, changelogPath *[]*Path,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
-	revisionChanges := m.newRevisionChanges(changes)
+	revisionChanges := newRevisionChanges(changes, conf)
 	return newMergedChanges(revisionChanges, changeType, m.RevisionMetadata.ActiveVersion, changelogPath, conf)
 }
 
@@ -199,7 +199,7 @@ func (m *Changelog) newPathsFromDeprecatedChanges(
 	changes []*outputfilter.OasDiffEntry,
 	changelogPath *[]*Path,
 	conf map[string]*outputfilter.OperationConfigs) ([]*Path, error) {
-	deprecatedChanges := m.newDeprecatedByNewerVersionOasDiffEntries(changes, conf)
+	deprecatedChanges := newDeprecatedByNewerVersionOasDiffEntries(changes, conf)
 	return newMergedChanges(deprecatedChanges, changeTypeDeprecated, m.BaseMetadata.ActiveVersion, changelogPath, conf)
 }
 
@@ -270,6 +270,10 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 			Code:               change.ID,
 			BackwardCompatible: change.LevelWithDefault() < int(checker.ERR),
 			HideFromChangelog:  change.HideFromChangelog,
+			DeprecatedVersion:  change.DeprecatedVersion,
+			SunsetDate:         change.SunsetDate,
+			ReplacedByVersion:  change.ReplacedByVersion,
+			ReplacesVersion:    change.ReplacesVersion,
 		}
 
 		pathEntryVersion.Changes = append(pathEntryVersion.Changes, versionChange)
@@ -285,30 +289,34 @@ var priorityGivenChangeType = func(changeType string) int {
 	return notSetPriority
 }
 
-func (m *Changelog) newDeprecatedByNewerVersionOasDiffEntries(
+func newDeprecatedByNewerVersionOasDiffEntries(
 	changes []*outputfilter.OasDiffEntry,
 	operationConfig map[string]*outputfilter.OperationConfigs) []*outputfilter.OasDiffEntry {
-	// deprecation by newer version occurs only when
-	// base_version is different than revision_version
-	if m.BaseMetadata.ActiveVersion == m.RevisionMetadata.ActiveVersion {
-		return nil
-	}
-
-	// when comparing specs from 2 versions, we first normalize the specs
-	// (replacing versioned media-types with standard media-types).
-	// Base version endpoint is marked as deprecated and with a sunset date,
-	// while the revision endpoint is active.
-	// This will result in changes where the endpoint appears as reactivated
-	// (transition from deprecated with sunset to active).
-	// For changelog we want to transform these reactivation changes
-	// to the real change: "endpoint-deprecated".
 	newChanges := make([]*outputfilter.OasDiffEntry, 0)
+	// Deduplicate by OperationID: a single operation can surface several reactivation signals
+	// (one per media type), but the version transition is one event, so emit at most one
+	// deprecation entry per operation.
+	added := make(map[string]struct{})
 	for _, change := range changes {
+		// Normalized versioned specs surface "old version deprecated, new version active" as reactivation.
 		if change.ID != endpointReactivatedCode {
 			continue
 		}
+		baseVersion, revisionVersion, ok := endpointVersionLifecycle(change, operationConfig)
+		if !ok {
+			continue
+		}
+		if _, ok := added[change.OperationID]; ok {
+			continue
+		}
 
-		newChanges = append(newChanges, newDeprecatedChangeEntry(change, m.BaseMetadata.ActiveVersion, m.RevisionMetadata.ActiveVersion, operationConfig))
+		conf := operationConfig[change.OperationID]
+		if conf.Base.Sunset == "" {
+			continue
+		}
+
+		newChanges = append(newChanges, newDeprecatedChangeEntry(change, baseVersion, revisionVersion, conf.Base.Sunset))
+		added[change.OperationID] = struct{}{}
 	}
 
 	return newChanges
@@ -317,29 +325,55 @@ func (m *Changelog) newDeprecatedByNewerVersionOasDiffEntries(
 func newDeprecatedChangeEntry(
 	change *outputfilter.OasDiffEntry,
 	baseVersion, revisionVersion string,
-	operationConfig map[string]*outputfilter.OperationConfigs) *outputfilter.OasDiffEntry {
-	conf := operationConfig[change.OperationID]
-	baseVersionSunset := func() string {
-		if conf != nil {
-			return conf.Sunset()
-		}
-		return ""
-	}()
-
+	baseVersionSunset string) *outputfilter.OasDiffEntry {
 	return &outputfilter.OasDiffEntry{
 		ID:          endpointDeprecatedCode,
 		Operation:   change.Operation,
 		OperationID: change.OperationID,
 		Text: fmt.Sprintf(
-			"New resource added %s. Resource version %s deprecated and marked for removal on %s",
-			revisionVersion, baseVersion, baseVersionSunset),
+			"API version %s is deprecated and sunsets on %s. Use API version %s instead.",
+			baseVersion, baseVersionSunset, revisionVersion),
 		Level:             change.Level,
 		Path:              change.Path,
 		HideFromChangelog: change.HideFromChangelog,
 		Date:              change.Date,
 		Source:            change.Source,
 		Section:           change.Section,
+		DeprecatedVersion: baseVersion,
+		SunsetDate:        baseVersionSunset,
+		ReplacedByVersion: revisionVersion,
 	}
+}
+
+func newEndpointVersionAddedChangeEntry(change *outputfilter.OasDiffEntry, baseVersion, revisionVersion string) *outputfilter.OasDiffEntry {
+	return &outputfilter.OasDiffEntry{
+		ID:          endpointVersionAddedCode,
+		Operation:   change.Operation,
+		OperationID: change.OperationID,
+		Text: fmt.Sprintf(
+			"API version %s was added. It replaces API version %s.",
+			revisionVersion, baseVersion),
+		Level:             change.Level,
+		Path:              change.Path,
+		HideFromChangelog: change.HideFromChangelog,
+		Date:              change.Date,
+		Source:            change.Source,
+		Section:           change.Section,
+		ReplacesVersion:   baseVersion,
+	}
+}
+
+func endpointVersionLifecycle(
+	change *outputfilter.OasDiffEntry,
+	operationConfig map[string]*outputfilter.OperationConfigs) (baseVersion, revisionVersion string, ok bool) {
+	conf := operationConfig[change.OperationID]
+	if conf == nil || conf.Base == nil || conf.Revision == nil {
+		return "", "", false
+	}
+
+	baseVersion = conf.Base.Version
+	revisionVersion = conf.Revision.Version
+	return baseVersion, revisionVersion, baseVersion != "" && revisionVersion != "" && baseVersion != revisionVersion
 }
 
 func newChangeType(currentChangeType, newChangeType, changeCode string) string {
@@ -363,9 +397,10 @@ func newEntryVersion(versions *[]*Version, specVersion string) *Version {
 		}
 	}
 
-	newVersion := []*Version{{
+	newVersion := make([]*Version, 1, len(*versions)+1)
+	newVersion[0] = &Version{
 		Version: specVersion,
-	}}
+	}
 	*versions = append(newVersion, *versions...)
 	return (*versions)[0]
 }
@@ -379,25 +414,39 @@ func newPathEntry(paths *[]*Path, path, operation string) *Path {
 		}
 	}
 
-	newPath := []*Path{{
+	newPath := make([]*Path, 1, len(*paths)+1)
+	newPath[0] = &Path{
 		URI:        path,
 		HTTPMethod: operation,
 		Versions:   make([]*Version, 0),
-	}}
+	}
 	*paths = append(newPath, *paths...)
 	return (*paths)[0]
 }
 
-func (m *Changelog) newRevisionChanges(changes []*outputfilter.OasDiffEntry) []*outputfilter.OasDiffEntry {
-	if m.BaseMetadata.ActiveVersion == m.RevisionMetadata.ActiveVersion {
-		return changes
-	}
-
+func newRevisionChanges(
+	changes []*outputfilter.OasDiffEntry,
+	operationConfig map[string]*outputfilter.OperationConfigs) []*outputfilter.OasDiffEntry {
 	out := make([]*outputfilter.OasDiffEntry, 0)
+	// Deduplicate by OperationID: an operation can surface several reactivation signals (one per
+	// media type), but endpoint-version-added is one event per operation.
+	added := make(map[string]struct{})
 	for _, change := range changes {
-		if change.ID != endpointReactivatedCode {
-			out = append(out, change)
+		if change.ID == endpointReactivatedCode {
+			baseVersion, revisionVersion, hasLifecycle := endpointVersionLifecycle(change, operationConfig)
+			if !hasLifecycle {
+				out = append(out, change)
+				continue
+			}
+
+			if _, ok := added[change.OperationID]; !ok {
+				out = append(out, newEndpointVersionAddedChangeEntry(change, baseVersion, revisionVersion))
+				added[change.OperationID] = struct{}{}
+			}
+			continue
 		}
+
+		out = append(out, change)
 	}
 
 	return out

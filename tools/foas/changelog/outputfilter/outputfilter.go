@@ -35,6 +35,10 @@ type OasDiffEntry struct {
 	Source            string `json:"source,omitempty"`
 	Section           string `json:"section"`
 	HideFromChangelog bool   `json:"hideFromChangelog,omitempty"`
+	DeprecatedVersion string `json:"deprecatedVersion,omitempty"`
+	SunsetDate        string `json:"sunsetDate,omitempty"`
+	ReplacedByVersion string `json:"replacedByVersion,omitempty"`
+	ReplacesVersion   string `json:"replacesVersion,omitempty"`
 }
 
 func (o *OasDiffEntry) LevelWithDefault() int {

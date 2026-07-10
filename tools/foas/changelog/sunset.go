@@ -24,8 +24,6 @@ import (
 	"github.com/oasdiff/oasdiff/checker"
 )
 
-const endpointRemovedCode = "endpoint-removed"
-
 // newOasDiffEntriesFromSunsetEndpoints searches for resource versions marked for removal between
 // previous changelog run date and current date (inclusive), and that not already included in the changelog.
 // Returns a list of sunset endpoints with the same format as oasdiff results.

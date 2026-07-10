@@ -102,6 +102,10 @@ type Change struct {
 	Code               string `json:"changeCode"`
 	BackwardCompatible bool   `json:"backwardCompatible"`
 	HideFromChangelog  bool   `json:"hideFromChangelog,omitempty"`
+	DeprecatedVersion  string `json:"deprecatedVersion,omitempty"`
+	SunsetDate         string `json:"sunsetDate,omitempty"`
+	ReplacedByVersion  string `json:"replacedByVersion,omitempty"`
+	ReplacesVersion    string `json:"replacesVersion,omitempty"`
 }
 
 // NewEntries generates the changelog entries between the base and revision specs.
@@ -160,6 +164,10 @@ func NewEntriesWithRunDate(basePath, revisionPath, exceptionFilePath, runDate st
 	if err != nil {
 		return nil, err
 	}
+	// Original base changelog (previous run), before this run's changes are merged in. Used to
+	// re-seed the version-transition comparison below so it replaces, rather than stacks on, the
+	// same-version comparison.
+	seedChangelog := changelog.BaseChangelog
 
 	changelogEntries, err := changelog.newEntryFromOasDiff()
 	if err != nil {
@@ -168,13 +176,20 @@ func NewEntriesWithRunDate(basePath, revisionPath, exceptionFilePath, runDate st
 
 	changelog.BaseChangelog = changelogEntries
 	if revisionActiveVersionOnRunDate != baseActiveVersionOnPreviousRunDate {
-		// new version was released or become active since last changelog run
-		// compare "baseActiveVersionOnPreviousRunDate" with "revisionActiveVersionOnRunDate"
-		// (using latest specs, since above, we're comparing
-		// baseActiveVersionOnPreviousRunDate with revisionActiveVersionOnPreviousRunDate)
+		// A new version was released (or became active) since the last changelog run, so recompute the
+		// run-date entry as the transition from the superseded version to the newly-active version. This
+		// is what lets the changelog record the release of the new version and the deprecation of the
+		// prior one (see the lifecycle handling in merge.go).
+		//
+		// The superseded version is loaded from the revision spec set (revisionMetadata.Path): the
+		// revision marks it deprecated with a sunset (because the newer version now exists), and that
+		// deprecated -> active transition is what the normalized diff surfaces as the version release.
+		// We seed from the original base changelog (not changelogEntries) so this comparison replaces the
+		// same-version comparison above instead of duplicating its schema changes.
 		baseMetadata.ActiveVersion = baseActiveVersionOnRunDate
 		revisionMetadata.ActiveVersion = revisionActiveVersionOnRunDate
-		changelog, err = newChangelog(baseMetadata, revisionMetadata, exceptionFilePath, changelogEntries)
+		baseMetadata.Path = revisionMetadata.Path
+		changelog, err = newChangelog(baseMetadata, revisionMetadata, exceptionFilePath, seedChangelog)
 		if err != nil {
 			return nil, err
 		}
@@ -183,6 +198,7 @@ func NewEntriesWithRunDate(basePath, revisionPath, exceptionFilePath, runDate st
 		if err != nil {
 			return nil, err
 		}
+		changelog.BaseChangelog = changelogEntries
 	}
 
 	for _, version := range changelog.RevisionMetadata.Versions {

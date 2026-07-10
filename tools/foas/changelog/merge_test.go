@@ -165,7 +165,7 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	require.NoError(t, err)
 
 	secondVersion := "2023-02-02"
-	changeTypeSecondVersion := changeTypeRelease
+	changeTypeSecondVersion := changeTypeUpdate
 
 	changelogStruct = &Changelog{
 		BaseMetadata: &Metadata{
@@ -201,7 +201,7 @@ func TestMergeChangelogTwoVersionsNoDeprecations(t *testing.T) {
 	firstVersionEntry := versions[0]
 	require.Len(t, firstVersionEntry.Changes, 1)
 	assert.Equal(t, firstVersionEntry.Version, secondVersion)
-	assert.Equal(t, changeTypeRelease, firstVersionEntry.ChangeType)
+	assert.Equal(t, changeTypeUpdate, firstVersionEntry.ChangeType)
 	assert.Equal(t, "request-property-removed", firstVersionEntry.Changes[0].Code)
 	assert.False(t, firstVersionEntry.Changes[0].BackwardCompatible)
 
@@ -485,6 +485,7 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
+				Version:                firstVersion,
 				Sunset:                 sunset,
 				ManualChangelogEntries: make(map[string]any),
 			},
@@ -492,6 +493,7 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
+				Version:                firstVersion,
 				Sunset:                 "",
 				ManualChangelogEntries: make(map[string]any),
 			},
@@ -543,6 +545,7 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 
 	changelog, err := changelogStruct.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
 	require.NoError(t, err)
+	endpointsConfig["createCluster"].Revision.Version = secondVersion
 
 	changelogStruct = &Changelog{
 		BaseMetadata: &Metadata{
@@ -584,14 +587,19 @@ func TestMergeChangelogTwoVersionsWithDeprecations(t *testing.T) {
 	assert.True(t, firstVersionEntry.Changes[0].BackwardCompatible)
 	assert.Equal(t, "endpoint-deprecated", firstVersionEntry.Changes[1].Code)
 	assert.True(t, firstVersionEntry.Changes[1].BackwardCompatible)
+	assert.Equal(t, firstVersion, firstVersionEntry.Changes[1].DeprecatedVersion)
+	assert.Equal(t, sunset, firstVersionEntry.Changes[1].SunsetDate)
+	assert.Equal(t, secondVersion, firstVersionEntry.Changes[1].ReplacedByVersion)
 
 	secondVersionEntry := versions[0]
-	require.Len(t, secondVersionEntry.Changes, 1)
+	require.Len(t, secondVersionEntry.Changes, 2)
 	assert.Equal(t, secondVersionEntry.Version, secondVersion)
 	assert.Equal(t, changeTypeRelease, secondVersionEntry.ChangeType)
 
-	assert.Equal(t, "request-property-removed", secondVersionEntry.Changes[0].Code)
-	assert.False(t, secondVersionEntry.Changes[0].BackwardCompatible)
+	assert.Equal(t, "endpoint-version-added", secondVersionEntry.Changes[0].Code)
+	assert.Equal(t, firstVersion, secondVersionEntry.Changes[0].ReplacesVersion)
+	assert.Equal(t, "request-property-removed", secondVersionEntry.Changes[1].Code)
+	assert.False(t, secondVersionEntry.Changes[1].BackwardCompatible)
 }
 
 func TestMergeChangelogWithDeprecations(t *testing.T) {
@@ -611,6 +619,7 @@ func TestMergeChangelogWithDeprecations(t *testing.T) {
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
+				Version:                firstVersion,
 				Sunset:                 sunset,
 				ManualChangelogEntries: nil,
 			},
@@ -618,6 +627,7 @@ func TestMergeChangelogWithDeprecations(t *testing.T) {
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
+				Version:                firstVersion,
 				Sunset:                 "",
 				ManualChangelogEntries: nil,
 			},
@@ -669,6 +679,7 @@ func TestMergeChangelogWithDeprecations(t *testing.T) {
 
 	changelog, err := changelogStruct.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
 	require.NoError(t, err)
+	endpointsConfig["createCluster"].Revision.Version = secondVersion
 
 	changelogStruct = &Changelog{
 		BaseMetadata: &Metadata{
@@ -708,12 +719,17 @@ func TestMergeChangelogWithDeprecations(t *testing.T) {
 
 	assert.Equal(t, "endpoint-deprecated", firstVersionEntry.Changes[1].Code)
 	assert.True(t, firstVersionEntry.Changes[1].BackwardCompatible)
-	assert.Contains(t, firstVersionEntry.Changes[1].Description, "deprecated and marked for removal on "+sunset)
+	assert.Contains(t, firstVersionEntry.Changes[1].Description, "deprecated and sunsets on "+sunset)
+	assert.Equal(t, firstVersion, firstVersionEntry.Changes[1].DeprecatedVersion)
+	assert.Equal(t, sunset, firstVersionEntry.Changes[1].SunsetDate)
+	assert.Equal(t, secondVersion, firstVersionEntry.Changes[1].ReplacedByVersion)
 
 	secondVersionEntry := versions[0]
-	require.Len(t, secondVersionEntry.Changes, 1)
-	assert.Equal(t, "request-property-removed", secondVersionEntry.Changes[0].Code)
-	assert.False(t, secondVersionEntry.Changes[0].BackwardCompatible)
+	require.Len(t, secondVersionEntry.Changes, 2)
+	assert.Equal(t, "endpoint-version-added", secondVersionEntry.Changes[0].Code)
+	assert.Equal(t, firstVersion, secondVersionEntry.Changes[0].ReplacesVersion)
+	assert.Equal(t, "request-property-removed", secondVersionEntry.Changes[1].Code)
+	assert.False(t, secondVersionEntry.Changes[1].BackwardCompatible)
 }
 
 func TestMergeChangelogCompare(t *testing.T) {
@@ -732,6 +748,7 @@ func TestMergeChangelogCompare(t *testing.T) {
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
+				Version:                firstVersion,
 				Sunset:                 "2024-02-02",
 				ManualChangelogEntries: nil,
 			},
@@ -739,6 +756,7 @@ func TestMergeChangelogCompare(t *testing.T) {
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "POST",
 				Tag:                    "Multi-Cloud Clusters",
+				Version:                firstVersion,
 				Sunset:                 "2024-02-02",
 				ManualChangelogEntries: nil,
 			},
@@ -748,6 +766,7 @@ func TestMergeChangelogCompare(t *testing.T) {
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "GET",
 				Tag:                    "Multi-Cloud Clusters",
+				Version:                firstVersion,
 				Sunset:                 "2024-02-02",
 				ManualChangelogEntries: nil,
 			},
@@ -755,6 +774,7 @@ func TestMergeChangelogCompare(t *testing.T) {
 				Path:                   "/api/atlas/v2/groups/{groupId}/clusters",
 				HTTPMethod:             "GET",
 				Tag:                    "Multi-Cloud Clusters",
+				Version:                firstVersion,
 				Sunset:                 "2024-02-02",
 				ManualChangelogEntries: nil,
 			},
@@ -878,6 +898,12 @@ func TestMergeChangelogCompare(t *testing.T) {
 						ChangeType:     "release",
 						Changes: []*Change{
 							{
+								Description:        "API version 2023-02-02 was added. It replaces API version 2023-01-01.",
+								Code:               "endpoint-version-added",
+								BackwardCompatible: true,
+								ReplacesVersion:    "2023-01-01",
+							},
+							{
 								Description:        "removed 'replicationSpecs.regionConfigs' response property",
 								Code:               "response-property-removed",
 								BackwardCompatible: false,
@@ -895,9 +921,12 @@ func TestMergeChangelogCompare(t *testing.T) {
 								BackwardCompatible: true,
 							},
 							{
-								Description:        "New resource added 2023-02-02. Resource version 2023-01-01 deprecated and marked for removal on 2024-02-02",
+								Description:        "API version 2023-01-01 is deprecated and sunsets on 2024-02-02. Use API version 2023-02-02 instead.",
 								Code:               "endpoint-deprecated",
 								BackwardCompatible: true,
+								DeprecatedVersion:  "2023-01-01",
+								SunsetDate:         "2024-02-02",
+								ReplacedByVersion:  "2023-02-02",
 							},
 						},
 					},
@@ -914,6 +943,12 @@ func TestMergeChangelogCompare(t *testing.T) {
 						StabilityLevel: "stable",
 						ChangeType:     "release",
 						Changes: []*Change{
+							{
+								Description:        "API version 2023-02-02 was added. It replaces API version 2023-01-01.",
+								Code:               "endpoint-version-added",
+								BackwardCompatible: true,
+								ReplacesVersion:    "2023-01-01",
+							},
 							{
 								Description:        "removed the request properties: 'mongoURIWithOptions', 'providerBackupEnabled'",
 								Code:               "request-property-removed",
@@ -932,9 +967,12 @@ func TestMergeChangelogCompare(t *testing.T) {
 								BackwardCompatible: true,
 							},
 							{
-								Description:        "New resource added 2023-02-02. Resource version 2023-01-01 deprecated and marked for removal on 2024-02-02",
+								Description:        "API version 2023-01-01 is deprecated and sunsets on 2024-02-02. Use API version 2023-02-02 instead.",
 								Code:               "endpoint-deprecated",
 								BackwardCompatible: true,
+								DeprecatedVersion:  "2023-01-01",
+								SunsetDate:         "2024-02-02",
+								ReplacedByVersion:  "2023-02-02",
 							},
 						},
 					},
@@ -998,6 +1036,8 @@ func TestMergeChangelogCompare(t *testing.T) {
 
 	changelog, err := changelogStruct.mergeChangelog(changeTypeFirstVersion, changesFirstVersion, endpointsConfig)
 	require.NoError(t, err)
+	endpointsConfig["createCluster"].Revision.Version = secondVersion
+	endpointsConfig["getClusters"].Revision.Version = secondVersion
 
 	changelogStruct = &Changelog{
 		BaseMetadata: &Metadata{
