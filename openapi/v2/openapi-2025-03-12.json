@@ -17032,6 +17032,7 @@
               {
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
+                  "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
                   "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ],
                 "title": "Stream Processor Event Types",
@@ -17374,6 +17375,7 @@
               {
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
+                  "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
                   "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ],
                 "title": "Stream Processor Event Types",
@@ -17940,6 +17942,7 @@
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
                   "STREAM_PROCESSOR_STARTED",
+                  "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
                   "STREAM_PROCESSOR_CREATED",
                   "STREAM_PROCESSOR_STOPPED",
                   "STREAM_PROCESSOR_DROPPED",
@@ -22411,6 +22414,7 @@
             "enum": [
               "STREAM_PROCESSOR_STATE_IS_FAILED",
               "STREAM_PROCESSOR_STARTED",
+              "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
               "STREAM_PROCESSOR_CREATED",
               "STREAM_PROCESSOR_STOPPED",
               "STREAM_PROCESSOR_DROPPED",
@@ -48384,7 +48388,8 @@
       "StreamProcessorEventTypeViewAlertableNoThreshold": {
         "description": "Event type that triggers an alert.",
         "enum": [
-          "STREAM_PROCESSOR_STATE_IS_FAILED"
+          "STREAM_PROCESSOR_STATE_IS_FAILED",
+          "STREAM_PROCESSOR_AUTOSCALE_INITIATED"
         ],
         "example": "STREAM_PROCESSOR_STATE_IS_FAILED",
         "externalDocs": {
@@ -48412,6 +48417,7 @@
         "enum": [
           "STREAM_PROCESSOR_STATE_IS_FAILED",
           "STREAM_PROCESSOR_STARTED",
+          "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
           "STREAM_PROCESSOR_CREATED",
           "STREAM_PROCESSOR_STOPPED",
           "STREAM_PROCESSOR_DROPPED",
@@ -48438,6 +48444,12 @@
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/StreamProcessorEventTypeViewForNdsGroup"
+          },
+          "fromTier": {
+            "description": "Tier the stream processor scaled from.",
+            "example": "SP10",
+            "readOnly": true,
+            "type": "string"
           },
           "groupId": {
             "description": "Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The `eventId` identifies the specific event.",
@@ -48504,6 +48516,18 @@
           },
           "raw": {
             "$ref": "#/components/schemas/raw"
+          },
+          "reason": {
+            "description": "Reason for the autoscale event.",
+            "example": "Out of memory",
+            "readOnly": true,
+            "type": "string"
+          },
+          "toTier": {
+            "description": "Tier the stream processor scaled to.",
+            "example": "SP30",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [
@@ -54222,7 +54246,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "9ce268600e0437e45fe04aaa3e63f5e729fcdfb8"
+    "x-xgen-sha": "e8395b7c67bc1e49138bd28d117c8da79b6b00a1"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -66823,6 +66847,40 @@
           "201": {
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
+                "examples": {
+                  "Multiple collections": {
+                    "description": "Multiple collections",
+                    "value": {
+                      "collectionSuffix": "",
+                      "collections": [
+                        {
+                          "sourceNamespace": "sales.orders",
+                          "targetNamespace": "sales.orders"
+                        },
+                        {
+                          "sourceNamespace": "sales.customers",
+                          "targetNamespace": "sales.customers"
+                        }
+                      ],
+                      "createdAt": "2026-07-07T12:00:00Z",
+                      "databaseSuffix": "",
+                      "databases": [],
+                      "id": "32b6e34b3d91647abb20e7b8",
+                      "indexStatus": {
+                        "failedCollectionCount": 0,
+                        "state": "IN_PROGRESS"
+                      },
+                      "indexStrategy": "ALL",
+                      "restoredDocuments": 15500,
+                      "snapshotId": "6c5e8a2f9b1d4e3a7f0c1b2d",
+                      "state": "IN_PROGRESS",
+                      "targetClusterName": "targetCluster",
+                      "targetGroupId": "5f3a1b2c4d5e6f7a8b9c0d1e",
+                      "totalDocuments": 20000,
+                      "writeStrategy": "CREATE_NEW"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
                 },
@@ -66933,6 +66991,40 @@
           "200": {
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
+                "examples": {
+                  "Multiple collections": {
+                    "description": "Multiple collections",
+                    "value": {
+                      "collectionSuffix": "",
+                      "collections": [
+                        {
+                          "sourceNamespace": "sales.orders",
+                          "targetNamespace": "sales.orders"
+                        },
+                        {
+                          "sourceNamespace": "sales.customers",
+                          "targetNamespace": "sales.customers"
+                        }
+                      ],
+                      "createdAt": "2026-07-07T12:00:00Z",
+                      "databaseSuffix": "",
+                      "databases": [],
+                      "id": "32b6e34b3d91647abb20e7b8",
+                      "indexStatus": {
+                        "failedCollectionCount": 0,
+                        "state": "IN_PROGRESS"
+                      },
+                      "indexStrategy": "ALL",
+                      "restoredDocuments": 15500,
+                      "snapshotId": "6c5e8a2f9b1d4e3a7f0c1b2d",
+                      "state": "IN_PROGRESS",
+                      "targetClusterName": "targetCluster",
+                      "targetGroupId": "5f3a1b2c4d5e6f7a8b9c0d1e",
+                      "totalDocuments": 20000,
+                      "writeStrategy": "CREATE_NEW"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
                 },
@@ -67083,6 +67175,44 @@
           "200": {
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
+                "examples": {
+                  "Two collection states": {
+                    "description": "Two collection states",
+                    "value": {
+                      "links": [
+                        {
+                          "href": "https://cloud.mongodb.com/api/atlas",
+                          "rel": "self"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "effectiveTargetNamespace": "sales.orders",
+                          "indexStatus": {
+                            "state": "SUCCESSFUL"
+                          },
+                          "restoredDocuments": 12000,
+                          "sourceNamespace": "sales.orders",
+                          "state": "SUCCESSFUL",
+                          "targetNamespace": "sales.orders",
+                          "totalDocuments": 12000
+                        },
+                        {
+                          "effectiveTargetNamespace": "sales.customers",
+                          "indexStatus": {
+                            "state": "IN_PROGRESS"
+                          },
+                          "restoredDocuments": 3500,
+                          "sourceNamespace": "sales.customers",
+                          "state": "IN_PROGRESS",
+                          "targetNamespace": "sales.customers",
+                          "totalDocuments": 8000
+                        }
+                      ],
+                      "totalCount": 2
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedApiAtlasCollectionRestoreCollectionStateView"
                 },
@@ -67199,6 +67329,22 @@
           "200": {
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
+                "examples": {
+                  "Single collection state": {
+                    "description": "Single collection state",
+                    "value": {
+                      "effectiveTargetNamespace": "sales.orders",
+                      "indexStatus": {
+                        "state": "SUCCESSFUL"
+                      },
+                      "restoredDocuments": 12000,
+                      "sourceNamespace": "sales.orders",
+                      "state": "SUCCESSFUL",
+                      "targetNamespace": "sales.orders",
+                      "totalDocuments": 12000
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ApiAtlasCollectionRestoreCollectionStateResponse"
                 },
