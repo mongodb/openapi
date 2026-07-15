@@ -18,7 +18,6 @@ import (
 
 	"github.com/oasdiff/oasdiff/checker"
 	"github.com/oasdiff/oasdiff/formatters"
-	"github.com/oasdiff/oasdiff/load"
 	"github.com/spf13/afero"
 )
 
@@ -48,7 +47,7 @@ func (o *OasDiffEntry) LevelWithDefault() int {
 	return int(checker.INFO)
 }
 
-func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPair, exemptionsFilePath string) ([]*OasDiffEntry, error) {
+func NewChangelogEntries(checkers checker.Changes, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
 	})

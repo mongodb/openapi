@@ -216,7 +216,7 @@ func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
 		checker.INFO)
 
 	log.Printf("Found '%d' oasdiff changes between %s and %s", len(changes), m.Base.Url, m.Revision.Url)
-	return outputfilter.NewChangelogEntries(changes, diffResult.SpecInfoPair, m.ExemptionFilePath)
+	return outputfilter.NewChangelogEntries(changes, m.ExemptionFilePath)
 }
 
 // sortChangelog sorts changelog by date DESC, path + httpMethod ASC, version DESC.
