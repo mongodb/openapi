@@ -7,7 +7,7 @@ toolchain go1.26.0
 require (
 	github.com/getkin/kin-openapi v0.140.0
 	github.com/iancoleman/strcase v0.3.0
-	github.com/oasdiff/oasdiff v1.19.1
+	github.com/oasdiff/oasdiff v1.23.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/mock v0.6.0

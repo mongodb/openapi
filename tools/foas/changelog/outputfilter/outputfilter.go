@@ -56,8 +56,7 @@ func NewChangelogEntries(checkers checker.Changes, specInfoPair *load.SpecInfoPa
 		return nil, err
 	}
 
-	bytes, err := formatter.RenderChangelog(checkers, formatters.RenderOpts{ColorMode: checker.ColorAuto},
-		specInfoPair.Base.Version, specInfoPair.Revision.Version)
+	bytes, err := formatter.RenderChangelog(checkers, formatters.RenderOpts{ColorMode: checker.ColorAuto})
 	if err != nil {
 		return nil, err
 	}
