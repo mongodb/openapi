@@ -79,29 +79,38 @@ overrides:
 #### Consumer-Provided Word Lists
 
 The casing rules `xgen-IPA-117-operation-summary-format` and `xgen-IPA-126-tag-names-should-use-title-case`
-use two shared lists:
+use two configurable lists:
 
 - `ignoreList`: words allowed to keep their specific casing (e.g. acronyms such as `API`, `AWS`, `DNS`)
 - `grammaticalWords`: common words allowed to stay lowercase in titles (e.g. `and`, `or`, `the`)
 
-The ruleset ships with default lists, but consumers can supply **additional** words without editing the
-ruleset or waiting for a new package release. Point the `IPA_WORD_LISTS` environment variable at a JSON
-file that lives in your own repository:
+Both lists are passed to the rule functions through Spectral's native `functionOptions`. Consumers who
+extend the ruleset can provide their own lists by redeclaring the rule in their `.spectral.yaml`, without
+editing this package or waiting for a new release:
 
-```json
-{
-  "ignoreList": ["MMS"],
-  "grammaticalWords": ["per"]
-}
+```yaml
+extends:
+  - '@mongodb/ipa-validation-ruleset'
+
+rules:
+  xgen-IPA-126-tag-names-should-use-title-case:
+    given: $.tags[?(@.name && @.name.length > 0)]
+    then:
+      function: IPA126TagNamesShouldUseTitleCase
+      functionOptions:
+        ignoreList:
+          - API
+          - AWS
+          # ...the words this repository needs
+        grammaticalWords:
+          - and
+          - or
 ```
 
-```
-IPA_WORD_LISTS=./ipa-word-lists.json spectral lint <openapi-spec-file> --ruleset=<spectral-ruleset-file>
-```
-
-Consumer-provided words are merged with (and de-duplicated against) the package defaults — they only ever
-add words, never remove them. When `IPA_WORD_LISTS` is unset (as in this repository's own CI), the
-package-provided lists are used unchanged.
+Because Spectral requires the whole rule to be redeclared when overriding `functionOptions`, consumers own
+the complete lists for their repository. The lists defined in `IPA-117.yaml` and `IPA-126.yaml` remain the
+canonical package defaults and are the ones used by this repository's own CI, so validation here is
+unaffected by any consumer overrides.
 
 ### CI/CD Integration
 
