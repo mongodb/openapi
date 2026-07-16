@@ -76,6 +76,33 @@ overrides:
          x-xgen-IPA-xxx-rule: 'off'
 ```
 
+#### Consumer-Provided Word Lists
+
+The casing rules `xgen-IPA-117-operation-summary-format` and `xgen-IPA-126-tag-names-should-use-title-case`
+use two shared lists:
+
+- `ignoreList`: words allowed to keep their specific casing (e.g. acronyms such as `API`, `AWS`, `DNS`)
+- `grammaticalWords`: common words allowed to stay lowercase in titles (e.g. `and`, `or`, `the`)
+
+The ruleset ships with default lists, but consumers can supply **additional** words without editing the
+ruleset or waiting for a new package release. Point the `IPA_WORD_LISTS` environment variable at a JSON
+file that lives in your own repository:
+
+```json
+{
+  "ignoreList": ["MMS"],
+  "grammaticalWords": ["per"]
+}
+```
+
+```
+IPA_WORD_LISTS=./ipa-word-lists.json spectral lint <openapi-spec-file> --ruleset=<spectral-ruleset-file>
+```
+
+Consumer-provided words are merged with (and de-duplicated against) the package defaults — they only ever
+add words, never remove them. When `IPA_WORD_LISTS` is unset (as in this repository's own CI), the
+package-provided lists are used unchanged.
+
 ### CI/CD Integration
 
 #### GitHub Actions Example

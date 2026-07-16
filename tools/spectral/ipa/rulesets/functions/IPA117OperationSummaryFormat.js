@@ -1,10 +1,12 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
 import { isTitleCase } from './utils/casing.js';
 import { resolveObject } from './utils/componentUtils.js';
+import { resolveWordLists } from './utils/wordLists.js';
 
-export default (input, { ignoreList, grammaticalWords }, { path, rule, documentInventory }) => {
+export default (input, options, { path, rule, documentInventory }) => {
   const operationObjectPath = path.slice(0, -1);
   const operationObject = resolveObject(documentInventory.resolved, operationObjectPath);
+  const { ignoreList, grammaticalWords } = resolveWordLists(options);
   const errors = checkViolationsAndReturnErrors(input, ignoreList, grammaticalWords, operationObjectPath, rule.name);
   return evaluateAndCollectAdoptionStatus(errors, rule.name, operationObject, operationObjectPath);
 };
