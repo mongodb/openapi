@@ -58498,6 +58498,140 @@
         "title": "kStemming",
         "type": "object"
       },
+      "UnauthClusterCostEstimateAssumedDefaults": {
+        "description": "Standard defaults the server applied to produce a complete cluster configuration that could be priced. The reported cost reflects exactly this configuration.",
+        "properties": {
+          "backupEnabled": {
+            "description": "Whether the estimate assumes cloud backup is enabled.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "clusterType": {
+            "description": "Topology the estimate assumes.",
+            "example": "REPLICASET",
+            "readOnly": true,
+            "type": "string"
+          },
+          "diskSizeGb": {
+            "description": "Disk size, in GB, the estimate assumes.",
+            "example": 40,
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          },
+          "electableNodeCount": {
+            "description": "Number of electable nodes the estimate assumes.",
+            "example": 3,
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "encryptionAtRestProvider": {
+            "description": "Encryption-at-rest provider the estimate assumes.",
+            "example": "NONE",
+            "readOnly": true,
+            "type": "string"
+          },
+          "mongoDbMajorVersion": {
+            "description": "MongoDB major version the estimate assumes.",
+            "example": "8.0",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "backupEnabled",
+          "clusterType",
+          "diskSizeGb",
+          "electableNodeCount",
+          "encryptionAtRestProvider",
+          "mongoDbMajorVersion"
+        ],
+        "title": "Unauthenticated Cluster Cost Estimate Assumed Defaults",
+        "type": "object"
+      },
+      "UnauthClusterCostEstimateRequest": {
+        "description": "Minimal cluster description used by the unauthenticated cost-estimate endpoint. The server looks up the Cluster Starter Template matching the requested tier, applies its standard defaults, and prices the resulting configuration.",
+        "properties": {
+          "cloudProvider": {
+            "description": "Cloud service provider to estimate cost in.",
+            "enum": [
+              "AWS",
+              "GCP",
+              "AZURE"
+            ],
+            "type": "string"
+          },
+          "instanceSize": {
+            "description": "Cluster tier to estimate. Only a fixed set of representative tiers is supported on the unauthenticated endpoint; for other tiers, use the authenticated cost-estimate endpoints.",
+            "enum": [
+              "M0",
+              "FLEX",
+              "M10",
+              "M30"
+            ],
+            "type": "string"
+          },
+          "regionName": {
+            "description": "Cloud-provider region to estimate cost in. Region naming follows the chosen provider's convention (for example, US_EAST_1 for AWS).",
+            "example": "US_EAST_1",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cloudProvider",
+          "instanceSize",
+          "regionName"
+        ],
+        "title": "Unauthenticated Cluster Cost Estimate Request",
+        "type": "object"
+      },
+      "UnauthClusterCostEstimateResponse": {
+        "description": "Estimated hourly and monthly compute cost for a cluster of the requested tier in the requested region. Echoes the request inputs and the standard defaults the server applied.",
+        "properties": {
+          "assumedDefaults": {
+            "$ref": "#/components/schemas/UnauthClusterCostEstimateAssumedDefaults"
+          },
+          "cloudProvider": {
+            "description": "Cloud service provider to estimate cost in.",
+            "enum": [
+              "AWS",
+              "GCP",
+              "AZURE"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "costEstimate": {
+            "$ref": "#/components/schemas/ClusterCostEstimate"
+          },
+          "instanceSize": {
+            "description": "Cluster tier to estimate. Only a fixed set of representative tiers is supported on the unauthenticated endpoint; for other tiers, use the authenticated cost-estimate endpoints.",
+            "enum": [
+              "M0",
+              "FLEX",
+              "M10",
+              "M30"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "regionName": {
+            "description": "Cloud-provider region the estimate was produced for.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "assumedDefaults",
+          "cloudProvider",
+          "costEstimate",
+          "instanceSize",
+          "regionName"
+        ],
+        "title": "Unauthenticated Cluster Cost Estimate Response",
+        "type": "object"
+      },
       "UpdateAtlasOrganizationApiKey": {
         "properties": {
           "desc": {
@@ -60883,7 +61017,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "92bdc2e740aa9e6c956ba89a196e97f132754cf7"
+    "x-xgen-sha": "2966ae1b230f7c05056bc3be5e4b532a969577e0"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -111825,6 +111959,73 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getSku",
         "x-xgen-owner-team": "Pricing"
+      }
+    },
+    "/api/atlas/v2/unauth/clusters:estimateCost": {
+      "post": {
+        "description": "Estimates the hourly and monthly compute cost of a cluster of the requested tier in the requested cloud provider and region, applying standard defaults. This unauthenticated endpoint prices a fixed set of representative tiers and does not create a cluster. To estimate arbitrary configurations, use the authenticated cost-estimate endpoints.",
+        "operationId": "estimateClusterCost",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnauthClusterCostEstimateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "cluster-cost-estimate"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Tier, cloud provider, and region to estimate.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthClusterCostEstimateResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "cluster-cost-estimate"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Estimated hourly and monthly compute cost for the requested tier, with the standard defaults the server applied."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [],
+        "summary": "Estimate the Cost of One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateClusterCost",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        },
+        "x-xgen-owner-team": "Atlas Clusters Platform II"
       }
     },
     "/api/atlas/v2/unauth/controlPlaneIPAddresses": {
