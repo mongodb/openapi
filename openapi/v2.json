@@ -23328,6 +23328,44 @@
         },
         "type": "object"
       },
+      "EphemeralClusterStatusResponse": {
+        "description": "Current status and details of an ephemeral Atlas cluster.",
+        "properties": {
+          "claimUrl": {
+            "description": "URL that redirects users to the Atlas registration page.",
+            "format": "uri",
+            "type": "string"
+          },
+          "clusterId": {
+            "description": "Unique ID of the ephemeral cluster.",
+            "type": "string"
+          },
+          "connectionString": {
+            "description": "Atlas cluster connection string with the SCRAM database user name included. The password is replaced by a placeholder, since it is only ever returned when the cluster is created.",
+            "nullable": true,
+            "type": "string"
+          },
+          "expiresAt": {
+            "description": "Date and time when the cluster will be paused and no longer accessible until it is claimed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the ephemeral cluster.",
+            "enum": [
+              "PROVISIONING",
+              "ACTIVE",
+              "PAUSED"
+            ],
+            "type": "string"
+          },
+          "termsOfService": {
+            "description": "Legal Terms of Service agreement.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "EventSeverity": {
         "description": "Severity of the event.",
         "enum": [
@@ -57567,7 +57605,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "14268291fefc914d91cfc7854dbf3db11ea024d8"
+    "x-xgen-sha": "c7da9c492587feb341213b9d5c20672ccd145eb2"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -105554,6 +105592,62 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Root/operation/listControlPlaneIpAddresses",
         "x-xgen-operation-id-override": "listControlPlaneAddresses"
+      }
+    },
+    "/api/atlas/v2/unauth/ephemeralClusters/{clusterId}": {
+      "get": {
+        "description": "Returns the current status of an ephemeral Atlas cluster.",
+        "operationId": "getEphemeralCluster",
+        "parameters": [
+          {
+            "description": "Unique ID of the ephemeral cluster to look up.",
+            "in": "path",
+            "name": "clusterId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EphemeralClusterStatusResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [],
+        "summary": "Return One Ephemeral Atlas Cluster",
+        "tags": [
+          "EphemeralClusters"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/EphemeralClusters/operation/getEphemeralCluster"
       }
     },
     "/api/atlas/v2/unauth/ephemeralClusters:create": {
