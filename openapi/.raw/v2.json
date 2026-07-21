@@ -5311,24 +5311,24 @@
           "action": {
             "$ref": "#/components/schemas/ApiLifecycleManagementAction"
           },
-          "dbName": {
-            "description": "Name of the database this policy applies to.",
-            "example": "myDatabase",
-            "type": "string"
-          },
           "schedule": {
             "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
           },
-          "targetCollection": {
+          "sourceCollection": {
             "description": "Name of the source collection for data transition.",
-            "example": "myTargetCollection",
+            "example": "mySourceCollection",
+            "type": "string"
+          },
+          "sourceDatabase": {
+            "description": "Name of the source database this policy applies to.",
+            "example": "myDatabase",
             "type": "string"
           }
         },
         "required": [
           "action",
-          "dbName",
-          "targetCollection"
+          "sourceCollection",
+          "sourceDatabase"
         ],
         "type": "object"
       },
@@ -5337,11 +5337,6 @@
         "properties": {
           "action": {
             "$ref": "#/components/schemas/ApiLifecycleManagementAction"
-          },
-          "dbName": {
-            "description": "Name of the database this policy applies to.",
-            "readOnly": true,
-            "type": "string"
           },
           "effectiveState": {
             "description": "Current effective state of the policy.",
@@ -5363,6 +5358,16 @@
           "schedule": {
             "$ref": "#/components/schemas/ApiLifecycleManagementSchedule"
           },
+          "sourceCollection": {
+            "description": "Name of the source collection for data transition.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "sourceDatabase": {
+            "description": "Name of the source database this policy applies to.",
+            "readOnly": true,
+            "type": "string"
+          },
           "state": {
             "description": "Current state of the policy.",
             "enum": [
@@ -5371,21 +5376,16 @@
             ],
             "readOnly": true,
             "type": "string"
-          },
-          "targetCollection": {
-            "description": "Name of the target collection for data transition.",
-            "readOnly": true,
-            "type": "string"
           }
         },
         "required": [
           "action",
-          "dbName",
           "effectiveState",
           "id",
           "schedule",
-          "state",
-          "targetCollection"
+          "sourceCollection",
+          "sourceDatabase",
+          "state"
         ],
         "type": "object"
       },
@@ -6157,9 +6157,14 @@
               "criteria": {
                 "$ref": "#/components/schemas/ApiLifecycleManagementCriteria"
               },
-              "destinationCollName": {
-                "description": "Name of the destination collection for transitioned data.",
-                "example": "destinationCollection",
+              "targetCollection": {
+                "description": "Name of the target collection for transitioned data.",
+                "example": "targetCollection",
+                "type": "string"
+              },
+              "targetDatabase": {
+                "description": "Name of the target database for transitioned data.",
+                "example": "targetDatabase",
                 "type": "string"
               },
               "type": {
@@ -6174,10 +6179,11 @@
             "type": "object"
           }
         ],
-        "description": "Action that transitions data from source to destination collection.",
+        "description": "Action that transitions data from source to target collection.",
         "required": [
           "criteria",
-          "destinationCollName",
+          "targetCollection",
+          "targetDatabase",
           "type"
         ],
         "type": "object"
@@ -6192,8 +6198,13 @@
               "criteria": {
                 "$ref": "#/components/schemas/ApiLifecycleManagementCriteria"
               },
-              "destinationCollName": {
-                "description": "Name of the destination collection. If omitted, existing value is preserved.",
+              "targetCollection": {
+                "description": "Name of the target collection. If omitted, existing value is preserved.",
+                "nullable": true,
+                "type": "string"
+              },
+              "targetDatabase": {
+                "description": "Name of the target database. If omitted, existing value is preserved.",
                 "nullable": true,
                 "type": "string"
               },
@@ -54089,52 +54100,6 @@
         ],
         "type": "object"
       },
-      "StartStreamProcessorWithPreviewView": {
-        "description": "A request to start a stream processor.",
-        "properties": {
-          "failover": {
-            "$ref": "#/components/schemas/StreamsStartProcessorFailover"
-          },
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "resumeFromCheckpoint": {
-            "description": "When true or not specified, the stream processor resumes from its last checkpoint. When false, the stream processor starts fresh.",
-            "type": "boolean"
-          },
-          "startAtOperationTime": {
-            "description": "The operation time after which the change stream source should begin reporting. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "externalDocs": {
-              "description": "ISO 8601",
-              "url": "https://en.wikipedia.org/wiki/ISO_8601"
-            },
-            "format": "date-time",
-            "type": "string"
-          },
-          "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
-            "enum": [
-              "SP50",
-              "SP30",
-              "SP10",
-              "SP5",
-              "SP2"
-            ],
-            "title": "Stream Workspace Tier",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "StateReason": {
         "description": "State reason of the Job. This is set when the job state is \"Failed\".",
         "properties": {
@@ -61021,7 +60986,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "b62e9d5950179962b446c16904f7f5416ccad83e"
+    "x-xgen-sha": "14268291fefc914d91cfc7854dbf3db11ea024d8"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -98368,20 +98333,6 @@
                 "xgen-IPA-107-update-method-request-body-is-get-method-response": "Content predates IPA validation.",
                 "xgen-IPA-107-update-method-request-has-no-readonly-fields": "Content predates IPA validation."
               }
-            },
-            "application/vnd.atlas.preview+json": {
-              "schema": {
-                "$ref": "#/components/schemas/StreamsTenantUpdateRequest"
-              },
-              "x-xgen-IPA-exception": {
-                "xgen-IPA-107-update-method-request-body-is-get-method-response": "Content predates IPA validation. Update request model differs from GET response schema and cannot be aligned without breaking existing clients.  The discrepancy originates from the parent schema.",
-                "xgen-IPA-107-update-method-request-has-no-readonly-fields": "Content predates IPA validation. Request/response share the same model, which includes readOnly fields.  The discrepancy originates from the parent schema."
-              },
-              "x-xgen-preview": {
-                "name": "regional-failover",
-                "public": "false"
-              },
-              "x-xgen-version": "preview"
             }
           },
           "description": "Details to update in the streams workspace.",
@@ -98395,16 +98346,6 @@
                   "$ref": "#/components/schemas/StreamsTenant"
                 },
                 "x-xgen-version": "2023-02-01"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsTenant"
-                },
-                "x-xgen-preview": {
-                  "name": "regional-failover",
-                  "public": "false"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -99079,17 +99020,6 @@
                   "$ref": "#/components/schemas/PaginatedApiStreamsFailoverConnection"
                 },
                 "x-xgen-version": "2025-03-12"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedApiStreamsFailoverConnection"
-                },
-                "x-sunset": "2026-07-20",
-                "x-xgen-preview": {
-                  "name": "regional-failover",
-                  "public": "false"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -99189,17 +99119,6 @@
                   "$ref": "#/components/schemas/StreamsConnection"
                 },
                 "x-xgen-version": "2025-03-12"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsConnection"
-                },
-                "x-sunset": "2026-07-20",
-                "x-xgen-preview": {
-                  "name": "regional-failover",
-                  "public": "false"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -99294,14 +99213,6 @@
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
                 "x-xgen-version": "2025-03-12"
-              },
-              "application/vnd.atlas.preview+json": {
-                "x-sunset": "2026-07-20",
-                "x-xgen-preview": {
-                  "name": "regional-failover",
-                  "public": "false"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "No Content",
@@ -99394,20 +99305,6 @@
                   "xgen-IPA-104-get-method-returns-response-suffixed-object": "Schema predates IPA validation."
                 },
                 "x-xgen-version": "2025-03-12"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsConnection"
-                },
-                "x-sunset": "2026-07-20",
-                "x-xgen-IPA-exception": {
-                  "xgen-IPA-104-get-method-returns-response-suffixed-object": "Schema predates IPA validation."
-                },
-                "x-xgen-preview": {
-                  "name": "regional-failover",
-                  "public": "false"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -99518,17 +99415,6 @@
                   "xgen-IPA-104-get-method-returns-response-suffixed-object": "API predates IPA validation."
                 },
                 "x-xgen-version": "2025-03-12"
-              },
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StreamsConnection"
-                },
-                "x-sunset": "2026-07-20",
-                "x-xgen-preview": {
-                  "name": "regional-failover",
-                  "public": "false"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -100054,16 +99940,6 @@
                 "$ref": "#/components/schemas/StreamsStartStreamProcessorWith"
               },
               "x-xgen-version": "2025-03-12"
-            },
-            "application/vnd.atlas.preview+json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartStreamProcessorWithPreviewView"
-              },
-              "x-xgen-preview": {
-                "name": "regional-failover",
-                "public": "false"
-              },
-              "x-xgen-version": "preview"
             }
           },
           "description": "Options for starting a stream processor."
@@ -100073,13 +99949,6 @@
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
                 "x-xgen-version": "2025-03-12"
-              },
-              "application/vnd.atlas.preview+json": {
-                "x-xgen-preview": {
-                  "name": "regional-failover",
-                  "public": "false"
-                },
-                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
