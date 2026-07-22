@@ -108,9 +108,13 @@ rules:
 ```
 
 Because Spectral requires the whole rule to be redeclared when overriding `functionOptions`, consumers own
-the complete lists for their repository. The lists defined in `IPA-117.yaml` and `IPA-126.yaml` remain the
-canonical package defaults and are the ones used by this repository's own CI, so validation here is
-unaffected by any consumer overrides.
+the complete lists for their repository. The lists defined in `IPA-117.yaml` and `IPA-126.yaml` are the
+package defaults consumers inherit when they don't override them.
+
+Since these word lists are driven by the OpenAPI specs of the consuming repositories, keeping copies of them
+in sync just to satisfy this repository's own validation would be a maintenance burden. For that reason both
+rules are turned `off` in `ipa-spectral.yaml`, so this repository's second layer of validation does not run
+them. The rule definitions and their tests are kept for development and remain available to consumers.
 
 ### CI/CD Integration
 

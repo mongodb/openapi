@@ -8,7 +8,8 @@ import { bundleAndLoadRuleset } from '@stoplight/spectral-ruleset-bundler/with-l
 // Proof that consumers extending the ruleset can supply their own `ignoreList` and
 // `grammaticalWords` by redeclaring the rule with their own `functionOptions` — the
 // native Spectral mechanism — without editing this package. The lists in the shipped
-// rulesets remain the canonical defaults used by this repository's own CI.
+// rulesets remain the defaults consumers inherit; this repository disables the two rules
+// in ipa-spectral.yaml so it does not have to keep those consumer-owned lists in sync.
 async function runRuleWithOptions(ruleName, rulesetFile, functionOptions, document) {
   const rulesetPath = path.join(__dirname, '../rulesets', rulesetFile);
   const s = new Spectral({ resolver: httpAndFileResolver });
@@ -22,6 +23,14 @@ async function runRuleWithOptions(ruleName, rulesetFile, functionOptions, docume
     scopedRuleset.aliases = ruleset.aliases;
   }
   s.setRuleset(scopedRuleset);
+  return s.run(JSON.stringify(document));
+}
+
+async function runFullRuleset(document) {
+  const rulesetPath = path.join(__dirname, '../ipa-spectral.yaml');
+  const s = new Spectral({ resolver: httpAndFileResolver });
+  const ruleset = Object(await bundleAndLoadRuleset(rulesetPath, { fs, fetch }));
+  s.setRuleset(ruleset);
   return s.run(JSON.stringify(document));
 }
 
@@ -68,6 +77,22 @@ describe('Consumer-provided word lists via functionOptions', () => {
         document
       );
       expect(errors).toHaveLength(0);
+    });
+  });
+
+  // These rules are the second layer of validation this repository runs against its own
+  // OpenAPI files. Because their word lists are owned by the consuming repositories, they
+  // are turned off in ipa-spectral.yaml to avoid keeping the lists in sync here.
+  describe('vocabulary-based rules are disabled in ipa-spectral.yaml', () => {
+    it('does not run the consumer-owned casing rules', async () => {
+      const document = {
+        tags: [{ name: 'not title case' }],
+        paths: { '/resource': { get: { summary: 'return all resources.' } } },
+      };
+      const results = await runFullRuleset(document);
+      const codes = results.map((r) => r.code);
+      expect(codes).not.toContain('xgen-IPA-117-operation-summary-format');
+      expect(codes).not.toContain('xgen-IPA-126-tag-names-should-use-title-case');
     });
   });
 });
