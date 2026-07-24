@@ -350,31 +350,6 @@ components:
                     type: array
             readOnly: true
             type: object
-        DefaultGroupLimitResponse:
-            description: General information about a project-level, user-configured limit, including its name, maximum value, default value, and a description.
-            properties:
-                defaultLimit:
-                    description: Default limit value. Returns null if no default exists.
-                    format: int32
-                    nullable: true
-                    readOnly: true
-                    type: integer
-                description:
-                    description: Human-friendly description of what the limit controls.
-                    readOnly: true
-                    type: string
-                maximumLimit:
-                    description: Maximum limit value. Returns null if no maximum exists.
-                    format: int32
-                    nullable: true
-                    readOnly: true
-                    type: integer
-                name:
-                    description: Human-readable label that identifies the user-managed limit.
-                    readOnly: true
-                    type: string
-            title: Group limit description
-            type: object
         FieldViolation:
             properties:
                 description:
@@ -387,43 +362,41 @@ components:
                 - description
                 - field
             type: object
-        Link:
+        SqlInterfaceStatusResponse:
             properties:
-                href:
-                    description: Uniform Resource Locator (URL) that points another API resource to which this response has some relationship. This URL often begins with `https://cloud.mongodb.com/api/atlas`.
-                    example: https://cloud.mongodb.com/api/atlas
+                status:
+                    description: Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.
+                    enum:
+                        - "ON"
+                        - "OFF"
                     type: string
-                rel:
-                    description: Uniform Resource Locator (URL) that defines the semantic relationship between this resource and another API resource. This URL often begins with `https://cloud.mongodb.com/api/atlas`.
-                    example: self
+                supported:
+                    default: false
+                    description: Whether the cluster tier and type support SQL Interface.
+                    readOnly: true
+                    type: boolean
+                unsupportedReason:
+                    description: Machine-readable reason why SQL Interface isn't supported for this cluster. Present only when supported is false.
+                    enum:
+                        - UNSUPPORTED_TIER
+                        - UNSUPPORTED_TYPE
+                        - UNSUPPORTED_MONGODB_VERSION
+                    nullable: true
+                    readOnly: true
                     type: string
-            type: object
-        PaginatedDefaultGroupLimitResponse:
-            description: A list of user-configurable, project-level limits with descriptions.
-            properties:
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                results:
-                    description: List of returned documents that MongoDB Cloud provides when completing this request.
-                    items:
-                        $ref: '#/components/schemas/DefaultGroupLimitResponse'
-                    readOnly: true
-                    type: array
-                totalCount:
-                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
-                    format: int32
-                    minimum: 0
-                    readOnly: true
-                    type: integer
             required:
-                - results
+                - status
+            type: object
+        SqlInterfaceStatusUpdateRequest:
+            properties:
+                status:
+                    description: Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.
+                    enum:
+                        - "ON"
+                        - "OFF"
+                    type: string
+            required:
+                - status
             type: object
     securitySchemes:
         DigestAuth:
@@ -454,7 +427,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.preview+json" \
+          --header "Accept: application/vnd.atlas.private-preview-sql-interface+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -472,28 +445,34 @@ info:
     x-xgen-sha: 840ff46889264166116e15809fd506d402a9f9d6
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/defaultGroupLimits:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns a list of all user-configurable, project-level limits, along with a description and their default and maximum values.
-            operationId: listDefaultGroupLimits
+                 Returns the current SQL Interface status, either ON or OFF, for the specified cluster. If no status is configured, this resource returns OFF. The response also indicates whether SQL Interface is supported for this cluster.
+            operationId: getGroupClusterSqlInterface
             parameters:
                 - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/itemsPerPage'
-                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedDefaultGroupLimitResponse'
+                                $ref: '#/components/schemas/SqlInterfaceStatusResponse'
                             x-xgen-preview:
-                                public: "true"
-                            x-xgen-version: preview
-                    description: OK
+                                name: sql-interface
+                            x-xgen-version: private-preview-sql-interface
+                    description: SQL Interface status successfully retrieved.
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -505,123 +484,136 @@ paths:
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return Descriptions of User-Configurable Project Limits
-            tags:
-                - Limit Description
-            x-beta: true
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api limitDescription listDefaultGroupLimits --help
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/defaultGroupLimits?pretty=true"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/defaultGroupLimits?pretty=true"
-            x-state:
-                color: '#B89D09'
-                label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Limit-Description/operation/listDefaultGroupLimits
-    /api/atlas/v2/defaultGroupLimits/{limitName}:
-        get:
-            description: |-
-                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
-
-                 Returns the description of one user-configurable, project-level limit, along with its default and maximum values.
-            operationId: getDefaultGroupLimit
-            parameters:
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/pretty'
-                - description: Identifies the user-managed limit.
-                  in: path
-                  name: limitName
-                  required: true
-                  schema:
-                    enum:
-                        - MONGODB_USERS
-                        - NUM_CLUSTERS
-                        - NUM_SERVERLESS_MTMS
-                        - NUM_USER_CUSTOM_ROLES
-                        - MAX_NETWORK_PERMISSION_ENTRIES
-                        - MAX_CROSS_REGION_NETWORK_PERMISSION_ENTRIES
-                        - MAX_NODES_PER_PRIVATELINK_REGION
-                        - BYTES_PROCESSED_QUERY
-                        - BYTES_PROCESSED_DAILY
-                        - BYTES_PROCESSED_WEEKLY
-                        - BYTES_PROCESSED_MONTHLY
-                        - NUM_PRIVATE_SERVICE_CONNECTIONS_PER_REGION_GROUP
-                        - GCP_PSC_NAT_SUBNET_MASK
-                    type: string
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/DefaultGroupLimitResponse'
-                            x-xgen-preview:
-                                public: "true"
-                            x-xgen-version: preview
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return One User-Configurable Project Limit and Description
+            summary: Return SQL Interface Status
             tags:
-                - Limit Description
+                - Clusters
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api limitDescription getDefaultGroupLimit --help
+                  source: atlas api clusters getClusterSqlInterface --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/defaultGroupLimits/{limitName}?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/defaultGroupLimits/{limitName}?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Limit-Description/operation/getDefaultGroupLimit
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterSqlInterface
+            x-xgen-operation-id-override: getClusterSqlInterface
+        patch:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Enables or disables the SQL Interface for the specified cluster by setting its status to ON or OFF. Returns a conflict if SQL Interface can't be enabled for this cluster or project.
+            operationId: updateGroupClusterSqlInterface
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/SqlInterfaceStatusUpdateRequest'
+                        x-xgen-preview:
+                            name: sql-interface
+                        x-xgen-version: private-preview-sql-interface
+                description: Desired SQL Interface status for the cluster.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/SqlInterfaceStatusResponse'
+                            x-xgen-preview:
+                                name: sql-interface
+                            x-xgen-version: private-preview-sql-interface
+                    description: SQL Interface status successfully updated.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update SQL Interface Status
+            tags:
+                - Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters updateClusterSqlInterface --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Cluster Manager
+                - Project Replica Set Manager
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterSqlInterface
+            x-xgen-operation-id-override: updateClusterSqlInterface
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns User-Configurable Project Limits.
-      name: Limit Description
+    - description: Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.
+      name: Clusters
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/

@@ -911,6 +911,7 @@ components:
                         xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Enum values standardized by cloud providers.
                 nodeCount:
                     description: Number of nodes of the given type for MongoDB Cloud to deploy to the region.
+                    example: 3
                     format: int32
                     type: integer
             title: AWS Cluster Hardware Settings
@@ -1916,6 +1917,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/AlertAuditTypeView'
                 groupId:
@@ -2016,6 +2019,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/AlertConfigAuditTypeView'
                 groupId:
@@ -4213,30 +4218,26 @@ components:
             properties:
                 action:
                     $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                dbName:
-                    description: Name of the database this policy applies to.
-                    example: myDatabase
-                    type: string
                 schedule:
                     $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
-                targetCollection:
+                sourceCollection:
                     description: Name of the source collection for data transition.
-                    example: myTargetCollection
+                    example: mySourceCollection
+                    type: string
+                sourceDatabase:
+                    description: Name of the source database this policy applies to.
+                    example: myDatabase
                     type: string
             required:
                 - action
-                - dbName
-                - targetCollection
+                - sourceCollection
+                - sourceDatabase
             type: object
         ApiLifecycleManagementPolicyResponse:
             description: Lifecycle management policy for automated data transition.
             properties:
                 action:
                     $ref: '#/components/schemas/ApiLifecycleManagementAction'
-                dbName:
-                    description: Name of the database this policy applies to.
-                    readOnly: true
-                    type: string
                 effectiveState:
                     description: Current effective state of the policy.
                     enum:
@@ -4253,6 +4254,14 @@ components:
                     type: string
                 schedule:
                     $ref: '#/components/schemas/ApiLifecycleManagementSchedule'
+                sourceCollection:
+                    description: Name of the source collection for data transition.
+                    readOnly: true
+                    type: string
+                sourceDatabase:
+                    description: Name of the source database this policy applies to.
+                    readOnly: true
+                    type: string
                 state:
                     description: Current state of the policy.
                     enum:
@@ -4260,18 +4269,14 @@ components:
                         - PAUSED
                     readOnly: true
                     type: string
-                targetCollection:
-                    description: Name of the target collection for data transition.
-                    readOnly: true
-                    type: string
             required:
                 - action
-                - dbName
                 - effectiveState
                 - id
                 - schedule
+                - sourceCollection
+                - sourceDatabase
                 - state
-                - targetCollection
             type: object
         ApiLifecycleManagementPolicyUpdateRequest:
             description: Request body for updating a lifecycle management policy.
@@ -4810,6 +4815,12 @@ components:
                     example: 507f191e810c19729de860ea
                     pattern: ^[a-fA-F0-9]{24}$
                     type: string
+                errorReason:
+                    description: Reason the standby link is in an error state. Only present when the status is DEGRADED or FAILED.
+                    example: STANDBY_NOT_EMPTY
+                    nullable: true
+                    readOnly: true
+                    type: string
                 groupId:
                     description: Unique 24-hexadecimal digit string that identifies the project containing the clusters in the standby link.
                     example: 32b6e34b3d91647abb20e7b8
@@ -4882,9 +4893,13 @@ components:
                 - properties:
                     criteria:
                         $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
-                    destinationCollName:
-                        description: Name of the destination collection for transitioned data.
-                        example: destinationCollection
+                    targetCollection:
+                        description: Name of the target collection for transitioned data.
+                        example: targetCollection
+                        type: string
+                    targetDatabase:
+                        description: Name of the target database for transitioned data.
+                        example: targetDatabase
                         type: string
                     type:
                         description: Type of action. Only `TRANSITION_DATA` is supported.
@@ -4893,10 +4908,11 @@ components:
                         example: TRANSITION_DATA
                         type: string
                   type: object
-            description: Action that transitions data from source to destination collection.
+            description: Action that transitions data from source to target collection.
             required:
                 - criteria
-                - destinationCollName
+                - targetCollection
+                - targetDatabase
                 - type
             type: object
         ApiTransitionDataActionUpdate:
@@ -4905,8 +4921,12 @@ components:
                 - properties:
                     criteria:
                         $ref: '#/components/schemas/ApiLifecycleManagementCriteria'
-                    destinationCollName:
-                        description: Name of the destination collection. If omitted, existing value is preserved.
+                    targetCollection:
+                        description: Name of the target collection. If omitted, existing value is preserved.
+                        nullable: true
+                        type: string
+                    targetDatabase:
+                        description: Name of the target database. If omitted, existing value is preserved.
                         nullable: true
                         type: string
                     type:
@@ -4971,6 +4991,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/ApiUserEventTypeViewForNdsGroup'
                 groupId:
@@ -5069,6 +5091,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/ApiUserEventTypeViewForOrg'
                 groupId:
@@ -5944,6 +5968,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     description: Unique identifier of event type.
                     enum:
@@ -6052,6 +6078,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     description: Unique identifier of event type.
                     enum:
@@ -6557,6 +6585,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/AutomationConfigEventTypeView'
                 groupId:
@@ -7325,6 +7355,7 @@ components:
                         xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Enum values standardized by cloud providers.
                 nodeCount:
                     description: Number of nodes of the given type for MongoDB Cloud to deploy to the region.
+                    example: 3
                     format: int32
                     type: integer
             type: object
@@ -8948,6 +8979,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/BillingEventTypeViewForNdsGroup'
                 groupId:
@@ -9046,6 +9079,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/BillingEventTypeViewForOrg'
                 groupId:
@@ -9645,6 +9680,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/ChartsAuditTypeView'
                 groupId:
@@ -11083,6 +11120,7 @@ components:
                         Precedence is given to this region when a primary election occurs. If your `regionConfigs` has only `readOnlySpecs`, `analyticsSpecs`, or both, set this value to `0`. If you have multiple `regionConfigs` objects (your cluster is multi-region or multi-cloud), they must have priorities in descending order. The highest priority is `7`.
 
                         **Example:** If you have three regions, their priorities would be `7`, `6`, and `5` respectively. If you added two more regions for supporting electable nodes, the priorities of those regions would be `4` and `3` respectively.
+                    example: 7
                     format: int32
                     maximum: 7
                     minimum: 0
@@ -11668,6 +11706,32 @@ components:
                     type: string
             readOnly: true
             title: Cluster Connection Strings
+            type: object
+        ClusterCostEstimate:
+            description: Estimated compute cost of running a cluster.
+            properties:
+                disclaimer:
+                    description: Human-readable notes about what the estimate does and does not cover. Suitable for rendering line-by-line to the user.
+                    items:
+                        type: string
+                    maxItems: 10
+                    readOnly: true
+                    type: array
+                hourlyEstimateCents:
+                    description: Estimated compute cost per hour, in hundredths of a credit. One Atlas credit converts 1:1 to one US dollar.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                monthlyEstimateCents:
+                    description: Estimated compute cost per month, in hundredths of a credit. One Atlas credit converts 1:1 to one US dollar.
+                    format: int64
+                    readOnly: true
+                    type: integer
+            required:
+                - disclaimer
+                - hourlyEstimateCents
+                - monthlyEstimateCents
+            title: Cluster Cost Estimate
             type: object
         ClusterDescription20240805:
             description: Configuration of a MongoDB Atlas cluster, including its replication topology, instance sizing, storage, and operational settings.
@@ -13593,6 +13657,14 @@ components:
                         - GCP
                     type: string
             type: object
+        CreateEphemeralClusterRequest:
+            description: Create an ephemeral Atlas cluster.
+            properties:
+                clusterName:
+                    description: Designate the name of the ephemeral cluster.
+                    nullable: true
+                    type: string
+            type: object
         CreateGCPEndpointGroupRequest:
             allOf:
                 - $ref: '#/components/schemas/CreateEndpointRequest'
@@ -14066,6 +14138,8 @@ components:
                     example: test_db
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/DataExplorerAccessedEventTypeView'
                 groupId:
@@ -14157,6 +14231,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/DataExplorerEventTypeView'
                 groupId:
@@ -15255,6 +15331,8 @@ components:
                     type: string
                 currentValue:
                     $ref: '#/components/schemas/DataMetricValueView'
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 deskLocation:
                     description: Desk location of MongoDB employee associated with the event.
                     readOnly: true
@@ -16145,6 +16223,7 @@ components:
                         xgen-IPA-112-field-names-are-camel-case: Schema predates IPA validation.
                 nodeCount:
                     description: Number of nodes of the given type for MongoDB Cloud to deploy to the region.
+                    example: 3
                     format: int32
                     type: integer
             readOnly: true
@@ -16279,6 +16358,7 @@ components:
                           type: string
                         - enum:
                             - STREAM_PROCESSOR_STATE_IS_FAILED
+                            - STREAM_PROCESSOR_AUTOSCALE_INITIATED
                             - OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD
                           title: Stream Processor Event Types
                           type: string
@@ -16554,6 +16634,7 @@ components:
                           type: string
                         - enum:
                             - STREAM_PROCESSOR_STATE_IS_FAILED
+                            - STREAM_PROCESSOR_AUTOSCALE_INITIATED
                             - OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD
                           title: Stream Processor Event Types
                           type: string
@@ -16710,6 +16791,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     description: Unique identifier of event type.
                     oneOf:
@@ -16999,6 +17082,11 @@ components:
                         - enum:
                             - STREAM_PROCESSOR_STATE_IS_FAILED
                             - STREAM_PROCESSOR_STARTED
+                            - STREAM_PROCESSOR_AUTOSCALE_INITIATED
+                            - STREAM_PROCESSOR_CREATED
+                            - STREAM_PROCESSOR_STOPPED
+                            - STREAM_PROCESSOR_DROPPED
+                            - STREAM_PROCESSOR_MODIFIED
                             - INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD
                             - OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD
                           title: Stream Processor Event Types
@@ -17147,6 +17235,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     description: Unique identifier of event type.
                     oneOf:
@@ -19501,6 +19591,7 @@ components:
                     type: integer
             type: object
         DropIndexSuggestionsResponse:
+            description: Response that contains Performance Advisor drop index suggestions.
             properties:
                 hiddenIndexes:
                     description: List that contains the documents with information about the hidden indexes that the Performance Advisor suggests to remove.
@@ -19743,6 +19834,7 @@ components:
                         $ref: '#/components/schemas/Link'
                     readOnly: true
                     type: array
+            readOnly: true
             required:
                 - expirationTime
                 - grantType
@@ -19888,6 +19980,158 @@ components:
             type: object
             x-xgen-IPA-exception:
                 xgen-IPA-125-discriminator-must-accompany-oneOf-anyOf-allOf: Schema predates IPA validation.
+        EnvelopedDropIndexSuggestionsResponse:
+            description: Response envelope that wraps the response payload in `content` and includes response metadata such as `status` and `locations`.
+            properties:
+                content:
+                    $ref: '#/components/schemas/DropIndexSuggestionsResponse'
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                locations:
+                    description: URLs of resources created by this request.
+                    items:
+                        type: string
+                    maxItems: 100
+                    readOnly: true
+                    type: array
+                status:
+                    description: HTTP status code returned with this response.
+                    format: int32
+                    maximum: 599
+                    minimum: 100
+                    readOnly: true
+                    type: integer
+            required:
+                - content
+                - status
+            type: object
+        EnvelopedPerformanceAdvisorResponse:
+            description: Response envelope that wraps the response payload in `content` and includes response metadata such as `status` and `locations`.
+            properties:
+                content:
+                    $ref: '#/components/schemas/PerformanceAdvisorResponse'
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                locations:
+                    description: URLs of resources created by this request.
+                    items:
+                        type: string
+                    maxItems: 100
+                    readOnly: true
+                    type: array
+                status:
+                    description: HTTP status code returned with this response.
+                    format: int32
+                    maximum: 599
+                    minimum: 100
+                    readOnly: true
+                    type: integer
+            required:
+                - content
+                - status
+            type: object
+        EnvelopedSchemaAdvisorResponse:
+            description: Response envelope that wraps the response payload in `content` and includes response metadata such as `status` and `locations`.
+            properties:
+                content:
+                    $ref: '#/components/schemas/SchemaAdvisorResponse'
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                locations:
+                    description: URLs of resources created by this request.
+                    items:
+                        type: string
+                    maxItems: 100
+                    readOnly: true
+                    type: array
+                status:
+                    description: HTTP status code returned with this response.
+                    format: int32
+                    maximum: 599
+                    minimum: 100
+                    readOnly: true
+                    type: integer
+            required:
+                - content
+                - status
+            type: object
+        EphemeralClusterCreated:
+            description: Details for the ephemeral Atlas cluster that was created.
+            properties:
+                claimUrl:
+                    description: URL that redirects users to the Atlas registration page.
+                    format: uri
+                    type: string
+                clusterId:
+                    description: Unique ID that can be used to check the status of an ephemeral cluster.
+                    type: string
+                connectionString:
+                    description: Atlas cluster connection string with SCRAM database user credentials included.
+                    type: string
+                expiresAt:
+                    description: Date and time when the cluster will be paused and no longer accessible until it is claimed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    type: string
+                status:
+                    description: Status of the ephemeral cluster.
+                    enum:
+                        - ACTIVE
+                        - PAUSED
+                    type: string
+                termsOfService:
+                    description: Legal Terms of Service agreement.
+                    type: string
+            type: object
+        EphemeralClusterStatusResponse:
+            description: Current status and details of an ephemeral Atlas cluster.
+            properties:
+                claimUrl:
+                    description: URL that redirects users to the Atlas registration page.
+                    format: uri
+                    type: string
+                clusterId:
+                    description: Unique ID of the ephemeral cluster.
+                    type: string
+                connectionString:
+                    description: Atlas cluster connection string with the SCRAM database user name included. The password is replaced by a placeholder, since it is only ever returned when the cluster is created.
+                    nullable: true
+                    type: string
+                expiresAt:
+                    description: Date and time when the cluster will be paused and no longer accessible until it is claimed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    type: string
+                status:
+                    description: Status of the ephemeral cluster.
+                    enum:
+                        - PROVISIONING
+                        - ACTIVE
+                        - PAUSED
+                    type: string
+                termsOfService:
+                    description: Legal Terms of Service agreement.
+                    type: string
+            type: object
         EventSeverity:
             description: Severity of the event.
             enum:
@@ -20125,6 +20369,8 @@ components:
                     - FTS_INDEX_BUILD_FAILED
                     - FTS_INDEX_CREATED
                     - FTS_INDEX_UPDATED
+                    - FTS_INDEX_PARTITIONS_CHANGED
+                    - FTS_INDEX_REBUILT
                     - FTS_INDEX_DELETED
                     - FTS_INDEX_CLEANED_UP
                     - FTS_INDEX_STALE
@@ -20506,6 +20752,7 @@ components:
                     - CLUSTER_INSTANCE_ENABLED
                     - SEARCH_HOST_PAUSE_ALL_INITIAL_SYNCS
                     - SEARCH_HOST_DISABLE_FTS
+                    - SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS
                     - CLUSTER_BLOCK_WRITE
                     - CLUSTER_UNBLOCK_WRITE
                     - KMIP_KEY_ROTATION_SCHEDULED
@@ -20538,6 +20785,8 @@ components:
                     - CLUSTER_MONGUARD_ENABLED
                     - CLUSTER_MONGUARD_DISABLED
                     - CLUSTER_MONGODB_VERSION_UPDATED
+                    - VOLUME_IMPAIRED
+                    - VOLUME_IMPAIRED_RESOLVED
                   title: Atlas Audit Types
                   type: string
                   x-xgen-IPA-exception:
@@ -20713,6 +20962,11 @@ components:
                 - enum:
                     - STREAM_PROCESSOR_STATE_IS_FAILED
                     - STREAM_PROCESSOR_STARTED
+                    - STREAM_PROCESSOR_AUTOSCALE_INITIATED
+                    - STREAM_PROCESSOR_CREATED
+                    - STREAM_PROCESSOR_STOPPED
+                    - STREAM_PROCESSOR_DROPPED
+                    - STREAM_PROCESSOR_MODIFIED
                     - INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD
                     - OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD
                   title: Stream Processor Event Types
@@ -21329,6 +21583,8 @@ components:
                 - FTS_INDEX_BUILD_FAILED
                 - FTS_INDEX_CREATED
                 - FTS_INDEX_UPDATED
+                - FTS_INDEX_PARTITIONS_CHANGED
+                - FTS_INDEX_REBUILT
                 - FTS_INDEX_DELETED
                 - FTS_INDEX_CLEANED_UP
                 - FTS_INDEX_STALE
@@ -21358,6 +21614,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/FTSIndexAuditTypeView'
                 groupId:
@@ -24063,6 +24321,7 @@ components:
                         xgen-IPA-123-allowable-enum-values-should-not-exceed-20: Enum values standardized by cloud providers.
                 nodeCount:
                     description: Number of nodes of the given type for MongoDB Cloud to deploy to the region.
+                    example: 3
                     format: int32
                     type: integer
             type: object
@@ -25907,6 +26166,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 deskLocation:
                     description: Desk location of MongoDB employee associated with the event.
                     readOnly: true
@@ -26606,6 +26867,8 @@ components:
                     type: string
                 currentValue:
                     $ref: '#/components/schemas/HostMetricValue'
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 deskLocation:
                     description: Desk location of MongoDB employee associated with the event.
                     readOnly: true
@@ -28581,11 +28844,7 @@ components:
                     format: int32
                     type: integer
                 regionsConfig:
-                    additionalProperties:
-                        $ref: '#/components/schemas/RegionSpec'
-                    description: Physical location where MongoDB Cloud provisions cluster nodes.
-                    title: Region Configuration
-                    type: object
+                    $ref: '#/components/schemas/LegacyRegionsConfig'
                 zoneName:
                     description: Human-readable label that identifies the zone in a Global Cluster. Provide this value only if `clusterType` is `GEOSHARDED`.
                     type: string
@@ -30344,7 +30603,7 @@ components:
                         - OTEL
                     type: string
                 metricIntegrationId:
-                    description: Unique hexadecimal digit string that identifies the metric integration configuration.
+                    description: Unique identifier of the metric integration configuration.
                     example: 507f1f77bcf86cd799439011
                     maxLength: 24
                     minLength: 24
@@ -31199,6 +31458,7 @@ components:
                 - CLUSTER_INSTANCE_ENABLED
                 - SEARCH_HOST_PAUSE_ALL_INITIAL_SYNCS
                 - SEARCH_HOST_DISABLE_FTS
+                - SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS
                 - CLUSTER_BLOCK_WRITE
                 - CLUSTER_UNBLOCK_WRITE
                 - KMIP_KEY_ROTATION_SCHEDULED
@@ -31231,6 +31491,8 @@ components:
                 - CLUSTER_MONGUARD_ENABLED
                 - CLUSTER_MONGUARD_DISABLED
                 - CLUSTER_MONGODB_VERSION_UPDATED
+                - VOLUME_IMPAIRED
+                - VOLUME_IMPAIRED_RESOLVED
             example: CLUSTER_CREATED
             title: Atlas Audit Types
             type: string
@@ -31271,6 +31533,8 @@ components:
                     example: user1
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/NDSAuditTypeViewForNdsGroup'
                 groupId:
@@ -31367,6 +31631,8 @@ components:
                     example: user1
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/NDSAuditTypeViewForOrg'
                 groupId:
@@ -31510,6 +31776,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/NDSAutoScalingAuditTypeViewForNdsGroup'
                 groupId:
@@ -31745,6 +32013,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/NDSServerlessInstanceAuditTypeView'
                 groupId:
@@ -31847,6 +32117,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 endpointId:
                     description: Unique 24-hexadecimal digit string that identifies the endpoint associated with this event.
                     example: 32b6e34b3d91647abb20e7b8
@@ -32496,6 +32768,8 @@ components:
                     type: string
                 currentValue:
                     $ref: '#/components/schemas/NumberMetricValueView'
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 deskLocation:
                     description: Desk location of MongoDB employee associated with the event.
                     readOnly: true
@@ -33676,6 +33950,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/OrgEventTypeViewForOrg'
                 groupId:
@@ -34644,6 +34920,57 @@ components:
                     type: object
             readOnly: true
             title: Outbound Control Plane IP Addresses By Cloud Provider
+            type: object
+        OverloadProtectionSimulationRequest:
+            description: Request to start an overload protection simulation for a cluster.
+            properties:
+                durationSeconds:
+                    description: Duration of the overload protection simulation in seconds.
+                    format: int32
+                    type: integer
+            type: object
+        OverloadProtectionSimulationResponse:
+            description: Overload protection simulation for a cluster.
+            properties:
+                cancelRequestedAt:
+                    description: Date and time when cancellation of the overload protection simulation was requested. This parameter is only present when a cancellation has been requested and expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                clusterName:
+                    description: Human-readable label that identifies the cluster on which the simulation is running.
+                    readOnly: true
+                    type: string
+                durationSeconds:
+                    description: Duration of the overload protection simulation in seconds.
+                    format: int32
+                    type: integer
+                expiresAt:
+                    description: Date and time when the overload protection simulation expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                groupId:
+                    description: Unique 24-hexadecimal character string that identifies the project that contains the cluster.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                requestDate:
+                    description: Date and time when the overload protection simulation was requested. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                simulationId:
+                    description: Unique identifier of the overload protection simulation.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                state:
+                    description: Current state of the overload protection simulation.
+                    readOnly: true
+                    type: string
             type: object
         PagerDuty:
             description: Details to integrate one PagerDuty account with one MongoDB Cloud project.
@@ -36584,6 +36911,33 @@ components:
             required:
                 - results
             type: object
+        PaginatedOverloadProtectionSimulationResponse:
+            description: List of overload protection simulations for a cluster.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/OverloadProtectionSimulationResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
         PaginatedPrivateNetworkEndpointIdEntryView:
             properties:
                 links:
@@ -37158,6 +37512,7 @@ components:
                     $ref: '#/components/schemas/PerformanceAdvisorOpStats'
             type: object
         PerformanceAdvisorResponse:
+            description: Response that contains Performance Advisor suggested indexes and query shapes.
             properties:
                 shapes:
                     description: List of query predicates, sorts, and projections that the Performance Advisor suggests.
@@ -37271,8 +37626,16 @@ components:
                     description: This boolean will be true when the server can identify the query source as non-server. This field is only available for MDB 8.0+.
                     readOnly: true
                     type: boolean
+                hasAutoEmbedding:
+                    description: Flag that indicates whether the slow query used automated embedding, where MongoDB Cloud generates embeddings from raw text at query time instead of the client supplying a precomputed vector.
+                    readOnly: true
+                    type: boolean
                 hasIndexCoverage:
                     description: Indicates if the query has index coverage.
+                    readOnly: true
+                    type: boolean
+                hasRerank:
+                    description: Flag that indicates whether the slow query used the `$rerank` aggregation stage, which reorders results using Voyage AI reranking models. Always `false` for MongoDB deployments earlier than 8.3.
                     readOnly: true
                     type: boolean
                 hasSort:
@@ -37302,6 +37665,13 @@ components:
                 responseLength:
                     description: The length in bytes of the operation's result document.
                     format: int64
+                    readOnly: true
+                    type: integer
+                tokensUsed:
+                    description: The total inference tokens consumed by this operation, including tokens used by `$rerank`. Returned only for inference queries that consumed tokens; it is omitted otherwise, including for MongoDB deployments earlier than 8.3.
+                    example: 363
+                    format: int64
+                    minimum: 0
                     readOnly: true
                     type: integer
             readOnly: true
@@ -37349,6 +37719,19 @@ components:
                         xgen-IPA-124-array-max-items: Schema predates IPA validation.
             required:
                 - pinnedNamespaces
+            type: object
+        Principal:
+            description: Information about a principal, such as an OAuth application, that triggered the event through delegated access.
+            properties:
+                id:
+                    description: The identifier of this principal.
+                    type: string
+                name:
+                    description: The human-readable name of this principal.
+                    type: string
+                onBehalfOf:
+                    $ref: '#/components/schemas/Principal'
+            readOnly: true
             type: object
         PrivateEndpointHostname:
             description: Set of Private endpoint and hostnames.
@@ -38244,6 +38627,8 @@ components:
                     type: string
                 currentValue:
                     $ref: '#/components/schemas/RawMetricValueView'
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 deskLocation:
                     description: Desk location of MongoDB employee associated with the event.
                     readOnly: true
@@ -38914,6 +39299,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/ResourceEventTypeView'
                 groupId:
@@ -39011,6 +39398,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/ResourceEventTypeViewForOrg'
                 groupId:
@@ -39410,6 +39799,7 @@ components:
                         xgen-IPA-124-array-max-items: Schema predates IPA validation.
             type: object
         SchemaAdvisorResponse:
+            description: Response that contains Performance Advisor schema suggestions.
             properties:
                 recommendations:
                     description: List that contains the documents with information about the schema advice that Performance Advisor suggests.
@@ -39488,6 +39878,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/SearchDeploymentAuditTypeView'
                 groupId:
@@ -41559,6 +41951,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/ServiceAccountEventTypeViewForNdsGroup'
                 groupId:
@@ -41682,6 +42076,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/ServiceAccountEventTypeViewForOrg'
                 groupId:
@@ -41792,7 +42188,9 @@ components:
                 secretExpiresAfterHours:
                     description: The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.
                     example: 8
+                    exclusiveMinimum: true
                     format: int32
+                    minimum: 0
                     type: integer
             required:
                 - secretExpiresAfterHours
@@ -42047,40 +42445,41 @@ components:
                 - type
             title: Splunk Log Export Integration Response
             type: object
-        StartStreamProcessorWithPreviewView:
-            description: A request to start a stream processor.
+        SqlInterfaceStatusResponse:
             properties:
-                failover:
-                    $ref: '#/components/schemas/StreamsStartProcessorFailover'
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                resumeFromCheckpoint:
-                    description: When true or not specified, the stream processor resumes from its last checkpoint. When false, the stream processor starts fresh.
-                    type: boolean
-                startAtOperationTime:
-                    description: The operation time after which the change stream source should begin reporting. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
-                    externalDocs:
-                        description: ISO 8601
-                        url: https://en.wikipedia.org/wiki/ISO_8601
-                    format: date-time
-                    type: string
-                tier:
-                    description: Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.
+                status:
+                    description: Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.
                     enum:
-                        - SP50
-                        - SP30
-                        - SP10
-                        - SP5
-                        - SP2
-                    title: Stream Workspace Tier
+                        - "ON"
+                        - "OFF"
                     type: string
+                supported:
+                    default: false
+                    description: Whether the cluster tier and type support SQL Interface.
+                    readOnly: true
+                    type: boolean
+                unsupportedReason:
+                    description: Machine-readable reason why SQL Interface isn't supported for this cluster. Present only when supported is false.
+                    enum:
+                        - UNSUPPORTED_TIER
+                        - UNSUPPORTED_TYPE
+                        - UNSUPPORTED_MONGODB_VERSION
+                    nullable: true
+                    readOnly: true
+                    type: string
+            required:
+                - status
+            type: object
+        SqlInterfaceStatusUpdateRequest:
+            properties:
+                status:
+                    description: Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.
+                    enum:
+                        - "ON"
+                        - "OFF"
+                    type: string
+            required:
+                - status
             type: object
         StateReason:
             description: State reason of the Job. This is set when the job state is "Failed".
@@ -42341,6 +42740,7 @@ components:
             description: Event type that triggers an alert.
             enum:
                 - STREAM_PROCESSOR_STATE_IS_FAILED
+                - STREAM_PROCESSOR_AUTOSCALE_INITIATED
             example: STREAM_PROCESSOR_STATE_IS_FAILED
             externalDocs:
                 description: Atlas Alert Event Types
@@ -42362,6 +42762,11 @@ components:
             enum:
                 - STREAM_PROCESSOR_STATE_IS_FAILED
                 - STREAM_PROCESSOR_STARTED
+                - STREAM_PROCESSOR_AUTOSCALE_INITIATED
+                - STREAM_PROCESSOR_CREATED
+                - STREAM_PROCESSOR_STOPPED
+                - STREAM_PROCESSOR_DROPPED
+                - STREAM_PROCESSOR_MODIFIED
                 - INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD
                 - OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD
             example: STREAM_PROCESSOR_STATE_IS_FAILED
@@ -42380,6 +42785,11 @@ components:
                     type: string
                 eventTypeName:
                     $ref: '#/components/schemas/StreamProcessorEventTypeViewForNdsGroup'
+                fromTier:
+                    description: Tier the stream processor scaled from.
+                    example: SP10
+                    readOnly: true
+                    type: string
                 groupId:
                     description: Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The `eventId` identifies the specific event.
                     example: 32b6e34b3d91647abb20e7b8
@@ -42406,6 +42816,11 @@ components:
                         $ref: '#/components/schemas/Link'
                     readOnly: true
                     type: array
+                modifiedBy:
+                    description: Username of the user who modified the stream processor.
+                    example: user@example.com
+                    readOnly: true
+                    type: string
                 orgId:
                     description: Unique 24-hexadecimal digit string that identifies the organization to which these events apply.
                     example: 32b6e34b3d91647abb20e7b8
@@ -42429,6 +42844,16 @@ components:
                     type: string
                 raw:
                     $ref: '#/components/schemas/raw'
+                reason:
+                    description: Reason for the autoscale event.
+                    example: Out of memory
+                    readOnly: true
+                    type: string
+                toTier:
+                    description: Tier the stream processor scaled to.
+                    example: SP30
+                    readOnly: true
+                    type: string
             required:
                 - created
                 - eventTypeName
@@ -43090,6 +43515,16 @@ components:
                     type: array
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: Schema predates IPA validation.
+                tier:
+                    description: Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.
+                    enum:
+                        - SP50
+                        - SP30
+                        - SP10
+                        - SP5
+                        - SP2
+                    title: Stream Workspace Tier
+                    type: string
             type: object
         StreamsModifyStreamProcessorOptions:
             description: Additional options for modifying a stream processor.
@@ -44130,6 +44565,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/TeamEventTypeView'
                 groupId:
@@ -44244,6 +44681,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/TeamEventTypeViewForNdsGroup'
                 groupId:
@@ -45095,6 +45534,8 @@ components:
                     type: string
                 currentValue:
                     $ref: '#/components/schemas/TimeMetricValueView'
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 deskLocation:
                     description: Desk location of MongoDB employee associated with the event.
                     readOnly: true
@@ -45400,6 +45841,113 @@ components:
             required:
                 - type
             title: kStemming
+            type: object
+        UnauthClusterCostEstimateAssumedDefaults:
+            description: Standard defaults the server applied to produce a complete cluster configuration that could be priced. The reported cost reflects exactly this configuration.
+            properties:
+                backupEnabled:
+                    description: Whether the estimate assumes cloud backup is enabled.
+                    readOnly: true
+                    type: boolean
+                clusterType:
+                    description: Topology the estimate assumes.
+                    example: REPLICASET
+                    readOnly: true
+                    type: string
+                diskSizeGb:
+                    description: Disk size, in GB, the estimate assumes.
+                    example: 40
+                    format: double
+                    readOnly: true
+                    type: number
+                electableNodeCount:
+                    description: Number of electable nodes the estimate assumes.
+                    example: 3
+                    format: int32
+                    readOnly: true
+                    type: integer
+                encryptionAtRestProvider:
+                    description: Encryption-at-rest provider the estimate assumes.
+                    example: NONE
+                    readOnly: true
+                    type: string
+                mongoDbMajorVersion:
+                    description: MongoDB major version the estimate assumes.
+                    example: "8.0"
+                    readOnly: true
+                    type: string
+            required:
+                - backupEnabled
+                - clusterType
+                - diskSizeGb
+                - electableNodeCount
+                - encryptionAtRestProvider
+                - mongoDbMajorVersion
+            title: Unauthenticated Cluster Cost Estimate Assumed Defaults
+            type: object
+        UnauthClusterCostEstimateRequest:
+            description: Minimal cluster description used by the unauthenticated cost-estimate endpoint. The server looks up the Cluster Starter Template matching the requested tier, applies its standard defaults, and prices the resulting configuration.
+            properties:
+                cloudProvider:
+                    description: Cloud service provider to estimate cost in.
+                    enum:
+                        - AWS
+                        - GCP
+                        - AZURE
+                    type: string
+                instanceSize:
+                    description: Cluster tier to estimate. Only a fixed set of representative tiers is supported on the unauthenticated endpoint; for other tiers, use the authenticated cost-estimate endpoints.
+                    enum:
+                        - M0
+                        - FLEX
+                        - M10
+                        - M30
+                    type: string
+                regionName:
+                    description: Cloud-provider region to estimate cost in. Region naming follows the chosen provider's convention (for example, US_EAST_1 for AWS).
+                    example: US_EAST_1
+                    type: string
+            required:
+                - cloudProvider
+                - instanceSize
+                - regionName
+            title: Unauthenticated Cluster Cost Estimate Request
+            type: object
+        UnauthClusterCostEstimateResponse:
+            description: Estimated hourly and monthly compute cost for a cluster of the requested tier in the requested region. Echoes the request inputs and the standard defaults the server applied.
+            properties:
+                assumedDefaults:
+                    $ref: '#/components/schemas/UnauthClusterCostEstimateAssumedDefaults'
+                cloudProvider:
+                    description: Cloud service provider to estimate cost in.
+                    enum:
+                        - AWS
+                        - GCP
+                        - AZURE
+                    readOnly: true
+                    type: string
+                costEstimate:
+                    $ref: '#/components/schemas/ClusterCostEstimate'
+                instanceSize:
+                    description: Cluster tier to estimate. Only a fixed set of representative tiers is supported on the unauthenticated endpoint; for other tiers, use the authenticated cost-estimate endpoints.
+                    enum:
+                        - M0
+                        - FLEX
+                        - M10
+                        - M30
+                    readOnly: true
+                    type: string
+                regionName:
+                    description: Cloud-provider region the estimate was produced for.
+                    readOnly: true
+                    type: string
+            required:
+                - assumedDefaults
+                - cloudProvider
+                - costEstimate
+                - instanceSize
+                - regionName
+            title: Unauthenticated Cluster Cost Estimate Response
             type: object
         UpdateAtlasOrganizationApiKey:
             properties:
@@ -45797,6 +46345,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/UserEventTypeViewForNdsGroup'
                 groupId:
@@ -45890,6 +46440,8 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                delegatePrincipal:
+                    $ref: '#/components/schemas/Principal'
                 eventTypeName:
                     $ref: '#/components/schemas/UserEventTypeViewForOrg'
                 groupId:
@@ -47304,7 +47856,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: b60f0e1ea3bcd3f566fdb3a02edd6b9a9cdbe728
+    x-xgen-sha: 840ff46889264166116e15809fd506d402a9f9d6
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -52464,7 +53016,7 @@ paths:
             x-xgen-operation-id-override: getCluster
             x-xgen-owner-team: Atlas Dedicated
         patch:
-            description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting Service Account or API Key must have the Project Owner role. For all other updates, the requesting Service Account or API Key must have the Project Cluster Manager role or the Project Replica Set Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters.'
+            description: 'Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster''s termination protection, the requesting Service Account or API Key must have the Project Owner role. For all other updates, the requesting Service Account or API Key must have the Project Cluster Manager role, the Project Cluster Resilience Tester role, or the Project Replica Set Manager role. You can''t modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters.'
             operationId: updateGroupCluster
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -52585,6 +53137,7 @@ paths:
                 - Clusters
             x-rolesRequirements:
                 - Project Cluster Manager
+                - Project Cluster Resilience Tester
                 - Project Replica Set Manager
             x-xgen-changelog:
                 "2025-06-05": Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec
@@ -54534,10 +55087,60 @@ paths:
                 "201":
                     content:
                         application/vnd.atlas.2025-03-12+json:
+                            examples:
+                                Multiple collections:
+                                    description: Multiple collections
+                                    value:
+                                        collectionSuffix: ""
+                                        collections:
+                                            - sourceNamespace: sales.orders
+                                              targetNamespace: sales.orders
+                                            - sourceNamespace: sales.customers
+                                              targetNamespace: sales.customers
+                                        createdAt: "2026-07-07T12:00:00Z"
+                                        databaseSuffix: ""
+                                        databases: []
+                                        id: 32b6e34b3d91647abb20e7b8
+                                        indexStatus:
+                                            failedCollectionCount: 0
+                                            state: IN_PROGRESS
+                                        indexStrategy: ALL
+                                        restoredDocuments: 15500
+                                        snapshotId: 6c5e8a2f9b1d4e3a7f0c1b2d
+                                        state: IN_PROGRESS
+                                        targetClusterName: targetCluster
+                                        targetGroupId: 5f3a1b2c4d5e6f7a8b9c0d1e
+                                        totalDocuments: 20000
+                                        writeStrategy: CREATE_NEW
                             schema:
                                 $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
                             x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
+                            examples:
+                                Multiple collections:
+                                    description: Multiple collections
+                                    value:
+                                        collectionSuffix: ""
+                                        collections:
+                                            - sourceNamespace: sales.orders
+                                              targetNamespace: sales.orders
+                                            - sourceNamespace: sales.customers
+                                              targetNamespace: sales.customers
+                                        createdAt: "2026-07-07T12:00:00Z"
+                                        databaseSuffix: ""
+                                        databases: []
+                                        id: 32b6e34b3d91647abb20e7b8
+                                        indexStatus:
+                                            failedCollectionCount: 0
+                                            state: IN_PROGRESS
+                                        indexStrategy: ALL
+                                        restoredDocuments: 15500
+                                        snapshotId: 6c5e8a2f9b1d4e3a7f0c1b2d
+                                        state: IN_PROGRESS
+                                        targetClusterName: targetCluster
+                                        targetGroupId: 5f3a1b2c4d5e6f7a8b9c0d1e
+                                        totalDocuments: 20000
+                                        writeStrategy: CREATE_NEW
                             schema:
                                 $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
                             x-sunset: "2026-08-10"
@@ -54598,10 +55201,60 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2025-03-12+json:
+                            examples:
+                                Multiple collections:
+                                    description: Multiple collections
+                                    value:
+                                        collectionSuffix: ""
+                                        collections:
+                                            - sourceNamespace: sales.orders
+                                              targetNamespace: sales.orders
+                                            - sourceNamespace: sales.customers
+                                              targetNamespace: sales.customers
+                                        createdAt: "2026-07-07T12:00:00Z"
+                                        databaseSuffix: ""
+                                        databases: []
+                                        id: 32b6e34b3d91647abb20e7b8
+                                        indexStatus:
+                                            failedCollectionCount: 0
+                                            state: IN_PROGRESS
+                                        indexStrategy: ALL
+                                        restoredDocuments: 15500
+                                        snapshotId: 6c5e8a2f9b1d4e3a7f0c1b2d
+                                        state: IN_PROGRESS
+                                        targetClusterName: targetCluster
+                                        targetGroupId: 5f3a1b2c4d5e6f7a8b9c0d1e
+                                        totalDocuments: 20000
+                                        writeStrategy: CREATE_NEW
                             schema:
                                 $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
                             x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
+                            examples:
+                                Multiple collections:
+                                    description: Multiple collections
+                                    value:
+                                        collectionSuffix: ""
+                                        collections:
+                                            - sourceNamespace: sales.orders
+                                              targetNamespace: sales.orders
+                                            - sourceNamespace: sales.customers
+                                              targetNamespace: sales.customers
+                                        createdAt: "2026-07-07T12:00:00Z"
+                                        databaseSuffix: ""
+                                        databases: []
+                                        id: 32b6e34b3d91647abb20e7b8
+                                        indexStatus:
+                                            failedCollectionCount: 0
+                                            state: IN_PROGRESS
+                                        indexStrategy: ALL
+                                        restoredDocuments: 15500
+                                        snapshotId: 6c5e8a2f9b1d4e3a7f0c1b2d
+                                        state: IN_PROGRESS
+                                        targetClusterName: targetCluster
+                                        targetGroupId: 5f3a1b2c4d5e6f7a8b9c0d1e
+                                        totalDocuments: 20000
+                                        writeStrategy: CREATE_NEW
                             schema:
                                 $ref: '#/components/schemas/ApiAtlasCollectionRestoreJobResponse'
                             x-sunset: "2026-08-10"
@@ -54689,10 +55342,60 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2025-03-12+json:
+                            examples:
+                                Two collection states:
+                                    description: Two collection states
+                                    value:
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                        results:
+                                            - effectiveTargetNamespace: sales.orders
+                                              indexStatus:
+                                                state: SUCCESSFUL
+                                              restoredDocuments: 12000
+                                              sourceNamespace: sales.orders
+                                              state: SUCCESSFUL
+                                              targetNamespace: sales.orders
+                                              totalDocuments: 12000
+                                            - effectiveTargetNamespace: sales.customers
+                                              indexStatus:
+                                                state: IN_PROGRESS
+                                              restoredDocuments: 3500
+                                              sourceNamespace: sales.customers
+                                              state: IN_PROGRESS
+                                              targetNamespace: sales.customers
+                                              totalDocuments: 8000
+                                        totalCount: 2
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiAtlasCollectionRestoreCollectionStateView'
                             x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
+                            examples:
+                                Two collection states:
+                                    description: Two collection states
+                                    value:
+                                        links:
+                                            - href: https://cloud.mongodb.com/api/atlas
+                                              rel: self
+                                        results:
+                                            - effectiveTargetNamespace: sales.orders
+                                              indexStatus:
+                                                state: SUCCESSFUL
+                                              restoredDocuments: 12000
+                                              sourceNamespace: sales.orders
+                                              state: SUCCESSFUL
+                                              targetNamespace: sales.orders
+                                              totalDocuments: 12000
+                                            - effectiveTargetNamespace: sales.customers
+                                              indexStatus:
+                                                state: IN_PROGRESS
+                                              restoredDocuments: 3500
+                                              sourceNamespace: sales.customers
+                                              state: IN_PROGRESS
+                                              targetNamespace: sales.customers
+                                              totalDocuments: 8000
+                                        totalCount: 2
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiAtlasCollectionRestoreCollectionStateView'
                             x-sunset: "2026-08-10"
@@ -54757,10 +55460,34 @@ paths:
                 "200":
                     content:
                         application/vnd.atlas.2025-03-12+json:
+                            examples:
+                                Single collection state:
+                                    description: Single collection state
+                                    value:
+                                        effectiveTargetNamespace: sales.orders
+                                        indexStatus:
+                                            state: SUCCESSFUL
+                                        restoredDocuments: 12000
+                                        sourceNamespace: sales.orders
+                                        state: SUCCESSFUL
+                                        targetNamespace: sales.orders
+                                        totalDocuments: 12000
                             schema:
                                 $ref: '#/components/schemas/ApiAtlasCollectionRestoreCollectionStateResponse'
                             x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
+                            examples:
+                                Single collection state:
+                                    description: Single collection state
+                                    value:
+                                        effectiveTargetNamespace: sales.orders
+                                        indexStatus:
+                                            state: SUCCESSFUL
+                                        restoredDocuments: 12000
+                                        sourceNamespace: sales.orders
+                                        state: SUCCESSFUL
+                                        targetNamespace: sales.orders
+                                        totalDocuments: 12000
                             schema:
                                 $ref: '#/components/schemas/ApiAtlasCollectionRestoreCollectionStateResponse'
                             x-sunset: "2026-08-10"
@@ -56510,6 +57237,7 @@ paths:
                 - Cluster Outage Simulation
             x-rolesRequirements:
                 - Project Cluster Manager
+                - Project Cluster Resilience Tester
             x-xgen-IPA-exception:
                 xgen-IPA-110-collections-request-has-itemsPerPage-query-param: Singleton method, mistakenly identified as a List method.
                 xgen-IPA-110-collections-request-has-pageNum-query-param: Singleton method, mistakenly identified as a List method.
@@ -56588,6 +57316,232 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-104-resource-has-GET: API predates IPA validation.
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations:
+        get:
+            description: Returns all overload protection simulations for one cluster.
+            operationId: listGroupClusterOverloadSimulations
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the overload protection simulations are running.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOverloadProtectionSimulationResponse'
+                            x-xgen-preview:
+                                name: overload-protection-simulation
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Overload Protection Simulations
+            tags:
+                - Overload Protection Simulation
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/listGroupClusterOverloadSimulations
+            x-xgen-operation-id-override: listClusterOverloadSimulations
+            x-xgen-owner-team: atlas-clusters-workload-management
+        post:
+            description: Starts an overload protection simulation for one cluster. Returns a 409 if a simulation is already in progress or completed; DELETE the existing simulation before starting a new one.
+            operationId: createGroupClusterOverloadSimulation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which to start the overload protection simulation.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/OverloadProtectionSimulationRequest'
+                        x-xgen-preview:
+                            name: overload-protection-simulation
+                        x-xgen-version: preview
+                description: 'Details of the overload protection simulation to start. Valid durations (in seconds): 900, 3600, 28800, 86400.'
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/OverloadProtectionSimulationResponse'
+                            x-xgen-preview:
+                                name: overload-protection-simulation
+                            x-xgen-version: preview
+                    description: Created
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Overload Protection Simulation
+            tags:
+                - Overload Protection Simulation
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/createGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: createClusterOverloadSimulation
+            x-xgen-owner-team: atlas-clusters-workload-management
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}:
+        delete:
+            description: Deletes the overload protection simulation for one cluster.
+            operationId: deleteGroupClusterOverloadSimulation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the overload protection simulation is running.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the overload protection simulation.
+                  in: path
+                  name: simulationId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            x-xgen-preview:
+                                name: overload-protection-simulation
+                            x-xgen-version: preview
+                    description: Accepted
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Overload Protection Simulation
+            tags:
+                - Overload Protection Simulation
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-xgen-IPA-exception:
+                xgen-IPA-108-delete-method-return-204-response: Deleting an overload protection simulation is an asynchronous operation, so this endpoint returns 202 Accepted instead of 204 No Content.
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/deleteGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: deleteClusterOverloadSimulation
+            x-xgen-owner-team: atlas-clusters-workload-management
+        get:
+            description: Returns the overload protection simulation for one cluster.
+            operationId: getGroupClusterOverloadSimulation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the overload protection simulation is running.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the overload protection simulation.
+                  in: path
+                  name: simulationId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/OverloadProtectionSimulationResponse'
+                            x-xgen-preview:
+                                name: overload-protection-simulation
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Overload Protection Simulation
+            tags:
+                - Overload Protection Simulation
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/getGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: getClusterOverloadSimulation
+            x-xgen-owner-team: atlas-clusters-workload-management
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/performanceAdvisor/dropIndexSuggestions:
         get:
             description: Returns the indexes that the Performance Advisor suggests to drop. The Performance Advisor suggests dropping unused, redundant, and hidden indexes to improve write performance and increase storage space.
@@ -56601,12 +57555,18 @@ paths:
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
+                - description: Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query. Endpoints that return a list of results use the results object as an envelope. Application adds the status parameter to the response body.
+                  in: query
+                  name: envelope
+                  schema:
+                    default: true
+                    type: boolean
             responses:
                 "200":
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/DropIndexSuggestionsResponse'
+                                $ref: '#/components/schemas/EnvelopedDropIndexSuggestionsResponse'
                             x-xgen-version: "2024-08-05"
                     description: OK
                     headers:
@@ -56642,6 +57602,12 @@ paths:
             operationId: listGroupClusterPerformanceAdvisorSchemaAdvice
             parameters:
                 - $ref: '#/components/parameters/groupId'
+                - description: Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query. Endpoints that return a list of results use the results object as an envelope. Application adds the status parameter to the response body.
+                  in: query
+                  name: envelope
+                  schema:
+                    default: true
+                    type: boolean
                 - description: Human-readable label that identifies the cluster.
                   in: path
                   name: clusterName
@@ -56654,7 +57620,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/SchemaAdvisorResponse'
+                                $ref: '#/components/schemas/EnvelopedSchemaAdvisorResponse'
                             x-xgen-version: "2024-08-05"
                     description: OK
                     headers:
@@ -56697,6 +57663,12 @@ paths:
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
+                - description: Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query. Endpoints that return a list of results use the results object as an envelope. Application adds the status parameter to the response body.
+                  in: query
+                  name: envelope
+                  schema:
+                    default: true
+                    type: boolean
                 - description: Process IDs from which to retrieve suggested indexes. A `processId` is a combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests. To include multiple `processIds`, pass the parameter multiple times delimited with an ampersand (`&`) between each `processId`.
                   in: query
                   name: processIds
@@ -56749,7 +57721,7 @@ paths:
                     content:
                         application/vnd.atlas.2024-08-05+json:
                             schema:
-                                $ref: '#/components/schemas/PerformanceAdvisorResponse'
+                                $ref: '#/components/schemas/EnvelopedPerformanceAdvisorResponse'
                             x-xgen-version: "2024-08-05"
                     description: OK
                     headers:
@@ -58820,6 +59792,121 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/updateGroupClusterSnapshot
             x-xgen-operation-id-override: updateClusterSnapshot
             x-xgen-owner-team: Backup - Atlas
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface:
+        get:
+            description: Returns the current SQL Interface status, either ON or OFF, for the specified cluster. If no status is configured, this resource returns OFF. The response also indicates whether SQL Interface is supported for this cluster.
+            operationId: getGroupClusterSqlInterface
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/SqlInterfaceStatusResponse'
+                            x-xgen-preview:
+                                name: sql-interface
+                            x-xgen-version: preview
+                    description: SQL Interface status successfully retrieved.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return SQL Interface Status
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-IPA-exception:
+                xgen-IPA-117-operation-summary-format: Atlas SQL is a product name; the SQL acronym is not present in the IPA-117 ignoreList.
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterSqlInterface
+            x-xgen-operation-id-override: getClusterSqlInterface
+            x-xgen-owner-team: Atlas SQL
+        patch:
+            description: Enables or disables the SQL Interface for the specified cluster by setting its status to ON or OFF. Returns a conflict if SQL Interface can't be enabled for this cluster or project.
+            operationId: updateGroupClusterSqlInterface
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/SqlInterfaceStatusUpdateRequest'
+                        x-xgen-preview:
+                            name: sql-interface
+                        x-xgen-version: preview
+                description: Desired SQL Interface status for the cluster.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/SqlInterfaceStatusResponse'
+                            x-xgen-preview:
+                                name: sql-interface
+                            x-xgen-version: preview
+                    description: SQL Interface status successfully updated.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update SQL Interface Status
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Cluster Manager
+                - Project Replica Set Manager
+            x-xgen-IPA-exception:
+                xgen-IPA-117-operation-summary-format: Atlas SQL is a product name; the SQL acronym is not present in the IPA-117 ignoreList.
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterSqlInterface
+            x-xgen-operation-id-override: updateClusterSqlInterface
+            x-xgen-owner-team: Atlas SQL
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/status:
         get:
             description: Returns the status of all changes that you made to the specified cluster in the specified project. Use this resource to check the progress MongoDB Cloud has made in processing your changes. The response does not include the deployment of new dedicated clusters.
@@ -58870,6 +59957,83 @@ paths:
             x-xgen-owner-team: Atlas Dedicated
         x-xgen-IPA-exception:
             xgen-IPA-113-singleton-should-have-update-method: API predates IPA validation.
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:estimateUpdateCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Update One Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupClusterUpdateCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: When true, hardware specification fields for autoscaling-enabled clusters are resolved to their effective (current operational) values before pricing. When false (default), the client-specified values are priced. Set this to match the header sent on the corresponding cluster update.
+                  in: header
+                  name: Use-Effective-Instance-Fields
+                  schema:
+                    default: false
+                    type: boolean
+                - description: Controls how `replicationSpecs` are interpreted for auto-sharded clusters before pricing. When false (default), `replicationSpecs` is treated as the actual cluster state.
+                  in: header
+                  name: Use-Effective-Fields-Replication-Specs
+                  schema:
+                    default: false
+                    type: boolean
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Cluster update to estimate pricing for.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Updating One Cluster
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Cluster Manager
+                - Project Replica Set Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateGroupClusterUpdateCost
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: estimateUpdateClusterCost
+            x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}:grantMongoDBEmployeeAccess:
         post:
             description: Grants MongoDB employee cluster access for the given duration and at the specified level for one cluster.
@@ -59367,6 +60531,120 @@ paths:
             x-xgen-owner-team: Atlas
         x-xgen-IPA-exception:
             xgen-IPA-102-path-alternate-resource-name-path-param: API predates IPA validation.
+    /api/atlas/v2/groups/{groupId}/clusters:estimateCreateCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Create One Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupClusterCreateCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterDescription20240805'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Cluster configuration to estimate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Creating One Cluster
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Cluster Creator
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateGroupClusterCreateCost
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: estimateCreateClusterCost
+            x-xgen-owner-team: Atlas Clusters Platform II
+    /api/atlas/v2/groups/{groupId}/clusters:estimateTenantUpgradeCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Upgrade One Shared-Tier Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupClusterTenantUpgradeCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/LegacyAtlasTenantClusterUpgradeRequest'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Shared-tier cluster upgrade to estimate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Upgrading One Shared-Tier Cluster
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateGroupClusterTenantUpgradeCost
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: estimateTenantUpgradeCost
+            x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/groups/{groupId}/collStats/metrics:
         get:
             description: Returns all available Coll Stats Latency metric names and their respective units for the specified project at the time of request.
@@ -61880,6 +63158,70 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/createGroupFlexCluster
             x-xgen-operation-id-override: createFlexCluster
             x-xgen-owner-team: Atlas Clusters Security III
+    /api/atlas/v2/groups/{groupId}/flexClusters/{clusterName}:estimateUpdateCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Update One Flex Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupFlexClusterUpdateCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the flex cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/FlexClusterDescriptionUpdate20241113'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Flex cluster update to estimate pricing for.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Updating One Flex Cluster
+            tags:
+                - Flex Clusters
+            x-rolesRequirements:
+                - Project Owner
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/estimateGroupFlexClusterUpdateCost
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: estimateUpdateFlexCost
+            x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/groups/{groupId}/flexClusters/{name}:
         delete:
             description: Removes one flex cluster from the specified project. The flex cluster must have termination protection disabled in order to be deleted.
@@ -62372,6 +63714,120 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/getGroupFlexClusterBackupSnapshot
             x-xgen-operation-id-override: getFlexBackupSnapshot
             x-xgen-owner-team: Atlas Clusters Security III
+    /api/atlas/v2/groups/{groupId}/flexClusters:estimateCreateCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Create One Flex Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupFlexClusterCreateCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/FlexClusterDescriptionCreate20241113'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Flex cluster configuration to estimate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Creating One Flex Cluster
+            tags:
+                - Flex Clusters
+            x-rolesRequirements:
+                - Project Owner
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/estimateGroupFlexClusterCreateCost
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: estimateCreateFlexCost
+            x-xgen-owner-team: Atlas Clusters Platform II
+    /api/atlas/v2/groups/{groupId}/flexClusters:estimateTenantUpgradeCost:
+        post:
+            description: This endpoint validates a supplied cluster configuration and returns an estimated hourly and monthly compute cost without creating or modifying the cluster. It applies the same validation as the Upgrade One Flex Cluster endpoint, so invalid configurations are rejected with the same errors. The estimate excludes backup storage, disk storage, data transfer, and premium feature surcharges, which are billed based on actual usage. Subscription, payment, and resource policy checks are not performed, so a configuration that can be priced here may still be rejected during the actual operation.
+            operationId: estimateGroupFlexClusterTenantUpgradeCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/AtlasTenantClusterUpgradeRequest20240805'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Flex cluster upgrade to estimate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterCostEstimate'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the supplied configuration.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Estimate the Cost of Upgrading One Flex Cluster
+            tags:
+                - Flex Clusters
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Clusters/operation/estimateGroupFlexClusterTenantUpgradeCost
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: estimateUpgradeFlexCost
+            x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/groups/{groupId}/flexClusters:tenantUpgrade:
         post:
             description: Upgrades a flex cluster to a dedicated cluster (M10+) in the specified project.
@@ -64563,7 +66019,7 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listGroupMcpConfigs
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
         post:
             description: Creates an MCP configuration for the specified project. Returns the configuration ID and ingress credentials.
@@ -64605,7 +66061,7 @@ paths:
                 - Project Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createGroupMcpConfig
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
     /api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}:
         delete:
@@ -64650,7 +66106,7 @@ paths:
                 - Project Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteGroupMcpConfig
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
         get:
             description: Returns the MCP configuration with the specified ID for the specified project.
@@ -64690,7 +66146,7 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getGroupMcpConfig
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
         patch:
             description: 'Updates the specified MCP configuration for the project. Supports partial updates: only provided fields are changed.'
@@ -64741,7 +66197,7 @@ paths:
                 - Project Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/updateGroupMcpConfig
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
     /api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets:
         get:
@@ -64785,7 +66241,7 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listGroupMcpConfigSecrets
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-operation-id-override: listGroupMcpSecrets
             x-xgen-owner-team: apix-devtools
         post:
@@ -64840,7 +66296,7 @@ paths:
                 xgen-IPA-106-readonly-resource-should-not-have-create-method: Falsely identified as a readonly resource. Tracked in CLOUDP-416905.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createGroupMcpConfigSecret
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-operation-id-override: createGroupMcpSecret
             x-xgen-owner-team: apix-devtools
     /api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}:
@@ -64890,7 +66346,7 @@ paths:
                 xgen-IPA-108-readonly-resource-should-not-have-delete-method: Falsely identified as a readonly resource. Tracked in CLOUDP-416905.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteGroupMcpConfigSecret
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-operation-id-override: deleteGroupMcpSecret
             x-xgen-owner-team: apix-devtools
         get:
@@ -64941,7 +66397,7 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getGroupMcpConfigSecret
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-operation-id-override: getGroupMcpSecret
             x-xgen-owner-team: apix-devtools
     /api/atlas/v2/groups/{groupId}/metricIntegrations:
@@ -64955,7 +66411,7 @@ paths:
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-                - description: Optional filter by integration type (e.g., `OTEL`). When specified, `providerType` must also be specified.
+                - description: Optional filter by integration type (e.g., `OTEL`).
                   in: query
                   name: integrationType
                   schema:
@@ -70142,16 +71598,6 @@ paths:
                         x-xgen-IPA-exception:
                             xgen-IPA-107-update-method-request-body-is-get-method-response: Content predates IPA validation.
                             xgen-IPA-107-update-method-request-has-no-readonly-fields: Content predates IPA validation.
-                    application/vnd.atlas.preview+json:
-                        schema:
-                            $ref: '#/components/schemas/StreamsTenantUpdateRequest'
-                        x-xgen-IPA-exception:
-                            xgen-IPA-107-update-method-request-body-is-get-method-response: Content predates IPA validation. Update request model differs from GET response schema and cannot be aligned without breaking existing clients.  The discrepancy originates from the parent schema.
-                            xgen-IPA-107-update-method-request-has-no-readonly-fields: Content predates IPA validation. Request/response share the same model, which includes readOnly fields.  The discrepancy originates from the parent schema.
-                        x-xgen-preview:
-                            name: regional-failover
-                            public: "false"
-                        x-xgen-version: preview
                 description: Details to update in the streams workspace.
                 required: true
             responses:
@@ -70161,13 +71607,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/StreamsTenant'
                             x-xgen-version: "2023-02-01"
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/StreamsTenant'
-                            x-xgen-preview:
-                                name: regional-failover
-                                public: "false"
-                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -70602,14 +72041,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/PaginatedApiStreamsFailoverConnection'
                             x-xgen-version: "2025-03-12"
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedApiStreamsFailoverConnection'
-                            x-sunset: "2026-07-20"
-                            x-xgen-preview:
-                                name: regional-failover
-                                public: "false"
-                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -70674,14 +72105,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/StreamsConnection'
                             x-xgen-version: "2025-03-12"
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/StreamsConnection'
-                            x-sunset: "2026-07-20"
-                            x-xgen-preview:
-                                name: regional-failover
-                                public: "false"
-                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -70742,12 +72165,6 @@ paths:
                     content:
                         application/vnd.atlas.2025-03-12+json:
                             x-xgen-version: "2025-03-12"
-                        application/vnd.atlas.preview+json:
-                            x-sunset: "2026-07-20"
-                            x-xgen-preview:
-                                name: regional-failover
-                                public: "false"
-                            x-xgen-version: preview
                     description: No Content
                     headers:
                         RateLimit-Limit:
@@ -70807,16 +72224,6 @@ paths:
                             x-xgen-IPA-exception:
                                 xgen-IPA-104-get-method-returns-response-suffixed-object: Schema predates IPA validation.
                             x-xgen-version: "2025-03-12"
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/StreamsConnection'
-                            x-sunset: "2026-07-20"
-                            x-xgen-IPA-exception:
-                                xgen-IPA-104-get-method-returns-response-suffixed-object: Schema predates IPA validation.
-                            x-xgen-preview:
-                                name: regional-failover
-                                public: "false"
-                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -70888,14 +72295,6 @@ paths:
                             x-xgen-IPA-exception:
                                 xgen-IPA-104-get-method-returns-response-suffixed-object: API predates IPA validation.
                             x-xgen-version: "2025-03-12"
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/StreamsConnection'
-                            x-sunset: "2026-07-20"
-                            x-xgen-preview:
-                                name: regional-failover
-                                public: "false"
-                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -71231,24 +72630,12 @@ paths:
                         schema:
                             $ref: '#/components/schemas/StreamsStartStreamProcessorWith'
                         x-xgen-version: "2025-03-12"
-                    application/vnd.atlas.preview+json:
-                        schema:
-                            $ref: '#/components/schemas/StartStreamProcessorWithPreviewView'
-                        x-xgen-preview:
-                            name: regional-failover
-                            public: "false"
-                        x-xgen-version: preview
                 description: Options for starting a stream processor.
             responses:
                 "200":
                     content:
                         application/vnd.atlas.2025-03-12+json:
                             x-xgen-version: "2025-03-12"
-                        application/vnd.atlas.preview+json:
-                            x-xgen-preview:
-                                name: regional-failover
-                                public: "false"
-                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -76355,7 +77742,7 @@ paths:
                 - Organization Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listOrgMcpConfigs
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
         post:
             description: Creates an MCP configuration for the specified organization. Returns the configuration ID and ingress credentials.
@@ -76397,7 +77784,7 @@ paths:
                 - Organization Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createOrgMcpConfig
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
     /api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}:
         delete:
@@ -76442,7 +77829,7 @@ paths:
                 - Organization Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteOrgMcpConfig
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
         get:
             description: Returns the MCP configuration with the specified ID for the specified organization.
@@ -76482,7 +77869,7 @@ paths:
                 - Organization Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getOrgMcpConfig
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
         patch:
             description: 'Updates the specified MCP configuration for the organization. Supports partial updates: only provided fields are changed.'
@@ -76533,7 +77920,7 @@ paths:
                 - Organization Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/updateOrgMcpConfig
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-owner-team: apix-devtools
     /api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets:
         get:
@@ -76577,7 +77964,7 @@ paths:
                 - Organization Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listOrgMcpConfigSecrets
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-operation-id-override: listOrgMcpSecrets
             x-xgen-owner-team: apix-devtools
         post:
@@ -76632,7 +78019,7 @@ paths:
                 xgen-IPA-106-readonly-resource-should-not-have-create-method: Falsely identified as a readonly resource. Tracked in CLOUDP-416905.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createOrgMcpConfigSecret
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-operation-id-override: createOrgMcpSecret
             x-xgen-owner-team: apix-devtools
     /api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}:
@@ -76682,7 +78069,7 @@ paths:
                 xgen-IPA-108-readonly-resource-should-not-have-delete-method: Falsely identified as a readonly resource. Tracked in CLOUDP-416905.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteOrgMcpConfigSecret
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-operation-id-override: deleteOrgMcpSecret
             x-xgen-owner-team: apix-devtools
         get:
@@ -76733,7 +78120,7 @@ paths:
                 - Organization Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getOrgMcpConfigSecret
             x-xgen-hidden-env:
-                envs: qa,stage,prod
+                envs: prod
             x-xgen-operation-id-override: getOrgMcpSecret
             x-xgen-owner-team: apix-devtools
     /api/atlas/v2/orgs/{orgId}/nonCompliantResources:
@@ -79458,6 +80845,49 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getSku
             x-xgen-owner-team: Pricing
+    /api/atlas/v2/unauth/clusters:estimateCost:
+        post:
+            description: Estimates the hourly and monthly compute cost of a cluster of the requested tier in the requested cloud provider and region, applying standard defaults. This unauthenticated endpoint prices a fixed set of representative tiers and does not create a cluster. To estimate arbitrary configurations, use the authenticated cost-estimate endpoints.
+            operationId: estimateClusterCost
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/UnauthClusterCostEstimateRequest'
+                        x-xgen-preview:
+                            name: cluster-cost-estimate
+                        x-xgen-version: preview
+                description: Tier, cloud provider, and region to estimate.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/UnauthClusterCostEstimateResponse'
+                            x-xgen-preview:
+                                name: cluster-cost-estimate
+                            x-xgen-version: preview
+                    description: Estimated hourly and monthly compute cost for the requested tier, with the standard defaults the server applied.
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security: []
+            summary: Estimate the Cost of One Cluster
+            tags:
+                - Clusters
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/estimateClusterCost
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/unauth/controlPlaneIPAddresses:
         get:
             description: Returns all control plane IP addresses.
@@ -79498,6 +80928,88 @@ paths:
         x-xgen-IPA-exception:
             xgen-IPA-102-collection-identifier-camelCase: API predates IPA validation.
             xgen-IPA-104-resource-has-GET: API predates IPA validation.
+    /api/atlas/v2/unauth/ephemeralClusters/{clusterId}:
+        get:
+            description: Returns the current status of an ephemeral Atlas cluster.
+            operationId: getEphemeralCluster
+            parameters:
+                - description: Unique ID of the ephemeral cluster to look up.
+                  in: path
+                  name: clusterId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/EphemeralClusterStatusResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security: []
+            summary: Return One Ephemeral Atlas Cluster
+            tags:
+                - Ephemeral Clusters
+            x-xgen-atlascli:
+                skip: true
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/getEphemeralCluster
+            x-xgen-hidden-env:
+                envs: prod
+            x-xgen-owner-team: Atlas Growth
+    /api/atlas/v2/unauth/ephemeralClusters:create:
+        post:
+            description: Creates an ephemeral Atlas cluster for users or agents.
+            operationId: createEphemeralCluster
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/CreateEphemeralClusterRequest'
+                description: Ephemeral cluster to create.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/EphemeralClusterCreated'
+                            x-xgen-version: "2025-03-12"
+                    description: Created
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            security: []
+            summary: Create an Ephemeral Atlas Cluster
+            tags:
+                - Ephemeral Clusters
+            x-xgen-atlascli:
+                skip: true
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/createEphemeralCluster
+            x-xgen-hidden-env:
+                envs: prod
+            x-xgen-owner-team: Atlas Growth
     /api/atlas/v2/unauth/openapi/versions:
         get:
             description: API that provides a list of available versions for a given environment.
@@ -79856,6 +81368,8 @@ tags:
       name: Encryption at Rest using Customer Key Management
       x-xgen-IPA-exception:
         xgen-IPA-126-tag-names-should-use-title-case: Tag name predates IPA validation.
+    - description: Provisions and returns the status of ephemeral Atlas clusters through an unauthenticated flow. A human can later claim an ephemeral cluster to convert it into a permanent Atlas cluster.
+      name: Ephemeral Clusters
     - description: Returns events. This collection remains under revision and may change.
       name: Events
     - description: Returns, adds, edits, and removes federation-related features such as role mappings and connected organization configurations.
@@ -79900,6 +81414,8 @@ tags:
       name: OpenAPI
     - description: Returns, adds, and edits organizational units in MongoDB Cloud.
       name: Organizations
+    - description: Returns and starts overload protection simulations for a cluster.
+      name: Overload Protection Simulation
     - description: Returns suggested indexes and slow query data for a database deployment. Also enables or disables MongoDB Cloud-managed slow operation thresholds. To view field values in a sample query, you must have the Project Data Access Read Only role or higher. Otherwise, MongoDB Cloud returns redacted data rather than the field values.
       name: Performance Advisor
     - description: Returns, adds, edits, and removes private endpoint services.

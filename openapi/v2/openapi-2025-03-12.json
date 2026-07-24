@@ -938,6 +938,7 @@
           },
           "nodeCount": {
             "description": "Number of nodes of the given type for MongoDB Cloud to deploy to the region.",
+            "example": 3,
             "format": "int32",
             "type": "integer"
           }
@@ -1849,6 +1850,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/AlertAuditTypeView"
           },
@@ -1970,6 +1974,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/AlertConfigAuditTypeView"
@@ -4162,6 +4169,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/ApiUserEventTypeViewForNdsGroup"
           },
@@ -4280,6 +4290,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/ApiUserEventTypeViewForOrg"
@@ -5230,6 +5243,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "description": "Unique identifier of event type.",
             "enum": [
@@ -5359,6 +5375,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "description": "Unique identifier of event type.",
@@ -5923,6 +5942,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/AutomationConfigEventTypeView"
@@ -6751,6 +6773,7 @@
           },
           "nodeCount": {
             "description": "Number of nodes of the given type for MongoDB Cloud to deploy to the region.",
+            "example": 3,
             "format": "int32",
             "type": "integer"
           }
@@ -8538,6 +8561,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/BillingEventTypeViewForNdsGroup"
           },
@@ -8656,6 +8682,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/BillingEventTypeViewForOrg"
@@ -9360,6 +9389,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/ChartsAuditTypeView"
@@ -10874,6 +10906,7 @@
           },
           "priority": {
             "description": "Precedence is given to this region when a primary election occurs. If your `regionConfigs` has only `readOnlySpecs`, `analyticsSpecs`, or both, set this value to `0`. If you have multiple `regionConfigs` objects (your cluster is multi-region or multi-cloud), they must have priorities in descending order. The highest priority is `7`.\n\n**Example:** If you have three regions, their priorities would be `7`, `6`, and `5` respectively. If you added two more regions for supporting electable nodes, the priorities of those regions would be `4` and `3` respectively.",
+            "example": 7,
             "format": "int32",
             "maximum": 7,
             "minimum": 0,
@@ -13611,6 +13644,17 @@
         },
         "type": "object"
       },
+      "CreateEphemeralClusterRequest": {
+        "description": "Create an ephemeral Atlas cluster.",
+        "properties": {
+          "clusterName": {
+            "description": "Designate the name of the ephemeral cluster.",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "CreateGCPEndpointGroupRequest": {
         "allOf": [
           {
@@ -13676,6 +13720,82 @@
           }
         },
         "title": "GCP Forwarding Rules",
+        "type": "object"
+      },
+      "CreateGroupMcpConfigRequest": {
+        "properties": {
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 200,
+            "type": "array"
+          },
+          "mcpConfigName": {
+            "description": "Human-readable name that identifies this MCP configuration.",
+            "minLength": 1,
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of project roles to assign to this MCP configuration.",
+            "externalDocs": {
+              "description": "Project-level Roles for Service Accounts",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "mcpConfigName",
+          "roles"
+        ],
+        "type": "object"
+      },
+      "CreateOrgMcpConfigRequest": {
+        "properties": {
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 200,
+            "type": "array"
+          },
+          "mcpConfigName": {
+            "description": "Human-readable name that identifies this MCP configuration.",
+            "minLength": 1,
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of organization roles to assign to this MCP configuration.",
+            "items": {
+              "description": "Organization roles available for Service Accounts.",
+              "enum": [
+                "ORG_MEMBER",
+                "ORG_READ_ONLY",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_STREAM_PROCESSING_ADMIN",
+                "ORG_GROUP_CREATOR",
+                "ORG_OWNER"
+              ],
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "mcpConfigName",
+          "roles"
+        ],
         "type": "object"
       },
       "CreateOrganizationRequest": {
@@ -14149,6 +14269,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/DataExplorerAccessedEventTypeView"
           },
@@ -14259,6 +14382,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/DataExplorerEventTypeView"
@@ -15633,6 +15759,9 @@
           "currentValue": {
             "$ref": "#/components/schemas/DataMetricValueView"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "deskLocation": {
             "description": "Desk location of MongoDB employee associated with the event.",
             "readOnly": true,
@@ -16612,6 +16741,7 @@
           },
           "nodeCount": {
             "description": "Number of nodes of the given type for MongoDB Cloud to deploy to the region.",
+            "example": 3,
             "format": "int32",
             "type": "integer"
           }
@@ -16783,6 +16913,7 @@
               {
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
+                  "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
                   "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ],
                 "title": "Stream Processor Event Types",
@@ -17125,6 +17256,7 @@
               {
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
+                  "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
                   "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ],
                 "title": "Stream Processor Event Types",
@@ -17315,6 +17447,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "description": "Unique identifier of event type.",
@@ -17691,6 +17826,11 @@
                 "enum": [
                   "STREAM_PROCESSOR_STATE_IS_FAILED",
                   "STREAM_PROCESSOR_STARTED",
+                  "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
+                  "STREAM_PROCESSOR_CREATED",
+                  "STREAM_PROCESSOR_STOPPED",
+                  "STREAM_PROCESSOR_DROPPED",
+                  "STREAM_PROCESSOR_MODIFIED",
                   "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
                   "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
                 ],
@@ -17887,6 +18027,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "description": "Unique identifier of event type.",
@@ -20568,6 +20711,7 @@
         "type": "object"
       },
       "DropIndexSuggestionsResponse": {
+        "description": "Response that contains Performance Advisor drop index suggestions.",
         "properties": {
           "hiddenIndexes": {
             "description": "List that contains the documents with information about the hidden indexes that the Performance Advisor suggests to remove.",
@@ -20836,6 +20980,7 @@
             "type": "array"
           }
         },
+        "readOnly": true,
         "required": [
           "expirationTime",
           "grantType"
@@ -21018,6 +21163,206 @@
         "required": [
           "cloudProvider"
         ],
+        "type": "object"
+      },
+      "EnvelopedDropIndexSuggestionsResponse": {
+        "description": "Response envelope that wraps the response payload in `content` and includes response metadata such as `status` and `locations`.",
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/DropIndexSuggestionsResponse"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "locations": {
+            "description": "URLs of resources created by this request.",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array"
+          },
+          "status": {
+            "description": "HTTP status code returned with this response.",
+            "format": "int32",
+            "maximum": 599,
+            "minimum": 100,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "content",
+          "status"
+        ],
+        "type": "object"
+      },
+      "EnvelopedPerformanceAdvisorResponse": {
+        "description": "Response envelope that wraps the response payload in `content` and includes response metadata such as `status` and `locations`.",
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/PerformanceAdvisorResponse"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "locations": {
+            "description": "URLs of resources created by this request.",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array"
+          },
+          "status": {
+            "description": "HTTP status code returned with this response.",
+            "format": "int32",
+            "maximum": 599,
+            "minimum": 100,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "content",
+          "status"
+        ],
+        "type": "object"
+      },
+      "EnvelopedSchemaAdvisorResponse": {
+        "description": "Response envelope that wraps the response payload in `content` and includes response metadata such as `status` and `locations`.",
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/SchemaAdvisorResponse"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "locations": {
+            "description": "URLs of resources created by this request.",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array"
+          },
+          "status": {
+            "description": "HTTP status code returned with this response.",
+            "format": "int32",
+            "maximum": 599,
+            "minimum": 100,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "content",
+          "status"
+        ],
+        "type": "object"
+      },
+      "EphemeralClusterCreated": {
+        "description": "Details for the ephemeral Atlas cluster that was created.",
+        "properties": {
+          "claimUrl": {
+            "description": "URL that redirects users to the Atlas registration page.",
+            "format": "uri",
+            "type": "string"
+          },
+          "clusterId": {
+            "description": "Unique ID that can be used to check the status of an ephemeral cluster.",
+            "type": "string"
+          },
+          "connectionString": {
+            "description": "Atlas cluster connection string with SCRAM database user credentials included.",
+            "type": "string"
+          },
+          "expiresAt": {
+            "description": "Date and time when the cluster will be paused and no longer accessible until it is claimed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the ephemeral cluster.",
+            "enum": [
+              "ACTIVE",
+              "PAUSED"
+            ],
+            "type": "string"
+          },
+          "termsOfService": {
+            "description": "Legal Terms of Service agreement.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "EphemeralClusterStatusResponse": {
+        "description": "Current status and details of an ephemeral Atlas cluster.",
+        "properties": {
+          "claimUrl": {
+            "description": "URL that redirects users to the Atlas registration page.",
+            "format": "uri",
+            "type": "string"
+          },
+          "clusterId": {
+            "description": "Unique ID of the ephemeral cluster.",
+            "type": "string"
+          },
+          "connectionString": {
+            "description": "Atlas cluster connection string with the SCRAM database user name included. The password is replaced by a placeholder, since it is only ever returned when the cluster is created.",
+            "nullable": true,
+            "type": "string"
+          },
+          "expiresAt": {
+            "description": "Date and time when the cluster will be paused and no longer accessible until it is claimed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the ephemeral cluster.",
+            "enum": [
+              "PROVISIONING",
+              "ACTIVE",
+              "PAUSED"
+            ],
+            "type": "string"
+          },
+          "termsOfService": {
+            "description": "Legal Terms of Service agreement.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "EventSeverity": {
@@ -21320,6 +21665,8 @@
               "FTS_INDEX_BUILD_FAILED",
               "FTS_INDEX_CREATED",
               "FTS_INDEX_UPDATED",
+              "FTS_INDEX_PARTITIONS_CHANGED",
+              "FTS_INDEX_REBUILT",
               "FTS_INDEX_DELETED",
               "FTS_INDEX_CLEANED_UP",
               "FTS_INDEX_STALE",
@@ -21726,6 +22073,7 @@
               "CLUSTER_INSTANCE_ENABLED",
               "SEARCH_HOST_PAUSE_ALL_INITIAL_SYNCS",
               "SEARCH_HOST_DISABLE_FTS",
+              "SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS",
               "CLUSTER_BLOCK_WRITE",
               "CLUSTER_UNBLOCK_WRITE",
               "KMIP_KEY_ROTATION_SCHEDULED",
@@ -21757,7 +22105,9 @@
               "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED",
               "CLUSTER_MONGUARD_ENABLED",
               "CLUSTER_MONGUARD_DISABLED",
-              "CLUSTER_MONGODB_VERSION_UPDATED"
+              "CLUSTER_MONGODB_VERSION_UPDATED",
+              "VOLUME_IMPAIRED",
+              "VOLUME_IMPAIRED_RESOLVED"
             ],
             "title": "Atlas Audit Types",
             "type": "string"
@@ -21991,6 +22341,11 @@
             "enum": [
               "STREAM_PROCESSOR_STATE_IS_FAILED",
               "STREAM_PROCESSOR_STARTED",
+              "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
+              "STREAM_PROCESSOR_CREATED",
+              "STREAM_PROCESSOR_STOPPED",
+              "STREAM_PROCESSOR_DROPPED",
+              "STREAM_PROCESSOR_MODIFIED",
               "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
               "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
             ],
@@ -22749,6 +23104,8 @@
           "FTS_INDEX_BUILD_FAILED",
           "FTS_INDEX_CREATED",
           "FTS_INDEX_UPDATED",
+          "FTS_INDEX_PARTITIONS_CHANGED",
+          "FTS_INDEX_REBUILT",
           "FTS_INDEX_DELETED",
           "FTS_INDEX_CLEANED_UP",
           "FTS_INDEX_STALE",
@@ -22783,6 +23140,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/FTSIndexAuditTypeView"
@@ -26109,6 +26469,7 @@
           },
           "nodeCount": {
             "description": "Number of nodes of the given type for MongoDB Cloud to deploy to the region.",
+            "example": 3,
             "format": "int32",
             "type": "integer"
           }
@@ -27108,6 +27469,90 @@
         ],
         "type": "object"
       },
+      "GroupMcpConfigResponse": {
+        "properties": {
+          "clientId": {
+            "description": "Unique identifier for the Service Account client associated with this MCP configuration. Use this Service Account to connect to the Atlas Remote MCP.",
+            "example": "mdb_sa_id_1234567890abcdef12345678",
+            "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "egressClientId": {
+            "description": "Unique identifier for the egress Service Account client associated with this MCP configuration. This Service Account is managed by MongoDB Atlas.",
+            "example": "mdb_sa_id_1234567890abcdef12345678",
+            "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 200,
+            "type": "array"
+          },
+          "mcpConfigId": {
+            "description": "Unique identifier that identifies this MCP configuration.",
+            "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "mcpConfigName": {
+            "description": "Human-readable name that identifies this MCP configuration.",
+            "nullable": true,
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of project roles associated with this MCP configuration.",
+            "externalDocs": {
+              "description": "Project-level Roles for Service Accounts",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "GroupMcpConfigUpdateRequest": {
+        "properties": {
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration. If provided, replaces the existing IP access list.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 200,
+            "type": "array"
+          },
+          "mcpConfigName": {
+            "description": "Updated human-readable name for this MCP configuration.",
+            "maxLength": 64,
+            "minLength": 1,
+            "nullable": true,
+            "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of project roles associated with this MCP configuration. If provided, replaces the existing list of roles.",
+            "externalDocs": {
+              "description": "Project-level Roles for Service Accounts",
+              "url": "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+            },
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "GroupMigrationRequest": {
         "properties": {
           "destinationOrgId": {
@@ -28075,6 +28520,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "deskLocation": {
             "description": "Desk location of MongoDB employee associated with the event.",
             "readOnly": true,
@@ -28845,6 +29293,9 @@
           },
           "currentValue": {
             "$ref": "#/components/schemas/HostMetricValue"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "deskLocation": {
             "description": "Desk location of MongoDB employee associated with the event.",
@@ -31258,6 +31709,14 @@
         "title": "Tenant Cluster Upgrade Request",
         "type": "object"
       },
+      "LegacyRegionsConfig": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/RegionSpec"
+        },
+        "description": "Physical location where MongoDB Cloud provisions cluster nodes.",
+        "title": "Region Configuration",
+        "type": "object"
+      },
       "LegacyReplicationSpec": {
         "properties": {
           "id": {
@@ -31273,12 +31732,7 @@
             "type": "integer"
           },
           "regionsConfig": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/RegionSpec"
-            },
-            "description": "Physical location where MongoDB Cloud provisions cluster nodes.",
-            "title": "Region Configuration",
-            "type": "object"
+            "$ref": "#/components/schemas/LegacyRegionsConfig"
           },
           "zoneName": {
             "description": "Human-readable label that identifies the zone in a Global Cluster. Provide this value only if `clusterType` is `GEOSHARDED`.",
@@ -34301,6 +34755,7 @@
           "CLUSTER_INSTANCE_ENABLED",
           "SEARCH_HOST_PAUSE_ALL_INITIAL_SYNCS",
           "SEARCH_HOST_DISABLE_FTS",
+          "SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS",
           "CLUSTER_BLOCK_WRITE",
           "CLUSTER_UNBLOCK_WRITE",
           "KMIP_KEY_ROTATION_SCHEDULED",
@@ -34332,7 +34787,9 @@
           "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED",
           "CLUSTER_MONGUARD_ENABLED",
           "CLUSTER_MONGUARD_DISABLED",
-          "CLUSTER_MONGODB_VERSION_UPDATED"
+          "CLUSTER_MONGODB_VERSION_UPDATED",
+          "VOLUME_IMPAIRED",
+          "VOLUME_IMPAIRED_RESOLVED"
         ],
         "example": "CLUSTER_CREATED",
         "title": "Atlas Audit Types",
@@ -34379,6 +34836,9 @@
             "example": "user1",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/NDSAuditTypeViewForNdsGroup"
@@ -34496,6 +34956,9 @@
             "example": "user1",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/NDSAuditTypeViewForOrg"
@@ -34664,6 +35127,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/NDSAutoScalingAuditTypeViewForNdsGroup"
@@ -34913,6 +35379,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/NDSServerlessInstanceAuditTypeView"
           },
@@ -35035,6 +35504,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "endpointId": {
             "description": "Unique 24-hexadecimal digit string that identifies the endpoint associated with this event.",
@@ -35832,6 +36304,9 @@
           },
           "currentValue": {
             "$ref": "#/components/schemas/NumberMetricValueView"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "deskLocation": {
             "description": "Desk location of MongoDB employee associated with the event.",
@@ -37278,6 +37753,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/OrgEventTypeViewForOrg"
           },
@@ -37451,6 +37929,103 @@
               "type": "string"
             },
             "readOnly": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "OrgMcpConfigResponse": {
+        "properties": {
+          "clientId": {
+            "description": "Unique identifier for the Service Account client associated with this MCP configuration. Use this Service Account to connect to the Atlas Remote MCP.",
+            "example": "mdb_sa_id_1234567890abcdef12345678",
+            "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "egressClientId": {
+            "description": "Unique identifier for the egress Service Account client associated with this MCP configuration. This Service Account is managed by MongoDB Atlas.",
+            "example": "mdb_sa_id_1234567890abcdef12345678",
+            "pattern": "^mdb_sa_id_[a-fA-F\\d]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 200,
+            "type": "array"
+          },
+          "mcpConfigId": {
+            "description": "Unique identifier that identifies this MCP configuration.",
+            "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "mcpConfigName": {
+            "description": "Human-readable name that identifies this MCP configuration.",
+            "nullable": true,
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of organization roles associated with this MCP configuration.",
+            "items": {
+              "description": "Organization roles available for Service Accounts.",
+              "enum": [
+                "ORG_MEMBER",
+                "ORG_READ_ONLY",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_STREAM_PROCESSING_ADMIN",
+                "ORG_GROUP_CREATOR",
+                "ORG_OWNER"
+              ],
+              "type": "string"
+            },
+            "maxItems": 100,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "OrgMcpConfigUpdateRequest": {
+        "properties": {
+          "ipAccessList": {
+            "description": "List of IP access list entries that define allowed source addresses for this MCP configuration. If provided, replaces the existing IP access list.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountIPAccessListEntry"
+            },
+            "maxItems": 200,
+            "type": "array"
+          },
+          "mcpConfigName": {
+            "description": "Updated human-readable name for this MCP configuration.",
+            "maxLength": 64,
+            "minLength": 1,
+            "nullable": true,
+            "pattern": "^[\\p{L}\\p{N}\\-_.,' ]*$",
+            "type": "string"
+          },
+          "roles": {
+            "description": "List of organization roles associated with this MCP configuration. If provided, replaces the existing list of roles.",
+            "items": {
+              "description": "Organization roles available for Service Accounts.",
+              "enum": [
+                "ORG_MEMBER",
+                "ORG_READ_ONLY",
+                "ORG_BILLING_ADMIN",
+                "ORG_BILLING_READ_ONLY",
+                "ORG_STREAM_PROCESSING_ADMIN",
+                "ORG_GROUP_CREATOR",
+                "ORG_OWNER"
+              ],
+              "nullable": true,
+              "type": "string"
+            },
+            "maxItems": 100,
             "type": "array"
           }
         },
@@ -39974,6 +40549,41 @@
         ],
         "type": "object"
       },
+      "PaginatedGroupMcpConfigView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/GroupMcpConfigResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
       "PaginatedGroupServiceAccounts": {
         "description": "A list of Project Service Accounts.",
         "properties": {
@@ -40150,6 +40760,41 @@
         ],
         "type": "object"
       },
+      "PaginatedMcpConfigSecretView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAccountSecret"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
       "PaginatedNetworkAccessView": {
         "properties": {
           "links": {
@@ -40238,6 +40883,41 @@
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
               "$ref": "#/components/schemas/OrgGroup"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedOrgMcpConfigView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/OrgMcpConfigResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -41004,6 +41684,7 @@
         "type": "object"
       },
       "PerformanceAdvisorResponse": {
+        "description": "Response that contains Performance Advisor suggested indexes and query shapes.",
         "properties": {
           "shapes": {
             "description": "List of query predicates, sorts, and projections that the Performance Advisor suggests.",
@@ -41140,8 +41821,18 @@
             "readOnly": true,
             "type": "boolean"
           },
+          "hasAutoEmbedding": {
+            "description": "Flag that indicates whether the slow query used automated embedding, where MongoDB Cloud generates embeddings from raw text at query time instead of the client supplying a precomputed vector.",
+            "readOnly": true,
+            "type": "boolean"
+          },
           "hasIndexCoverage": {
             "description": "Indicates if the query has index coverage.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "hasRerank": {
+            "description": "Flag that indicates whether the slow query used the `$rerank` aggregation stage, which reorders results using Voyage AI reranking models. Always `false` for MongoDB deployments earlier than 8.3.",
             "readOnly": true,
             "type": "boolean"
           },
@@ -41177,6 +41868,14 @@
           "responseLength": {
             "description": "The length in bytes of the operation's result document.",
             "format": "int64",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "tokensUsed": {
+            "description": "The total inference tokens consumed by this operation, including tokens used by `$rerank`. Returned only for inference queries that consumed tokens; it is omitted otherwise, including for MongoDB deployments earlier than 8.3.",
+            "example": 363,
+            "format": "int64",
+            "minimum": 0,
             "readOnly": true,
             "type": "integer"
           }
@@ -41237,6 +41936,24 @@
         "required": [
           "pinnedNamespaces"
         ],
+        "type": "object"
+      },
+      "Principal": {
+        "description": "Information about a principal, such as an OAuth application, that triggered the event through delegated access.",
+        "properties": {
+          "id": {
+            "description": "The identifier of this principal.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The human-readable name of this principal.",
+            "type": "string"
+          },
+          "onBehalfOf": {
+            "$ref": "#/components/schemas/Principal"
+          }
+        },
+        "readOnly": true,
         "type": "object"
       },
       "PrivateEndpointHostname": {
@@ -42359,6 +43076,9 @@
           "currentValue": {
             "$ref": "#/components/schemas/RawMetricValueView"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "deskLocation": {
             "description": "Desk location of MongoDB employee associated with the event.",
             "readOnly": true,
@@ -43103,6 +43823,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/ResourceEventTypeView"
           },
@@ -43220,6 +43943,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/ResourceEventTypeViewForOrg"
@@ -43659,6 +44385,7 @@
         "type": "object"
       },
       "SchemaAdvisorResponse": {
+        "description": "Response that contains Performance Advisor schema suggestions.",
         "properties": {
           "recommendations": {
             "description": "List that contains the documents with information about the schema advice that Performance Advisor suggests.",
@@ -43761,6 +44488,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/SearchDeploymentAuditTypeView"
@@ -46354,6 +47084,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/ServiceAccountEventTypeViewForNdsGroup"
           },
@@ -46504,6 +47237,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/ServiceAccountEventTypeViewForOrg"
           },
@@ -46638,7 +47374,9 @@
           "secretExpiresAfterHours": {
             "description": "The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.",
             "example": 8,
+            "exclusiveMinimum": true,
             "format": "int32",
+            "minimum": 0,
             "type": "integer"
           }
         },
@@ -47251,7 +47989,8 @@
       "StreamProcessorEventTypeViewAlertableNoThreshold": {
         "description": "Event type that triggers an alert.",
         "enum": [
-          "STREAM_PROCESSOR_STATE_IS_FAILED"
+          "STREAM_PROCESSOR_STATE_IS_FAILED",
+          "STREAM_PROCESSOR_AUTOSCALE_INITIATED"
         ],
         "example": "STREAM_PROCESSOR_STATE_IS_FAILED",
         "externalDocs": {
@@ -47279,6 +48018,11 @@
         "enum": [
           "STREAM_PROCESSOR_STATE_IS_FAILED",
           "STREAM_PROCESSOR_STARTED",
+          "STREAM_PROCESSOR_AUTOSCALE_INITIATED",
+          "STREAM_PROCESSOR_CREATED",
+          "STREAM_PROCESSOR_STOPPED",
+          "STREAM_PROCESSOR_DROPPED",
+          "STREAM_PROCESSOR_MODIFIED",
           "INSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD",
           "OUTSIDE_STREAM_PROCESSOR_METRIC_THRESHOLD"
         ],
@@ -47301,6 +48045,12 @@
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/StreamProcessorEventTypeViewForNdsGroup"
+          },
+          "fromTier": {
+            "description": "Tier the stream processor scaled from.",
+            "example": "SP10",
+            "readOnly": true,
+            "type": "string"
           },
           "groupId": {
             "description": "Unique 24-hexadecimal digit string that identifies the project in which the event occurred. The `eventId` identifies the specific event.",
@@ -47334,6 +48084,12 @@
             "readOnly": true,
             "type": "array"
           },
+          "modifiedBy": {
+            "description": "Username of the user who modified the stream processor.",
+            "example": "user@example.com",
+            "readOnly": true,
+            "type": "string"
+          },
           "orgId": {
             "description": "Unique 24-hexadecimal digit string that identifies the organization to which these events apply.",
             "example": "32b6e34b3d91647abb20e7b8",
@@ -47361,6 +48117,18 @@
           },
           "raw": {
             "$ref": "#/components/schemas/raw"
+          },
+          "reason": {
+            "description": "Reason for the autoscale event.",
+            "example": "Out of memory",
+            "readOnly": true,
+            "type": "string"
+          },
+          "toTier": {
+            "description": "Tier the stream processor scaled to.",
+            "example": "SP30",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [
@@ -48268,6 +49036,18 @@
               "$ref": "#/components/schemas/Document"
             },
             "type": "array"
+          },
+          "tier": {
+            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "enum": [
+              "SP50",
+              "SP30",
+              "SP10",
+              "SP5",
+              "SP2"
+            ],
+            "title": "Stream Workspace Tier",
+            "type": "string"
           }
         },
         "type": "object"
@@ -49393,6 +50173,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/TeamEventTypeView"
           },
@@ -49530,6 +50313,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/TeamEventTypeViewForNdsGroup"
@@ -50488,6 +51274,9 @@
           "currentValue": {
             "$ref": "#/components/schemas/TimeMetricValueView"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "deskLocation": {
             "description": "Desk location of MongoDB employee associated with the event.",
             "readOnly": true,
@@ -51338,6 +52127,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
+          },
           "eventTypeName": {
             "$ref": "#/components/schemas/UserEventTypeViewForNdsGroup"
           },
@@ -51450,6 +52242,9 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "delegatePrincipal": {
+            "$ref": "#/components/schemas/Principal"
           },
           "eventTypeName": {
             "$ref": "#/components/schemas/UserEventTypeViewForOrg"
@@ -53063,7 +53858,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "b60f0e1ea3bcd3f566fdb3a02edd6b9a9cdbe728"
+    "x-xgen-sha": "840ff46889264166116e15809fd506d402a9f9d6"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -62237,7 +63032,7 @@
         "x-xgen-operation-id-override": "getCluster"
       },
       "patch": {
-        "description": "Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster's termination protection, the requesting Service Account or API Key must have the Project Owner role. For all other updates, the requesting Service Account or API Key must have the Project Cluster Manager role or the Project Replica Set Manager role. You can't modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters. Deprecated versions: v2-{2024-08-05}, v2-{2023-02-01}, v2-{2023-01-01}",
+        "description": "Updates the details for one cluster in the specified project. Clusters contain a group of hosts that maintain the same data set. This resource can update clusters with asymmetrically-sized shards. To update a cluster's termination protection, the requesting Service Account or API Key must have the Project Owner role. For all other updates, the requesting Service Account or API Key must have the Project Cluster Manager role, the Project Cluster Resilience Tester role, or the Project Replica Set Manager role. You can't modify a paused cluster (`paused : true`). You must call this endpoint to set `paused : false`. After this endpoint responds with `paused : false`, you can call it again with the changes you want to make to the cluster. This feature is not available for serverless clusters. Deprecated versions: v2-{2024-08-05}, v2-{2023-02-01}, v2-{2023-01-01}",
         "operationId": "updateGroupCluster",
         "parameters": [
           {
@@ -62360,6 +63155,7 @@
         ],
         "x-rolesRequirements": [
           "Project Cluster Manager",
+          "Project Cluster Resilience Tester",
           "Project Replica Set Manager"
         ],
         "x-xgen-changelog": {
@@ -65664,6 +66460,40 @@
           "201": {
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
+                "examples": {
+                  "Multiple collections": {
+                    "description": "Multiple collections",
+                    "value": {
+                      "collectionSuffix": "",
+                      "collections": [
+                        {
+                          "sourceNamespace": "sales.orders",
+                          "targetNamespace": "sales.orders"
+                        },
+                        {
+                          "sourceNamespace": "sales.customers",
+                          "targetNamespace": "sales.customers"
+                        }
+                      ],
+                      "createdAt": "2026-07-07T12:00:00Z",
+                      "databaseSuffix": "",
+                      "databases": [],
+                      "id": "32b6e34b3d91647abb20e7b8",
+                      "indexStatus": {
+                        "failedCollectionCount": 0,
+                        "state": "IN_PROGRESS"
+                      },
+                      "indexStrategy": "ALL",
+                      "restoredDocuments": 15500,
+                      "snapshotId": "6c5e8a2f9b1d4e3a7f0c1b2d",
+                      "state": "IN_PROGRESS",
+                      "targetClusterName": "targetCluster",
+                      "targetGroupId": "5f3a1b2c4d5e6f7a8b9c0d1e",
+                      "totalDocuments": 20000,
+                      "writeStrategy": "CREATE_NEW"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
                 },
@@ -65774,6 +66604,40 @@
           "200": {
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
+                "examples": {
+                  "Multiple collections": {
+                    "description": "Multiple collections",
+                    "value": {
+                      "collectionSuffix": "",
+                      "collections": [
+                        {
+                          "sourceNamespace": "sales.orders",
+                          "targetNamespace": "sales.orders"
+                        },
+                        {
+                          "sourceNamespace": "sales.customers",
+                          "targetNamespace": "sales.customers"
+                        }
+                      ],
+                      "createdAt": "2026-07-07T12:00:00Z",
+                      "databaseSuffix": "",
+                      "databases": [],
+                      "id": "32b6e34b3d91647abb20e7b8",
+                      "indexStatus": {
+                        "failedCollectionCount": 0,
+                        "state": "IN_PROGRESS"
+                      },
+                      "indexStrategy": "ALL",
+                      "restoredDocuments": 15500,
+                      "snapshotId": "6c5e8a2f9b1d4e3a7f0c1b2d",
+                      "state": "IN_PROGRESS",
+                      "targetClusterName": "targetCluster",
+                      "targetGroupId": "5f3a1b2c4d5e6f7a8b9c0d1e",
+                      "totalDocuments": 20000,
+                      "writeStrategy": "CREATE_NEW"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ApiAtlasCollectionRestoreJobResponse"
                 },
@@ -65924,6 +66788,44 @@
           "200": {
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
+                "examples": {
+                  "Two collection states": {
+                    "description": "Two collection states",
+                    "value": {
+                      "links": [
+                        {
+                          "href": "https://cloud.mongodb.com/api/atlas",
+                          "rel": "self"
+                        }
+                      ],
+                      "results": [
+                        {
+                          "effectiveTargetNamespace": "sales.orders",
+                          "indexStatus": {
+                            "state": "SUCCESSFUL"
+                          },
+                          "restoredDocuments": 12000,
+                          "sourceNamespace": "sales.orders",
+                          "state": "SUCCESSFUL",
+                          "targetNamespace": "sales.orders",
+                          "totalDocuments": 12000
+                        },
+                        {
+                          "effectiveTargetNamespace": "sales.customers",
+                          "indexStatus": {
+                            "state": "IN_PROGRESS"
+                          },
+                          "restoredDocuments": 3500,
+                          "sourceNamespace": "sales.customers",
+                          "state": "IN_PROGRESS",
+                          "targetNamespace": "sales.customers",
+                          "totalDocuments": 8000
+                        }
+                      ],
+                      "totalCount": 2
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedApiAtlasCollectionRestoreCollectionStateView"
                 },
@@ -66040,6 +66942,22 @@
           "200": {
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
+                "examples": {
+                  "Single collection state": {
+                    "description": "Single collection state",
+                    "value": {
+                      "effectiveTargetNamespace": "sales.orders",
+                      "indexStatus": {
+                        "state": "SUCCESSFUL"
+                      },
+                      "restoredDocuments": 12000,
+                      "sourceNamespace": "sales.orders",
+                      "state": "SUCCESSFUL",
+                      "targetNamespace": "sales.orders",
+                      "totalDocuments": 12000
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ApiAtlasCollectionRestoreCollectionStateResponse"
                 },
@@ -68463,7 +69381,8 @@
           }
         ],
         "x-rolesRequirements": [
-          "Project Cluster Manager"
+          "Project Cluster Manager",
+          "Project Cluster Resilience Tester"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cluster-Outage-Simulation/operation/getGroupClusterOutageSimulation",
         "x-xgen-method-verb-override": {
@@ -68606,6 +69525,15 @@
               "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
               "type": "string"
             }
+          },
+          {
+            "description": "Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query. Endpoints that return a list of results use the results object as an envelope. Application adds the status parameter to the response body.",
+            "in": "query",
+            "name": "envelope",
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -68613,7 +69541,7 @@
             "content": {
               "application/vnd.atlas.2024-08-05+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DropIndexSuggestionsResponse"
+                  "$ref": "#/components/schemas/EnvelopedDropIndexSuggestionsResponse"
                 },
                 "x-xgen-version": "2024-08-05"
               }
@@ -68689,6 +69617,15 @@
             "$ref": "#/components/parameters/groupId"
           },
           {
+            "description": "Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query. Endpoints that return a list of results use the results object as an envelope. Application adds the status parameter to the response body.",
+            "in": "query",
+            "name": "envelope",
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            }
+          },
+          {
             "description": "Human-readable label that identifies the cluster.",
             "in": "path",
             "name": "clusterName",
@@ -68704,7 +69641,7 @@
             "content": {
               "application/vnd.atlas.2024-08-05+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SchemaAdvisorResponse"
+                  "$ref": "#/components/schemas/EnvelopedSchemaAdvisorResponse"
                 },
                 "x-xgen-version": "2024-08-05"
               }
@@ -68790,6 +69727,15 @@
             }
           },
           {
+            "description": "Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query. Endpoints that return a list of results use the results object as an envelope. Application adds the status parameter to the response body.",
+            "in": "query",
+            "name": "envelope",
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            }
+          },
+          {
             "description": "Process IDs from which to retrieve suggested indexes. A `processId` is a combination of host and port that serves the MongoDB process. The host must be the hostname, FQDN, IPv4 address, or IPv6 address of the host that runs the MongoDB process (`mongod` or `mongos`). The port must be the IANA port on which the MongoDB process listens for requests. To include multiple `processIds`, pass the parameter multiple times delimited with an ampersand (`&`) between each `processId`.",
             "in": "query",
             "name": "processIds",
@@ -68840,7 +69786,7 @@
             "content": {
               "application/vnd.atlas.2024-08-05+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PerformanceAdvisorResponse"
+                  "$ref": "#/components/schemas/EnvelopedPerformanceAdvisorResponse"
                 },
                 "x-xgen-version": "2024-08-05"
               }
@@ -82742,6 +83688,795 @@
           "customMethod": true
         },
         "x-xgen-operation-id-override": "enableManagedSlowMs"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/mcpConfigs": {
+      "get": {
+        "description": "Returns all MCP configurations associated with the specified project.",
+        "operationId": "listGroupMcpConfigs",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedGroupMcpConfigView"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All MCP Configurations for One Project",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations listGroupMcpConfigs --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupMcpConfigsApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tListGroupMcpConfigsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listGroupMcpConfigs"
+      },
+      "post": {
+        "description": "Creates an MCP configuration for the specified project. Returns the configuration ID and ingress credentials.",
+        "operationId": "createGroupMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGroupMcpConfigRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "MCP configuration to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One MCP Configuration for One Project",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations createGroupMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateGroupMcpConfigApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tCreateGroupMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createGroupMcpConfig"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}": {
+      "delete": {
+        "description": "Deletes the MCP configuration with the specified ID for the specified project.",
+        "operationId": "deleteGroupMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration to delete.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to delete the MCP configuration even if it has active secrets. If false and active secrets exist, the request returns an error. Defaults to false.",
+            "in": "query",
+            "name": "cascading",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete One MCP Configuration for One Project",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations deleteGroupMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteGroupMcpConfigApiParams{}\n\thttpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tDeleteGroupMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteGroupMcpConfig"
+      },
+      "get": {
+        "description": "Returns the MCP configuration with the specified ID for the specified project.",
+        "operationId": "getGroupMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One MCP Configuration for One Project",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations getGroupMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupMcpConfigApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tGetGroupMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getGroupMcpConfig"
+      },
+      "patch": {
+        "description": "Updates the specified MCP configuration for the project. Supports partial updates: only provided fields are changed.",
+        "operationId": "updateGroupMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration to update.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupMcpConfigUpdateRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "MCP configuration fields to update.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One MCP Configuration for One Project",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations updateGroupMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateGroupMcpConfigApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tUpdateGroupMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/updateGroupMcpConfig"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets": {
+      "get": {
+        "description": "Returns metadata for all secrets on the ingress service account of the specified project-level MCP configuration. Secret values are never returned.",
+        "operationId": "listGroupMcpConfigSecrets",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc012",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedMcpConfigSecretView"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Secrets for One Project MCP Configuration",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations listGroupMcpSecrets --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupMcpConfigSecretsApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tListGroupMcpConfigSecretsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listGroupMcpConfigSecrets",
+        "x-xgen-operation-id-override": "listGroupMcpSecrets"
+      },
+      "post": {
+        "description": "Creates a new secret on the ingress service account of the specified project-level MCP configuration. The plain-text secret value is returned only in this response and is never shown again.",
+        "operationId": "createGroupMcpConfigSecret",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc012",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceAccountSecretRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "Secret creation request.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceAccountSecret"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Secret for One Project MCP Configuration",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations createGroupMcpSecret --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateGroupMcpConfigSecretApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tCreateGroupMcpConfigSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createGroupMcpConfigSecret",
+        "x-xgen-operation-id-override": "createGroupMcpSecret"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}": {
+      "delete": {
+        "description": "Deletes the specified secret from the ingress service account of the specified project-level MCP configuration.",
+        "operationId": "deleteGroupMcpConfigSecret",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc012",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the secret.",
+            "in": "path",
+            "name": "secretId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc013",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete One Secret for One Project MCP Configuration",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations deleteGroupMcpSecret --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteGroupMcpConfigSecretApiParams{}\n\thttpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tDeleteGroupMcpConfigSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteGroupMcpConfigSecret",
+        "x-xgen-operation-id-override": "deleteGroupMcpSecret"
+      },
+      "get": {
+        "description": "Returns metadata for the specified secret on the ingress service account of a project-level MCP configuration. The secret value is never returned.",
+        "operationId": "getGroupMcpConfigSecret",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc012",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the secret.",
+            "in": "path",
+            "name": "secretId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc013",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceAccountSecret"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Secret for One Project MCP Configuration",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations getGroupMcpSecret --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupMcpConfigSecretApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tGetGroupMcpConfigSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getGroupMcpConfigSecret",
+        "x-xgen-operation-id-override": "getGroupMcpSecret"
       }
     },
     "/api/atlas/v2/groups/{groupId}/mongoDBVersions": {
@@ -100347,6 +102082,795 @@
         "x-xgen-operation-id-override": "createLinkToken"
       }
     },
+    "/api/atlas/v2/orgs/{orgId}/mcpConfigs": {
+      "get": {
+        "description": "Returns all MCP configurations associated with the specified organization.",
+        "operationId": "listOrgMcpConfigs",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedOrgMcpConfigView"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All MCP Configurations for One Organization",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations listOrgMcpConfigs --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListOrgMcpConfigsApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tListOrgMcpConfigsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listOrgMcpConfigs"
+      },
+      "post": {
+        "description": "Creates an MCP configuration for the specified organization. Returns the configuration ID and ingress credentials.",
+        "operationId": "createOrgMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/orgId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrgMcpConfigRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "MCP configuration to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One MCP Configuration for One Organization",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations createOrgMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateOrgMcpConfigApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tCreateOrgMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createOrgMcpConfig"
+      }
+    },
+    "/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}": {
+      "delete": {
+        "description": "Deletes the MCP configuration with the specified ID for the specified organization.",
+        "operationId": "deleteOrgMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration to delete.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Flag that indicates whether to delete the MCP configuration even if it has active secrets. If false and active secrets exist, the request returns an error. Defaults to false.",
+            "in": "query",
+            "name": "cascading",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete One MCP Configuration for One Organization",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations deleteOrgMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteOrgMcpConfigApiParams{}\n\thttpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tDeleteOrgMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteOrgMcpConfig"
+      },
+      "get": {
+        "description": "Returns the MCP configuration with the specified ID for the specified organization.",
+        "operationId": "getOrgMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One MCP Configuration for One Organization",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations getOrgMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetOrgMcpConfigApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tGetOrgMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getOrgMcpConfig"
+      },
+      "patch": {
+        "description": "Updates the specified MCP configuration for the organization. Supports partial updates: only provided fields are changed.",
+        "operationId": "updateOrgMcpConfig",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration to update.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "b9254bc4-d6cc-4325-abf4-fb9d2a9de00a",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgMcpConfigUpdateRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "MCP configuration fields to update.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgMcpConfigResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One MCP Configuration for One Organization",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations updateOrgMcpConfig --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateOrgMcpConfigApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tUpdateOrgMcpConfigWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/updateOrgMcpConfig"
+      }
+    },
+    "/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets": {
+      "get": {
+        "description": "Returns metadata for all secrets on the ingress service account of the specified organization-level MCP configuration. Secret values are never returned.",
+        "operationId": "listOrgMcpConfigSecrets",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc012",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedMcpConfigSecretView"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Secrets for One Organization MCP Configuration",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations listOrgMcpSecrets --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListOrgMcpConfigSecretsApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tListOrgMcpConfigSecretsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listOrgMcpConfigSecrets",
+        "x-xgen-operation-id-override": "listOrgMcpSecrets"
+      },
+      "post": {
+        "description": "Creates a new secret on the ingress service account of the specified organization-level MCP configuration. The plain-text secret value is returned only in this response and is never shown again.",
+        "operationId": "createOrgMcpConfigSecret",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc012",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceAccountSecretRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "Secret creation request.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceAccountSecret"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Secret for One Organization MCP Configuration",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations createOrgMcpSecret --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateOrgMcpConfigSecretApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tCreateOrgMcpConfigSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createOrgMcpConfigSecret",
+        "x-xgen-operation-id-override": "createOrgMcpSecret"
+      }
+    },
+    "/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}": {
+      "delete": {
+        "description": "Deletes the specified secret from the ingress service account of the specified organization-level MCP configuration.",
+        "operationId": "deleteOrgMcpConfigSecret",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc012",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the secret.",
+            "in": "path",
+            "name": "secretId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc013",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete One Secret for One Organization MCP Configuration",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations deleteOrgMcpSecret --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteOrgMcpConfigSecretApiParams{}\n\thttpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tDeleteOrgMcpConfigSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteOrgMcpConfigSecret",
+        "x-xgen-operation-id-override": "deleteOrgMcpSecret"
+      },
+      "get": {
+        "description": "Returns metadata for the specified secret on the ingress service account of an organization-level MCP configuration. The secret value is never returned.",
+        "operationId": "getOrgMcpConfigSecret",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique identifier of the MCP configuration.",
+            "in": "path",
+            "name": "mcpConfigId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc012",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the secret.",
+            "in": "path",
+            "name": "secretId",
+            "required": true,
+            "schema": {
+              "example": "32b6e34b3d91647adeabc013",
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceAccountSecret"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Secret for One Organization MCP Configuration",
+        "tags": [
+          "Remote MCP Configurations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api remoteMcpConfigurations getOrgMcpSecret --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetOrgMcpConfigSecretApiParams{}\n\tsdkResp, httpResp, err := client.RemoteMCPConfigurationsApi.\n\t\tGetOrgMcpConfigSecretWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getOrgMcpConfigSecret",
+        "x-xgen-operation-id-override": "getOrgMcpSecret"
+      }
+    },
     "/api/atlas/v2/orgs/{orgId}/nonCompliantResources": {
       "get": {
         "description": "Return all non-compliant resources for an organization.",
@@ -105013,6 +107537,165 @@
         "x-xgen-operation-id-override": "listControlPlaneAddresses"
       }
     },
+    "/api/atlas/v2/unauth/ephemeralClusters/{clusterId}": {
+      "get": {
+        "description": "Returns the current status of an ephemeral Atlas cluster.",
+        "operationId": "getEphemeralCluster",
+        "parameters": [
+          {
+            "description": "Unique ID of the ephemeral cluster to look up.",
+            "in": "path",
+            "name": "clusterId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EphemeralClusterStatusResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [],
+        "summary": "Return One Ephemeral Atlas Cluster",
+        "tags": [
+          "Ephemeral Clusters"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api ephemeralClusters getEphemeralCluster --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetEphemeralClusterApiParams{}\n\tsdkResp, httpResp, err := client.EphemeralClustersApi.\n\t\tGetEphemeralClusterWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/unauth/ephemeralClusters/{clusterId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/unauth/ephemeralClusters/{clusterId}?pretty=true\""
+          }
+        ],
+        "x-xgen-atlascli": {
+          "skip": true
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/getEphemeralCluster"
+      }
+    },
+    "/api/atlas/v2/unauth/ephemeralClusters:create": {
+      "post": {
+        "description": "Creates an ephemeral Atlas cluster for users or agents.",
+        "operationId": "createEphemeralCluster",
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEphemeralClusterRequest"
+              }
+            }
+          },
+          "description": "Ephemeral cluster to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EphemeralClusterCreated"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "security": [],
+        "summary": "Create an Ephemeral Atlas Cluster",
+        "tags": [
+          "Ephemeral Clusters"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api ephemeralClusters createEphemeralCluster --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateEphemeralClusterApiParams{}\n\tsdkResp, httpResp, err := client.EphemeralClustersApi.\n\t\tCreateEphemeralClusterWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/unauth/ephemeralClusters:create\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/unauth/ephemeralClusters:create\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-xgen-atlascli": {
+          "skip": true
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/createEphemeralCluster"
+      }
+    },
     "/api/atlas/v2/users": {
       "post": {
         "deprecated": true,
@@ -105381,6 +108064,10 @@
       "name": "Encryption at Rest using Customer Key Management"
     },
     {
+      "description": "Provisions and returns the status of ephemeral Atlas clusters through an unauthenticated flow. A human can later claim an ephemeral cluster to convert it into a permanent Atlas cluster.",
+      "name": "Ephemeral Clusters"
+    },
+    {
       "description": "Returns events. This collection remains under revision and may change.",
       "name": "Events"
     },
@@ -105471,6 +108158,10 @@
         "url": "http://dochub.mongodb.org/core/atlas-api-rate-limit"
       },
       "name": "Rate Limiting"
+    },
+    {
+      "description": "Returns and manages Remote MCP configurations for organizations and projects.",
+      "name": "Remote MCP Configurations"
     },
     {
       "description": "Configure and manage Atlas Resource Policies within your organization.",
