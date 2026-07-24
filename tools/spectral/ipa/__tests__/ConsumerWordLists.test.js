@@ -1,7 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { Spectral } from '@stoplight/spectral-core';
+import { Document, Spectral } from '@stoplight/spectral-core';
+import * as Parsers from '@stoplight/spectral-parsers';
 import { httpAndFileResolver } from '@stoplight/spectral-ref-resolver';
 import { bundleAndLoadRuleset } from '@stoplight/spectral-ruleset-bundler/with-loader';
 
@@ -31,7 +32,9 @@ async function runFullRuleset(document) {
   const s = new Spectral({ resolver: httpAndFileResolver });
   const ruleset = Object(await bundleAndLoadRuleset(rulesetPath, { fs, fetch }));
   s.setRuleset(ruleset);
-  return s.run(JSON.stringify(document));
+  // ipa-spectral.yaml declares path-based `overrides`, so Spectral requires the
+  // document to have a source assigned.
+  return s.run(new Document(JSON.stringify(document), Parsers.Json, 'openapi.json'));
 }
 
 describe('Consumer-provided word lists via functionOptions', () => {

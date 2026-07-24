@@ -85,8 +85,10 @@ use two configurable lists:
 - `grammaticalWords`: common words allowed to stay lowercase in titles (e.g. `and`, `or`, `the`)
 
 Both lists are passed to the rule functions through Spectral's native `functionOptions`. Consumers who
-extend the ruleset can provide their own lists by redeclaring the rule in their `.spectral.yaml`, without
-editing this package or waiting for a new release:
+extend the ruleset can provide their own lists by redeclaring the rule **in their own repository's
+`.spectral.yaml`**, without editing this package or waiting for a new release. This is done in the
+repository that _consumes_ the ruleset, not in this `openapi` repository — note the `extends` on the
+published package below:
 
 ```yaml
 extends:
